@@ -2,30 +2,23 @@ package core
 
 import (
 	"seanime/internal/extension"
-	"seanime/internal/manga/providers"
-	"seanime/internal/onlinestream/providers"
+	"seanime/internal/extension_repo"
+	manga_providers "seanime/internal/manga/providers"
+	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/torrents/animetosho"
 	"seanime/internal/torrents/nyaa"
 	"seanime/internal/torrents/seadex"
+
+	"github.com/rs/zerolog"
 )
 
-func (a *App) LoadBuiltInExtensions() {
-
-	var consumers = []extension.Consumer{
-		a.MangaRepository,
-		a.OnlinestreamRepository,
-		a.TorrentRepository,
-	}
-
-	for _, consumer := range consumers {
-		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-	}
+func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zerolog.Logger) {
 
 	//
 	// Built-in manga providers
 	//
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "comick",
 		Name:        "ComicK",
 		Version:     "",
@@ -36,9 +29,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Description: "",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
-	}, manga_providers.NewComicK(a.Logger))
+	}, manga_providers.NewComicK(logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "comick-multi",
 		Name:        "ComicK (Multi)",
 		Version:     "",
@@ -49,9 +42,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Description: "",
 		Lang:        "multi",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
-	}, manga_providers.NewComicKMulti(a.Logger))
+	}, manga_providers.NewComicKMulti(logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "mangapill",
 		Name:        "Mangapill",
 		Version:     "",
@@ -61,9 +54,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangapill.png",
-	}, manga_providers.NewMangapill(a.Logger))
+	}, manga_providers.NewMangapill(logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "weebcentral",
 		Name:        "WeebCentral",
 		Version:     "",
@@ -73,9 +66,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/weebcentral.png",
-	}, manga_providers.NewWeebCentral(a.Logger))
+	}, manga_providers.NewWeebCentral(logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "mangadex",
 		Name:        "Mangadex",
 		Version:     "",
@@ -85,9 +78,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
-	}, manga_providers.NewMangadex(a.Logger))
+	}, manga_providers.NewMangadex(logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "manganato",
 		Name:        "Manganato",
 		Version:     "",
@@ -97,13 +90,13 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
-	}, manga_providers.NewManganato(a.Logger))
+	}, manga_providers.NewManganato(logger))
 
 	//
 	// Built-in online stream providers
 	//
 
-	//a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	//extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
 	//	ID:          "gogoanime",
 	//	Name:        "Gogoanime",
 	//	Version:     "",
@@ -113,9 +106,9 @@ func (a *App) LoadBuiltInExtensions() {
 	//	Author:      "Seanime",
 	//	Lang:        "en",
 	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
-	//}, onlinestream_providers.NewGogoanime(a.Logger))
+	//}, onlinestream_providers.NewGogoanime(logger))
 
-	//a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	//extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
 	//	ID:          "zoro",
 	//	Name:        "Hianime",
 	//	Version:     "",
@@ -125,9 +118,9 @@ func (a *App) LoadBuiltInExtensions() {
 	//	Author:      "Seanime",
 	//	Lang:        "en",
 	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
-	//}, onlinestream_providers.NewZoro(a.Logger))
+	//}, onlinestream_providers.NewZoro(logger))
 
-	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtensionJS(extension.Extension{
+	extensionRepository.LoadBuiltInOnlinestreamProviderExtensionJS(extension.Extension{
 		ID:          "animepahe",
 		Name:        "Animepahe",
 		Version:     "",
@@ -144,7 +137,7 @@ func (a *App) LoadBuiltInExtensions() {
 	// Built-in torrent providers
 	//
 
-	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:          "nyaa",
 		Name:        "Nyaa",
 		Version:     "",
@@ -154,9 +147,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
-	}, nyaa.NewProvider(a.Logger))
+	}, nyaa.NewProvider(logger))
 
-	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:          "nyaa-sukebei",
 		Name:        "Nyaa Sukebei",
 		Version:     "",
@@ -166,9 +159,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
-	}, nyaa.NewSukebeiProvider(a.Logger))
+	}, nyaa.NewSukebeiProvider(logger))
 
-	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:          "animetosho",
 		Name:        "AnimeTosho",
 		Version:     "",
@@ -178,9 +171,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animetosho.png",
-	}, animetosho.NewProvider(a.Logger))
+	}, animetosho.NewProvider(logger))
 
-	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:          "seadex",
 		Name:        "SeaDex",
 		Version:     "",
@@ -190,13 +183,20 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png",
-	}, seadex.NewProvider(a.Logger))
+	}, seadex.NewProvider(logger))
 
+	extensionRepository.ReloadExternalExtensions()
 }
 
-func (a *App) LoadOrRefreshExternalExtensions() {
+func (a *App) AddExtensionBankToConsumers() {
 
-	// Always called after loading built-in extensions
-	a.ExtensionRepository.ReloadExternalExtensions()
+	var consumers = []extension.Consumer{
+		a.MangaRepository,
+		a.OnlinestreamRepository,
+		a.TorrentRepository,
+	}
 
+	for _, consumer := range consumers {
+		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	}
 }

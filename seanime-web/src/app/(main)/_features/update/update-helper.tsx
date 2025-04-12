@@ -1,4 +1,5 @@
 import { Updater_Update } from "@/api/generated/types"
+import { useGetChangelog } from "@/api/hooks/releases.hooks"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 
@@ -15,36 +16,63 @@ export function UpdateChangelogBody(props: UpdateChangelogBodyProps) {
         ...rest
     } = props
 
+    const { data: changelog } = useGetChangelog(updateData?.release?.version!, updateData?.current_version!, !!updateData?.release?.version! && !!updateData?.current_version)
+
     const { body } = useUpdateChangelogBody(updateData)
+
+    function RenderLines({ lines }: { lines: string[] }) {
+        return <>
+            {lines.map((line, index) => {
+                if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
+                    <AiFillExclamationCircle /></p>
+                if (line.includes("🎉")) return <p key={index} className="text-white">{line}</p>
+                if (line.includes("✨")) return <p key={index} className="text-white">{line}</p>
+                if (line.includes("⚡️")) return <p key={index} className="">{line}</p>
+                if (line.includes("💄")) return <p key={index} className="">{line}</p>
+                if (line.includes("🦺")) return <p key={index} className="">{line}</p>
+                if (line.includes("⬆️")) return <p key={index} className="">{line}</p>
+                if (line.includes("🏗️")) return <p key={index} className="">{line}</p>
+                if (line.includes("🚀")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔧")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔍")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔒")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔑")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔗")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔨")) return <p key={index} className="">{line}</p>
+                if (line.includes("🎨")) return <p key={index} className="">{line}</p>
+                if (line.includes("📝")) return <p key={index} className="">{line}</p>
+                if (line.includes("♻️")) return <p key={index} className="">{line}</p>
+                if (line.includes("🔄")) return <p key={index} className="">{line}</p>
+                if (line.includes("⏪️")) return <p key={index} className="">{line}</p>
+                if (line.includes("🩹")) return <p key={index} className="">{line}</p>
+                return (
+                    <p key={index} className="opacity-75 pl-4 text-sm">{line}<br /></p>
+                )
+            })}
+        </>
+    }
 
     return (
         <>
-            {body.some(n => n.includes("🚑️")) &&
-                <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
-            <div className="rounded-[--radius] space-y-1.5">
-                <h5>What's new?</h5>
-                {body.map((line, index) => {
-                    if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
-                        <AiFillExclamationCircle /></p>
-                    if (line.includes("🎉")) return <p key={index} className="text-white">{line}</p>
-                    if (line.includes("✨")) return <p key={index} className="text-white">{line}</p>
-                    if (line.includes("⚡️")) return <p key={index} className="">{line}</p>
-                    if (line.includes("💄")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🦺")) return <p key={index} className="">{line}</p>
-                    if (line.includes("⬆️")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🏗️")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🚀")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔧")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔍")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔒")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔑")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔗")) return <p key={index} className="">{line}</p>
-                    if (line.includes("🔨")) return <p key={index} className="">{line}</p>
+            <div className="bg-gray-950/50 rounded-[--radius] p-4 max-h-[70vh] overflow-y-auto halo-2">
+                {body.some(n => n.includes("🚑️")) &&
+                    <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
+                <div className="rounded-[--radius] space-y-1">
+                    <h5>What's new?</h5>
+                    <RenderLines lines={body} />
+                </div>
+            </div>
 
-                    return (
-                        <p key={index} className="text-[--muted] pl-4 text-sm">{line}<br /></p>
-                    )
-                })}
+            <p className="text-center font-semibold">Other updates you've missed</p>
+            <div className="bg-gray-950/50 rounded-[--radius] p-4 max-h-[40vh] overflow-y-auto space-y-1.5">
+                {changelog?.map((item) => (
+                    <div key={item.version} className="rounded-[--radius]">
+                        <p key={item.version} className="text-center font-bold">{item.version}</p>
+                        <div className="text-sm">
+                            <RenderLines lines={item.lines} />
+                        </div>
+                    </div>
+                ))}
             </div>
         </>
     )

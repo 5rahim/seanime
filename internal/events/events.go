@@ -1,5 +1,17 @@
 package events
 
+type WebsocketClientEventType string
+
+const (
+	PluginEvent WebsocketClientEventType = "plugin"
+)
+
+type WebsocketClientEvent struct {
+	ClientID string                   `json:"clientId"`
+	Type     WebsocketClientEventType `json:"type"`
+	Payload  interface{}              `json:"payload"`
+}
+
 const (
 	AnilistDataLoaded = "anilist-data-loaded" // The anilist data has been loaded
 
@@ -39,6 +51,7 @@ const (
 	MediastreamShutdownStream = "mediastream-shutdown-stream"
 
 	ExtensionsReloaded = "extensions-reloaded"
+	PluginUnloaded     = "plugin-unloaded"
 
 	ActiveTorrentCountUpdated = "active-torrent-count-updated"
 
@@ -47,6 +60,8 @@ const (
 	SyncAnilistFinished = "sync-anilist-finished"
 
 	DebridDownloadProgress = "debrid-download-progress"
+	DebridStreamState      = "debrid-stream-state"
 
-	DebridStreamState = "debrid-stream-state"
+	InvalidateQueries = "invalidate-queries"
+	ConsoleLog        = "console-log"
 )

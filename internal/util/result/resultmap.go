@@ -59,6 +59,17 @@ func (c *Map[K, V]) Clear() {
 	})
 }
 
+// ClearN clears the map and returns the number of items cleared
+func (c *Map[K, V]) ClearN() int {
+	count := 0
+	c.store.Range(func(key interface{}, value interface{}) bool {
+		c.store.Delete(key)
+		count++
+		return true
+	})
+	return count
+}
+
 func (c *Map[K, V]) Range(callback func(key K, value V) bool) {
 	c.store.Range(func(key, value interface{}) bool {
 		ci := value.(*mapItem[K, V])

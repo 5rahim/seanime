@@ -111,7 +111,8 @@ export function ServerSettings(props: ServerSettingsProps) {
                     side="right"
                     name="autoUpdateProgress"
                     label="Automatically update progress"
-                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+                    help="If enabled, your progress will be automatically updated when you watch 80% of an episode."
+                    moreHelp="Only applies to desktop and integrated players."
                 />
                 {/*<Separator />*/}
                 <Field.Switch
@@ -119,6 +120,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                     name="enableWatchContinuity"
                     label="Enable watch history"
                     help="If enabled, Seanime will remember your watch progress and resume from where you left off."
+                    moreHelp="Only applies to desktop and integrated players."
                 />
 
             </SettingsCard>
@@ -129,7 +131,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                     side="right"
                     name="autoSyncOfflineLocalData"
                     label="Automatically refresh local data"
-                    help="If enabled, local data will periodically be refreshed using current AniList data."
+                    help="If enabled, local data will be refreshed periodically using current AniList data."
                     moreHelp="Only if no offline changes have been made."
                 />
 

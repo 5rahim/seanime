@@ -2,9 +2,12 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     FetchExternalExtensionData_Variables,
     GetAllExtensions_Variables,
+    GrantPluginPermissions_Variables,
     InstallExternalExtension_Variables,
+    ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
     SaveExtensionUserConfig_Variables,
+    SetPluginSettingsPinnedTrays_Variables,
     UninstallExternalExtension_Variables,
     UpdateExtensionCode_Variables,
 } from "@/api/generated/endpoint.types"
@@ -17,16 +20,18 @@ import {
     ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
+    ExtensionRepo_StoredPluginSettingsData,
     Nullish,
     RunPlaygroundCodeResponse,
 } from "@/api/generated/types"
+import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 export function useGetAllExtensions(withUpdates: boolean) {
     return useServerQuery<ExtensionRepo_AllExtensions, GetAllExtensions_Variables>({
         endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
-        queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key, withUpdates],
         data: {
             withUpdates: withUpdates,
         },
@@ -66,6 +71,15 @@ export function useUninstallExternalExtension() {
             // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Extension uninstalled successfully.")
         },
+    })
+}
+
+export function useGetExtensionPayload(id: string) {
+    return useServerQuery<string>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.endpoint.replace("{id}", id),
+        method: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.key, id],
+        enabled: true,
     })
 }
 
@@ -157,6 +171,64 @@ export function useSaveExtensionUserConfig() {
         onSuccess: async () => {
             // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Config saved successfully.")
+        },
+    })
+}
+
+export function useListDevelopmentModeExtensions() {
+    return useServerQuery<Array<Extension_Extension>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key],
+        enabled: true,
+    })
+}
+
+export function useReloadExternalExtension() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean, ReloadExternalExtension_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.key],
+        onSuccess: async () => {
+            toast.success("Extension reloaded successfully.")
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+            // DEVNOTE: No need to refetch, the websocket listener will do it
+        },
+    })
+}
+
+export function useGetPluginSettings() {
+    return useServerQuery<ExtensionRepo_StoredPluginSettingsData>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key],
+        enabled: true,
+    })
+}
+
+export function useSetPluginSettingsPinnedTrays() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean, SetPluginSettingsPinnedTrays_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
+        onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+        },
+    })
+}
+
+export function useGrantPluginPermissions() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean, GrantPluginPermissions_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
+        onSuccess: async () => {
+            toast.success("Plugin permissions granted successfully.")
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
         },
     })
 }

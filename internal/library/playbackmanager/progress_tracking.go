@@ -45,6 +45,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// Send event to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStarted, _ps)
 
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.PlaybackStateCh <- _ps
+						value.PlaybackStatusCh <- *status
+						value.VideoStartedCh <- status.Filename
+						return true
+					})
+				}()
+
 				// Retrieve data about the current video playback
 				// Set PlaybackManager.currentMediaListEntry to the list entry of the current video
 				currentMediaListEntry, currentLocalFile, currentLocalFileWrapperEntry, err := pm.getLocalFilePlaybackDetails(status.Filename)
@@ -97,6 +107,15 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// Log
 				pm.Logger.Debug().Msg("playback manager: Received video completed event")
 
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.PlaybackStateCh <- _ps
+						value.PlaybackStatusCh <- *status
+						return true
+					})
+				}()
+
 				//
 				// Update the progress on AniList if auto update progress is enabled
 				//
@@ -130,6 +149,14 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					}
 				}
 
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.VideoStoppedCh <- reason
+						return true
+					})
+				}()
+
 				if pm.currentMediaPlaybackStatus != nil {
 					pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 				}
@@ -155,6 +182,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				if h, ok := pm.historyMap[status.Filename]; ok {
 					_ps.ProgressUpdated = h.ProgressUpdated
 				}
+
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.PlaybackStateCh <- _ps
+						value.PlaybackStatusCh <- *status
+						return true
+					})
+				}()
+
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
@@ -197,6 +234,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// Get the playback state
 				_ps := pm.getStreamPlaybackState(status)
 
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.StreamStateCh <- _ps
+						value.StreamStatusCh <- *status
+						value.StreamStartedCh <- status.Filename
+						return true
+					})
+				}()
+
 				// Log
 				pm.Logger.Debug().Msg("playback manager: Tracking started for stream")
 				// Send event to the client
@@ -236,6 +283,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				if h, ok := pm.historyMap[status.Filename]; ok {
 					_ps.ProgressUpdated = h.ProgressUpdated
 				}
+
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.StreamStateCh <- _ps
+						value.StreamStatusCh <- *status
+						return true
+					})
+				}()
+
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
@@ -254,6 +311,15 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// Log
 				pm.Logger.Debug().Msg("playback manager: Received video completed event")
 
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.StreamStateCh <- _ps
+						value.StreamStatusCh <- *status
+						value.StreamCompletedCh <- status.Filename
+						return true
+					})
+				}()
 				//
 				// Update the progress on AniList if auto update progress is enabled
 				//
@@ -276,6 +342,14 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				if pm.currentMediaPlaybackStatus != nil {
 					pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 				}
+
+				// Notify subscribers
+				go func() {
+					pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+						value.StreamStoppedCh <- reason
+						return true
+					})
+				}()
 
 				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, reason)

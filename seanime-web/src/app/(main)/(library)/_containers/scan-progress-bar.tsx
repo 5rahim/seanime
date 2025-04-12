@@ -44,11 +44,7 @@ export function ScanProgressBar() {
 
     return (
         <>
-            <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
-                {/*<div*/}
-                {/*    className="bg-brand h-3 text-xs font-medium text-blue-100 text-center p-0.5 leading-none transition-all"*/}
-                {/*    style={{ width: progress + "%" }}*/}
-                {/*/>*/}
+            <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]" data-scan-progress-bar-container>
                 <ProgressBar size="xs" value={progress} />
             </div>
             {/*<div className="fixed left-0 top-8 w-full flex justify-center z-[100]">*/}
@@ -57,9 +53,9 @@ export function ScanProgressBar() {
             {/*        <p>{progress}% - {status}</p>*/}
             {/*    </div>*/}
             {/*</div>*/}
-            <div className="z-50 fixed bottom-4 right-4">
+            <div className="z-50 fixed bottom-4 right-4" data-scan-progress-bar-card-container>
                 <PageWrapper>
-                    <Card className="w-fit max-w-[400px] relative">
+                    <Card className="w-fit max-w-[400px] relative" data-scan-progress-bar-card>
                         <CardHeader>
                             <CardDescription className="flex items-center gap-2 text-base text-[--foregorund]">
                                 <Spinner className="size-6" /> {progress}% - {status}

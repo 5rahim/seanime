@@ -12,7 +12,7 @@ export function MediaEntryPageLoadingDisplay() {
     }
 
     return (
-        <div className="__header h-[30rem] fixed left-0 top-0 w-full">
+        <div data-media-entry-page-loading-display className="__header h-[30rem] fixed left-0 top-0 w-full">
             <div
                 className={cn(
                     "h-[30rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden",

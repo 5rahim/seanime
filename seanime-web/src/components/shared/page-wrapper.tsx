@@ -17,8 +17,9 @@ export function PageWrapper(props: PageWrapperProps) {
     } = props
 
     return (
-        <div>
+        <div data-page-wrapper-container>
             <motion.div
+                data-page-wrapper
                 {...PAGE_TRANSITION}
                 {...rest as any}
                 className={cn("z-[5] relative", className)}

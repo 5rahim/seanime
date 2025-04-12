@@ -2,11 +2,12 @@ package autodownloader
 
 import (
 	"errors"
-	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/samber/lo"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"sync"
+
+	"github.com/5rahim/habari"
+	"github.com/samber/lo"
 )
 
 type (
@@ -14,8 +15,8 @@ type (
 	// It is used to normalize the data from different providers so that it can be used by the AutoDownloader.
 	NormalizedTorrent struct {
 		hibiketorrent.AnimeTorrent
-		ParsedData *habari.Metadata
-		magnet     string // Access using GetMagnet()
+		ParsedData *habari.Metadata `json:"parsedData"`
+		magnet     string           // Access using GetMagnet()
 	}
 )
 

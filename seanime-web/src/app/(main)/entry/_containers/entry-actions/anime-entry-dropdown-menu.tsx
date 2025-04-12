@@ -2,6 +2,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
+import { PluginAnimePageDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __bulkDeleteFilesModalIsOpenAtom,
@@ -24,7 +25,7 @@ import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi
 import { FiDownload, FiTrash } from "react-icons/fi"
 import { LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
-import { PiImagesSquareFill, PiVideoFill } from "react-icons/pi"
+import { PiVideoFill } from "react-icons/pi"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
@@ -46,7 +47,15 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="md" />}>
+            <DropdownMenu
+                data-anime-entry-dropdown-menu
+                trigger={<IconButton
+                    data-anime-entry-dropdown-menu-trigger
+                    icon={<BiDotsVerticalRounded />}
+                    intent="gray-basic"
+                    size="md"
+                />}
+            >
 
                 {inLibrary && <>
                     <DropdownMenuItem
@@ -93,12 +102,16 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                         <span className="flex items-center gap-2"><FiTrash className="text-lg" /> Delete some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
                 </>}
+
+                <PluginAnimePageDropdownItems media={entry.media!} />
+
             </DropdownMenu>
 
             <AnimeEntryDownloadFilesModal entry={entry} />
             <AnimeEntryMetadataManager entry={entry} />
             <AnimeEntryBulkDeleteFilesModal entry={entry} />
             <AnimeEntryUnmatchFilesModal entry={entry} />
+
         </>
     )
 }

@@ -146,7 +146,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
 						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
-						entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+						entryEp.EpisodeTitle = opts.LocalFile.GetParsedEpisodeTitle()
 					}
 				}
 				hydrated = true // Hydrated
@@ -200,7 +200,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 
 			if episodeInt, ok := metadata.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
-				entryEp.ProgressNumber = episodeInt
+				entryEp.ProgressNumber = episodeInt + opts.ProgressOffset
 				entryEp.AniDBEpisode = opts.OptionalAniDBEpisode
 				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnimeMetadata.GetOffset()
 				switch entryEp.Type {
@@ -324,7 +324,7 @@ func NewSimpleEpisode(opts *NewSimpleEpisodeOptions) *Episode {
 					entryEp.EpisodeTitle = "Complete Movie"
 				} else {
 					entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
-					entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+					entryEp.EpisodeTitle = opts.LocalFile.GetParsedEpisodeTitle()
 				}
 
 				hydrated = true // Hydrated

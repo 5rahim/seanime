@@ -2869,6 +2869,43 @@
     }
   },
   {
+    "name": "HandleReloadExternalExtension",
+    "trimmedName": "ReloadExternalExtension",
+    "comments": [
+      "HandleReloadExternalExtension",
+      "",
+      "\t@summary reloads the external extension with the given ID.",
+      "\t@route /api/v1/extensions/external/reload [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "reloads the external extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/reload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleListExtensionData",
     "trimmedName": "ListExtensionData",
     "comments": [
@@ -2885,6 +2922,60 @@
       "summary": "returns the loaded extensions",
       "descriptions": [],
       "endpoint": "/api/v1/extensions/list",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Array\u003cExtension_Extension\u003e"
+    }
+  },
+  {
+    "name": "HandleGetExtensionPayload",
+    "trimmedName": "GetExtensionPayload",
+    "comments": [
+      "HandleGetExtensionPayload",
+      "",
+      "\t@summary returns the payload of the extension with the given ID.",
+      "\t@route /api/v1/extensions/payload/{id} [GET]",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the payload of the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/payload/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
+    "name": "HandleListDevelopmentModeExtensions",
+    "trimmedName": "ListDevelopmentModeExtensions",
+    "comments": [
+      "HandleListDevelopmentModeExtensions",
+      "",
+      "\t@summary returns the development mode extensions",
+      "\t@route /api/v1/extensions/list/development [GET]",
+      "\t@returns []extension.Extension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the development mode extensions",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/development",
       "methods": [
         "GET"
       ],
@@ -3011,6 +3102,107 @@
       "returns": "[]extension_repo.AnimeTorrentProviderExtensionItem",
       "returnGoType": "extension_repo.AnimeTorrentProviderExtensionItem",
       "returnTypescriptType": "Array\u003cExtensionRepo_AnimeTorrentProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleGetPluginSettings",
+    "trimmedName": "GetPluginSettings",
+    "comments": [
+      "HandleGetPluginSettings",
+      "",
+      "\t@summary returns the plugin settings.",
+      "\t@route /api/v1/extensions/plugin-settings [GET]",
+      "\t@returns extension_repo.StoredPluginSettingsData",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the plugin settings.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/plugin-settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "extension_repo.StoredPluginSettingsData",
+      "returnGoType": "extension_repo.StoredPluginSettingsData",
+      "returnTypescriptType": "ExtensionRepo_StoredPluginSettingsData"
+    }
+  },
+  {
+    "name": "HandleSetPluginSettingsPinnedTrays",
+    "trimmedName": "SetPluginSettingsPinnedTrays",
+    "comments": [
+      "HandleSetPluginSettingsPinnedTrays",
+      "",
+      "\t@summary sets the pinned trays in the plugin settings.",
+      "\t@route /api/v1/extensions/plugin-settings/pinned-trays [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "sets the pinned trays in the plugin settings.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/plugin-settings/pinned-trays",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "PinnedTrayPluginIds",
+          "jsonName": "pinnedTrayPluginIds",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGrantPluginPermissions",
+    "trimmedName": "GrantPluginPermissions",
+    "comments": [
+      "HandleGrantPluginPermissions",
+      "",
+      "\t@summary grants the plugin permissions to the extension with the given ID.",
+      "\t@route /api/v1/extensions/plugin-permissions/grant [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "grants the plugin permissions to the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/plugin-permissions/grant",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -3910,30 +4102,67 @@
     }
   },
   {
-    "name": "HandleGetMangaChapterCountMap",
-    "trimmedName": "GetMangaChapterCountMap",
+    "name": "HandleGetMangaLatestChapterNumbersMap",
+    "trimmedName": "GetMangaLatestChapterNumbersMap",
     "comments": [
-      "HandleGetMangaChapterCountMap",
+      "HandleGetMangaLatestChapterNumbersMap",
       "",
-      "\t@summary returns the chapter count map for all manga entries.",
-      "\t@route /api/v1/manga/chapter-counts [GET]",
-      "\t@returns map[int]int",
+      "\t@summary returns the latest chapter number for all manga entries.",
+      "\t@route /api/v1/manga/latest-chapter-numbers [GET]",
+      "\t@returns map[int][]manga.MangaLatestChapterNumberItem",
       ""
     ],
     "filepath": "internal/handlers/manga.go",
     "filename": "manga.go",
     "api": {
-      "summary": "returns the chapter count map for all manga entries.",
+      "summary": "returns the latest chapter number for all manga entries.",
       "descriptions": [],
-      "endpoint": "/api/v1/manga/chapter-counts",
+      "endpoint": "/api/v1/manga/latest-chapter-numbers",
       "methods": [
         "GET"
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "map[int]int",
-      "returnGoType": "int",
-      "returnTypescriptType": "Record\u003cnumber, number\u003e"
+      "returns": "map[int][]manga.MangaLatestChapterNumberItem",
+      "returnGoType": "manga.MangaLatestChapterNumberItem",
+      "returnTypescriptType": "Record\u003cnumber, Array\u003cManga_MangaLatestChapterNumberItem\u003e\u003e"
+    }
+  },
+  {
+    "name": "HandleRefetchMangaChapterContainers",
+    "trimmedName": "RefetchMangaChapterContainers",
+    "comments": [
+      "HandleRefetchMangaChapterContainers",
+      "",
+      "\t@summary refetches the chapter containers for all manga entries previously cached.",
+      "\t@route /api/v1/manga/refetch-chapter-containers [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "refetches the chapter containers for all manga entries previously cached.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/refetch-chapter-containers",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "SelectedProviderMap",
+          "jsonName": "selectedProviderMap",
+          "goType": "map[int]string",
+          "usedStructType": "",
+          "typescriptType": "Record\u003cnumber, string\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -4347,7 +4576,7 @@
       "\t@summary returns search results for a manual search.",
       "\t@desc Returns search results for a manual search.",
       "\t@route /api/v1/manga/search [POST]",
-      "\t@returns []vendor_hibike_manga.SearchResult",
+      "\t@returns []hibikemanga.SearchResult",
       ""
     ],
     "filepath": "internal/handlers/manga.go",
@@ -4382,8 +4611,8 @@
           "descriptions": []
         }
       ],
-      "returns": "[]vendor_hibike_manga.SearchResult",
-      "returnGoType": "vendor_hibike_manga.SearchResult",
+      "returns": "[]hibikemanga.SearchResult",
+      "returnGoType": "hibikemanga.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeManga_SearchResult\u003e"
     }
   },
@@ -5515,7 +5744,7 @@
       "\t@summary returns search results for a manual search.",
       "\t@desc Returns search results for a manual search.",
       "\t@route /api/v1/onlinestream/search [POST]",
-      "\t@returns []vendor_hibike_onlinestream.SearchResult",
+      "\t@returns []hibikeonlinestream.SearchResult",
       ""
     ],
     "filepath": "internal/handlers/onlinestream.go",
@@ -5559,8 +5788,8 @@
           "descriptions": []
         }
       ],
-      "returns": "[]vendor_hibike_onlinestream.SearchResult",
-      "returnGoType": "vendor_hibike_onlinestream.SearchResult",
+      "returns": "[]hibikeonlinestream.SearchResult",
+      "returnGoType": "hibikeonlinestream.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeOnlinestream_SearchResult\u003e"
     }
   },
@@ -6430,6 +6659,34 @@
     }
   },
   {
+    "name": "HandleGetChangelog",
+    "trimmedName": "GetChangelog",
+    "comments": [
+      "HandleGetChangelog",
+      "",
+      "\t@summary returns the changelog for versions greater than or equal to the given version.",
+      "\t@route /api/v1/changelog [GET]",
+      "\t@param before query string true \"The version to get the changelog for.\"",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/releases.go",
+    "filename": "releases.go",
+    "api": {
+      "summary": "returns the changelog for versions greater than or equal to the given version.",
+      "descriptions": [],
+      "endpoint": "/api/v1/changelog",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleSaveIssueReport",
     "trimmedName": "SaveIssueReport",
     "comments": [
@@ -6597,7 +6854,7 @@
       "",
       "\t@summary returns the latest scan summaries.",
       "\t@route /api/v1/library/scan-summaries [GET]",
-      "\t@returns []db.ScanSummaryItem",
+      "\t@returns []summary.ScanSummaryItem",
       ""
     ],
     "filepath": "internal/handlers/scan_summary.go",
@@ -6611,9 +6868,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]db.ScanSummaryItem",
-      "returnGoType": "db.ScanSummaryItem",
-      "returnTypescriptType": "Array\u003cDB_ScanSummaryItem\u003e"
+      "returns": "[]summary.ScanSummaryItem",
+      "returnGoType": "summary.ScanSummaryItem",
+      "returnTypescriptType": "Array\u003cSummary_ScanSummaryItem\u003e"
     }
   },
   {

@@ -54,17 +54,26 @@ export function ChapterPage(props: ChapterPageProps) {
     return (
         <>
             <div
+                data-chapter-page-container
                 className={containerClass}
                 style={{ maxWidth: containerMaxWidth }}
                 id={`page-${index}`}
                 tabIndex={-1}
             >
-                {isLoading && <LoadingSpinner containerClass="h-full absolute inset-0 z-[1] w-full mx-auto" tabIndex={-1} />}
+                {isLoading &&
+                    <LoadingSpinner data-chapter-page-loading-spinner containerClass="h-full absolute inset-0 z-[1] w-full mx-auto" tabIndex={-1} />}
                 {hasError &&
-                    <div className="h-full w-full flex justify-center items-center absolute inset-0 z-[10]" id="retry-container" tabIndex={-1}>
+                    <div
+                        data-chapter-page-retry-container
+                        className="h-full w-full flex justify-center items-center absolute inset-0 z-[10]"
+                        id="retry-container"
+                        tabIndex={-1}
+                    >
                         <IconButton intent="white" icon={<FaRedo id="retry-icon" />} onClick={retry} id="retry-button" tabIndex={-1} />
                     </div>}
                 <img
+                    data-chapter-page-image
+                    data-page-index={index}
                     src={getChapterPageUrl(page.url, pageContainer?.isDownloaded, page.headers)}
                     alt={`Page ${index}`}
                     className={imageClass}

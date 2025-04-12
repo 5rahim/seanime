@@ -2,7 +2,6 @@ import { AL_AnimeDetailsById_Media, Anime_Entry, Nullish } from "@/api/generated
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { Badge } from "@/components/ui/badge"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
@@ -49,24 +48,20 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                         {!!sourceManga && <div className="col-span-1">
                             <MediaEntryCard
                                 media={sourceManga!}
-                                overlay={<Badge
-                                    className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
-                                    intent="gray"
-                                    size="lg"
-                                >Manga</Badge>}
+                                overlay={<p
+                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
+                                >Manga</p>}
                                 type="manga"
                             /></div>}
                         {relations.slice(0, 4).map(edge => {
                             return <div key={edge.node?.id} className="col-span-1">
                                 <MediaEntryCard
                                     media={edge.node!}
-                                    overlay={<Badge
-                                        className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
-                                        intent="gray"
-                                        size="lg"
+                                    overlay={<p
+                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
                                     >{edge.node?.format === "MOVIE"
                                         ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
-                                        : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
+                                        : capitalize(edge.relationType || "").replace("_", " ")}</p>}
                                     showLibraryBadge
                                     showTrailer
                                     type="anime"

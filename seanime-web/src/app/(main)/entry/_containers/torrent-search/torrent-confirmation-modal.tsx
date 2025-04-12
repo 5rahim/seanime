@@ -145,6 +145,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             onOpenChange={() => setIsOpen(false)}
             contentClass="max-w-3xl"
             title="Choose the destination"
+            data-torrent-confirmation-modal
         >
 
             {debridActive && (
@@ -155,36 +156,39 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 />
             )}
 
-            <div className="pb-0">
-                <DirectorySelector
-                    name="destination"
-                    label="Destination"
-                    leftIcon={<FcFolder />}
-                    value={destination}
-                    defaultValue={destination}
-                    onSelect={setDestination}
-                    shouldExist={false}
-                />
-            </div>
+            <DirectorySelector
+                name="destination"
+                label="Destination"
+                leftIcon={<FcFolder />}
+                value={destination}
+                defaultValue={destination}
+                onSelect={setDestination}
+                shouldExist={false}
+            />
 
             {selectedTorrents.map(torrent => (
                 <Tooltip
+                    data-torrent-confirmation-modal-tooltip
                     key={`${torrent.link}`}
                     trigger={<div
                         className={cn(
                             "ml-12 gap-2 p-2 border rounded-[--radius-md] hover:bg-gray-800 relative",
                         )}
                         key={torrent.name}
+                        data-torrent-confirmation-modal-torrent-item
                     >
                         <div
+                            data-torrent-confirmation-modal-torrent-item-content
                             className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
                             onClick={() => openTab(torrent.link)}
                         >
-                            <span className="text-lg">
+                            <span className="text-lg" data-torrent-confirmation-modal-torrent-item-icon>
                                 {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
                                     <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
                             </span>
-                            <p className="line-clamp-1">{torrent.name}</p>
+                            <p className="line-clamp-1" data-torrent-confirmation-modal-torrent-item-name>
+                                {torrent.name}
+                            </p>
                         </div>
                         <IconButton
                             icon={<BiX />}
@@ -194,6 +198,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                             onClick={() => {
                                 onToggleTorrent(torrent)
                             }}
+                            data-torrent-confirmation-modal-torrent-item-close-button
                         />
                     </div>}
                 >
@@ -205,6 +210,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 <>
                     {(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
                         <Button
+                            data-torrent-confirmation-modal-debrid-button
                             leftIcon={<AiOutlineCloudServer className="text-2xl" />}
                             intent="white"
                             onClick={() => handleDebridAddTorrents()}
@@ -218,10 +224,11 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 </>
             ) : (
                 <>
-                    <div className="space-y-2">
+                    <div className="space-y-2" data-torrent-confirmation-modal-download-buttons>
 
-                        <div className="flex w-full gap-2">
+                        <div className="flex w-full gap-2" data-torrent-confirmation-modal-download-buttons-left>
                             {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
+                                data-torrent-confirmation-modal-download-files-button
                                 leftIcon={<BiDownload />}
                                 intent="gray-outline"
                                 onClick={() => handleDownloadFiles()}
@@ -232,6 +239,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
                             {selectedTorrents.length > 0 && (
                                 <Button
+                                    data-torrent-confirmation-modal-download-button
                                     leftIcon={<BiDownload />}
                                     intent="white"
                                     onClick={() => handleLaunchDownload(false)}
@@ -248,6 +256,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
                         {(selectedTorrents.length > 0 && canSmartSelect) && (
                             <Button
+                                data-torrent-confirmation-modal-download-missing-episodes-button
                                 leftIcon={<BiCollection />}
                                 intent="gray-outline"
                                 onClick={() => handleLaunchDownload(true)}
@@ -277,6 +286,7 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
 
     return (
         <Button
+            data-torrent-search-confirmation-continue-button
             intent="primary"
             className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo"
             size="lg"

@@ -62,6 +62,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
             className="__meta-page-header relative group/media-page-header"
+            data-media-page-header
         >
 
             {/*<div*/}
@@ -69,12 +70,14 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             {/*/>*/}
 
             {(ts.enableMediaPageBlurredBackground) && <div
+                data-media-page-header-blurred-background
                 className={cn(
                     "fixed opacity-0 transition-opacity duration-1000 top-0 left-0 w-full h-full z-[4] bg-[--background] rounded-xl",
                     shouldShowBlurredBackground && "opacity-100",
                 )}
             >
                 <Image
+                    data-media-page-header-blurred-background-image
                     src={getImageUrl(bannerImage || "")}
                     alt={""}
                     fill
@@ -87,6 +90,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-blurred-background-blur
                     className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2]"
                 ></div>
             </div>}
@@ -94,6 +98,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             {children}
 
             <div
+                data-media-page-header-banner
                 className={cn(
                     "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
@@ -107,6 +112,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             >
                 {/*TOP FADE*/}
                 <div
+                    data-media-page-header-banner-top-gradient
                     className={cn(
                         "w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via",
                     )}
@@ -114,6 +120,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 {/*BOTTOM OVERFLOW FADE*/}
                 <div
+                    data-media-page-header-banner-bottom-gradient
                     className={cn(
                         "w-full z-[2] absolute scroll-locked-offset bottom-[-5rem] h-[5em] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
@@ -122,6 +129,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-banner-image-container
                     className={cn(
                         "absolute top-0 left-0 scroll-locked-offset w-full h-full",
                         // shouldBlurBanner && "blur-xl",
@@ -129,6 +137,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     )}
                 >
                     {(!!bannerImage) && <Image
+                        data-media-page-header-banner-image
                         src={getImageUrl(bannerImage || "")}
                         alt="banner image"
                         fill
@@ -142,11 +151,13 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     />}
 
                     {shouldBlurBanner && <div
+                        data-media-page-header-banner-blur
                         className="absolute top-0 w-full h-full backdrop-blur-xl z-[2] "
                     ></div>}
 
                     {/*LEFT MASK*/}
                     <div
+                        data-media-page-header-banner-left-gradient
                         className={cn(
                             "hidden lg:block max-w-[60rem] xl:max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background]  transition-opacity to-transparent",
                             "opacity-85 duration-1000",
@@ -154,6 +165,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         )}
                     />
                     <div
+                        data-media-page-header-banner-right-gradient
                         className={cn(
                             "hidden lg:block max-w-[60rem] xl:max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-25% transition-opacity to-transparent",
                             "opacity-50 duration-500",
@@ -163,6 +175,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 {/*BOTTOM FADE*/}
                 <div
+                    data-media-page-header-banner-bottom-gradient
                     className={cn(
                         "w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent",
                         shouldHideBanner && "hidden",
@@ -170,6 +183,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-banner-dim
                     className={cn(
                         "absolute h-full w-full block lg:hidden bg-[--background] opacity-70 z-[2]",
                         shouldHideBanner && "hidden",
@@ -204,8 +218,10 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
+                data-media-page-header-details-container
             >
                 <div
+                    data-media-page-header-details-inner-container
                     className={cn(
                         "space-y-8 p-6 sm:p-8 relative",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
@@ -227,6 +243,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                             },
                         }}
                         className="space-y-4"
+                        data-media-page-header-details-motion-container
                     >
 
                         {children}
@@ -290,9 +307,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row gap-8" data-media-page-header-entry-details>
 
                 {!!coverImage && <div
+                    data-media-page-header-entry-details-cover-image-container
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md block",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "max-w-[150px] lg:m-0 h-auto sm:max-w-[195px] lg:max-w-[210px] -top-1",
@@ -301,6 +319,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     )}
                 >
                     <Image
+                        data-media-page-header-entry-details-cover-image
                         src={getImageUrl(coverImage)}
                         alt="cover image"
                         fill
@@ -311,13 +330,14 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
 
                 <div
+                    data-media-page-header-entry-details-content
                     className={cn(
                         "space-y-2 lg:space-y-4",
                         (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small || ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && "lg:space-y-3",
                     )}
                 >
                     {/*TITLE*/}
-                    <div className="space-y-2">
+                    <div className="space-y-2" data-media-page-header-entry-details-title-container>
                         <TextGenerateEffect
                             className={cn(
                                 "[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl xl:max-w-[50vw]",
@@ -333,7 +353,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                     {/*DATE*/}
                     {!!startDate?.year && (
-                        <div className="flex gap-4 items-center flex-wrap justify-center lg:justify-start">
+                        <div
+                            className="flex gap-4 items-center flex-wrap justify-center lg:justify-start"
+                            data-media-page-header-entry-details-date-container
+                        >
                             <p className="text-lg text-white flex gap-1 items-center">
                                 <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
@@ -348,6 +371,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 intent={status === "RELEASING" ? "primary" : "gray"}
                                 className="bg-transparent border-transparent dark:text-brand-200 px-0 rounded-none"
                                 leftIcon={<RiSignalTowerFill />}
+                                data-media-page-header-entry-details-date-badge
                             >
                                 {capitalize(status || "")?.replaceAll("_", " ")}
                             </Badge>}
@@ -370,7 +394,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
 
                     {/*LIST*/}
-                    <div className="flex gap-2 md:gap-4 items-center justify-center lg:justify-start">
+                    <div className="flex gap-2 md:gap-4 items-center justify-center lg:justify-start" data-media-page-header-entry-details-more-info>
 
                         <MediaPageHeaderScoreAndProgress
                             score={listData?.score}
@@ -381,7 +405,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
                         {(listData?.status || listData?.repeat) &&
-                            <div className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
+                            <div
+                                data-media-page-header-entry-details-status
+                                className="text-base text-white md:text-lg flex items-center"
+                            >{capitalize(listData?.status === "CURRENT"
                                 ? type === "anime" ? "watching" : "reading"
                                 : listData?.status)}
                                 {listData?.repeat && <Tooltip
@@ -389,6 +416,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                         size="md"
                                         intent="gray"
                                         className="ml-3"
+                                        data-media-page-header-entry-details-repeating-badge
                                     >
                                         {listData?.repeat}
 
@@ -408,10 +436,12 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 "cursor-pointer max-h-16 line-clamp-3 col-span-2 left-[-.5rem] text-[--muted] 2xl:max-w-[50vw] hover:text-white transition-colors duration-500 text-sm pr-2",
                                 "bg-transparent rounded-[--radius-md] text-center lg:text-left",
                             )}
+                            data-media-page-header-details-description-trigger
                         >
                             {description?.replace(/(<([^>]+)>)/ig, "")}
                         </div>}
                         className="max-w-[40rem] bg-[--background] p-4 w-[20rem] lg:w-[40rem] text-md"
+                        data-media-page-header-details-description-popover
                     >
                         <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
                     </Popover>}
@@ -442,6 +472,7 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
                 size="xl"
                 intent="unstyled"
                 className={getScoreColor(score, "user")}
+                data-media-page-header-score-badge
             >
                 {score / 10}
             </Badge>}
@@ -449,8 +480,10 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
                 size="xl"
                 intent="basic"
                 className="!text-xl font-bold !text-white px-0 gap-0 rounded-none"
+                data-media-page-header-progress-badge
             >
-                {`${progress ?? 0}`}<span
+                <span data-media-page-header-progress-badge-progress>{`${progress ?? 0}`}</span><span
+                data-media-page-header-progress-total
                 className={cn(
                     (!progress || progress !== episodes) && "opacity-60",
                 )}

@@ -113,8 +113,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
 
-	v1.GET("/proxy", util.M3U8Proxy)
-	v1.HEAD("/proxy", util.M3U8Proxy)
+	v1.GET("/proxy", util.VideoProxy)
+	v1.HEAD("/proxy", util.VideoProxy)
 
 	v1.GET("/status", h.HandleGetStatus)
 	v1.GET("/log/*", h.HandleGetLogContent)
@@ -245,6 +245,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 
 	v1.GET("/latest-update", h.HandleGetLatestUpdate)
+	v1.GET("/changelog", h.HandleGetChangelog)
 	v1.POST("/install-update", h.HandleInstallLatestUpdate)
 	v1.POST("/download-release", h.HandleDownloadRelease)
 
@@ -315,7 +316,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.POST("/anilist/collection/raw", h.HandleGetRawAnilistMangaCollection)
 	v1Manga.POST("/anilist/list", h.HandleAnilistListManga)
 	v1Manga.GET("/collection", h.HandleGetMangaCollection)
-	v1Manga.GET("/chapter-counts", h.HandleGetMangaChapterCountMap)
+	v1Manga.GET("/latest-chapter-numbers", h.HandleGetMangaLatestChapterNumbersMap)
+	v1Manga.POST("/refetch-chapter-containers", h.HandleRefetchMangaChapterContainers)
 	v1Manga.GET("/entry/:id", h.HandleGetMangaEntry)
 	v1Manga.GET("/entry/:id/details", h.HandleGetMangaEntryDetails)
 	v1Manga.DELETE("/entry/cache", h.HandleEmptyMangaEntryCache)
@@ -398,13 +400,19 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/external/uninstall", h.HandleUninstallExternalExtension)
 	v1Extensions.POST("/external/edit-payload", h.HandleUpdateExtensionCode)
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)
+	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtension)
 	v1Extensions.POST("/all", h.HandleGetAllExtensions)
 	v1Extensions.GET("/list", h.HandleListExtensionData)
+	v1Extensions.GET("/payload/:id", h.HandleGetExtensionPayload)
+	v1Extensions.GET("/list/development", h.HandleListDevelopmentModeExtensions)
 	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
 	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
 	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
 	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
+	v1Extensions.GET("/plugin-settings", h.HandleGetPluginSettings)
+	v1Extensions.POST("/plugin-settings/pinned-trays", h.HandleSetPluginSettingsPinnedTrays)
+	v1Extensions.POST("/plugin-permissions/grant", h.HandleGrantPluginPermissions)
 
 	//
 	// Continuity

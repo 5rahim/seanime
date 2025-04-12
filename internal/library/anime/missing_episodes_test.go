@@ -1,4 +1,4 @@
-package anime
+package anime_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
 	"testing"
 )
@@ -27,7 +28,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 	tests := []struct {
 		name                    string
 		mediaId                 int
-		localFiles              []*LocalFile
+		localFiles              []*anime.LocalFile
 		mediaAiredEpisodes      int
 		currentProgress         int
 		expectedMissingEpisodes int
@@ -38,13 +39,13 @@ func TestNewMissingEpisodes(t *testing.T) {
 			// So we should expect to see 5 missing episodes
 			name:    "Sousou no Frieren, missing 5 episodes",
 			mediaId: 154587,
-			localFiles: MockHydratedLocalFiles(
-				MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - %ep (1080p) [F02B9CEE].mkv", 154587, []MockHydratedLocalFileWrapperOptionsMetadata{
-					{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
-					{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
-					{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
-					{MetadataEpisode: 4, MetadataAniDbEpisode: "4", MetadataType: LocalFileTypeMain},
-					{MetadataEpisode: 5, MetadataAniDbEpisode: "5", MetadataType: LocalFileTypeMain},
+			localFiles: anime.MockHydratedLocalFiles(
+				anime.MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - %ep (1080p) [F02B9CEE].mkv", 154587, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+					{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: anime.LocalFileTypeMain},
+					{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: anime.LocalFileTypeMain},
+					{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: anime.LocalFileTypeMain},
+					{MetadataEpisode: 4, MetadataAniDbEpisode: "4", MetadataType: anime.LocalFileTypeMain},
+					{MetadataEpisode: 5, MetadataAniDbEpisode: "5", MetadataType: anime.LocalFileTypeMain},
 				}),
 			),
 			mediaAiredEpisodes: 10,
@@ -70,7 +71,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 		})
 
 		if assert.NoError(t, err) {
-			missingData := NewMissingEpisodes(&NewMissingEpisodesOptions{
+			missingData := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
 				AnimeCollection:  animeCollection,
 				LocalFiles:       tt.localFiles,
 				MetadataProvider: metadataProvider,

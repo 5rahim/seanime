@@ -136,7 +136,7 @@ import (
 //      }
 //    }`
 
-func TestGetBaseAnimeById(t *testing.T) {
+func TestGetAnimeById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := TestGetMockAnilistClient()

@@ -31,6 +31,13 @@ func (f *LocalFile) GetEpisodeNumber() int {
 	return f.Metadata.Episode
 }
 
+func (f *LocalFile) GetParsedEpisodeTitle() string {
+	if f.ParsedData == nil {
+		return ""
+	}
+	return f.ParsedData.EpisodeTitle
+}
+
 // HasBeenWatched returns whether the episode has been watched.
 // This only applies to main episodes.
 func (f *LocalFile) HasBeenWatched(progress int) bool {

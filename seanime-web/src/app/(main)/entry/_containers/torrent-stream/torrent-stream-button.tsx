@@ -34,6 +34,7 @@ export function TorrentStreamButton(props: TorrentStreamButtonProps) {
     return (
         <>
             <AnimeMetaActionButton
+                data-torrent-stream-button
                 intent={isTorrentStreamingView ? "gray-subtle" : "white-subtle"}
                 size="md"
                 leftIcon={isTorrentStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <PiMonitorPlayDuotone className="text-2xl" />}

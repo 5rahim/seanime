@@ -55,10 +55,11 @@ export const DrawerAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             side: {
-                top: "w-[calc(100%_-_20px)] inset-x-0 top-0 border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-                bottom: "w-[calc(100%_-_20px)] inset-x-0 bottom-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-                left: "inset-y-0 left-0 h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
-                right: "inset-y-0 right-0 h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+                mangaReader: "w-full inset-x-0 top-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                top: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 top-0 border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+                bottom: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 bottom-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                left: "inset-y-0 left-0 h-full lg:h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+                right: "inset-y-0 right-0 h-full lg:h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
             },
             size: { sm: null, md: null, lg: null, xl: null, full: null },
         },
@@ -194,9 +195,9 @@ export function Drawer(props: DrawerProps) {
 
                 <DialogPrimitive.Content
                     className={cn(
-                        DrawerAnatomy.content({ size, side }),
+                        DrawerAnatomy.content({ size, side: mangaReader ? "mangaReader" : side }),
                         // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-12",
-                        !mangaReader && "m-[10px] rounded-[--radius]",
+                        !mangaReader && "lg:m-[10px] rounded-[--radius]",
                         contentClass,
                     )}
                     style={{

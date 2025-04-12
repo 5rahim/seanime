@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -12,6 +13,14 @@ import (
 	"time"
 	"unicode"
 )
+
+func Decode(s string) string {
+	decoded, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return ""
+	}
+	return string(decoded)
+}
 
 func GenerateCryptoID() string {
 	bytes := make([]byte, 16)
@@ -184,4 +193,54 @@ func IsBase64(s string) bool {
 	// 6. Try to decode - this is the final verification
 	_, err := base64.StdEncoding.DecodeString(s)
 	return err == nil
+}
+
+var snakecaseSplitRegex = regexp.MustCompile(`[\W_]+`)
+
+func Snakecase(str string) string {
+	var result strings.Builder
+
+	// split at any non word character and underscore
+	words := snakecaseSplitRegex.Split(str, -1)
+
+	for _, word := range words {
+		if word == "" {
+			continue
+		}
+
+		if result.Len() > 0 {
+			result.WriteString("_")
+		}
+
+		for i, c := range word {
+			if unicode.IsUpper(c) && i > 0 &&
+				// is not a following uppercase character
+				!unicode.IsUpper(rune(word[i-1])) {
+				result.WriteString("_")
+			}
+
+			result.WriteRune(c)
+		}
+	}
+
+	return strings.ToLower(result.String())
+}
+
+// randomStringWithAlphabet generates a cryptographically random string
+// with the specified length and characters set.
+//
+// It panics if for some reason rand.Int returns a non-nil error.
+func RandomStringWithAlphabet(length int, alphabet string) string {
+	b := make([]byte, length)
+	max := big.NewInt(int64(len(alphabet)))
+
+	for i := range b {
+		n, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			panic(err)
+		}
+		b[i] = alphabet[n.Int64()]
+	}
+
+	return string(b)
 }

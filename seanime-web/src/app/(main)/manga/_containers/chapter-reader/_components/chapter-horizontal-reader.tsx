@@ -158,6 +158,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
     return (
         <div
+            data-chapter-horizontal-reader-container
             className={cn(
                 "h-[calc(100dvh-3rem)] overflow-y-hidden overflow-x-hidden w-full px-4 select-none relative",
                 hiddenBar && "h-dvh max-h-full",
@@ -177,6 +178,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             {/*    <div className="h-full w-full flex flex-1 focus-visible:outline-none" onClick={() => onPaginate("right")} tabIndex={-1} />*/}
             {/*</div>*/}
             <div
+                data-chapter-horizontal-reader-page-wrapper
                 className={cn(
                     "focus-visible:outline-none",
                     twoPages && readingMode === MangaReadingMode.DOUBLE_PAGE && "flex transition-transform duration-300",

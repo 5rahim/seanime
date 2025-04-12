@@ -1,13 +1,14 @@
 package torrent_analyzer
 
 import (
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestSelectFilesFromSeason tests the selection of the accurate season files from a list of files from all seasons.
@@ -87,6 +88,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 				Media:            media,
 				Platform:         anilistPlatform,
 				MetadataProvider: metadataProvider,
+				ForceMatch:       false,
 			})
 
 			// AnalyzeTorrentFiles

@@ -44,9 +44,13 @@ export default function Page() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
+                data-discover-page-container
             >
-                <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap">
-                    <div className="max-w-fit border rounded-full">
+                <div
+                    className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap"
+                    data-discover-page-header-tabs-container
+                >
+                    <div className="max-w-fit border rounded-full" data-discover-page-header-tabs-inner-container>
                         <StaticTabs
                             className="h-10 overflow-hidden"
                             triggerClass="px-4 py-1"
@@ -61,7 +65,7 @@ export default function Page() {
                             ]}
                         />
                     </div>
-                    <div>
+                    <div data-discover-page-header-advanced-search-container>
                         <Button
                             leftIcon={<FaSearch />}
                             intent="gray-outline"
@@ -85,22 +89,23 @@ export default function Page() {
                                 duration: 0.35,
                             },
                         }}
+                        data-discover-page-anime-container
                     >
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-anime-trending-container>
                             <h2>Trending this season</h2>
                             <DiscoverTrending />
                         </div>
                         <RecentReleases />
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-anime-highest-rated-container>
                             <h2>Highest rated last season</h2>
                             <DiscoverPastSeason />
                         </div>
                         <DiscoverMissedSequelsSection />
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-anime-upcoming-container>
                             <h2>Upcoming</h2>
                             <DiscoverUpcoming />
                         </div>
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-anime-trending-movies-container>
                             <h2>Trending movies</h2>
                             <DiscoverTrendingMovies />
                         </div>
@@ -112,6 +117,7 @@ export default function Page() {
                     {pageType === "schedule" && <PageWrapper
                         key="schedule"
                         className="relative 2xl:order-first pb-10 pt-4"
+                        data-discover-page-schedule-container
                         {...{
                             initial: { opacity: 0, y: 60 },
                             animate: { opacity: 1, y: 0 },
@@ -126,6 +132,7 @@ export default function Page() {
                     {pageType === "manga" && <PageWrapper
                         key="manga"
                         className="relative 2xl:order-first pb-10 pt-4"
+                        data-discover-page-manga-container
                         {...{
                             initial: { opacity: 0, y: 60 },
                             animate: { opacity: 1, y: 0 },
@@ -139,15 +146,15 @@ export default function Page() {
                         {/*    <h2>Trending right now</h2>*/}
                         {/*    <DiscoverTrendingMangaAll />*/}
                         {/*</div>*/}
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-container>
                             <h2>Trending Manga</h2>
                             <DiscoverTrendingCountry country="JP" />
                         </div>
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-manhwa-container>
                             <h2>Trending Manhwa</h2>
                             <DiscoverTrendingCountry country="KR" />
                         </div>
-                        <div className="space-y-2 z-[5] relative">
+                        <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-manhua-container>
                             <h2>Trending Manhua</h2>
                             <DiscoverTrendingCountry country="CN" />
                         </div>

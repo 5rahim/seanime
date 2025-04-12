@@ -76,6 +76,11 @@ export function RecentReleases() {
                                                 : undefined}
                                             onClick={() => router.push(`/entry?id=${item.media?.id}`)}
                                             actionIcon={null}
+                                            anime={{
+                                                id: item.media?.id,
+                                                image: item.media?.coverImage?.medium,
+                                                title: item.media?.title?.userPreferred,
+                                            }}
                                         />
                                     </ContextMenuTrigger>
                                 </SeaContextMenu>

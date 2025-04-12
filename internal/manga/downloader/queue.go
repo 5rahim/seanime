@@ -1,12 +1,12 @@
 package chapter_downloader
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"sync"
 	"time"

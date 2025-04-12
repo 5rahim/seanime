@@ -1,7 +1,6 @@
 package sync
 
 import (
-	"github.com/stretchr/testify/require"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -13,6 +12,8 @@ import (
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func GetMockManager(t *testing.T, db *db.Database) Manager {

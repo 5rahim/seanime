@@ -1,4 +1,5 @@
 import { Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
+import { useRefetchMangaChapterContainers } from "@/api/hooks/manga.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -18,13 +19,16 @@ import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { memo } from "react"
-import { LuListFilter } from "react-icons/lu"
+import { BiDotsVertical } from "react-icons/bi"
+import { LuBookOpenCheck, LuRefreshCcw } from "react-icons/lu"
+import { toast } from "sonner"
 import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
 type MangaLibraryViewProps = {
     collection: Manga_Collection
     filteredCollection: Manga_Collection | undefined
     genres: string[]
+    storedProviders: Record<string, string>
 }
 
 export function MangaLibraryView(props: MangaLibraryViewProps) {
@@ -33,6 +37,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
         collection,
         filteredCollection,
         genres,
+        storedProviders,
         ...rest
     } = props
 
@@ -43,6 +48,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
             <PageWrapper
                 key="lists"
                 className="relative 2xl:order-first pb-10 p-4"
+                data-manga-library-view-container
             >
                 <div className="w-full flex justify-end">
                     {/*<Tooltip*/}
@@ -60,7 +66,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
 
                 <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
-                        <CollectionLists key="lists" collectionList={collection} genres={genres} />
+                        <CollectionLists key="lists" collectionList={collection} genres={genres} storedProviders={storedProviders} />
                         : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} genres={genres} />
                     }
                 </AnimatePresence>
@@ -69,14 +75,16 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
     )
 }
 
-export function CollectionLists({ collectionList, genres }: {
+export function CollectionLists({ collectionList, genres, storedProviders }: {
     collectionList: Manga_Collection | undefined
     genres: string[]
+    storedProviders: Record<string, string>
 }) {
 
     return (
         <PageWrapper
             className="p-4 space-y-8 relative z-[4]"
+            data-manga-library-view-collection-lists-container
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -90,7 +98,7 @@ export function CollectionLists({ collectionList, genres }: {
                 if (!collection.entries?.length) return null
                 return (
                     <React.Fragment key={collection.type}>
-                        <CollectionListItem list={collection} />
+                        <CollectionListItem list={collection} storedProviders={storedProviders} />
 
                         {(collection.type === "CURRENT" && !!genres?.length) && <GenreSelector genres={genres} />}
                     </React.Fragment>
@@ -113,6 +121,7 @@ export function FilteredCollectionLists({ collectionList, genres }: {
     return (
         <PageWrapper
             className="p-4 space-y-8 relative z-[4]"
+            data-manga-library-view-filtered-collection-lists-container
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -147,13 +156,15 @@ export function FilteredCollectionLists({ collectionList, genres }: {
 
 }
 
-const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
+const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_CollectionList, storedProviders: Record<string, string> }) => {
 
     const ts = useThemeSettings()
     const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
     const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
     const router = useRouter()
+
+    const { mutate: refetchMangaChapterContainers, isPending: isRefetchingMangaChapterContainers } = useRefetchMangaChapterContainers()
 
     const { inject, remove } = useSeaCommandInject()
 
@@ -196,17 +207,37 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     return (
         <React.Fragment>
 
-            <div className="flex gap-3 items-center">
-                <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
-                <div className="flex flex-1"></div>
+            <div className="flex gap-3 items-center" data-manga-library-view-collection-list-item-header-container>
+                <h2 data-manga-library-view-collection-list-item-header-title>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(
+                    list.type)}</h2>
+                <div className="flex flex-1" data-manga-library-view-collection-list-item-header-spacer></div>
+
                 {list.type === "CURRENT" && <DropdownMenu
-                    trigger={<IconButton
-                        intent="white-basic"
-                        size="xs"
-                        className="mt-1"
-                        icon={<LuListFilter />}
-                    />}
+                    trigger={<div className="relative">
+                        <IconButton
+                            intent="white-basic"
+                            size="xs"
+                            className="mt-1"
+                            icon={<BiDotsVertical />}
+                            // loading={isRefetchingMangaChapterContainers}
+                        />
+                        {params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}
+                        {isRefetchingMangaChapterContainers &&
+                            <div className="absolute -top-1 -right-1 bg-[--orange] size-3 rounded-full animate-ping"></div>}
+                    </div>}
                 >
+                    <DropdownMenuItem
+                        onClick={() => {
+                            if (isRefetchingMangaChapterContainers) return
+
+                            toast.info("Refetching from sources...")
+                            refetchMangaChapterContainers({
+                                selectedProviderMap: storedProviders,
+                            })
+                        }}
+                    >
+                        <LuRefreshCcw /> {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {
                             setParams(draft => {
@@ -215,13 +246,15 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                             })
                         }}
                     >
-                        {params.unreadOnly ? "Show all" : "Show unread only"}
+                        <LuBookOpenCheck /> {params.unreadOnly ? "Show all" : "Unread chapters only"}
                     </DropdownMenuItem>
                 </DropdownMenu>}
+
             </div>
 
             {(list.type === "CURRENT" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
                 <TextGenerateEffect
+                    data-manga-library-view-collection-list-item-header-media-title
                     words={headerManga?.title?.userPreferred || ""}
                     className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
                 />

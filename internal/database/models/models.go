@@ -110,7 +110,8 @@ func (o LibraryPaths) Value() (driver.Value, error) {
 }
 
 type MangaSettings struct {
-	DefaultProvider string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
+	DefaultProvider    string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
+	AutoUpdateProgress bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
 }
 
 type MediaPlayerSettings struct {
@@ -271,6 +272,10 @@ type Theme struct {
 	MangaLibraryCollectionDefaultSorting string `gorm:"column:manga_library_collection_default_sorting" json:"mangaLibraryCollectionDefaultSorting"`
 	ShowAnimeUnwatchedCount              bool   `gorm:"column:show_anime_unwatched_count" json:"showAnimeUnwatchedCount"`
 	ShowMangaUnreadCount                 bool   `gorm:"column:show_manga_unread_count" json:"showMangaUnreadCount"`
+
+	// v2.8+
+	HideEpisodeCardDescription        bool `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
+	HideDownloadedEpisodeCardFilename bool `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
 }
 
 // +---------------------+
@@ -414,4 +419,14 @@ type DebridTorrentItem struct {
 	Destination   string `gorm:"column:destination" json:"destination"`
 	Provider      string `gorm:"column:provider" json:"provider"`
 	MediaId       int    `gorm:"column:media_id" json:"mediaId"`
+}
+
+// +---------------------+
+// |       Plugin        |
+// +---------------------+
+
+type PluginData struct {
+	BaseModel
+	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
+	Data     []byte `gorm:"column:data" json:"data"`
 }

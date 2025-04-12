@@ -9,10 +9,38 @@ import (
 	"strings"
 )
 
+func pluginManifestSanityCheck(ext *extension.Extension) error {
+	// Not a plugin, so no need to check
+	if ext.Type != extension.TypePlugin {
+		return nil
+	}
+
+	// Check plugin manifest
+	if ext.Plugin == nil {
+		return fmt.Errorf("plugin manifest is missing")
+	}
+
+	// Check plugin manifest version
+	if ext.Plugin.Version == "" {
+		return fmt.Errorf("plugin manifest version is missing")
+	}
+
+	// Check plugin permissions version
+	if ext.Plugin.Version != extension.PluginManifestVersion {
+		return fmt.Errorf("unsupported plugin manifest version: %v", ext.Plugin.Version)
+	}
+
+	return nil
+}
+
 func manifestSanityCheck(ext *extension.Extension) error {
-	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
+	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" {
 		return fmt.Errorf("extension is missing required fields, ID: %v, Name: %v, Version: %v, Language: %v, Type: %v, Author: %v, Payload: %v",
 			ext.ID, ext.Name, ext.Version, ext.Language, ext.Type, ext.Author, len(ext.Payload))
+	}
+
+	if ext.Payload == "" && ext.PayloadURI == "" {
+		return fmt.Errorf("extension is missing payload and payload URI")
 	}
 
 	// Check the ID
@@ -44,8 +72,15 @@ func manifestSanityCheck(ext *extension.Extension) error {
 	// Check type
 	if ext.Type != extension.TypeMangaProvider &&
 		ext.Type != extension.TypeOnlinestreamProvider &&
-		ext.Type != extension.TypeAnimeTorrentProvider {
+		ext.Type != extension.TypeAnimeTorrentProvider &&
+		ext.Type != extension.TypePlugin {
 		return fmt.Errorf("unsupported extension type: %v", ext.Type)
+	}
+
+	if ext.Type == extension.TypePlugin {
+		if err := pluginManifestSanityCheck(ext); err != nil {
+			return err
+		}
 	}
 
 	return nil

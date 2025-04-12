@@ -705,11 +705,40 @@
 //     })
 // }
 
+// export function useReloadExternalExtension() {
+//     return useServerMutation<boolean, ReloadExternalExtension_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useListExtensionData() {
 //     return useServerQuery<Array<Extension_Extension>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListExtensionData.endpoint,
 //         method: API_ENDPOINTS.EXTENSIONS.ListExtensionData.methods[0],
 //         queryKey: [API_ENDPOINTS.EXTENSIONS.ListExtensionData.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetExtensionPayload() {
+//     return useServerQuery<string>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useListDevelopmentModeExtensions() {
+//     return useServerQuery<Array<Extension_Extension>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key],
 //         enabled: true,
 //     })
 // }
@@ -749,6 +778,37 @@
 //         method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
 //         queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
 //         enabled: true,
+//     })
+// }
+
+// export function useGetPluginSettings() {
+//     return useServerQuery<ExtensionRepo_StoredPluginSettingsData>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSetPluginSettingsPinnedTrays() {
+//     return useServerMutation<boolean, SetPluginSettingsPinnedTrays_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGrantPluginPermissions() {
+//     return useServerMutation<boolean, GrantPluginPermissions_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
+//         onSuccess: async () => {
+// 
+//         },
 //     })
 // }
 
@@ -1003,12 +1063,23 @@
 //     })
 // }
 
-// export function useGetMangaChapterCountMap() {
-//     return useServerQuery<Record<number, number>>({
-//         endpoint: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.endpoint,
-//         method: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.methods[0],
-//         queryKey: [API_ENDPOINTS.MANGA.GetMangaChapterCountMap.key],
+// export function useGetMangaLatestChapterNumbersMap() {
+//     return useServerQuery<Record<number, Array<Manga_MangaLatestChapterNumberItem>>>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key],
 //         enabled: true,
+//     })
+// }
+
+// export function useRefetchMangaChapterContainers() {
+//     return useServerMutation<boolean, RefetchMangaChapterContainers_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.endpoint,
+//         method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],
+//         onSuccess: async () => {
+// 
+//         },
 //     })
 // }
 
@@ -1637,6 +1708,15 @@
 //     })
 // }
 
+// export function useGetChangelog() {
+//     return useServerQuery<string>({
+//         endpoint: API_ENDPOINTS.RELEASES.GetChangelog.endpoint,
+//         method: API_ENDPOINTS.RELEASES.GetChangelog.methods[0],
+//         queryKey: [API_ENDPOINTS.RELEASES.GetChangelog.key],
+//         enabled: true,
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // report
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1681,7 +1761,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetScanSummaries() {
-//     return useServerQuery<Array<DB_ScanSummaryItem>>({
+//     return useServerQuery<Array<Summary_ScanSummaryItem>>({
 //         endpoint: API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.endpoint,
 //         method: API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.methods[0],
 //         queryKey: [API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.key],

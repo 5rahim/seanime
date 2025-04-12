@@ -10,7 +10,7 @@ import (
 	"seanime/internal/util"
 	"strings"
 
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 )
 
 type StreamSB struct {

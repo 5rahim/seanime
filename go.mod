@@ -1,11 +1,10 @@
 module seanime
 
-go 1.23.5
+go 1.24.1
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/habari v0.1.3
-	github.com/5rahim/hibike v0.5.1
+	github.com/5rahim/habari v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/PuerkitoBio/goquery v1.10.0
@@ -44,22 +43,24 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
-	github.com/traefik/yaegi v0.16.1
 	github.com/xfrr/goffmpeg v1.0.0
 	github.com/ziflex/lecho/v3 v3.7.0
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.36.0
 	golang.org/x/image v0.23.0
-	golang.org/x/net v0.34.0
-	golang.org/x/term v0.28.0
-	golang.org/x/text v0.21.0
+	golang.org/x/net v0.37.0
+	golang.org/x/term v0.30.0
+	golang.org/x/text v0.23.0
 	golang.org/x/time v0.8.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.25.12
 )
 
+require github.com/bmatcuk/doublestar/v4 v4.8.1
+
+require github.com/ncruces/go-dns v1.2.7
+
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
-	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
@@ -160,7 +161,7 @@ require (
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
-	github.com/spf13/cast v1.6.0 // indirect
+	github.com/spf13/cast v1.6.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
@@ -177,8 +178,8 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

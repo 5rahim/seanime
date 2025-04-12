@@ -632,7 +632,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                     value={selectedFunction}
                                                     options={[
                                                         { value: Functions.OnlinestreamSearch, label: "search" },
-                                                        { value: Functions.OnlinestreamFindEpisodes, label: "findEpisode" },
+                                                        { value: Functions.OnlinestreamFindEpisodes, label: "findEpisodes" },
                                                         { value: Functions.OnlinestreamFindEpisodeServer, label: "findEpisodeServer" },
                                                     ]}
                                                     onValueChange={v => {

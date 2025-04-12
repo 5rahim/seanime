@@ -2,16 +2,18 @@ package anime
 
 import (
 	"cmp"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"slices"
 	"sort"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -92,13 +94,34 @@ type (
 
 // NewLibraryCollection creates a new LibraryCollection.
 func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
-
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
+	lc = new(LibraryCollection)
+
+	reqEvent := new(AnimeLibraryCollectionRequestedEvent)
+	reqEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent.LocalFiles = opts.LocalFiles
+	reqEvent.LibraryCollection = lc
+	err = hook.GlobalHookManager.OnAnimeLibraryCollectionRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.AnimeCollection = reqEvent.AnimeCollection // Override the anime collection
+	opts.LocalFiles = reqEvent.LocalFiles           // Override the local files
+	lc = reqEvent.LibraryCollection                 // Override the library collection
+
+	if reqEvent.DefaultPrevented {
+		event := new(AnimeLibraryCollectionEvent)
+		event.LibraryCollection = lc
+		err = hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+
+		return event.LibraryCollection, nil
+	}
 
 	// Get lists from collection
 	aniLists := opts.AnimeCollection.GetMediaListCollection().GetLists()
-
-	lc = new(LibraryCollection)
 
 	// Create lists
 	lc.hydrateCollectionLists(
@@ -129,6 +152,12 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	})
 
 	lc.hydrateUnmatchedGroups()
+
+	// Event
+	event := new(AnimeLibraryCollectionEvent)
+	event.LibraryCollection = lc
+	hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
+	lc = event.LibraryCollection
 
 	return
 }

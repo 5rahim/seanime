@@ -443,11 +443,12 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     return (
         <>
-            <div className="aspect-video relative w-full self-start mx-auto">
+            <div data-sea-media-player-container className="aspect-video relative w-full self-start mx-auto">
                 {isPlaybackError ? (
                     <LuffyError title="Playback Error" />
                 ) : (!!url && !isLoading) ? (
                     <MediaPlayer
+                        data-sea-media-player
                         streamType="on-demand"
                         playsInline
                         ref={playerRef}
@@ -492,7 +493,10 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                             {/*    <Track kind="chapters" key={`cue-${index}`} {...cue} />*/}
                             {/*)) : null}*/}
                         </MediaProvider>
-                        <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
+                        <div
+                            data-sea-media-player-skip-intro-outro-container
+                            className="absolute bottom-24 px-4 w-full justify-between flex items-center"
+                        >
                             <div>
                                 {showSkipIntroButton && (
                                     <Button intent="white" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
@@ -542,7 +546,10 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         />
                     </MediaPlayer>
                 ) : (
-                    <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
+                    <Skeleton
+                        data-sea-media-player-loading-container
+                        className="w-full h-full absolute flex justify-center items-center flex-col space-y-4"
+                    >
                         <LoadingSpinner
                             spinner={
                                 <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">

@@ -1,19 +1,20 @@
 package extension_repo
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/traefik/yaegi/interp"
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	"seanime/internal/extension/vendoring/manga"
-	"seanime/internal/extension/vendoring/torrent"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/goja/goja_runtime"
+	"seanime/internal/hook"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
@@ -24,16 +25,18 @@ type (
 		wsEventManager events.WSEventManagerInterface
 		// Absolute path to the directory containing all extensions
 		extensionDir string
-		// Yaegi interpreter for Go extensions
-		yaegiInterp *interp.Interpreter
 		// Store all active Goja VMs
 		// - When reloading extensions, all VMs are interrupted
 		gojaExtensions *result.Map[string, GojaExtension]
+
+		gojaRuntimeManager *goja_runtime.Manager
 		// Extension bank
 		// - When reloading extensions, external extensions are removed & re-added
 		extensionBank *extension.UnifiedBank
 
 		invalidExtensions *result.Map[string, *extension.InvalidExtension]
+
+		hookManager hook.Manager
 	}
 
 	AllExtensions struct {
@@ -53,10 +56,10 @@ type (
 	}
 
 	MangaProviderExtensionItem struct {
-		ID       string                       `json:"id"`
-		Name     string                       `json:"name"`
-		Lang     string                       `json:"lang"` // ISO 639-1 language code
-		Settings vendor_hibike_manga.Settings `json:"settings"`
+		ID       string               `json:"id"`
+		Name     string               `json:"name"`
+		Lang     string               `json:"lang"` // ISO 639-1 language code
+		Settings hibikemanga.Settings `json:"settings"`
 	}
 
 	OnlinestreamProviderExtensionItem struct {
@@ -68,10 +71,10 @@ type (
 	}
 
 	AnimeTorrentProviderExtensionItem struct {
-		ID       string                                      `json:"id"`
-		Name     string                                      `json:"name"`
-		Lang     string                                      `json:"lang"` // ISO 639-1 language code
-		Settings vendor_hibike_torrent.AnimeProviderSettings `json:"settings"`
+		ID       string                              `json:"id"`
+		Name     string                              `json:"name"`
+		Lang     string                              `json:"lang"` // ISO 639-1 language code
+		Settings hibiketorrent.AnimeProviderSettings `json:"settings"`
 	}
 )
 
@@ -80,6 +83,7 @@ type NewRepositoryOptions struct {
 	ExtensionDir   string
 	WSEventManager events.WSEventManagerInterface
 	FileCacher     *filecache.Cacher
+	HookManager    hook.Manager
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -88,16 +92,16 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	_ = os.MkdirAll(opts.ExtensionDir, os.ModePerm)
 
 	ret := &Repository{
-		logger:            opts.Logger,
-		extensionDir:      opts.ExtensionDir,
-		wsEventManager:    opts.WSEventManager,
-		gojaExtensions:    result.NewResultMap[string, GojaExtension](),
-		extensionBank:     extension.NewUnifiedBank(),
-		invalidExtensions: result.NewResultMap[string, *extension.InvalidExtension](),
-		fileCacher:        opts.FileCacher,
+		logger:             opts.Logger,
+		extensionDir:       opts.ExtensionDir,
+		wsEventManager:     opts.WSEventManager,
+		gojaExtensions:     result.NewResultMap[string, GojaExtension](),
+		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger, 20),
+		extensionBank:      extension.NewUnifiedBank(),
+		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
+		fileCacher:         opts.FileCacher,
+		hookManager:        opts.HookManager,
 	}
-
-	ret.loadYaegiInterpreter()
 
 	return ret
 }
@@ -126,7 +130,22 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
-		ret = append(ret, extension.ToExtensionData(ext))
+		retExt := extension.ToExtensionData(ext)
+		retExt.Payload = ""
+		ret = append(ret, retExt)
+		return true
+	})
+
+	return ret
+}
+
+func (r *Repository) ListDevelopmentModeExtensions() (ret []*extension.Extension) {
+	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
+		if ext.GetIsDevelopment() {
+			retExt := extension.ToExtensionData(ext)
+			retExt.Payload = ""
+			ret = append(ret, retExt)
+		}
 		return true
 	})
 
@@ -135,12 +154,20 @@ func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 
 func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension) {
 	r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-		//ext.Extension.Payload = "" // Remove the payload so the client knows the extension is installed
+		ext.Extension.Payload = ""
 		ret = append(ret, ext)
 		return true
 	})
 
 	return ret
+}
+
+func (r *Repository) GetExtensionPayload(id string) (ret string) {
+	ext, found := r.extensionBank.Get(id)
+	if !found {
+		return ""
+	}
+	return ext.GetPayload()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,14 +179,12 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 	ret := make([]*MangaProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.MangaProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &MangaProviderExtensionItem{
-			ID:   ext.GetID(),
-			Name: ext.GetName(),
-			Lang: extension.GetExtensionLang(ext.GetLang()),
-			Settings: vendor_hibike_manga.Settings{
-				SupportsMultiScanlator: ext.GetProvider().GetSettings().SupportsMultiScanlator,
-				SupportsMultiLanguage:  ext.GetProvider().GetSettings().SupportsMultiLanguage,
-			},
+			ID:       ext.GetID(),
+			Name:     ext.GetName(),
+			Lang:     extension.GetExtensionLang(ext.GetLang()),
+			Settings: settings,
 		})
 		return true
 	})
@@ -171,12 +196,13 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 	ret := make([]*OnlinestreamProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.OnlinestreamProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &OnlinestreamProviderExtensionItem{
 			ID:             ext.GetID(),
 			Name:           ext.GetName(),
 			Lang:           extension.GetExtensionLang(ext.GetLang()),
-			EpisodeServers: ext.GetProvider().GetSettings().EpisodeServers,
-			SupportsDub:    ext.GetProvider().GetSettings().SupportsDub,
+			EpisodeServers: settings.EpisodeServers,
+			SupportsDub:    settings.SupportsDub,
 		})
 		return true
 	})
@@ -188,16 +214,17 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 	ret := make([]*AnimeTorrentProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.AnimeTorrentProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &AnimeTorrentProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
 			Lang: extension.GetExtensionLang(ext.GetLang()),
-			Settings: vendor_hibike_torrent.AnimeProviderSettings{
-				Type:           vendor_hibike_torrent.AnimeProviderType(ext.GetProvider().GetSettings().Type),
-				CanSmartSearch: ext.GetProvider().GetSettings().CanSmartSearch,
-				SupportsAdult:  ext.GetProvider().GetSettings().SupportsAdult,
-				SmartSearchFilters: lo.Map(ext.GetProvider().GetSettings().SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) vendor_hibike_torrent.AnimeProviderSmartSearchFilter {
-					return vendor_hibike_torrent.AnimeProviderSmartSearchFilter(value)
+			Settings: hibiketorrent.AnimeProviderSettings{
+				Type:           settings.Type,
+				CanSmartSearch: settings.CanSmartSearch,
+				SupportsAdult:  settings.SupportsAdult,
+				SmartSearchFilters: lo.Map(settings.SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) hibiketorrent.AnimeProviderSmartSearchFilter {
+					return value
 				}),
 			},
 		})
@@ -271,4 +298,15 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (r *Repository) loadPlugin(ext *extension.Extension) (err error) {
+	defer util.HandlePanicInModuleWithError("extension_repo/loadPlugin", &err)
+
+	err = r.loadPluginExtension(ext)
+	if err != nil {
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to load plugin")
+		return err
+	}
+
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded plugin")
+	return
+}

@@ -87,7 +87,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
 
 
     async function handleInstallUpdate() {
-        if (!tauriUpdate?.available || isUpdating) return
+        if (!tauriUpdate || isUpdating) return
 
         try {
             setIsUpdating(true)
@@ -160,25 +160,25 @@ export function TauriUpdateModal(props: UpdateModalProps) {
             <Modal
                 open={updateModalOpen}
                 onOpenChange={v => !isUpdating && setUpdateModalOpen(v)}
-                contentClass="max-w-2xl"
+                contentClass="max-w-3xl"
             >
                 <div className="space-y-2">
-                    <h3 className="text-center">A new version is available!</h3>
+                    <h3 className="text-center">A new update is available!</h3>
                     <h4 className="font-bold flex gap-2 text-center items-center justify-center">
                         <span className="text-[--muted]">{updateData.current_version}</span> <FiArrowRight />
                         <span className="text-indigo-200">{updateData.release.version}</span></h4>
 
-                    {!tauriUpdate?.available && (
-                        <Alert intent="alert">
-                            This update is not available for desktop clients.
-                            Check the GitHub page for more information.
+                    {!tauriUpdate && (
+                        <Alert intent="warning">
+                            This update is not yet available for desktop clients.
+                            Wait a few minutes or check the GitHub page for more information.
                         </Alert>
                     )}
 
                     <UpdateChangelogBody updateData={updateData} />
 
                     <div className="flex gap-2 w-full !mt-4">
-                        {tauriUpdate?.available && <Button
+                        {!!tauriUpdate && <Button
                             leftIcon={<GrInstall className="text-2xl" />}
                             onClick={handleInstallUpdate}
                             loading={isUpdating}

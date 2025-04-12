@@ -36,6 +36,7 @@ export function AnimeEntryCardUnwatchedBadge(props: AnimeEntryCardUnwatchedBadge
 
     return (
         <div
+            data-anime-entry-card-unwatched-badge-container
             className={cn(
                 "flex w-full z-[5]",
             )}
@@ -44,6 +45,7 @@ export function AnimeEntryCardUnwatchedBadge(props: AnimeEntryCardUnwatchedBadge
                 intent="unstyled"
                 size="lg"
                 className="text-sm tracking-wide flex gap-1 items-center rounded-[--radius-md] border-0 bg-transparent px-1.5"
+                data-anime-entry-card-unwatched-badge
             >
                 <MdOutlinePlayCircleOutline className="text-lg" /><span className="text-[--foreground] font-normal">{unwatchedCount}</span>
             </Badge>

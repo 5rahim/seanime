@@ -3,12 +3,6 @@ package chapter_downloader
 import (
 	"bytes"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
-	_ "golang.org/x/image/bmp"  // Register BMP format
-	_ "golang.org/x/image/tiff" // Register Tiff format
-	_ "golang.org/x/image/webp" // Register WebP format
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -18,11 +12,17 @@ import (
 	"path/filepath"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
-	"seanime/internal/manga/providers"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/tiff" // Register Tiff format
 )
 
 // 📁 cache/manga
@@ -99,7 +99,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		cancelChannels:      make(map[DownloadID]chan struct{}),
 		runCh:               runCh,
 		queue:               NewQueue(opts.Database, opts.Logger, opts.WSEventManager, runCh),
-		chapterDownloadedCh: make(chan DownloadID, 1),
+		chapterDownloadedCh: make(chan DownloadID, 100),
 	}
 
 	return d

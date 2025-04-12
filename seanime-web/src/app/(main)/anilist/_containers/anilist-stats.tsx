@@ -153,11 +153,11 @@ export function AnilistStats(props: AnilistStatsProps) {
     }, [stats?.mangaStats?.releaseYears])
 
     return (
-        <AppLayoutStack className="py-4 space-y-10">
+        <AppLayoutStack className="py-4 space-y-10" data-anilist-stats>
 
-            <h1 className="text-center">Anime</h1>
+            <h1 className="text-center" data-anilist-stats-anime-title>Anime</h1>
 
-            <div>
+            <div data-anilist-stats-anime-stats>
                 <Stats
                     className="w-full"
                     size="lg"
@@ -204,10 +204,10 @@ export function AnilistStats(props: AnilistStatsProps) {
                 />
             </div>
 
-            <h3 className="text-center">Formats</h3>
+            <h3 className="text-center" data-anilist-stats-anime-formats-title>Formats</h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-                <ChartContainer legend="Total">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full" data-anilist-stats-anime-formats-container>
+                <ChartContainer legend="Total" data-anilist-stats-anime-formats-container-total>
                     <DonutChart
                         data={anime_formatsStats}
                         index="name"
@@ -215,7 +215,7 @@ export function AnilistStats(props: AnilistStatsProps) {
                         variant="pie"
                     />
                 </ChartContainer>
-                <ChartContainer legend="Hours watched">
+                <ChartContainer legend="Hours watched" data-anilist-stats-anime-formats-container-hours-watched>
                     <DonutChart
                         data={anime_formatsStats}
                         index="name"
@@ -223,7 +223,7 @@ export function AnilistStats(props: AnilistStatsProps) {
                         variant="pie"
                     />
                 </ChartContainer>
-                <ChartContainer legend="Average score">
+                <ChartContainer legend="Average score" data-anilist-stats-anime-formats-container-average-score>
                     <DonutChart
                         data={anime_formatsStats}
                         index="name"
@@ -235,10 +235,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Statuses</h3>
+            <h3 className="text-center" data-anilist-stats-anime-statuses-title>Statuses</h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-                <ChartContainer legend="Total">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full" data-anilist-stats-anime-statuses-container>
+                <ChartContainer legend="Total" data-anilist-stats-anime-statuses-container-total>
                     <DonutChart
                         data={anime_statusesStats}
                         index="name"
@@ -246,7 +246,7 @@ export function AnilistStats(props: AnilistStatsProps) {
                         variant="pie"
                     />
                 </ChartContainer>
-                <ChartContainer legend="Hours watched">
+                <ChartContainer legend="Hours watched" data-anilist-stats-anime-statuses-container-hours-watched>
                     <DonutChart
                         data={anime_statusesStats}
                         index="name"
@@ -258,10 +258,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Genres</h3>
+            <h3 className="text-center" data-anilist-stats-anime-genres-title>Genres</h3>
 
-            <div className="grid grid-cols-1 gap-6 w-full">
-                <ChartContainer legend="Favorite genres">
+            <div className="grid grid-cols-1 gap-6 w-full" data-anilist-stats-anime-genres-container>
+                <ChartContainer legend="Favorite genres" data-anilist-stats-anime-genres-container-favorite-genres>
                     <BarChart
                         data={anime_genresStats}
                         index="name"
@@ -273,10 +273,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Years</h3>
+            <h3 className="text-center" data-anilist-stats-anime-years-title>Years</h3>
 
-            <div className="grid grid-cols-1 gap-6 w-full">
-                <ChartContainer legend="Anime watched per release year">
+            <div className="grid grid-cols-1 gap-6 w-full" data-anilist-stats-anime-years-container>
+                <ChartContainer legend="Anime watched per release year" data-anilist-stats-anime-years-container-anime-watched-per-release-year>
                     <AreaChart
                         data={anime_releaseYearsStats}
                         index="name"
@@ -290,9 +290,9 @@ export function AnilistStats(props: AnilistStatsProps) {
             {/*////////////////////////////////////////////////////*/}
             {/*////////////////////////////////////////////////////*/}
 
-            <h1 className="text-center pt-20">Manga</h1>
+            <h1 className="text-center pt-20" data-anilist-stats-manga-title>Manga</h1>
 
-            <div>
+            <div data-anilist-stats-manga-stats>
                 <Stats
                     className="w-full"
                     size="lg"
@@ -340,10 +340,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Statuses</h3>
+            <h3 className="text-center" data-anilist-stats-manga-statuses-title>Statuses</h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-                <ChartContainer legend="Total">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full" data-anilist-stats-manga-statuses-container>
+                <ChartContainer legend="Total" data-anilist-stats-manga-statuses-container-total>
                     <DonutChart
                         data={manga_statusesStats}
                         index="name"
@@ -351,7 +351,7 @@ export function AnilistStats(props: AnilistStatsProps) {
                         variant="pie"
                     />
                 </ChartContainer>
-                <ChartContainer legend="Chapters read">
+                <ChartContainer legend="Chapters read" data-anilist-stats-manga-statuses-container-chapters-read>
                     <DonutChart
                         data={manga_statusesStats}
                         index="name"
@@ -363,10 +363,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Genres</h3>
+            <h3 className="text-center" data-anilist-stats-manga-genres-title>Genres</h3>
 
-            <div className="grid grid-cols-1 gap-6 w-full">
-                <ChartContainer legend="Favorite genres">
+            <div className="grid grid-cols-1 gap-6 w-full" data-anilist-stats-manga-genres-container>
+                <ChartContainer legend="Favorite genres" data-anilist-stats-manga-genres-container-favorite-genres>
                     <BarChart
                         data={manga_genresStats}
                         index="name"
@@ -378,10 +378,10 @@ export function AnilistStats(props: AnilistStatsProps) {
 
             <Separator />
 
-            <h3 className="text-center">Years</h3>
+            <h3 className="text-center" data-anilist-stats-manga-years-title>Years</h3>
 
-            <div className="grid grid-cols-1 gap-6 w-full">
-                <ChartContainer legend="Manga read per release year">
+            <div className="grid grid-cols-1 gap-6 w-full" data-anilist-stats-manga-years-container>
+                <ChartContainer legend="Manga read per release year" data-anilist-stats-manga-years-container-manga-read-per-release-year>
                     <AreaChart
                         data={manga_releaseYearsStats}
                         index="name"
@@ -397,7 +397,7 @@ export function AnilistStats(props: AnilistStatsProps) {
 
 function ChartContainer(props: { children: React.ReactNode, legend: string }) {
     return (
-        <div className="text-center w-full space-y-4">
+        <div className="text-center w-full space-y-4" data-anilist-stats-chart-container>
             {props.children}
             <p className="text-center text-lg font-semibold">{props.legend}</p>
         </div>

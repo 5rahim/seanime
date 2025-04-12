@@ -3,11 +3,13 @@ package manga
 import (
 	"cmp"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"slices"
+
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -45,6 +47,14 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 	if opts.Platform == nil {
 		return nil, fmt.Errorf("platform is nil")
 	}
+
+	optsEvent := new(MangaLibraryCollectionRequestedEvent)
+	optsEvent.MangaCollection = opts.MangaCollection
+	err = hook.GlobalHookManager.OnMangaLibraryCollectionRequested().Trigger(optsEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.MangaCollection = optsEvent.MangaCollection
 
 	aniLists := opts.MangaCollection.GetMediaListCollection().GetLists()
 
@@ -119,6 +129,11 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 	}
 
 	coll.Lists = lists
+
+	event := new(MangaLibraryCollectionEvent)
+	event.LibraryCollection = coll
+	hook.GlobalHookManager.OnMangaLibraryCollection().Trigger(event)
+	coll = event.LibraryCollection
 
 	return coll, nil
 }

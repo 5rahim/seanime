@@ -272,11 +272,11 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             const keyStr = `${e.metaKey ? "meta+" : ""}${e.ctrlKey ? "ctrl+" : ""}${e.altKey ? "alt+" : ""}${e.shiftKey
                 ? "shift+"
                 : ""}${e.key.toLowerCase()
-                .replace("arrow", "")
-                .replace("insert", "ins")
-                .replace("delete", "del")
-                .replace(" ", "space")
-                .replace("+", "plus")}`
+                    .replace("arrow", "")
+                    .replace("insert", "ins")
+                    .replace("delete", "del")
+                    .replace(" ", "space")
+                    .replace("+", "plus")}`
 
             const kbsSetter = {
                 [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: setKbsChapterLeft,
@@ -316,11 +316,13 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
         <>
             <DropdownMenu
                 trigger={<IconButton
+                    data-chapter-reader-settings-dropdown-menu-trigger
                     icon={<BiCog />}
                     intent="gray-basic"
                     className="flex lg:hidden"
                 />}
                 className="block lg:hidden"
+                data-chapter-reader-settings-dropdown-menu
             >
                 <DropdownMenuItem
                     onClick={() => setOpen(true)}
@@ -344,8 +346,9 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 onOpenChange={setOpen}
                 size="lg"
                 contentClass="z-[51]"
+                data-chapter-reader-settings-drawer
             >
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-4" data-chapter-reader-settings-drawer-content>
 
                     <RadioGroup
                         {...radioGroupClasses}
@@ -386,12 +389,12 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         options={MANGA_PAGE_FIT_OPTIONS}
                         value={pageFit}
                         onValueChange={(value) => setPageFit(value)}
-                        // help={<>
-                        //     <p>'Contain': Fit Height</p>
-                        //     <p>'Overflow': Height overflow</p>
-                        //     <p>'Cover': Fit Width</p>
-                        //     <p>'True Size': No scaling, raw sizes</p>
-                        // </>}
+                    // help={<>
+                    //     <p>'Contain': Fit Height</p>
+                    //     <p>'Overflow': Height overflow</p>
+                    //     <p>'Cover': Fit Width</p>
+                    //     <p>'True Size': No scaling, raw sizes</p>
+                    // </>}
                     />
 
                     {
@@ -472,7 +475,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
                     {!isMobile && (
                         <>
-                            <h4>Keyboard shortcuts</h4>
+                            <h4>Editable Keybindings</h4>
 
                             {[
                                 {
@@ -502,18 +505,20 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             ].map(item => {
                                 return (
                                     <div className="flex gap-2 items-center" key={item.key}>
+                                        <div className="">
+                                            <Button
+                                                onKeyDownCapture={(e) => setKbs(e, item.key)}
+                                                className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
+                                                size="sm"
+                                                intent="primary-subtle"
+                                            >
+                                                {item.value}
+                                            </Button>
+                                        </div>
                                         <label className="text-[--gray]">
                                             <span className="font-semibold">{item.label}</span>
                                             {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
                                         </label>
-                                        <Button
-                                            onKeyDownCapture={(e) => setKbs(e, item.key)}
-                                            className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
-                                            size="sm"
-                                            intent="white-subtle"
-                                        >
-                                            {item.value}
-                                        </Button>
                                         {
                                             item.value !== (MANGA_DEFAULT_KBS as any)[item.key] && (
                                                 <Button
@@ -522,13 +527,40 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                                     }}
                                                     className="rounded-full"
                                                     size="sm"
-                                                    intent="white-basic"
+                                                    intent="warning-subtle"
                                                     leftIcon={<FaRedo />}
                                                 >
                                                     Reset
                                                 </Button>
                                             )
                                         }
+                                    </div>
+                                )
+                            })}
+
+                            <Separator />
+
+                            <h4>Keyboard Shortcuts</h4>
+
+                            {[{
+                                key: "u",
+                                label: "Update progress and go to next chapter",
+                            }, {
+                                key: "b",
+                                label: "Toggle bottom bar visibility",
+                            }].map(item => {
+                                return (
+                                    <div className="flex gap-2 items-center" key={item.key}>
+                                        <div>
+                                            <Button
+                                                size="sm"
+                                                intent="white-subtle"
+                                                className="pointer-events-none"
+                                            >
+                                                {item.key}
+                                            </Button>
+                                        </div>
+                                        <p>{item.label}</p>
                                     </div>
                                 )
                             })}

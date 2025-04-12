@@ -29,7 +29,7 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 	}()
 
 	select {
-	case v, _ := <-sub.Done():
+	case v, _ := <-sub.Closed():
 		t.Logf("mpv exited, %+v", v)
 		break
 	}
@@ -51,7 +51,7 @@ func TestMpv_OpenAndPlayPath(t *testing.T) {
 	sub := m.Subscribe("test")
 
 	select {
-	case v, _ := <-sub.Done():
+	case v, _ := <-sub.Closed():
 		t.Logf("mpv exited, %+v", v)
 		break
 	}
@@ -75,7 +75,7 @@ func TestMpv_Playback(t *testing.T) {
 loop:
 	for {
 		select {
-		case v, _ := <-sub.Done():
+		case v, _ := <-sub.Closed():
 			t.Logf("mpv exited, %+v", v)
 			break loop
 		default:
@@ -113,7 +113,7 @@ func TestMpv_Multiple(t *testing.T) {
 	}()
 
 	select {
-	case v, _ := <-sub.Done():
+	case v, _ := <-sub.Closed():
 		t.Logf("mpv exited, %+v", v)
 		break
 	}

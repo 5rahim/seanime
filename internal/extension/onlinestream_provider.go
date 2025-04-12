@@ -1,7 +1,7 @@
 package extension
 
 import (
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 )
 
 type OnlinestreamProviderExtension interface {
@@ -77,10 +77,18 @@ func (m *OnlinestreamProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *OnlinestreamProviderExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *OnlinestreamProviderExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *OnlinestreamProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
+}
+
+func (m *OnlinestreamProviderExtensionImpl) GetPayloadURI() string {
+	return m.ext.PayloadURI
+}
+
+func (m *OnlinestreamProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
 }

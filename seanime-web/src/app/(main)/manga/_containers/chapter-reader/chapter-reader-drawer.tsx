@@ -132,7 +132,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         return currentChapterNumber > entry.listData.progress
     }, [chapterIdToNumbersMap, entry, currentChapter])
 
-    const handleUpdateProgress = () => {
+    const handleUpdateProgress = (goToNext: boolean = true) => {
         if (shouldUpdateProgress && !isUpdatingProgress) {
 
             updateProgress({
@@ -142,12 +142,34 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 totalChapters: entry.media?.chapters || 0,
             }, {
                 onSuccess: () => {
-                    goToChapter("next")
+                    if (goToNext) {
+                        goToChapter("next")
+                    }
                 },
             })
 
         }
     }
+
+    /**
+     * Handle auto-updating progress
+     */
+    const lastUpdatedChapterRef = React.useRef<string | null>(null)
+    React.useEffect(() => {
+        if (
+            serverStatus?.settings?.manga?.mangaAutoUpdateProgress
+            && currentChapter?.chapterId
+            && shouldUpdateProgress
+            && !pageContainerLoading
+            && !pageContainerError
+            && isLastPage
+        ) {
+            if (lastUpdatedChapterRef.current !== currentChapter?.chapterId) {
+                handleUpdateProgress(false)
+                lastUpdatedChapterRef.current = currentChapter?.chapterId
+            }
+        }
+    }, [currentChapter, serverStatus?.settings?.manga?.mangaAutoUpdateProgress, shouldUpdateProgress, isLastPage, pageContainerError, pageContainerLoading])
 
     /**
      * Reset the current page index when the pageContainer or chapterContainer changes
@@ -237,6 +259,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
     return (
         <Drawer
+            data-chapter-reader-drawer
             open={!!currentChapter}
             onOpenChange={() => setCurrentChapter(undefined)}
             size="full"
@@ -251,6 +274,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         >
 
             <div
+                data-chapter-reader-drawer-progress-container
                 className={cn(
                     "fixed left-0 w-full z-[6] opacity-0 transition-opacity hidden duration-500",
                     process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-0 justify-center",
@@ -263,7 +287,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 tabIndex={-1}
             >
                 <Button
-                    onClick={handleUpdateProgress}
+                    onClick={() => handleUpdateProgress()}
                     className={cn(
                         process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "rounded-tl-none rounded-tr-none",
                         process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "rounded-bl-none rounded-br-none rounded-tl-none",
@@ -278,7 +302,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             </div>
 
             {/*Exit fullscreen button*/}
-            {hiddenBar && <div className="fixed right-0 bottom-4 group/hiddenBarArea z-[10] px-4">
+            {hiddenBar && <div data-chapter-reader-drawer-exit-fullscreen-button className="fixed right-0 bottom-4 group/hiddenBarArea z-[10] px-4">
                 <IconButton
                     rounded
                     icon={<TbLayoutBottombarExpandFilled />}
@@ -299,6 +323,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
 
             <div
+                data-chapter-reader-drawer-content
                 className={cn(
                     "max-h-[calc(100dvh-3rem)] h-full",
                     hiddenBar && "max-h-dvh",

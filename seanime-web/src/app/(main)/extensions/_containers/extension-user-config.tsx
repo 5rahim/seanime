@@ -32,7 +32,7 @@ export function ExtensionUserConfigModal(props: ExtensionUserConfigModalProps) {
             <Modal
                 contentClass="max-w-3xl"
                 trigger={children}
-                title="User config"
+                title="Preferences"
                 // size="xl"
                 // contentClass="space-y-4"
             >
@@ -89,7 +89,7 @@ function Content({ extension, userConfigError }: { extension: Extension_Extensio
                     {extension.name}
                 </p>
                 <div className="text-sm text-[--muted]">
-                    You can edit the user config for this extension here.
+                    You can edit the preferences for this extension here.
                 </div>
             </div>
 

@@ -1,9 +1,9 @@
 package nyaa
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/mmcdole/gofeed"
 	"github.com/rs/zerolog"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"sync"
 )
 

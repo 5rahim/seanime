@@ -2,12 +2,9 @@ package scanner
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
 	"seanime/internal/platforms/platform"
@@ -16,6 +13,11 @@ import (
 	"seanime/internal/util/limiter"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
+	"github.com/sourcegraph/conc/pool"
 )
 
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
@@ -40,6 +42,20 @@ func (fh *FileHydrator) HydrateMetadata() {
 	rateLimiter := limiter.NewLimiter(5*time.Second, 20)
 
 	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration")
+
+	// Invoke ScanHydrationStarted hook
+	event := &ScanHydrationStartedEvent{
+		LocalFiles: fh.LocalFiles,
+		AllMedia:   fh.AllMedia,
+	}
+	_ = hook.GlobalHookManager.OnScanHydrationStarted().Trigger(event)
+	fh.LocalFiles = event.LocalFiles
+	fh.AllMedia = event.AllMedia
+
+	// Default prevented, do not hydrate the metadata
+	if event.DefaultPrevented {
+		return
+	}
 
 	// Group local files by media ID
 	groups := lop.GroupBy(fh.LocalFiles, func(localFile *anime.LocalFile) int {
@@ -112,10 +128,44 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			fh.ScanSummaryLogger.LogPanic(lf, stackTrace)
 		})
 
+		episode := -1
+
+		// Invoke ScanLocalFileHydrationStarted hook
+		event := &ScanLocalFileHydrationStartedEvent{
+			LocalFile: lf,
+			Media:     media,
+		}
+		_ = hook.GlobalHookManager.OnScanLocalFileHydrationStarted().Trigger(event)
+		lf = event.LocalFile
+		media = event.Media
+
+		defer func() {
+			// Invoke ScanLocalFileHydrated hook
+			event := &ScanLocalFileHydratedEvent{
+				LocalFile: lf,
+				MediaId:   mId,
+				Episode:   episode,
+			}
+			_ = hook.GlobalHookManager.OnScanLocalFileHydrated().Trigger(event)
+			lf = event.LocalFile
+			mId = event.MediaId
+			episode = event.Episode
+		}()
+
+		// Handle hook override
+		if event.DefaultPrevented {
+			if fh.ScanLogger != nil {
+				fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
+					Str("filename", lf.Name).
+					Msg("Default hydration skipped by hook")
+			}
+			fh.ScanSummaryLogger.LogDebug(lf, "Default hydration skipped by hook")
+			return
+		}
+
 		lf.Metadata.Type = anime.LocalFileTypeMain
 
 		// Get episode number
-		episode := -1
 		if len(lf.ParsedData.Episode) > 0 {
 			if ep, ok := util.StringToInt(lf.ParsedData.Episode); ok {
 				episode = ep

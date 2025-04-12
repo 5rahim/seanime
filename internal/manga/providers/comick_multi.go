@@ -4,15 +4,16 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -120,9 +121,10 @@ func (c *ComicKMulti) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sea
 func (c *ComicKMulti) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) {
 	ret := make([]*hibikemanga.ChapterDetails, 0)
 
-	c.logger.Debug().Str("mangaId", id).Msg("comick: Fetching chapters")
+	// c.logger.Debug().Str("mangaId", id).Msg("comick: Fetching chapters")
 
 	uri := fmt.Sprintf("%s/comic/%s/chapters?page=0&limit=1000000&chap-order=1", c.Url, id)
+	c.logger.Debug().Str("mangaId", id).Str("uri", uri).Msg("comick: Fetching chapters")
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to create request")

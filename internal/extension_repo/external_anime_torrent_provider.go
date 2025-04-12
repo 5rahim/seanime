@@ -14,12 +14,8 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalAnimeTorrentProviderExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageGo:
-		err = r.loadExternalAnimeTorrentProviderExtensionGo(ext)
-	case extension.LanguageJavascript:
-		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageJavascript)
-	case extension.LanguageTypescript:
-		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageTypescript)
+	case extension.LanguageJavascript, extension.LanguageTypescript:
+		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, ext.Language)
 	default:
 		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}
@@ -31,30 +27,15 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 	return
 }
 
-func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.Extension) error {
-
-	provider, err := NewYaegiAnimeTorrentProvider(r.yaegiInterp, ext, r.logger)
-	if err != nil {
-		return err
-	}
-
-	// Add the extension to the map
-	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
-	r.extensionBank.Set(ext.ID, retExt)
-	return nil
-}
 func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
-
-	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger)
+	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
 
-	// Add the goja extension pointer to the map
-	r.gojaExtensions.Set(ext.ID, gojaExt)
-
 	// Add the extension to the map
 	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 	return nil
 }

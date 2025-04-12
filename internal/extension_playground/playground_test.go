@@ -1,7 +1,6 @@
 package extension_playground
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -10,6 +9,8 @@ import (
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGojaAnimeTorrentProvider(t *testing.T) {

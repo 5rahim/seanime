@@ -61,6 +61,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         <>
             {!hideButton && <>
                 {!!listData && <IconButton
+                    data-anilist-media-entry-modal-edit-button
                     intent="white-subtle"
                     icon={<AiFillEdit />}
                     rounded
@@ -71,21 +72,22 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
                 {(!listData) && <Tooltip
                     trigger={<IconButton
-                    intent="primary-subtle"
-                    icon={<BiPlus />}
-                    rounded
-                    size="sm"
-                    loading={isPending || isDeleting}
-                    className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
-                    onClick={() => mutate({
-                        mediaId: media?.id || 0,
-                        status: "PLANNING",
-                        score: 0,
-                        progress: 0,
-                        startedAt: undefined,
-                        completedAt: undefined,
-                        type: type,
-                    })}
+                        data-anilist-media-entry-modal-add-button
+                        intent="primary-subtle"
+                        icon={<BiPlus />}
+                        rounded
+                        size="sm"
+                        loading={isPending || isDeleting}
+                        className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
+                        onClick={() => mutate({
+                            mediaId: media?.id || 0,
+                            status: "PLANNING",
+                            score: 0,
+                            progress: 0,
+                            startedAt: undefined,
+                            completedAt: undefined,
+                            type: type,
+                        })}
                     />}
                 >
                     Add to list
@@ -101,9 +103,11 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
             >
 
                 {media?.bannerImage && <div
+                    data-anilist-media-entry-modal-banner-image-container
                     className="h-24 w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
                 >
                     <Image
+                        data-anilist-media-entry-modal-banner-image
                         src={getImageUrl(media?.bannerImage!)}
                         alt="banner"
                         fill
@@ -113,11 +117,13 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         className="object-cover object-center opacity-15"
                     />
                     <div
+                        data-anilist-media-entry-modal-banner-image-bottom-gradient
                         className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-[--background] to-transparent"
                     />
                 </div>}
 
                 {(!!listData) && <Form
+                    data-anilist-media-entry-modal-form
                     schema={mediaListDataSchema}
                     onSubmit={data => {
                         if (repeat !== (listData?.repeat ?? 0)) {

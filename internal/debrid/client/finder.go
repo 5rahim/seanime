@@ -2,16 +2,18 @@ package debrid_client
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
 	itorrent "seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"slices"
 	"strconv"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/lo"
 )
 
@@ -21,7 +23,8 @@ func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.Co
 
 	r.logger.Debug().Msgf("debridstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
 
-	providerId := itorrent.ProviderAnimeTosho // todo: get provider from settings
+	providerId := itorrent.ProviderAnimeTosho
+	fallbackProviderId := itorrent.ProviderNyaa
 
 	// Get AnimeTosho provider extension
 	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(providerId)
@@ -37,12 +40,13 @@ func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.Co
 	}
 
 	loopCount := 0
+	var currentProvider = providerId
 
 	var data *itorrent.SearchData
 searchLoop:
 	for {
-		data, err = r.torrentRepository.SearchAnime(itorrent.AnimeSearchOptions{
-			Provider:      providerId,
+		data, err = r.torrentRepository.SearchAnime(context.Background(), itorrent.AnimeSearchOptions{
+			Provider:      currentProvider,
 			Type:          itorrent.AnimeSearchTypeSmart,
 			Media:         media.ToBaseAnime(),
 			Query:         "",
@@ -56,6 +60,20 @@ searchLoop:
 		if err != nil {
 			if !searchBatch {
 				r.logger.Error().Err(err).Msg("debridstream: Error searching torrents")
+
+				// Try fallback provider if we're still on primary provider
+				if currentProvider == providerId {
+					r.logger.Debug().Msgf("debridstream: Primary provider failed, trying fallback provider %s", fallbackProviderId)
+					currentProvider = fallbackProviderId
+					// Get fallback provider extension
+					providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
+					if !ok {
+						r.logger.Error().Str("provider", fallbackProviderId).Msg("debridstream: Fallback provider extension not found")
+						return nil, "", fmt.Errorf("fallback provider extension not found")
+					}
+					continue
+				}
+
 				return nil, "", err
 			}
 			searchBatch = false
@@ -107,6 +125,28 @@ searchLoop:
 	}
 
 	if data == nil || len(data.Torrents) == 0 {
+		// Try fallback provider if we're still on primary provider
+		if currentProvider == providerId {
+			r.logger.Debug().Msgf("debridstream: No torrents found with primary provider, trying fallback provider %s", fallbackProviderId)
+			currentProvider = fallbackProviderId
+			// Get fallback provider extension
+			providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
+			if !ok {
+				r.logger.Error().Str("provider", fallbackProviderId).Msg("debridstream: Fallback provider extension not found")
+				return nil, "", fmt.Errorf("fallback provider extension not found")
+			}
+
+			// Try searching with fallback provider (reset searchBatch based on canSearchBatch)
+			searchBatch = false
+			if canSearchBatch {
+				searchBatch = true
+			}
+			loopCount = 0
+
+			// Restart the search with fallback provider
+			goto searchLoop
+		}
+
 		r.logger.Error().Msg("debridstream: No torrents found")
 		return nil, "", fmt.Errorf("no torrents found")
 	}
@@ -115,6 +155,13 @@ searchLoop:
 	slices.SortStableFunc(data.Torrents, func(a, b *hibiketorrent.AnimeTorrent) int {
 		return cmp.Compare(b.Seeders, a.Seeders)
 	})
+
+	// Trigger hook
+	fetchedEvent := &DebridAutoSelectTorrentsFetchedEvent{
+		Torrents: data.Torrents,
+	}
+	_ = hook.GlobalHookManager.OnDebridAutoSelectTorrentsFetched().Trigger(fetchedEvent)
+	data.Torrents = fetchedEvent.Torrents
 
 	r.logger.Debug().Msgf("debridstream: Found %d torrents", len(data.Torrents))
 

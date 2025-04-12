@@ -3,6 +3,7 @@ package extension_repo
 import (
 	"fmt"
 	"seanime/internal/extension"
+	"seanime/internal/plugin"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strings"
@@ -128,6 +129,15 @@ func (r *Repository) deleteExtensionUserConfig(id string) (err error) {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// This should be called when the extension is uninstalled
+func (r *Repository) deletePluginData(id string) (err error) {
+	defer util.HandlePanicInModuleWithError("extension_repo/deletePluginData", &err)
+
+	plugin.GlobalAppContext.DropPluginData(id)
 
 	return nil
 }

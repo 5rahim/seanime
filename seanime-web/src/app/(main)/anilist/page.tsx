@@ -14,6 +14,7 @@ export default function Home() {
             <CustomLibraryBanner discrete />
             <PageWrapper
                 className="p-4 sm:p-8 pt-4 relative"
+                data-anilist-page
                 {...{
                     initial: { opacity: 0, y: 10 },
                     animate: { opacity: 1, y: 0 },

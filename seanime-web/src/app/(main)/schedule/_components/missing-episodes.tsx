@@ -61,6 +61,11 @@ export function MissingEpisodes({ isLoading, data }: {
                                                     router.push(`/entry?id=${episode.baseAnime?.id}`)
                                                 }
                                             }}
+                                            anime={{
+                                                id: episode.baseAnime?.id,
+                                                image: episode.baseAnime?.coverImage?.medium,
+                                                title: episode.baseAnime?.title?.userPreferred,
+                                            }}
                                         />
                                     </CarouselItem>
                                 })}
@@ -113,6 +118,11 @@ export function MissingEpisodes({ isLoading, data }: {
                                                                 } else {
                                                                     router.push(`/entry?id=${episode.baseAnime?.id}`)
                                                                 }
+                                                            }}
+                                                            anime={{
+                                                                id: episode.baseAnime?.id,
+                                                                image: episode.baseAnime?.coverImage?.medium,
+                                                                title: episode.baseAnime?.title?.userPreferred,
                                                             }}
                                                         />
                                                     </CarouselItem>

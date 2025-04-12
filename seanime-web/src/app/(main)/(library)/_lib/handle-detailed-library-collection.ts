@@ -1,5 +1,6 @@
 import { Anime_LibraryCollectionList } from "@/api/generated/types"
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
+import { useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useDebounce } from "@/hooks/use-debounce"
 import { CollectionParams, DEFAULT_ANIME_COLLECTION_PARAMS, filterAnimeCollectionEntries, filterEntriesByTitle } from "@/lib/helpers/filtering"
@@ -25,6 +26,7 @@ export function useHandleDetailedLibraryCollection() {
 
     const { animeLibraryCollectionDefaultSorting } = useThemeSettings()
 
+    const { data: watchHistory } = useGetContinuityWatchHistory()
 
     /**
      * Fetch the library collection data
@@ -54,7 +56,8 @@ export function useHandleDetailedLibraryCollection() {
             const arr = filterAnimeCollectionEntries(obj.entries,
                 paramsToDebounce,
                 serverStatus?.settings?.anilist?.enableAdultContent,
-                data.continueWatchingList)
+                data.continueWatchingList,
+                watchHistory)
             return {
                 type: obj.type,
                 status: obj.status,
@@ -68,7 +71,7 @@ export function useHandleDetailedLibraryCollection() {
             _lists.find(n => n.type === "COMPLETED"),
             _lists.find(n => n.type === "DROPPED"),
         ].filter(Boolean)
-    }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent])
+    }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent, watchHistory])
 
     const sortedCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
         return _sortedCollection.map(obj => {

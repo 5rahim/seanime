@@ -285,3 +285,17 @@ pre {
     left: 0;
     transform: translateZ(0);
 }
+
+.halo-2:after {
+    opacity: .1;
+    background-image: radial-gradient(at 27% 37%, #fd3a67 0, transparent 30%), radial-gradient(at 97% 21%, #9772fe 0, transparent 70%), radial-gradient(at 52% 99%, #fd3a4e 0, transparent 20%), radial-gradient(at 10% 29%, #fc5ab0 0, transparent 20%), radial-gradient(at 97% 96%, #e4c795 0, transparent 20%), radial-gradient(at 33% 50%, #8ca8e8 0, transparent 50%), radial-gradient(at 79% 53%, #eea5ba 0, transparent 20%);
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    filter: blur(100px) saturate(150%);
+    z-index: -1;
+    top: 50px;
+    left: 0;
+    transform: translateZ(0);
+}

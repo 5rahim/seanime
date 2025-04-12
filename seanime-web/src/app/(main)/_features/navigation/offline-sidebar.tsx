@@ -11,6 +11,7 @@ import React from "react"
 import { FaBookReader } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
+import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 
 export function OfflineSidebar() {
@@ -81,10 +82,11 @@ export function OfflineSidebar() {
 
                     <SidebarNavbar
                         isCollapsed={isCollapsed}
-                        handleExpandSidebar={() => {}}
-                        handleUnexpandedSidebar={() => {}}
+                        handleExpandSidebar={() => { }}
+                        handleUnexpandedSidebar={() => { }}
                     />
 
+                    <PluginSidebarTray place="sidebar" />
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
                     <div>

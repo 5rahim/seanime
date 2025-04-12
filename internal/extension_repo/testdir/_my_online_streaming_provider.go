@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	onlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	bypass "github.com/5rahim/hibike/pkg/util/bypass"
 	"github.com/rs/zerolog"
+	onlinestream "seanime/internal/extension/hibike/onlinestream"
 )
 
 type (

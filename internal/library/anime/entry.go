@@ -2,12 +2,15 @@ package anime
 
 import (
 	"errors"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"sort"
+
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -62,15 +65,44 @@ type (
 //   - AnidbId: AniDB id
 //   - CurrentEpisodeCount: Current episode count
 func NewEntry(opts *NewEntryOptions) (*Entry, error) {
+	// Create new Entry
+	entry := new(Entry)
+	entry.MediaId = opts.MediaId
+
+	reqEvent := new(AnimeEntryRequestedEvent)
+	reqEvent.MediaId = opts.MediaId
+	reqEvent.LocalFiles = opts.LocalFiles
+	reqEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent.Entry = entry
+
+	err := hook.GlobalHookManager.OnAnimeEntryRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.MediaId = reqEvent.MediaId                 // Override the media ID
+	opts.LocalFiles = reqEvent.LocalFiles           // Override the local files
+	opts.AnimeCollection = reqEvent.AnimeCollection // Override the anime collection
+	entry = reqEvent.Entry                          // Override the entry
+
+	// Default prevented, return the modified entry
+	if reqEvent.DefaultPrevented {
+		event := new(AnimeEntryEvent)
+		event.Entry = reqEvent.Entry
+		err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+
+		if event.Entry == nil {
+			return nil, errors.New("no entry was returned")
+		}
+		return event.Entry, nil
+	}
 
 	if opts.AnimeCollection == nil ||
 		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
-
-	// Create new Entry
-	entry := new(Entry)
-	entry.MediaId = opts.MediaId
 
 	// +---------------------+
 	// |   AniList entry     |
@@ -92,7 +124,13 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 		}
 		entry.Media = fetchedMedia
 	} else {
-		entry.Media = anilistEntry.Media
+		animeEvent := new(anilist_platform.GetAnimeEvent)
+		animeEvent.Anime = anilistEntry.Media
+		err := hook.GlobalHookManager.OnGetAnime().Trigger(animeEvent)
+		if err != nil {
+			return nil, err
+		}
+		entry.Media = animeEvent.Anime
 	}
 
 	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()
@@ -136,7 +174,8 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 			return nil, err
 		}
 
-		return &Entry{
+		event := new(AnimeEntryEvent)
+		event.Entry = &Entry{
 			MediaId:             simpleAnimeEntry.MediaId,
 			Media:               simpleAnimeEntry.Media,
 			EntryListData:       simpleAnimeEntry.EntryListData,
@@ -147,7 +186,13 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 			LocalFiles:          simpleAnimeEntry.LocalFiles,
 			AnidbId:             0,
 			CurrentEpisodeCount: simpleAnimeEntry.CurrentEpisodeCount,
-		}, nil
+		}
+		err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+
+		return event.Entry, nil
 		// +--------------- End
 
 	}
@@ -173,8 +218,14 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	// Create episode entities
 	entry.hydrateEntryEpisodeData(anilistEntry, animeMetadata, opts.MetadataProvider)
 
-	return entry, nil
+	event := new(AnimeEntryEvent)
+	event.Entry = entry
+	err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
 
+	return event.Entry, nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -197,8 +248,16 @@ func (e *Entry) hydrateEntryEpisodeData(
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
-	if HasDiscrepancy(e.Media, animeMetadata) {
+	if FindDiscrepancy(e.Media, animeMetadata) == DiscrepancyAniListCountsEpisodeZero {
 		progressOffset = 1
+
+		_, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
+			return lf.Metadata.Episode == 0
+		})
+		// Remove the offset if episode 0 is not found
+		if !ok {
+			progressOffset = 0
+		}
 	}
 
 	//if hasDiscrepancy {
@@ -265,47 +324,45 @@ func (e *Entry) hydrateEntryEpisodeData(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// detectDiscrepancy detects whether there is a discrepancy between AniList and AniDB.
-//   - AniList includes episode 0 as part of main episodes, but Anizip does not.
-//   - Anizip has "S1"
-func detectDiscrepancy(
-	mediaLfs []*LocalFile, // Media's local files
-	media *anilist.BaseAnime,
-	animeMetadata *metadata.AnimeMetadata,
-) (possibleSpecialInclusion bool, hasDiscrepancy bool) {
+type Discrepancy int
 
-	if animeMetadata.Episodes == nil && len(animeMetadata.Episodes) == 0 {
-		return false, false
-	}
+const (
+	DiscrepancyAniListCountsEpisodeZero Discrepancy = iota
+	DiscrepancyAniListCountsSpecials
+	DiscrepancyAniDBHasMore
+	DiscrepancyNone
+)
 
-	// Whether downloaded episodes include a special episode "0"
-	hasEpisodeZero := lo.SomeBy(mediaLfs, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode == 0
-	})
-
-	// No episode number is equal to the max episode number
-	noEpisodeCeiling := lo.EveryBy(mediaLfs, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode != media.GetCurrentEpisodeCount()
-	})
-
-	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and Anizip
-	// We should use this to check.
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,12] //=> true
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
-	possibleSpecialInclusion = hasEpisodeZero && noEpisodeCeiling
-
-	_, aniDBHasS1 := animeMetadata.Episodes["S1"]
-	// AniList episode count > Anizip episode count
-	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy = media.GetCurrentEpisodeCount() > animeMetadata.GetMainEpisodeCount() && aniDBHasS1
-
-	return
-}
-
-func HasDiscrepancy(media *anilist.BaseAnime, animeMetadata *metadata.AnimeMetadata) bool {
+// FindDiscrepancy returns the discrepancy between the AniList and AniDB episode counts.
+// It returns DiscrepancyAniListCountsEpisodeZero if AniList most likely has episode 0 as part of the main count.
+// It returns DiscrepancyAniListCountsSpecials if there is a discrepancy between the AniList and AniDB episode counts and specials are included in the AniList count.
+// It returns DiscrepancyAniDBHasMore if the AniDB episode count is greater than the AniList episode count.
+// It returns DiscrepancyNone if there is no discrepancy.
+func FindDiscrepancy(media *anilist.BaseAnime, animeMetadata *metadata.AnimeMetadata) Discrepancy {
 	if media == nil || animeMetadata == nil || animeMetadata.Episodes == nil {
-		return false
+		return DiscrepancyNone
 	}
+
 	_, aniDBHasS1 := animeMetadata.Episodes["S1"]
-	return media.GetCurrentEpisodeCount() > animeMetadata.GetMainEpisodeCount() && aniDBHasS1
+	_, aniDBHasS2 := animeMetadata.Episodes["S2"]
+
+	difference := media.GetCurrentEpisodeCount() - animeMetadata.GetMainEpisodeCount()
+
+	if difference == 0 {
+		return DiscrepancyNone
+	}
+
+	if difference < 0 {
+		return DiscrepancyAniDBHasMore
+	}
+
+	if difference == 1 && aniDBHasS1 {
+		return DiscrepancyAniListCountsEpisodeZero
+	}
+
+	if difference > 1 && aniDBHasS1 && aniDBHasS2 {
+		return DiscrepancyAniListCountsSpecials
+	}
+
+	return DiscrepancyNone
 }

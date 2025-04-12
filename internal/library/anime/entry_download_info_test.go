@@ -1,12 +1,16 @@
-package anime
+package anime_test
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewEntryDownloadInfo(t *testing.T) {
@@ -22,7 +26,7 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 
 	tests := []struct {
 		name                             string
-		localFiles                       []*LocalFile
+		localFiles                       []*anime.LocalFile
 		mediaId                          int
 		currentProgress                  int
 		status                           anilist.MediaListStatus
@@ -91,12 +95,16 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 
 			anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
 
-			info, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
+			animeMetadata, err := metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, tt.mediaId)
+			require.NoError(t, err)
+
+			info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
 				LocalFiles:       tt.localFiles,
 				Progress:         &tt.currentProgress,
 				Status:           &tt.status,
 				Media:            anilistEntry.Media,
 				MetadataProvider: metadataProvider,
+				AnimeMetadata:    animeMetadata,
 			})
 
 			if assert.NoError(t, err) && assert.NotNil(t, info) {
@@ -123,4 +131,38 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 
 	}
 
+}
+
+func TestNewEntryDownloadInfo2(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	mediaId := 21
+
+	metadataProvider := metadata.GetMockProvider(t)
+
+	anilistClient := anilist.TestGetMockAnilistClient()
+	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(mediaId)
+
+	animeMetadata, err := metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
+	require.NoError(t, err)
+
+	info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
+		LocalFiles:       nil,
+		Progress:         lo.ToPtr(0),
+		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
+		Media:            anilistEntry.Media,
+		MetadataProvider: metadataProvider,
+		AnimeMetadata:    animeMetadata,
+	})
+	require.NoError(t, err)
+
+	require.NotNil(t, info)
+
+	t.Log(len(info.EpisodesToDownload))
+	assert.GreaterOrEqual(t, len(info.EpisodesToDownload), 1096)
 }

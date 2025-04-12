@@ -8,7 +8,10 @@ import {
     AL_MediaStatus,
     Anime_Episode,
     Anime_LibraryCollectionEntry,
+    Continuity_WatchHistory,
+    Manga_MangaLatestChapterNumberItem,
 } from "@/api/generated/types"
+import { getMangaEntryLatestChapterNumber, MangaEntryFilters } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import sortBy from "lodash/sortBy"
 import { anilist_getUnwatchedCount } from "./media"
 
@@ -33,9 +36,9 @@ type CollectionSorting<T extends CollectionType> = BaseCollectionSorting | (T ex
     | "AIRDATE"
     | "AIRDATE_DESC"
     : T extends "manga" ?
-        "PROGRESS"
-        | "PROGRESS_DESC"
-        : never)
+    "PROGRESS"
+    | "PROGRESS_DESC"
+    : never)
 
 
 type ContinueWatchingSorting =
@@ -49,18 +52,22 @@ type ContinueWatchingSorting =
     | "SCORE_DESC"
     | "START_DATE"
     | "START_DATE_DESC"
+    | "LAST_WATCHED"
+    | "LAST_WATCHED_DESC"
 
 export const CONTINUE_WATCHING_SORTING_OPTIONS = [
     { label: "Aired recently", value: "AIRDATE_DESC" },
     { label: "Aired oldest", value: "AIRDATE" },
     { label: "Highest episode number", value: "EPISODE_NUMBER_DESC" },
     { label: "Lowest episode number", value: "EPISODE_NUMBER" },
-    { label: "Highest unwatched count", value: "UNWATCHED_EPISODES_DESC" },
-    { label: "Lowest unwatched count", value: "UNWATCHED_EPISODES" },
+    { label: "Most unwatched episodes", value: "UNWATCHED_EPISODES_DESC" },
+    { label: "Least unwatched episodes", value: "UNWATCHED_EPISODES" },
     { label: "Highest score", value: "SCORE_DESC" },
     { label: "Lowest score", value: "SCORE" },
     { label: "Started recently", value: "START_DATE_DESC" },
     { label: "Oldest start date", value: "START_DATE" },
+    { label: "Most recent watch", value: "LAST_WATCHED_DESC" },
+    { label: "Least recent watch", value: "LAST_WATCHED" },
 ]
 
 
@@ -82,14 +89,16 @@ export const COLLECTION_SORTING_OPTIONS = [
 export const ANIME_COLLECTION_SORTING_OPTIONS = [
     { label: "Aired recently and not up-to-date", value: "AIRDATE_DESC" },
     { label: "Aired oldest and not up-to-date", value: "AIRDATE" },
-    { label: "Highest unwatched count", value: "UNWATCHED_EPISODES_DESC" },
-    { label: "Lowest unwatched count", value: "UNWATCHED_EPISODES" },
+    { label: "Most unwatched episodes", value: "UNWATCHED_EPISODES_DESC" },
+    { label: "Least unwatched episodes", value: "UNWATCHED_EPISODES" },
+    { label: "Most recent watch", value: "LAST_WATCHED_DESC" },
+    { label: "Least recent watch", value: "LAST_WATCHED" },
     ...COLLECTION_SORTING_OPTIONS,
 ]
 
 export const MANGA_COLLECTION_SORTING_OPTIONS = [
-    { label: "Highest unread count", value: "UNREAD_CHAPTERS_DESC" },
-    { label: "Lowest unread count", value: "UNREAD_CHAPTERS" },
+    { label: "Most unread chapters", value: "UNREAD_CHAPTERS_DESC" },
+    { label: "Least unread chapters", value: "UNREAD_CHAPTERS" },
     ...COLLECTION_SORTING_OPTIONS,
 ]
 
@@ -349,6 +358,7 @@ export function filterAnimeCollectionEntries<T extends Anime_LibraryCollectionEn
     params: CollectionParams<"anime">,
     showAdultContent: boolean | undefined,
     continueWatchingList: Anime_Episode[] | null | undefined,
+    watchHistory: Continuity_WatchHistory | null | undefined,
 ) {
     let arr = filterCollectionEntries("anime", entries, params, showAdultContent)
 
@@ -375,6 +385,14 @@ export function filterAnimeCollectionEntries<T extends Anime_LibraryCollectionEn
         arr = sortBy(arr, n => n.libraryData?.unwatchedCount ?? anilist_getUnwatchedCount(n.media, n.listData?.progress)).reverse()
     }
 
+    // Sort by last watched
+    if (getParamValue(params.sorting) === "LAST_WATCHED") {
+        arr = sortBy(arr, n => watchHistory?.[n.media?.id!]?.timeUpdated || new Date(9999, 1, 1).toISOString())
+    }
+    if (getParamValue(params.sorting) === "LAST_WATCHED_DESC") {
+        arr = sortBy(arr, n => watchHistory?.[n.media?.id!]?.timeUpdated || new Date(1000, 1, 1).toISOString()).reverse()
+    }
+
     return arr
 }
 
@@ -384,13 +402,18 @@ export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEn
     entries: T | null | undefined,
     params: CollectionParams<"manga">,
     showAdultContent: boolean | undefined,
-    chapterCounts: Record<number, number> | null | undefined,
+    storedProviders: Record<string, string> | null | undefined,
+    storedProviderFilters: Record<number, MangaEntryFilters> | null | undefined,
+    latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]> | null | undefined,
 ) {
+    if (!latestChapterNumbers || !storedProviders || !storedProviderFilters) return []
     let arr = filterCollectionEntries("manga", entries, params, showAdultContent)
+
 
     if (params.unreadOnly) {
         arr = arr.filter(n => {
-            const mangaChapterCount = chapterCounts?.[n.media?.id!] || 999999
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            const mangaChapterCount = latestChapterNumber || 999999
             return mangaChapterCount - (n.listData?.progress || 0) > 0
         })
     }
@@ -398,13 +421,17 @@ export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEn
     // Sort by unwatched chapters
     if (getParamValue(params.sorting) === "UNREAD_CHAPTERS") {
         arr = sortBy(arr, n => {
-            const mangaChapterCount = chapterCounts?.[n.media?.id!] || 999999
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            // console.log(n.media?.id, latestChapterNumber)
+            const mangaChapterCount = latestChapterNumber || 999999
             return mangaChapterCount - (n.listData?.progress || 0)
         })
     }
     if (getParamValue(params.sorting) === "UNREAD_CHAPTERS_DESC") {
         arr = sortBy(arr, n => {
-            const mangaChapterCount = chapterCounts?.[n.media?.id!] || 0
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            // console.log(n.media?.id, latestChapterNumber)
+            const mangaChapterCount = latestChapterNumber || 0
             return mangaChapterCount - (n.listData?.progress || 0)
         }).reverse()
     }
@@ -416,6 +443,7 @@ export function sortContinueWatchingEntries(
     entries: Anime_Episode[] | null | undefined,
     sorting: ContinueWatchingSorting,
     libraryEntries: Anime_LibraryCollectionEntry[] | null | undefined,
+    watchHistory: Continuity_WatchHistory | null | undefined,
 ) {
     if (!entries) return []
     let arr = [...entries]
@@ -459,6 +487,13 @@ export function sortContinueWatchingEntries(
         arr = sortBy(arr, n => libraryEntries?.find(e => e.media?.id === n.baseAnime?.id)?.listData?.startedAt || new Date(1000, 1, 1).toISOString())
             .reverse()
 
+
+    // Sort by last watched
+    if (sorting === "LAST_WATCHED")
+        arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(9999, 1, 1).toISOString())
+    if (sorting === "LAST_WATCHED_DESC")
+    arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(1000, 1, 1).toISOString())
+        .reverse()
 
     return arr
 }

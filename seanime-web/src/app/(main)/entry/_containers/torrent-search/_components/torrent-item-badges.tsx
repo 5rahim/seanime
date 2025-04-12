@@ -9,12 +9,15 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
 
     return (
         <Badge
+            data-torrent-item-resolution-badge
             className="rounded-[--radius-md] border-transparent bg-transparent px-0"
             intent={resolution?.includes("1080")
             ? "warning"
             : (resolution?.includes("2160") || resolution?.toLowerCase().includes("4k"))
                 ? "success"
-                    : "blue"}
+                    : (resolution?.includes("720")
+                        ? "blue"
+                        : "gray")}
         >
             {resolution}
         </Badge>
@@ -27,6 +30,7 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 
     return (
         <Badge
+            data-torrent-item-seeders-badge
             className="rounded-[--radius-md] border-transparent bg-transparent px-0"
             intent={(seeders) > 4 ? (seeders) > 19 ? "primary" : "success" : "gray"}
         >
@@ -42,6 +46,7 @@ export function TorrentDebridInstantAvailabilityBadge() {
     return (
         <Tooltip
             trigger={<Badge
+                data-torrent-item-debrid-instant-availability-badge
                 className="rounded-[--radius-md] bg-transparent dark:text-[--green]"
                 intent="white"
                 leftIcon={<LuGauge className="text-lg" />}

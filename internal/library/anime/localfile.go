@@ -1,8 +1,9 @@
 package anime
 
 import (
-	"github.com/5rahim/habari"
 	"seanime/internal/library/filesystem"
+
+	"github.com/5rahim/habari"
 )
 
 const (
@@ -50,14 +51,25 @@ type (
 	}
 )
 
+// NewLocalFileS creates and returns a reference to a new LocalFile struct.
+// It will parse the file's name and its directory names to extract necessary information.
+//   - opath: The full path to the file.
+//   - dirPaths: The full paths to the directories that may contain the file. (Library root paths)
+func NewLocalFileS(opath string, dirPaths []string) *LocalFile {
+	info := filesystem.SeparateFilePathS(opath, dirPaths)
+	return newLocalFile(opath, info)
+}
+
 // NewLocalFile creates and returns a reference to a new LocalFile struct.
 // It will parse the file's name and its directory names to extract necessary information.
 //   - opath: The full path to the file.
 //   - dirPath: The full path to the directory containing the file. (The library root path)
 func NewLocalFile(opath, dirPath string) *LocalFile {
-
 	info := filesystem.SeparateFilePath(opath, dirPath)
+	return newLocalFile(opath, info)
+}
 
+func newLocalFile(opath string, info *filesystem.SeparatedFilePath) *LocalFile {
 	// Parse filename
 	fElements := habari.Parse(info.Filename)
 	parsedInfo := NewLocalFileParsedData(info.Filename, fElements)
@@ -88,7 +100,6 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 	}
 
 	return localFile
-
 }
 
 // NewLocalFileParsedData Converts habari.Metadata into LocalFileParsedData, which is more suitable.

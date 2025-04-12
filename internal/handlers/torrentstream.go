@@ -2,16 +2,19 @@ package handlers
 
 import (
 	"errors"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/labstack/echo/v4"
-	lop "github.com/samber/lo/parallel"
 	"net/http"
+	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
+	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
+	lop "github.com/samber/lo/parallel"
 )
 
 // HandleGetTorrentstreamEpisodeCollection
@@ -70,6 +73,21 @@ func (h *Handler) HandleSaveTorrentstreamSettings(c echo.Context) error {
 	var b body
 	if err := c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	// Validate the download directory
+	if b.Settings.DownloadDir != "" {
+		dir, err := os.Stat(b.Settings.DownloadDir)
+		if err != nil {
+			h.App.Logger.Error().Err(err).Msgf("torrentstream: Download directory %s does not exist", b.Settings.DownloadDir)
+			h.App.WSEventManager.SendEvent(events.ErrorToast, "Download directory does not exist")
+			b.Settings.DownloadDir = ""
+		}
+		if !dir.IsDir() {
+			h.App.Logger.Error().Msgf("torrentstream: Download directory %s is not a directory", b.Settings.DownloadDir)
+			h.App.WSEventManager.SendEvent(events.ErrorToast, "Download directory is not a directory")
+			b.Settings.DownloadDir = ""
+		}
 	}
 
 	settings, err := h.App.Database.UpsertTorrentstreamSettings(&b.Settings)

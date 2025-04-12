@@ -107,7 +107,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
     return (
         <>
-            <AppLayoutStack spacing="lg">
+            <AppLayoutStack spacing="lg" data-episode-section-stack>
 
                 {hasInvalidEpisodes && <Alert
                     intent="alert"
@@ -123,6 +123,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                             opts={{
                                 align: "start",
                             }}
+                            data-episode-carousel
                         >
                             <CarouselDotButtons />
                             <CarouselContent>
@@ -144,6 +145,11 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                             percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
+                                            anime={{
+                                                id: entry.mediaId,
+                                                image: episode.baseAnime?.coverImage?.medium,
+                                                title: episode?.baseAnime?.title?.userPreferred,
+                                            }}
                                         />
                                     </CarouselItem>
                                 ))}
@@ -153,8 +159,8 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                 )}
 
 
-                <div className="space-y-10">
-                    <EpisodeListGrid>
+                <div className="space-y-10" data-episode-list-stack>
+                    <EpisodeListGrid data-episode-list-main>
                         {mainEpisodes.map(episode => (
                             <EpisodeItem
                                 key={episode.localFile?.path || ""}
@@ -175,7 +181,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
                     {specialEpisodes.length > 0 && <>
                         <h2>Specials</h2>
-                        <EpisodeListGrid>
+                        <EpisodeListGrid data-episode-list-specials>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}
@@ -189,7 +195,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
                     {ncEpisodes.length > 0 && <>
                         <h2>Others</h2>
-                        <EpisodeListGrid>
+                        <EpisodeListGrid data-episode-list-others>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}

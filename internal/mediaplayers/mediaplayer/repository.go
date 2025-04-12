@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/continuity"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	vlc2 "seanime/internal/mediaplayers/vlc"
@@ -233,6 +234,45 @@ func (m *Repository) Play(path string) error {
 
 }
 
+func (m *Repository) Pause() error {
+	switch m.Default {
+	case "vlc":
+		return m.VLC.Pause()
+	case "mpc-hc":
+		return m.MpcHc.Pause()
+	case "mpv":
+		return m.Mpv.Pause()
+	default:
+		return errors.New("no default media player set")
+	}
+}
+
+func (m *Repository) Resume() error {
+	switch m.Default {
+	case "vlc":
+		return m.VLC.Resume()
+	case "mpc-hc":
+		return m.MpcHc.Play()
+	case "mpv":
+		return m.Mpv.Resume()
+	default:
+		return errors.New("no default media player set")
+	}
+}
+
+func (m *Repository) Seek(seconds float64) error {
+	switch m.Default {
+	case "vlc":
+		return m.VLC.Seek(fmt.Sprintf("%d", int(seconds)))
+	case "mpc-hc":
+		return m.MpcHc.Seek(int(seconds))
+	case "mpv":
+		return m.Mpv.Seek(seconds)
+	default:
+		return errors.New("no default media player set")
+	}
+}
+
 func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTitle string) error {
 
 	m.Logger.Debug().Str("streamUrl", streamUrl).Msg("media player: Stream requested")
@@ -287,14 +327,11 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		}
 
 	case "mpv":
-		args := []string{"--force-window"}
+		args := []string{}
 		if windowTitle != "" {
 			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			//if lastWatched.Found {
-			//	args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
-			//}
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 			if lastWatched.Found {
 				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
@@ -362,15 +399,32 @@ func (m *Repository) StartTrackingTorrentStream() {
 	var filename string
 	var completed bool
 	var retries int
-	maxTries := 5
 
-	// Unlike normal tracking when the file is downloaded, we may need to wait a bit before we can get the status
-	// So we need to keep track of whether we have started tracking
-	// Unlike normal tracking we won't count retries until we have started tracking
+	hookEvent := &MediaPlayerStreamTrackingRequestedEvent{
+		StartRefreshDelay:    3,
+		RefreshDelay:         1,
+		MaxRetries:           5,
+		MaxRetriesAfterStart: 5,
+	}
+	_ = hook.GlobalHookManager.OnMediaPlayerStreamTrackingRequested().Trigger(hookEvent)
+	startRefreshDelay := hookEvent.StartRefreshDelay
+	maxTries := hookEvent.MaxRetries
+	refreshDelay := hookEvent.RefreshDelay
+	maxRetriesAfterStart := hookEvent.MaxRetriesAfterStart
+
+	// Default prevented, do not track
+	if hookEvent.DefaultPrevented {
+		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		return
+	}
+
+	// Unlike normal tracking when the file is downloaded, we may need to wait a bit before we can get the status,
+	// so we won't count retries until it's confirmed that the file has started playing.
 	var trackingStarted bool
 	var waitInSeconds int
 
 	m.isRunning = true
+	gotFirstStatus := false
 
 	m.mu.Unlock()
 
@@ -405,9 +459,13 @@ func (m *Repository) StartTrackingTorrentStream() {
 			//	m.mu.Unlock()
 			//	return
 			default:
-				time.Sleep(3 * time.Second)
+				// Wait at least 3 seconds before we start checking the status
+				if !gotFirstStatus {
+					time.Sleep(time.Duration(startRefreshDelay) * time.Second)
+				} else {
+					time.Sleep(time.Duration(refreshDelay) * time.Second)
+				}
 				status, err := m.getStatus()
-				//fmt.Printf("status: %v\n", status)
 				if err != nil {
 					if !trackingStarted {
 						if waitInSeconds > 60 {
@@ -415,11 +473,12 @@ func (m *Repository) StartTrackingTorrentStream() {
 							return
 						}
 						m.Logger.Trace().Msgf("media player: Waiting for stream, %d seconds", waitInSeconds)
-						waitInSeconds += 3
+						waitInSeconds += refreshDelay
 						continue
 					} else {
-						m.trackingRetry("Failed to get player status")
+						m.streamingTrackingRetry("Failed to get player status")
 						m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, maxTries)
+
 						// Video is completed, and we are unable to get the status
 						// We can safely assume that the player has been closed
 						if retries == 1 && (completed || m.continuityManager.GetSettings().WatchContinuityEnabled) {
@@ -445,8 +504,8 @@ func (m *Repository) StartTrackingTorrentStream() {
 
 				if !ok {
 					m.streamingTrackingRetry("Failed to get player status")
-					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, maxTries)
-					if retries >= maxTries-1 {
+					m.Logger.Error().Interface("status", status).Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, maxRetriesAfterStart)
+					if retries >= maxRetriesAfterStart-1 {
 						m.Logger.Debug().Msg("media player: Sending failed status query event")
 						m.streamingTrackingStopped("Failed to process status")
 						close(done)
@@ -458,7 +517,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 
 				// New video has started playing \/
 				if filename == "" || filename != m.currentPlaybackStatus.Filename {
-					m.Logger.Debug().Msg("media player: Video loaded")
+					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Video loaded")
 					m.streamingTrackingStarted(m.currentPlaybackStatus)
 					filename = m.currentPlaybackStatus.Filename
 					completed = false
@@ -496,7 +555,24 @@ func (m *Repository) StartTracking() {
 	var completed bool
 	var retries int
 
+	hookEvent := &MediaPlayerLocalFileTrackingRequestedEvent{
+		StartRefreshDelay: 3,
+		RefreshDelay:      1,
+		MaxRetries:        5,
+	}
+	_ = hook.GlobalHookManager.OnMediaPlayerLocalFileTrackingRequested().Trigger(hookEvent)
+	startRefreshDelay := hookEvent.StartRefreshDelay
+	maxTries := hookEvent.MaxRetries
+	refreshDelay := hookEvent.RefreshDelay
+
+	// Default prevented, do not track
+	if hookEvent.DefaultPrevented {
+		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		return
+	}
+
 	m.isRunning = true
+	gotFirstStatus := false
 
 	m.mu.Unlock()
 
@@ -523,12 +599,16 @@ func (m *Repository) StartTracking() {
 			//	m.mu.Unlock()
 			//	return
 			default:
-				time.Sleep(3 * time.Second)
+				// Wait at least X seconds before we start checking the status
+				if !gotFirstStatus {
+					time.Sleep(time.Duration(startRefreshDelay) * time.Second)
+				} else {
+					time.Sleep(time.Duration(refreshDelay) * time.Second)
+				}
 				status, err := m.getStatus()
-
 				if err != nil {
 					m.trackingRetry("Failed to get player status")
-					m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, 3)
+					m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, maxTries)
 
 					// Video is completed, and we are unable to get the status
 					// We can safely assume that the player has been closed
@@ -538,7 +618,7 @@ func (m *Repository) StartTracking() {
 						break
 					}
 
-					if retries >= 2 {
+					if retries >= maxTries-1 {
 						m.trackingStopped("Failed to get player status")
 						close(done)
 						break
@@ -547,12 +627,14 @@ func (m *Repository) StartTracking() {
 					continue
 				}
 
+				gotFirstStatus = true
+
 				ok := m.processStatus(m.Default, status)
 
 				if !ok {
 					m.trackingRetry("Failed to get player status")
-					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
-					if retries >= 2 {
+					m.Logger.Error().Interface("status", status).Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, maxTries)
+					if retries >= maxTries-1 {
 						m.trackingStopped("Failed to process status")
 						close(done)
 						break
@@ -563,7 +645,8 @@ func (m *Repository) StartTracking() {
 
 				// New video has started playing \/
 				if filename == "" || filename != m.currentPlaybackStatus.Filename {
-					m.Logger.Debug().Msg("media player: Video started playing")
+					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Video started playing")
+					m.Logger.Debug().Interface("currentPlaybackStatus", m.currentPlaybackStatus).Msg("media player: Playback status")
 					m.trackingStarted(m.currentPlaybackStatus)
 					filename = m.currentPlaybackStatus.Filename
 					completed = false
@@ -572,6 +655,7 @@ func (m *Repository) StartTracking() {
 				// Video completed \/
 				if m.currentPlaybackStatus.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("media player: Video completed")
+					m.Logger.Debug().Interface("currentPlaybackStatus", m.currentPlaybackStatus).Msg("media player: Playback status")
 					m.videoCompleted(m.currentPlaybackStatus)
 					completed = true
 				}

@@ -7,7 +7,7 @@ import (
 	"seanime/internal/util/result"
 	"strings"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 var searchResultCache = result.NewCache[string, []*hibikemanga.SearchResult]()

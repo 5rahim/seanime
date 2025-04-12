@@ -2,11 +2,8 @@ package torrent
 
 import (
 	"cmp"
+	"context"
 	"fmt"
-	"github.com/5rahim/habari"
-	"github.com/dustin/go-humanize"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/debrid/debrid"
@@ -18,7 +15,12 @@ import (
 	"strconv"
 	"sync"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/5rahim/habari"
+	"github.com/dustin/go-humanize"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (
@@ -57,7 +59,7 @@ type (
 	}
 )
 
-func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err error) {
+func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (ret *SearchData, err error) {
 	defer util.HandlePanicInModuleWithError("torrents/torrent/SearchAnime", &err)
 
 	r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent repo: Searching for anime torrents")
@@ -141,6 +143,13 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			}
 		}
 
+		// Check for context cancellation before making the request
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		torrents, err = providerExtension.GetProvider().SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
 			Media:         queryMedia,
 			Query:         opts.Query,
@@ -168,6 +177,13 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			}
 		}
 
+		// Check for context cancellation before making the request
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		torrents, err = providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
 			Media: queryMedia,
 			Query: opts.Query,
@@ -188,6 +204,13 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			go func(t *hibiketorrent.AnimeTorrent) {
 				defer wg.Done()
 
+				// Check for context cancellation in each goroutine
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
 				preview := r.createAnimeTorrentPreview(createAnimeTorrentPreviewOptions{
 					torrent:       t,
 					media:         opts.Media,
@@ -201,6 +224,12 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 		}
 		wg.Wait()
 
+		// Check if context was cancelled during preview creation
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
 	}
 
 	// sort both by seeders

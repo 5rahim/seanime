@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"strconv"
 	"sync"
@@ -26,6 +27,16 @@ type (
 )
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
+
+	reqEvent := new(anime.AnimeLibraryStreamCollectionRequestedEvent)
+	reqEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent.LibraryCollection = opts.LibraryCollection
+	err := hook.GlobalHookManager.OnAnimeLibraryStreamCollectionRequested().Trigger(reqEvent)
+	if err != nil {
+		return
+	}
+	opts.AnimeCollection = reqEvent.AnimeCollection
+	opts.LibraryCollection = reqEvent.LibraryCollection
 
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched
@@ -104,7 +115,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 			progressOffset := 0
 			anidbEpisode := strconv.Itoa(nextEpisodeToWatch)
-			if anime.HasDiscrepancy(entry.GetMedia(), animeMetadata) {
+			if anime.FindDiscrepancy(entry.GetMedia(), animeMetadata) == anime.DiscrepancyAniListCountsEpisodeZero {
 				progressOffset = 1
 				if nextEpisodeToWatch == 1 {
 					anidbEpisode = "S1"
@@ -184,9 +195,18 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		return
 	}
 
-	opts.LibraryCollection.Stream = &anime.StreamCollection{
+	sc := &anime.StreamCollection{
 		ContinueWatchingList: ret.ContinueWatchingList,
 		Anime:                ret.Anime,
 		ListData:             ret.ListData,
 	}
+
+	event := new(anime.AnimeLibraryStreamCollectionEvent)
+	event.StreamCollection = sc
+	err = hook.GlobalHookManager.OnAnimeLibraryStreamCollection().Trigger(event)
+	if err != nil {
+		return
+	}
+
+	opts.LibraryCollection.Stream = event.StreamCollection
 }

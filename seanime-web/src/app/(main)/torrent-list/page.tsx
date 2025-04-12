@@ -27,16 +27,17 @@ export default function Page() {
         <>
             <CustomLibraryBanner discrete />
             <PageWrapper
+                data-torrent-list-page-container
                 className="space-y-4 p-4 sm:p-8"
             >
-                <div className="flex items-center w-full justify-between">
-                    <div>
+                <div data-torrent-list-page-header className="flex items-center w-full justify-between">
+                    <div data-torrent-list-page-header-title>
                         <h2>Active torrents</h2>
                         <p className="text-[--muted]">
                             See torrents currently being downloaded
                         </p>
                     </div>
-                    <div>
+                    <div data-torrent-list-page-header-actions>
                         {/*Show embedded client button only for qBittorrent*/}
                         {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <SeaLink href={`/qbittorrent`}>
                             <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
@@ -44,7 +45,7 @@ export default function Page() {
                     </div>
                 </div>
 
-                <div className="pb-10">
+                <div data-torrent-list-page-content className="pb-10">
                     <Content />
                 </div>
             </PageWrapper>
@@ -71,6 +72,22 @@ function Content() {
         mutate(props)
     }, [mutate])
 
+
+    const confirmStopAllSeedingProps = useConfirmationDialog({
+        title: "Stop seeding all torrents",
+        description: "This action will cause seeding to stop for all completed torrents.",
+        actionIntent: "warning",
+        onConfirm: () => {
+            for (const torrent of data ?? []) {
+                handleTorrentAction({
+                    hash: torrent.hash,
+                    action: "pause",
+                    dir: torrent.contentPath,
+                })
+            }
+        },
+    })
+
     if (!enabled) return <LuffyError title="Failed to connect">
         <div className="flex flex-col gap-4 items-center">
             <p className="max-w-md">Failed to connect to the torrent client, verify your settings and make sure it is running.</p>
@@ -91,6 +108,13 @@ function Content() {
                 <ul className="text-[--muted] flex flex-wrap gap-4">
                     <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused")?.length ?? 0}</li>
                     <li>Seeding: {data?.filter(t => t.status === "seeding")?.length ?? 0}</li>
+                    {!!data?.filter(t => t.status === "seeding")?.length && <li>
+                        <Button
+                            size="xs"
+                            intent="primary-link"
+                            onClick={() => confirmStopAllSeedingProps.open()}
+                        >Stop seeding</Button>
+                    </li>}
                 </ul>
             </div>
 
@@ -103,6 +127,8 @@ function Content() {
                 />
             })}
             {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
+
+            <ConfirmationDialog {...confirmStopAllSeedingProps} />
         </AppLayoutStack>
     )
 
@@ -132,8 +158,8 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
     })
 
     return (
-        <div className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
-            <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
+        <div data-torrent-item-container className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
+            <div data-torrent-item-progress-bar className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -146,13 +172,13 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}
                 ></div>
             </div>
-            <div className="w-full">
+            <div data-torrent-item-title-container className="w-full">
                 <div
                     className={cn({
                         "opacity-50": torrent.status === "paused",
                     })}
                 >{torrent.name}</div>
-                <div className="text-[--muted]">
+                <div data-torrent-item-info className="text-[--muted]">
                     <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
                     {` `}
                     <BiDownArrow className="inline-block mx-2" />
@@ -175,7 +201,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     >{capitalize(torrent.status)}</strong>
                 </div>
             </div>
-            <div className="flex-none flex gap-2 items-center">
+            <div data-torrent-item-actions className="flex-none flex gap-2 items-center">
                 {torrent.status !== "seeding" ? (
                     <>
                         {torrent.status !== "paused" && <Tooltip
@@ -230,7 +256,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     />}
                 >End</Tooltip>}
 
-                <div className="flex-none flex gap-2 items-center">
+                <div data-torrent-item-actions-buttons className="flex-none flex gap-2 items-center">
                     <IconButton
                         icon={<BiFolder />}
                         size="sm"

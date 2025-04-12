@@ -24,6 +24,7 @@ import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbFileSad, TbReload } from "react-icons/tb"
+import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
 export type LibraryToolbarProps = {
     collectionList: Anime_LibraryCollectionList[]
@@ -65,13 +66,15 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     "h-28",
                     ts.hideTopNavbar && "h-40",
                 )}
+                data-library-toolbar-top-padding
             ></div>}
-            <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]">
-                <div className="flex flex-1"></div>
+            <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]" data-library-toolbar-container>
+                <div className="flex flex-1" data-library-toolbar-spacer></div>
                 {(!!status?.settings?.library?.libraryPath && hasScanned) && (
                     <>
                         <Tooltip
                             trigger={<IconButton
+                                data-library-toolbar-switch-view-button
                                 intent={libraryView === "base" ? "white-subtle" : "primary"}
                                 icon={<IoLibrary className="text-2xl" />}
                                 onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
@@ -82,6 +85,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                         <Tooltip
                             trigger={<IconButton
+                                data-library-toolbar-playlists-button
                                 intent={"white-subtle"}
                                 icon={<MdOutlineVideoLibrary className="text-2xl" />}
                                 onClick={() => setPlaylistsModalOpen(true)}
@@ -90,8 +94,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                         <PlayRandomEpisodeButton />
 
-
                         <Button
+                            data-library-toolbar-scan-button
                             intent={hasScanned ? "primary-subtle" : "primary"}
                             leftIcon={hasScanned ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
                             onClick={() => setScannerModalOpen(true)}
@@ -102,6 +106,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     </>
                 )}
                 {(unmatchedLocalFiles.length > 0) && <Button
+                    data-library-toolbar-unmatched-button
                     intent="alert"
                     leftIcon={<IoLibrarySharp />}
                     className="animate-bounce"
@@ -110,6 +115,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     Resolve unmatched ({unmatchedLocalFiles.length})
                 </Button>}
                 {(unknownGroups.length > 0) && <Button
+                    data-library-toolbar-unknown-button
                     intent="warning"
                     leftIcon={<IoLibrarySharp />}
                     className="animate-bounce"
@@ -118,9 +124,15 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
                 {!!status?.settings?.library?.libraryPath &&
-                    <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                    <DropdownMenu
+                        trigger={<IconButton
+                            data-library-toolbar-dropdown-menu-trigger
+                            icon={<BiDotsVerticalRounded />} intent="gray-basic"
+                        />}
+                    >
 
                     <DropdownMenuItem
+                        data-library-toolbar-open-directory-button
                         disabled={!status?.settings?.library?.libraryPath}
                         className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
                         onClick={() => {
@@ -132,6 +144,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
+                        data-library-toolbar-bulk-actions-button
                         onClick={() => setBulkActionIsOpen(true)}
                         disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
@@ -141,6 +154,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
+                        data-library-toolbar-ignored-files-button
                         onClick={() => setIgnoredFileManagerOpen(true)}
                         // disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
@@ -151,12 +165,15 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                     <SeaLink href="/scan-summaries">
                         <DropdownMenuItem
+                            data-library-toolbar-scan-summaries-button
                             // className={cn({ "!text-[--muted]": !hasScanned })}
                         >
                             <PiClockCounterClockwiseFill />
                             <span>Scan summaries</span>
                         </DropdownMenuItem>
                     </SeaLink>
+
+                        <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}
 
             </div>

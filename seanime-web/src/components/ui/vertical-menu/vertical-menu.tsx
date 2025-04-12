@@ -201,6 +201,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
     const ItemContent = React.useCallback((item: VerticalMenuItem) => (
         <ItemContentWrapper name={item.name}>
             <div
+                data-vertical-menu-item={item.name}
                 className={cn(
                     VerticalMenuAnatomy.itemContent({ size, collapsed }),
                     itemContentClass,
@@ -239,11 +240,11 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                         <React.Fragment key={item.name + idx}>
                             {!item.subContent ?
                                 item.href ? (
-                                    <SeaLink href={item.href} {...itemProps(item)}>
+                                    <SeaLink href={item.href} {...itemProps(item)} data-vertical-menu-item-link={item.name}>
                                         <ItemContent {...item} />
                                     </SeaLink>
                                 ) : (
-                                    <button {...itemProps(item)}>
+                                    <button {...itemProps(item)} data-vertical-menu-item-button={item.name}>
                                         <ItemContent {...item} />
                                     </button>
                                 ) : (

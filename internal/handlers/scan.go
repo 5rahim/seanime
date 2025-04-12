@@ -24,6 +24,9 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	}
 
 	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
 
 	// Retrieve the user's library path
 	libraryPath, err := h.App.Database.GetLibraryPathFromSettings()
@@ -32,10 +35,6 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	}
 	additionalLibraryPaths, err := h.App.Database.GetAdditionalLibraryPathsFromSettings()
 	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	if err = c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
 	}
 
@@ -94,7 +93,7 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	}
 
 	// Save the scan summary
-	err = db_bridge.InsertScanSummary(h.App.Database, scanSummaryLogger.GenerateSummary())
+	_ = db_bridge.InsertScanSummary(h.App.Database, scanSummaryLogger.GenerateSummary())
 
 	go h.App.AutoDownloader.CleanUpDownloadedItems()
 

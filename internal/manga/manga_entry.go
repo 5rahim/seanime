@@ -1,10 +1,14 @@
 package manga
 
 import (
-	"github.com/rs/zerolog"
+	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -42,6 +46,33 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		MediaId: opts.MediaId,
 	}
 
+	reqEvent := new(MangaEntryRequestedEvent)
+	reqEvent.MediaId = opts.MediaId
+	reqEvent.MangaCollection = opts.MangaCollection
+	reqEvent.Entry = entry
+
+	err = hook.GlobalHookManager.OnMangaEntryRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.MediaId = reqEvent.MediaId                 // Override the media ID
+	opts.MangaCollection = reqEvent.MangaCollection // Override the manga collection
+	entry = reqEvent.Entry                          // Override the entry
+
+	if reqEvent.DefaultPrevented {
+		mangaEvent := new(MangaEntryEvent)
+		mangaEvent.Entry = reqEvent.Entry
+		err = hook.GlobalHookManager.OnMangaEntry().Trigger(mangaEvent)
+		if err != nil {
+			return nil, err
+		}
+
+		if mangaEvent.Entry == nil {
+			return nil, errors.New("no entry was returned")
+		}
+		return mangaEvent.Entry, nil
+	}
+
 	anilistEntry, found := opts.MangaCollection.GetListEntryFromMangaId(opts.MediaId)
 
 	// If the entry is not found, we fetch the manga from the Anilist API.
@@ -51,9 +82,16 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 			return nil, err
 		}
 		entry.Media = media
+
 	} else {
 		// If the entry is found, we use the entry from the collection.
-		entry.Media = anilistEntry.GetMedia()
+		mangaEvent := new(anilist_platform.GetMangaEvent)
+		mangaEvent.Manga = anilistEntry.GetMedia()
+		err := hook.GlobalHookManager.OnGetManga().Trigger(mangaEvent)
+		if err != nil {
+			return nil, err
+		}
+		entry.Media = mangaEvent.Manga
 		entry.EntryListData = &EntryListData{
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
@@ -64,5 +102,12 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		}
 	}
 
-	return entry, nil
+	mangaEvent := new(MangaEntryEvent)
+	mangaEvent.Entry = entry
+	err = hook.GlobalHookManager.OnMangaEntry().Trigger(mangaEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	return mangaEvent.Entry, nil
 }

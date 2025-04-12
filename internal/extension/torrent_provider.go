@@ -1,7 +1,7 @@
 package extension
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 type AnimeTorrentProviderExtension interface {
@@ -77,10 +77,18 @@ func (m *AnimeTorrentProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *AnimeTorrentProviderExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *AnimeTorrentProviderExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *AnimeTorrentProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetPayloadURI() string {
+	return m.ext.PayloadURI
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
+import { FcFolder } from "react-icons/fc"
 import { SiBittorrent } from "react-icons/si"
 
 const torrentstreamSchema = defineSchema(({ z }) => z.object({
@@ -55,12 +56,12 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 onSubmit={data => {
                     if (settings) {
                         mutate({
-                                settings: {
-                                    ...settings,
-                                    ...data,
-                                    preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
-                                },
+                            settings: {
+                                ...settings,
+                                ...data,
+                                preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
                             },
+                        },
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
@@ -126,13 +127,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     />
                 </SettingsCard>
 
-                {/*<Field.DirectorySelector*/}
-                {/*    name="downloadDir"*/}
-                {/*    label="Download directory"*/}
-                {/*    leftIcon={<FcFolder />}*/}
-                {/*    help="Directory"*/}
-                {/*    shouldExist*/}
-                {/*/>*/}
 
                 {/*<Field.Switch
                  side="right"*/}
@@ -203,12 +197,20 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                         <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
                             Advanced
                         </AccordionTrigger>
-                        <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">
+                        <AccordionContent className="pt-6 space-y-4">
                             <Field.Text
                                 name="streamUrlAddress"
                                 label="Stream URL address"
                                 placeholder="e.g. 0.0.0.0:43211"
                                 help="Modify the stream URL formatting. Leave empty for default."
+                            />
+
+                            <Field.DirectorySelector
+                                name="downloadDir"
+                                label="Cache directory"
+                                leftIcon={<FcFolder />}
+                                help="Where the torrents will be downloaded to while streaming. Leave empty to use the default cache directory."
+                                shouldExist
                             />
                         </AccordionContent>
                     </AccordionItem>

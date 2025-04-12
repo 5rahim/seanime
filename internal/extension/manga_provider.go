@@ -1,7 +1,7 @@
 package extension
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type MangaProviderExtension interface {
@@ -77,10 +77,18 @@ func (m *MangaProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *MangaProviderExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *MangaProviderExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
+}
+
+func (m *MangaProviderExtensionImpl) GetPayloadURI() string {
+	return m.ext.PayloadURI
+}
+
+func (m *MangaProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
 }

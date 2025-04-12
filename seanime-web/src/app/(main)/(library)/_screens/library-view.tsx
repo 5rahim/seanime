@@ -76,7 +76,7 @@ export function LibraryView(props: LibraryViewProps) {
                 collectionList.flatMap(n => n.entries)?.length > 2
             ) && <GenreSelector genres={genres} />}
 
-            <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]">
+            <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]" data-library-collection-lists-container>
                 <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
                         <LibraryCollectionLists
@@ -110,7 +110,7 @@ function GenreSelector({
     if (!genres.length) return null
 
     return (
-        <PageWrapper className="space-y-3 lg:space-y-6 relative z-[4]">
+        <PageWrapper className="space-y-3 lg:space-y-6 relative z-[4]" data-library-genre-selector-container>
             <MediaGenreSelector
                 items={[
                     ...genres.map(genre => ({

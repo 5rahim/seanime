@@ -3,10 +3,6 @@ package manga
 import (
 	"bytes"
 	"errors"
-	"github.com/rs/zerolog"
-	_ "golang.org/x/image/bmp"  // Register BMP format
-	_ "golang.org/x/image/tiff" // Register Tiff format
-	_ "golang.org/x/image/webp" // Register WebP format
 	"image"
 	_ "image/jpeg" // Register JPEG format
 	_ "image/png"  // Register PNG format
@@ -19,6 +15,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/tiff" // Register Tiff format
+	_ "golang.org/x/image/webp" // Register WebP format
 )
 
 var (
@@ -106,6 +107,37 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 	err = r.fileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, "manga_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
+	return
+}
+
+func ParseChapterContainerFileName(filename string) (provider string, bucketType bucketType, mediaId int, ok bool) {
+	filename = strings.TrimSuffix(filename, ".json")
+	filename = strings.TrimSuffix(filename, ".cache")
+	filename = strings.TrimSuffix(filename, ".txt")
+	parts := strings.Split(filename, "_")
+	if len(parts) != 4 {
+		return "", "", 0, false
+	}
+
+	provider = parts[1]
+	var err error
+	mediaId, err = strconv.Atoi(parts[3])
+	if err != nil {
+		return "", "", 0, false
+	}
+
+	switch parts[2] {
+	case "chapters":
+		bucketType = bucketTypeChapter
+	case "pages":
+		bucketType = bucketTypePage
+	case "page-dimensions":
+		bucketType = bucketTypePageDimensions
+	default:
+		return "", "", 0, false
+	}
+
+	ok = true
 	return
 }
 

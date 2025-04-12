@@ -308,9 +308,12 @@ export function ChapterList(props: ChapterListProps) {
     return (
         <div
             className="space-y-4"
+            data-chapter-list-container
+            data-selected-filters={JSON.stringify(selectedFilters)}
+            data-selected-provider={JSON.stringify(selectedProvider)}
         >
 
-            <div className="flex flex-wrap gap-2 items-center">
+            <div data-chapter-list-header-container className="flex flex-wrap gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
                     options={providerOptions}
@@ -346,41 +349,39 @@ export function ChapterList(props: ChapterListProps) {
             </div>
 
             {(selectedExtension?.settings?.supportsMultiLanguage || selectedExtension?.settings?.supportsMultiScanlator) && (
-                <div>
-                    <div className="flex gap-2 items-center">
-                        {selectedExtension?.settings?.supportsMultiLanguage && (
+                <div data-chapter-list-header-filters-container className="flex gap-2 items-center">
+                    {selectedExtension?.settings?.supportsMultiScanlator && (
+                        <>
                             <Select
                                 fieldClass="w-64"
-                                options={languageOptions}
+                                options={scanlatorOptions}
                                 placeholder="All"
-                                value={selectedFilters.language}
-                                onValueChange={v => setSelectedLanguage({
+                                value={selectedFilters.scanlators[0] || ""}
+                                onValueChange={v => setSelectedScanlator({
                                     mId: mediaId,
-                                    language: v,
+                                    scanlators: [v],
                                 })}
-                                leftAddon="Language"
+                                leftAddon="Scanlator"
                                 // intent="filled"
                                 // size="sm"
                             />
-                        )}
-                        {selectedExtension?.settings?.supportsMultiScanlator && (
-                            <>
-                                <Select
-                                    fieldClass="w-64"
-                                    options={scanlatorOptions}
-                                    placeholder="All"
-                                    value={selectedFilters.scanlators[0] || ""}
-                                    onValueChange={v => setSelectedScanlator({
-                                        mId: mediaId,
-                                        scanlators: [v],
-                                    })}
-                                    leftAddon="Scanlator"
-                                    // intent="filled"
-                                    // size="sm"
-                                />
-                            </>
-                        )}
-                    </div>
+                        </>
+                    )}
+                    {selectedExtension?.settings?.supportsMultiLanguage && (
+                        <Select
+                            fieldClass="w-64"
+                            options={languageOptions}
+                            placeholder="All"
+                            value={selectedFilters.language}
+                            onValueChange={v => setSelectedLanguage({
+                                mId: mediaId,
+                                language: v,
+                            })}
+                            leftAddon="Language"
+                            // intent="filled"
+                            // size="sm"
+                        />
+                    )}
                 </div>
             )}
 
@@ -394,7 +395,7 @@ export function ChapterList(props: ChapterListProps) {
 
                         {!!chapterContainer?.chapters?.length && (
                             <>
-                                <div className="flex gap-2 items-center w-full pb-2">
+                                <div data-chapter-list-header-container className="flex gap-2 items-center w-full pb-2">
                                     <h2 className="px-1">Chapters</h2>
                                     <div className="flex flex-1"></div>
                                     <div>
@@ -416,9 +417,9 @@ export function ChapterList(props: ChapterListProps) {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
+                                <div data-chapter-list-bulk-actions-container className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
 
-                                    <div className="flex flex-wrap items-center gap-4">
+                                    <div data-chapter-list-bulk-actions-checkboxes-container className="flex flex-wrap items-center gap-4">
                                         <Checkbox
                                             label="Show unread"
                                             value={showUnreadChapter}

@@ -9,6 +9,7 @@ import {
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
+import { EpisodeItemInfoModalButton } from "./episode-item"
 
 export function UndownloadedEpisodeList({ downloadInfo, media }: {
     downloadInfo: Anime_EntryDownloadInfo | undefined,
@@ -30,7 +31,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
     if (!episodes?.length) return null
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-undownloaded-episode-list>
             <p className={""}>
                 {text}
             </p>
@@ -46,22 +47,28 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                             isInvalid={episode.isInvalid}
                             title={episode.displayTitle}
                             episodeTitle={episode.episodeTitle}
-                            action={<div className={""}>
+                            episodeNumber={episode.episodeNumber}
+                            progressNumber={episode.progressNumber}
+                            description={episode.episodeMetadata?.summary || episode.episodeMetadata?.overview}
+                            action={<>
                                 {hasTorrentProvider && <div
+                                    data-undownloaded-episode-list-action-download-button
                                     onClick={() => {
                                         setTorrentSearchEpisode(episode.episodeNumber)
                                         startTransition(() => {
                                             setTorrentSearchIsOpen("download")
                                         })
                                     }}
-                                    className="inline-block text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
+                                    className="inline-block text-orange-200 text-2xl animate-pulse cursor-pointer py-2"
                                 >
                                     <BiDownload />
                                 </div>}
-                            </div>}
+
+                                <EpisodeItemInfoModalButton episode={episode} />
+                            </>}
                         >
-                            <div className="mt-1">
-                                <p className="flex gap-1 items-center text-sm text-[--muted]">
+                            <div data-undownloaded-episode-list-episode-metadata-container className="mt-1">
+                                <p data-undownloaded-episode-list-episode-metadata-text className="flex gap-1 items-center text-sm text-[--muted]">
                                     <BiCalendarAlt /> {episode.episodeMetadata?.airDate
                                     ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}`
                                     : "Aired"}

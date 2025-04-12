@@ -112,6 +112,8 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     mangaLibraryCollectionDefaultSorting: "TITLE",
     showAnimeUnwatchedCount: false,
     showMangaUnreadCount: true,
+    hideEpisodeCardDescription: false,
+    hideDownloadedEpisodeCardFilename: false,
 }
 
 
@@ -157,6 +159,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         mangaLibraryCollectionDefaultSorting: getThemeValue("mangaLibraryCollectionDefaultSorting", serverStatus?.themeSettings),
         showAnimeUnwatchedCount: getThemeValue("showAnimeUnwatchedCount", serverStatus?.themeSettings),
         showMangaUnreadCount: getThemeValue("showMangaUnreadCount", serverStatus?.themeSettings),
+        hideEpisodeCardDescription: getThemeValue("hideEpisodeCardDescription", serverStatus?.themeSettings),
+        hideDownloadedEpisodeCardFilename: getThemeValue("hideDownloadedEpisodeCardFilename", serverStatus?.themeSettings),
     }
 }
 

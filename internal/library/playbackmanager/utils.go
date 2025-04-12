@@ -3,12 +3,14 @@ package playbackmanager
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"strings"
+
+	"github.com/samber/mo"
 )
 
 // GetCurrentMediaID returns the media id of the currently playing media
@@ -26,10 +28,34 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	// Normalize path
 	path = util.NormalizePath(path)
 
+	pm.Logger.Debug().Str("path", path).Msg("playback manager: Getting local file playback details")
+
 	// Find the local file from the path
 	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error getting local files: %s", err.Error())
+	}
+
+	reqEvent := &PlaybackLocalFileDetailsRequestedEvent{
+		Path:                  path,
+		LocalFiles:            lfs,
+		AnimeListEntry:        &anilist.AnimeListEntry{},
+		LocalFile:             &anime.LocalFile{},
+		LocalFileWrapperEntry: &anime.LocalFileWrapperEntry{},
+	}
+	err = hook.GlobalHookManager.OnPlaybackLocalFileDetailsRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	lfs = reqEvent.LocalFiles // Override the local files
+
+	// Default prevented, use the hook's details
+	if reqEvent.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Local file details processing prevented by hook")
+		if reqEvent.AnimeListEntry == nil || reqEvent.LocalFile == nil || reqEvent.LocalFileWrapperEntry == nil {
+			return nil, nil, nil, errors.New("local file details not found")
+		}
+		return reqEvent.AnimeListEntry, reqEvent.LocalFile, reqEvent.LocalFileWrapperEntry, nil
 	}
 
 	var lf *anime.LocalFile
@@ -37,13 +63,16 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	for _, l := range lfs {
 		if l.GetNormalizedPath() == path {
 			lf = l
+			pm.Logger.Debug().Msg("playback manager: Local file found by path")
 			break
 		}
 	}
+
 	// If the local file is not found, the path might be a filename (in the case of VLC)
 	if lf == nil {
 		for _, l := range lfs {
 			if strings.ToLower(l.Name) == path {
+				pm.Logger.Debug().Msg("playback manager: Local file found by name")
 				lf = l
 				break
 			}
@@ -83,6 +112,24 @@ func (pm *PlaybackManager) getStreamPlaybackDetails(mId int) mo.Option[*anilist.
 
 	if pm.animeCollection.IsAbsent() {
 		return mo.None[*anilist.AnimeListEntry]()
+	}
+
+	reqEvent := &PlaybackStreamDetailsRequestedEvent{
+		AnimeCollection: pm.animeCollection.MustGet(),
+		MediaId:         mId,
+		AnimeListEntry:  &anilist.AnimeListEntry{},
+	}
+	err := hook.GlobalHookManager.OnPlaybackStreamDetailsRequested().Trigger(reqEvent)
+	if err != nil {
+		return mo.None[*anilist.AnimeListEntry]()
+	}
+
+	if reqEvent.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Stream details processing prevented by hook")
+		if reqEvent.AnimeListEntry == nil {
+			return mo.None[*anilist.AnimeListEntry]()
+		}
+		return mo.Some(reqEvent.AnimeListEntry)
 	}
 
 	ret, ok := pm.animeCollection.MustGet().GetListEntryFromAnimeId(mId)

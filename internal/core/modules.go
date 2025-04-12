@@ -19,6 +19,7 @@ import (
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
 	"seanime/internal/notifier"
+	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
@@ -38,6 +39,15 @@ func (a *App) initModulesOnce() {
 		_, _ = a.RefreshMangaCollection()
 	})
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		OnRefreshAnilistAnimeCollection: func() {
+			_, _ = a.RefreshAnimeCollection()
+		},
+		OnRefreshAnilistMangaCollection: func() {
+			_, _ = a.RefreshMangaCollection()
+		},
+	})
+
 	// +---------------------+
 	// |     Discord RPC     |
 	// +---------------------+
@@ -45,6 +55,10 @@ func (a *App) initModulesOnce() {
 	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
 	a.AddCleanupFunction(func() {
 		a.DiscordPresence.Close()
+	})
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		DiscordPresence: a.DiscordPresence,
 	})
 
 	// +---------------------+
@@ -189,6 +203,12 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:    a.PlaybackManager,
 		WSEventManager:     a.WSEventManager,
 		Database:           a.Database,
+	})
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		MediaPlayerRepository: a.MediaPlayerRepository,
+		PlaybackManager:       a.PlaybackManager,
+		MangaRepository:       a.MangaRepository,
 	})
 
 }

@@ -152,18 +152,46 @@ func (h *Handler) HandleGetMangaEntryDetails(c echo.Context) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleGetMangaChapterCountMap
+// HandleGetMangaLatestChapterNumbersMap
 //
-//	@summary returns the chapter count map for all manga entries.
-//	@route /api/v1/manga/chapter-counts [GET]
-//	@returns map[int]int
-func (h *Handler) HandleGetMangaChapterCountMap(c echo.Context) error {
-	ret, err := h.App.MangaRepository.GetMangaChapterCountMap()
+//	@summary returns the latest chapter number for all manga entries.
+//	@route /api/v1/manga/latest-chapter-numbers [GET]
+//	@returns map[int][]manga.MangaLatestChapterNumberItem
+func (h *Handler) HandleGetMangaLatestChapterNumbersMap(c echo.Context) error {
+	ret, err := h.App.MangaRepository.GetMangaLatestChapterNumbersMap()
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
 	return h.RespondWithData(c, ret)
+}
+
+// HandleRefetchMangaChapterContainers
+//
+//	@summary refetches the chapter containers for all manga entries previously cached.
+//	@route /api/v1/manga/refetch-chapter-containers [POST]
+//	@returns bool
+func (h *Handler) HandleRefetchMangaChapterContainers(c echo.Context) error {
+
+	type body struct {
+		SelectedProviderMap map[int]string `json:"selectedProviderMap"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	mangaCollection, err := h.App.GetMangaCollection(false)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	err = h.App.MangaRepository.RefreshChapterContainers(mangaCollection, b.SelectedProviderMap)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return nil
 }
 
 // HandleEmptyMangaEntryCache
@@ -426,7 +454,7 @@ func (h *Handler) HandleUpdateMangaProgress(c echo.Context) error {
 //	@summary returns search results for a manual search.
 //	@desc Returns search results for a manual search.
 //	@route /api/v1/manga/search [POST]
-//	@returns []vendor_hibike_manga.SearchResult
+//	@returns []hibikemanga.SearchResult
 func (h *Handler) HandleMangaManualSearch(c echo.Context) error {
 
 	type body struct {

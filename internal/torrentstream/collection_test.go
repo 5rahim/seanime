@@ -1,9 +1,6 @@
 package torrentstream
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
@@ -12,6 +9,10 @@ import (
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStreamCollection(t *testing.T) {
@@ -22,7 +23,7 @@ func TestStreamCollection(t *testing.T) {
 	logger := util.NewLogger()
 	metadataProvider := metadata.GetMockProvider(t)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	require.NoError(t, err)

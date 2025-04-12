@@ -49,12 +49,15 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
             contentClass="max-w-5xl"
             title={`${entry?.media?.title?.userPreferred || "Anime"}`}
             titleClass="max-w-[500px] text-ellipsis truncate"
+            data-torrent-search-drawer
         >
 
             {entry?.media?.bannerImage && <div
+                data-torrent-search-drawer-banner-image-container
                 className="Sea-TorrentSearchDrawer__bannerImage h-36 w-full flex-none object-cover object-center overflow-hidden rounded-t-xl absolute left-0 top-0 z-[-1]"
             >
                 <Image
+                    data-torrent-search-drawer-banner-image
                     src={getImageUrl(entry?.media?.bannerImage!)}
                     alt="banner"
                     fill
@@ -64,11 +67,12 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
                     className="object-cover object-center opacity-10"
                 />
                 <div
+                    data-torrent-search-drawer-banner-image-bottom-gradient
                     className="Sea-TorrentSearchDrawer__bannerImage-bottomGradient z-[5] absolute bottom-0 w-full h-[70%] bg-gradient-to-t from-[--background] to-transparent"
                 />
             </div>}
 
-            <AppLayoutStack className="relative z-[1]">
+            <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
                 {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
                 {!!type && <TorrentSearchContainer type={type} entry={entry} />}
             </AppLayoutStack>
@@ -87,7 +91,7 @@ function EpisodeList({ episodes }: { episodes: Anime_EntryDownloadEpisode[] | un
     const missingEpisodes = episodes.sort((a, b) => a.episodeNumber - b.episodeNumber)
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2" data-torrent-search-drawer-episode-list>
             <p><span className="font-semibold">Missing episode{missingEpisodes.length > 1 ? "s" : ""}</span>: {missingEpisodes.slice(0, 5)
                 .map(n => n.episodeNumber)
                 .join(", ")}{missingEpisodes.length > 5

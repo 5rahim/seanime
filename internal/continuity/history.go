@@ -3,6 +3,7 @@ package continuity
 import (
 	"fmt"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	MaxWatchHistoryItems   = 50
+	MaxWatchHistoryItems   = 100
 	IgnoreRatioThreshold   = 0.9
 	WatchHistoryBucketName = "watch_history"
 )
@@ -162,9 +163,6 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 		Found: false,
 	}
 
-	// Normalize path
-	path = util.NormalizePath(path)
-
 	m.logger.Debug().
 		Str("path", path).
 		Bool("isStream", isStream).
@@ -172,8 +170,23 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 		Int("mediaId", mediaId).
 		Msg("continuity: Retrieving watch history item")
 
-	switch isStream {
-	case true:
+	// Normalize path
+	path = util.NormalizePath(path)
+
+	if isStream {
+
+		event := &WatchHistoryStreamEpisodeItemRequestedEvent{
+			WatchHistoryItem: &WatchHistoryItem{},
+		}
+
+		hook.GlobalHookManager.OnWatchHistoryStreamEpisodeItemRequested().Trigger(event)
+		if event.DefaultPrevented {
+			return &WatchHistoryItemResponse{
+				Item:  event.WatchHistoryItem,
+				Found: event.WatchHistoryItem != nil,
+			}
+		}
+
 		if episode == 0 || mediaId == 0 {
 			m.logger.Debug().
 				Int("episode", episode).
@@ -199,11 +212,24 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 			Found: found,
 		}
 
-	case false:
+	} else {
 		// Find the local file from the path
 		lfs, _, err := db_bridge.GetLocalFiles(m.db)
 		if err != nil {
 			return ret
+		}
+
+		event := &WatchHistoryLocalFileEpisodeItemRequestedEvent{
+			Path:             path,
+			LocalFiles:       lfs,
+			WatchHistoryItem: &WatchHistoryItem{},
+		}
+		hook.GlobalHookManager.OnWatchHistoryLocalFileEpisodeItemRequested().Trigger(event)
+		if event.DefaultPrevented {
+			return &WatchHistoryItemResponse{
+				Item:  event.WatchHistoryItem,
+				Found: event.WatchHistoryItem != nil,
+			}
 		}
 
 		var lf *anime.LocalFile
@@ -248,8 +274,6 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 			Found: found,
 		}
 	}
-
-	return
 }
 
 func (m *Manager) UpdateExternalPlayerEpisodeWatchHistoryItem(currentTime, duration float64) {
@@ -313,6 +337,17 @@ func (m *Manager) getWatchHistory(mediaId int) (ret *WatchHistoryItem, exists bo
 		ret = nil
 		exists = false
 	})
+
+	reqEvent := &WatchHistoryItemRequestedEvent{
+		MediaId:          mediaId,
+		WatchHistoryItem: ret,
+	}
+	hook.GlobalHookManager.OnWatchHistoryItemRequested().Trigger(reqEvent)
+	ret = reqEvent.WatchHistoryItem
+
+	if reqEvent.DefaultPrevented {
+		return reqEvent.WatchHistoryItem, reqEvent.WatchHistoryItem != nil
+	}
 
 	exists, _ = m.fileCacher.Get(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId), &ret)
 

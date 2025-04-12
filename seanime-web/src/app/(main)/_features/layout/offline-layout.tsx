@@ -1,9 +1,11 @@
 import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sidebar"
+import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useInvalidateQueriesListener } from "@/app/(main)/_listeners/invalidate-queries.listeners"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "next/navigation"
@@ -24,6 +26,8 @@ export function OfflineLayout(props: OfflineLayoutProps) {
     const serverStatus = useServerStatus()
     const pathname = usePathname()
     const router = useRouter()
+
+    useInvalidateQueriesListener()
 
     const [cont, setContinue] = React.useState(false)
 
@@ -54,6 +58,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ManualProgressTracking />
             <IssueReport />
             <ErrorExplainer />
+            <PluginManager />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

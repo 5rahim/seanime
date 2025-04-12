@@ -24,6 +24,8 @@ import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
+import { useServerStatus } from "../../_hooks/use-server-status"
+import { Alert } from "@/components/ui/alert"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -59,6 +61,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
     mangaLibraryCollectionDefaultSorting: z.string().default(THEME_DEFAULT_VALUES.mangaLibraryCollectionDefaultSorting),
     showAnimeUnwatchedCount: z.boolean().default(THEME_DEFAULT_VALUES.showAnimeUnwatchedCount),
     showMangaUnreadCount: z.boolean().default(THEME_DEFAULT_VALUES.showMangaUnreadCount),
+    hideEpisodeCardDescription: z.boolean().default(THEME_DEFAULT_VALUES.hideEpisodeCardDescription),
+    hideDownloadedEpisodeCardFilename: z.boolean().default(THEME_DEFAULT_VALUES.hideDownloadedEpisodeCardFilename),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -78,6 +82,7 @@ const tabsListClass = cn(
 
 export function UISettings() {
     const themeSettings = useThemeSettings()
+    const serverStatus = useServerStatus()
 
     const { mutate, isPending } = useUpdateTheme()
     const [fixBorderRenderingArtifacts, setFixBorerRenderingArtifacts] = useAtom(__ui_fixBorderRenderingArtifacts)
@@ -147,6 +152,8 @@ export function UISettings() {
                 mangaLibraryCollectionDefaultSorting: themeSettings?.mangaLibraryCollectionDefaultSorting,
                 showAnimeUnwatchedCount: themeSettings?.showAnimeUnwatchedCount,
                 showMangaUnreadCount: themeSettings?.showMangaUnreadCount,
+                hideEpisodeCardDescription: themeSettings?.hideEpisodeCardDescription,
+                hideDownloadedEpisodeCardFilename: themeSettings?.hideDownloadedEpisodeCardFilename,
             }}
             stackClass="space-y-4 relative"
         >
@@ -332,6 +339,16 @@ export function UISettings() {
 
                             <SettingsCard title="Collection screens">
 
+                                {!serverStatus?.settings?.library?.enableWatchContinuity && (
+                                    f.watch('continueWatchingDefaultSorting').includes("LAST_WATCHED") ||
+                                    f.watch('animeLibraryCollectionDefaultSorting').includes("LAST_WATCHED")
+                                ) && (
+                                        <Alert
+                                            intent="alert"
+                                            description="Watch continuity needs to be enabled to use the last watched sorting options."
+                                        />
+                                    )}
+
                                 <Field.RadioCards
                                     label="Banner type"
                                     name="libraryScreenBannerType"
@@ -451,6 +468,18 @@ export function UISettings() {
                                     side="right"
                                     label="Show anime info"
                                     name="showEpisodeCardAnimeInfo"
+                                />
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Hide episode summary"
+                                    name="hideEpisodeCardDescription"
+                                />
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Hide downloaded episode filename"
+                                    name="hideDownloadedEpisodeCardFilename"
                                 />
 
 

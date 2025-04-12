@@ -10,6 +10,8 @@ import (
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/notifier"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -22,7 +24,6 @@ import (
 	"time"
 
 	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -98,6 +99,12 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 // If the AutoDownloader is active, it will stop it if the settings are disabled.
 func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
 	defer util.HandlePanicInModuleThen("autodownloader/SetSettings", func() {})
+
+	event := &AutoDownloaderSettingsUpdatedEvent{
+		Settings: settings,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderSettingsUpdated().Trigger(event)
+	settings = event.Settings
 
 	if ad == nil {
 		return
@@ -262,6 +269,18 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 	rules = _filteredRules
 
+	// Event
+	event := &AutoDownloaderRunStartedEvent{
+		Rules: rules,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
+	rules = event.Rules
+
+	// Default prevented, return
+	if event.DefaultPrevented {
+		return
+	}
+
 	// If there are no rules, return
 	if len(rules) == 0 {
 		ad.logger.Debug().Msg("autodownloader: No rules found")
@@ -283,6 +302,21 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
 		return
 	}
+
+	// Event
+	fetchedEvent := &AutoDownloaderTorrentsFetchedEvent{
+		Torrents: torrents,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderTorrentsFetched().Trigger(fetchedEvent)
+	torrents = fetchedEvent.Torrents
+
+	// // Try to start the torrent client if it's not running
+	// if ad.torrentClientRepository != nil {
+	// 	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
+	// 	if !started {
+	// 		ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running.")
+	// 	}
+	// }
 
 	// Get existing torrents
 	existingTorrents := make([]*torrent_client.Torrent, 0)
@@ -338,6 +372,27 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				}
 
 				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry, items)
+				event := &AutoDownloaderMatchVerifiedEvent{
+					Torrent:    t,
+					Rule:       rule,
+					ListEntry:  listEntry,
+					LocalEntry: localEntry,
+					Episode:    episode,
+					MatchFound: ok,
+				}
+				_ = hook.GlobalHookManager.OnAutoDownloaderMatchVerified().Trigger(event)
+				t = event.Torrent
+				rule = event.Rule
+				listEntry = event.ListEntry
+				localEntry = event.LocalEntry
+				episode = event.Episode
+				ok = event.MatchFound
+
+				// Default prevented, skip the torrent
+				if event.DefaultPrevented {
+					continue outer // Skip the torrent
+				}
+
 				if ok {
 					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
 						torrent: t,
@@ -470,6 +525,22 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		}
 	}
 
+	// Event
+	beforeEvent := &AutoDownloaderBeforeDownloadTorrentEvent{
+		Torrent: t,
+		Rule:    rule,
+		Items:   items,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderBeforeDownloadTorrent().Trigger(beforeEvent)
+	t = beforeEvent.Torrent
+	rule = beforeEvent.Rule
+	_ = beforeEvent.Items
+
+	// Default prevented, return
+	if beforeEvent.DefaultPrevented {
+		return false
+	}
+
 	providerExtension, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !found {
 		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
@@ -583,6 +654,13 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		Downloaded:  downloaded,
 	}
 	_ = ad.database.InsertAutoDownloaderItem(item)
+
+	// Event
+	afterEvent := &AutoDownloaderAfterDownloadTorrentEvent{
+		Torrent: t,
+		Rule:    rule,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderAfterDownloadTorrent().Trigger(afterEvent)
 
 	return true
 }

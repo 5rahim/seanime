@@ -1,10 +1,10 @@
 package chapter_downloader
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/manga/providers"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"

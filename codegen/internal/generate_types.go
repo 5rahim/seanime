@@ -3,12 +3,13 @@ package codegen
 import (
 	"cmp"
 	"fmt"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -17,13 +18,10 @@ const (
 
 // Structs that are not directly referenced by the API routes but are needed for the Typescript file.
 var additionalStructNames = []string{
-	"vendor_hibike_manga.ChapterDetails",
-	"vendor_hibike_manga.ChapterPage",
-	"vendor_hibike_torrent.AnimeTorrent",
-	"vendor_hibike_torrent.AnimeTorrentProviderType",
 	"torrentstream.TorrentLoadingStatus",
 	"torrentstream.TorrentStatus",
 	"debrid_client.StreamState",
+	"extension_repo.TrayPluginExtensionItem",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

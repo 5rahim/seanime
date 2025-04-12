@@ -60,13 +60,16 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // Smart search is not enabled for adult content
     const [searchType, setSearchType] = React.useState(!isAdult ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)
 
-    const [globalFilter, setGlobalFilter] = React.useState<string>(hasEpisodesToDownload ? "" : (entry?.media?.title?.romaji || ""))
+    const [globalFilter, debouncedGlobalFilter, setGlobalFilter] = useDebounceWithSet(hasEpisodesToDownload
+        ? ""
+        : (entry?.media?.title?.romaji || ""), 500)
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const [smartSearchBatch, setSmartSearchBatch] = React.useState<boolean>(shouldLookForBatches || false)
-    const [smartSearchEpisode, setSmartSearchEpisode] = React.useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
-    const [smartSearchResolution, setSmartSearchResolution] = React.useState("1080")
+    // const [smartSearchEpisode, setSmartSearchEpisode] = React.useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
+    const [smartSearchResolution, setSmartSearchResolution] = React.useState("")
     const [smartSearchBest, setSmartSearchBest] = React.useState(false)
-    const [dSmartSearchEpisode, setDSmartSearchEpisode] = useDebounceWithSet(smartSearchEpisode, 500)
+    const [smartSearchEpisode, debouncedSmartSearchEpisode, setSmartSearchEpisode] = useDebounceWithSet(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1,
+        500)
 
     const warnings = {
         noProvider: !selectedProviderExtension,
@@ -104,12 +107,18 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         }
     }, [warnings.extensionDoesNotSupportBatchSearch, selectedProviderExtensionId, smartSearchBatch])
 
+    React.useEffect(() => {
+        console.log("globalFilter", globalFilter)
+    }, [globalFilter])
+
+    console.log("smartSearchResolution", smartSearchResolution)
+
     /**
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-        query: globalFilter.trim().toLowerCase(),
-            episodeNumber: dSmartSearchEpisode,
+        query: debouncedGlobalFilter.trim().toLowerCase(),
+        episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,
             absoluteOffset: downloadInfo?.absoluteOffset || 0,
@@ -118,7 +127,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             provider: selectedProviderExtension?.id!,
             bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
         },
-        !(searchType === Torrent_SearchType.SIMPLE && globalFilter.length === 0) // If simple search, user input must not be empty
+        !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider
         && !warnings.extensionDoesNotSupportAdult
         && !warnings.extensionDoesNotSupportSmartSearch
@@ -129,7 +138,6 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     React.useLayoutEffect(() => {
         if (soughtEpisode !== undefined) {
             setSmartSearchEpisode(soughtEpisode)
-            setDSmartSearchEpisode(soughtEpisode)
             startTransition(() => {
                 setSoughtEpisode(undefined)
             })
@@ -154,9 +162,9 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             smartSearchEpisode,
             smartSearchResolution,
             smartSearchBest,
-            dSmartSearchEpisode,
+            debouncedSmartSearchEpisode,
         })
-    }, [globalFilter, searchType, smartSearchBatch, smartSearchEpisode, smartSearchResolution, smartSearchBest, dSmartSearchEpisode])
+    }, [globalFilter, searchType, smartSearchBatch, smartSearchEpisode, smartSearchResolution, smartSearchBest, debouncedSmartSearchEpisode])
 
     return {
         warnings,
@@ -179,8 +187,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         setSmartSearchResolution,
         smartSearchBest,
         setSmartSearchBest,
-        dSmartSearchEpisode,
-        setDSmartSearchEpisode,
+        debouncedSmartSearchEpisode,
         soughtEpisode,
         data: _data,
         isLoading: _isLoading,

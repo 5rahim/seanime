@@ -1,13 +1,14 @@
 package nyaa
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestSearch(t *testing.T) {
@@ -28,7 +29,8 @@ func TestSmartSearch(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	nyaaProvider := NewProvider(util.NewLogger())
 

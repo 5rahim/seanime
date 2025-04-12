@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { FaDownload } from "react-icons/fa"
 import { IoReload } from "react-icons/io5"
+import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
     children?: React.ReactNode
@@ -37,18 +38,20 @@ export function TopNavbar(props: TopNavbarProps) {
     return (
         <>
             <div
+                data-top-navbar
                 className={cn(
                     "w-full h-[5rem] relative overflow-hidden flex items-center",
                     (ts.hideTopNavbar || process.env.NEXT_PUBLIC_PLATFORM === "desktop") && "lg:hidden",
                 )}
             >
-                <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
-                    <div className="flex items-center w-full gap-3">
+                <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
+                    <div data-top-navbar-content className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />
-                        <div className="flex flex-1"></div>
+                        <div data-top-navbar-content-separator className="flex flex-1"></div>
+                        <PluginSidebarTray place="top" />
                         {!isOffline && <ChapterDownloadsButton />}
                         {!isOffline && <RefreshAnilistButton />}
                     </div>
@@ -91,11 +94,12 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
-        <div className="flex flex-col gap-1">
-            <div className="px-4 lg:py-1">
+        <div data-sidebar-navbar className="flex flex-col gap-1">
+            <div data-sidebar-navbar-spacer className="px-4 lg:py-1">
                 <Separator className="px-4" />
             </div>
             {!serverStatus?.isOffline && <VerticalMenu
+                data-sidebar-navbar-vertical-menu
                 className="px-4"
                 collapsed={isCollapsed}
                 itemClass="relative"
@@ -121,10 +125,10 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                     ] : []),
                 ]}
             />}
-            <div className="flex justify-center">
+            <div data-sidebar-navbar-playback-manager-progress-tracking-button className="flex justify-center">
                 <PlaybackManagerProgressTrackingButton asSidebarButton />
             </div>
-            <div className="flex justify-center">
+            <div data-sidebar-navbar-manual-progress-tracking-button className="flex justify-center">
                 <ManualProgressTrackingButton asSidebarButton />
             </div>
         </div>

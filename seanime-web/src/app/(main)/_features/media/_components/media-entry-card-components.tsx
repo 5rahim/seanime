@@ -36,6 +36,7 @@ export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
 
     return (
         <div
+            data-media-entry-card-container
             ref={mRef}
             className={cn(
                 "h-full col-span-1 group/media-entry-card relative flex flex-col place-content-stretch focus-visible:outline-0 flex-none",
@@ -63,6 +64,7 @@ export function MediaEntryCardOverlay(props: MediaEntryCardOverlayProps) {
 
     return (
         <div
+            data-media-entry-card-overlay
             className={cn(
                 "absolute z-[14] top-0 left-0 w-full",
             )}
@@ -91,6 +93,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
 
     return (
         <div
+            data-media-entry-card-hover-popup
             className={cn(
                 !ts.enableMediaCardBlurredBackground ? "bg-[--media-card-popup-background]" : "bg-[--background]",
                 "absolute z-[15] opacity-0 scale-100 border border-[rgb(255_255_255_/_5%)] duration-150",
@@ -105,27 +108,33 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             {...rest}
         >
             {(ts.enableMediaCardBlurredBackground && !!coverImage) &&
-                <div className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden">
-                <Image
-                    src={getImageUrl(coverImage || "")}
-                    alt={"cover image"}
-                    fill
-                    placeholder={imageShimmer(700, 475)}
-                    quality={100}
+                <div
+                    data-media-entry-card-hover-popup-image-container
+                    className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden"
+                >
+                    <Image
+                        data-media-entry-card-hover-popup-image
+                        src={getImageUrl(coverImage || "")}
+                        alt={"cover image"}
+                        fill
+                        placeholder={imageShimmer(700, 475)}
+                        quality={100}
                     sizes="20rem"
                     className="object-cover object-center transition opacity-20"
                 />
 
                 <div
+                    data-media-entry-card-hover-popup-image-blur-overlay
                     className="absolute top-0 w-full h-full backdrop-blur-xl z-[0]"
                 ></div>
             </div>}
 
             {ts.enableMediaCardBlurredBackground && <div
+                data-media-entry-card-hover-popup-image-blur-gradient
                 className="w-full absolute top-0 h-full opacity-60 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2] rounded-[--radius]"
             />}
 
-            <div className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
+            <div data-media-entry-card-hover-popup-content className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
                 {children}
             </div>
         </div>
@@ -148,6 +157,7 @@ export function MediaEntryCardHoverPopupBody(props: MediaEntryCardHoverPopupBody
 
     return (
         <div
+            data-media-entry-card-hover-popup-body
             className={cn(
                 "space-y-1 select-none",
                 className,
@@ -175,6 +185,7 @@ export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFo
 
     return (
         <div
+            data-media-entry-card-hover-popup-footer
             className={cn(
                 "flex gap-2 items-center",
                 className,
@@ -209,7 +220,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
 
     return (
         <>
-            <div className="select-none">
+            <div data-media-entry-card-hover-popup-title className="select-none">
                 <SeaLink
                     href={link}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
@@ -218,7 +229,10 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
                 </SeaLink>
             </div>
             {!!year && <div>
-                <p className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center">
+                <p
+                    data-media-entry-card-hover-popup-title-section-year-season
+                    className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center"
+                >
                     {startCase(format || "")} - <BiCalendarAlt /> {capitalize(season ?? "")} {year}
                 </p>
             </div>}
@@ -244,9 +258,9 @@ export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
 
     return (
         <>
-            <div className="flex gap-1 items-center justify-center">
+            <div data-anime-entry-card-next-airing-container className="flex gap-1 items-center justify-center">
                 {/*<p className="text-xs min-[2000px]:text-md">Next episode:</p>*/}
-                <p className="text-justify font-normal text-xs min-[2000px]:text-md">
+                <p data-anime-entry-card-next-airing className="text-justify font-normal text-xs min-[2000px]:text-md">
                     Episode <span className="font-semibold">{nextAiring?.episode}</span> {formatDistanceToNow(addSeconds(new Date(),
                     nextAiring?.timeUntilAiring), { addSuffix: true })}
                     {/*<Badge*/}
@@ -306,8 +320,10 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
             <SeaLink
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
+                data-media-entry-card-body-link
             >
                 <div
+                    data-media-entry-card-body
                     className={cn(
                         "media-entry-card__body aspect-[6/8] flex-none rounded-[--radius] object-cover object-center relative overflow-hidden select-none",
                     )}
@@ -318,12 +334,14 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
 
                     {(showProgressBar && progress && progressTotal) && (
                         <div
+                            data-media-entry-card-body-progress-bar-container
                             className={cn(
                                 "absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0",
                                 listStatus === "COMPLETED" && "hidden",
                             )}
                         >
                             <div
+                                data-media-entry-card-body-progress-bar
                                 className={cn(
                                     "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
                                     (listStatus === "CURRENT") ? "bg-brand-400" : "bg-gray-400",
@@ -336,7 +354,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     )}
 
                     {(showLibraryBadge) &&
-                        <div className="absolute z-[1] left-0 top-0">
+                        <div data-media-entry-card-body-library-badge className="absolute z-[1] left-0 top-0">
                             <Badge
                                 size="xl" intent="warning-solid"
                                 className="rounded-[--radius] rounded-bl-none rounded-tr-none text-orange-900"
@@ -344,7 +362,8 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         </div>}
 
                     {/*RELEASING BADGE*/}
-                    {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
+                    {(status === "RELEASING" || status === "NOT_YET_RELEASED") &&
+                        <div data-media-entry-card-body-releasing-badge-container className="absolute z-[10] right-1 top-2">
                         <Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>
                     </div>}
 
@@ -352,6 +371,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     {children}
 
                     <Image
+                        data-media-entry-card-body-image
                         src={getImageUrl(bannerImage || "")}
                         alt={""}
                         fill
@@ -361,11 +381,13 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         className={cn(
                             "object-cover object-center transition-transform",
                             "group-hover/media-entry-card:scale-110",
+                            (blurAdultContent && isAdult) && "opacity-80",
                         )}
                     />
 
                     {(blurAdultContent && isAdult) && <div
-                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
+                        data-media-entry-card-body-blur-adult-content-overlay
+                        className="absolute top-0 w-[125%] h-[125%] -translate-x-[10%] -translate-y-[10%] backdrop-blur-xl z-[3] rounded-[--radius]"
                     ></div>}
                 </div>
             </SeaLink>
@@ -393,12 +415,15 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
     } = props
 
     return (
-        <div className="pt-2 space-y-1 flex flex-col justify-between h-full select-none">
+        <div data-media-entry-card-title-section className="pt-2 space-y-1 flex flex-col justify-between h-full select-none">
             <div>
-                <p className="text-pretty font-medium min-[2000px]:font-semibold text-sm lg:text-[1rem] min-[2000px]:text-lg line-clamp-2">{title}</p>
+                <p
+                    data-media-entry-card-title-section-title
+                    className="text-pretty font-medium min-[2000px]:font-semibold text-sm lg:text-[1rem] min-[2000px]:text-lg line-clamp-2"
+                >{title}</p>
             </div>
             {(!!season || !!year) && <div>
-                <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
+                <p data-media-entry-card-title-section-year-season className="text-sm text-[--muted] inline-flex gap-1 items-center">
                     {capitalize(season ?? "")} {year}
                 </p>
             </div>}
@@ -451,11 +476,15 @@ export const MediaEntryCardHoverPopupBanner = memo(({
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
-    return <SeaLink tabIndex={-1} href={link}>
-        <div className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
+    return <SeaLink tabIndex={-1} href={link} data-media-entry-card-hover-popup-banner-link>
+        <div data-media-entry-card-hover-popup-banner-container className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
-                <div className="absolute rounded-[--radius] overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                <div
+                    data-media-entry-card-hover-popup-banner-progress-bar-container
+                    className="absolute rounded-[--radius] overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0"
+                >
                     <div
+                        data-media-entry-card-hover-popup-banner-progress-bar
                         className={cn(
                             "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
                             (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-brand-400" : "bg-gray-400",
@@ -464,7 +493,8 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     ></div>
                 </div>}
 
-            {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
+            {(status === "RELEASING" || status === "NOT_YET_RELEASED") &&
+                <div data-media-entry-card-hover-popup-banner-releasing-badge-container className="absolute z-[10] right-1 top-2">
                 <Tooltip
                     trigger={<Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>}
                 >
@@ -473,6 +503,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             </div>}
 
             {(!!bannerImage) ? <Image
+                data-media-entry-card-hover-popup-banner-image
                 src={getImageUrl(bannerImage || "")}
                 alt={"banner"}
                 fill
@@ -484,14 +515,16 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     trailerLoaded && "hidden",
                 )}
             /> : <div
+                data-media-entry-card-hover-popup-banner-image-gradient
                 className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
             ></div>}
 
             {(blurAdultContent && isAdult) && <div
+                data-media-entry-card-hover-popup-banner-blur-adult-content-overlay
                 className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
             ></div>}
 
-            <div className="absolute z-[4] left-0 bottom-0">
+            <div data-media-entry-card-hover-popup-banner-progress-badge-container className="absolute z-[4] left-0 bottom-0">
                 <MediaEntryProgressBadge
                     progress={progress}
                     progressTotal={progressTotal}
@@ -500,12 +533,14 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             </div>
 
             {(trailerEnabled && actionPopupHover) && <div
+                data-media-entry-card-hover-popup-banner-trailer-container
                 className={cn(
                     "absolute w-full h-full overflow-hidden rounded-[--radius]",
                     !trailerLoaded && "hidden",
                 )}
             >
                 <iframe
+                    data-media-entry-card-hover-popup-banner-trailer
                     src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja`}
                     className={cn(
                         "aspect-video w-full absolute left-0",
@@ -521,6 +556,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             </div>}
 
             {<div
+                data-media-entry-card-hover-popup-banner-gradient
                 className={cn(
                     "w-full absolute -bottom-1 h-[80%] from-10% bg-gradient-to-t from-[--media-card-popup-background] to-transparent z-[2]",
                     ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-[--radius] opacity-80",

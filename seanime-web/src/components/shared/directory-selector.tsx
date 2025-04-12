@@ -79,6 +79,12 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
         }
     }, [isLoading, data, input, shouldExist, prevState.current])
 
+    function sanitizeInput(input: string) {
+        // cross-platform sanitization
+        input = input.replace(/[<>"]/g, '');
+        return upath.normalize(input.trim())
+    }
+
     return (
         <>
             <div className="space-y-1">
@@ -93,7 +99,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                                     <BiX className="text-red-500" /> : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
-                            setInput(upath.normalize(e.target.value ?? ""))
+                            setInput(sanitizeInput(e.target.value ?? ""))
                         }}
                         ref={ref}
                         onBlur={checkDirectoryExists}

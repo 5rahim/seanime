@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/rs/zerolog"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (

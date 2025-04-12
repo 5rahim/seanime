@@ -1,6 +1,7 @@
 package torrent
 
 import (
+	"context"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -12,7 +13,8 @@ func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	repo := getTestRepo(t)
 
@@ -76,7 +78,7 @@ func TestSmartSearch(t *testing.T) {
 				t.Fatalf("could not fetch media id %d", tt.mediaId)
 			}
 
-			data, err := repo.SearchAnime(AnimeSearchOptions{
+			data, err := repo.SearchAnime(context.Background(), AnimeSearchOptions{
 				Provider:      tt.provider,
 				Type:          AnimeSearchTypeSmart,
 				Media:         media,

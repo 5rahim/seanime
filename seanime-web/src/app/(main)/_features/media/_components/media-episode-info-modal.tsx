@@ -35,6 +35,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
     return (
         <>
             <Modal
+                data-media-episode-info-modal
                 trigger={<IconButton
                     icon={<MdInfo />}
                     className="opacity-30 hover:opacity-100 transform-opacity"
@@ -47,9 +48,11 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
             >
 
                 {image && <div
+                    data-media-episode-info-modal-image-container
                     className="h-[8rem] rounded-t-md w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
                 >
                     <Image
+                        data-media-episode-info-modal-image
                         src={image}
                         alt="banner"
                         fill
@@ -59,12 +62,13 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                         className="object-cover object-center opacity-30"
                     />
                     <div
+                        data-media-episode-info-modal-image-gradient
                         className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
                     />
                 </div>}
 
-                <div className="space-y-4">
-                    <p className="text-lg line-clamp-2 font-semibold">
+                <div data-media-episode-info-modal-content className="space-y-4">
+                    <p data-media-episode-info-modal-content-title className="text-lg line-clamp-2 font-semibold">
                         {episodeTitle?.replaceAll("`", "'")}
                         {isInvalid && <AiFillWarning />}
                     </p>

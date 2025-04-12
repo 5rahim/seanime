@@ -9,8 +9,8 @@ import (
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/util"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/labstack/echo/v4"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 // HandleGetActiveTorrentList

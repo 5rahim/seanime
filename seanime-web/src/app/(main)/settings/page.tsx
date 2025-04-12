@@ -102,7 +102,7 @@ export default function Page() {
     return (
         <>
             <CustomLibraryBanner discrete />
-            <PageWrapper className="p-4 sm:p-8 space-y-4">
+            <PageWrapper data-settings-page-container className="p-4 sm:p-8 space-y-4">
                 {/*<Separator/>*/}
 
 
@@ -113,6 +113,7 @@ export default function Page() {
                     className={tabsRootClass}
                     triggerClass={tabsTriggerClass}
                     listClass={tabsListClass}
+                    data-settings-page-tabs
                 >
                     <TabsList className="flex-wrap max-w-full lg:space-y-2">
                         <SettingsNavCard>
@@ -190,6 +191,7 @@ export default function Page() {
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
+                                        mangaAutoUpdateProgress: data.mangaAutoUpdateProgress ?? false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -294,6 +296,7 @@ export default function Page() {
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                                 disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,
                                 defaultMangaProvider: status?.settings?.manga?.defaultMangaProvider || "-",
+                                mangaAutoUpdateProgress: status?.settings?.manga?.mangaAutoUpdateProgress ?? false,
                                 showActiveTorrentCount: status?.settings?.torrent?.showActiveTorrentCount ?? false,
                                 autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,

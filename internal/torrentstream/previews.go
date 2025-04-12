@@ -3,9 +3,9 @@ package torrentstream
 import (
 	"fmt"
 	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/anacrolix/torrent"
 	"seanime/internal/api/anilist"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"sync"

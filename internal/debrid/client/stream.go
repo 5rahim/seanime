@@ -7,12 +7,12 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"
 	"time"
-
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type (
@@ -249,45 +249,56 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			return
 		}
 
-		s.repository.logger.Debug().Msg("debridstream: Stream URL received, checking stream file")
-		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-			Status:      StreamStatusDownloading,
-			TorrentName: selectedTorrent.Name,
-			Message:     "Checking stream file...",
-		})
+		skipCheckEvent := &DebridSkipStreamCheckEvent{
+			StreamURL:  streamUrl,
+			Retries:    4,
+			RetryDelay: 8,
+		}
+		_ = hook.GlobalHookManager.OnDebridSkipStreamCheck().Trigger(skipCheckEvent)
+		streamUrl = skipCheckEvent.StreamURL
 
-		retries := 0
+		// Default prevented, we check if we can stream the file
+		if skipCheckEvent.DefaultPrevented {
+			s.repository.logger.Debug().Msg("debridstream: Stream URL received, checking stream file")
+			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+				Status:      StreamStatusDownloading,
+				TorrentName: selectedTorrent.Name,
+				Message:     "Checking stream file...",
+			})
 
-	streamUrlCheckLoop:
-		for { // Retry loop for a total of 4 times (32 seconds)
-			select {
-			case <-ctx.Done():
-				s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
-				return
-			default:
-				// Check if we can stream the URL
-				if canStream, reason := CanStream(streamUrl); !canStream {
-					if retries >= 4 {
-						s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+			retries := 0
 
+		streamUrlCheckLoop:
+			for { // Retry loop for a total of 4 times (32 seconds)
+				select {
+				case <-ctx.Done():
+					s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+					return
+				default:
+					// Check if we can stream the URL
+					if canStream, reason := CanStream(streamUrl); !canStream {
+						if retries >= skipCheckEvent.Retries {
+							s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+
+							s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+								Status:      StreamStatusFailed,
+								TorrentName: selectedTorrent.Name,
+								Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+							})
+							return
+						}
+						s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
 						s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-							Status:      StreamStatusFailed,
+							Status:      StreamStatusDownloading,
 							TorrentName: selectedTorrent.Name,
-							Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+							Message:     "Checking stream file...",
 						})
-						return
+						retries++
+						time.Sleep(time.Duration(skipCheckEvent.RetryDelay) * time.Second)
+						continue
 					}
-					s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
-					s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-						Status:      StreamStatusDownloading,
-						TorrentName: selectedTorrent.Name,
-						Message:     "Checking stream file...",
-					})
-					retries++
-					time.Sleep(8 * time.Second)
-					continue
+					break streamUrlCheckLoop
 				}
-				break streamUrlCheckLoop
 			}
 		}
 
@@ -305,7 +316,29 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			return
 		}
 
-		switch opts.PlaybackType {
+		event := &DebridSendStreamToMediaPlayerEvent{
+			WindowTitle:  fmt.Sprintf("%s - Episode %s", selectedTorrent.Name, aniDbEpisode),
+			StreamURL:    streamUrl,
+			Media:        media.ToBaseAnime(),
+			AniDbEpisode: aniDbEpisode,
+			PlaybackType: string(opts.PlaybackType),
+		}
+		err = hook.GlobalHookManager.OnDebridSendStreamToMediaPlayer().Trigger(event)
+		if err != nil {
+			s.repository.logger.Err(err).Msg("debridstream: Failed to send stream to media player")
+		}
+		windowTitle := event.WindowTitle
+		streamUrl = event.StreamURL
+		media := event.Media
+		aniDbEpisode := event.AniDbEpisode
+		playbackType := StreamPlaybackType(event.PlaybackType)
+
+		if event.DefaultPrevented {
+			s.repository.logger.Debug().Msg("debridstream: Stream prevented by hook")
+			return
+		}
+
+		switch playbackType {
 		case PlaybackTypeDefault:
 			//
 			// Start the stream
@@ -313,11 +346,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			s.repository.logger.Debug().Msg("debridstream: Starting the media player")
 			// Sends the stream to the media player
 			// DEVNOTE: Events are handled by the torrentstream.Repository module
-			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(fmt.Sprintf("%s - Episode %s", selectedTorrent.Name, aniDbEpisode), &playbackmanager.StartPlayingOptions{
+			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 				Payload:   streamUrl,
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,
-			}, media.ToBaseAnime(), aniDbEpisode)
+			}, media, aniDbEpisode)
 			if err != nil {
 				// Failed to start the stream, we'll drop the torrents and stop the server
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{

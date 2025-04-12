@@ -72,9 +72,9 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     if (!hasScanned) return null
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper className="p-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between">
+            <div className="flex flex-col md:flex-row gap-4 justify-between" data-detailed-library-view-header-container>
                 <div className="flex gap-4 items-center relative w-fit">
                     <IconButton
                         icon={<AiOutlineArrowLeft />}
@@ -89,32 +89,33 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                 <SearchInput />
             </div>
 
-            <div>
-                <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]">
-                    <div>
-                        <h3>{stats?.totalSize}</h3>
-                        <p>Library</p>
-                    </div>
-                    <div>
-                        <h3>{stats?.totalFiles}</h3>
-                        <p>Files</p>
-                    </div>
-                    <div>
-                        <h3>{stats?.totalEntries}</h3>
-                        <p>Entries</p>
-                    </div>
-                    <div>
-                        <h3>{stats?.totalShows}</h3>
-                        <p>TV Shows</p>
-                    </div>
-                    <div>
-                        <h3>{stats?.totalMovies}</h3>
-                        <p>Movies</p>
-                    </div>
-                    <div>
-                        <h3>{stats?.totalSpecials}</h3>
-                        <p>Specials</p>
-                    </div>
+            <div
+                className="grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]"
+                data-detailed-library-view-stats-container
+            >
+                <div>
+                    <h3>{stats?.totalSize}</h3>
+                    <p>Library</p>
+                </div>
+                <div>
+                    <h3>{stats?.totalFiles}</h3>
+                    <p>Files</p>
+                </div>
+                <div>
+                    <h3>{stats?.totalEntries}</h3>
+                    <p>Entries</p>
+                </div>
+                <div>
+                    <h3>{stats?.totalShows}</h3>
+                    <p>TV Shows</p>
+                </div>
+                <div>
+                    <h3>{stats?.totalMovies}</h3>
+                    <p>Movies</p>
+                </div>
+                <div>
+                    <h3>{stats?.totalSpecials}</h3>
+                    <p>Specials</p>
                 </div>
             </div>
 
@@ -195,7 +196,7 @@ export function SearchOptions() {
     const [selectedIndex, setSelectedIndex] = useAtom(__library_selectedListAtom)
 
     return (
-        <AppLayoutStack className="px-4 xl:px-0">
+        <AppLayoutStack className="px-4 xl:px-0" data-detailed-library-view-search-options-container>
             <div className="flex w-full justify-center">
                 <StaticTabs
                     className="h-10 w-fit pb-6"
@@ -210,7 +211,10 @@ export function SearchOptions() {
                     ]}
                 />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
+            <div
+                className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4"
+                data-detailed-library-view-search-options-grid
+            >
                 <Select
                     label="Sorting"
                     leftAddon={<FaSortAmountDown className={cn(params.sorting !== "TITLE" && "text-indigo-300 font-bold text-xl")} />}

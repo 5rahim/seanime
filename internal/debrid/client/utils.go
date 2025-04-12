@@ -3,10 +3,11 @@ package debrid_client
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/nwaples/rardecode/v2"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/nwaples/rardecode/v2"
 )
 
 // Unzips a file to the destination
@@ -62,7 +63,6 @@ func unzipFile(src, dest string) (string, error) {
 			return "", err
 		}
 	}
-	// Remove the original archive file
 	return extractedDir, nil
 }
 
@@ -121,7 +121,6 @@ func unrarFile(src, dest string) (string, error) {
 			return "", err
 		}
 	}
-	// Remove the original archive file
 	return extractedDir, nil
 }
 

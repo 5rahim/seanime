@@ -1,9 +1,9 @@
 package extension_repo_test
 
 import (
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"testing"
 )
 

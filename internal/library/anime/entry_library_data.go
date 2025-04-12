@@ -1,6 +1,7 @@
 package anime
 
 import (
+	"seanime/internal/hook"
 	"strings"
 
 	"github.com/samber/lo"
@@ -25,25 +26,35 @@ type (
 // It will return false if the list of local files is empty.
 func NewEntryLibraryData(opts *NewEntryLibraryDataOptions) (ret *EntryLibraryData, ok bool) {
 
-	if opts.EntryLocalFiles == nil || len(opts.EntryLocalFiles) == 0 {
+	reqEvent := new(AnimeEntryLibraryDataRequestedEvent)
+	reqEvent.EntryLocalFiles = opts.EntryLocalFiles
+	reqEvent.MediaId = opts.MediaId
+	reqEvent.CurrentProgress = opts.CurrentProgress
+
+	err := hook.GlobalHookManager.OnAnimeEntryLibraryDataRequested().Trigger(reqEvent)
+	if err != nil {
 		return nil, false
 	}
-	sharedPath := strings.Replace(opts.EntryLocalFiles[0].Path, opts.EntryLocalFiles[0].Name, "", 1)
+
+	if reqEvent.EntryLocalFiles == nil || len(reqEvent.EntryLocalFiles) == 0 {
+		return nil, false
+	}
+	sharedPath := strings.Replace(reqEvent.EntryLocalFiles[0].Path, reqEvent.EntryLocalFiles[0].Name, "", 1)
 	sharedPath = strings.TrimSuffix(strings.TrimSuffix(sharedPath, "\\"), "/")
 
 	ret = &EntryLibraryData{
-		AllFilesLocked: lo.EveryBy(opts.EntryLocalFiles, func(item *LocalFile) bool { return item.Locked }),
+		AllFilesLocked: lo.EveryBy(reqEvent.EntryLocalFiles, func(item *LocalFile) bool { return item.Locked }),
 		SharedPath:     sharedPath,
 	}
 	ok = true
 
-	lfw := NewLocalFileWrapper(opts.EntryLocalFiles)
-	lfwe, ok := lfw.GetLocalEntryById(opts.MediaId)
+	lfw := NewLocalFileWrapper(reqEvent.EntryLocalFiles)
+	lfwe, ok := lfw.GetLocalEntryById(reqEvent.MediaId)
 	if !ok {
 		return ret, true
 	}
 
-	ret.UnwatchedCount = len(lfwe.GetUnwatchedLocalFiles(opts.CurrentProgress))
+	ret.UnwatchedCount = len(lfwe.GetUnwatchedLocalFiles(reqEvent.CurrentProgress))
 
 	mainLfs, ok := lfwe.GetMainLocalFiles()
 	if !ok {
@@ -51,5 +62,11 @@ func NewEntryLibraryData(opts *NewEntryLibraryDataOptions) (ret *EntryLibraryDat
 	}
 	ret.MainFileCount = len(mainLfs)
 
-	return ret, true
+	event := new(AnimeEntryLibraryDataEvent)
+	event.EntryLibraryData = ret
+	err = hook.GlobalHookManager.OnAnimeEntryLibraryData().Trigger(event)
+	if err != nil {
+		return nil, false
+	}
+	return event.EntryLibraryData, true
 }

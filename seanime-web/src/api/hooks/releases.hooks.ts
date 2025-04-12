@@ -26,3 +26,12 @@ export function useInstallLatestUpdate() {
         },
     })
 }
+
+export function useGetChangelog(before: string, after: string, enabled: boolean) {
+    return useServerQuery<{ version: string, lines: string[] }[]>({
+        endpoint: API_ENDPOINTS.RELEASES.GetChangelog.endpoint + `?before=${before}&after=${after}`,
+        method: API_ENDPOINTS.RELEASES.GetChangelog.methods[0],
+        queryKey: [API_ENDPOINTS.RELEASES.GetChangelog.key],
+        enabled: enabled,
+    })
+}

@@ -2,68 +2,121 @@ package core
 
 import (
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
-	"golang.org/x/term"
 	"os"
 	"seanime/internal/constants"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/term"
 )
 
 func PrintHeader() {
-
-	var (
-		subtle     = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
-		titleStyle = lipgloss.NewStyle().
-				MarginLeft(1).
-				MarginRight(5).
-				Padding(0, 1).
-				Italic(true).
-				Foreground(lipgloss.Color("#FFF7DB")).
-				SetString("Seanime")
-		docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
-	)
-
+	// Get terminal width
 	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
-	doc := strings.Builder{}
 
-	var (
-		logo strings.Builder
-	)
+	// Color scheme
+	// primary := lipgloss.Color("#7B61FF")
+	// secondary := lipgloss.Color("#5243CB")
+	// highlight := lipgloss.Color("#14F9D5")
+	// versionBgColor := lipgloss.Color("#8A2BE2")
+	subtle := lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 
-	//col := color.New(color.FgHiMagenta)
-	fmt.Println()
-	//col.Printf("\n        .-----.    \n       /    _ /  \n       \\_..`--.  \n       .-._)   \\ \n       \\ ")
-	//col.Printf("      / \n        `-----'  \n")
-	fmt.Fprint(&logo, lipgloss.NewStyle().Foreground(lipgloss.Color("#5243cb")).SetString("\n      .-----.    \n     /    _ /  \n     \\_..`--.  \n     .-._)   \\ \n     \\       / \n      `-----'  \n"))
-	doc.WriteString(logo.String() + "\n")
-
-	{
-		var (
-			title  strings.Builder
-			titles = []string{"Seanime", constants.Version, constants.VersionName}
-			colors = []string{"#5243cb", "#5243cb", "#2552c7", "#14F9D5"}
-		)
-
-		for i, v := range titles {
-			const offset = 4
-			c := lipgloss.Color(colors[i])
-			s := titleStyle.SetString(v).MarginLeft(i * offset).Background(c)
-			fmt.Fprint(&title, s)
-			if i < len(titles)-1 {
-				title.WriteRune('\n')
-			}
-		}
-
-		row := lipgloss.NewStyle().
-			//BorderStyle(lipgloss.NormalBorder()).BorderTop(true).
-			Padding(0, 1).BorderForeground(subtle).Render(title.String())
-		doc.WriteString(row)
-	}
-
+	// Base styles
+	docStyle := lipgloss.NewStyle().Padding(1, 2)
 	if physicalWidth > 0 {
 		docStyle = docStyle.MaxWidth(physicalWidth)
 	}
 
-	fmt.Println(docStyle.Render(doc.String()))
+	// Build the header
+	doc := strings.Builder{}
 
+	// Logo with gradient effect
+	logoStyle := lipgloss.NewStyle().Bold(true)
+	logoLines := strings.Split(asciiLogo(), "\n")
+
+	// Create a gradient effect for the logo
+	gradientColors := []string{"#9370DB", "#8A2BE2", "#7B68EE", "#6A5ACD", "#5243CB"}
+	for i, line := range logoLines {
+		colorIdx := i % len(gradientColors)
+		coloredLine := logoStyle.Foreground(lipgloss.Color(gradientColors[colorIdx])).Render(line)
+		doc.WriteString(coloredLine + "\n")
+	}
+
+	// App name and version with box
+	titleBox := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(subtle).
+		Foreground(lipgloss.Color("#FFF7DB")).
+		// Background(secondary).
+		Padding(0, 1).
+		Bold(true).
+		Render("Seanime")
+
+	versionBox := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(subtle).
+		Foreground(lipgloss.Color("#ed4760")).
+		// Background(versionBgColor).
+		Padding(0, 1).
+		Bold(true).
+		Render(constants.Version)
+
+	// Version name with different style
+	versionName := lipgloss.NewStyle().
+		Italic(true).
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(subtle).
+		Foreground(lipgloss.Color("#FFF7DB")).
+		// Background(versionBgColor).
+		Padding(0, 1).
+		Render(constants.VersionName)
+
+	// Combine title elements
+	titleRow := lipgloss.JoinHorizontal(lipgloss.Center, titleBox, versionBox, versionName)
+
+	// Add a decorative line
+	// lineWidth := min(80, physicalWidth-4)
+	// line := lipgloss.NewStyle().
+	// 	Foreground(subtle).
+	// 	Render(strings.Repeat("─", lineWidth))
+
+	// Put it all together
+	doc.WriteString("\n" +
+		lipgloss.NewStyle().Align(lipgloss.Center).Render(titleRow))
+
+	// Print the result
+	fmt.Println(docStyle.Render(doc.String()))
+}
+
+// func asciiLogo() string {
+// 	return `⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⠀⠀⠀⢠⣾⣧⣤⡖⠀⠀⠀⠀⠀⠀⠀
+// ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⠋⠀⠉⠀⢄⣸⣿⣿⣿⣿⣿⣥⡤⢶⣿⣦⣀⡀
+// ⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⡆⠀⠀⠀⣙⣛⣿⣿⣿⣿⡏⠀⠀⣀⣿⣿⣿⡟
+// ⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⠷⣦⣤⣤⣬⣽⣿⣿⣿⣿⣿⣿⣿⣟⠛⠿⠋⠀
+// ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⠋⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⡆⠀⠀
+// ⠀⠀⠀⠀⣠⣶⣶⣶⣿⣦⡀⠘⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠈⢹⡏⠁⠀⠀
+// ⠀⠀⠀⢀⣿⡏⠉⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡆⠀⢀⣿⡇⠀⠀⠀
+// ⠀⠀⠀⢸⣿⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣟⡘⣿⣿⣃⠀⠀⠀
+// ⣴⣷⣀⣸⣿⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⠹⣿⣯⣤⣾⠏⠉⠉⠉⠙⠢⠀
+// ⠈⠙⢿⣿⡟⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣄⠛⠉⢩⣷⣴⡆⠀⠀⠀⠀⠀
+// ⠀⠀⠀⠋⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣀⡠⠋⠈⢿⣇⠀⠀⠀⠀⠀
+// ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+// ⠀⠀⠀⠀⠀`
+// }
+
+func asciiLogo() string {
+	return `⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣴⡇⠀⠀⠀
+⠀⢸⣿⣿⣶⣦⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣶⣿⣿⣿⣿⣿⡇⠀⠀⠀
+⠀⠘⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀
+⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀
+⠀⠀⠀⠘⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠏⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⡻⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠻⣿⣿⣿⣿⣿⡌⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⣠⣤⣴⣶⣶⣶⣦⣤⣤⣄⣉⡉⠛⠷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⣴⣾⣿⣿⣿⣿⡿⠿⠿⠿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣀⡀⠀⠀⠀⠀⠀⠀
+⠀⠀ ⠉⠉⠀⠀⠉⠉⠀⠀  ⠉ ⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠲⠦⠄`
 }

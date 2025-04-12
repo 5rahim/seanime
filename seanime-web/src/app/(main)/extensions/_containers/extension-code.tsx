@@ -1,6 +1,7 @@
 import { Extension_Extension } from "@/api/generated/types"
-import { useUpdateExtensionCode } from "@/api/hooks/extensions.hooks"
+import { useGetExtensionPayload, useUpdateExtensionCode } from "@/api/hooks/extensions.hooks"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { javascript } from "@codemirror/lang-javascript"
 import { StreamLanguage } from "@codemirror/language"
@@ -17,13 +18,35 @@ type ExtensionCodeModalProps = {
 
 export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
 
+
+    return (
+        <Modal
+            contentClass="max-w-5xl"
+            trigger={props.children}
+            title="Code"
+            onInteractOutside={e => e.preventDefault()}
+            // size="xl"
+            // contentClass="space-y-4"
+        >
+            <Content {...props} />
+        </Modal>
+    )
+}
+
+function Content(props: ExtensionCodeModalProps) {
     const {
-        children,
         extension,
-        ...rest
     } = props
 
-    const [code, setCode] = React.useState(extension.payload)
+    const [code, setCode] = React.useState("")
+
+    const { data: payload, isLoading } = useGetExtensionPayload(extension.id)
+
+    React.useEffect(() => {
+        if (payload) {
+            setCode(payload)
+        }
+    }, [payload])
 
     const { mutate: updateCode, isPending } = useUpdateExtensionCode()
 
@@ -47,15 +70,12 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
         })
     }
 
+    if (isLoading) {
+        return <LoadingSpinner />
+    }
+
     return (
-        <Modal
-            contentClass="max-w-5xl"
-            trigger={children}
-            title="Code"
-            onInteractOutside={e => e.preventDefault()}
-            // size="xl"
-            // contentClass="space-y-4"
-        >
+        <>
             <div>
                 <p>
                     {extension.name}
@@ -75,7 +95,7 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
                 setCode={setCode}
                 language={extension.language}
             />
-        </Modal>
+        </>
     )
 }
 

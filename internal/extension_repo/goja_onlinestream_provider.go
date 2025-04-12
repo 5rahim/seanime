@@ -1,75 +1,36 @@
 package extension_repo
 
 import (
+	"context"
 	"fmt"
-	"github.com/dop251/goja"
-	"github.com/rs/zerolog"
 	"seanime/internal/extension"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
+	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util"
 
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	"github.com/rs/zerolog"
 )
 
-type (
-	GojaOnlinestreamProvider struct {
-		gojaExtensionImpl
-	}
-)
-
-func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikeonlinestream.Provider, *GojaOnlinestreamProvider, error) {
-	logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external online streaming provider")
-
-	vm, err := SetupGojaExtensionVM(ext, language, logger)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, nil, err
-	}
-
-	// Create the provider
-	_, err = vm.RunString(`function NewProvider() {
-   return new Provider()
-}`)
-	if err != nil {
-		vm.ClearInterrupt()
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create online streaming provider")
-		return nil, nil, err
-	}
-
-	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
-	if !ok {
-		vm.ClearInterrupt()
-		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke online streaming provider constructor")
-		return nil, nil, fmt.Errorf("failed to invoke online streaming provider constructor")
-	}
-
-	classObjVal, err := newProviderFunc(goja.Undefined())
-	if err != nil {
-		vm.ClearInterrupt()
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create online streaming provider")
-		return nil, nil, err
-	}
-
-	classObj := classObjVal.ToObject(vm)
-
-	ret := &GojaOnlinestreamProvider{
-		gojaExtensionImpl: gojaExtensionImpl{
-			vm:       vm,
-			logger:   logger,
-			ext:      ext,
-			classObj: classObj,
-		},
-	}
-	return ret, ret, nil
+type GojaOnlinestreamProvider struct {
+	*gojaProviderBase
 }
 
-func (g *GojaOnlinestreamProvider) GetVM() *goja.Runtime {
-	return g.vm
+func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (hibikeonlinestream.Provider, *GojaOnlinestreamProvider, error) {
+	base, err := initializeProviderBase(ext, language, logger, runtimeManager)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	provider := &GojaOnlinestreamProvider{
+		gojaProviderBase: base,
+	}
+	return provider, provider, nil
 }
 
 func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 	ret = make([]string, 0)
 
-	method, err := g.callClassMethod("getEpisodeServers")
+	method, err := g.callClassMethod(context.Background(), "getEpisodeServers")
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -87,16 +48,20 @@ func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions) (ret []*hibikeonlinestream.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
-	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
+	method, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
+	if err != nil {
+		return nil, fmt.Errorf("failed to call search method: %w", err)
+	}
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to wait for promise: %w", err)
 	}
 
+	ret = make([]*hibikeonlinestream.SearchResult, 0)
 	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal search results: %w", err)
 	}
 
 	return ret, nil
@@ -105,7 +70,7 @@ func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions)
 func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlinestream.EpisodeDetails, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodes", &err)
 
-	method, err := g.callClassMethod("findEpisodes", g.vm.ToValue(id))
+	method, err := g.callClassMethod(context.Background(), "findEpisodes", id)
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -127,7 +92,7 @@ func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlines
 func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream.EpisodeDetails, server string) (ret *hibikeonlinestream.EpisodeServer, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodeServer", &err)
 
-	method, err := g.callClassMethod("findEpisodeServer", g.vm.ToValue(structToMap(episode)), g.vm.ToValue(server))
+	method, err := g.callClassMethod(context.Background(), "findEpisodeServer", structToMap(episode), server)
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -149,7 +114,7 @@ func (g *GojaOnlinestreamProvider) GetSettings() (ret hibikeonlinestream.Setting
 		ret = hibikeonlinestream.Settings{}
 	})
 
-	method, err := g.callClassMethod("getSettings")
+	method, err := g.callClassMethod(context.Background(), "getSettings")
 	if err != nil {
 		return
 	}

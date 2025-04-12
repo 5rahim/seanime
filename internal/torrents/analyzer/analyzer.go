@@ -2,8 +2,6 @@ package torrent_analyzer
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	lop "github.com/samber/lo/parallel"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -12,6 +10,9 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
+
+	"github.com/rs/zerolog"
+	lop "github.com/samber/lo/parallel"
 )
 
 type (
@@ -255,7 +256,7 @@ func (a *Analyzer) scanFiles() error {
 		Logger:             a.logger,
 		ScanLogger:         nil,
 		ScanSummaryLogger:  nil,
-		ForceMediaId:       map[bool]int{true: 1, false: 0}[a.forceMatch],
+		ForceMediaId:       map[bool]int{true: a.media.GetID(), false: 0}[a.forceMatch],
 	}
 
 	fh.HydrateMetadata()

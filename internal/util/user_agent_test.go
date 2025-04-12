@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetOnlineUserAgents(t *testing.T) {
-	userAgents, err := GetOnlineUserAgents()
+	userAgents, err := getOnlineUserAgents()
 	if err != nil {
 		t.Fatalf("Failed to get online user agents: %v", err)
 	}

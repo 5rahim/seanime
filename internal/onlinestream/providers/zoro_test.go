@@ -2,9 +2,9 @@ package onlinestream_providers
 
 import (
 	"errors"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/util"
 	"testing"
 )

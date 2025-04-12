@@ -62,6 +62,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                 length={episode.episodeMetadata?.length}
                 percentageComplete={percentageComplete}
                 minutesRemaining={minutesRemaining}
+                episodeNumber={episode.episodeNumber}
+                progressNumber={episode.progressNumber}
+                description={episode.episodeMetadata?.summary || episode.episodeMetadata?.overview}
                 action={<>
                     <IconButton
                         icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}
@@ -205,7 +208,7 @@ function MetadataModalButton() {
     </DropdownMenuItem>
 }
 
-function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
+export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
     return <Modal
         title={episode.displayTitle}
         contentClass="max-w-2xl overflow-hidden"
@@ -244,7 +247,7 @@ function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
                 {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
             </p>
             <p className="text-gray-300">
-                {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'") || "No summary"}
+                {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'")?.replace(/source:.*/gi, "") || "No summary"}
             </p>
             <Separator />
             <p className="text-[--muted] line-clamp-2">

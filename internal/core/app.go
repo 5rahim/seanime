@@ -12,9 +12,11 @@ import (
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/doh"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -31,6 +33,7 @@ import (
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/local_platform"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/plugin"
 	"seanime/internal/report"
 	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -102,6 +105,7 @@ type (
 		account            *models.Account
 		previousVersion    string
 		moduleMu           sync.Mutex
+		HookManager        hook.Manager
 		AnilistDataLoaded  bool // Whether the Anilist data from the first request has been fetched
 	}
 )
@@ -115,6 +119,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	logger.Info().Msgf("app: OS: %s", runtime.GOOS)
 	logger.Info().Msgf("app: Arch: %s", runtime.GOARCH)
 	logger.Info().Msgf("app: Processor count: %d", runtime.NumCPU())
+
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hookManager)
+	plugin.GlobalAppContext.SetLogger(logger)
 
 	previousVersion := constants.Version
 
@@ -161,6 +169,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	database.TrimScanSummaryEntries()   // ran in goroutine
 	database.TrimTorrentstreamHistory() // ran in goroutine
 
+	animeLibraryPaths, _ := database.GetAllLibraryPathsFromSettings()
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		Database:          database,
+		AnimeLibraryPaths: animeLibraryPaths,
+	})
+
 	// Get token from stored account or return empty string
 	anilistToken := database.GetAnilistToken()
 
@@ -174,11 +188,24 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		wsEventManager.ExitIfNoConnsAsDesktopSidecar()
 	}
 
+	// DoH
+	go doh.HandleDoH(cfg.Server.DoHUrl, logger)
+
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize file cacher")
 	}
+
+	// Extension Repository
+	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
+		Logger:         logger,
+		ExtensionDir:   cfg.Extensions.Dir,
+		WSEventManager: wsEventManager,
+		FileCacher:     fileCacher,
+		HookManager:    hookManager,
+	})
+	go LoadExtensions(extensionRepository, logger)
 
 	// Metadata Provider
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
@@ -200,6 +227,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		AnilistPlatform: anilistPlatform,
+		WSEventManager:  wsEventManager,
+	})
 
 	// Platforms
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
@@ -239,14 +271,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MetadataProvider: activeMetadataProvider,
 		Platform:         activePlatform,
 		Database:         database,
-	})
-
-	// Extension Repository
-	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
-		Logger:         logger,
-		ExtensionDir:   cfg.Extensions.Dir,
-		WSEventManager: wsEventManager,
-		FileCacher:     fileCacher,
 	})
 
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
@@ -292,6 +316,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater: selfupdater,
 		moduleMu:    sync.Mutex{},
+		HookManager: hookManager,
 	}
 
 	// Perform necessary migrations if the version has changed
@@ -304,9 +329,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.InitOrRefreshModules()
 
 	// Load built-in extensions
-	app.LoadBuiltInExtensions()
-	// Load external extensions
-	app.LoadOrRefreshExternalExtensions()
+	app.AddExtensionBankToConsumers()
 
 	// Fetch Anilist collection and set account if not offline
 	if !app.IsOffline() {

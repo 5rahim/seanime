@@ -3,8 +3,6 @@ package sync
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db"
 	"seanime/internal/platforms/anilist_platform"
@@ -12,6 +10,9 @@ import (
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/require"
 )
 
 func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist.MangaCollection) {
@@ -19,7 +20,7 @@ func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist
 	logger := util.NewLogger()
 
 	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
 	require.NoError(t, err)

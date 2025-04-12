@@ -38,8 +38,8 @@ export function AdvancedSearchOptions() {
     const [params, setParams] = useAtom(__advancedSearch_paramsAtom)
 
     return (
-        <AppLayoutStack className="px-4 xl:px-0">
-            <div className="flex flex-col md:flex-row xl:flex-col gap-4">
+        <AppLayoutStack data-advanced-search-options-container className="px-4 xl:px-0">
+            <div data-advanced-search-options-header className="flex flex-col md:flex-row xl:flex-col gap-4">
                 <TitleInput/>
                 <Select
                     className="w-full"
@@ -63,7 +63,7 @@ export function AdvancedSearchOptions() {
                     disabled={!!params.title && params.title.length > 0}
                 />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 items-end xl:items-start">
+            <div data-advanced-search-options-content className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 items-end xl:items-start">
                 <Combobox
                     multiple
                     leftAddon={<TbSwords />}

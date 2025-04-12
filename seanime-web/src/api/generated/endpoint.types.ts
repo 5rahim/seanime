@@ -664,12 +664,45 @@ export type UpdateExtensionCode_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/reload
+ * @description
+ * Route reloads the external extension with the given ID.
+ */
+export type ReloadExternalExtension_Variables = {
+    id: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/all
  * @description
  * Route returns all loaded and invalid extensions.
  */
 export type GetAllExtensions_Variables = {
     withUpdates: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/plugin-settings/pinned-trays
+ * @description
+ * Route sets the pinned trays in the plugin settings.
+ */
+export type SetPluginSettingsPinnedTrays_Variables = {
+    pinnedTrayPluginIds: Array<string>
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/plugin-permissions/grant
+ * @description
+ * Route grants the plugin permissions to the extension with the given ID.
+ */
+export type GrantPluginPermissions_Variables = {
+    id: string
 }
 
 /**
@@ -846,6 +879,17 @@ export type GetMangaEntryDetails_Variables = {
      *  AniList manga media ID
      */
     id: number
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/refetch-chapter-containers
+ * @description
+ * Route refetches the chapter containers for all manga entries previously cached.
+ */
+export type RefetchMangaChapterContainers_Variables = {
+    selectedProviderMap: Record<number, string>
 }
 
 /**

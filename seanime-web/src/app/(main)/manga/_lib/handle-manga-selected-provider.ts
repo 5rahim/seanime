@@ -1,9 +1,10 @@
-import { ExtensionRepo_MangaProviderExtensionItem, Nullish } from "@/api/generated/types"
+import { ExtensionRepo_MangaProviderExtensionItem, Manga_MangaLatestChapterNumberItem, Nullish, Status } from "@/api/generated/types"
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import { sortBy } from "lodash"
 import React from "react"
 
 /**
@@ -13,7 +14,7 @@ export const __manga_entryProviderAtom = atomWithStorage<Record<string, string>>
 
 // Key: "{mediaId}${providerId}"
 // Value: { [filter]: string }
-type MangaEntryFilters = {
+export type MangaEntryFilters = {
     scanlators: string[]
     language: string
 }
@@ -21,6 +22,67 @@ export const __manga_entryFiltersAtom = atomWithStorage<Record<string, MangaEntr
     {},
     undefined,
     { getOnInit: true })
+
+/**
+ * Helper function to get the default provider from server status or available extensions
+ */
+const getDefaultMangaProvider = (
+    serverStatus: Status | undefined,
+    extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined,
+) => {
+    return serverStatus?.settings?.manga?.defaultMangaProvider || extensions?.[0]?.id || null
+}
+
+/**
+ * Returns a record of all stored manga providers
+ */
+export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined) {
+    const serverStatus = useServerStatus()
+
+    const extensions = React.useMemo(() => {
+        return _extensions?.toSorted((a, b) => a.name.localeCompare(b.name))
+    }, [_extensions])
+
+    const [storedProvider, setStoredProvider] = useAtom(__manga_entryProviderAtom)
+
+    React.useLayoutEffect(() => {
+        if (!extensions || !serverStatus) return
+        const defaultProvider = getDefaultMangaProvider(serverStatus, extensions)
+
+        // Remove invalid providers if there are no providers available
+        if (!defaultProvider || extensions.length === 0) {
+            setStoredProvider({})
+            return
+        }
+
+        // Validate all stored providers and replace invalid ones with default
+        const validatedProviders = { ...storedProvider }
+        let hasChanges = false
+
+        Object.entries(storedProvider).forEach(([mediaId, providerId]) => {
+            const isProviderAvailable = extensions.some(provider => provider.id === providerId)
+            if (!isProviderAvailable) {
+                validatedProviders[mediaId] = defaultProvider
+                hasChanges = true
+            }
+        })
+
+        if (hasChanges) {
+            setStoredProvider(validatedProviders)
+        }
+    }, [storedProvider, extensions, serverStatus])
+
+    return {
+        storedProviders: storedProvider,
+        setStoredProvider: ({ mediaId, providerId }: { mediaId: string | number, providerId: string }) => {
+            if (!mediaId) return
+            setStoredProvider(prev => ({
+                ...prev,
+                [String(mediaId)]: providerId,
+            }))
+        },
+    }
+}
 
 /**
  * - Get the manga provider for a specific manga entry
@@ -38,7 +100,7 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
 
     React.useLayoutEffect(() => {
         if (!extensions || !serverStatus) return
-        const defaultProvider = serverStatus?.settings?.manga?.defaultMangaProvider || extensions[0]?.id || null
+        const defaultProvider = getDefaultMangaProvider(serverStatus, extensions)
 
         // Remove the stored provider if there are no providers available
         if (!defaultProvider || extensions.length === 0) {
@@ -89,12 +151,15 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
     }
 }
 
+/**
+ * This function takes in the manga id, the selected extension, the selected provider, the languages, the scanlators, and the isLoaded flag
+ * It returns the stored filters for the manga entry
+ * It also returns the functions to set the scanlators and the language
+ */
 export function useSelectedMangaFilters(
     mId: Nullish<string | number>,
     selectedExtension: Nullish<ExtensionRepo_MangaProviderExtensionItem>,
     selectedProvider: Nullish<string>,
-    languages: string[],
-    scanlators: string[],
     isLoaded: boolean,
 ) {
 
@@ -127,7 +192,7 @@ export function useSelectedMangaFilters(
             })
         }
 
-    }, [isLoaded, languages, scanlators, selectedExtension])
+    }, [isLoaded, selectedExtension])
 
 
     return {
@@ -147,4 +212,97 @@ export function useSelectedMangaFilters(
             })
         },
     }
+}
+
+export function useStoredMangaFilters(_extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined,
+    selectedProviders: Record<string, string>,
+) {
+    const [_storedFilters] = useAtom(withImmer(__manga_entryFiltersAtom))
+
+    const storedFilters = React.useMemo(() => {
+        let filters: Record<string, MangaEntryFilters> = {}
+        Object.entries(_storedFilters).map(([key, value]) => {
+            const [mangaId, providerId] = key.split("$")
+            const mangaProvider = selectedProviders[mangaId]
+            const extension = _extensions?.find(extension => extension.id === mangaProvider)
+
+            if (extension?.settings?.supportsMultiScanlator || extension?.settings?.supportsMultiLanguage) {
+                filters[mangaId] = {
+                    scanlators: value.scanlators ?? [],
+                    language: value.language ?? "",
+                }
+            }
+        })
+        return filters
+    }, [_storedFilters, _extensions, selectedProviders])
+
+    return {
+        storedFilters,
+    }
+}
+
+export function getMangaEntryLatestChapterNumber(
+    mangaId: string | number,
+    latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]>,
+    storedProviders: Record<string, string>,
+    storedFilters: Record<string, MangaEntryFilters>,
+) {
+    const provider = storedProviders[String(mangaId)]
+    const filters = storedFilters?.[String(mangaId)]
+
+    if (!provider) return null
+
+    const mangaLatestChapterNumbers = latestChapterNumbers[Number(mangaId)]?.filter(item => {
+        return item.provider === provider
+    })
+
+    let found: Manga_MangaLatestChapterNumberItem | null | undefined = null
+
+    // If filters are set for this manga
+    if (!!filters) {
+        // Find entry with matching scanlator & language
+        found = mangaLatestChapterNumbers?.find(item => {
+            return !!filters.scanlators[0] && !!filters.language &&
+                filters.scanlators[0] === item.scanlator && filters.language === item.language
+        })
+
+        // If no entry with matching scanlator & language is found, find entry with matching language
+        if (!found) {
+            // Get all entries with matching language
+            const entries = mangaLatestChapterNumbers?.filter(item => {
+                return !!filters.language && filters.language === item.language
+            }) ?? []
+
+            // Get the highest chapter number from all entries with matching language
+            found = sortBy(entries, "number").reverse()[0]
+        }
+
+        // If no entry with matching language is found, find entry with matching scanlator
+        if (!found) {
+            // Get all entries with matching scanlator
+            const entries = mangaLatestChapterNumbers?.filter(item => {
+                return !!filters.scanlators[0] && filters.scanlators[0] === item.scanlator
+            }) ?? []
+
+            // Get the highest chapter number from all entries with matching scanlator
+            found = sortBy(entries, "number").reverse()[0]
+        }
+    }
+
+    // If no filters are set or no entry is found for the filters, get the highest chapter number
+    if (!found) {
+        // Get the highest chapter number from any
+        const highestChapterNumber = mangaLatestChapterNumbers?.reduce((max, item) => {
+            return Math.max(max, item.number)
+        }, 0)
+        found = {
+            provider: provider,
+            language: "",
+            scanlator: "",
+            number: highestChapterNumber,
+        }
+    }
+
+    return found?.number
+
 }

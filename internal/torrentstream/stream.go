@@ -2,16 +2,18 @@ package torrentstream
 
 import (
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/anacrolix/torrent"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"
 	"time"
+
+	"github.com/anacrolix/torrent"
+	"github.com/samber/mo"
 )
 
 type PlaybackType string
@@ -121,17 +123,40 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 			time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
 		}
 
-		switch opts.PlaybackType {
+		event := &TorrentStreamSendStreamToMediaPlayerEvent{
+			WindowTitle:  "",
+			StreamURL:    r.client.GetStreamingUrl(),
+			Media:        media.ToBaseAnime(),
+			AniDbEpisode: aniDbEpisode,
+			PlaybackType: string(opts.PlaybackType),
+		}
+		err = hook.GlobalHookManager.OnTorrentStreamSendStreamToMediaPlayer().Trigger(event)
+		if err != nil {
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to trigger hook")
+			return
+		}
+		windowTitle := event.WindowTitle
+		streamURL := event.StreamURL
+		media := event.Media
+		aniDbEpisode := event.AniDbEpisode
+		playbackType := PlaybackType(event.PlaybackType)
+
+		if event.DefaultPrevented {
+			r.logger.Debug().Msg("torrentstream: Stream prevented by hook")
+			return
+		}
+
+		switch playbackType {
 		case PlaybackTypeDefault:
 			//
 			// Start the stream
 			//
 			r.logger.Debug().Msg("torrentstream: Starting the media player")
-			err = r.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
-				Payload:   r.client.GetStreamingUrl(),
+			err = r.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
+				Payload:   streamURL,
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,
-			}, media.ToBaseAnime(), aniDbEpisode)
+			}, media, aniDbEpisode)
 			if err != nil {
 				// Failed to start the stream, we'll drop the torrents and stop the server
 				r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)

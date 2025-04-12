@@ -186,15 +186,17 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
     return (
         <>
             {(pageContainer && readerProgressBar && allPagesLoaded) && <div
+                data-manga-reader-bar-container
                 className={cn(
                     "bottom-12 w-full fixed z-10 hidden lg:block group/bp",
                     hiddenBar && "bottom-0",
                 )}
             >
-                <div className="flex max-w-full items-center">
+                <div data-manga-reader-bar-inner-container className="flex max-w-full items-center">
                     {pageContainer.pages?.map((_, index) => (
                         <div
                             key={index}
+                            data-manga-reader-bar-pagination
                             className={cn(
                                 "w-full h-6 cursor-pointer",
                                 "transition-all duration-200 bg-gradient-to-t via-transparent from-transparent from-10% to-transparent hover:from-gray-800",
@@ -217,6 +219,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
 
             <div
+                data-manga-reader-bar
                 className={cn(
                     "fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[var(--background)] transition-transform",
                     hiddenBar && "translate-y-60",
@@ -231,20 +234,21 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     onClick={() => setSelectedChapter(undefined)}
                 />
 
-                <h4 className="lg:flex gap-1 items-center hidden">
+                <h4 data-manga-reader-bar-title className="lg:flex gap-1 items-center hidden">
                     <span className="max-w-[180px] text-ellipsis truncate block">{entry?.media?.title?.userPreferred}</span>
                 </h4>
 
-                {!!selectedChapter && <div className="flex gap-3 items-center flex-none whitespace-nowrap ">
+                {!!selectedChapter &&
+                    <div data-manga-reader-bar-chapter-nav-container className="flex gap-3 items-center flex-none whitespace-nowrap ">
                     <ChapterNavButton dir="left" />
                     <span className="hidden md:inline-block">Chapter </span>
                     {`${selectedChapter?.chapterNumber}`}
                     <ChapterNavButton dir="right" />
                 </div>}
 
-                <div className="flex flex-1"></div>
+                <div data-manga-reader-bar-spacer className="flex flex-1"></div>
 
-                <div className="flex items-center gap-2">
+                <div data-manga-reader-bar-page-container className="flex items-center gap-2">
 
                     {pageContainer && <Popover
                         trigger={
@@ -252,6 +256,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                                 size="lg"
                                 className="w-fit cursor-pointer rounded-[--radius-md] z-[5] flex bg-gray-950 items-center bottom-2 focus-visible:outline-none"
                                 tabIndex={-1}
+                                data-manga-reader-bar-page-container-badge
                             >
                                 {!!(currentPageIndex + 1) && (
                                     <p className="">
@@ -263,6 +268,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         }
                     >
                         <Select
+                            data-manga-reader-bar-page-container-select
                             options={pageContainer.pages?.map((_, index) => ({ label: String(index + 1), value: String(index) })) ?? []}
                             value={String(currentPageIndex)}
                             onValueChange={e => {
@@ -271,8 +277,9 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         />
                     </Popover>}
 
-                    <div className="hidden lg:flex">
+                    <div data-manga-reader-bar-info-container className="hidden lg:flex">
                         <Popover
+                            modal={true}
                             trigger={
                                 <IconButton
                                     icon={<LuInfo />}
@@ -283,23 +290,24 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             }
                             className="text-[--muted] space-y-1"
                         >
-                            <div className="hidden lg:block">
+                            <div data-manga-reader-bar-info-container-provider className="hidden lg:block">
                                 <p className="text-[--muted] text-sm">{selectedChapter?.provider}</p>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div data-manga-reader-bar-info-container-mode className="flex items-center gap-1">
                                 <span className="text-white w-6">m:</span>
                                 {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div data-manga-reader-bar-info-container-fit className="flex items-center gap-1">
                                 <span className="text-white w-6">f:</span>
                                 {MANGA_PAGE_FIT_OPTIONS.find((option) => option.value === pageFit)?.label}
                             </div>
-                            {pageStretch !== MangaPageStretch.NONE && <div className="flex items-center gap-1">
+                            {pageStretch !== MangaPageStretch.NONE &&
+                                <div data-manga-reader-bar-info-container-stretch className="flex items-center gap-1">
                                 <span className="text-white w-6">s:</span>
                                 {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
                             </div>}
                             {readingMode !== MangaReadingMode.LONG_STRIP && (
-                                <div className="flex items-center gap-1">
+                                <div data-manga-reader-bar-info-container-direction className="flex items-center gap-1">
                                     <span className="text-white w-6">d:</span>
                                     <span>{MANGA_READING_DIRECTION_OPTIONS.find((option) => option.value === readingDirection)?.label}</span>
                                 </div>

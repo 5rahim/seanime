@@ -122,6 +122,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
+            data-torrent-search-smart-search-episode-number-input
             label="Episode number"
             value={smartSearchEpisode}
             disabled={entry?.media?.format === "MOVIE" || smartSearchBest}
@@ -183,10 +184,13 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     debridInstantAvailability={debridInstantAvailability}
                 />}
 
-            <AppLayoutStack className="Sea-TorrentSearchContainer__root space-y-4">
+            <AppLayoutStack className="Sea-TorrentSearchContainer__root space-y-4" data-torrent-search-container>
 
-                <div className="Sea-TorrentSearchContainer__paramContainer flex flex-wrap gap-3 items-center">
-                    <div className="w-[200px]">
+                <div
+                    className="Sea-TorrentSearchContainer__paramContainer flex flex-wrap gap-3 items-center"
+                    data-torrent-search-container-param-container
+                >
+                    <div className="w-[200px]" data-torrent-search-container-param-container-provider-select-container>
                         <Select
                             name="torrentProvider"
                             // leftAddon="Torrent Provider"
@@ -206,6 +210,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && <>
                         <div
                             className="h-10 rounded-[--radius] px-2 flex items-center"
+                            data-torrent-search-container-param-container-smart-search-switch-container
                         >
                             <Switch
                                 // side="right"
@@ -222,6 +227,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
                         {entry.media?.isAdult === false && <div
                             className="h-10 rounded-[--radius] px-2 flex items-center"
+                            data-torrent-search-container-param-container-adult-switch-container
                         >
                             <Switch
                                 // side="right"
@@ -238,6 +244,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && Object.keys(warnings)?.map((key) => {
                     if ((warnings as any)[key]) {
                         return <Alert
+                            data-torrent-search-container-warning
                             key={key}
                             intent="warning"
                             description={<>
@@ -253,8 +260,9 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") ? (
                     <>
                         {(searchType === Torrent_SearchType.SMART) &&
-                            <AppLayoutStack className="Sea-TorrentSearchContainer__smartSearchContainer">
+                            <AppLayoutStack className="Sea-TorrentSearchContainer__smartSearchContainer" data-torrent-search-smart-search-container>
                                 <div
+                                    data-torrent-search-smart-search-provider-param-container
                                     className={cn(
                                         "Sea-TorrentSearchContainer__providerParamContainer flex flex-col items-center flex-wrap justify-around gap-3 md:flex-row w-full border rounded-[--radius] p-3",
                                         {
@@ -270,6 +278,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <EpisodeNumberInput />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution") && <Select
+                                        data-torrent-search-smart-search-resolution-select
                                         label="Resolution"
                                         value={smartSearchResolution || "-"}
                                         onValueChange={v => setSmartSearchResolution(v != "-" ? v : "")}
@@ -279,6 +288,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             { value: "720", label: "720p" },
                                             { value: "540", label: "540p" },
                                             { value: "480", label: "480p" },
+                                            { value: "2160", label: "2160p" },
                                         ]}
                                         disabled={smartSearchBest || searchType != Torrent_SearchType.SMART}
                                         size="sm"
@@ -291,6 +301,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
+                                        data-torrent-search-smart-search-batch-switch
                                         label="Batches"
                                         value={smartSearchBatch}
                                         onValueChange={setSmartSearchBatch}
@@ -304,6 +315,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
+                                        data-torrent-search-smart-search-best-releases-switch
                                         label="Best releases"
                                         value={smartSearchBest}
                                         onValueChange={setSmartSearchBest}
@@ -319,7 +331,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
                                 {!hasOneWarning && (
                                     <>
-                                        {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") && <div className="py-1">
+                                        {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") &&
+                                            <div className="py-1" data-torrent-search-smart-search-query-input-container>
                                             <DataGridSearchInput
                                                 value={globalFilter ?? ""}
                                                 onChange={v => setGlobalFilter(v)}

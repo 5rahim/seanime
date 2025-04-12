@@ -602,10 +602,25 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/external/reload",
         },
+        ReloadExternalExtension: {
+            key: "EXTENSIONS-reload-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/reload",
+        },
         ListExtensionData: {
             key: "EXTENSIONS-list-extension-data",
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list",
+        },
+        GetExtensionPayload: {
+            key: "EXTENSIONS-get-extension-payload",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/payload/{id}",
+        },
+        ListDevelopmentModeExtensions: {
+            key: "EXTENSIONS-list-development-mode-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/development",
         },
         GetAllExtensions: {
             key: "EXTENSIONS-get-all-extensions",
@@ -626,6 +641,21 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-list-anime-torrent-provider-extensions",
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list/anime-torrent-provider",
+        },
+        GetPluginSettings: {
+            key: "EXTENSIONS-get-plugin-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/plugin-settings",
+        },
+        SetPluginSettingsPinnedTrays: {
+            key: "EXTENSIONS-set-plugin-settings-pinned-trays",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/plugin-settings/pinned-trays",
+        },
+        GrantPluginPermissions: {
+            key: "EXTENSIONS-grant-plugin-permissions",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/plugin-permissions/grant",
         },
         /**
          *  @description
@@ -838,10 +868,15 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/manga/entry/{id}/details",
         },
-        GetMangaChapterCountMap: {
-            key: "MANGA-get-manga-chapter-count-map",
+        GetMangaLatestChapterNumbersMap: {
+            key: "MANGA-get-manga-latest-chapter-numbers-map",
             methods: ["GET"],
-            endpoint: "/api/v1/manga/chapter-counts",
+            endpoint: "/api/v1/manga/latest-chapter-numbers",
+        },
+        RefetchMangaChapterContainers: {
+            key: "MANGA-refetch-manga-chapter-containers",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/refetch-chapter-containers",
         },
         /**
          *  @description
@@ -1151,8 +1186,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
-         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
+         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",
@@ -1391,6 +1426,11 @@ export const API_ENDPOINTS = {
             key: "RELEASES-get-latest-update",
             methods: ["GET"],
             endpoint: "/api/v1/latest-update",
+        },
+        GetChangelog: {
+            key: "RELEASES-get-changelog",
+            methods: ["GET"],
+            endpoint: "/api/v1/changelog",
         },
     },
     REPORT: {

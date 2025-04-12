@@ -126,7 +126,7 @@ func (h *Handler) HandleOnlineStreamEmptyCache(c echo.Context) error {
 //	@summary returns search results for a manual search.
 //	@desc Returns search results for a manual search.
 //	@route /api/v1/onlinestream/search [POST]
-//	@returns []vendor_hibike_onlinestream.SearchResult
+//	@returns []hibikeonlinestream.SearchResult
 func (h *Handler) HandleOnlinestreamManualSearch(c echo.Context) error {
 
 	type body struct {

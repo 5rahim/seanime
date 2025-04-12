@@ -1,8 +1,6 @@
 package scanner
 
 import (
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
@@ -11,13 +9,17 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMediaFetcher(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metadataProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -110,7 +112,8 @@ func TestNewMediaFetcher(t *testing.T) {
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -189,7 +192,8 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

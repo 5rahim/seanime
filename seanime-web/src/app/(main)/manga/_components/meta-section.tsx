@@ -17,6 +17,7 @@ import { cn } from "@/components/ui/core/styling"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
+import { PluginMangaPageButtons } from "../../_features/plugin/actions/plugin-actions"
 
 
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined }) {
@@ -72,7 +73,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                 {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
 
-                <div className="w-full flex flex-wrap gap-4 items-center">
+                <div className="w-full flex flex-wrap gap-4 items-center" data-manga-meta-section-buttons-container>
 
                     <SeaLink href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
@@ -81,6 +82,8 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
 
                     <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="md" />
+
+                    <PluginMangaPageButtons media={entry.media} />
                 </div>
 
             </MediaPageHeaderDetailsContainer>

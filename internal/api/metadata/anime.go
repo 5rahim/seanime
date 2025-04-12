@@ -3,16 +3,18 @@ package metadata
 import (
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"regexp"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/mappings"
 	"seanime/internal/api/tvdb"
+	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -27,6 +29,10 @@ type (
 )
 
 func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) {
+	if aw == nil || aw.baseAnime == nil {
+		return
+	}
+
 	ret = EpisodeMetadata{
 		AnidbId:               0,
 		TvdbId:                0,
@@ -45,6 +51,26 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 
 	defer util.HandlePanicInModuleThen("api/metadata/GetEpisodeMetadata", func() {})
 
+	reqEvent := &AnimeEpisodeMetadataRequestedEvent{}
+	reqEvent.MediaId = aw.baseAnime.GetID()
+	reqEvent.EpisodeNumber = epNum
+	reqEvent.EpisodeMetadata = &ret
+	hook.GlobalHookManager.OnAnimeEpisodeMetadataRequested().Trigger(reqEvent)
+	epNum = reqEvent.EpisodeNumber
+
+	// Default prevented by hook, return the metadata
+	if reqEvent.DefaultPrevented {
+		if reqEvent.EpisodeMetadata == nil {
+			return ret
+		}
+		return *reqEvent.EpisodeMetadata
+	}
+
+	//
+	// Process
+	//
+
+	// Get TVDB metadata
 	hasTVDBMetadata := aw.tvdbEpisodes != nil && len(aw.tvdbEpisodes) > 0
 
 	episode := mo.None[*EpisodeMetadata]()
@@ -83,6 +109,17 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 			ret.Image = aw.baseAnime.GetBannerImageSafe()
 		}
 	}
+
+	// Event
+	event := &AnimeEpisodeMetadataEvent{}
+	event.EpisodeMetadata = &ret
+	event.EpisodeNumber = epNum
+	event.MediaId = aw.baseAnime.GetID()
+	hook.GlobalHookManager.OnAnimeEpisodeMetadataEvent().Trigger(event)
+	if event.EpisodeMetadata == nil {
+		return ret
+	}
+	ret = *event.EpisodeMetadata
 
 	return ret
 }

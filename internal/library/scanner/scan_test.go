@@ -16,7 +16,8 @@ func TestScanner_Scan(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 

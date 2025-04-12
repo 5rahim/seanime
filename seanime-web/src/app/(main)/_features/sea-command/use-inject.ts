@@ -63,7 +63,6 @@ export function useSeaCommandInject() {
                 acc[item.key] = item.injectable
                 return acc
             }, {} as Record<string, SeaCommandInjectable>)
-            console.log(ret)
             return ret
         })
     }, [])

@@ -41,9 +41,10 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
                 onOpenChange={setIsOpen}
                 contentClass="max-w-5xl"
                 title="Downloaded chapters"
+                data-chapter-downloads-modal
             >
 
-                <div className="py-4 space-y-8">
+                <div className="py-4 space-y-8" data-chapter-downloads-modal-content>
                     <ChapterDownloadQueue mangaCollection={mangaCollection} />
 
                     <ChapterDownloadList />
@@ -85,12 +86,13 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
 
     return (
         <>
-            <div className="space-y-4">
+            <div className="space-y-4" data-chapter-download-queue-container>
 
-                <div className="flex w-full items-center">
+                <div className="flex w-full items-center" data-chapter-download-queue-header>
                     <h3>Queue</h3>
-                    <div className="flex flex-1"></div>
-                    {(!downloadQueueLoading && !downloadQueueError) && <div className="flex gap-2 items-center">
+                    <div className="flex flex-1" data-chapter-download-queue-header-spacer></div>
+                    {(!downloadQueueLoading && !downloadQueueError) &&
+                        <div className="flex gap-2 items-center" data-chapter-download-queue-header-actions>
 
                         {!!downloadQueue?.find(n => n.status === "errored") && <Button
                             intent="warning-outline"
@@ -141,7 +143,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                     </div>}
                 </div>
 
-                <Card className="p-4 space-y-2">
+                <Card className="p-4 space-y-2" data-chapter-download-queue-card>
 
                     {downloadQueueLoading
                         ? <LoadingSpinner />
@@ -150,8 +152,8 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                         </LuffyError> : null)}
 
                     {!!downloadQueue?.length ? (
-                        <ScrollArea className="h-[14rem]">
-                            <div className="space-y-2">
+                        <ScrollArea className="h-[14rem]" data-chapter-download-queue-scroll-area>
+                            <div className="space-y-2" data-chapter-download-queue-scroll-area-content>
                                 {downloadQueue.map(item => {
 
                                     const media = mangaCollection?.lists?.flatMap(n => n.entries)?.find(n => n?.media?.id === item.mediaId)?.media
@@ -188,7 +190,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                             </div>
                         </ScrollArea>
                     ) : ((!downloadQueueLoading && !downloadQueueError) && (
-                        <p className="text-center text-[--muted] italic">
+                        <p className="text-center text-[--muted] italic" data-chapter-download-queue-empty-state>
                             Nothing in the queue
                         </p>
                     ))}
@@ -212,14 +214,14 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
 
     return (
         <>
-            <div className="space-y-4">
+            <div className="space-y-4" data-chapter-download-list-container>
 
-                <div className="flex w-full items-center">
+                <div className="flex w-full items-center" data-chapter-download-list-header>
                     <h3>Downloaded</h3>
-                    <div className="flex flex-1"></div>
+                    <div className="flex flex-1" data-chapter-download-list-header-spacer></div>
                 </div>
 
-                <div className="py-4 space-y-2">
+                <div className="py-4 space-y-2" data-chapter-download-list-content>
 
                     {isLoading
                         ? <LoadingSpinner />
@@ -254,7 +256,10 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                     )
                                 })}
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
+                            <div
+                                data-chapter-download-list-media-grid
+                                className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4"
+                            >
                                 {data?.filter(n => !!n.media)
                                     .sort((a, b) => a.mediaId - b.mediaId)
                                     .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
@@ -265,6 +270,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                             <MediaEntryCard
                                                 media={item.media!}
                                                 type="manga"
+                                                hideUnseenCountBadge
                                                 overlay={<Badge
                                                     className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
                                                     intent="gray"
@@ -276,7 +282,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                             </div>
                         </>
                     ) : ((!isLoading && !isError) && (
-                        <p className="text-center text-[--muted] italic">
+                        <p className="text-center text-[--muted] italic" data-chapter-download-list-empty-state>
                             No chapters downloaded
                         </p>
                     ))}

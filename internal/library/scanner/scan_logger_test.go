@@ -13,7 +13,8 @@ import (
 func TestScanLogger(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		t.Fatal(err.Error())
@@ -22,7 +23,6 @@ func TestScanLogger(t *testing.T) {
 	metadataProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	logger := util.NewLogger()
 
 	tests := []struct {
 		name            string

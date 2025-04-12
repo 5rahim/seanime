@@ -101,8 +101,8 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
     }, [media, progressItem, isUpdatingProgress, hasUpdatedProgress])
 
     return (
-        <div className="space-y-4">
-            <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
+        <div data-sea-media-player-layout className="space-y-4">
+            <div data-sea-media-player-layout-header className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                 {!hideBackButton && <div className="flex w-full gap-4 items-center relative">
                     <SeaLink href={`/entry?id=${mediaId}`}>
                         <IconButton icon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="sm" />
@@ -110,7 +110,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                     <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{title}</h3>
                 </div>}
 
-                <div className="flex gap-2 items-center justify-end w-full">
+                <div data-sea-media-player-layout-header-actions className="flex gap-2 items-center justify-end w-full">
                     {leftHeaderActions}
                     <div className="hidden lg:flex flex-1"></div>
                     {(!!progressItem && progressItem.episodeNumber > currentProgress) && (
@@ -133,6 +133,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
             </div>
 
             <div
+                data-sea-media-player-layout-content
                 className={cn(
                     "flex gap-4 w-full flex-col 2xl:flex-row",
                     theaterMode && "block space-y-4",
@@ -140,6 +141,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
             >
                 <div
                     id="sea-media-player-container"
+                    data-sea-media-player-layout-content-player
                     className={cn(
                         "aspect-video relative w-full self-start mx-auto",
                         theaterMode && "max-h-[90vh] !w-auto aspect-video mx-auto",
@@ -150,15 +152,17 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
 
                 <ScrollArea
                     ref={episodeListContainerRef}
+                    data-sea-media-player-layout-content-episode-list
                     className={cn(
                         "2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0",
                         theaterMode && "2xl:max-w-full",
                     )}
                 >
-                    <div className="space-y-3">
+                    <div data-sea-media-player-layout-content-episode-list-container className="space-y-3">
                         {episodeList}
                     </div>
                     <div
+                        data-sea-media-player-layout-content-episode-list-bottom-gradient
                         className={"z-[5] absolute bottom-0 w-full h-[2rem] bg-gradient-to-t from-[--background] to-transparent"}
                     />
                 </ScrollArea>

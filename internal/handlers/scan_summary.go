@@ -10,7 +10,7 @@ import (
 //
 //	@summary returns the latest scan summaries.
 //	@route /api/v1/library/scan-summaries [GET]
-//	@returns []db.ScanSummaryItem
+//	@returns []summary.ScanSummaryItem
 func (h *Handler) HandleGetScanSummaries(c echo.Context) error {
 
 	sm, err := db_bridge.GetScanSummaries(h.App.Database)

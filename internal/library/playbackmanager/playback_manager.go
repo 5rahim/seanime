@@ -10,10 +10,12 @@ import (
 	"seanime/internal/database/db_bridge"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -99,6 +101,22 @@ type (
 
 		isOffline       bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
+
+		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
+	}
+
+	PlaybackStatusSubscriber struct {
+		PlaybackStateCh  chan PlaybackState
+		PlaybackStatusCh chan mediaplayer.PlaybackStatus
+		VideoStartedCh   chan string
+		VideoStoppedCh   chan string
+		VideoCompletedCh chan string
+
+		StreamStateCh     chan PlaybackState
+		StreamStatusCh    chan mediaplayer.PlaybackStatus
+		StreamStartedCh   chan string
+		StreamStoppedCh   chan string
+		StreamCompletedCh chan string
 	}
 
 	PlaybackStateType string
@@ -157,6 +175,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
 		currentMediaListEntry:          mo.None[*anilist.AnimeListEntry](),
 		continuityManager:              opts.ContinuityManager,
+		playbackStatusSubscribers:      result.NewResultMap[string, *PlaybackStatusSubscriber](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
@@ -225,6 +244,21 @@ type StartPlayingOptions struct {
 }
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOptions) error {
+
+	event := &LocalFilePlaybackRequestedEvent{
+		Path: opts.Payload,
+	}
+	err := hook.GlobalHookManager.OnLocalFilePlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+	opts.Payload = event.Path
+
+	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Local file playback prevented by hook")
+		return nil
+	}
+
 	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
@@ -236,9 +270,21 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	}
 
 	// Send the media file to the media player
-	err := pm.MediaPlayerRepository.Play(opts.Payload)
+	err = pm.MediaPlayerRepository.Play(opts.Payload)
 	if err != nil {
 		return err
+	}
+
+	trackingEvent := &PlaybackBeforeTrackingEvent{
+		IsStream: false,
+	}
+	err = hook.GlobalHookManager.OnPlaybackBeforeTracking().Trigger(trackingEvent)
+	if err != nil {
+		return err
+	}
+
+	if trackingEvent.DefaultPrevented {
+		return nil
 	}
 
 	// Start tracking
@@ -252,6 +298,22 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 // Note that PlaybackManager.currentStreamEpisodeCollection is not required to start streaming but is needed for progress tracking.
 func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartStreamingUsingMediaPlayer", &err)
+
+	event := &StreamPlaybackRequestedEvent{
+		WindowTitle:  windowTitle,
+		Payload:      opts.Payload,
+		Media:        media,
+		AniDbEpisode: aniDbEpisode,
+	}
+	err = hook.GlobalHookManager.OnStreamPlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Stream playback prevented by hook")
+		return nil
+	}
 
 	pm.playlistHub.reset()
 	if pm.isOffline {
@@ -299,6 +361,18 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
+
+	trackingEvent := &PlaybackBeforeTrackingEvent{
+		IsStream: true,
+	}
+	err = hook.GlobalHookManager.OnPlaybackBeforeTracking().Trigger(trackingEvent)
+	if err != nil {
+		return err
+	}
+
+	if trackingEvent.DefaultPrevented {
+		return nil
+	}
 
 	pm.MediaPlayerRepository.StartTrackingTorrentStream()
 
@@ -387,6 +461,26 @@ func (pm *PlaybackManager) AutoPlayNextEpisode() error {
 	// Remove the next episode from the queue
 	pm.nextEpisodeLocalFile = mo.None[*anime.LocalFile]()
 
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (pm *PlaybackManager) Pause() error {
+	return pm.MediaPlayerRepository.Pause()
+}
+
+func (pm *PlaybackManager) Resume() error {
+	return pm.MediaPlayerRepository.Resume()
+}
+
+func (pm *PlaybackManager) Seek(seconds float64) error {
+	return pm.MediaPlayerRepository.Seek(seconds)
+}
+
+// Cancel stops the current media player playback and publishes a "normal" event.
+func (pm *PlaybackManager) Cancel() error {
+	pm.MediaPlayerRepository.Stop()
 	return nil
 }
 
@@ -498,4 +592,45 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 		pm.animeCollection = mo.Some(collection)
 	}
 	return nil
+}
+
+func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusSubscriber {
+	subscriber := &PlaybackStatusSubscriber{
+		PlaybackStateCh:  make(chan PlaybackState),
+		PlaybackStatusCh: make(chan mediaplayer.PlaybackStatus),
+		VideoStartedCh:   make(chan string),
+		VideoStoppedCh:   make(chan string),
+		VideoCompletedCh: make(chan string),
+
+		StreamStateCh:     make(chan PlaybackState),
+		StreamStatusCh:    make(chan mediaplayer.PlaybackStatus),
+		StreamStartedCh:   make(chan string),
+		StreamStoppedCh:   make(chan string),
+		StreamCompletedCh: make(chan string),
+	}
+	pm.playbackStatusSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
+	defer func() {
+		if r := recover(); r != nil {
+			pm.Logger.Warn().Msg("playback manager: Failed to unsubscribe from playback status")
+		}
+	}()
+	subscriber, ok := pm.playbackStatusSubscribers.Get(id)
+	if !ok {
+		return
+	}
+	close(subscriber.PlaybackStateCh)
+	close(subscriber.PlaybackStatusCh)
+	close(subscriber.VideoStartedCh)
+	close(subscriber.VideoStoppedCh)
+	close(subscriber.VideoCompletedCh)
+	close(subscriber.StreamStateCh)
+	close(subscriber.StreamStatusCh)
+	close(subscriber.StreamStartedCh)
+	close(subscriber.StreamStoppedCh)
+	close(subscriber.StreamCompletedCh)
+	pm.playbackStatusSubscribers.Delete(id)
 }

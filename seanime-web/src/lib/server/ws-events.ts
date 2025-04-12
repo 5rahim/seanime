@@ -27,6 +27,7 @@ export const enum WSEvents {
     OFFLINE_SNAPSHOT_CREATED = "offline-snapshot-created",
     MEDIASTREAM_SHUTDOWN_STREAM = "mediastream-shutdown-stream",
     EXTENSIONS_RELOADED = "extensions-reloaded",
+    PLUGIN_UNLOADED = "plugin-unloaded",
     ACTIVE_TORRENT_COUNT_UPDATED = "active-torrent-count-updated",
     SYNC_LOCAL_QUEUE_STATE = "sync-local-queue-state",
     SYNC_LOCAL_FINISHED = "sync-local-finished",
@@ -34,4 +35,10 @@ export const enum WSEvents {
     DEBRID_DOWNLOAD_PROGRESS = "debrid-download-progress",
     DEBRID_STREAM_STATE = "debrid-stream-state",
     CHECK_FOR_UPDATES = "check-for-updates",
+    INVALIDATE_QUERIES = "invalidate-queries",
+    CONSOLE_LOG = "console-log",
+}
+
+export const enum WebviewEvents {
+    ANIME_ENTRY_PAGE_VIEWED = "anime-entry-page-viewed",
 }

@@ -24,19 +24,16 @@ export function ChapterListBulkActions(props: ChapterListBulkActionsProps) {
 
     return (
         <>
-            <div
-                className=""
+            <Button
+                onClick={handleDownloadSelected}
+                intent="white"
+                size="sm"
+                leftIcon={<FaDownload />}
+                className="animate-pulse"
+                data-download-selected-chapters-button
             >
-                <Button
-                    onClick={handleDownloadSelected}
-                    intent="white"
-                    size="sm"
-                    leftIcon={<FaDownload />}
-                    className="animate-pulse"
-                >
-                    Download selected chapters ({rowSelectedChapters?.length})
-                </Button>
-            </div>
+                Download selected chapters ({rowSelectedChapters?.length})
+            </Button>
         </>
     )
 }

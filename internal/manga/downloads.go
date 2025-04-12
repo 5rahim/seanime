@@ -2,16 +2,22 @@ package manga
 
 import (
 	"cmp"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	"github.com/goccy/go-json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/manga/downloader"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	"seanime/internal/hook"
+	chapter_downloader "seanime/internal/manga/downloader"
 	"slices"
+
+	"github.com/goccy/go-json"
 )
 
+// GetDownloadedMangaChapterContainers retrieves downloaded chapter containers for a specific manga ID.
+// It filters the complete set of downloaded chapters to return only those matching the provided manga ID.
 func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
+
 	containers, err := r.GetDownloadedChapterContainers(mangaCollection)
 	if err != nil {
 		return nil, err
@@ -26,8 +32,34 @@ func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollectio
 	return ret, nil
 }
 
+// GetDownloadedChapterContainers retrieves all downloaded manga chapter containers.
+// It scans the download directory for chapter folders, matches them with manga collection entries,
+// and collects chapter details from file cache or provider API when necessary.
+//
+// Ideally, the provider API should never be called assuming the chapter details are cached.
 func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
 	ret = make([]*ChapterContainer, 0)
+
+	// Trigger hook event
+	reqEvent := &MangaDownloadedChapterContainersRequestedEvent{
+		MangaCollection:   mangaCollection,
+		ChapterContainers: ret,
+	}
+	err = hook.GlobalHookManager.OnMangaDownloadedChapterContainersRequested().Trigger(reqEvent)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+		return nil, fmt.Errorf("manga: Error in hook, %w", err)
+	}
+	mangaCollection = reqEvent.MangaCollection
+
+	// Default prevented, return the chapter containers
+	if reqEvent.DefaultPrevented {
+		ret = reqEvent.ChapterContainers
+		if ret == nil {
+			return nil, fmt.Errorf("manga: No chapter containers returned by hook event")
+		}
+		return ret, nil
+	}
 
 	// Read download directory
 	files, err := os.ReadDir(r.downloadDir)
@@ -112,8 +144,19 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 					r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
 					continue
 				}
-
+				// Cache the chapter container in the permanent bucket
+				go func() {
+					chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
+					chapterContainer, found := r.getChapterContainerFromFilecache(provider, mediaId)
+					if found {
+						// Store the chapter container in the permanent bucket
+						permBucket := getPermanentChapterContainerCacheBucket(provider, mediaId)
+						_ = r.fileCacher.SetPerm(permBucket, chapterContainerKey, chapterContainer)
+					}
+				}()
 			}
+		} else {
+			r.logger.Trace().Int("mediaId", mediaId).Msg("manga: Found chapter container in permanent bucket")
 		}
 
 		downloadedContainer := &ChapterContainer{
@@ -141,12 +184,25 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		ret = append(ret, downloadedContainer)
 	}
 
+	// Event
+	ev := &MangaDownloadedChapterContainersEvent{
+		ChapterContainers: ret,
+	}
+	err = hook.GlobalHookManager.OnMangaDownloadedChapterContainers().Trigger(ev)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+		return nil, fmt.Errorf("manga: Error in hook, %w", err)
+	}
+	ret = ev.ChapterContainers
+
 	return ret, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// getDownloadedMangaPageContainer returns the PageContainer for a downloaded manga chapter based on the provider.
+// getDownloadedMangaPageContainer retrieves page information for a downloaded manga chapter.
+// It reads the chapter directory and parses the registry file to build a PageContainer
+// with details about each downloaded page including dimensions and file paths.
 func (r *Repository) getDownloadedMangaPageContainer(
 	provider string,
 	mediaId int,

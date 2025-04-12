@@ -40,7 +40,7 @@ export default function Library() {
     const hasScanned = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
 
     return (
-        <div>
+        <div data-library-page-container>
 
             {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
             {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}

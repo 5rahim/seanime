@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"unicode"
 )
 
 type GoStruct struct {
@@ -25,10 +26,11 @@ type GoStruct struct {
 }
 
 type GoAlias struct {
-	GoType         string   `json:"goType"`
-	TypescriptType string   `json:"typescriptType"`
-	DeclaredValues []string `json:"declaredValues"`
-	UsedStructType string   `json:"usedStructName,omitempty"`
+	GoType             string   `json:"goType"`
+	TypescriptType     string   `json:"typescriptType"`
+	UsedTypescriptType string   `json:"usedTypescriptType,omitempty"`
+	DeclaredValues     []string `json:"declaredValues"`
+	UsedStructType     string   `json:"usedStructName,omitempty"`
 }
 
 type GoStructField struct {
@@ -38,6 +40,8 @@ type GoStructField struct {
 	GoType string `json:"goType"`
 	// e.g. User
 	TypescriptType string `json:"typescriptType"`
+	// e.g. TypescriptType = Array<Models_User> => UsedTypescriptType = Models_User
+	UsedTypescriptType string `json:"usedTypescriptType,omitempty"`
 	// e.g. GoType = map[string]models.User => TypescriptType = User => UsedStructType = models.User
 	UsedStructType string `json:"usedStructName,omitempty"`
 	// If no 'omitempty' and not a pointer
@@ -47,64 +51,66 @@ type GoStructField struct {
 }
 
 var typePrefixesByPackage = map[string]string{
-	"anilist":                    "AL_",
-	"auto_downloader":            "AutoDownloader_",
-	"entities":                   "",
-	"db":                         "DB_",
-	"db_bridge":                  "DB_",
-	"models":                     "Models_",
-	"playbackmanager":            "PlaybackManager_",
-	"torrent_client":             "TorrentClient_",
-	"events":                     "Events_",
-	"torrent":                    "Torrent_",
-	"manga":                      "Manga_",
-	"autoscanner":                "AutoScanner_",
-	"listsync":                   "ListSync_",
-	"util":                       "Util_",
-	"scanner":                    "Scanner_",
-	"offline":                    "Offline_",
-	"discordrpc":                 "DiscordRPC_",
-	"discordrpc_presence":        "DiscordRPC_",
-	"anizip":                     "Anizip_",
-	"onlinestream":               "Onlinestream_",
-	"onlinestream_providers":     "Onlinestream_",
-	"onlinestream_sources":       "Onlinestream_",
-	"manga_providers":            "Manga_",
-	"chapter_downloader":         "ChapterDownloader_",
-	"manga_downloader":           "MangaDownloader_",
-	"docs":                       "INTERNAL_",
-	"tvdb":                       "TVDB_",
-	"metadata":                   "Metadata_",
-	"mappings":                   "Mappings_",
-	"mal":                        "MAL_",
-	"handlers":                   "",
-	"animetosho":                 "AnimeTosho_",
-	"updater":                    "Updater_",
-	"anime":                      "Anime_",
-	"summary":                    "Summary_",
-	"filesystem":                 "Filesystem_",
-	"filecache":                  "Filecache_",
-	"core":                       "INTERNAL_",
-	"comparison":                 "Comparison_",
-	"mediastream":                "Mediastream_",
-	"torrentstream":              "Torrentstream_",
-	"extension":                  "Extension_",
-	"extension_repo":             "ExtensionRepo_",
-	"vendor_hibike_manga":        "HibikeManga_",
-	"vendor_hibike_onlinestream": "HibikeOnlinestream_",
-	"vendor_hibike_torrent":      "HibikeTorrent_",
-	"vendor_hibike_mediaplayer":  "HibikeMediaPlayer_",
-	"vendor_hibike_extension":    "HibikeExtension_",
-	"hibikemanga":                "HibikeManga_",
-	"hibikeonlinestream":         "HibikeOnlinestream_",
-	"hibiketorrent":              "HibikeTorrent_",
-	"hibikemediaplayer":          "HibikeMediaPlayer_",
-	"hibikeextension":            "HibikeExtension_",
-	"continuity":                 "Continuity_",
-	"sync":                       "Sync_",
-	"debrid":                     "Debrid_",
-	"debrid_client":              "DebridClient_",
-	"report":                     "Report_",
+	"anilist":                "AL_",
+	"auto_downloader":        "AutoDownloader_",
+	"autodownloader":         "AutoDownloader_",
+	"entities":               "",
+	"db":                     "DB_",
+	"db_bridge":              "DB_",
+	"models":                 "Models_",
+	"playbackmanager":        "PlaybackManager_",
+	"torrent_client":         "TorrentClient_",
+	"events":                 "Events_",
+	"torrent":                "Torrent_",
+	"manga":                  "Manga_",
+	"autoscanner":            "AutoScanner_",
+	"listsync":               "ListSync_",
+	"util":                   "Util_",
+	"scanner":                "Scanner_",
+	"offline":                "Offline_",
+	"discordrpc":             "DiscordRPC_",
+	"discordrpc_presence":    "DiscordRPC_",
+	"anizip":                 "Anizip_",
+	"onlinestream":           "Onlinestream_",
+	"onlinestream_providers": "Onlinestream_",
+	"onlinestream_sources":   "Onlinestream_",
+	"manga_providers":        "Manga_",
+	"chapter_downloader":     "ChapterDownloader_",
+	"manga_downloader":       "MangaDownloader_",
+	"docs":                   "INTERNAL_",
+	"tvdb":                   "TVDB_",
+	"metadata":               "Metadata_",
+	"mappings":               "Mappings_",
+	"mal":                    "MAL_",
+	"handlers":               "",
+	"animetosho":             "AnimeTosho_",
+	"updater":                "Updater_",
+	"anime":                  "Anime_",
+	"anime_types":            "Anime_",
+	"summary":                "Summary_",
+	"filesystem":             "Filesystem_",
+	"filecache":              "Filecache_",
+	"core":                   "INTERNAL_",
+	"comparison":             "Comparison_",
+	"mediastream":            "Mediastream_",
+	"torrentstream":          "Torrentstream_",
+	"extension":              "Extension_",
+	"extension_repo":         "ExtensionRepo_",
+	//"vendor_hibike_manga":        "HibikeManga_",
+	//"vendor_hibike_onlinestream": "HibikeOnlinestream_",
+	//"vendor_hibike_torrent":      "HibikeTorrent_",
+	//"vendor_hibike_mediaplayer":  "HibikeMediaPlayer_",
+	//"vendor_hibike_extension":    "HibikeExtension_",
+	"hibikemanga":        "HibikeManga_",
+	"hibikeonlinestream": "HibikeOnlinestream_",
+	"hibiketorrent":      "HibikeTorrent_",
+	"hibikemediaplayer":  "HibikeMediaPlayer_",
+	"hibikeextension":    "HibikeExtension_",
+	"continuity":         "Continuity_",
+	"sync":               "Sync_",
+	"debrid":             "Debrid_",
+	"debrid_client":      "DebridClient_",
+	"report":             "Report_",
 }
 
 func getTypePrefix(packageName string) string {
@@ -358,15 +364,18 @@ func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, nam
 
 		usedStructType, usedStructPkgName := getUsedStructType(field.Type, packageName)
 
+		tsType := fieldTypeToTypescriptType(field.Type, usedStructPkgName)
+
 		goStructField := &GoStructField{
-			Name:           fieldName,
-			JsonName:       jsonFieldName(field),
-			GoType:         fieldTypeString(field.Type),
-			TypescriptType: fieldTypeToTypescriptType(field.Type, usedStructPkgName),
-			Required:       required,
-			Public:         field.Names[0].IsExported(),
-			UsedStructType: usedStructType,
-			Comments:       comments,
+			Name:               fieldName,
+			JsonName:           jsonFieldName(field),
+			GoType:             fieldTypeString(field.Type),
+			TypescriptType:     tsType,
+			UsedTypescriptType: fieldTypeToUsedTypescriptType(tsType),
+			Required:           required,
+			Public:             field.Names[0].IsExported(),
+			UsedStructType:     usedStructType,
+			Comments:           comments,
 		}
 		goStruct.Fields = append(goStruct.Fields, goStructField)
 	}
@@ -385,6 +394,7 @@ func goStructFromAlias(path string, info os.FileInfo, genDecl *ast.GenDecl, type
 	}
 
 	usedStructType, usedStructPkgName := getUsedStructType(typeSpec.Type, packageName)
+	tsType := fieldTypeToTypescriptType(typeSpec.Type, usedStructPkgName)
 
 	goStruct := &GoStruct{
 		Filepath:      filepath.ToSlash(path),
@@ -395,9 +405,10 @@ func goStructFromAlias(path string, info os.FileInfo, genDecl *ast.GenDecl, type
 		Fields:        make([]*GoStructField, 0),
 		Comments:      comments,
 		AliasOf: &GoAlias{
-			GoType:         alias.Name,
-			TypescriptType: fieldTypeToTypescriptType(typeSpec.Type, usedStructPkgName),
-			UsedStructType: usedStructType,
+			GoType:             alias.Name,
+			TypescriptType:     tsType,
+			UsedTypescriptType: fieldTypeToUsedTypescriptType(tsType),
+			UsedStructType:     usedStructType,
 		},
 	}
 
@@ -473,7 +484,7 @@ func fieldTypeString(fieldType ast.Expr) string {
 	case *ast.SelectorExpr:
 		return fieldTypeString(t.X) + "." + t.Sel.Name
 	case *ast.StructType:
-		return "__STRUCT__" // FIXME
+		return "__STRUCT__"
 	default:
 		return ""
 	}
@@ -635,6 +646,12 @@ func jsonFieldName(field *ast.Field) string {
 		jsonTag := tag.Get("json")
 		if jsonTag != "" {
 			jsonParts := strings.Split(jsonTag, ",")
+			if jsonParts[0] == "-" {
+				return ""
+			}
+			if jsonParts[0] != "" {
+				return jsonParts[0]
+			}
 			return jsonParts[0]
 		}
 	}
@@ -651,4 +668,87 @@ func jsonFieldOmitEmpty(field *ast.Field) bool {
 		}
 	}
 	return false
+}
+
+func isCustomStruct(goType string) bool {
+	return goTypeToTypescriptType(goType) == "unknown"
+}
+
+var nameExceptions = map[string]string{"OAuth2": "oauth2"}
+
+func convertGoToJSName(name string) string {
+	if v, ok := nameExceptions[name]; ok {
+		return v
+	}
+
+	startUppercase := make([]rune, 0, len(name))
+
+	for _, c := range name {
+		if c != '_' && !unicode.IsUpper(c) && !unicode.IsDigit(c) {
+			break
+		}
+
+		startUppercase = append(startUppercase, c)
+	}
+
+	totalStartUppercase := len(startUppercase)
+
+	// all uppercase eg. "JSON" -> "json"
+	if len(name) == totalStartUppercase {
+		return strings.ToLower(name)
+	}
+
+	// eg. "JSONField" -> "jsonField"
+	if totalStartUppercase > 1 {
+		return strings.ToLower(name[0:totalStartUppercase-1]) + name[totalStartUppercase-1:]
+	}
+
+	// eg. "GetField" -> "getField"
+	if totalStartUppercase == 1 {
+		return strings.ToLower(name[0:1]) + name[1:]
+	}
+
+	return name
+}
+
+// fieldTypeToUsedTypescriptType extracts the core TypeScript type from complex type expressions
+// For example, if the type is Array<Models_User>, it returns Models_User
+// If the type is Record<string, Models_User>, it returns Models_User
+func fieldTypeToUsedTypescriptType(tsType string) string {
+	// Handle arrays: Array<Type> -> Type
+	if strings.HasPrefix(tsType, "Array<") && strings.HasSuffix(tsType, ">") {
+		innerType := strings.TrimPrefix(strings.TrimSuffix(tsType, ">"), "Array<")
+		return fieldTypeToUsedTypescriptType(innerType)
+	}
+
+	// Handle records: Record<Key, Value> -> Value
+	if strings.HasPrefix(tsType, "Record<") && strings.HasSuffix(tsType, ">") {
+		innerType := strings.TrimPrefix(strings.TrimSuffix(tsType, ">"), "Record<")
+		// Find the comma that separates key and value
+		commaIndex := -1
+		bracketCount := 0
+		for i, char := range innerType {
+			if char == '<' {
+				bracketCount++
+			} else if char == '>' {
+				bracketCount--
+			} else if char == ',' && bracketCount == 0 {
+				commaIndex = i
+				break
+			}
+		}
+
+		if commaIndex != -1 {
+			valueType := strings.TrimSpace(innerType[commaIndex+1:])
+			return fieldTypeToUsedTypescriptType(valueType)
+		}
+	}
+
+	// Handle primitive types
+	switch tsType {
+	case "string", "number", "boolean", "any", "null", "undefined":
+		return ""
+	}
+
+	return tsType
 }

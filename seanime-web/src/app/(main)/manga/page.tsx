@@ -16,6 +16,8 @@ export default function Page() {
         filteredMangaCollection,
         genres,
         mangaCollectionLoading,
+        storedFilters,
+        storedProviders,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -23,13 +25,18 @@ export default function Page() {
     if (!mangaCollection || mangaCollectionLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
-        <div>
+        <div
+            data-manga-page-container
+            data-stored-filters={JSON.stringify(storedFilters)}
+            data-stored-providers={JSON.stringify(storedProviders)}
+        >
             {(
                 (!!ts.libraryScreenCustomBannerImage && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom)
             ) && (
                 <>
                     <CustomLibraryBanner isLibraryScreen />
                     <div
+                        data-manga-page-custom-banner-spacer
                         className={cn("h-14")}
                     ></div>
                 </>
@@ -38,6 +45,7 @@ export default function Page() {
                 <>
                     <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
                     <div
+                        data-manga-page-dynamic-banner-spacer
                         className={cn(
                             process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "h-28",
                             (process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && ts.hideTopNavbar) && "h-40",
@@ -51,6 +59,7 @@ export default function Page() {
                 genres={genres}
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
+                storedProviders={storedProviders}
             />
         </div>
     )

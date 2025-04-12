@@ -3,16 +3,13 @@ package extension_playground
 import (
 	"bytes"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/extension_repo"
 	"seanime/internal/manga"
 	"seanime/internal/onlinestream"
@@ -22,15 +19,22 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+
+	goja_runtime "seanime/internal/goja/goja_runtime"
 )
 
 type (
 	PlaygroundRepository struct {
-		logger           *zerolog.Logger
-		platform         platform.Platform
-		baseAnimeCache   *result.Cache[int, *anilist.BaseAnime]
-		baseMangaCache   *result.Cache[int, *anilist.BaseManga]
-		metadataProvider metadata.Provider
+		logger             *zerolog.Logger
+		platform           platform.Platform
+		baseAnimeCache     *result.Cache[int, *anilist.BaseAnime]
+		baseMangaCache     *result.Cache[int, *anilist.BaseManga]
+		metadataProvider   metadata.Provider
+		gojaRuntimeManager *goja_runtime.Manager
 	}
 
 	RunPlaygroundCodeResponse struct {
@@ -49,11 +53,12 @@ type (
 
 func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform, metadataProvider metadata.Provider) *PlaygroundRepository {
 	return &PlaygroundRepository{
-		logger:           logger,
-		platform:         platform,
-		metadataProvider: metadataProvider,
-		baseAnimeCache:   result.NewCache[int, *anilist.BaseAnime](),
-		baseMangaCache:   result.NewCache[int, *anilist.BaseManga](),
+		logger:             logger,
+		platform:           platform,
+		metadataProvider:   metadataProvider,
+		baseAnimeCache:     result.NewCache[int, *anilist.BaseAnime](),
+		baseMangaCache:     result.NewCache[int, *anilist.BaseManga](),
+		gojaRuntimeManager: goja_runtime.NewManager(logger, 10),
 	}
 }
 
@@ -219,11 +224,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return nil, err
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {
@@ -334,11 +339,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {
@@ -409,11 +414,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {

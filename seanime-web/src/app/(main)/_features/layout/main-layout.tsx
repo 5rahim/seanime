@@ -8,6 +8,7 @@ import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
+import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -19,13 +20,14 @@ import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownl
 import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
 import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-player-link.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
+import { useMiscEventListeners } from "@/app/(main)/_listeners/misc-events.listeners"
 import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
-import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { DebridStreamOverlay } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-overlay"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
+import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -41,11 +43,12 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
      */
     useAutoDownloaderItemListener()
     useAnimeCollectionListener()
-    useToastEventListeners()
+    useMiscEventListeners()
     useExtensionListener()
     useMangaListener()
     useExternalPlayerLinkListener()
     useSyncListener()
+    useInvalidateQueriesListener()
 
     return (
         <>
@@ -63,6 +66,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <IssueReport />
             <ErrorExplainer />
             <SeaCommand />
+            <PluginManager />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

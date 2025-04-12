@@ -1,70 +1,30 @@
 package extension_repo
 
 import (
-	"fmt"
-	"github.com/dop251/goja"
-	"github.com/rs/zerolog"
+	"context"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	"github.com/rs/zerolog"
 )
 
-type (
-	GojaMangaProvider struct {
-		gojaExtensionImpl
-	}
-)
-
-func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikemanga.Provider, *GojaMangaProvider, error) {
-	logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external manga provider")
-
-	vm, err := SetupGojaExtensionVM(ext, language, logger)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, nil, err
-	}
-
-	// Create the provider
-	_, err = vm.RunString(`function NewProvider() {
-    return new Provider()
-}`)
-	if err != nil {
-		vm.ClearInterrupt()
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create manga provider")
-		return nil, nil, err
-	}
-
-	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
-	if !ok {
-		vm.ClearInterrupt()
-		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke manga provider constructor")
-		return nil, nil, fmt.Errorf("failed to invoke manga provider constructor")
-	}
-
-	classObjVal, err := newProviderFunc(goja.Undefined())
-	if err != nil {
-		vm.ClearInterrupt()
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create manga provider")
-		return nil, nil, err
-	}
-
-	classObj := classObjVal.ToObject(vm)
-
-	ret := &GojaMangaProvider{
-		gojaExtensionImpl: gojaExtensionImpl{
-			vm:       vm,
-			logger:   logger,
-			ext:      ext,
-			classObj: classObj,
-		},
-	}
-	return ret, ret, nil
+type GojaMangaProvider struct {
+	*gojaProviderBase
 }
 
-func (g *GojaMangaProvider) GetVM() *goja.Runtime {
-	return g.vm
+func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (hibikemanga.Provider, *GojaMangaProvider, error) {
+	base, err := initializeProviderBase(ext, language, logger, runtimeManager)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	provider := &GojaMangaProvider{
+		gojaProviderBase: base,
+	}
+	return provider, provider, nil
 }
 
 func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
@@ -72,7 +32,7 @@ func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
 		ret = hibikemanga.Settings{}
 	})
 
-	method, err := g.callClassMethod("getSettings")
+	method, err := g.callClassMethod(context.Background(), "getSettings")
 	if err != nil {
 		return
 	}
@@ -88,7 +48,7 @@ func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
 func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
-	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
+	method, err := g.callClassMethod(context.Background(), "search", structToMap(opts))
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -126,7 +86,7 @@ func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibik
 func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterDetails, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindChapters", &err)
 
-	method, err := g.callClassMethod("findChapters", g.vm.ToValue(id))
+	method, err := g.callClassMethod(context.Background(), "findChapters", id)
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -149,7 +109,7 @@ func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterD
 func (g *GojaMangaProvider) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindChapterPages", &err)
 
-	method, err := g.callClassMethod("findChapterPages", g.vm.ToValue(id))
+	method, err := g.callClassMethod(context.Background(), "findChapterPages", id)
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {

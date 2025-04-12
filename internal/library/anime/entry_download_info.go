@@ -2,12 +2,13 @@ package anime
 
 import (
 	"errors"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
+	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"slices"
 	"strconv"
+
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -40,7 +41,8 @@ type (
 	}
 )
 
-// NewEntryDownloadInfo creates a new EntryDownloadInfo
+// NewEntryDownloadInfo returns a list of episodes to download or episodes for the torrent/debrid streaming views
+// based on the options provided.
 func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo, error) {
 
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
@@ -57,10 +59,46 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 	// |     Discrepancy     |
 	// +---------------------+
 
-	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
-	_, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnimeMetadata)
+	// Whether AniList includes episode 0 as part of main episodes, but AniDB does not, however AniDB has "S1"
+	discrepancy := FindDiscrepancy(opts.Media, opts.AnimeMetadata)
 
-	// I - Progress
+	// AniList is the source of truth for episode numbers
+	epSlice := newEpisodeSlice(opts.Media.GetCurrentEpisodeCount())
+
+	// Handle discrepancies
+	if discrepancy != DiscrepancyNone {
+
+		// If AniList includes episode 0 as part of main episodes, but AniDB does not, however AniDB has "S1"
+		if discrepancy == DiscrepancyAniListCountsEpisodeZero {
+			// Add "S1" to the beginning of the episode slice
+			epSlice.trimEnd(1)
+			epSlice.prepend(0, "S1")
+		}
+
+		// If AniList includes specials, but AniDB does not
+		if discrepancy == DiscrepancyAniListCountsSpecials {
+			diff := opts.Media.GetCurrentEpisodeCount() - opts.AnimeMetadata.GetMainEpisodeCount()
+			epSlice.trimEnd(diff)
+			for i := 0; i < diff; i++ {
+				epSlice.add(opts.Media.GetCurrentEpisodeCount()-i, "S"+strconv.Itoa(i+1))
+			}
+		}
+
+		// If AniDB has more episodes than AniList
+		if discrepancy == DiscrepancyAniDBHasMore {
+			// Do nothing
+		}
+
+	}
+
+	// Filter out episodes not aired
+	if opts.Media.NextAiringEpisode != nil {
+		epSlice.filter(func(item *episodeSliceItem, index int) bool {
+			// e.g. if the next airing episode is 13, then filter out episodes 14 and above
+			return index+1 < opts.Media.NextAiringEpisode.Episode
+		})
+	}
+
 	// Get progress, if the media isn't in the user's list, progress is 0
 	// If the media is completed, set progress is 0
 	progress := 0
@@ -73,106 +111,47 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 		}
 	}
 
-	// II - Create episode number slices for Anilist and Anizip
-	// We assume that Episode 0 is 1 if it is included by AniList
-	mediaEpSlice := generateEpSlice(opts.Media.GetCurrentEpisodeCount())                         // e.g, [1,2,3,4]
-	unwatchedEpSlice := lo.Filter(mediaEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
-
-	metadataEpSlice := generateEpSlice(opts.AnimeMetadata.GetMainEpisodeCount())                          // e.g, [1,2,3,4]
-	unwatchedAnizipEpSlice := lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
-
-	// +---------------------+
-	// |   Anizip has more   |
-	// +---------------------+
-
-	// If Anizip has more episodes
-	// e.g, Anizip: 2, Anilist: 1
-	if opts.AnimeMetadata.GetMainEpisodeCount() > opts.Media.GetCurrentEpisodeCount() {
-		diff := opts.AnimeMetadata.GetMainEpisodeCount() - opts.Media.GetCurrentEpisodeCount()
-		// Remove the extra episode number from the Anizip slice
-		metadataEpSlice = metadataEpSlice[:len(metadataEpSlice)-diff]                                        // e.g, [1,2] -> [1]
-		unwatchedAnizipEpSlice = lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
-	}
-
-	// +---------------------+
-	// |  Anizip has fewer   |
-	// +---------------------+
-
-	// III - Handle discrepancy (inclusion of episode 0 by AniList)
-	// If Anilist has more episodes than Anizip
-	// e.g, Anilist: 13, Anizip: 12
-	if hasDiscrepancy {
-		// Add -1 to Anizip slice, -1 is "S1"
-		metadataEpSlice = append([]int{-1}, metadataEpSlice...) // e.g, [-1,1,2,...,12]
-		unwatchedAnizipEpSlice = metadataEpSlice                // e.g, [-1,1,2,...,12]
-		if progress > 0 {
-			unwatchedAnizipEpSlice = lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress-1 })
-		}
-	}
-
-	// Filter out episodes not aired from the slices
-	if opts.Media.NextAiringEpisode != nil {
-		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode })
-		if hasDiscrepancy {
-			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode-1 })
-		} else {
-			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode })
-		}
-	}
-
-	// Inaccurate schedule (hacky fix)
 	hasInaccurateSchedule := false
 	if opts.Media.NextAiringEpisode == nil && *opts.Media.Status == anilist.MediaStatusReleasing {
-		//if !hasDiscrepancy {
-		//	if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
-		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
-		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
-		//	} else {
-		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-		//	}
-		//} else {
-		//	if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
-		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-		//	} else {
-		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
-		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
-		//	}
-		//}
 		hasInaccurateSchedule = true
 	}
 
-	// This slice contains episode numbers that are not downloaded
-	// The source of truth is AniZip, but we will handle discrepancies
-	toDownloadSlice := make([]int, 0)
-	lfsEpSlice := make([]int, 0)
-	if opts.LocalFiles != nil {
+	// Filter out episodes already watched (index+1 is the progress number)
+	toDownloadSlice := epSlice.filterNew(func(item *episodeSliceItem, index int) bool {
+		return index+1 > progress
+	})
 
+	// This slice contains episode numbers that are not downloaded
+	// The source of truth is AniDB, but we will handle discrepancies
+	lfsEpSlice := newEpisodeSlice(0)
+	if opts.LocalFiles != nil {
 		// Get all episode numbers of main local files
 		for _, lf := range opts.LocalFiles {
 			if lf.Metadata.Type == LocalFileTypeMain {
-				if !slices.Contains(lfsEpSlice, lf.GetEpisodeNumber()) {
-					lfsEpSlice = append(lfsEpSlice, lf.GetEpisodeNumber())
-				}
+				lfsEpSlice.add(lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			}
 		}
-		// If there is a discrepancy, add -1 ("S1") to slice
-		if hasDiscrepancy {
-			lfsEpSlice = lo.Filter(lfsEpSlice, func(i int, _ int) bool { return i != 0 })
-			lfsEpSlice = append([]int{-1}, lfsEpSlice...) // e.g, [-1,1,2,...,12]
-		}
-		// Filter out downloaded episodes
-		if len(lfsEpSlice) > 0 {
-			toDownloadSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool {
-				return !lo.Contains(lfsEpSlice, i)
-			})
-		} else {
-			toDownloadSlice = unwatchedAnizipEpSlice
-		}
-	} else {
-		toDownloadSlice = unwatchedAnizipEpSlice
 	}
+
+	// Filter out downloaded episodes
+	toDownloadSlice.filter(func(item *episodeSliceItem, index int) bool {
+		isDownloaded := false
+		for _, lf := range opts.LocalFiles {
+			if lf.Metadata.Type != LocalFileTypeMain {
+				continue
+			}
+			// If the file episode number matches that of the episode slice item
+			if lf.Metadata.Episode == item.episodeNumber {
+				isDownloaded = true
+			}
+			// If the slice episode number is 0 and the file is a main S1
+			if discrepancy == DiscrepancyAniListCountsEpisodeZero && item.episodeNumber == 0 && lf.Metadata.AniDBEpisode == "S1" {
+				isDownloaded = true
+			}
+		}
+
+		return !isDownloaded
+	})
 
 	// +---------------------+
 	// |   EntryEpisode      |
@@ -182,25 +161,39 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 
 	// DEVNOTE: The EntryEpisode generated has inaccurate progress numbers since not local files are passed in
 
+	progressOffset := 0
+	if discrepancy == DiscrepancyAniListCountsEpisodeZero {
+		progressOffset = 1
+	}
+
 	p := pool.NewWithResults[*EntryDownloadEpisode]()
-	for _, ep := range toDownloadSlice {
+	for _, ep := range toDownloadSlice.getSlice() {
 		p.Go(func() *EntryDownloadEpisode {
 			str := new(EntryDownloadEpisode)
-			str.EpisodeNumber = ep
-			str.AniDBEpisode = strconv.Itoa(ep)
-			if ep == -1 {
-				str.EpisodeNumber = 0
-				str.AniDBEpisode = "S1"
-			}
+			str.EpisodeNumber = ep.episodeNumber
+			str.AniDBEpisode = ep.aniDBEpisode
+			// Create a new episode with a placeholder local file
+			// We pass that placeholder local file so that all episodes are hydrated as main episodes for consistency
 			str.Episode = NewEpisode(&NewEpisodeOptions{
-				LocalFile:            nil,
+				LocalFile: &LocalFile{
+					ParsedData:       &LocalFileParsedData{},
+					ParsedFolderData: []*LocalFileParsedData{},
+					Metadata: &LocalFileMetadata{
+						Episode:      ep.episodeNumber,
+						Type:         LocalFileTypeMain,
+						AniDBEpisode: ep.aniDBEpisode,
+					},
+				},
 				OptionalAniDBEpisode: str.AniDBEpisode,
 				AnimeMetadata:        opts.AnimeMetadata,
 				Media:                opts.Media,
-				ProgressOffset:       0,
+				ProgressOffset:       progressOffset,
 				IsDownloaded:         false,
 				MetadataProvider:     opts.MetadataProvider,
 			})
+			str.Episode.AniDBEpisode = ep.aniDBEpisode
+			// Reset the local file to nil, since it's a placeholder
+			str.Episode.LocalFile = nil
 			return str
 		})
 	}
@@ -213,7 +206,7 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 		canBatch = true
 	}
 	batchAll := false
-	if canBatch && len(lfsEpSlice) == 0 && progress == 0 {
+	if canBatch && lfsEpSlice.len() == 0 && progress == 0 {
 		batchAll = true
 	}
 	rewatch := false
@@ -231,15 +224,88 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 	}, nil
 }
 
-// generateEpSlice
-// e.g, 4 -> [1,2,3,4], 3 -> [1,2,3]
-func generateEpSlice(n int) []int {
-	if n < 1 {
-		return nil
+type episodeSliceItem struct {
+	episodeNumber int
+	aniDBEpisode  string
+}
+
+type episodeSlice []*episodeSliceItem
+
+func newEpisodeSlice(episodeCount int) *episodeSlice {
+	s := make([]*episodeSliceItem, 0)
+	for i := 0; i < episodeCount; i++ {
+		s = append(s, &episodeSliceItem{episodeNumber: i + 1, aniDBEpisode: strconv.Itoa(i + 1)})
 	}
-	result := make([]int, n)
-	for i := 1; i <= n; i++ {
-		result[i-1] = i
+	ret := &episodeSlice{}
+	ret.set(s)
+	return ret
+}
+
+func (s *episodeSlice) set(eps []*episodeSliceItem) {
+	*s = eps
+}
+
+func (s *episodeSlice) add(episodeNumber int, aniDBEpisode string) {
+	*s = append(*s, &episodeSliceItem{episodeNumber: episodeNumber, aniDBEpisode: aniDBEpisode})
+}
+
+func (s *episodeSlice) prepend(episodeNumber int, aniDBEpisode string) {
+	*s = append([]*episodeSliceItem{{episodeNumber: episodeNumber, aniDBEpisode: aniDBEpisode}}, *s...)
+}
+
+func (s *episodeSlice) trimEnd(n int) {
+	*s = (*s)[:len(*s)-n]
+}
+
+func (s *episodeSlice) trimStart(n int) {
+	*s = (*s)[n:]
+}
+
+func (s *episodeSlice) len() int {
+	return len(*s)
+}
+
+func (s *episodeSlice) get(index int) *episodeSliceItem {
+	return (*s)[index]
+}
+
+func (s *episodeSlice) getEpisodeNumber(episodeNumber int) *episodeSliceItem {
+	for _, item := range *s {
+		if item.episodeNumber == episodeNumber {
+			return item
+		}
 	}
-	return result
+	return nil
+}
+
+func (s *episodeSlice) filter(filter func(*episodeSliceItem, int) bool) {
+	*s = lo.Filter(*s, filter)
+}
+
+func (s *episodeSlice) filterNew(filter func(*episodeSliceItem, int) bool) *episodeSlice {
+	s2 := make(episodeSlice, 0)
+	for i, item := range *s {
+		if filter(item, i) {
+			s2 = append(s2, item)
+		}
+	}
+	return &s2
+}
+
+func (s *episodeSlice) copy() *episodeSlice {
+	s2 := make(episodeSlice, len(*s), cap(*s))
+	for i, item := range *s {
+		s2[i] = item
+	}
+	return &s2
+}
+
+func (s *episodeSlice) getSlice() []*episodeSliceItem {
+	return *s
+}
+
+func (s *episodeSlice) print() {
+	for i, item := range *s {
+		fmt.Printf("(%d) %d -> %s\n", i, item.episodeNumber, item.aniDBEpisode)
+	}
 }

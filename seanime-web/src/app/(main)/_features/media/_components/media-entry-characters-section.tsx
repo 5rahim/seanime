@@ -32,17 +32,19 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
         <>
             {/*{!isMangaPage && <Separator />}*/}
 
-            <h2>Characters</h2>
+            <h2 data-media-entry-characters-section-title>Characters</h2>
 
             <div
+                data-media-entry-characters-section-grid
                 className={cn(
                     "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4",
                     isMangaPage && "grid-cols-1 md:grid-col-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-2",
                 )}
             >
                 {characters?.slice(0, 10).map(edge => {
-                    return <div key={edge?.node?.id} className="col-span-1">
+                    return <div key={edge?.node?.id} className="col-span-1" data-media-entry-characters-section-grid-item>
                         <div
+                            data-media-entry-characters-section-grid-item-container
                             className={cn(
                                 "max-w-full flex gap-4",
                                 "rounded-lg relative transition group/episode-list-item select-none",
@@ -55,14 +57,22 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                         >
 
                             <div
+                                data-media-entry-characters-section-grid-item-image-container
                                 className={cn(
                                     "size-20 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                                     "group/ep-item-img-container",
                                 )}
                             >
-                                <div className="absolute z-[1] rounded-[--radius-md] w-full h-full"></div>
-                                <div className="bg-[--background] absolute z-[0] rounded-[--radius-md] w-full h-full"></div>
+                                <div
+                                    data-media-entry-characters-section-grid-item-image-overlay
+                                    className="absolute z-[1] rounded-[--radius-md] w-full h-full"
+                                ></div>
+                                <div
+                                    data-media-entry-characters-section-grid-item-image-background
+                                    className="bg-[--background] absolute z-[0] rounded-[--radius-md] w-full h-full"
+                                ></div>
                                 {(edge?.node?.image?.large) && <Image
+                                    data-media-entry-characters-section-grid-item-image
                                     src={edge?.node?.image?.large || ""}
                                     alt="episode image"
                                     fill
@@ -74,8 +84,8 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                                 />}
                             </div>
 
-                            <div>
-                                <SeaLink href={edge?.node?.siteUrl || "#"} target="_blank">
+                            <div data-media-entry-characters-section-grid-item-content>
+                                <SeaLink href={edge?.node?.siteUrl || "#"} target="_blank" data-media-entry-characters-section-grid-item-content-link>
                                     <p
                                         className={cn(
                                             "text-lg font-semibold transition line-clamp-2 leading-5 hover:text-brand-100",
@@ -85,15 +95,15 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                                     </p>
                                 </SeaLink>
 
-                                {edge?.node?.age && <p className="text-sm">
+                                {edge?.node?.age && <p data-media-entry-characters-section-grid-item-content-age className="text-sm">
                                     {edge?.node?.age} years old
                                 </p>}
 
-                                <p className="text-[--muted] text-xs">
+                                <p data-media-entry-characters-section-grid-item-content-role className="text-[--muted] text-xs">
                                     {edge?.role}
                                 </p>
 
-                                {edge?.node?.isFavourite && <div>
+                                {edge?.node?.isFavourite && <div data-media-entry-characters-section-grid-item-content-favourite>
                                     <BiSolidHeart className="text-pink-600 text-lg block" />
                                 </div>}
                             </div>

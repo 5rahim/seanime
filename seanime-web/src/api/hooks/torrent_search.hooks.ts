@@ -8,7 +8,7 @@ export function useSearchTorrent(variables: SearchTorrent_Variables, enabled: bo
         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.endpoint,
         method: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.methods[0],
         data: variables,
-        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key, variables],
+        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key, JSON.stringify(variables)],
         enabled: enabled,
         gcTime: variables.episodeNumber === 0 ? 0 : undefined,
     })

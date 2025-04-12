@@ -5,6 +5,8 @@ logs/
 testdata/
 .vscode
 .cursor
+.DS_Store
+*/.DS_Store
 
 Dockerfile
 Dockerfile.dev
@@ -74,3 +76,8 @@ seanime-web/logs
 seanime-web/analyze
 seanime-web/TODO-priv.md
 seanime-web/CHANGELOG-priv.md
+
+codegen/generated/hooks.mdx
+
+internal/extension_repo/goja_onlinestream_test/test1.ts
+internal/util/proxies/_proxy.go

@@ -1,5 +1,9 @@
 package extension
 
+import (
+	"strings"
+)
+
 type Consumer interface {
 	InitExtensionBank(bank *UnifiedBank)
 }
@@ -10,10 +14,13 @@ type Type string
 
 type Language string
 
+type PluginPermissionScope string
+
 const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
+	TypePlugin               Type = "plugin"
 )
 
 const (
@@ -47,12 +54,22 @@ type Extension struct {
 	// Set this to "multi" if the extension supports multiple languages.
 	// Defaults to "en".
 	Lang string `json:"lang"`
-	// List of authorization scopes required by the extension.
+	// List of permissions asked by the extension.
 	// The user must grant these permissions before the extension can be loaded.
-	Scopes     []string    `json:"scopes,omitempty"` // NOT IMPLEMENTED
-	UserConfig *UserConfig `json:"userConfig,omitempty"`
+	Permissions []string    `json:"permissions,omitempty"` // NOT IMPLEMENTED
+	UserConfig  *UserConfig `json:"userConfig,omitempty"`
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
+	// PayloadURI is the URI to the extension payload.
+	// It can be used as an alternative to the Payload field to load the payload from a remote source.
+	// If the extension is in debug mode, this can be a file path to the local payload.
+	PayloadURI string `json:"payloadURI,omitempty"`
+	// Plugin is the manifest of the extension if it is a plugin.
+	Plugin *PluginManifest `json:"plugin,omitempty"`
+
+	// IsDevelopment is true if the extension is in development mode.
+	// If true, the extension code will be loaded from PayloadURI and allow you to edit the code from an editor and reload the extension without restarting the application.
+	IsDevelopment bool `json:"isDevelopment,omitempty"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,29 +86,33 @@ type BaseExtension interface {
 	GetDescription() string
 	GetAuthor() string
 	GetPayload() string
+	GetPayloadURI() string
 	GetLang() string
 	GetIcon() string
 	GetWebsite() string
-	GetScopes() []string
+	GetPermissions() []string
 	GetUserConfig() *UserConfig
+	GetIsDevelopment() bool
 }
 
 func ToExtensionData(ext BaseExtension) *Extension {
 	return &Extension{
-		ID:          ext.GetID(),
-		Name:        ext.GetName(),
-		Version:     ext.GetVersion(),
-		ManifestURI: ext.GetManifestURI(),
-		Language:    ext.GetLanguage(),
-		Lang:        GetExtensionLang(ext.GetLang()),
-		Type:        ext.GetType(),
-		Description: ext.GetDescription(),
-		Author:      ext.GetAuthor(),
-		Scopes:      ext.GetScopes(),
-		UserConfig:  ext.GetUserConfig(),
-		Icon:        ext.GetIcon(),
-		Website:     ext.GetWebsite(),
-		Payload:     ext.GetPayload(),
+		ID:            ext.GetID(),
+		Name:          ext.GetName(),
+		Version:       ext.GetVersion(),
+		ManifestURI:   ext.GetManifestURI(),
+		Language:      ext.GetLanguage(),
+		Lang:          GetExtensionLang(ext.GetLang()),
+		Type:          ext.GetType(),
+		Description:   ext.GetDescription(),
+		Author:        ext.GetAuthor(),
+		Permissions:   ext.GetPermissions(),
+		UserConfig:    ext.GetUserConfig(),
+		Icon:          ext.GetIcon(),
+		Website:       ext.GetWebsite(),
+		Payload:       ext.GetPayload(),
+		PayloadURI:    ext.GetPayloadURI(),
+		IsDevelopment: ext.GetIsDevelopment(),
 	}
 }
 
@@ -117,15 +138,18 @@ const (
 	InvalidExtensionUserConfigError InvalidExtensionErrorCode = "user_config_error"
 	// InvalidExtensionAuthorizationError is returned when some authorization scopes have not been granted
 	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
+	// InvalidExtensionPluginPermissionsNotGranted is returned when the plugin permissions have not been granted
+	InvalidExtensionPluginPermissionsNotGranted InvalidExtensionErrorCode = "plugin_permissions_not_granted"
 )
 
 type InvalidExtension struct {
 	// Auto-generated ID
-	ID        string                    `json:"id"`
-	Path      string                    `json:"path"`
-	Extension Extension                 `json:"extension"`
-	Reason    string                    `json:"reason"`
-	Code      InvalidExtensionErrorCode `json:"code"`
+	ID                          string                    `json:"id"`
+	Path                        string                    `json:"path"`
+	Extension                   Extension                 `json:"extension"`
+	Reason                      string                    `json:"reason"`
+	Code                        InvalidExtensionErrorCode `json:"code"`
+	PluginPermissionDescription string                    `json:"pluginPermissionDescription,omitempty"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,3 +200,11 @@ type (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (p *PluginPermissionScope) String() string {
+	return string(*p)
+}
+
+func (p *PluginPermissionScope) Is(str string) bool {
+	return strings.EqualFold(string(*p), str)
+}

@@ -129,8 +129,8 @@ export function DiscoverMangaSearchBar() {
     })
 
     return (
-        <div className="space-y-4">
-            <div className="container">
+        <div className="space-y-4" data-discover-manga-search-bar-container>
+            <div className="container" data-discover-manga-search-bar-inner-container>
                 <TextInput
                     leftIcon={<FiSearch />}
                     value={searchInput}

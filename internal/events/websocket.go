@@ -3,28 +3,38 @@ package events
 import (
 	"os"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/rs/zerolog"
-
 	"github.com/gorilla/websocket"
+	"github.com/rs/zerolog"
 )
 
 type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
 	SendEventTo(clientId string, t string, payload interface{})
+	SubscribeToClientEvents(id string) *ClientEventSubscriber
+	UnsubscribeFromClientEvents(id string)
 }
 
 type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
-		Conns            []*WSConn
-		Logger           *zerolog.Logger
-		hasHadConnection bool
-		mu               sync.Mutex
+		Conns                  []*WSConn
+		Logger                 *zerolog.Logger
+		hasHadConnection       bool
+		mu                     sync.Mutex
+		eventMu                sync.RWMutex
+		clientEventSubscribers *result.Map[string, *ClientEventSubscriber]
+	}
+
+	ClientEventSubscriber struct {
+		Channel chan *WebsocketClientEvent
+		mu      sync.RWMutex
+		closed  bool
 	}
 
 	WSConn struct {
@@ -41,8 +51,9 @@ type (
 // NewWSEventManager creates a new WSEventManager instance for App.
 func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 	return &WSEventManager{
-		Logger: logger,
-		Conns:  make([]*WSConn, 0),
+		Logger:                 logger,
+		Conns:                  make([]*WSConn, 0),
+		clientEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
 	}
 }
 
@@ -143,11 +154,71 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 
 	for _, conn := range m.Conns {
 		if conn.ID == clientId {
-			m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+			if t != "pong" {
+				m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+			}
 			_ = conn.Conn.WriteJSON(WSEvent{
 				Type:    t,
 				Payload: payload,
 			})
 		}
+	}
+}
+
+func (m *WSEventManager) SendStringTo(clientId string, s string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, conn := range m.Conns {
+		if conn.ID == clientId {
+			_ = conn.Conn.WriteMessage(websocket.TextMessage, []byte(s))
+		}
+	}
+}
+
+func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
+	m.eventMu.RLock()
+	defer m.eventMu.RUnlock()
+	m.clientEventSubscribers.Range(func(key string, subscriber *ClientEventSubscriber) bool {
+		go func() {
+			defer util.HandlePanicInModuleThen("events/OnClientEvent", func() {})
+			subscriber.mu.RLock()
+			defer subscriber.mu.RUnlock()
+			if !subscriber.closed {
+				select {
+				case subscriber.Channel <- event:
+				default:
+					// Channel is blocked, skip sending
+					m.Logger.Warn().Msg("ws: Client event channel is blocked, skipping send")
+				}
+			}
+		}()
+		return true
+	})
+}
+
+func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.clientEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
+	m.eventMu.Lock()
+	defer m.eventMu.Unlock()
+	defer func() {
+		if r := recover(); r != nil {
+			m.Logger.Warn().Msg("ws: Failed to unsubscribe from client events")
+		}
+	}()
+	subscriber, ok := m.clientEventSubscribers.Get(id)
+	if ok {
+		subscriber.mu.Lock()
+		defer subscriber.mu.Unlock()
+		subscriber.closed = true
+		m.clientEventSubscribers.Delete(id)
+		close(subscriber.Channel)
 	}
 }

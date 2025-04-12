@@ -38,6 +38,7 @@ import React, { useState } from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiCalendarLine } from "react-icons/ri"
+import { PluginMediaCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type MediaEntryCardBaseProps = {
     overlay?: React.ReactNode
@@ -54,6 +55,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     showLibraryBadge?: T extends "anime" ? boolean : never
     showTrailer?: T extends "anime" ? boolean : never
     libraryData?: T extends "anime" ? Anime_EntryLibraryData : never
+    hideUnseenCountBadge?: boolean
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -67,6 +69,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         showTrailer: _showTrailer,
         type,
         withAudienceScore = true,
+        hideUnseenCountBadge = false,
     } = props
 
     const router = useRouter()
@@ -154,7 +157,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     if (!media) return null
 
     return (
-        <MediaEntryCardContainer mRef={ref} className={props.containerClassName}>
+        <MediaEntryCardContainer
+            data-media-id={media.id}
+            data-media-type={type}
+            mRef={ref}
+            className={props.containerClassName}
+            data-list-data={JSON.stringify(listData)}
+        >
+
 
             <MediaEntryCardOverlay overlay={overlay} />
 
@@ -170,6 +180,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     >
                         Preview
                     </ContextMenuItem>
+
+                    <PluginMediaCardContextMenuItems for={type} media={media} />
                 </ContextMenuGroup>}
             >
                 <ContextMenuTrigger>
@@ -297,14 +309,15 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
-                <div className="absolute z-[10] left-0 bottom-0 flex items-end">
+                <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
                         forceShowTotal={type === "manga"}
                         // forceShowProgress={listData?.status === "CURRENT"}
-                        top={<>
-                            {(type === "anime" && listData?.status === "CURRENT") && (
+                        top={!hideUnseenCountBadge ? <>
+
+                            {(type === "anime" && (listData?.status === "CURRENT" || listData?.status === "REPEATING")) && (
                                 <AnimeEntryCardUnwatchedBadge
                                     progress={listData?.progress || 0}
                                     media={media}
@@ -313,16 +326,20 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             )}
                             {type === "manga" &&
                                 <MangaEntryCardUnreadBadge mediaId={media.id} progress={listData?.progress} progressTotal={progressTotal} />}
-                        </>}
+                        </> : null}
                     />
                 </div>
-                <div className="absolute z-[10] right-1 bottom-1">
+                <div data-media-entry-card-body-score-badge-container className="absolute z-[10] right-0 bottom-0">
                     <MediaEntryScoreBadge
+                        isMediaCard
                         score={listData?.score}
                     />
                 </div>
                 {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseAnime?.id === media.id)) && (
-                    <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
+                    <div
+                        data-media-entry-card-body-missing-episodes-badge-container
+                        className="absolute z-[10] w-full flex justify-center left-1 bottom-0"
+                    >
                         <Badge
                             className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-br-none"
                             intent="gray-solid"

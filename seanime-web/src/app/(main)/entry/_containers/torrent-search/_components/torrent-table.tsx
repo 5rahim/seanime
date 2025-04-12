@@ -4,13 +4,21 @@ import {
     TorrentResolutionBadge,
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import {
+    getSortIcon,
+    handleSort,
+    SortDirection,
+    SortField,
+    sortTorrents,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-sorting-helpers"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { ScrollAreaBox } from "@/components/shared/scroll-area-box"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-import React, { memo } from "react"
+import React, { memo, useState } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { TorrentPreviewItem } from "./torrent-preview-item"
 
@@ -42,6 +50,12 @@ export const TorrentTable = memo((
         onToggleTorrent,
         debridInstantAvailability,
     }: TorrentTable) => {
+    // Add sorting state
+    const [sortField, setSortField] = useState<SortField>("seeders")
+    const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+
+    // Sort the torrents
+    const sortedTorrents = sortTorrents(torrents, sortField, sortDirection)
 
     return (
         <>
@@ -59,9 +73,57 @@ export const TorrentTable = memo((
                 <LuffyError title="Nothing found" />
             </div> : (
                 <>
-                    <p className="text-sm text-[--muted]">{torrents?.length} results</p>
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm text-[--muted] flex-none">{torrents?.length} results</p>
+                        <div className="flex items-center gap-1 flex-wrap">
+                            <Button
+                                size="xs"
+                                intent="gray-basic"
+                                leftIcon={<>
+                                    {/* <RiSeedlingLine className="mr-1 text-lg" /> */}
+                                    {getSortIcon(sortField, "seeders", sortDirection)}
+                                </>}
+                                onClick={() => handleSort("seeders", sortField, sortDirection, setSortField, setSortDirection)}
+                            >
+                                Seeders
+                            </Button>
+                            <Button
+                                size="xs"
+                                intent="gray-basic"
+                                leftIcon={<>
+                                    {/* <LuFile className="mr-1 text-lg" /> */}
+                                    {getSortIcon(sortField, "size", sortDirection)}
+                                </>}
+                                onClick={() => handleSort("size", sortField, sortDirection, setSortField, setSortDirection)}
+                            >
+                                Size
+                            </Button>
+                            <Button
+                                size="xs"
+                                intent="gray-basic"
+                                leftIcon={<>
+                                    {/* <BiCalendarAlt className="mr-1 text-lg" /> */}
+                                    {getSortIcon(sortField, "date", sortDirection)}
+                                </>}
+                                onClick={() => handleSort("date", sortField, sortDirection, setSortField, setSortDirection)}
+                            >
+                                Date
+                            </Button>
+                            <Button
+                                size="xs"
+                                intent="gray-basic"
+                                leftIcon={<>
+                                    {/* <HiOutlineVideoCamera className="mr-1 text-lg" /> */}
+                                    {getSortIcon(sortField, "resolution", sortDirection)}
+                                </>}
+                                onClick={() => handleSort("resolution", sortField, sortDirection, setSortField, setSortDirection)}
+                            >
+                                Resolution
+                            </Button>
+                        </div>
+                    </div>
                     <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
-                        {torrents.map(torrent => {
+                        {sortedTorrents.map(torrent => {
                             return (
                                 <TorrentPreviewItem
                                     isBasic

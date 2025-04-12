@@ -2,12 +2,14 @@ package mpv
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"errors"
 	"os/exec"
 	"runtime"
 	"seanime/internal/mediaplayers/mpvipc"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"strings"
 	"sync"
 	"time"
@@ -32,16 +34,19 @@ type (
 		AppPath        string
 		mu             sync.Mutex
 		playbackMu     sync.RWMutex
-		cancel         context.CancelFunc     // Cancel function for the context
-		subscribers    map[string]*Subscriber // Subscribers to the mpv events
-		conn           *mpvipc.Connection     // Reference to the mpv connection
+		cancel         context.CancelFunc               // Cancel function for the context
+		subscribers    *result.Map[string, *Subscriber] // Subscribers to the mpv events
+		conn           *mpvipc.Connection               // Reference to the mpv connection
 		cmd            *exec.Cmd
 		prevSocketName string
 		exitedCh       chan struct{}
 	}
 
+	// Subscriber is a subscriber to the mpv events.
+	// Make sure the subscriber listens to both channels, otherwise it will deadlock.
 	Subscriber struct {
-		ClosedCh chan struct{}
+		eventCh  chan *mpvipc.Event
+		closedCh chan struct{}
 	}
 )
 
@@ -64,7 +69,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		playbackMu:  sync.RWMutex{},
 		SocketName:  sn,
 		AppPath:     appPath,
-		subscribers: make(map[string]*Subscriber),
+		subscribers: result.NewResultMap[string, *Subscriber](),
 		exitedCh:    make(chan struct{}),
 	}
 }
@@ -128,6 +133,10 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	go func() {
 		scanner := bufio.NewScanner(stdoutPipe)
 		for scanner.Scan() {
+			// Skip AV messages
+			if bytes.Contains(scanner.Bytes(), []byte("AV:")) {
+				continue
+			}
 			line := strings.TrimSpace(scanner.Text())
 			if line != "" {
 				if !receivedLog {
@@ -215,10 +224,13 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 		return err
 	}
 
-	// Reset subscriber's done channel in case it was closed
-	for _, sub := range m.subscribers {
-		sub.ClosedCh = make(chan struct{})
-	}
+	// // Reset subscriber's done channel in case it was closed
+	// m.subscribers.Range(func(key string, sub *Subscriber) bool {
+	// 	sub.eventCh = make(chan *mpvipc.Event)
+	// 	return true
+	// })
+
+	m.Playback.IsRunning = false
 
 	// Listen for events in a goroutine
 	go m.listenForEvents(ctx)
@@ -226,6 +238,39 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (m *Mpv) Pause() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	_, err := m.conn.Call("set_property", "pause", true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Mpv) Resume() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	_, err := m.conn.Call("set_property", "pause", false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SeekTo seeks to the given position in the file by first pausing the player and unpausing it after seeking.
 func (m *Mpv) SeekTo(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,6 +301,38 @@ func (m *Mpv) SeekTo(position float64) error {
 	}
 
 	return nil
+}
+
+// Seek seeks to the given position in the file.
+func (m *Mpv) Seek(position float64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	// pause the player
+	_, err := m.conn.Call("set_property", "pause", true)
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(100 * time.Millisecond)
+
+	_, err = m.conn.Call("set_property", "time-pos", position)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Mpv) GetOpenConnection() (*mpvipc.Connection, error) {
+	if m.conn == nil || m.conn.IsClosed() {
+		return nil, errors.New("mpv is not running")
+	}
+	return m.conn, nil
 }
 
 func (m *Mpv) establishConnection() error {
@@ -335,6 +412,7 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 		// When the context is cancelled, close the connection
 		<-ctx.Done()
 		m.Logger.Debug().Msg("mpv: Context cancelled")
+		m.Playback.IsRunning = false
 		err := m.conn.Close()
 		if err != nil {
 			m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
@@ -345,8 +423,8 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 
 	// Listen for events
 	for event := range events {
-		m.Playback.IsRunning = true
 		if event.Data != nil {
+			m.Playback.IsRunning = true
 			//m.Logger.Trace().Msgf("received event: %s, %v, %+v", event.Name, event.ID, event.Data)
 			switch event.ID {
 			case 43:
@@ -360,6 +438,12 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 			case 46:
 				m.Playback.Filepath = event.Data.(string)
 			}
+			m.subscribers.Range(func(key string, sub *Subscriber) bool {
+				go func() {
+					sub.eventCh <- event
+				}()
+				return true
+			})
 		}
 	}
 }
@@ -367,7 +451,7 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 	m.playbackMu.RLock()
 	defer m.playbackMu.RUnlock()
-	if m.Playback.IsRunning == false {
+	if !m.Playback.IsRunning {
 		return nil, errors.New("mpv is not running")
 	}
 	if m.Playback == nil {
@@ -375,6 +459,9 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 	}
 	if m.Playback.Filename == "" {
 		return nil, errors.New("no media found")
+	}
+	if m.Playback.Duration == 0 {
+		return nil, errors.New("no duration found")
 	}
 	return m.Playback, nil
 }
@@ -410,18 +497,33 @@ func (m *Mpv) terminate() {
 
 func (m *Mpv) Subscribe(id string) *Subscriber {
 	sub := &Subscriber{
-		ClosedCh: make(chan struct{}),
+		eventCh:  make(chan *mpvipc.Event, 100),
+		closedCh: make(chan struct{}),
 	}
-	m.subscribers[id] = sub
+	m.subscribers.Set(id, sub)
 	return sub
 }
 
 func (m *Mpv) Unsubscribe(id string) {
-	delete(m.subscribers, id)
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	sub, ok := m.subscribers.Get(id)
+	if !ok {
+		return
+	}
+	close(sub.eventCh)
+	close(sub.closedCh)
+	m.subscribers.Delete(id)
 }
 
-func (s *Subscriber) Done() chan struct{} {
-	return s.ClosedCh
+func (s *Subscriber) Events() <-chan *mpvipc.Event {
+	return s.eventCh
+}
+
+func (s *Subscriber) Closed() <-chan struct{} {
+	return s.closedCh
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -445,6 +547,7 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 
 	if filePath != "" {
+		// escapedFilePath := url.PathEscape(filePath)
 		args = append(args, filePath)
 	}
 
@@ -470,6 +573,7 @@ func (m *Mpv) resetPlaybackStatus() {
 	m.Playback.Paused = false
 	m.Playback.Position = 0
 	m.Playback.Duration = 0
+	m.Playback.IsRunning = false
 	m.playbackMu.Unlock()
 	return
 }
@@ -480,8 +584,10 @@ func (m *Mpv) publishDone() {
 			m.Logger.Warn().Msgf("mpv: Connection already closed")
 		}
 	}()
-	for _, sub := range m.subscribers {
-		close(sub.ClosedCh)
-		sub.ClosedCh = make(chan struct{})
-	}
+	m.subscribers.Range(func(key string, sub *Subscriber) bool {
+		go func() {
+			sub.closedCh <- struct{}{}
+		}()
+		return true
+	})
 }

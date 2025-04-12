@@ -1,7 +1,7 @@
 package manga
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 // GetChapter returns a chapter from the container

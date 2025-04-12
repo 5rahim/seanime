@@ -35,7 +35,7 @@ const __pt_showAutoPlayCountdownModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
 
-const AUTOPLAY_COUNTDOWN = 6
+const AUTOPLAY_COUNTDOWN = 5
 
 type Props = {
     asSidebarButton?: boolean
@@ -58,6 +58,7 @@ export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props
                 <>
                     {asSidebarButton ? (
                         <IconButton
+                            data-progress-tracking-button
                             intent="primary-subtle"
                             className={cn("animate-pulse")}
                             icon={<PiPopcornFill />}
@@ -65,6 +66,7 @@ export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props
                         />
                     ) : (
                         <Button
+                            data-progress-tracking-button
                             intent="primary"
                             className={cn("animate-pulse")}
                             leftIcon={<PiPopcornFill />}
@@ -108,6 +110,7 @@ export function PlaybackManagerProgressTracking() {
 
 
     const [willAutoPlay, setWillAutoPlay] = React.useState(false)
+    const willAutoPlayRef = React.useRef(false)
     const [autoPlayInXSeconds, setAutoPlayInXSeconds] = React.useState(AUTOPLAY_COUNTDOWN)
     const {
         data: nextEpisodeForAutoplay,
@@ -181,66 +184,78 @@ export function PlaybackManagerProgressTracking() {
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] }).then()
 
             if (!playlistState && state?.completionPercentage && state?.completionPercentage > 0.7) {
-                if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlay) {
+                if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlayRef.current) {
                     if (!isFetchingNextEpisode) {
                         resetGetNextEp()
                         React.startTransition(() => {
                             setWillAutoPlay(true)
+                            willAutoPlayRef.current = true
                             getNextEpisode()
                             setAutoPlayInXSeconds(AUTOPLAY_COUNTDOWN)
                         })
                     }
                 }
             }
+            setState(null)
         },
     })
 
-    const timerRef = React.useRef<NodeJS.Timeout | null>(null)
-    const countdownRef = React.useRef<NodeJS.Timeout | null>(null)
+    const autoplayRef = React.useRef({
+        isActive: false,
+        timerRef: null as NodeJS.Timeout | null,
+        countdownRef: null as NodeJS.Timeout | null,
+    })
 
     function clearTimers() {
         try {
-            if (countdownRef.current) {
-                clearInterval(countdownRef.current)
+            if (autoplayRef.current.countdownRef) {
+                clearInterval(autoplayRef.current.countdownRef)
             }
-            if (timerRef.current) {
-                clearTimeout(timerRef.current)
+            if (autoplayRef.current.timerRef) {
+                clearTimeout(autoplayRef.current.timerRef)
             }
         }
         catch (e) {
         }
     }
 
-    // LOCAL MEDIA Autoplay
+    /**
+     * Auto play
+     */
     React.useEffect(() => {
         // If the next episode is available and autoplay is enabled
-        if (willAutoPlay && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode || hasNextDebridstreamEpisode)) {
+        if (willAutoPlayRef.current && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode || hasNextDebridstreamEpisode)) {
+
+            clearTimers()
 
             // Start the countdown
             setShowAutoPlayCountdownModal(true)
-            countdownRef.current = setInterval(() => {
+            autoplayRef.current.countdownRef = setInterval(() => {
                 setAutoPlayInXSeconds(prev => prev - 1)
             }, 1000)
 
-            timerRef.current = setTimeout(() => {
-                setShowAutoPlayCountdownModal(false)
+            autoplayRef.current.timerRef = setTimeout(() => {
+                if (willAutoPlayRef.current) {
+                    setShowAutoPlayCountdownModal(false)
 
-                if (!!nextEpisodeForAutoplay) {
-                    autoPlayNextEpisode()
-                } else if (hasNextTorrentstreamEpisode) {
-                    autoplayNextTorrentstreamEpisode()
-                } else if (hasNextDebridstreamEpisode) {
-                    autoplayNextDebridstreamEpisode()
+                    if (!!nextEpisodeForAutoplay) {
+                        autoPlayNextEpisode()
+                    } else if (hasNextTorrentstreamEpisode) {
+                        autoplayNextTorrentstreamEpisode()
+                    } else if (hasNextDebridstreamEpisode) {
+                        autoplayNextDebridstreamEpisode()
+                    }
+
+                    setWillAutoPlay(false)
+                    willAutoPlayRef.current = false
+
                 }
-
-                setWillAutoPlay(false)
-
                 clearTimers()
             }, AUTOPLAY_COUNTDOWN * 1000)
 
-            return () => {
-                clearTimers()
-            }
+        }
+        return () => {
+            clearTimers()
         }
     }, [nextEpisodeForAutoplay, hasNextTorrentstreamEpisode, hasNextDebridstreamEpisode, willAutoPlay, isFetchingNextEpisode])
 
@@ -302,6 +317,7 @@ export function PlaybackManagerProgressTracking() {
         mousetrap.bind("space", () => {
             if (!isPending && state?.completionPercentage && state?.completionPercentage > 0.7) {
                 setWillAutoPlay(false)
+                willAutoPlayRef.current = false
                 if (state?.canPlayNext && !playlistState) {
                     nextEpisode()
                 }
@@ -343,6 +359,7 @@ export function PlaybackManagerProgressTracking() {
     function cancelAutoPlay() {
         setShowAutoPlayCountdownModal(false)
         setWillAutoPlay(false)
+        willAutoPlayRef.current = false
         resetTorrentstreamAutoplayInfo()
         resetDebridstreamAutoplayInfo()
         clearTimers()
@@ -376,32 +393,33 @@ export function PlaybackManagerProgressTracking() {
     return (
         <>
             <Modal
+                data-progress-tracking-modal
                 open={showModal && shouldBeDisplayed}
                 onOpenChange={v => setShowModal(v)}
                 titleClass="text-center"
                 contentClass="!space-y-0 relative max-w-2xl overflow-hidden"
             >
-                {!!state?.completionPercentage && <div className="absolute left-0 top-0 w-full">
+                {!!state?.completionPercentage && <div data-progress-tracking-modal-progress-bar className="absolute left-0 top-0 w-full">
                     <ProgressBar className="h-2 rounded-lg" value={state.completionPercentage * 100} />
                 </div>}
-                {state && <div className="text-center relative overflow-hidden py-2 space-y-2">
+                {state && <div data-progress-tracking-main-content className="text-center relative overflow-hidden py-2 space-y-2">
                     {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
                         <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
                     </div>}
                     {/*<p className="text-[--muted]">Currently watching</p>*/}
-                    <div>
+                    <div data-progress-tracking-title>
                         <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
                         <p className="text-2xl font-bold">Episode {state?.episodeNumber}
                             <span className="text-[--muted]">{" / "}{state?.mediaTotalEpisodes || "-"}</span>
                         </p>
                     </div>
                     {(serverStatus?.settings?.library?.autoUpdateProgress && !state?.progressUpdated) && (
-                        <p className="text-[--muted] text-center text-sm">
+                        <p data-progress-tracking-auto-update-progress className="text-[--muted] text-center text-sm">
                             Your progress will be automatically updated
                         </p>
                     )}
                     {(state?.progressUpdated) && (
-                        <p className="text-green-300 text-center">
+                        <p data-progress-tracking-progress-updated className="text-green-300 text-center">
                             Progress updated
                         </p>
                     )}
@@ -411,7 +429,7 @@ export function PlaybackManagerProgressTracking() {
                     !!state?.completionPercentage
                     && state?.completionPercentage > 0.7
                     && !state.progressUpdated
-                ) && <div className="flex gap-2 justify-center items-center">
+                ) && <div data-progress-tracking-update-progress-button className="flex gap-2 justify-center items-center">
                     <Button
                         intent="primary-subtle"
                         disabled={isPending || state?.progressUpdated}
@@ -428,7 +446,7 @@ export function PlaybackManagerProgressTracking() {
                     && state?.completionPercentage > 0.7
                     && state?.canPlayNext
                     && !playlistState
-                ) && <div className="flex gap-2 justify-center items-center">
+                ) && <div data-progress-tracking-play-next-episode-button className="flex gap-2 justify-center items-center">
                     <Button
                         intent="gray-subtle"
                         onClick={() => {
@@ -444,17 +462,24 @@ export function PlaybackManagerProgressTracking() {
                     </Button>
                 </div>}
                 {!!playlistState?.next && (
-                    <div className="border rounded-[--radius-md] p-4 text-center relative overflow-hidden">
+                    <div data-progress-tracking-playlist className="border rounded-[--radius-md] p-4 text-center relative overflow-hidden">
                         <div className="space-y-3">
                             <div>
                                 <h4 className="text-lg font-medium text-center text-[--muted] mb-2 uppercase tracking-wide">Playlist</h4>
                                 {!!playlistState.remaining &&
-                                    <p className="text-[--muted]">{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this
-                                                                                            one</p>}
-                                <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
+                                    <p
+                                        data-progress-tracking-playlist-remaining
+                                        className="text-[--muted]"
+                                    >{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this
+                                                               one</p>}
+                                <p
+                                    data-progress-tracking-playlist-next
+                                    className="text-center truncate line-clamp-1"
+                                >Next: <span className="font-semibold">{playlistState?.next?.name}</span>
                                 </p>
                             </div>
                             <div
+                                data-progress-tracking-playlist-next-episode-button
                                 className={cn(
                                     "w-full rounded-[--radius-md] relative overflow-hidden",
                                     submittedPlaylistNext ? "opacity-50 pointer-events-none" : "cursor-pointer",
@@ -467,6 +492,7 @@ export function PlaybackManagerProgressTracking() {
                                 }}
                             >
                                 {(playlistState.next?.mediaImage) && <Image
+                                    data-progress-tracking-playlist-next-episode-button-image
                                     src={playlistState.next?.mediaImage || ""}
                                     placeholder={imageShimmer(700, 475)}
                                     sizes="10rem"
@@ -474,11 +500,15 @@ export function PlaybackManagerProgressTracking() {
                                     alt=""
                                     className="object-center object-cover z-[1]"
                                 />}
-                                <div className="inset-0 relative z-[2] bg-black border bg-opacity-70 hover:bg-opacity-80 transition flex flex-col gap-2 items-center justify-center p-4">
-                                    <p className="flex gap-2 items-center"><BiSolidSkipNextCircle className="block text-2xl" /> Play next</p>
+                                <div
+                                    data-progress-tracking-playlist-next-episode-button-container
+                                    className="inset-0 relative z-[2] bg-black border bg-opacity-70 hover:bg-opacity-80 transition flex flex-col gap-2 items-center justify-center p-4"
+                                >
+                                    <p data-progress-tracking-playlist-next-episode-button-text className="flex gap-2 items-center">
+                                        <BiSolidSkipNextCircle className="block text-2xl" /> Play next</p>
                                 </div>
                             </div>
-                            <div className="absolute -top-0.5 right-2">
+                            <div data-progress-tracking-playlist-next-episode-button-stop-button-container className="absolute -top-0.5 right-2">
                                 <IconButton
                                     intent="alert-subtle"
                                     onClick={() => {
@@ -488,7 +518,6 @@ export function PlaybackManagerProgressTracking() {
                                         }
                                     }}
                                     size="sm"
-                                    // className="w-full"
                                     disabled={submittedPlaylistNext}
                                     loading={submittedStopPlaylist}
                                     icon={<MdCancel />}
@@ -500,6 +529,7 @@ export function PlaybackManagerProgressTracking() {
             </Modal>
 
             <Modal
+                data-progress-tracking-modal-auto-play-countdown
                 open={showAutoPlayCountdownModal && willAutoPlay}
                 onOpenChange={v => {
                     if (!v) {
@@ -513,7 +543,7 @@ export function PlaybackManagerProgressTracking() {
                 closeClass="!text-[--red]"
             >
 
-                <div className="rounded-[--radius-md] text-center relative overflow-hidden">
+                <div data-progress-tracking-modal-auto-play-countdown-content className="rounded-[--radius-md] text-center relative overflow-hidden">
                     <h3 className="text-5xl font-bold">{autoPlayInXSeconds}</h3>
                 </div>
 
