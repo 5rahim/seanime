@@ -598,8 +598,6 @@ func (a *AppContextImpl) isAllowedPath(ext *extension.Extension, path string, mo
 		// Resolve environment variables in the pattern, which may result in multiple patterns
 		resolvedPatterns := a.resolvePattern(pattern)
 
-		util.Spew(resolvedPatterns)
-
 		for _, resolvedPattern := range resolvedPatterns {
 			// Convert to absolute path if needed
 			if !filepath.IsAbs(resolvedPattern) && !strings.HasPrefix(resolvedPattern, "*") {
