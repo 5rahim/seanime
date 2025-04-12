@@ -6659,6 +6659,34 @@
     }
   },
   {
+    "name": "HandleGetChangelog",
+    "trimmedName": "GetChangelog",
+    "comments": [
+      "HandleGetChangelog",
+      "",
+      "\t@summary returns the changelog for versions greater than or equal to the given version.",
+      "\t@route /api/v1/changelog [GET]",
+      "\t@param before query string true \"The version to get the changelog for.\"",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/releases.go",
+    "filename": "releases.go",
+    "api": {
+      "summary": "returns the changelog for versions greater than or equal to the given version.",
+      "descriptions": [],
+      "endpoint": "/api/v1/changelog",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleSaveIssueReport",
     "trimmedName": "SaveIssueReport",
     "comments": [

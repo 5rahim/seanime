@@ -26741,7 +26741,7 @@
         "jsonName": "Server",
         "goType": "INTERNAL_Config_Server",
         "typescriptType": "INTERNAL_Config_Server",
-        "usedTypescriptType": "{ Host: string; Port: number; Offline: boolean; UseBinaryPath: boolean; Systray: boolean; }",
+        "usedTypescriptType": "{ Host: string; Port: number; Offline: boolean; UseBinaryPath: boolean; Systray: boolean; DoHUrl: string; }",
         "usedStructName": "core.Config_Server",
         "required": true,
         "public": true,
@@ -26910,6 +26910,15 @@
         "jsonName": "Systray",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DoHUrl",
+        "jsonName": "DoHUrl",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -32845,54 +32854,6 @@
     "filename": "bank.go",
     "name": "UnifiedBank",
     "formattedName": "Extension_UnifiedBank",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "extensions",
-        "jsonName": "extensions",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionAddedCh",
-        "jsonName": "extensionAddedCh",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionRemovedCh",
-        "jsonName": "extensionRemovedCh",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/bank.go",
-    "filename": "bank.go",
-    "name": "Bank",
-    "formattedName": "Extension_Bank",
     "package": "extension",
     "fields": [
       {

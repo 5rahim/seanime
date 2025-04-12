@@ -54,6 +54,7 @@ const (
 	GetAutoDownloaderRuleEndpoint                      = "AUTO-DOWNLOADER-get-auto-downloader-rule"
 	GetAutoDownloaderRulesEndpoint                     = "AUTO-DOWNLOADER-get-auto-downloader-rules"
 	GetAutoDownloaderRulesByAnimeEndpoint              = "AUTO-DOWNLOADER-get-auto-downloader-rules-by-anime"
+	GetChangelogEndpoint                               = "RELEASES-get-changelog"
 	GetContinuityWatchHistoryEndpoint                  = "CONTINUITY-get-continuity-watch-history"
 	GetContinuityWatchHistoryItemEndpoint              = "CONTINUITY-get-continuity-watch-history-item"
 	GetDebridSettingsEndpoint                          = "DEBRID-get-debrid-settings"

@@ -1427,6 +1427,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/latest-update",
         },
+        GetChangelog: {
+            key: "RELEASES-get-changelog",
+            methods: ["GET"],
+            endpoint: "/api/v1/changelog",
+        },
     },
     REPORT: {
         SaveIssueReport: {

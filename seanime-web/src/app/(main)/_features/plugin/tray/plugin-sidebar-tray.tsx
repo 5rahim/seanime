@@ -85,7 +85,7 @@ const ExtensionList = ({
                             />}
                         >Tray plugins</Tooltip>
                     </div>}
-                    className="p-2 w-[350px]"
+                    className="p-2 w-[300px]"
                     data-plugin-sidebar-debug-popover
                     modal={false}
                 >
@@ -96,15 +96,15 @@ const ExtensionList = ({
                             </p>
                         </div> */}
                         {trayIcons?.map(trayIcon => (
-                            <div key={trayIcon.extensionId} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1">
+                            <div key={trayIcon.extensionId} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1 max-w-full">
                                 <div
-                                    className="flex items-center gap-2 cursor-pointer"
+                                    className="flex items-center gap-2 cursor-pointer max-w-full"
                                     onClick={() => {
                                         setUnpinnedTrayIconClicked(trayIcon)
                                         setTrayIconListOpen(false)
                                     }}
                                 >
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative">
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative flex-none">
                                         {trayIcon.iconUrl ? <Image
                                             src={trayIcon.iconUrl}
                                             alt="logo"
@@ -112,13 +112,13 @@ const ExtensionList = ({
                                             className="p-1 w-full h-full object-contain"
                                             data-plugin-tray-icon-image
                                         /> : <div
-                                            className="w-8 h-8 rounded-full flex items-center justify-center"
+                                            className="w-8 h-8 rounded-full flex items-center justify-center flex-none"
                                             data-plugin-tray-icon-image-fallback
                                         >
                                             <LuCircleDashed className="text-2xl" />
                                         </div>}
                                     </div>
-                                    <p className="text-sm font-medium truncate tracking-wide">{trayIcon.extensionName}</p>
+                                    <p className="text-sm font-medium line-clamp-1 tracking-wide">{trayIcon.extensionName}</p>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     {/* <IconButton
@@ -161,7 +161,7 @@ const ExtensionList = ({
                                 </div>
                             </div>
                         ))}
-                        {!trayIcons.length && <p className="text-sm text-[--muted]">
+                        {!trayIcons.length && <p className="text-sm text-[--muted] py-1 text-center w-full">
                             No tray plugins
                         </p>}
 
