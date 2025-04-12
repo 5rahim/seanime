@@ -120,11 +120,3 @@ func asciiLogo() string {
 ⠀⠀⢀⣴⣾⣿⣿⣿⣿⡿⠿⠿⠿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣀⡀⠀⠀⠀⠀⠀⠀
 ⠀⠀ ⠉⠉⠀⠀⠉⠉⠀⠀  ⠉ ⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠲⠦⠄`
 }
-
-// Helper function for min of two integers (Go < 1.21 compatibility)
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
