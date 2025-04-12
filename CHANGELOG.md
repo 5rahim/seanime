@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.0
+
+- 🎉 Plugins: A powerful new way to extend and customize Seanime
+    - Build your own features using a wide range of APIs — all in JavaScript.
+- ✨ Playback: Faster media tracking, better responsiveness
+    - Faster autoplay, progress tracking, playlists
+- ✨ Torrent streaming: Improved performance and responsiveness
+    - Streams start up to 2x faster, movies start up to 50x faster
+- ✨ Server: DNS over HTTPS support
+- ✨ Manga: Refresh all sources at once #233
+- ✨ Library/Streaming: Episode list now includes specials included by AniList in main count
+- ✨ Torrent search: Sorting options #253
+- ✨ Debrid streaming: Improved stream startup time
+- ✨ Library: New 'Most/least recent watch' sorting options (w/ watch history enabled) #244
+- ✨ Extensions: Ability to edit the code of installed extensions
+- ⚡️ Streaming: Added Nyaa as a fallback provider for auto select
+- ⚡️ Manga: Unread count badge now takes into account selected scanlator and language
+- ⚡️ Torrent list: Stop all completed torrents #250
+- ⚡️ Library/Streaming: Improved handling of discrepancies between AniList and AniDB
+- ⚡️ Library: Show episode summaries by default #265
+- ⚡️ UI: Option to hide episode summaries and episode filename
+- ⚡️ AniList: Option to clear date field when editing entry
+- ⚡️ Extensions: New 'Update all' button to update all extensions at once 
+- ⚡️ Extensions: Added 'payloadURI' as an alternative to pasting extension code
+- ⚡️ Extensions: 'Development mode' that allows loading source code from a file in the manifest
+- ⚡️ Torrent streaming: Option to change cache directory
+- ⚡️ Manga: Selecting a language will now filter scanlator options and vice versa
+- ⚡️ Discover page: Context menu for 'Airing Schedule' items #267 - @kyoruno
+- ⚡️ Added AniList button to preview modals #264 - @kyoruno
+- 🦺 Fixed AnimeTosho smart search #260
+- 🦺 AutoPlay: Fixed autoplay starting erroneously
+- 🦺 Scanner: Fixed local file parsing with multiple directories
+- 🦺 Scanner: Fixed resolved symlinks being ignored #251
+- 🦺 Scanner: Removed post-matching validation causing some files to be unmatched #246
+- 🦺 Library: Fixed 'unwatched episode count' not showing with 'repeating' status
+- 🦺 Library: Fixed incorrect episode offset for some anime
+- 🦺 Torrent search: Fixed excessive API requests being sent during search query typing
+- 🦺 Parser: Fixed crash caused by parsing 'SxExxx-SxExxx'
+- 🦺 Video Proxy: Fixed streaming .mp4 media files - @kRYstall9
+- 🦺 Extensions: Fixed bug causing invalid extensions to be uninstallable from UI
+- 🦺 Extensions: Fixed concurrent fetch requests and concurrent executions
+- 🏗️ Debrid streaming changes
+    - Added visual feedback when video is being sent to media player
+    - Removed stream integrity check for faster startup
+- 🏗️ Refactored websocket system
+    - New bidirectional communication between client and server
+    - Better handling of silent websocket connection closure
+- 🏗️ Refactored extension system
+    - Usage of runtime pools for better performance and concurrency
+    - Improved JS bindings/bridges
+- 🏗️ Web UI: Added data attributes to HTML elements
+- 🏗️ Offline mode: Syncing now caches downloaded chapters if refetching
+- 🏗️ BREAKING(Extensions): Content provider extension methods are now run in separate runtimes
+    - State sharing across methods no longer works but concurrent execution is now possible
+- ⬆️ Migrated to Go 1.24.1
+- ⬆️ Updated dependencies
+
 ## v2.7.5
 
 - 🦺 Extensions: Fixed runtime errors caused by concurrent requests
