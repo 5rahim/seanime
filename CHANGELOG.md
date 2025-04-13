@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.1
+
+- 🦺 Fixed runtime error when launching the app for the first time
+- 🦺 Fixed torrent search episode input
+- 🦺 Fixed update popup showing empty "Updates you've missed"
+
 ## v2.8.0
 
 - 🎉 Plugins: A powerful new way to extend and customize Seanime
