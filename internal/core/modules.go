@@ -255,6 +255,9 @@ func (a *App) InitOrRefreshModules() {
 	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {
 		a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
+		plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+			AnimeLibraryPaths: a.Database.AllLibraryPathsFromSettings(settings),
+		})
 	}
 
 	// Refresh auto scanner settings

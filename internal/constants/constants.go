@@ -3,7 +3,7 @@ package constants
 import "time"
 
 const (
-	Version              = "2.8.0"
+	Version              = "2.8.1"
 	VersionName          = "Hachi"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
