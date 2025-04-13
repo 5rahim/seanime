@@ -65,7 +65,17 @@ func (db *Database) GetAllLibraryPathsFromSettings() ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
+	if settings.Library == nil {
+		return []string{}, nil
+	}
 	return append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...), nil
+}
+
+func (db *Database) AllLibraryPathsFromSettings(settings *models.Settings) []string {
+	if settings.Library == nil {
+		return []string{}
+	}
+	return append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...)
 }
 
 func (db *Database) AutoUpdateProgressIsEnabled() (bool, error) {
