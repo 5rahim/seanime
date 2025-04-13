@@ -120,31 +120,6 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
     const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
 
-    const EpisodeNumberInput = React.useCallback(() => {
-        return <NumberInput
-            data-torrent-search-smart-search-episode-number-input
-            label="Episode number"
-            value={smartSearchEpisode}
-            disabled={entry?.media?.format === "MOVIE" || smartSearchBest}
-            onValueChange={(value) => {
-                startTransition(() => {
-                    setSmartSearchEpisode(value)
-                })
-            }}
-            formatOptions={{ useGrouping: false }}
-            // hideControls
-            size="sm"
-            fieldClass={cn(
-                "flex flex-none w-fit md:justify-end gap-3 space-y-0",
-                { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
-            )}
-            fieldLabelClass={cn(
-                "flex-none self-center font-normal !text-md sm:text-md lg:text-md",
-            )}
-            className="max-w-[4rem]"
-        />
-    }, [searchType, smartSearchBatch, smartSearchBest, downloadInfo, soughtEpisode])
-
     /**
      * Select torrent
      * - Download: Select multiple torrents
@@ -275,7 +250,28 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     )}
                                 >
 
-                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <EpisodeNumberInput />}
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <NumberInput
+                                        data-torrent-search-smart-search-episode-number-input
+                                        label="Episode number"
+                                        value={smartSearchEpisode}
+                                        disabled={entry?.media?.format === "MOVIE" || smartSearchBest}
+                                        onValueChange={(value) => {
+                                            startTransition(() => {
+                                                setSmartSearchEpisode(value)
+                                            })
+                                        }}
+                                        formatOptions={{ useGrouping: false }}
+                                        // hideControls
+                                        size="sm"
+                                        fieldClass={cn(
+                                            "flex flex-none w-fit md:justify-end gap-3 space-y-0",
+                                            { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
+                                        )}
+                                        fieldLabelClass={cn(
+                                            "flex-none self-center font-normal !text-md sm:text-md lg:text-md",
+                                        )}
+                                        className="max-w-[4rem]"
+                                    />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution") && <Select
                                         data-torrent-search-smart-search-resolution-select
@@ -333,15 +329,15 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     <>
                                         {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") &&
                                             <div className="py-1" data-torrent-search-smart-search-query-input-container>
-                                            <DataGridSearchInput
-                                                value={globalFilter ?? ""}
-                                                onChange={v => setGlobalFilter(v)}
-                                                placeholder={searchType === Torrent_SearchType.SMART
-                                                    ? `Refine the title (${entry.media?.title?.romaji})`
-                                                    : "Search"}
-                                                fieldClass="md:max-w-full w-full"
-                                            />
-                                        </div>}
+                                                <DataGridSearchInput
+                                                    value={globalFilter ?? ""}
+                                                    onChange={v => setGlobalFilter(v)}
+                                                    placeholder={searchType === Torrent_SearchType.SMART
+                                                        ? `Refine the title (${entry.media?.title?.romaji})`
+                                                        : "Search"}
+                                                    fieldClass="md:max-w-full w-full"
+                                                />
+                                            </div>}
 
                                         <TorrentPreviewList
                                             entry={entry}
