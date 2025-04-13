@@ -63,17 +63,19 @@ export function UpdateChangelogBody(props: UpdateChangelogBodyProps) {
                 </div>
             </div>
 
-            <p className="text-center font-semibold">Other updates you've missed</p>
-            <div className="bg-gray-950/50 rounded-[--radius] p-4 max-h-[40vh] overflow-y-auto space-y-1.5">
-                {changelog?.map((item) => (
-                    <div key={item.version} className="rounded-[--radius]">
-                        <p key={item.version} className="text-center font-bold">{item.version}</p>
-                        <div className="text-sm">
-                            <RenderLines lines={item.lines} />
+            {!!changelog?.length && <>
+                <p className="text-center font-semibold">Other updates you've missed</p>
+                <div className="bg-gray-950/50 rounded-[--radius] p-4 max-h-[40vh] overflow-y-auto space-y-1.5">
+                    {changelog?.map((item) => (
+                        <div key={item.version} className="rounded-[--radius]">
+                            <p key={item.version} className="text-center font-bold">{item.version}</p>
+                            <div className="text-sm">
+                                <RenderLines lines={item.lines} />
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            </>}
         </>
     )
 }
