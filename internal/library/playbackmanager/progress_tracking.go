@@ -88,12 +88,14 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
-					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+					go pm.discordPresence.StartWatching(&discordrpc_presence.AnimeActivity{
 						ID:            pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
 						Title:         pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
 						Image:         pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
 						IsMovie:       pm.currentMediaListEntry.MustGet().GetMedia().IsMovie(),
 						EpisodeNumber: pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
+						Progress:      int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+						Duration:      int(pm.currentMediaPlaybackStatus.DurationInSeconds),
 					})
 				}
 
@@ -200,6 +202,11 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					go pm.playlistHub.onPlaybackStatus(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
 				}
 
+				// ------- Discord ------- //
+				if pm.discordPresence != nil && !pm.isOffline {
+					go pm.discordPresence.UpdateWatching(int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds), int(pm.currentMediaPlaybackStatus.DurationInSeconds), !pm.currentMediaPlaybackStatus.Playing)
+				}
+
 				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.TrackingRetryCh: // Error occurred while starting tracking
 				// DEVNOTE: This event is not sent to the client
@@ -257,7 +264,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
-					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+					go pm.discordPresence.LegacySetAnimeActivity(&discordrpc_presence.LegacyAnimeActivity{
 						ID:            pm.currentStreamMedia.MustGet().GetID(),
 						Title:         pm.currentStreamMedia.MustGet().GetPreferredTitle(),
 						Image:         pm.currentStreamMedia.MustGet().GetCoverImageSafe(),

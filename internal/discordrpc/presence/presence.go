@@ -16,10 +16,15 @@ type Presence struct {
 	client   *discordrpc_client.Client
 	settings *models.DiscordSettings
 	logger   *zerolog.Logger
-	lastSet  time.Time
 	hasSent  bool
 	username string
 	mu       sync.Mutex
+
+	animeActivity               *AnimeActivity
+	lastAnimeActivityUpdateSent time.Time
+
+	lastSent   time.Time
+	eventQueue chan func()
 }
 
 // New creates a new Presence instance.
@@ -35,19 +40,38 @@ func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 		}
 	}
 
-	return &Presence{
-		client:   client,
-		settings: settings,
-		logger:   logger,
-		lastSet:  time.Now(),
-		hasSent:  false,
+	p := &Presence{
+		client:                      client,
+		settings:                    settings,
+		logger:                      logger,
+		lastAnimeActivityUpdateSent: time.Now().Add(5 * time.Second),
+		lastSent:                    time.Now().Add(-5 * time.Second),
+		hasSent:                     false,
+		eventQueue:                  make(chan func(), 100),
 	}
+
+	go func() {
+		for job := range p.eventQueue {
+			if time.Since(p.lastSent) < 5*time.Second {
+				time.Sleep(5*time.Second - time.Since(p.lastSent))
+			}
+			if p.client == nil {
+				continue
+			}
+			job()
+			p.lastSent = time.Now()
+		}
+	}()
+
+	return p
 }
 
 // Close closes the discord rpc client.
 // If the client is nil, it does nothing.
 func (p *Presence) Close() {
 	defer util.HandlePanicInModuleThen("discordrpc/presence/Close", func() {})
+
+	p.clearEventQueue()
 
 	if p.client == nil {
 		return
@@ -141,11 +165,11 @@ func (p *Presence) check() (proceed bool) {
 		return true
 	}
 
-	// If the last set time is less than 5 seconds ago, return false
-	if time.Since(p.lastSet) < 5*time.Second {
-		rest := 5*time.Second - time.Since(p.lastSet)
-		time.Sleep(rest)
-	}
+	// // If the last sent time is less than 5 seconds ago, return false
+	// if time.Since(p.lastSent) < 5*time.Second {
+	// 	rest := 5*time.Second - time.Since(p.lastSent)
+	// 	time.Sleep(rest)
+	// }
 
 	return true
 }
@@ -162,6 +186,9 @@ var (
 		},
 		Timestamps: &discordrpc_client.Timestamps{
 			Start: &discordrpc_client.Epoch{
+				Time: time.Now(),
+			},
+			End: &discordrpc_client.Epoch{
 				Time: time.Now(),
 			},
 		},
@@ -182,10 +209,158 @@ type AnimeActivity struct {
 	Image         string `json:"image"`
 	IsMovie       bool   `json:"isMovie"`
 	EpisodeNumber int    `json:"episodeNumber"`
+	Paused        bool   `json:"paused"`
+	Progress      int    `json:"progress"`
+	Duration      int    `json:"duration"`
 }
 
-// SetAnimeActivity sets the presence to watching anime.
-func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
+func animeActivityKey(a *AnimeActivity) string {
+	return fmt.Sprintf("%d:%d", a.ID, a.EpisodeNumber)
+}
+
+func (p *Presence) StartWatching(a *AnimeActivity) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/StartWatching", func() {})
+
+	if !p.check() {
+		return
+	}
+
+	if !p.settings.EnableAnimeRichPresence {
+		return
+	}
+
+	// Clear the queue if the anime activity is different
+	if p.animeActivity != nil && animeActivityKey(a) != animeActivityKey(p.animeActivity) {
+		p.clearEventQueue()
+	}
+
+	state := fmt.Sprintf("Watching Episode %d", a.EpisodeNumber)
+	if a.IsMovie {
+		state = "Watching Movie"
+	}
+
+	activity := defaultActivity
+	activity.Details = a.Title
+	activity.State = state
+	activity.Assets.LargeImage = a.Image
+	activity.Assets.LargeText = a.Title
+
+	// Calculate the start time
+	startTime := time.Now().Add(-time.Duration(a.Progress) * time.Second)
+
+	activity.Timestamps.Start.Time = startTime
+	activity.Timestamps.End.Time = startTime.Add(time.Duration(a.Duration) * time.Second)
+	activity.Buttons = make([]*discordrpc_client.Button, 0)
+
+	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Anime",
+			Url:   fmt.Sprintf("https://anilist.co/anime/%d", a.ID),
+		})
+	}
+
+	if p.settings.RichPresenceShowAniListProfileButton {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Profile",
+			Url:   fmt.Sprintf("https://anilist.co/user/%s", p.username),
+		})
+	}
+
+	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "Seanime",
+			Url:   "https://github.com/5rahim/seanime",
+		})
+	}
+
+	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
+
+	p.animeActivity = a
+
+	p.eventQueue <- func() {
+		_ = p.client.SetActivity(activity)
+		//p.logger.Debug().Msg("discordrpc: Anime activity set")
+	}
+}
+
+// clearEventQueue drains the event queue channel
+func (p *Presence) clearEventQueue() {
+	//p.logger.Debug().Msg("discordrpc: Clearing event queue")
+	for {
+		select {
+		case <-p.eventQueue:
+		default:
+			return
+		}
+	}
+}
+
+func (p *Presence) UpdateWatching(progress int, duration int, paused bool) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/UpdateWatching", func() {})
+
+	if p.animeActivity == nil {
+		return
+	}
+
+	p.animeActivity.Progress = progress
+	p.animeActivity.Duration = duration
+
+	// Pause status	changed
+	if p.animeActivity.Paused != paused {
+		p.logger.Debug().Msgf("discordrpc: Pause status changed to %t", paused)
+		p.animeActivity.Paused = paused
+		p.lastAnimeActivityUpdateSent = time.Now()
+
+		// Clear the event queue to ensure pause/unpause takes precedence
+		p.clearEventQueue()
+
+		if paused {
+			//p.logger.Debug().Msg("discordrpc: Stopping activity")
+			// Stop the current activity if paused
+			p.eventQueue <- func() {
+				p.Close()
+			}
+		} else {
+			//p.logger.Debug().Msg("discordrpc: Restarting activity")
+			// Restart the current activity if unpaused
+			p.eventQueue <- func() {
+				p.StartWatching(p.animeActivity)
+			}
+		}
+		return
+	}
+
+	// Handles seeking
+	if !p.animeActivity.Paused {
+		// If the last update was more than 5 seconds ago, update the activity
+		if time.Since(p.lastAnimeActivityUpdateSent) > 6*time.Second {
+			//p.logger.Debug().Msg("discordrpc: Updating activity")
+			p.lastAnimeActivityUpdateSent = time.Now()
+			p.eventQueue <- func() {
+				p.StartWatching(p.animeActivity)
+			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type LegacyAnimeActivity struct {
+	ID            int    `json:"id"`
+	Title         string `json:"title"`
+	Image         string `json:"image"`
+	IsMovie       bool   `json:"isMovie"`
+	EpisodeNumber int    `json:"episodeNumber"`
+}
+
+// LegacySetAnimeActivity sets the presence to watching anime.
+func (p *Presence) LegacySetAnimeActivity(a *LegacyAnimeActivity) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -234,9 +409,13 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
-	_ = p.client.SetActivity(activity)
-	p.lastSet = time.Now()
+
+	p.eventQueue <- func() {
+		_ = p.client.SetActivity(activity)
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type MangaActivity struct {
 	ID      int    `json:"id"`
@@ -290,6 +469,8 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	p.logger.Debug().Msgf("discordrpc: setting manga activity: %s", a.Title)
-	_ = p.client.SetActivity(activity)
-	p.lastSet = time.Now()
+
+	p.eventQueue <- func() {
+		_ = p.client.SetActivity(activity)
+	}
 }

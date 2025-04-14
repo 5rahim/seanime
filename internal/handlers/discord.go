@@ -57,7 +57,7 @@ func (h *Handler) HandleSetDiscordAnimeActivity(c echo.Context) error {
 		return h.RespondWithData(c, false)
 	}
 
-	h.App.DiscordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+	h.App.DiscordPresence.LegacySetAnimeActivity(&discordrpc_presence.LegacyAnimeActivity{
 		ID:            b.MediaId,
 		Title:         b.Title,
 		Image:         b.Image,
