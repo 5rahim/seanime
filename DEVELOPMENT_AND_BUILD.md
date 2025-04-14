@@ -56,22 +56,21 @@ For development, you should be familiar with both Go and React.
 
 #### Server Development
 
-1. **Create a test environment**:
-   - Create a dedicated data directory for testing to avoid affecting your production data.
-   - Either build the web interface first (see Build Process) or create a dummy `web` folder at the root.
+1. **Development environment**:
+   - Create a dummy directory that will be used as the data directory during development.
+   - Create a dummy `web` folder at the root containing at least one file, or simply do the _Building the Web Interface_ step of the build process. (This is required for the server to start.)
 
-2. **Configure the development server**:
-   - Add a `config.toml` in your test data directory with:
-     ```toml
-     host = "0.0.0.0"  # To allow connections from other devices
-     port = 43000      # The web UI will connect to this port in development
-     ```
-
-3. **Run the server**:
+2. **Run the server**:
    ```bash
-   go run main.go --datadir="path/to/test-datadir"
+   go run main.go --datadir="path/to/datadir"
    ```
    
+	- This will generate all the files needed in the `path/to/datadir` directory.
+   
+3. **Configure the development server**:
+   - Change the port in the `config.toml` located in the development data directory to `43000`. The web interface will connect to this port during development. Change the host to `0.0.0.0` to allow connections from other devices.
+   - Re-run the server with the updated configuration.
+
    The server will be available at `http://127.0.0.1:43000`.
 
 #### Web Interface Development
@@ -93,7 +92,8 @@ For development, you should be familiar with both Go and React.
 
    The development web interface will be accessible at `http://127.0.0.1:43210`.
 
-**Note**: During development, the web interface is served by the Next.js development server on port 43210, while the Go server runs separately on port 43000.
+**Note**: During development, the web interface is served by the Next.js development server on port `43210`.
+The Next.js development environment is configured such that all requests are made to the Go server running on port `43000`.
 
 ### Understanding the Codebase Architecture
 
