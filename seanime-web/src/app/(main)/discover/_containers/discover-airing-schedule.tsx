@@ -162,7 +162,7 @@ export function DiscoverAiringSchedule() {
                                     })}
                                 </div>
                             </div>
-                            {index < 7 && <Separator />}
+                            {!!days[index + 1]?.events?.length && <Separator />}
                         </React.Fragment>
                     )
                 })}
