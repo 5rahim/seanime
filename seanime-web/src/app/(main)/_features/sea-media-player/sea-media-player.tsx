@@ -1,6 +1,10 @@
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useCancelDiscordActivity, useSetDiscordAnimeActivity } from "@/api/hooks/discord.hooks"
+import {
+    useCancelDiscordActivity,
+    useSetDiscordAnimeActivityWithProgress,
+    useUpdateDiscordAnimeActivityWithProgress,
+} from "@/api/hooks/discord.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
@@ -137,6 +141,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     const watchHistoryRef = React.useRef<number>(0)
     const checkTimeRef = React.useRef<number>(0)
+    const canPlayRef = React.useRef<boolean>(false)
+    const previousUrlRef = React.useRef<string | { src: string, type: string } | undefined>(undefined)
 
     // Track last focused element
     const lastFocusedElementRef = React.useRef<HTMLElement | null>(null)
@@ -164,9 +170,45 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     /**
      * Discord Rich Presence
      */
-    const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivity()
+        // const { mutate: setAnimeDiscordActivity } = useSetDiscordLegacyAnimeActivity()
+    const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
+    const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
 
+    // useInterval(() => {
+    //     if(!playerRef.current) return
+
+    //     if (serverStatus?.settings?.discord?.enableRichPresence && serverStatus?.settings?.discord?.enableAnimeRichPresence) {
+    //         updateAnimeDiscordActivity({
+    //             progress: Math.floor(playerRef.current?.currentTime ?? 0),
+    //             duration: Math.floor(playerRef.current?.duration ?? 0),
+    //             paused: playerRef.current?.paused ?? false,
+    //         })
+    //     }
+    // }, 6000)
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            if (!playerRef.current || !canPlayRef.current) return
+
+            if (serverStatus?.settings?.discord?.enableRichPresence && serverStatus?.settings?.discord?.enableAnimeRichPresence) {
+                updateAnimeDiscordActivity({
+                    progress: Math.floor(playerRef.current?.currentTime ?? 0),
+                    duration: Math.floor(playerRef.current?.duration ?? 0),
+                    paused: playerRef.current?.paused ?? false,
+                })
+            }
+        }, 6000)
+
+        return () => clearInterval(interval)
+    }, [serverStatus?.settings?.discord, url, canPlayRef.current])
+
+    React.useEffect(() => {
+        if (previousUrlRef.current === url) return
+        previousUrlRef.current = url
+
+        // Reset the canPlayRef when the url changes
+        canPlayRef.current = false
+    }, [url])
 
     const onTimeUpdate = (detail: MediaTimeUpdateEventDetail, e: MediaTimeUpdateEvent) => { // let React compiler optimize
         _onTimeUpdate?.(detail, e)
@@ -281,6 +323,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const onCanPlay = (e: MediaCanPlayDetail, event: MediaCanPlayEvent) => {
         _onCanPlay?.(e, event)
 
+        canPlayRef.current = true
+
         wentToNextEpisodeRef.current = false
 
         // If the watch history is found and the episode number matches, seek to the last watched time
@@ -300,12 +344,20 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
             serverStatus?.settings?.discord?.enableAnimeRichPresence &&
             media?.id
         ) {
+            const videoProgress = playerRef.current?.currentTime ?? 0
+            const videoDuration = playerRef.current?.duration ?? 0
+            logger("MEDIA PLAYER").info("Setting discord activity", {
+                videoProgress,
+                videoDuration,
+            })
             setAnimeDiscordActivity({
                 mediaId: media?.id ?? 0,
                 title: media?.title?.userPreferred || media?.title?.romaji || media?.title?.english || "Watching",
                 image: media?.coverImage?.large || media?.coverImage?.medium || "",
                 isMovie: media?.format === "MOVIE",
                 episodeNumber: progress.currentEpisodeNumber ?? 0,
+                progress: Math.floor(videoProgress),
+                duration: Math.floor(videoDuration),
             })
         }
 

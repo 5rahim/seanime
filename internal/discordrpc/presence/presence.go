@@ -1,6 +1,7 @@
 package discordrpc_presence
 
 import (
+	"context"
 	"fmt"
 	"seanime/internal/constants"
 	"seanime/internal/database/models"
@@ -18,13 +19,14 @@ type Presence struct {
 	logger   *zerolog.Logger
 	hasSent  bool
 	username string
-	mu       sync.Mutex
+	mu       sync.RWMutex
 
 	animeActivity               *AnimeActivity
 	lastAnimeActivityUpdateSent time.Time
 
 	lastSent   time.Time
 	eventQueue chan func()
+	cancelFunc context.CancelFunc // Cancel function for the event loop context
 }
 
 // New creates a new Presence instance.
@@ -50,20 +52,48 @@ func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 		eventQueue:                  make(chan func(), 100),
 	}
 
-	go func() {
-		for job := range p.eventQueue {
-			if time.Since(p.lastSent) < 5*time.Second {
-				time.Sleep(5*time.Second - time.Since(p.lastSent))
-			}
-			if p.client == nil {
-				continue
-			}
-			job()
-			p.lastSent = time.Now()
-		}
-	}()
+	if settings != nil && settings.EnableRichPresence {
+		p.startEventLoop()
+	}
 
 	return p
+}
+
+func (p *Presence) startEventLoop() {
+	// Cancel any existing goroutine
+	if p.cancelFunc != nil {
+		p.cancelFunc()
+	}
+
+	// Create new context with cancel
+	ctx, cancel := context.WithCancel(context.Background())
+	p.cancelFunc = cancel
+
+	ticker := time.NewTicker(5 * time.Second)
+
+	go func() {
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				p.logger.Debug().Msg("discordrpc: Event loop stopped")
+				return
+			case <-ticker.C:
+				select {
+				case job := <-p.eventQueue:
+					p.mu.RLock()
+					if p.client == nil {
+						p.mu.RUnlock()
+						continue
+					}
+					job()
+					p.lastSent = time.Now()
+					p.mu.RUnlock()
+				default:
+				}
+			}
+		}
+	}()
 }
 
 // Close closes the discord rpc client.
@@ -72,6 +102,12 @@ func (p *Presence) Close() {
 	defer util.HandlePanicInModuleThen("discordrpc/presence/Close", func() {})
 
 	p.clearEventQueue()
+
+	// Cancel the event loop goroutine
+	if p.cancelFunc != nil {
+		p.cancelFunc()
+		p.cancelFunc = nil
+	}
 
 	if p.client == nil {
 		return
@@ -86,7 +122,7 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 
 	defer util.HandlePanicInModuleThen("discordrpc/presence/SetSettings", func() {})
 
-	// Close the current client
+	// Close the current client and stop event loop
 	p.Close()
 
 	p.settings = settings
@@ -115,10 +151,12 @@ func (p *Presence) setClient() {
 	if p.client == nil {
 		client, err := discordrpc_client.New(constants.DiscordApplicationId)
 		if err != nil {
-			p.logger.Error().Err(err).Msg("discordrpc: rich presence enabled but failed to create discord rpc client")
+			p.logger.Error().Err(err).Msg("discordrpc: Rich presence enabled but failed to create discord rpc client")
 			return
 		}
 		p.client = client
+		p.startEventLoop()
+		p.logger.Debug().Msg("discordrpc: RPC client initialized and event loop started")
 	}
 }
 
@@ -218,11 +256,11 @@ func animeActivityKey(a *AnimeActivity) string {
 	return fmt.Sprintf("%d:%d", a.ID, a.EpisodeNumber)
 }
 
-func (p *Presence) StartWatching(a *AnimeActivity) {
+func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	defer util.HandlePanicInModuleThen("discordrpc/presence/StartWatching", func() {})
+	defer util.HandlePanicInModuleThen("discordrpc/presence/SetAnimeActivity", func() {})
 
 	if !p.check() {
 		return
@@ -249,10 +287,15 @@ func (p *Presence) StartWatching(a *AnimeActivity) {
 	activity.Assets.LargeText = a.Title
 
 	// Calculate the start time
-	startTime := time.Now().Add(-time.Duration(a.Progress) * time.Second)
+	startTime := time.Now()
+	if a.Progress > 0 {
+		startTime = startTime.Add(-time.Duration(a.Progress) * time.Second)
+	}
 
 	activity.Timestamps.Start.Time = startTime
-	activity.Timestamps.End.Time = startTime.Add(time.Duration(a.Duration) * time.Second)
+	activity.Timestamps.End = &discordrpc_client.Epoch{
+		Time: startTime.Add(time.Duration(a.Duration) * time.Second),
+	}
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -276,13 +319,17 @@ func (p *Presence) StartWatching(a *AnimeActivity) {
 		})
 	}
 
-	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
+	// p.logger.Debug().Msgf("discordrpc: Setting anime activity: %s", a.Title)
 
 	p.animeActivity = a
 
-	p.eventQueue <- func() {
+	select {
+	case p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)
-		//p.logger.Debug().Msg("discordrpc: Anime activity set")
+		// p.logger.Debug().Int("progress", a.Progress).Int("duration", a.Duration).Msgf("discordrpc: Anime activity set")
+	}:
+	default:
+		// p.logger.Error().Msg("discordrpc: event queue is full")
 	}
 }
 
@@ -298,9 +345,8 @@ func (p *Presence) clearEventQueue() {
 	}
 }
 
-func (p *Presence) UpdateWatching(progress int, duration int, paused bool) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) {
+	// do not lock, we call SetAnimeActivity
 
 	defer util.HandlePanicInModuleThen("discordrpc/presence/UpdateWatching", func() {})
 
@@ -313,7 +359,7 @@ func (p *Presence) UpdateWatching(progress int, duration int, paused bool) {
 
 	// Pause status	changed
 	if p.animeActivity.Paused != paused {
-		p.logger.Debug().Msgf("discordrpc: Pause status changed to %t", paused)
+		// p.logger.Debug().Msgf("discordrpc: Pause status changed to %t", paused)
 		p.animeActivity.Paused = paused
 		p.lastAnimeActivityUpdateSent = time.Now()
 
@@ -321,17 +367,13 @@ func (p *Presence) UpdateWatching(progress int, duration int, paused bool) {
 		p.clearEventQueue()
 
 		if paused {
-			//p.logger.Debug().Msg("discordrpc: Stopping activity")
+			// p.logger.Debug().Msg("discordrpc: Stopping activity")
 			// Stop the current activity if paused
-			p.eventQueue <- func() {
-				p.Close()
-			}
+			p.Close()
 		} else {
-			//p.logger.Debug().Msg("discordrpc: Restarting activity")
+			// p.logger.Debug().Msg("discordrpc: Restarting activity")
 			// Restart the current activity if unpaused
-			p.eventQueue <- func() {
-				p.StartWatching(p.animeActivity)
-			}
+			p.SetAnimeActivity(p.animeActivity)
 		}
 		return
 	}
@@ -340,11 +382,9 @@ func (p *Presence) UpdateWatching(progress int, duration int, paused bool) {
 	if !p.animeActivity.Paused {
 		// If the last update was more than 5 seconds ago, update the activity
 		if time.Since(p.lastAnimeActivityUpdateSent) > 6*time.Second {
-			//p.logger.Debug().Msg("discordrpc: Updating activity")
+			// p.logger.Debug().Msg("discordrpc: Updating activity")
 			p.lastAnimeActivityUpdateSent = time.Now()
-			p.eventQueue <- func() {
-				p.StartWatching(p.animeActivity)
-			}
+			p.SetAnimeActivity(p.animeActivity)
 		}
 	}
 }
@@ -385,6 +425,7 @@ func (p *Presence) LegacySetAnimeActivity(a *LegacyAnimeActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
+	activity.Timestamps.End = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -408,7 +449,7 @@ func (p *Presence) LegacySetAnimeActivity(a *LegacyAnimeActivity) {
 		})
 	}
 
-	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
+	// p.logger.Debug().Msgf("discordrpc: Setting anime activity: %s", a.Title)
 
 	p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)
@@ -468,7 +509,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 		})
 	}
 
-	p.logger.Debug().Msgf("discordrpc: setting manga activity: %s", a.Title)
+	p.logger.Debug().Msgf("discordrpc: Setting manga activity: %s", a.Title)
 
 	p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)

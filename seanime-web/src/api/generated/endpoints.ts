@@ -526,10 +526,20 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/manga",
         },
-        SetDiscordAnimeActivity: {
-            key: "DISCORD-set-discord-anime-activity",
+        SetDiscordLegacyAnimeActivity: {
+            key: "DISCORD-set-discord-legacy-anime-activity",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/legacy-anime",
+        },
+        SetDiscordAnimeActivityWithProgress: {
+            key: "DISCORD-set-discord-anime-activity-with-progress",
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/anime",
+        },
+        UpdateDiscordAnimeActivityWithProgress: {
+            key: "DISCORD-update-discord-anime-activity-with-progress",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/anime-update",
         },
         CancelDiscordActivity: {
             key: "DISCORD-cancel-discord-activity",

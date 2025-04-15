@@ -2408,13 +2408,13 @@
     }
   },
   {
-    "name": "HandleSetDiscordAnimeActivity",
-    "trimmedName": "SetDiscordAnimeActivity",
+    "name": "HandleSetDiscordLegacyAnimeActivity",
+    "trimmedName": "SetDiscordLegacyAnimeActivity",
     "comments": [
-      "HandleSetDiscordAnimeActivity",
+      "HandleSetDiscordLegacyAnimeActivity",
       "",
       "\t@summary sets anime activity for discord rich presence.",
-      "\t@route /api/v1/discord/presence/anime [POST]",
+      "\t@route /api/v1/discord/presence/legacy-anime [POST]",
       "\t@returns bool",
       ""
     ],
@@ -2422,6 +2422,79 @@
     "filename": "discord.go",
     "api": {
       "summary": "sets anime activity for discord rich presence.",
+      "descriptions": [],
+      "endpoint": "/api/v1/discord/presence/legacy-anime",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Title",
+          "jsonName": "title",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Image",
+          "jsonName": "image",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "IsMovie",
+          "jsonName": "isMovie",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSetDiscordAnimeActivityWithProgress",
+    "trimmedName": "SetDiscordAnimeActivityWithProgress",
+    "comments": [
+      "HandleSetDiscordAnimeActivityWithProgress",
+      "",
+      "\t@summary sets anime activity for discord rich presence with progress.",
+      "\t@route /api/v1/discord/presence/anime [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/discord.go",
+    "filename": "discord.go",
+    "api": {
+      "summary": "sets anime activity for discord rich presence with progress.",
       "descriptions": [],
       "endpoint": "/api/v1/discord/presence/anime",
       "methods": [
@@ -2471,6 +2544,79 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Progress",
+          "jsonName": "progress",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Duration",
+          "jsonName": "duration",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleUpdateDiscordAnimeActivityWithProgress",
+    "trimmedName": "UpdateDiscordAnimeActivityWithProgress",
+    "comments": [
+      "HandleUpdateDiscordAnimeActivityWithProgress",
+      "",
+      "\t@summary updates the anime activity for discord rich presence with progress.",
+      "\t@route /api/v1/discord/presence/anime-update [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/discord.go",
+    "filename": "discord.go",
+    "api": {
+      "summary": "updates the anime activity for discord rich presence with progress.",
+      "descriptions": [],
+      "endpoint": "/api/v1/discord/presence/anime-update",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Progress",
+          "jsonName": "progress",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Duration",
+          "jsonName": "duration",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Paused",
+          "jsonName": "paused",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
           "required": true,
           "descriptions": []
         }

@@ -28824,6 +28824,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "CustomCSS",
+        "jsonName": "customCSS",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MobileCustomCSS",
+        "jsonName": "mobileCustomCSS",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -32416,16 +32434,6 @@
         "comments": []
       },
       {
-        "name": "lastSet",
-        "jsonName": "lastSet",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "hasSent",
         "jsonName": "hasSent",
         "goType": "bool",
@@ -32446,13 +32454,66 @@
       {
         "name": "mu",
         "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
-        "usedStructName": "sync.Mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedTypescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "animeActivity",
+        "jsonName": "animeActivity",
+        "goType": "AnimeActivity",
+        "typescriptType": "DiscordRPC_AnimeActivity",
+        "usedTypescriptType": "DiscordRPC_AnimeActivity",
+        "usedStructName": "discordrpc_presence.AnimeActivity",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastAnimeActivityUpdateSent",
+        "jsonName": "lastAnimeActivityUpdateSent",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastSent",
+        "jsonName": "lastSent",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "eventQueue",
+        "jsonName": "eventQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for the event loop context"
+        ]
       }
     ],
     "comments": []
@@ -32462,6 +32523,88 @@
     "filename": "presence.go",
     "name": "AnimeActivity",
     "formattedName": "DiscordRPC_AnimeActivity",
+    "package": "discordrpc_presence",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMovie",
+        "jsonName": "isMovie",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/discordrpc/presence/presence.go",
+    "filename": "presence.go",
+    "name": "LegacyAnimeActivity",
+    "formattedName": "DiscordRPC_LegacyAnimeActivity",
     "package": "discordrpc_presence",
     "fields": [
       {

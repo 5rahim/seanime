@@ -2774,6 +2774,9 @@ declare namespace $app {
         image: string;
         isMovie: boolean;
         episodeNumber: number;
+        paused: boolean;
+        progress: number;
+        duration: number;
     }
 
     /**

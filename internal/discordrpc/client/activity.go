@@ -81,3 +81,15 @@ func (c *Client) SetActivity(activity Activity) error {
 	}
 	return c.SendPayload(payload)
 }
+
+func (c *Client) CancelActivity() error {
+	payload := Payload{
+		Cmd: SetActivityCommand,
+		Args: Args{
+			Pid:      os.Getpid(),
+			Activity: nil,
+		},
+		Nonce: uuid.New(),
+	}
+	return c.SendPayload(payload)
+}

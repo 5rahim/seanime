@@ -8,12 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/ziflex/lecho/v3"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
+	"github.com/ziflex/lecho/v3"
 )
 
 type Handler struct {
@@ -357,7 +356,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Discord := v1.Group("/discord")
 	v1Discord.POST("/presence/manga", h.HandleSetDiscordMangaActivity)
-	v1Discord.POST("/presence/anime", h.HandleSetDiscordAnimeActivity)
+	v1Discord.POST("/presence/legacy-anime", h.HandleSetDiscordLegacyAnimeActivity)
+	v1Discord.POST("/presence/anime", h.HandleSetDiscordAnimeActivityWithProgress)
+	v1Discord.POST("/presence/anime-update", h.HandleUpdateDiscordAnimeActivityWithProgress)
 	v1Discord.POST("/presence/cancel", h.HandleCancelDiscordActivity)
 
 	//

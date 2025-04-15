@@ -1,5 +1,9 @@
 "use client"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
+import { useCustomCSS } from "@/components/shared/custom-css-provider"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion/accordion"
+import { Alert } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
@@ -22,10 +26,9 @@ import { atomWithStorage } from "jotai/utils"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
+import { useServerStatus } from "../../_hooks/use-server-status"
 import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
-import { useServerStatus } from "../../_hooks/use-server-status"
-import { Alert } from "@/components/ui/alert"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -63,6 +66,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
     showMangaUnreadCount: z.boolean().default(THEME_DEFAULT_VALUES.showMangaUnreadCount),
     hideEpisodeCardDescription: z.boolean().default(THEME_DEFAULT_VALUES.hideEpisodeCardDescription),
     hideDownloadedEpisodeCardFilename: z.boolean().default(THEME_DEFAULT_VALUES.hideDownloadedEpisodeCardFilename),
+    customCSS: z.string().default(THEME_DEFAULT_VALUES.customCSS),
+    mobileCustomCSS: z.string().default(THEME_DEFAULT_VALUES.mobileCustomCSS),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -90,6 +95,8 @@ export function UISettings() {
     const [tab, setTab] = useAtom(selectUISettingTabAtom)
 
     const formRef = React.useRef<UseFormReturn<any>>(null)
+
+    const { customCSS, setCustomCSS } = useCustomCSS()
 
     return (
         <Form
@@ -119,6 +126,11 @@ export function UISettings() {
                         }
                         formRef.current?.reset(formRef.current?.getValues())
                     },
+                })
+
+                setCustomCSS({
+                    customCSS: data.customCSS,
+                    mobileCustomCSS: data.mobileCustomCSS,
                 })
             }}
             defaultValues={{
@@ -154,6 +166,8 @@ export function UISettings() {
                 showMangaUnreadCount: themeSettings?.showMangaUnreadCount,
                 hideEpisodeCardDescription: themeSettings?.hideEpisodeCardDescription,
                 hideDownloadedEpisodeCardFilename: themeSettings?.hideDownloadedEpisodeCardFilename,
+                customCSS: themeSettings?.customCSS,
+                mobileCustomCSS: themeSettings?.mobileCustomCSS,
             }}
             stackClass="space-y-4 relative"
         >
@@ -168,7 +182,7 @@ export function UISettings() {
                         triggerClass={tabsTriggerClass}
                         listClass={tabsListClass}
                     >
-                        <TabsList className="flex-wrap max-w-full">
+                        <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-lg">
                             <TabsTrigger value="main">Theme</TabsTrigger>
                             <TabsTrigger value="media">Media</TabsTrigger>
                             <TabsTrigger value="navigation">Navigation</TabsTrigger>
@@ -183,7 +197,7 @@ export function UISettings() {
                                     label="Enable color settings"
                                     name="enableColorSettings"
                                 />
-                                <div className="flex flex-col md:flex-row gap-3">
+                                {f.watch("enableColorSettings") && <div className="flex flex-col md:flex-row gap-3">
                                     <Field.ColorPicker
                                         name="backgroundColor"
                                         label="Background color"
@@ -196,7 +210,7 @@ export function UISettings() {
                                         help="Default: #6152df"
                                         disabled={!f.watch("enableColorSettings")}
                                     />
-                                </div>
+                                </div>}
 
                                 {f.watch("enableColorSettings") && (
                                     <div className="flex flex-wrap gap-3 w-full">
@@ -301,6 +315,62 @@ export function UISettings() {
                                 </div>
 
                             </SettingsCard>
+
+                            <Accordion
+                                type="single"
+                                collapsible
+                                className="border rounded-[--radius-md]"
+                                triggerClass="dark:bg-[--paper]"
+                                contentClass="!pt-2 dark:bg-[--paper]"
+                            >
+                                <AccordionItem value="more">
+                                    <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
+                                        Advanced
+                                    </AccordionTrigger>
+                                    <AccordionContent className="space-y-4">
+
+                                        {serverStatus?.themeSettings?.customCSS !== customCSS.customCSS || serverStatus?.themeSettings?.mobileCustomCSS !== customCSS.mobileCustomCSS && (
+                                            <Button
+                                                intent="white"
+                                                disabled={serverStatus?.themeSettings?.customCSS === customCSS.customCSS && serverStatus?.themeSettings?.mobileCustomCSS === customCSS.mobileCustomCSS}
+                                                onClick={() => {
+                                                    setCustomCSS({
+                                                        customCSS: serverStatus?.themeSettings?.customCSS || "",
+                                                        mobileCustomCSS: serverStatus?.themeSettings?.mobileCustomCSS || "",
+                                                    })
+                                                }}
+                                            >
+                                                Apply to this client
+                                            </Button>
+                                        )}
+
+                                        <p className="text-[--muted] text-sm">
+                                            The custom CSS will be saved on the server and needs to be applied manually to each client.
+                                            <br />
+                                            In case of an error rendering the UI unusable, you can always remove it from the local storage using the
+                                            devtools.
+                                        </p>
+
+                                        <div className="flex flex-col md:flex-row gap-3">
+
+                                            <Field.Textarea
+                                                label="Custom CSS"
+                                                name="customCSS"
+                                                placeholder="Custom CSS"
+                                                help="Applied above 1024px screen size."
+                                            />
+
+                                            <Field.Textarea
+                                                label="Mobile custom CSS"
+                                                name="mobileCustomCSS"
+                                                placeholder="Custom CSS"
+                                                help="Applied below 1024px screen size."
+                                            />
+
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
 
                         </TabsContent>
 

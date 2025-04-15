@@ -276,6 +276,10 @@ type Theme struct {
 	// v2.8+
 	HideEpisodeCardDescription        bool `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
 	HideDownloadedEpisodeCardFilename bool `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
+
+	// v2.9+
+	CustomCSS       string `gorm:"column:custom_css" json:"customCSS"`
+	MobileCustomCSS string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
 }
 
 // +---------------------+

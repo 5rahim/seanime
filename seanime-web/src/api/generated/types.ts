@@ -3058,6 +3058,8 @@ export type Models_Theme = {
     showMangaUnreadCount: boolean
     hideEpisodeCardDescription: boolean
     hideDownloadedEpisodeCardFilename: boolean
+    customCSS: string
+    mobileCustomCSS: string
     id: number
     createdAt?: string
     updatedAt?: string
