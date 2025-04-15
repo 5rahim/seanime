@@ -264,12 +264,14 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
-					go pm.discordPresence.LegacySetAnimeActivity(&discordrpc_presence.LegacyAnimeActivity{
+					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
 						ID:            pm.currentStreamMedia.MustGet().GetID(),
 						Title:         pm.currentStreamMedia.MustGet().GetPreferredTitle(),
 						Image:         pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
 						IsMovie:       pm.currentStreamMedia.MustGet().IsMovie(),
-						EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(), // GetEpisodeNumber maybe?
+						EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(),
+						Progress:      int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+						Duration:      int(pm.currentMediaPlaybackStatus.DurationInSeconds),
 					})
 				}
 
@@ -302,6 +304,11 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
+
+				// ------- Discord ------- //
+				if pm.discordPresence != nil && !pm.isOffline {
+					go pm.discordPresence.UpdateAnimeActivity(int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds), int(pm.currentMediaPlaybackStatus.DurationInSeconds), !pm.currentMediaPlaybackStatus.Playing)
+				}
 
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.StreamingVideoCompletedCh:
