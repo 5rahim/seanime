@@ -31,9 +31,9 @@ export function useSetDiscordLegacyAnimeActivity() {
 
 export function useSetDiscordAnimeActivityWithProgress() {
     return useServerMutation<boolean, SetDiscordAnimeActivityWithProgress_Variables>({
-        endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivtyWithProgress.endpoint,
-        method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivtyWithProgress.methods[0],
-        mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivtyWithProgress.key],
+        endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.endpoint,
+        method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.methods[0],
+        mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.key],
         onSuccess: async () => {
 
         },
