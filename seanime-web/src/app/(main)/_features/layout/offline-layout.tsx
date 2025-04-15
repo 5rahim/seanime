@@ -10,6 +10,7 @@ import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
+import { SeaCommand } from "../sea-command/sea-command"
 
 type OfflineLayoutProps = {
     children?: React.ReactNode
@@ -58,6 +59,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ManualProgressTracking />
             <IssueReport />
             <ErrorExplainer />
+            <SeaCommand />
             <PluginManager />
 
             <AppSidebarProvider>

@@ -334,6 +334,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Fetch Anilist collection and set account if not offline
 	if !app.IsOffline() {
 		app.InitOrRefreshAnilistData()
+	} else {
+		app.AnilistDataLoaded = true
 	}
 
 	// Initialize mediastream settings
