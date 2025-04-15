@@ -46,7 +46,7 @@ type LibraryViewProps = {
     collectionList: Anime_LibraryCollectionList[]
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
-    hasScanned: boolean
+    hasEntries: boolean
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -55,7 +55,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         // collectionList: _collectionList,
         continueWatchingList,
         isLoading,
-        hasScanned,
+        hasEntries,
         ...rest
     } = props
 
@@ -69,7 +69,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
 
     if (isLoading) return <LoadingSpinner />
 
-    if (!hasScanned) return null
+    if (!hasEntries) return null
 
     return (
         <PageWrapper className="p-4 space-y-8 relative z-[4]" data-detailed-library-view-container>

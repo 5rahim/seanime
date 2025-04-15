@@ -37,7 +37,7 @@ export function OfflineAnimeLists() {
                     filteredCollectionList={filteredLibraryCollectionList}
                     continueWatchingList={continueWatchingList}
                     isLoading={isLoading}
-                    hasScanned={true}
+                    hasEntries={true}
                 />
             </PageWrapper>
         </>
