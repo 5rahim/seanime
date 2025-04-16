@@ -58,7 +58,7 @@ func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform,
 		metadataProvider:   metadataProvider,
 		baseAnimeCache:     result.NewCache[int, *anilist.BaseAnime](),
 		baseMangaCache:     result.NewCache[int, *anilist.BaseManga](),
-		gojaRuntimeManager: goja_runtime.NewManager(logger, 10),
+		gojaRuntimeManager: goja_runtime.NewManager(logger),
 	}
 }
 
@@ -108,8 +108,8 @@ type PlaygroundDebugLogger struct {
 }
 
 func (r *PlaygroundRepository) newPlaygroundDebugLogger() *PlaygroundDebugLogger {
-	buff := &bytes.Buffer{}
-	fileOutput := zerolog.ConsoleWriter{
+	buff := bytes.NewBuffer(nil)
+	consoleWritier := zerolog.ConsoleWriter{
 		Out:           buff,
 		TimeFormat:    time.DateTime,
 		FormatMessage: util.ZerologFormatMessageSimple,
@@ -117,7 +117,7 @@ func (r *PlaygroundRepository) newPlaygroundDebugLogger() *PlaygroundDebugLogger
 		NoColor:       true, // Needed to prevent color codes from being written to the file
 	}
 
-	logger := zerolog.New(fileOutput).With().Timestamp().Logger()
+	logger := zerolog.New(consoleWritier).With().Timestamp().Logger()
 
 	return &PlaygroundDebugLogger{
 		logger: &logger,
@@ -125,7 +125,7 @@ func (r *PlaygroundRepository) newPlaygroundDebugLogger() *PlaygroundDebugLogger
 	}
 }
 
-func newPlaygroundResponse(logger *PlaygroundDebugLogger, value interface{}) *RunPlaygroundCodeResponse {
+func newPlaygroundResponse(playgroundLogger *PlaygroundDebugLogger, value interface{}) *RunPlaygroundCodeResponse {
 	v := ""
 
 	switch value.(type) {
@@ -143,7 +143,9 @@ func newPlaygroundResponse(logger *PlaygroundDebugLogger, value interface{}) *Ru
 		}
 	}
 
-	logs := logger.buff.String()
+	util.Spew(playgroundLogger.buff)
+	logs := playgroundLogger.buff.String()
+	util.Spew(logs)
 
 	return &RunPlaygroundCodeResponse{
 		Logs:  logs,
@@ -185,7 +187,7 @@ func (r *PlaygroundRepository) getManga(mediaId int) (manga *anilist.BaseManga, 
 
 func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extension.Extension, params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
 
-	logger := r.newPlaygroundDebugLogger()
+	playgroundLogger := r.newPlaygroundDebugLogger()
 
 	// Inputs
 	// - mediaId int
@@ -224,11 +226,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
 		if err != nil {
-			return nil, err
+			return newPlaygroundResponse(playgroundLogger, err), nil
 		}
-		// defer provider.GetVM().ClearInterrupt()
+		defer r.gojaRuntimeManager.DeletePluginPool(ext.ID)
 
 		// Run the code
 		switch params.Function {
@@ -238,9 +240,9 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 				Query: params.Inputs["query"].(string),
 			})
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		case "smartSearch":
 			type p struct {
 				Query         string `json:"query"`
@@ -283,36 +285,36 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 				AnidbEID:      anidbEID,
 			})
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		case "getTorrentInfoHash":
 			var torrent hibiketorrent.AnimeTorrent
 			_ = json.Unmarshal([]byte(params.Inputs["torrent"].(string)), &torrent)
 
 			res, err := provider.GetTorrentInfoHash(&torrent)
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		case "getTorrentMagnetLink":
 			var torrent hibiketorrent.AnimeTorrent
 			_ = json.Unmarshal([]byte(params.Inputs["torrent"].(string)), &torrent)
 
 			res, err := provider.GetTorrentMagnetLink(&torrent)
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		case "getLatest":
 			res, err := provider.GetLatest()
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		case "getSettings":
 			res := provider.GetSettings()
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		}
 	}
 
@@ -321,7 +323,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 
 func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Extension, params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
 
-	logger := r.newPlaygroundDebugLogger()
+	playgroundLogger := r.newPlaygroundDebugLogger()
 
 	mediaId, ok := params.Inputs["mediaId"].(float64)
 	if !ok || mediaId <= 0 {
@@ -339,11 +341,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
 		if err != nil {
-			return newPlaygroundResponse(logger, err), nil
+			return newPlaygroundResponse(playgroundLogger, err), nil
 		}
-		// defer provider.GetVM().ClearInterrupt()
+		defer r.gojaRuntimeManager.DeletePluginPool(ext.ID)
 
 		// Run the code
 		switch params.Function {
@@ -361,7 +363,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 					Year:  y,
 				})
 				if err != nil {
-					logger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
+					playgroundLogger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
 				}
 				manga.HydrateSearchResultSearchRating(res, title)
 				ret = append(ret, res...)
@@ -372,21 +374,21 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 				selected = manga.GetBestSearchResult(ret)
 			}
 
-			return newPlaygroundResponse(logger, selected), nil
+			return newPlaygroundResponse(playgroundLogger, selected), nil
 
 		case "findChapters":
 			res, err := provider.FindChapters(params.Inputs["id"].(string))
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 
 		case "findChapterPages":
 			res, err := provider.FindChapterPages(params.Inputs["id"].(string))
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		}
 	}
 
@@ -395,7 +397,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 
 func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extension.Extension, params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
 
-	logger := r.newPlaygroundDebugLogger()
+	playgroundLogger := r.newPlaygroundDebugLogger()
 
 	mediaId, ok := params.Inputs["mediaId"].(float64)
 	if !ok || mediaId <= 0 {
@@ -414,11 +416,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
 		if err != nil {
-			return newPlaygroundResponse(logger, err), nil
+			return newPlaygroundResponse(playgroundLogger, err), nil
 		}
-		// defer provider.GetVM().ClearInterrupt()
+		defer r.gojaRuntimeManager.DeletePluginPool(ext.ID)
 
 		// Run the code
 		switch params.Function {
@@ -432,22 +434,22 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 					Year:  anime.GetStartYearSafe(),
 				})
 				if err != nil {
-					logger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
+					playgroundLogger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
 				}
 				ret = append(ret, res...)
 			}
 
 			bestRes := onlinestream.GetBestSearchResult(ret, titles)
 
-			return newPlaygroundResponse(logger, bestRes), nil
+			return newPlaygroundResponse(playgroundLogger, bestRes), nil
 
 		case "findEpisodes":
 			// FindEpisodes - params: id: string
 			res, err := provider.FindEpisodes(params.Inputs["id"].(string))
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 
 		case "findEpisodeServer":
 			// FindEpisodeServer - params: episode: EpisodeDetails, server: string
@@ -456,9 +458,9 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 
 			res, err := provider.FindEpisodeServer(&episode, params.Inputs["server"].(string))
 			if err != nil {
-				return newPlaygroundResponse(logger, err), nil
+				return newPlaygroundResponse(playgroundLogger, err), nil
 			}
-			return newPlaygroundResponse(logger, res), nil
+			return newPlaygroundResponse(playgroundLogger, res), nil
 		}
 	}
 

@@ -91,7 +91,7 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		hook.SetGlobalHookManager(hm)
 	}
 
-	manager := goja_runtime.NewManager(logger, int32(opts.PoolSize))
+	manager := goja_runtime.NewManager(logger)
 
 	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
 	return plugin, logger, manager, anilistPlatform, wsEventManager, err

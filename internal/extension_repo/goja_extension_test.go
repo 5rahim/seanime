@@ -15,7 +15,7 @@ import (
 )
 
 func TestGojaWithExtension(t *testing.T) {
-	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
+	runtimeManager := goja_runtime.NewManager(util.NewLogger())
 	// Get the script
 	filepath := "./goja_manga_test/my-manga-provider.ts"
 	fileB, err := os.ReadFile(filepath)
@@ -81,7 +81,7 @@ func TestGojaWithExtension(t *testing.T) {
 }
 
 func TestGojaOnlinestreamExtension(t *testing.T) {
-	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
+	runtimeManager := goja_runtime.NewManager(util.NewLogger())
 	// Get the script
 	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
@@ -125,7 +125,7 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 }
 
 func TestGojaOnlinestreamExtension2(t *testing.T) {
-	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
+	runtimeManager := goja_runtime.NewManager(util.NewLogger())
 	// Get the script
 	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
