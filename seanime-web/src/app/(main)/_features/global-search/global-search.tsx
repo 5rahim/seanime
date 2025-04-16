@@ -13,7 +13,7 @@ import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import React, { Fragment } from "react"
+import React, { Fragment, useEffect, useRef } from "react"
 import { BiChevronRight } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 
@@ -23,12 +23,23 @@ export function GlobalSearch() {
 
     const [inputValue, setInputValue] = React.useState("")
     const debouncedQuery = useDebounce(inputValue, 500)
+    const inputRef = useRef<HTMLInputElement>(null)
 
     const [type, setType] = React.useState<string>("anime")
 
     const router = useRouter()
 
     const [open, setOpen] = useAtom(__globalSearch_isOpenAtom)
+
+    useEffect(() => {
+        if(open) {
+            setTimeout(() => {
+                console.log("open", open, inputRef.current)
+                console.log("focusing")
+                inputRef.current?.focus()
+            }, 300)
+        }
+    }, [open])
 
     const { data: animeData, isLoading: animeIsLoading, isFetching: animeIsFetching } = useAnilistListAnime({
         search: debouncedQuery,
@@ -97,25 +108,16 @@ export function GlobalSearch() {
                                                 className="relative border bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 w-full rounded-lg "
                                             >
                                                 <FiSearch
-                                                    className="pointer-events-none absolute top-5 left-4 h-6 w-6 text-[--muted]"
+                                                    className="pointer-events-none absolute top-4 left-4 h-6 w-6 text-[--muted]"
                                                     aria-hidden="true"
                                                 />
                                                 <Combobox.Input
-                                                    className="h-16 w-full border-0 bg-transparent pl-14 pr-4 text-white placeholder-[--muted] focus:ring-0 sm:text-md"
+                                                    ref={inputRef}
+                                                    className="h-14 w-full border-0 bg-transparent pl-14 pr-4 text-white placeholder-[--muted] focus:ring-0 sm:text-md"
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                {/*<Button*/}
-                                                {/*    className="block fixed lg:absolute top-3 right-3 z-1"*/}
-                                                {/*    intent="white"*/}
-                                                {/*    onClick={() => {*/}
-                                                {/*        setOpen(false)*/}
-                                                {/*        router.push("/search")*/}
-                                                {/*    }}*/}
-                                                {/*>*/}
-                                                {/*    Advanced search*/}
-                                                {/*</Button>*/}
-                                                <div className="block fixed lg:absolute top-3 right-3 z-1">
+                                                <div className="block fixed lg:absolute top-2 right-2 z-1">
                                                     <Select
                                                         fieldClass="w-fit"
                                                         value={type}
@@ -212,10 +214,10 @@ export function GlobalSearch() {
                                                                 <h4 className="mt-3 font-semibold text-[--foreground] line-clamp-3">{activeOption.title?.userPreferred}</h4>
                                                                 <p className="text-sm leading-6 text-[--muted]">
                                                                     {activeOption.format}{activeOption.season
-                                                                    ? ` - ${capitalize(activeOption.season)} `
-                                                                    : " - "}{activeOption.seasonYear
-                                                                    ? activeOption.seasonYear
-                                                                    : "-"}
+                                                                        ? ` - ${capitalize(activeOption.season)} `
+                                                                        : " - "}{activeOption.seasonYear
+                                                                            ? activeOption.seasonYear
+                                                                            : "-"}
                                                                 </p>
                                                             </div>
                                                             <SeaLink
@@ -257,7 +259,7 @@ export function GlobalSearch() {
                                                         />
                                                     </div>}
                                                     <h5 className="mt-4 font-semibold text-[--foreground]">Nothing
-                                                                                                           found</h5>
+                                                        found</h5>
                                                     <p className="mt-2 text-[--muted]">
                                                         We couldn't find anything with that name. Please try again.
                                                     </p>
