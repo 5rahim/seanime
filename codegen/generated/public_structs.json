@@ -41002,8 +41002,8 @@
         "name": "ParsedData",
         "jsonName": "parsedData",
         "goType": "habari.Metadata",
-        "typescriptType": "Metadata",
-        "usedTypescriptType": "Metadata",
+        "typescriptType": "Habari_Metadata",
+        "usedTypescriptType": "Habari_Metadata",
         "usedStructName": "habari.Metadata",
         "required": false,
         "public": true,
@@ -66227,6 +66227,36 @@
   {
     "filepath": "../internal/torrents/torrent/search.go",
     "filename": "search.go",
+    "name": "TorrentMetadata",
+    "formattedName": "Torrent_TorrentMetadata",
+    "package": "torrent",
+    "fields": [
+      {
+        "name": "Distance",
+        "jsonName": "distance",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Metadata",
+        "jsonName": "metadata",
+        "goType": "habari.Metadata",
+        "typescriptType": "Habari_Metadata",
+        "usedTypescriptType": "Habari_Metadata",
+        "usedStructName": "habari.Metadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
     "name": "SearchData",
     "formattedName": "Torrent_SearchData",
     "package": "torrent",
@@ -66258,6 +66288,19 @@
         ]
       },
       {
+        "name": "TorrentMetadata",
+        "jsonName": "torrentMetadata",
+        "goType": "map[string]TorrentMetadata",
+        "typescriptType": "Record\u003cstring, Torrent_TorrentMetadata\u003e",
+        "usedTypescriptType": "Torrent_TorrentMetadata",
+        "usedStructName": "torrent.TorrentMetadata",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Torrent metadata"
+        ]
+      },
+      {
         "name": "DebridInstantAvailability",
         "jsonName": "debridInstantAvailability",
         "goType": "map[string]debrid.TorrentItemInstantAvailability",
@@ -66268,6 +66311,19 @@
         "public": true,
         "comments": [
           " Debrid instant availability"
+        ]
+      },
+      {
+        "name": "AnimeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedTypescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
+        "required": false,
+        "public": true,
+        "comments": [
+          " AniZip media"
         ]
       }
     ],
@@ -69587,6 +69643,232 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/vendor_habari/vendor_habari.go",
+    "filename": "vendor_habari.go",
+    "name": "Metadata",
+    "formattedName": "Habari_Metadata",
+    "package": "vendor_habari",
+    "fields": [
+      {
+        "name": "SeasonNumber",
+        "jsonName": "season_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PartNumber",
+        "jsonName": "part_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FormattedTitle",
+        "jsonName": "formatted_title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeType",
+        "jsonName": "anime_type",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AudioTerm",
+        "jsonName": "audio_term",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DeviceCompatibility",
+        "jsonName": "device_compatibility",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episode_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OtherEpisodeNumber",
+        "jsonName": "other_episode_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumberAlt",
+        "jsonName": "episode_number_alt",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeTitle",
+        "jsonName": "episode_title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileChecksum",
+        "jsonName": "file_checksum",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileExtension",
+        "jsonName": "file_extension",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileName",
+        "jsonName": "file_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseGroup",
+        "jsonName": "release_group",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseInformation",
+        "jsonName": "release_information",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseVersion",
+        "jsonName": "release_version",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Source",
+        "jsonName": "source",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Subtitles",
+        "jsonName": "subtitles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoResolution",
+        "jsonName": "video_resolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoTerm",
+        "jsonName": "video_term",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VolumeNumber",
+        "jsonName": "volume_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }

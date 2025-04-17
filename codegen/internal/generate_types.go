@@ -22,6 +22,7 @@ var additionalStructNames = []string{
 	"torrentstream.TorrentStatus",
 	"debrid_client.StreamState",
 	"extension_repo.TrayPluginExtensionItem",
+	"vendor_habari.Metadata",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

@@ -1,6 +1,7 @@
-import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
+import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent, Torrent_Preview, Torrent_TorrentMetadata } from "@/api/generated/types"
 import {
     TorrentDebridInstantAvailabilityBadge,
+    TorrentParsedMetadata,
     TorrentResolutionBadge,
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
@@ -29,6 +30,7 @@ type TorrentPreviewList = {
     selectedTorrents: HibikeTorrent_AnimeTorrent[]
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
     type: TorrentSelectionType
+    torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
 }
 
 export const TorrentPreviewList = React.memo((
@@ -40,6 +42,7 @@ export const TorrentPreviewList = React.memo((
         onToggleTorrent,
         debridInstantAvailability,
         type,
+        torrentMetadata,
     }: TorrentPreviewList) => {
     // Add sorting state
     const [sortField, setSortField] = useState<SortField>("seeders")
@@ -133,7 +136,7 @@ export const TorrentPreviewList = React.memo((
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}
                     >
-                        <div className="flex flex-wrap gap-3 items-center">
+                        <div className="flex flex-wrap gap-2 items-center">
                             {item.torrent.isBestRelease && (
                                 <Badge
                                     className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
@@ -153,6 +156,7 @@ export const TorrentPreviewList = React.memo((
                                 <BiCalendarAlt /> {formatDistanceToNowSafe(item.torrent.date)}
                             </p>
                         </div>
+                        <TorrentParsedMetadata metadata={torrentMetadata?.[item.torrent.infoHash!]} />
                     </TorrentPreviewItem>
                 )
             })}

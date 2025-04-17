@@ -11,6 +11,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
+	"seanime/internal/util/result"
 	"slices"
 	"strconv"
 	"sync"
@@ -26,6 +27,10 @@ import (
 const (
 	AnimeSearchTypeSmart  AnimeSearchType = "smart"
 	AnimeSearchTypeSimple AnimeSearchType = "simple"
+)
+
+var (
+	metadataCache = result.NewResultMap[string, *TorrentMetadata]()
 )
 
 type (
@@ -51,11 +56,18 @@ type (
 		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 	}
 
+	TorrentMetadata struct {
+		Distance int              `json:"distance"`
+		Metadata *habari.Metadata `json:"metadata"`
+	}
+
 	// SearchData is the struct returned by NewSmartSearch
 	SearchData struct {
 		Torrents                  []*hibiketorrent.AnimeTorrent                    `json:"torrents"`                  // Torrents found
 		Previews                  []*Preview                                       `json:"previews"`                  // TorrentPreview for each torrent
+		TorrentMetadata           map[string]*TorrentMetadata                      `json:"torrentMetadata"`           // Torrent metadata
 		DebridInstantAvailability map[string]debrid.TorrentItemInstantAvailability `json:"debridInstantAvailability"` // Debrid instant availability
+		AnimeMetadata             *metadata.AnimeMetadata                          `json:"animeMetadata"`             // AniZip media
 	}
 )
 
@@ -193,7 +205,42 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		return nil, err
 	}
 
-	// Add preview for smart search
+	//
+	// Torrent metadata
+	//
+	torrentMetadata := make(map[string]*TorrentMetadata)
+	mu := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(len(torrents))
+	for _, t := range torrents {
+		go func(t *hibiketorrent.AnimeTorrent) {
+			defer wg.Done()
+			metadata, found := metadataCache.Get(t.Name)
+			if !found {
+				m := habari.Parse(t.Name)
+				var distance *comparison.LevenshteinResult
+				distance, ok := comparison.FindBestMatchWithLevenshtein(&m.Title, opts.Media.GetAllTitles())
+				if !ok {
+					distance = &comparison.LevenshteinResult{
+						Distance: 1000,
+					}
+				}
+				metadata = &TorrentMetadata{
+					Distance: distance.Distance,
+					Metadata: m,
+				}
+				metadataCache.Set(t.Name, metadata)
+			}
+			mu.Lock()
+			torrentMetadata[t.InfoHash] = metadata
+			mu.Unlock()
+		}(t)
+	}
+	wg.Wait()
+
+	//
+	// Previews
+	//
 	previews := make([]*Preview, 0)
 
 	if opts.Type == AnimeSearchTypeSmart {
@@ -244,8 +291,13 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	})
 
 	ret = &SearchData{
-		Torrents: torrents,
-		Previews: previews,
+		Torrents:        torrents,
+		Previews:        previews,
+		TorrentMetadata: torrentMetadata,
+	}
+
+	if animeMetadata.IsPresent() {
+		ret.AnimeMetadata = animeMetadata.MustGet()
 	}
 
 	// Store the data in the cache
@@ -272,7 +324,16 @@ type createAnimeTorrentPreviewOptions struct {
 
 func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOptions) *Preview {
 
-	parsedData := habari.Parse(opts.torrent.Name)
+	var parsedData *habari.Metadata
+	metadata, found := metadataCache.Get(opts.torrent.Name)
+	if !found { // Should always be found
+		parsedData = habari.Parse(opts.torrent.Name)
+		metadataCache.Set(opts.torrent.Name, &TorrentMetadata{
+			Distance: 1000,
+			Metadata: parsedData,
+		})
+	}
+	parsedData = metadata.Metadata
 
 	isBatch := opts.torrent.IsBestRelease ||
 		opts.torrent.IsBatch ||
@@ -289,7 +350,6 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 
 	if opts.torrent.FormattedSize == "" {
 		opts.torrent.FormattedSize = humanize.Bytes(uint64(opts.torrent.Size))
-
 	}
 
 	if isBatch {

@@ -1,7 +1,12 @@
+import { Torrent_TorrentMetadata } from "@/api/generated/types"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip } from "@/components/ui/tooltip"
+import { startCase } from "lodash"
 import React from "react"
-import { LuGauge } from "react-icons/lu"
+import { BiMicrophone } from "react-icons/bi"
+import { LiaMicrophoneSolid } from "react-icons/lia"
+import { LuAudioLines, LuAudioWaveform, LuGauge } from "react-icons/lu"
+import { PiChat, PiChatCircleTextDuotone, PiChatsTeardropDuotone, PiChatTeardropDuotone } from "react-icons/pi"
 
 export function TorrentResolutionBadge({ resolution }: { resolution?: string }) {
 
@@ -41,13 +46,67 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 }
 
 
+export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentMetadata | undefined }) {
+
+    if (!metadata) return null
+
+    const hasDubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("dub"))
+    // const hasSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("sub"))
+    const hasMultiSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("multi"))
+
+    return (
+        <div className="flex flex-row gap-1 flex-wrap justify-end w-full lg:absolute bottom-0 right-0">
+            {metadata.metadata?.video_term?.map(term => (
+                <Badge
+                    key={term}
+                    className="rounded-md border-transparent bg-[--subtle] !text-[--muted] px-1"
+                >
+                    {term}
+                </Badge>
+            ))}
+            {!!metadata.metadata?.language?.length ? [...new Set(metadata.metadata?.language)].map(term => (
+                <Badge
+                key={term}
+                className="rounded-md border-transparent bg-[--subtle] px-1"
+                >
+                    <PiChatTeardropDuotone className="text-lg text-[--blue]" /> {term}
+                </Badge>
+            )) : null}
+            {metadata.metadata?.audio_term?.filter(term => term.toLowerCase().includes("dual") || term.toLowerCase().includes("multi")).map(term => (
+                <Badge
+                    key={term}
+                    className="rounded-md border-transparent bg-[--subtle] px-1"
+                >
+                    {/* <LuAudioWaveform className="text-lg text-[--blue]" /> {term} */}
+                    <PiChatsTeardropDuotone className="text-lg text-[--rose]" /> {startCase(term)}
+                </Badge>
+            ))}
+            {hasDubs && (
+                <Badge
+                    className="rounded-md border-transparent bg-indigo-300 px-1"
+                >
+                    <LiaMicrophoneSolid className="text-lg text-[--red]" /> Dubbed
+                </Badge>
+            )}
+            {hasMultiSubs && (
+                <Badge
+                    className="rounded-md border-transparent bg-indigo-300 px-1"
+                >
+                    <PiChatCircleTextDuotone className="text-lg text-[--orange]" /> Multi Subs
+                </Badge>
+            )}
+        </div>
+    )
+}
+
+
 export function TorrentDebridInstantAvailabilityBadge() {
 
     return (
         <Tooltip
             trigger={<Badge
                 data-torrent-item-debrid-instant-availability-badge
-                className="rounded-[--radius-md] bg-transparent dark:text-[--green]"
+                className="rounded-[--radius-md] bg-transparent border-transparent dark:text-[--white] animate-pulse"
                 intent="white"
                 leftIcon={<LuGauge className="text-lg" />}
         >

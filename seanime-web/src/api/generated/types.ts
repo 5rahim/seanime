@@ -2773,6 +2773,64 @@ export type Mediastream_MediaContainer = {
 export type Mediastream_StreamType = "transcode" | "optimized" | "direct"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Metadata
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/api/metadata/types.go
+ * - Filename: types.go
+ * - Package: metadata
+ */
+export type Metadata_AnimeMappings = {
+    animeplanetId: string
+    kitsuId: number
+    malId: number
+    type: string
+    anilistId: number
+    anisearchId: number
+    anidbId: number
+    notifymoeId: string
+    livechartId: number
+    thetvdbId: number
+    imdbId: string
+    themoviedbId: string
+}
+
+/**
+ * - Filepath: internal/api/metadata/types.go
+ * - Filename: types.go
+ * - Package: metadata
+ */
+export type Metadata_AnimeMetadata = {
+    titles?: Record<string, string>
+    episodes?: Record<string, Metadata_EpisodeMetadata>
+    episodeCount: number
+    specialCount: number
+    mappings?: Metadata_AnimeMappings
+}
+
+/**
+ * - Filepath: internal/api/metadata/types.go
+ * - Filename: types.go
+ * - Package: metadata
+ */
+export type Metadata_EpisodeMetadata = {
+    anidbId: number
+    tvdbId: number
+    title: string
+    image: string
+    airDate: string
+    length: number
+    summary: string
+    overview: string
+    episodeNumber: number
+    episode: string
+    seasonNumber: number
+    absoluteEpisodeNumber: number
+    anidbEid: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3408,9 +3466,27 @@ export type Torrent_SearchData = {
      */
     previews?: Array<Torrent_Preview>
     /**
+     * Torrent metadata
+     */
+    torrentMetadata?: Record<string, Torrent_TorrentMetadata>
+    /**
      * Debrid instant availability
      */
     debridInstantAvailability?: Record<string, Debrid_TorrentItemInstantAvailability>
+    /**
+     * AniZip media
+     */
+    animeMetadata?: Metadata_AnimeMetadata
+}
+
+/**
+ * - Filepath: internal/torrents/torrent/search.go
+ * - Filename: search.go
+ * - Package: torrent
+ */
+export type Torrent_TorrentMetadata = {
+    distance: number
+    metadata?: Habari_Metadata
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3587,6 +3663,42 @@ export type Updater_Update = {
     release?: Updater_Release
     current_version?: string
     type: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VendorHabari
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/vendor_habari/vendor_habari.go
+ * - Filename: vendor_habari.go
+ * - Package: vendor_habari
+ */
+export type Habari_Metadata = {
+    season_number?: Array<string>
+    part_number?: Array<string>
+    title?: string
+    formatted_title?: string
+    anime_type?: Array<string>
+    year?: string
+    audio_term?: Array<string>
+    device_compatibility?: Array<string>
+    episode_number?: Array<string>
+    other_episode_number?: Array<string>
+    episode_number_alt?: Array<string>
+    episode_title?: string
+    file_checksum?: string
+    file_extension?: string
+    file_name?: string
+    language?: Array<string>
+    release_group?: string
+    release_information?: Array<string>
+    release_version?: Array<string>
+    source?: Array<string>
+    subtitles?: Array<string>
+    video_resolution?: string
+    video_term?: Array<string>
+    volume_number?: Array<string>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

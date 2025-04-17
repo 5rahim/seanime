@@ -347,6 +347,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             onToggleTorrent={handleToggleTorrent}
                                             debridInstantAvailability={debridInstantAvailability}
                                             type={type}
+                                            torrentMetadata={data?.torrentMetadata}
+                                            // animeMetadata={data?.animeMetadata}
                                         />
                                     </>
                                 )}
@@ -357,6 +359,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                         {((searchType !== Torrent_SearchType.SMART) && !hasOneWarning && !previews?.length) && (
                             <>
                                 <TorrentTable
+                                    entry={entry}
                                     torrents={torrents}
                                     globalFilter={globalFilter}
                                     setGlobalFilter={setGlobalFilter}
@@ -367,6 +370,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     selectedTorrents={selectedTorrents}
                                     onToggleTorrent={handleToggleTorrent}
                                     debridInstantAvailability={debridInstantAvailability}
+                                    animeMetadata={data?.animeMetadata}
+                                    torrentMetadata={data?.torrentMetadata}
                                 />
                             </>
                         )}

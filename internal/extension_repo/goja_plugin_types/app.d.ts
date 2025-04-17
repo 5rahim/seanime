@@ -2721,7 +2721,7 @@ declare namespace $app {
      * - Filepath: internal/library/autodownloader/autodownloader_torrent.go
      */
     interface AutoDownloader_NormalizedTorrent {
-        parsedData?: $habari.Metadata;
+        parsedData?: Habari_Metadata;
         /**
          * Access using GetMagnet()
          */

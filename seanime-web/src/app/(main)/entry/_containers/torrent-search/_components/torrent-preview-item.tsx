@@ -91,19 +91,21 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             </div>}
 
             <div className="absolute left-0 top-0 w-full h-full max-w-[180px]" data-torrent-preview-item-image-container>
-                {(confirmed ? !!image : !!fallbackImage) && <Image
+                {(image || fallbackImage) && <Image
                     data-torrent-preview-item-image
-                    src={confirmed ? image! : fallbackImage!}
+                    src={image || fallbackImage!}
                     alt="episode image"
                     fill
                     className={cn(
                         "object-cover object-center absolute w-full h-full group-hover/torrent-preview-item:blur-0 transition-opacity opacity-25 group-hover/torrent-preview-item:opacity-60 z-[0] select-none pointer-events-none",
+                        (!image && fallbackImage) && "opacity-10 group-hover/torrent-preview-item:opacity-30",
                         isSelected && "opacity-50",
+
                     )}
                 />}
                 <div
-                    data-torrent-preview-item-image-bottom-gradient
-                    className="transition-colors absolute w-full h-full bg-gradient-to-l from-[--background] hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
+                    data-torrent-preview-item-image-end-gradient
+                    className="transition-colors absolute w-full h-full -right-2 bg-gradient-to-l from-[--background] hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
                 ></div>
             </div>
 
@@ -144,13 +146,14 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     {!(image || fallbackImage) && !isBatch && <BsFileEarmarkPlayFill className="text-7xl absolute opacity-10" />}
                 </div>
 
-                <div className="relative overflow-hidden space-y-1" data-torrent-preview-item-metadata>
+                <div className="relative overflow-hidden space-y-1 w-full" data-torrent-preview-item-metadata>
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"
                     /> Unidentified</p>}
+
                     <p
                         className={cn(
-                            "font-medium text-base transition line-clamp-2 tracking-wider",
+                            "font-normal text-[.9rem] transition line-clamp-2 tracking-wide",
                             isBasic && "text-sm",
                         )}
                         data-torrent-preview-item-title
@@ -158,15 +161,15 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
                     {!!subtitle && <p
                         className={cn(
-                            "text-sm tracking-wide group-hover/torrent-preview-item:text-gray-200 line-clamp-2 break-all",
-                            !(_title) ? "font-medium transition tracking-wider" : "text-[--muted]",
+                            "text-[.85rem] tracking-wide group-hover/torrent-preview-item:text-gray-200 line-clamp-2 break-all",
+                            !(_title) ? "font-normal transition tracking-wide" : "text-[--muted]",
                         )}
                         data-torrent-preview-item-subtitle
                     >
                         {subtitle}
                     </p>}
 
-                    <div className="flex items-center gap-2" data-torrent-preview-item-subcontent>
+                    <div className="flex flex-col gap-2" data-torrent-preview-item-subcontent>
                         {children && children}
                     </div>
                 </div>
