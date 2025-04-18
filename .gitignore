@@ -1,4 +1,5 @@
 .idea
+.junie
 logs/
 *.db
 .run/

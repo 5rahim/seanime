@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleScanLocalFiles
@@ -72,8 +73,8 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
 		MetadataProvider:   h.App.MetadataProvider,
-		MatchingAlgorithm:  h.App.Settings.Library.ScannerMatchingAlgorithm,
-		MatchingThreshold:  h.App.Settings.Library.ScannerMatchingThreshold,
+		MatchingAlgorithm:  h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
+		MatchingThreshold:  h.App.Settings.GetLibrary().ScannerMatchingThreshold,
 	}
 
 	// Scan the library

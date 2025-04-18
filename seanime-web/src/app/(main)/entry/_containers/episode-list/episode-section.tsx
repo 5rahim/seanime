@@ -134,6 +134,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                     >
                                         <EpisodeCard
                                             key={episode.localFile?.path || ""}
+                                            episode={episode}
                                             image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                             topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}

@@ -1,4 +1,17 @@
-import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent, Torrent_Preview, Torrent_TorrentMetadata } from "@/api/generated/types"
+import {
+    Anime_Entry,
+    Debrid_TorrentItemInstantAvailability,
+    HibikeTorrent_AnimeTorrent,
+    Torrent_Preview,
+    Torrent_TorrentMetadata,
+} from "@/api/generated/types"
+import {
+    filterItems,
+    sortItems,
+    TorrentFilterSortControls,
+    useTorrentFiltering,
+    useTorrentSorting,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
 import {
     TorrentDebridInstantAvailabilityBadge,
     TorrentParsedMetadata,
@@ -6,20 +19,12 @@ import {
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
-import {
-    getSortIcon,
-    handleSort,
-    SortDirection,
-    SortField,
-    sortPreviewTorrents,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-sorting-helpers"
 import { TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-import React, { useState } from "react"
+import React from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 
 type TorrentPreviewList = {
@@ -44,9 +49,9 @@ export const TorrentPreviewList = React.memo((
         type,
         torrentMetadata,
     }: TorrentPreviewList) => {
-    // Add sorting state
-    const [sortField, setSortField] = useState<SortField>("seeders")
-    const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+    // Use hooks for sorting and filtering
+    const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
+    const { filters, handleFilterChange } = useTorrentFiltering()
 
     if (isLoading) return <div className="space-y-2">
         <Skeleton className="h-[96px]" />
@@ -59,62 +64,23 @@ export const TorrentPreviewList = React.memo((
         return <LuffyError title="Nothing found" />
     }
 
-    // Sort the previews based on current sort settings
-    const sortedPreviews = sortPreviewTorrents(previews, sortField, sortDirection)
+    // Apply filters using the generic helper
+    const filteredPreviews = filterItems(previews, torrentMetadata, filters)
+
+    // Sort the previews based on current sort settings using the generic helper
+    const sortedPreviews = sortItems(filteredPreviews, sortField, sortDirection)
 
     return (
         <div className="space-y-2" data-torrent-preview-list>
-            <div className="flex items-center justify-between gap-4">
-                <p className="text-sm text-[--muted] flex-none" data-torrent-preview-list-results-count>
-                    {previews?.length} results
-                </p>
-                <div className="flex items-center gap-1 flex-wrap">
-                    <Button
-                        size="xs"
-                        intent="gray-basic"
-                        leftIcon={<>
-                            {/* <RiSeedlingLine className="mr-1 text-lg" /> */}
-                            {getSortIcon(sortField, "seeders", sortDirection)}
-                        </>}
-                        onClick={() => handleSort("seeders", sortField, sortDirection, setSortField, setSortDirection)}
-                    >
-                        Seeders
-                    </Button>
-                    <Button
-                        size="xs"
-                        intent="gray-basic"
-                        leftIcon={<>
-                            {/* <LuFile className="mr-1 text-lg" /> */}
-                            {getSortIcon(sortField, "size", sortDirection)}
-                        </>}
-                        onClick={() => handleSort("size", sortField, sortDirection, setSortField, setSortDirection)}
-                    >
-                        Size
-                    </Button>
-                    <Button
-                        size="xs"
-                        intent="gray-basic"
-                        leftIcon={<>
-                            {/* <BiCalendarAlt className="mr-1 text-lg" /> */}
-                            {getSortIcon(sortField, "date", sortDirection)}
-                        </>}
-                        onClick={() => handleSort("date", sortField, sortDirection, setSortField, setSortDirection)}
-                    >
-                        Date
-                    </Button>
-                    <Button
-                        size="xs"
-                        intent="gray-basic"
-                        leftIcon={<>
-                            {/* <HiOutlineVideoCamera className="mr-1 text-lg" /> */}
-                            {getSortIcon(sortField, "resolution", sortDirection)}
-                        </>}
-                        onClick={() => handleSort("resolution", sortField, sortDirection, setSortField, setSortDirection)}
-                    >
-                        Resolution
-                    </Button>
-                </div>
-            </div>
+
+            <TorrentFilterSortControls
+                resultCount={sortedPreviews?.length || 0}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                filters={filters}
+                onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
+            />
             {/*<ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">*/}
             {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">*/}
             {sortedPreviews.filter(Boolean).map(item => {

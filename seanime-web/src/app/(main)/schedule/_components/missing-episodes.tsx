@@ -48,6 +48,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                     >
                                         <EpisodeCard
                                             key={episode.displayTitle + episode.baseAnime?.id}
+                                            episode={episode}
                                             image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                             topTitle={episode.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}
@@ -105,6 +106,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                                     >
                                                         <EpisodeCard
                                                             key={episode.displayTitle + episode.baseAnime?.id}
+                                                            episode={episode}
                                                             image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                                             topTitle={episode.baseAnime?.title?.userPreferred}
                                                             title={episode.displayTitle}

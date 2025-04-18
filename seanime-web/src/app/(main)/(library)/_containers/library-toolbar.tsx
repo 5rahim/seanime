@@ -131,47 +131,47 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         />}
                     >
 
-                    <DropdownMenuItem
-                        data-library-toolbar-open-directory-button
-                        disabled={!status?.settings?.library?.libraryPath}
-                        className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
-                        onClick={() => {
-                            openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
-                        }}
-                    >
-                        <BiFolder />
-                        <span>Open directory</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        data-library-toolbar-bulk-actions-button
-                        onClick={() => setBulkActionIsOpen(true)}
-                        disabled={!hasEntries}
-                        className={cn({ "!text-[--muted]": !hasEntries })}
-                    >
-                        <BiCollection />
-                        <span>Bulk actions</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        data-library-toolbar-ignored-files-button
-                        onClick={() => setIgnoredFileManagerOpen(true)}
-                        // disabled={!hasEntries}
-                        className={cn({ "!text-[--muted]": !hasEntries })}
-                    >
-                        <TbFileSad />
-                        <span>Ignored files</span>
-                    </DropdownMenuItem>
-
-                    <SeaLink href="/scan-summaries">
                         <DropdownMenuItem
-                            data-library-toolbar-scan-summaries-button
-                            // className={cn({ "!text-[--muted]": !hasEntries })}
+                            data-library-toolbar-open-directory-button
+                            disabled={!status?.settings?.library?.libraryPath}
+                            className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                            onClick={() => {
+                                openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
+                            }}
                         >
-                            <PiClockCounterClockwiseFill />
-                            <span>Scan summaries</span>
+                            <BiFolder />
+                            <span>Open directory</span>
                         </DropdownMenuItem>
-                    </SeaLink>
+
+                        <DropdownMenuItem
+                            data-library-toolbar-bulk-actions-button
+                            onClick={() => setBulkActionIsOpen(true)}
+                            disabled={!hasEntries}
+                            className={cn({ "!text-[--muted]": !hasEntries })}
+                        >
+                            <BiCollection />
+                            <span>Bulk actions</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                            data-library-toolbar-ignored-files-button
+                            onClick={() => setIgnoredFileManagerOpen(true)}
+                            // disabled={!hasEntries}
+                            className={cn({ "!text-[--muted]": !hasEntries })}
+                        >
+                            <TbFileSad />
+                            <span>Ignored files</span>
+                        </DropdownMenuItem>
+
+                        <SeaLink href="/scan-summaries">
+                            <DropdownMenuItem
+                                data-library-toolbar-scan-summaries-button
+                            // className={cn({ "!text-[--muted]": !hasEntries })}
+                            >
+                                <PiClockCounterClockwiseFill />
+                                <span>Scan summaries</span>
+                            </DropdownMenuItem>
+                        </SeaLink>
 
                         <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}

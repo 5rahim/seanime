@@ -11,6 +11,24 @@ function init() {
             withContent: true,
         })
 
+        const testButton = ctx.action.newEpisodeCardContextMenuItem({
+            label: "Test",
+        })
+
+        const testGridButton = ctx.action.newEpisodeGridItemMenuItem({
+            label: "Test",
+            type: "library",
+        })
+
+        const testGridButton2 = ctx.action.newEpisodeGridItemMenuItem({
+            label: "Test 2",
+            type: "torrentstream",
+        })
+
+        testGridButton.mount()
+        testGridButton2.mount()
+        testButton.mount()
+
         // Keep track of the current media ID
         const currentMediaId = ctx.state(0)
 
@@ -149,35 +167,6 @@ function init() {
                 }
             }
         }
-
-        e.next()
-    })
-
-    $app.onAnimeEntryRequested((e) => {
-        let lfs = $clone(e.localFiles)!
-
-        const toInsert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-
-        toInsert.forEach(nb => {
-            let metadataAniDbEp = nb.toString()
-            if (nb > 12) {
-                metadataAniDbEp = "S" + (nb - 12)
-            }
-            lfs.push({
-                path: `/Volumes/Seagate Portable Drive/ANIME/Bakemonogatari/Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
-                name: `Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
-                locked: true,
-                ignored: false,
-                mediaId: 5081,
-                metadata: {
-                    episode: nb,
-                    aniDBEpisode: metadataAniDbEp,
-                    type: "main",
-                },
-            })
-        })
-
-        $replace(e.localFiles, lfs)
 
         e.next()
     })

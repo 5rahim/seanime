@@ -493,6 +493,25 @@ declare namespace $ui {
          * @param props - Button properties
          */
         newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
+
+        /**
+         * Creates a new context menu item for the episode card
+         * @param props - Context menu item properties
+         */
+        newEpisodeCardContextMenuItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ episode: $app.Anime_Episode }>
+
+        /**
+         * Creates a new menu item for the episode grid item
+         * @param props - Menu item properties
+         */
+        newEpisodeGridItemMenuItem(props: {
+            label: string,
+            style?: Record<string, string>,
+            type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
+        }): ActionObject<{
+            episode: $app.Anime_Episode | $app.Onlinestream_Episode,
+            type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
+        }>
     }
 
     interface ActionObject<E extends any = {}> {

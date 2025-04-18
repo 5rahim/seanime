@@ -178,6 +178,12 @@ func (u *UI) Register(callback string) error {
 						case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
 							u.context.actionManager.renderMediaCardContextMenuItems()
 
+						case ClientActionRenderEpisodeCardContextMenuItemsEvent: // Client wants to update the episode card context menu items
+							u.context.actionManager.renderEpisodeCardContextMenuItems()
+
+						case ClientActionRenderEpisodeGridItemMenuItemsEvent: // Client wants to update the episode grid item menu items
+							u.context.actionManager.renderEpisodeGridItemMenuItems()
+
 						case ClientRenderCommandPaletteEvent: // Client wants to render the command palette
 							u.context.commandPaletteManager.renderCommandPaletteScheduled()
 
@@ -224,6 +230,8 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderAnimeLibraryDropdownItems()
 	u.context.actionManager.renderMangaPageButtons()
 	u.context.actionManager.renderMediaCardContextMenuItems()
+	u.context.actionManager.renderEpisodeCardContextMenuItems()
+	u.context.actionManager.renderEpisodeGridItemMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
 

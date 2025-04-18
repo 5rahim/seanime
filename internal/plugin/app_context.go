@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
@@ -19,11 +20,12 @@ import (
 
 type AppContextModules struct {
 	Database                        *db.Database
-	AnimeLibraryPaths               []string
+	AnimeLibraryPaths               *[]string
 	AnilistPlatform                 platform.Platform
 	PlaybackManager                 *playbackmanager.PlaybackManager
 	MediaPlayerRepository           *mediaplayer.Repository
 	MangaRepository                 *manga.Repository
+	MetadataProvider                metadata.Provider
 	WSEventManager                  events.WSEventManagerInterface
 	DiscordPresence                 *discordrpc_presence.Presence
 	OnRefreshAnilistAnimeCollection func()
@@ -82,14 +84,14 @@ type AppContextImpl struct {
 
 	animeLibraryPaths mo.Option[[]string]
 
-	wsEventManager  mo.Option[events.WSEventManagerInterface]
-	database        mo.Option[*db.Database]
-	playbackManager mo.Option[*playbackmanager.PlaybackManager]
-	mediaplayerRepo mo.Option[*mediaplayer.Repository]
-	mangaRepository mo.Option[*manga.Repository]
-	anilistPlatform mo.Option[platform.Platform]
-	discordPresence mo.Option[*discordrpc_presence.Presence]
-
+	wsEventManager                  mo.Option[events.WSEventManagerInterface]
+	database                        mo.Option[*db.Database]
+	playbackManager                 mo.Option[*playbackmanager.PlaybackManager]
+	mediaplayerRepo                 mo.Option[*mediaplayer.Repository]
+	mangaRepository                 mo.Option[*manga.Repository]
+	anilistPlatform                 mo.Option[platform.Platform]
+	discordPresence                 mo.Option[*discordrpc_presence.Presence]
+	metadataProvider                mo.Option[metadata.Provider]
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
 }
@@ -97,12 +99,17 @@ type AppContextImpl struct {
 func NewAppContext() AppContext {
 	nopLogger := zerolog.Nop()
 	appCtx := &AppContextImpl{
-		logger:          &nopLogger,
-		database:        mo.None[*db.Database](),
-		playbackManager: mo.None[*playbackmanager.PlaybackManager](),
-		mediaplayerRepo: mo.None[*mediaplayer.Repository](),
-		anilistPlatform: mo.None[platform.Platform](),
-		mangaRepository: mo.None[*manga.Repository](),
+		logger:                          &nopLogger,
+		database:                        mo.None[*db.Database](),
+		playbackManager:                 mo.None[*playbackmanager.PlaybackManager](),
+		mediaplayerRepo:                 mo.None[*mediaplayer.Repository](),
+		anilistPlatform:                 mo.None[platform.Platform](),
+		mangaRepository:                 mo.None[*manga.Repository](),
+		metadataProvider:                mo.None[metadata.Provider](),
+		wsEventManager:                  mo.None[events.WSEventManagerInterface](),
+		discordPresence:                 mo.None[*discordrpc_presence.Presence](),
+		onRefreshAnilistAnimeCollection: mo.None[func()](),
+		onRefreshAnilistMangaCollection: mo.None[func()](),
 	}
 
 	return appCtx
@@ -138,7 +145,11 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 	}
 
 	if modules.AnimeLibraryPaths != nil {
-		a.animeLibraryPaths = mo.Some(modules.AnimeLibraryPaths)
+		a.animeLibraryPaths = mo.Some(*modules.AnimeLibraryPaths)
+	}
+
+	if modules.MetadataProvider != nil {
+		a.metadataProvider = mo.Some(modules.MetadataProvider)
 	}
 
 	if modules.PlaybackManager != nil {

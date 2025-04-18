@@ -4,10 +4,13 @@ import (
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
+	"seanime/internal/database/db"
+	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
@@ -27,6 +30,7 @@ import (
 	"seanime/internal/torrentstream"
 
 	"github.com/cli/browser"
+	"github.com/rs/zerolog"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -213,6 +217,20 @@ func (a *App) initModulesOnce() {
 
 }
 
+// HandleNewDatabaseEntries initializes essential database collections.
+// It creates an empty local files collection if one does not already exist.
+func HandleNewDatabaseEntries(database *db.Database, logger *zerolog.Logger) {
+
+	// Create initial empty local files collection if none exists
+	if _, _, err := db_bridge.GetLocalFiles(database); err != nil {
+		_, err := db_bridge.InsertLocalFiles(database, make([]*anime.LocalFile, 0))
+		if err != nil {
+			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
+		}
+	}
+
+}
+
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.
 // This function is called:
 //   - After the App instance is created
@@ -235,14 +253,14 @@ func (a *App) InitOrRefreshModules() {
 
 	// Get settings from database
 	settings, err := a.Database.GetSettings()
-	if err != nil {
+	if err != nil || settings == nil {
 		a.Logger.Warn().Msg("app: Did not initialize modules, no settings found")
 		return
 	}
 
 	a.Settings = settings // Store settings instance in app
-	if settings != nil && settings.Library != nil {
-		a.LibraryDir = settings.Library.LibraryPath
+	if settings.Library != nil {
+		a.LibraryDir = settings.GetLibrary().LibraryPath
 	}
 
 	// +---------------------+
@@ -250,20 +268,22 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 	// Refresh settings of modules that were initialized in initModulesOnce
 
-	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.Notifications, a.Logger)
+	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.GetNotifications(), a.Logger)
 
 	// Refresh updater settings
-	if settings.Library != nil && a.Updater != nil {
-		a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
+	if settings.Library != nil {
 		plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 			AnimeLibraryPaths: a.Database.AllLibraryPathsFromSettings(settings),
 		})
-	}
 
-	// Refresh auto scanner settings
-	if settings.Library != nil && a.AutoScanner != nil {
+		if a.Updater != nil {
+			a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
+		}
 
-		a.AutoScanner.SetSettings(*settings.Library)
+		// Refresh auto scanner settings
+		if a.AutoScanner != nil {
+			a.AutoScanner.SetSettings(*settings.Library)
+		}
 
 		// Torrent Repository
 		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
@@ -300,7 +320,7 @@ func (a *App) InitOrRefreshModules() {
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
 		a.PlaybackManager.SetSettings(&playbackmanager.Settings{
-			AutoPlayNextEpisode: a.Settings.Library.AutoPlayNextEpisode,
+			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
 		})
 
 		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
@@ -323,6 +343,7 @@ func (a *App) InitOrRefreshModules() {
 			Path:     settings.Torrent.QBittorrentPath,
 			Tags:     settings.Torrent.QBittorrentTags,
 		})
+		// Login to qBittorrent
 		go func() {
 			if settings.Torrent.Default == "qbittorrent" {
 				err = qbit.Login()
@@ -346,6 +367,7 @@ func (a *App) InitOrRefreshModules() {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize transmission client")
 		}
 
+		// Shutdown torrent client first
 		if a.TorrentClientRepository != nil {
 			a.TorrentClientRepository.Shutdown()
 		}
@@ -591,7 +613,7 @@ func (a *App) performActionsOnce() {
 			return
 		}
 
-		if a.Settings.Library.OpenWebURLOnStart {
+		if a.Settings.GetLibrary().OpenWebURLOnStart {
 			// Open the web URL
 			err := browser.OpenURL(a.Config.GetServerURI("127.0.0.1"))
 			if err != nil {
@@ -601,7 +623,7 @@ func (a *App) performActionsOnce() {
 			}
 		}
 
-		if a.Settings.Library.RefreshLibraryOnStart {
+		if a.Settings.GetLibrary().RefreshLibraryOnStart {
 			go func() {
 				a.Logger.Debug().Msg("app: Refreshing library")
 				a.AutoScanner.RunNow()
@@ -609,7 +631,7 @@ func (a *App) performActionsOnce() {
 			}()
 		}
 
-		if a.Settings.Library.OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
+		if a.Settings.GetLibrary().OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
 			// Start the torrent client
 			ok := a.TorrentClientRepository.Start()
 			if !ok {

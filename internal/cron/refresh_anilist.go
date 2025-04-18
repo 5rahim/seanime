@@ -17,7 +17,7 @@ func RefreshAnilistDataJob(c *JobCtx) {
 	// Refresh the Anilist Collection
 	animeCollection, _ := c.App.RefreshAnimeCollection()
 
-	if c.App.Settings.Library.EnableManga {
+	if c.App.Settings.GetLibrary().EnableManga {
 		mangaCollection, _ := c.App.RefreshMangaCollection()
 		c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, mangaCollection)
 	}

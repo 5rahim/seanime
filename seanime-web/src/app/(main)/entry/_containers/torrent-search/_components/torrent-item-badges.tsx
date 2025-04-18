@@ -3,10 +3,9 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip } from "@/components/ui/tooltip"
 import { startCase } from "lodash"
 import React from "react"
-import { BiMicrophone } from "react-icons/bi"
 import { LiaMicrophoneSolid } from "react-icons/lia"
-import { LuAudioLines, LuAudioWaveform, LuGauge } from "react-icons/lu"
-import { PiChat, PiChatCircleTextDuotone, PiChatsTeardropDuotone, PiChatTeardropDuotone } from "react-icons/pi"
+import { LuGauge } from "react-icons/lu"
+import { PiChatCircleTextDuotone, PiChatsTeardropDuotone, PiChatTeardropDuotone } from "react-icons/pi"
 
 export function TorrentResolutionBadge({ resolution }: { resolution?: string }) {
 
@@ -17,9 +16,9 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
             data-torrent-item-resolution-badge
             className="rounded-[--radius-md] border-transparent bg-transparent px-0"
             intent={resolution?.includes("1080")
-            ? "warning"
-            : (resolution?.includes("2160") || resolution?.toLowerCase().includes("4k"))
-                ? "success"
+                ? "warning"
+                : (resolution?.includes("2160") || resolution?.toLowerCase().includes("4k"))
+                    ? "success"
                     : (resolution?.includes("720")
                         ? "blue"
                         : "gray")}
@@ -66,8 +65,8 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
             ))}
             {!!metadata.metadata?.language?.length ? [...new Set(metadata.metadata?.language)].map(term => (
                 <Badge
-                key={term}
-                className="rounded-md border-transparent bg-[--subtle] px-1"
+                    key={term}
+                    className="rounded-md border-transparent bg-[--subtle] px-1"
                 >
                     <PiChatTeardropDuotone className="text-lg text-[--blue]" /> {term}
                 </Badge>
@@ -109,8 +108,8 @@ export function TorrentDebridInstantAvailabilityBadge() {
                 className="rounded-[--radius-md] bg-transparent border-transparent dark:text-[--white] animate-pulse"
                 intent="white"
                 leftIcon={<LuGauge className="text-lg" />}
-        >
-            Cached
+            >
+                Cached
             </Badge>}
         >
             Instantly available on Debrid service

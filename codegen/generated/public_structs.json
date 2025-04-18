@@ -26306,17 +26306,6 @@
         "comments": []
       },
       {
-        "name": "Settings",
-        "jsonName": "Settings",
-        "goType": "models.Settings",
-        "typescriptType": "Models_Settings",
-        "usedTypescriptType": "Models_Settings",
-        "usedStructName": "models.Settings",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AutoScanner",
         "jsonName": "AutoScanner",
         "goType": "autoscanner.AutoScanner",
@@ -26463,6 +26452,17 @@
         "usedTypescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -33823,6 +33823,17 @@
     "package": "hibikeonlinestream",
     "fields": [
       {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "Media",
+        "typescriptType": "HibikeOnlinestream_Media",
+        "usedTypescriptType": "HibikeOnlinestream_Media",
+        "usedStructName": "hibikeonlinestream.Media",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Query",
         "jsonName": "query",
         "goType": "string",
@@ -33846,6 +33857,145 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
+    "filename": "types.go",
+    "name": "Media",
+    "formattedName": "HibikeOnlinestream_Media",
+    "package": "hibikeonlinestream",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IDMal",
+        "jsonName": "idMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnglishTitle",
+        "jsonName": "englishTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RomajiTitle",
+        "jsonName": "romajiTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeCount",
+        "jsonName": "episodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "FuzzyDate",
+        "typescriptType": "HibikeOnlinestream_FuzzyDate",
+        "usedTypescriptType": "HibikeOnlinestream_FuzzyDate",
+        "usedStructName": "hibikeonlinestream.FuzzyDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
+    "filename": "types.go",
+    "name": "FuzzyDate",
+    "formattedName": "HibikeOnlinestream_FuzzyDate",
+    "package": "hibikeonlinestream",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -53406,6 +53556,7 @@
         "jsonName": "AnimeLibraryPaths",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
+        "usedStructName": "plugin.[]string",
         "required": false,
         "public": true,
         "comments": []
@@ -53450,6 +53601,17 @@
         "typescriptType": "Manga_Repository",
         "usedTypescriptType": "Manga_Repository",
         "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -53581,6 +53743,15 @@
       {
         "name": "discordPresence",
         "jsonName": "discordPresence",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -54821,6 +54992,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "episodeCardContextMenuItems",
+        "jsonName": "episodeCardContextMenuItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "episodeGridItemMenuItems",
+        "jsonName": "episodeGridItemMenuItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -54900,6 +55089,30 @@
         "comments": []
       }
     ],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "EpisodeCardContextMenuItem",
+    "formattedName": "EpisodeCardContextMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "EpisodeGridItemContextMenuItem",
+    "formattedName": "EpisodeGridItemContextMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
     "comments": [],
     "embeddedStructNames": [
       "plugin_ui.BaseAction"
@@ -56003,6 +56216,8 @@
         "\"action:manga-page-buttons:render\"",
         "\"action:media-card-context-menu-items:render\"",
         "\"action:anime-library-dropdown-items:render\"",
+        "\"action:episode-card-context-menu-items:render\"",
+        "\"action:episode-grid-item-menu-items:render\"",
         "\"action:clicked\"",
         "\"form:submitted\"",
         "\"screen:changed\"",
@@ -56147,6 +56362,24 @@
     "filename": "events.go",
     "name": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
     "formattedName": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -56614,6 +56847,8 @@
         "\"action:anime-page-dropdown-items:updated\"",
         "\"action:manga-page-buttons:updated\"",
         "\"action:media-card-context-menu-items:updated\"",
+        "\"action:episode-card-context-menu-items:updated\"",
+        "\"action:episode-grid-item-menu-items:updated\"",
         "\"action:anime-library-dropdown-items:updated\"",
         "\"form:reset\"",
         "\"form:set-values\"",
@@ -57083,6 +57318,44 @@
     "filename": "events.go",
     "name": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
     "formattedName": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {

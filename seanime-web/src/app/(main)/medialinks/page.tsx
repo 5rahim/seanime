@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { toast } from "sonner"
+import { PluginEpisodeGridItemMenuItems } from "../_features/plugin/actions/plugin-actions"
 
 export default function Page() {
 
@@ -157,6 +158,8 @@ export default function Page() {
                                     isInvalid={episode.isInvalid}
                                     filename={episode.localFile?.parsedInfo?.original}
                                 />
+
+                                <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="medialinks" episode={episode} />
                             </>}
                         />
                     ))}

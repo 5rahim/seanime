@@ -1,5 +1,6 @@
 import { AL_BaseAnime, Anime_EntryDownloadInfo } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import {
@@ -65,6 +66,8 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                 </div>}
 
                                 <EpisodeItemInfoModalButton episode={episode} />
+
+                                <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="undownloaded" episode={episode} />
                             </>}
                         >
                             <div data-undownloaded-episode-list-episode-metadata-container className="mt-1">

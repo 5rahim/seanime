@@ -22,11 +22,13 @@ const (
 type ActionManager struct {
 	ctx *Context
 
-	animePageButtons          *result.Map[string, *AnimePageButton]
-	animePageDropdownItems    *result.Map[string, *AnimePageDropdownMenuItem]
-	animeLibraryDropdownItems *result.Map[string, *AnimeLibraryDropdownMenuItem]
-	mangaPageButtons          *result.Map[string, *MangaPageButton]
-	mediaCardContextMenuItems *result.Map[string, *MediaCardContextMenuItem]
+	animePageButtons            *result.Map[string, *AnimePageButton]
+	animePageDropdownItems      *result.Map[string, *AnimePageDropdownMenuItem]
+	animeLibraryDropdownItems   *result.Map[string, *AnimeLibraryDropdownMenuItem]
+	mangaPageButtons            *result.Map[string, *MangaPageButton]
+	mediaCardContextMenuItems   *result.Map[string, *MediaCardContextMenuItem]
+	episodeCardContextMenuItems *result.Map[string, *EpisodeCardContextMenuItem]
+	episodeGridItemMenuItems    *result.Map[string, *EpisodeGridItemMenuItem]
 }
 
 type BaseActionProps struct {
@@ -51,7 +53,7 @@ func (a *BaseAction) SetProps(props BaseActionProps) {
 }
 
 // UnmountAll unmounts all actions
-// It should be called
+// It should be called when the plugin is unloaded
 func (a *ActionManager) UnmountAll() {
 
 	if a.animePageButtons.ClearN() > 0 {
@@ -68,6 +70,12 @@ func (a *ActionManager) UnmountAll() {
 	}
 	if a.mediaCardContextMenuItems.ClearN() > 0 {
 		a.renderMediaCardContextMenuItems()
+	}
+	if a.episodeCardContextMenuItems.ClearN() > 0 {
+		a.renderEpisodeCardContextMenuItems()
+	}
+	if a.episodeGridItemMenuItems.ClearN() > 0 {
+		a.renderEpisodeGridItemMenuItems()
 	}
 }
 
@@ -86,6 +94,31 @@ func (a *AnimePageButton) CreateObject(actionManager *ActionManager) *goja.Objec
 		a.Intent = intent
 	})
 
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type EpisodeCardContextMenuItem struct {
+	BaseAction
+}
+
+func (a *EpisodeCardContextMenuItem) CreateObject(actionManager *ActionManager) *goja.Object {
+	obj := actionManager.ctx.vm.NewObject()
+	actionManager.bindSharedToObject(obj, a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type EpisodeGridItemMenuItem struct {
+	BaseAction
+	Type string `json:"type"`
+}
+
+func (a *EpisodeGridItemMenuItem) CreateObject(actionManager *ActionManager) *goja.Object {
+	obj := actionManager.ctx.vm.NewObject()
+	actionManager.bindSharedToObject(obj, a)
 	return obj
 }
 
@@ -163,11 +196,13 @@ func NewActionManager(ctx *Context) *ActionManager {
 	return &ActionManager{
 		ctx: ctx,
 
-		animePageButtons:          result.NewResultMap[string, *AnimePageButton](),
-		animeLibraryDropdownItems: result.NewResultMap[string, *AnimeLibraryDropdownMenuItem](),
-		animePageDropdownItems:    result.NewResultMap[string, *AnimePageDropdownMenuItem](),
-		mangaPageButtons:          result.NewResultMap[string, *MangaPageButton](),
-		mediaCardContextMenuItems: result.NewResultMap[string, *MediaCardContextMenuItem](),
+		animePageButtons:            result.NewResultMap[string, *AnimePageButton](),
+		animeLibraryDropdownItems:   result.NewResultMap[string, *AnimeLibraryDropdownMenuItem](),
+		animePageDropdownItems:      result.NewResultMap[string, *AnimePageDropdownMenuItem](),
+		mangaPageButtons:            result.NewResultMap[string, *MangaPageButton](),
+		mediaCardContextMenuItems:   result.NewResultMap[string, *MediaCardContextMenuItem](),
+		episodeCardContextMenuItems: result.NewResultMap[string, *EpisodeCardContextMenuItem](),
+		episodeGridItemMenuItems:    result.NewResultMap[string, *EpisodeGridItemMenuItem](),
 	}
 }
 
@@ -232,6 +267,30 @@ func (a *ActionManager) renderMediaCardContextMenuItems() {
 	})
 }
 
+func (a *ActionManager) renderEpisodeCardContextMenuItems() {
+	items := make([]*EpisodeCardContextMenuItem, 0)
+	a.episodeCardContextMenuItems.Range(func(key string, value *EpisodeCardContextMenuItem) bool {
+		items = append(items, value)
+		return true
+	})
+
+	a.ctx.SendEventToClient(ServerActionRenderEpisodeCardContextMenuItemsEvent, ServerActionRenderEpisodeCardContextMenuItemsEventPayload{
+		Items: items,
+	})
+}
+
+func (a *ActionManager) renderEpisodeGridItemMenuItems() {
+	items := make([]*EpisodeGridItemMenuItem, 0)
+	a.episodeGridItemMenuItems.Range(func(key string, value *EpisodeGridItemMenuItem) bool {
+		items = append(items, value)
+		return true
+	})
+
+	a.ctx.SendEventToClient(ServerActionRenderEpisodeGridItemMenuItemsEvent, ServerActionRenderEpisodeGridItemMenuItemsEventPayload{
+		Items: items,
+	})
+}
+
 // bind binds 'action' to the ctx object
 //
 //	Example:
@@ -243,12 +302,59 @@ func (a *ActionManager) bind(ctxObj *goja.Object) {
 	_ = actionObj.Set("newAnimeLibraryDropdownItem", a.jsNewAnimeLibraryDropdownItem)
 	_ = actionObj.Set("newMediaCardContextMenuItem", a.jsNewMediaCardContextMenuItem)
 	_ = actionObj.Set("newMangaPageButton", a.jsNewMangaPageButton)
+	_ = actionObj.Set("newEpisodeCardContextMenuItem", a.jsNewEpisodeCardContextMenuItem)
+	_ = actionObj.Set("newEpisodeGridItemMenuItem", a.jsNewEpisodeGridItemMenuItem)
 	_ = ctxObj.Set("action", actionObj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Actions
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+// jsNewEpisodeCardContextMenuItem
+//
+//	Example:
+//	const downloadButton = ctx.newEpisodeCardContextMenuItem({
+//		label: "Download",
+//		onClick: "download-button-clicked",
+//	})
+func (a *ActionManager) jsNewEpisodeCardContextMenuItem(call goja.FunctionCall) goja.Value {
+	// Create a new action
+	action := &EpisodeCardContextMenuItem{}
+
+	// Get the props
+	a.unmarshalProps(call, action)
+	action.ID = uuid.New().String()
+
+	// Create the object
+	obj := action.CreateObject(a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// jsNewEpisodeGridItemMenuItem
+//
+//	Example:
+//	const downloadButton = ctx.newEpisodeGridItemContextMenuItem({
+//		label: "Download",
+//		onClick: "download-button-clicked",
+//		type: "library",
+//	})
+func (a *ActionManager) jsNewEpisodeGridItemMenuItem(call goja.FunctionCall) goja.Value {
+	// Create a new action
+	action := &EpisodeGridItemMenuItem{}
+
+	// Get the props
+	a.unmarshalProps(call, action)
+	action.ID = uuid.New().String()
+
+	// Create the object
+	obj := action.CreateObject(a)
+	return obj
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // jsNewAnimePageButton
 //
@@ -271,6 +377,8 @@ func (a *ActionManager) jsNewAnimePageButton(call goja.FunctionCall) goja.Value 
 	return obj
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // jsNewAnimePageDropdownItem
 //
 //	Example:
@@ -290,6 +398,8 @@ func (a *ActionManager) jsNewAnimePageDropdownItem(call goja.FunctionCall) goja.
 	obj := action.CreateObject(a)
 	return obj
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // jsNewAnimeLibraryDropdownItem
 //
@@ -311,6 +421,8 @@ func (a *ActionManager) jsNewAnimeLibraryDropdownItem(call goja.FunctionCall) go
 	return obj
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // jsNewMediaCardContextMenuItem
 //
 //	Example:
@@ -330,6 +442,8 @@ func (a *ActionManager) jsNewMediaCardContextMenuItem(call goja.FunctionCall) go
 	obj := action.CreateObject(a)
 	return obj
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // jsNewMangaPageButton
 //
@@ -387,6 +501,14 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		id = act.ID
 		props = act.GetProps()
 		mapToUse = a.mediaCardContextMenuItems
+	case *EpisodeCardContextMenuItem:
+		id = act.ID
+		props = act.GetProps()
+		mapToUse = a.episodeCardContextMenuItems
+	case *EpisodeGridItemMenuItem:
+		id = act.ID
+		props = act.GetProps()
+		mapToUse = a.episodeGridItemMenuItems
 	}
 
 	_ = obj.Set("mount", func() {
@@ -394,18 +516,22 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		case *result.Map[string, *AnimePageButton]:
 			if btn, ok := action.(*AnimePageButton); ok {
 				m.Set(id, btn)
+				a.renderAnimePageButtons()
 			}
 		case *result.Map[string, *MangaPageButton]:
 			if btn, ok := action.(*MangaPageButton); ok {
 				m.Set(id, btn)
+				a.renderMangaPageButtons()
 			}
 		case *result.Map[string, *AnimePageDropdownMenuItem]:
 			if item, ok := action.(*AnimePageDropdownMenuItem); ok {
 				m.Set(id, item)
+				a.renderAnimePageDropdownItems()
 			}
 		case *result.Map[string, *AnimeLibraryDropdownMenuItem]:
 			if item, ok := action.(*AnimeLibraryDropdownMenuItem); ok {
 				m.Set(id, item)
+				a.renderAnimeLibraryDropdownItems()
 			}
 		case *result.Map[string, *MediaCardContextMenuItem]:
 			if item, ok := action.(*MediaCardContextMenuItem); ok {
@@ -413,25 +539,45 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 					item.For = MediaCardContextMenuItemForBoth
 				}
 				m.Set(id, item)
+				a.renderMediaCardContextMenuItems()
+			}
+		case *result.Map[string, *EpisodeCardContextMenuItem]:
+			if item, ok := action.(*EpisodeCardContextMenuItem); ok {
+				m.Set(id, item)
+				a.renderEpisodeCardContextMenuItems()
+			}
+		case *result.Map[string, *EpisodeGridItemMenuItem]:
+			if item, ok := action.(*EpisodeGridItemMenuItem); ok {
+				m.Set(id, item)
+				a.renderEpisodeGridItemMenuItems()
 			}
 		}
-		a.renderAnimePageButtons()
 	})
 
 	_ = obj.Set("unmount", func() {
 		switch m := mapToUse.(type) {
 		case *result.Map[string, *AnimePageButton]:
 			m.Delete(id)
+			a.renderAnimePageButtons()
 		case *result.Map[string, *MangaPageButton]:
 			m.Delete(id)
+			a.renderMangaPageButtons()
 		case *result.Map[string, *AnimePageDropdownMenuItem]:
 			m.Delete(id)
+			a.renderAnimePageDropdownItems()
 		case *result.Map[string, *AnimeLibraryDropdownMenuItem]:
 			m.Delete(id)
+			a.renderAnimeLibraryDropdownItems()
 		case *result.Map[string, *MediaCardContextMenuItem]:
 			m.Delete(id)
+			a.renderMediaCardContextMenuItems()
+		case *result.Map[string, *EpisodeCardContextMenuItem]:
+			m.Delete(id)
+			a.renderEpisodeCardContextMenuItems()
+		case *result.Map[string, *EpisodeGridItemMenuItem]:
+			m.Delete(id)
+			a.renderEpisodeGridItemMenuItems()
 		}
-		a.renderAnimePageButtons()
 	})
 
 	_ = obj.Set("setLabel", func(label string) {
@@ -449,9 +595,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 			act.SetProps(newProps)
 		case *MediaCardContextMenuItem:
 			act.SetProps(newProps)
+		case *EpisodeCardContextMenuItem:
+			act.SetProps(newProps)
+		case *EpisodeGridItemMenuItem:
+			act.SetProps(newProps)
 		}
 
-		a.renderAnimePageButtons()
 	})
 
 	_ = obj.Set("setStyle", func(style map[string]string) {
@@ -461,17 +610,25 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		switch act := action.(type) {
 		case *AnimePageButton:
 			act.SetProps(newProps)
+			a.renderAnimePageButtons()
 		case *MangaPageButton:
 			act.SetProps(newProps)
+			a.renderMangaPageButtons()
 		case *AnimePageDropdownMenuItem:
 			act.SetProps(newProps)
+			a.renderAnimePageDropdownItems()
 		case *AnimeLibraryDropdownMenuItem:
 			act.SetProps(newProps)
+			a.renderAnimeLibraryDropdownItems()
 		case *MediaCardContextMenuItem:
 			act.SetProps(newProps)
+			a.renderMediaCardContextMenuItems()
+		case *EpisodeCardContextMenuItem:
+			act.SetProps(newProps)
+			a.renderEpisodeCardContextMenuItems()
+		case *EpisodeGridItemMenuItem:
+			act.SetProps(newProps)
 		}
-
-		a.renderAnimePageButtons()
 	})
 
 	_ = obj.Set("onClick", func(call goja.FunctionCall) goja.Value {
@@ -495,20 +652,6 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 				})
 			}
 		})
-
-		// go func() {
-		// 	for event := range eventListener.Channel {
-		// 		if event.ParsePayloadAs(ClientActionClickedEvent, &payload) && payload.ActionID == id {
-		// 			a.ctx.scheduler.ScheduleAsync(func() error {
-		// 				_, err := callback(goja.Undefined(), a.ctx.vm.ToValue(payload.Event))
-		// 				if err != nil {
-		// 					a.ctx.logger.Error().Err(err).Msg("plugin: Error running action click callback")
-		// 				}
-		// 				return err
-		// 			})
-		// 		}
-		// 	}
-		// }()
 
 		return goja.Undefined()
 	})

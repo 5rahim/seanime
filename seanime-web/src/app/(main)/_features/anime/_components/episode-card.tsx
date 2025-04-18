@@ -1,3 +1,4 @@
+import { Anime_Episode } from "@/api/generated/types"
 import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
@@ -9,9 +10,10 @@ import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
+import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type EpisodeCardProps = {
     title: React.ReactNode
@@ -38,6 +40,7 @@ type EpisodeCardProps = {
         image?: string
         title?: string
     }
+    episode?: Anime_Episode // Optional, used for plugin actions
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -69,6 +72,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
     } = props
 
     const router = useRouter()
+    const pathname = usePathname()
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const { setPreviewModalMediaId } = useMediaPreviewModal()
@@ -110,20 +114,27 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     <ContextMenuLabel className="text-[--muted] line-clamp-1 py-0 my-2">
                         {anime?.title}
                     </ContextMenuLabel>
-                    <ContextMenuItem
-                        onClick={() => {
-                            router.push(`/entry?id=${anime?.id}`)
-                        }}
-                    >
-                        Open page
-                    </ContextMenuItem>
-                    {!serverStatus?.isOffline && <ContextMenuItem
-                        onClick={() => {
-                            setPreviewModalMediaId(anime?.id || 0, "anime")
-                        }}
-                    >
-                        Preview
-                    </ContextMenuItem>}
+
+                    {pathname !== "/entry" && <>
+                        <ContextMenuItem
+                            onClick={() => {
+                                router.push(`/entry?id=${anime?.id}`)
+                            }}
+                        >
+                            Open page
+                        </ContextMenuItem>
+                        {!serverStatus?.isOffline && <ContextMenuItem
+                            onClick={() => {
+                                setPreviewModalMediaId(anime?.id || 0, "anime")
+                            }}
+                        >
+                            Preview
+                        </ContextMenuItem>}
+
+                    </>}
+
+                    <PluginEpisodeCardContextMenuItems episode={props.episode} />
+
                 </ContextMenuGroup>
             }
         >

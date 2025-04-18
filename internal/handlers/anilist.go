@@ -31,7 +31,7 @@ func (h *Handler) HandleGetAnimeCollection(c echo.Context) error {
 	}
 
 	go func() {
-		if h.App.Settings != nil && h.App.Settings.Library.EnableManga {
+		if h.App.Settings != nil && h.App.Settings.GetLibrary().EnableManga {
 			_, _ = h.App.GetMangaCollection(bypassCache)
 			if bypassCache {
 				h.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
@@ -290,7 +290,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 
 	isAdult := false
 	if p.IsAdult != nil {
-		isAdult = *p.IsAdult && h.App.Settings.Anilist.EnableAdultContent
+		isAdult = *p.IsAdult && h.App.Settings.GetAnilist().EnableAdultContent
 	}
 
 	cacheKey := anilist.ListAnimeCacheKey(

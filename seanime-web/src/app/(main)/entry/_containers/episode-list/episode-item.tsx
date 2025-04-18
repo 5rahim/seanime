@@ -3,6 +3,7 @@ import { AL_BaseAnime, Anime_Episode, Anime_LocalFileType } from "@/api/generate
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -100,6 +101,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                             <MdOutlineOndemandVideo />
                             Copy stream URL
                         </DropdownMenuItem>}
+
+                        <PluginEpisodeGridItemMenuItems isDropdownMenu={false} type="library" episode={episode} />
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="text-[--orange]"
