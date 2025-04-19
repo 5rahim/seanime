@@ -11,12 +11,14 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/constants"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util"
 	"sync"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -489,6 +491,24 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		})
 		r.logger.Error().Err(manifestError).Str("filepath", filePath).Msg("extensions: Failed to load extension, manifest error")
 		return
+	}
+
+	if ext.SemverConstraint != "" {
+		c, err := semver.NewConstraint(ext.SemverConstraint)
+		v, _ := semver.NewVersion(constants.Version)
+		if err == nil {
+			if !c.Check(v) {
+				r.invalidExtensions.Set(invalidExtensionID, &extension.InvalidExtension{
+					ID:        invalidExtensionID,
+					Reason:    fmt.Sprintf("Incompatible with this version of Seanime (%s): %s", constants.Version, ext.SemverConstraint),
+					Path:      filePath,
+					Code:      extension.InvalidExtensionSemverConstraintError,
+					Extension: *ext,
+				})
+				r.logger.Error().Str("id", ext.ID).Msg("extensions: Failed to load extension, semver constraint error")
+				return
+			}
+		}
 	}
 
 	var loadingErr error

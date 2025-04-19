@@ -115,7 +115,7 @@ export function DiscoverPageHeader() {
                 <div
                     data-discover-page-header-banner-image-right-gradient
                     className={cn(
-                        "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                         "opacity-100 duration-500",
                     )}
                 />
@@ -224,6 +224,12 @@ export function DiscoverPageHeader() {
                                 </div>
                                 {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
                                 <div className="flex items-center max-w-lg gap-4" data-discover-page-header-metadata-media-info>
+                                    {randomTrending.meanScore &&
+                                        <div className="rounded-full w-fit inline-block" data-discover-page-header-metadata-media-score>
+                                            <MediaEntryAudienceScore
+                                                meanScore={randomTrending.meanScore}
+                                            />
+                                        </div>}
                                     {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
                                         <p
                                             className="text-base text-brand-200 inline-flex items-center gap-1.5"
@@ -243,12 +249,7 @@ export function DiscoverPageHeader() {
                                                         : "s"}</span>}
                                         </p>
                                     )}
-                                    {randomTrending.meanScore &&
-                                        <div className="rounded-full w-fit inline-block" data-discover-page-header-metadata-media-score>
-                                            <MediaEntryAudienceScore
-                                                meanScore={randomTrending.meanScore}
-                                            />
-                                        </div>}
+
                                 </div>
                                 <motion.div
                                     className="pt-0 left-0"

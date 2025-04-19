@@ -33,9 +33,10 @@ type Extension struct {
 	// ID is the unique identifier of the extension
 	// It must be unique across all extensions
 	// It must start with a letter and contain only alphanumeric characters
-	ID      string `json:"id"`      // e.g. "extension-example"
-	Name    string `json:"name"`    // e.g. "Extension"
-	Version string `json:"version"` // e.g. "1.0.0"
+	ID               string `json:"id"`      // e.g. "extension-example"
+	Name             string `json:"name"`    // e.g. "Extension"
+	Version          string `json:"version"` // e.g. "1.0.0"
+	SemverConstraint string `json:"semverConstraint,omitempty"`
 	// The URI to the extension manifest file.
 	// This is "builtin" if the extension is built-in and "" if the extension is local.
 	ManifestURI string `json:"manifestURI"` // e.g. "http://cdn.something.app/extensions/extension-example/manifest.json"
@@ -148,6 +149,8 @@ const (
 	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
 	// InvalidExtensionPluginPermissionsNotGranted is returned when the plugin permissions have not been granted
 	InvalidExtensionPluginPermissionsNotGranted InvalidExtensionErrorCode = "plugin_permissions_not_granted"
+	// InvalidExtensionSemverConstraintError is returned when the semver constraint is invalid
+	InvalidExtensionSemverConstraintError InvalidExtensionErrorCode = "invalid_semver_constraint"
 )
 
 type InvalidExtension struct {

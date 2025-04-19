@@ -10,7 +10,7 @@ import {
 } from "@/lib/helpers/filtering"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
-import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
 
 export const MAIN_LIBRARY_DEFAULT_PARAMS: CollectionParams<"anime"> = {
@@ -44,16 +44,6 @@ export function useHandleLibraryCollection() {
         if (!!data) {
             atom_setLibraryCollection(data)
         }
-    }, [data])
-
-    /**
-     * Get the genres from all media in the library
-     */
-    const libraryGenres = React.useMemo(() => {
-        const allGenres = data?.lists?.flatMap(l => {
-            return l.entries?.flatMap(e => e.media?.genres) ?? []
-        })
-        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
     }, [data])
 
     /**
@@ -91,7 +81,7 @@ export function useHandleLibraryCollection() {
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
 
-            // 
+            //
             let sortingParams = {
                 ...DEFAULT_ANIME_COLLECTION_PARAMS,
                 sorting: animeLibraryCollectionDefaultSorting as any,
@@ -204,6 +194,16 @@ export function useHandleLibraryCollection() {
         serverStatus?.settings?.anilist?.blurAdultContent,
         watchHistory,
     ])
+
+    /**
+     * Get the genres from all media in the library
+     */
+    const libraryGenres = React.useMemo(() => {
+        const allGenres = filteredCollection?.flatMap(l => {
+            return l.entries?.flatMap(e => e.media?.genres) ?? []
+        })
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
+    }, [filteredCollection])
 
     return {
         libraryGenres,

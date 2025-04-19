@@ -33132,6 +33132,15 @@
         ]
       },
       {
+        "name": "SemverConstraint",
+        "jsonName": "semverConstraint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ManifestURI",
         "jsonName": "manifestURI",
         "goType": "string",
@@ -33308,7 +33317,8 @@
         "\"invalid_payload\"",
         "\"user_config_error\"",
         "\"invalid_authorization\"",
-        "\"plugin_permissions_not_granted\""
+        "\"plugin_permissions_not_granted\"",
+        "\"invalid_semver_constraint\""
       ]
     },
     "comments": []
@@ -46648,15 +46658,6 @@
         "usedTypescriptType": "Client",
         "usedStructName": "http.Client",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },

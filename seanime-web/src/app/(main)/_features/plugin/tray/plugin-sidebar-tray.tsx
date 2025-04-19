@@ -80,7 +80,7 @@ const ExtensionList = ({
                             trigger={<IconButton
                                 intent="gray-basic"
                                 size="sm"
-                                icon={<LuShapes className="size-4 text-[--muted]" />}
+                                icon={<LuShapes className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
                         >Tray plugins</Tooltip>
@@ -323,7 +323,7 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
                         <IconButton
                             intent="gray-basic"
                             size="sm"
-                            icon={<LuBlocks />}
+                            icon={<LuBlocks className="size-5 text-[--muted]" />}
                         />
                     </div>}
                     className="rounded-full p-0 overflow-y-auto bg-[--background] mx-4"

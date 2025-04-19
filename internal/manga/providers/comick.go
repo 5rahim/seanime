@@ -19,10 +19,9 @@ import (
 
 type (
 	ComicK struct {
-		Url       string
-		Client    *http.Client
-		UserAgent string
-		logger    *zerolog.Logger
+		Url    string
+		Client *http.Client
+		logger *zerolog.Logger
 	}
 
 	ComicKResultItem struct {
@@ -66,12 +65,11 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 	c := &http.Client{
 		Timeout: 60 * time.Second,
 	}
-	c.Transport = util.AddCloudFlareByPass(c.Transport)
+	//c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &ComicK{
-		Url:       "https://api.comick.fun",
-		Client:    c,
-		UserAgent: util.GetRandomUserAgent(),
-		logger:    logger,
+		Url:    "https://api.comick.fun",
+		Client: c,
+		logger: logger,
 	}
 }
 
@@ -99,6 +97,7 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 	}
 
 	//req.Header.Set("User-Agent", util.GetRandomUserAgent())
+	req.Header.Set("User-Agent", "Mozilla/5.0")
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -173,7 +172,8 @@ func (c *ComicK) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) 
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
+	//req.Header.Set("User-Agent", util.GetRandomUserAgent())
+	req.Header.Set("User-Agent", "Mozilla/5.0")
 
 	resp, err := c.Client.Do(req)
 	if err != nil {

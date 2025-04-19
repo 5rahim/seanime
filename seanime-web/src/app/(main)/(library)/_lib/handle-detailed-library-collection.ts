@@ -48,7 +48,7 @@ export function useHandleDetailedLibraryCollection() {
     /**
      * Sort and filter the collection data
      */
-    const _sortedCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
+    const _filteredCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
         if (!data || !data.lists) return []
 
         let _lists = data.lists.map(obj => {
@@ -73,8 +73,8 @@ export function useHandleDetailedLibraryCollection() {
         ].filter(Boolean)
     }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent, watchHistory])
 
-    const sortedCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
-        return _sortedCollection.map(obj => {
+    const filteredCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
+        return _filteredCollection.map(obj => {
             if (!obj) return obj
             const arr = filterEntriesByTitle(obj.entries, debouncedSearchInput)
             return {
@@ -83,7 +83,7 @@ export function useHandleDetailedLibraryCollection() {
                 entries: arr,
             }
         }).filter(Boolean)
-    }, [_sortedCollection, debouncedSearchInput])
+    }, [_filteredCollection, debouncedSearchInput])
 
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []
@@ -99,10 +99,18 @@ export function useHandleDetailedLibraryCollection() {
         serverStatus?.settings?.anilist?.blurAdultContent,
     ])
 
+    const libraryGenres = React.useMemo(() => {
+        const allGenres = filteredCollection?.flatMap(l => {
+            return l.entries?.flatMap(e => e.media?.genres) ?? []
+        })
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
+    }, [filteredCollection])
+
     return {
         isLoading: isLoading,
         stats: data?.stats,
-        libraryCollectionList: sortedCollection,
+        libraryCollectionList: filteredCollection,
+        libraryGenres: libraryGenres,
         continueWatchingList: continueWatchingList,
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],
         ignoredLocalFiles: data?.ignoredLocalFiles ?? [],

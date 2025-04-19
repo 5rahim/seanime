@@ -134,6 +134,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 <div>
                     <p className="text-red-400 text-sm">
                         {extension.code === "invalid_manifest" && "Manifest error"}
+                        {extension.code === "invalid_semver_constraint" && "Incompatible with this version of Seanime"}
                         {extension.code === "invalid_payload" && "Invalid or incompatible code"}
                     </p>
                 </div>
