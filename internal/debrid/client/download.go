@@ -307,8 +307,8 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 				r.wsEventManager.SendEvent(events.DebridDownloadProgress, map[string]interface{}{
 					"status":     "downloading",
 					"itemID":     tId,
-					"totalBytes": humanize.Bytes(_totalBytes),
-					"totalSize":  humanize.Bytes(_totalSize),
+					"totalBytes": humanize.IBytes(_totalBytes),
+					"totalSize":  humanize.IBytes(_totalSize),
 					"speed":      speed,
 				})
 				lastSent = time.Now()

@@ -1,9 +1,10 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
-	"strconv"
 )
 
 // HandleSyncGetTrackedMediaItems
@@ -174,5 +175,5 @@ func (h *Handler) HandleSyncGetHasLocalChanges(c echo.Context) error {
 //	@returns string
 func (h *Handler) HandleSyncGetLocalStorageSize(c echo.Context) error {
 	size := h.App.SyncManager.GetLocalStorageSize()
-	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
+	return h.RespondWithData(c, humanize.IBytes(uint64(size)))
 }

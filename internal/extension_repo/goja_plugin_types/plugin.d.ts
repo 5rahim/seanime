@@ -47,6 +47,11 @@ declare namespace $ui {
         manga: Manga
 
         /**
+         * Anime
+         */
+        anime: Anime
+
+        /**
          * Discord
          */
         discord: Discord
@@ -974,6 +979,16 @@ declare namespace $ui {
          * @param message - The message to send
          */
         send(message: string): void
+    }
+
+    interface Anime {
+        /**
+         * Get an anime entry
+         * @param mediaId - The ID of the anime
+         * @returns A promise that resolves to an anime entry
+         * @throws Error if a needed repository is not found
+         */
+        getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
     }
 
     interface Manga {

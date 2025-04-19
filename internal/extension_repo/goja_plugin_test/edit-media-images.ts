@@ -1,3 +1,4 @@
+/// <reference path="../goja_plugin_types/core.d.ts" />
 /// <reference path="../goja_plugin_types/plugin.d.ts" />
 /// <reference path="../goja_plugin_types/app.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
@@ -67,13 +68,14 @@ function init() {
         updateState()
 
         // Update currentMediaId when the user navigates
-        ctx.screen.onNavigate((e) => {
+        ctx.screen.onNavigate(async (e) => {
             console.log("onNavigate", e)
             // If the user navigates to an anime page
             if (e.pathname === "/entry" && !!e.searchParams.id) {
                 // Get the ID from the URL
                 const id = parseInt(e.searchParams.id)
                 currentMediaId.set(id)
+
             } else {
                 currentMediaId.set(0)
             }

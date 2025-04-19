@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/extension"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
@@ -20,8 +21,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
-
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (
@@ -349,7 +348,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 	}
 
 	if opts.torrent.FormattedSize == "" {
-		opts.torrent.FormattedSize = humanize.Bytes(uint64(opts.torrent.Size))
+		opts.torrent.FormattedSize = humanize.IBytes(uint64(opts.torrent.Size))
 	}
 
 	if isBatch {

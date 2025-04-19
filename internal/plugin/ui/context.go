@@ -145,6 +145,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	c.domManager.BindToObj(vm, obj)
 	// Bind manga
 	plugin.GlobalAppContext.BindMangaToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind anime
+	plugin.GlobalAppContext.BindAnimeToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 
 	if c.ext.Plugin != nil {
 		for _, permission := range c.ext.Plugin.Permissions.Scopes {

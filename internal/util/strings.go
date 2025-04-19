@@ -50,10 +50,10 @@ func isLatinRune(r rune) bool {
 	return unicode.In(r, unicode.Latin)
 }
 
-// ToHumanReadableSpeed converts an integer representing bytes per second to a human-readable format
+// ToHumanReadableSpeed converts an integer representing bytes per second to a human-readable format using binary notation
 func ToHumanReadableSpeed(bytesPerSecond int) string {
 	if bytesPerSecond <= 0 {
-		return `0 KB/s`
+		return `0 KiB/s`
 	}
 
 	const unit = 1024
@@ -65,7 +65,7 @@ func ToHumanReadableSpeed(bytesPerSecond int) string {
 		div *= unit
 		exp++
 	}
-	return fmt.Sprintf("%.1f %cB/s", float64(bytesPerSecond)/float64(div), "KMGTPE"[exp])
+	return fmt.Sprintf("%.1f %ciB/s", float64(bytesPerSecond)/float64(div), "KMGTPE"[exp])
 }
 
 func StringSizeToBytes(str string) (int64, error) {

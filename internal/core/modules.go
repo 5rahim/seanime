@@ -74,6 +74,10 @@ func (a *App) initModulesOnce() {
 		Logger: a.Logger,
 	})
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		FillerManager: a.FillerManager,
+	})
+
 	// +---------------------+
 	// |     Continuity      |
 	// +---------------------+

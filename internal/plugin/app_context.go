@@ -7,6 +7,7 @@ import (
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/mediaplayer"
@@ -28,6 +29,7 @@ type AppContextModules struct {
 	MetadataProvider                metadata.Provider
 	WSEventManager                  events.WSEventManagerInterface
 	DiscordPresence                 *discordrpc_presence.Presence
+	FillerManager                   *fillermanager.FillerManager
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
 }
@@ -69,6 +71,9 @@ type AppContext interface {
 	// BindMangaToContextObj binds 'manga' to the UI context object
 	BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 
+	// BindAnimeToContextObj binds 'anime' to the UI context object
+	BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
 	// BindDiscordToContextObj binds 'discord' to the UI context object
 	BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 
@@ -92,6 +97,7 @@ type AppContextImpl struct {
 	anilistPlatform                 mo.Option[platform.Platform]
 	discordPresence                 mo.Option[*discordrpc_presence.Presence]
 	metadataProvider                mo.Option[metadata.Provider]
+	fillerManager                   mo.Option[*fillermanager.FillerManager]
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
 }
@@ -108,6 +114,7 @@ func NewAppContext() AppContext {
 		metadataProvider:                mo.None[metadata.Provider](),
 		wsEventManager:                  mo.None[events.WSEventManagerInterface](),
 		discordPresence:                 mo.None[*discordrpc_presence.Presence](),
+		fillerManager:                   mo.None[*fillermanager.FillerManager](),
 		onRefreshAnilistAnimeCollection: mo.None[func()](),
 		onRefreshAnilistMangaCollection: mo.None[func()](),
 	}
@@ -158,6 +165,14 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 
 	if modules.AnilistPlatform != nil {
 		a.anilistPlatform = mo.Some(modules.AnilistPlatform)
+	}
+
+	if modules.MediaPlayerRepository != nil {
+		a.mediaplayerRepo = mo.Some(modules.MediaPlayerRepository)
+	}
+
+	if modules.FillerManager != nil {
+		a.fillerManager = mo.Some(modules.FillerManager)
 	}
 
 	if modules.OnRefreshAnilistAnimeCollection != nil {

@@ -698,7 +698,7 @@ func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.Anim
 		Name:          t.Title,
 		Date:          formattedDate,
 		Size:          t.TotalSize,
-		FormattedSize: humanize.Bytes(uint64(t.TotalSize)),
+		FormattedSize: humanize.IBytes(uint64(t.TotalSize)),
 		Seeders:       t.Seeders,
 		Leechers:      t.Leechers,
 		DownloadCount: t.TorrentDownloadCount,

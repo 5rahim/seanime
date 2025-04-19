@@ -190,17 +190,17 @@ func (c *Client) initializeClient() error {
 					if elapsed > 0 {
 						bytesPerSecond := float64(downloadProgress-c.lastBytesCompleted) / elapsed
 						if bytesPerSecond > 0 {
-							downloadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+							downloadSpeed = fmt.Sprintf("%s/s", humanize.IBytes(uint64(bytesPerSecond)))
 						}
 					}
-					size := humanize.Bytes(uint64(f.Length()))
+					size := humanize.IBytes(uint64(f.Length()))
 
 					bytesWrittenData := t.Stats().BytesWrittenData
 					uploadSpeed := ""
 					if elapsed > 0 {
 						bytesPerSecond := float64((&bytesWrittenData).Int64()-c.lastBytesWrittenData) / elapsed
 						if bytesPerSecond > 0 {
-							uploadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+							uploadSpeed = fmt.Sprintf("%s/s", humanize.IBytes(uint64(bytesPerSecond)))
 						}
 					}
 
