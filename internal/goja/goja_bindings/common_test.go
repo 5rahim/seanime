@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
 	"testing"
@@ -69,6 +70,40 @@ func TestMultipleReturns(t *testing.T) {
 	v, err := vm.RunString("multiReturn();")
 	assert.NoError(t, err)
 	util.Spew(v.Export())
+}
+
+func TestUserConfig(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
+
+	ext := &extension.Extension{
+		UserConfig: &extension.UserConfig{
+			Fields: []extension.ConfigField{
+				{
+					Name: "test",
+				},
+				{
+					Name:    "test2",
+					Default: "Default value",
+				},
+			},
+		},
+		SavedUserConfig: &extension.SavedUserConfig{
+			Values: map[string]string{
+				"test": "Hello World!",
+			},
+		},
+	}
+	extension_repo.ShareBinds(vm, util.NewLogger())
+	extension_repo.BindUserConfig(vm, ext, util.NewLogger())
+
+	vm.RunString(`
+		const result = $getUserPreference("test");
+		console.log(result);
+
+		const result2 = $getUserPreference("test2");
+		console.log(result2);
+	`)
 }
 
 func TestByteSliceToUint8Array(t *testing.T) {

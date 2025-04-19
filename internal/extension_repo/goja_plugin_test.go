@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpv"
@@ -23,6 +25,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -91,10 +94,76 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		hook.SetGlobalHookManager(hm)
 	}
 
-	manager := goja_runtime.NewManager(logger, int32(opts.PoolSize))
+	manager := goja_runtime.NewManager(logger)
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		AnilistPlatform:   anilistPlatform,
+		WSEventManager:    wsEventManager,
+		AnimeLibraryPaths: &[]string{},
+		PlaybackManager:   &playbackmanager.PlaybackManager{},
+	})
 
 	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
 	return plugin, logger, manager, anilistPlatform, wsEventManager, err
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginAnime(t *testing.T) {
+	payload := `
+	function init() {
+
+		$ui.register(async (ctx) => {
+			try {
+				console.log("Fetching anime entry");
+				console.log(typeof ctx.anime.getAnimeEntry)
+ctx.anime.getAnimeEntry(21)
+				//ctx.anime.getAnimeEntry(21).then((anime) => {
+				//	console.log("Anime", anime)
+				//}).catch((e) => {
+				//	console.error("Error fetching anime entry", e)
+				//})
+			} catch (e) {
+				console.error("Error fetching anime entry", e)
+			}
+		})
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionAnilist,
+			extension.PluginPermissionDatabase,
+		},
+	}
+	logger := util.NewLogger()
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+
+	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
+		FileCacher: lo.Must(filecache.NewCacher(t.TempDir())),
+		Logger:     logger,
+	})
+
+	fillerManager := fillermanager.New(&fillermanager.NewFillerManagerOptions{
+		Logger: logger,
+		DB:     database,
+	})
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		Database:         database,
+		MetadataProvider: metadataProvider,
+		FillerManager:    fillerManager,
+	})
+
+	_, logger, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	time.Sleep(3 * time.Second)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

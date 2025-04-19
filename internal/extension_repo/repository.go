@@ -1,17 +1,20 @@
 package extension_repo
 
 import (
+	"context"
+	"net/http"
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
-	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
+	"sync"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -37,6 +40,23 @@ type (
 		invalidExtensions *result.Map[string, *extension.InvalidExtension]
 
 		hookManager hook.Manager
+
+		client *http.Client
+
+		// Cache the of all built-in extensions when they're first loaded
+		// This is used to quickly determine if an extension is built-in or not and to reload them
+		builtinExtensions *result.Map[string, *builtinExtension]
+
+		updateData   []UpdateData
+		updateDataMu sync.Mutex
+
+		// Called when the external extensions are loaded for the first time
+		firstExternalExtensionLoadedFunc context.CancelFunc
+	}
+
+	builtinExtension struct {
+		extension.Extension
+		provider interface{}
 	}
 
 	AllExtensions struct {
@@ -96,12 +116,42 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		extensionDir:       opts.ExtensionDir,
 		wsEventManager:     opts.WSEventManager,
 		gojaExtensions:     result.NewResultMap[string, GojaExtension](),
-		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger, 20),
+		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger),
 		extensionBank:      extension.NewUnifiedBank(),
 		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
 		fileCacher:         opts.FileCacher,
 		hookManager:        opts.HookManager,
+		client:             http.DefaultClient,
+		builtinExtensions:  result.NewResultMap[string, *builtinExtension](),
+		updateData:         make([]UpdateData, 0),
 	}
+
+	firstExtensionLoadedCtx, firstExtensionLoadedCancel := context.WithCancel(context.Background())
+	ret.firstExternalExtensionLoadedFunc = firstExtensionLoadedCancel
+
+	// Fetch extension updates at launch and every 12 hours
+	go func(firstExtensionLoadedCtx context.Context) {
+		defer util.HandlePanicInModuleThen("extension_repo/fetchExtensionUpdates", func() {
+			ret.firstExternalExtensionLoadedFunc = nil
+		})
+		for {
+			if ret.firstExternalExtensionLoadedFunc != nil {
+				// Block until the first external extensions are loaded
+				select {
+				case <-firstExtensionLoadedCtx.Done():
+				}
+			}
+
+			ret.firstExternalExtensionLoadedFunc = nil
+
+			ret.updateData = ret.checkForUpdates()
+			if len(ret.updateData) > 0 {
+				// Signal the frontend that there are updates available
+				ret.wsEventManager.SendEvent(events.ExtensionUpdatesFound, ret.updateData)
+			}
+			time.Sleep(12 * time.Hour)
+		}
+	}(firstExtensionLoadedCtx)
 
 	return ret
 }
@@ -122,10 +172,21 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 		InvalidExtensions:           fatalInvalidExtensions,
 		InvalidUserConfigExtensions: userConfigInvalidExtensions,
 	}
+
+	// Send the update data to the frontend if there are any updates
+	if len(r.updateData) > 0 {
+		ret.HasUpdate = r.updateData
+	}
+
 	if withUpdates {
 		ret.HasUpdate = r.checkForUpdates()
+		r.updateData = ret.HasUpdate
 	}
 	return
+}
+
+func (r *Repository) GetUpdateData() (ret []UpdateData) {
+	return r.updateData
 }
 
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
@@ -266,36 +327,6 @@ func (r *Repository) GetOnlinestreamProviderExtensionByID(id string) (extension.
 func (r *Repository) GetAnimeTorrentProviderExtensionByID(id string) (extension.AnimeTorrentProviderExtension, bool) {
 	ext, found := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
 	return ext, found
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Built-in extensions
-// - Built-in extensions are loaded once, on application startup
-// - The "manifestURI" field is set to "builtin" to indicate that the extension is not external
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) LoadBuiltInMangaProviderExtension(info extension.Extension, provider hibikemanga.Provider) {
-	r.extensionBank.Set(info.ID, extension.NewMangaProviderExtension(&info, provider))
-	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in manga provider extension")
-}
-
-func (r *Repository) LoadBuiltInAnimeTorrentProviderExtension(info extension.Extension, provider hibiketorrent.AnimeProvider) {
-	r.extensionBank.Set(info.ID, extension.NewAnimeTorrentProviderExtension(&info, provider))
-	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in anime torrent provider extension")
-}
-
-func (r *Repository) LoadBuiltInOnlinestreamProviderExtension(info extension.Extension, provider hibikeonlinestream.Provider) {
-	r.extensionBank.Set(info.ID, extension.NewOnlinestreamProviderExtension(&info, provider))
-	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
-}
-
-func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.Extension) {
-	err := r.loadExternalOnlinestreamExtensionJS(&info, info.Language)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", info.ID).Msg("extensions: Failed to load built-in JS onlinestream provider extension")
-		return
-	}
-	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 
 func (r *Repository) loadPlugin(ext *extension.Extension) (err error) {

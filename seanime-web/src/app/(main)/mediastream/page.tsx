@@ -24,6 +24,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import "@vidstack/react/player/styles/base.css"
 import { BiInfoCircle } from "react-icons/bi"
+import { PluginEpisodeGridItemMenuItems } from "../_features/plugin/actions/plugin-actions"
 import { SeaMediaPlayerProvider } from "../_features/sea-media-player/sea-media-player-provider"
 
 
@@ -286,6 +287,8 @@ export default function Page() {
                                     isInvalid={episode.isInvalid}
                                     filename={episode.localFile?.parsedInfo?.original}
                                 />
+
+                                <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="mediastream" episode={episode} />
                             </>}
                         />
                     ))}

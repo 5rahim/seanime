@@ -85,6 +85,10 @@ func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
 }
 
+func (m *MangaProviderExtensionImpl) GetSavedUserConfig() *SavedUserConfig {
+	return m.ext.SavedUserConfig
+}
+
 func (m *MangaProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }

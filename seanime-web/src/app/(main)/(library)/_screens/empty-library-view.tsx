@@ -16,21 +16,21 @@ import { FiSearch } from "react-icons/fi"
 
 type EmptyLibraryViewProps = {
     isLoading: boolean
-    hasScanned: boolean
+    hasEntries: boolean
 }
 
 export function EmptyLibraryView(props: EmptyLibraryViewProps) {
 
     const {
         isLoading,
-        hasScanned,
+        hasEntries,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
     const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
 
-    if (hasScanned || isLoading) return null
+    if (hasEntries || isLoading) return null
 
     /**
      * Show empty library message and trending if library is empty

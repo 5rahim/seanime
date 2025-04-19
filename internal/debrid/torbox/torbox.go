@@ -6,9 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/dustin/go-humanize"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -18,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -474,7 +474,7 @@ func toDebridTorrent(t *Torrent) (ret *debrid.TorrentItem) {
 		Name:                 t.Name,
 		Hash:                 t.Hash,
 		Size:                 t.Size,
-		FormattedSize:        humanize.Bytes(uint64(t.Size)),
+		FormattedSize:        util.Bytes(uint64(t.Size)),
 		CompletionPercentage: completionPercentage,
 		ETA:                  util.FormatETA(int(t.ETA)),
 		Status:               toDebridTorrentStatus(t),

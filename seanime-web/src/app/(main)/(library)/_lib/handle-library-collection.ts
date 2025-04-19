@@ -10,7 +10,7 @@ import {
 } from "@/lib/helpers/filtering"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
-import { useAtom, useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
 
 export const MAIN_LIBRARY_DEFAULT_PARAMS: CollectionParams<"anime"> = {
@@ -33,7 +33,7 @@ export function useHandleLibraryCollection() {
     const { data: watchHistory } = useGetContinuityWatchHistory()
 
     /**
-     * Fetch the library collection data
+     * Fetch the anime library collection
      */
     const { data, isLoading } = useGetLibraryCollection()
 
@@ -46,18 +46,14 @@ export function useHandleLibraryCollection() {
         }
     }, [data])
 
-    const libraryGenres = React.useMemo(() => {
-        const allGenres = data?.lists?.flatMap(l => {
-            return l.entries?.flatMap(e => e.media?.genres) ?? []
-        })
-        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
-    }, [data])
-
-    const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
-    // const debouncedParams = useDebounce(params, 500)
+    /**
+     * Get the current params
+     */
+    const params = useAtomValue(__mainLibrary_paramsAtom)
 
     /**
-     * Sort and filter the collection data
+     * Sort the collection
+     * - This is displayed when there's no filters applied
      */
     const sortedCollection = React.useMemo(() => {
         if (!data || !data.lists) return []
@@ -85,21 +81,36 @@ export function useHandleLibraryCollection() {
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
 
-            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting as any } as CollectionParams<"anime">
-            let arr = filterAnimeCollectionEntries(obj.entries,
-                newParams,
+            //
+            let sortingParams = {
+                ...DEFAULT_ANIME_COLLECTION_PARAMS,
+                sorting: animeLibraryCollectionDefaultSorting as any,
+            } as CollectionParams<"anime">
+
+            let arr = filterAnimeCollectionEntries(
+                obj.entries,
+                sortingParams,
                 serverStatus?.settings?.anilist?.enableAdultContent,
                 data.continueWatchingList,
-                watchHistory)
+                watchHistory
+            )
 
             // Reset `continueWatchingOnly` to false if it's about to make the list disappear
-            if (arr.length === 0 && newParams.continueWatchingOnly) {
-                const newParams = { ...params, continueWatchingOnly: false, sorting: animeLibraryCollectionDefaultSorting } as CollectionParams<"anime">
-                arr = filterAnimeCollectionEntries(obj.entries,
-                    newParams,
+            if (arr.length === 0 && sortingParams.continueWatchingOnly) {
+
+                // TODO: Add a toast to notify the user that the list is empty
+                sortingParams = {
+                    ...sortingParams,
+                    continueWatchingOnly: false, // Override
+                }
+
+                arr = filterAnimeCollectionEntries(
+                    obj.entries,
+                    sortingParams,
                     serverStatus?.settings?.anilist?.enableAdultContent,
                     data.continueWatchingList,
-                    watchHistory)
+                    watchHistory
+                )
             }
 
             return {
@@ -117,14 +128,21 @@ export function useHandleLibraryCollection() {
         ].filter(Boolean)
     }, [data, params, animeLibraryCollectionDefaultSorting, serverStatus?.settings?.anilist?.enableAdultContent])
 
+    /**
+     * Filter the collection
+     * - This is displayed when there's filters applied
+     */
     const filteredCollection = React.useMemo(() => {
         if (!data || !data.lists) return []
 
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
-            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting } as CollectionParams<"anime">
+            const paramsToApply = {
+                ...params,
+                sorting: animeLibraryCollectionDefaultSorting,
+            } as CollectionParams<"anime">
             const arr = filterAnimeCollectionEntries(obj.entries,
-                newParams,
+                paramsToApply,
                 serverStatus?.settings?.anilist?.enableAdultContent,
                 data.continueWatchingList,
                 watchHistory)
@@ -143,6 +161,9 @@ export function useHandleLibraryCollection() {
         ].filter(Boolean)
     }, [data, params, serverStatus?.settings?.anilist?.enableAdultContent, watchHistory])
 
+    /**
+     * Sort the continue watching list
+     */
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []
 
@@ -173,6 +194,16 @@ export function useHandleLibraryCollection() {
         serverStatus?.settings?.anilist?.blurAdultContent,
         watchHistory,
     ])
+
+    /**
+     * Get the genres from all media in the library
+     */
+    const libraryGenres = React.useMemo(() => {
+        const allGenres = filteredCollection?.flatMap(l => {
+            return l.entries?.flatMap(e => e.media?.genres) ?? []
+        })
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
+    }, [filteredCollection])
 
     return {
         libraryGenres,

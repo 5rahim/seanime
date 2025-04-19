@@ -68,9 +68,12 @@ const (
 	categoryAll = "&c=0_0"
 
 	categoryAnime       = "&c=1_0"
+	CategoryAnime       = "&c=1_0"
 	categoryAnimeAMV    = "&c=1_1"
 	categoryAnimeEng    = "&c=1_2"
+	CategoryAnimeEng    = "&c=1_2"
 	categoryAnimeNonEng = "&c=1_3"
+	CategoryAnimeNonEng = "&c=1_3"
 	categoryAnimeRaw    = "&c=1_4"
 
 	categoryAudio         = "&c=2_0"
@@ -108,16 +111,20 @@ const (
 	categoryRealLifeVideos = "&c=2_2"
 )
 
-func buildURL(opts BuildURLOptions) (string, error) {
+func buildURL(baseUrl string, opts BuildURLOptions) (string, error) {
 	var url string
 
-	if opts.Provider == "nyaa" {
-		url = nyaaBaseURL
-	} else if opts.Provider == "sukebei" {
-		url = sukebeiBaseURL
+	if baseUrl == "" {
+		if opts.Provider == "nyaa" {
+			url = nyaaBaseURL
+		} else if opts.Provider == "sukebei" {
+			url = sukebeiBaseURL
+		} else {
+			err := fmt.Errorf("provider option could be nyaa or sukebei")
+			return "", err
+		}
 	} else {
-		err := fmt.Errorf("provider option could be nyaa or sukebei")
-		return "", err
+		url = baseUrl
 	}
 
 	if opts.Query != "" {

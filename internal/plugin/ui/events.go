@@ -18,27 +18,29 @@ type ClientPluginEvent struct {
 }
 
 const (
-	ClientRenderTrayEvent                            ClientEventType = "tray:render"                                 // Client wants to render the tray
-	ClientListTrayIconsEvent                         ClientEventType = "tray:list-icons"                             // Client wants to list all icons from all plugins
-	ClientTrayOpenedEvent                            ClientEventType = "tray:opened"                                 // When the tray is opened
-	ClientTrayClosedEvent                            ClientEventType = "tray:closed"                                 // When the tray is closed
-	ClientTrayClickedEvent                           ClientEventType = "tray:clicked"                                // When the tray is clicked
-	ClientListCommandPalettesEvent                   ClientEventType = "command-palette:list"                        // When the client wants to list all command palettes
-	ClientCommandPaletteOpenedEvent                  ClientEventType = "command-palette:opened"                      // When the client opens the command palette
-	ClientCommandPaletteClosedEvent                  ClientEventType = "command-palette:closed"                      // When the client closes the command palette
-	ClientRenderCommandPaletteEvent                  ClientEventType = "command-palette:render"                      // When the client requests the command palette to render
-	ClientCommandPaletteInputEvent                   ClientEventType = "command-palette:input"                       // The client sends the current input of the command palette
-	ClientCommandPaletteItemSelectedEvent            ClientEventType = "command-palette:item-selected"               // When the client selects an item from the command palette
-	ClientActionRenderAnimePageButtonsEvent          ClientEventType = "action:anime-page-buttons:render"            // When the client requests the buttons to display on the anime page
-	ClientActionRenderAnimePageDropdownItemsEvent    ClientEventType = "action:anime-page-dropdown-items:render"     // When the client requests the dropdown items to display on the anime page
-	ClientActionRenderMangaPageButtonsEvent          ClientEventType = "action:manga-page-buttons:render"            // When the client requests the buttons to display on the manga page
-	ClientActionRenderMediaCardContextMenuItemsEvent ClientEventType = "action:media-card-context-menu-items:render" // When the client requests the context menu items to display on the media card
-	ClientActionRenderAnimeLibraryDropdownItemsEvent ClientEventType = "action:anime-library-dropdown-items:render"  // When the client requests the dropdown items to display on the anime library
-	ClientActionClickedEvent                         ClientEventType = "action:clicked"                              // When the user clicks on an action
-	ClientFormSubmittedEvent                         ClientEventType = "form:submitted"                              // When the form registered by the tray is submitted
-	ClientScreenChangedEvent                         ClientEventType = "screen:changed"                              // When the current screen changes
-	ClientEventHandlerTriggeredEvent                 ClientEventType = "handler:triggered"                           // When a custom event registered by the plugin is triggered
-	ClientFieldRefSendValueEvent                     ClientEventType = "field-ref:send-value"                        // When the client sends the value of a field that has a ref
+	ClientRenderTrayEvent                              ClientEventType = "tray:render"                                   // Client wants to render the tray
+	ClientListTrayIconsEvent                           ClientEventType = "tray:list-icons"                               // Client wants to list all icons from all plugins
+	ClientTrayOpenedEvent                              ClientEventType = "tray:opened"                                   // When the tray is opened
+	ClientTrayClosedEvent                              ClientEventType = "tray:closed"                                   // When the tray is closed
+	ClientTrayClickedEvent                             ClientEventType = "tray:clicked"                                  // When the tray is clicked
+	ClientListCommandPalettesEvent                     ClientEventType = "command-palette:list"                          // When the client wants to list all command palettes
+	ClientCommandPaletteOpenedEvent                    ClientEventType = "command-palette:opened"                        // When the client opens the command palette
+	ClientCommandPaletteClosedEvent                    ClientEventType = "command-palette:closed"                        // When the client closes the command palette
+	ClientRenderCommandPaletteEvent                    ClientEventType = "command-palette:render"                        // When the client requests the command palette to render
+	ClientCommandPaletteInputEvent                     ClientEventType = "command-palette:input"                         // The client sends the current input of the command palette
+	ClientCommandPaletteItemSelectedEvent              ClientEventType = "command-palette:item-selected"                 // When the client selects an item from the command palette
+	ClientActionRenderAnimePageButtonsEvent            ClientEventType = "action:anime-page-buttons:render"              // When the client requests the buttons to display on the anime page
+	ClientActionRenderAnimePageDropdownItemsEvent      ClientEventType = "action:anime-page-dropdown-items:render"       // When the client requests the dropdown items to display on the anime page
+	ClientActionRenderMangaPageButtonsEvent            ClientEventType = "action:manga-page-buttons:render"              // When the client requests the buttons to display on the manga page
+	ClientActionRenderMediaCardContextMenuItemsEvent   ClientEventType = "action:media-card-context-menu-items:render"   // When the client requests the context menu items to display on the media card
+	ClientActionRenderAnimeLibraryDropdownItemsEvent   ClientEventType = "action:anime-library-dropdown-items:render"    // When the client requests the dropdown items to display on the anime library
+	ClientActionRenderEpisodeCardContextMenuItemsEvent ClientEventType = "action:episode-card-context-menu-items:render" // When the client requests the context menu items to display on the episode card
+	ClientActionRenderEpisodeGridItemMenuItemsEvent    ClientEventType = "action:episode-grid-item-menu-items:render"    // When the client requests the context menu items to display on the episode grid item
+	ClientActionClickedEvent                           ClientEventType = "action:clicked"                                // When the user clicks on an action
+	ClientFormSubmittedEvent                           ClientEventType = "form:submitted"                                // When the form registered by the tray is submitted
+	ClientScreenChangedEvent                           ClientEventType = "screen:changed"                                // When the current screen changes
+	ClientEventHandlerTriggeredEvent                   ClientEventType = "handler:triggered"                             // When a custom event registered by the plugin is triggered
+	ClientFieldRefSendValueEvent                       ClientEventType = "field-ref:send-value"                          // When the client sends the value of a field that has a ref
 
 	ClientDOMQueryResultEvent    ClientEventType = "dom:query-result"     // Result of a DOM query
 	ClientDOMQueryOneResultEvent ClientEventType = "dom:query-one-result" // Result of a DOM query for one element
@@ -60,6 +62,8 @@ type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}
 type ClientActionRenderMangaPageButtonsEventPayload struct{}
 type ClientActionRenderMediaCardContextMenuItemsEventPayload struct{}
 type ClientActionRenderAnimeLibraryDropdownItemsEventPayload struct{}
+type ClientActionRenderEpisodeCardContextMenuItemsEventPayload struct{}
+type ClientActionRenderEpisodeGridItemMenuItemsEventPayload struct{}
 
 type ClientListCommandPalettesEventPayload struct{}
 
@@ -156,29 +160,31 @@ type ServerPluginEvent struct {
 }
 
 const (
-	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
-	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
-	ServerTrayBadgeUpdatedEvent                      ServerEventType = "tray:badge-updated"                           // When the tray badge is updated
-	ServerTrayOpenEvent                              ServerEventType = "tray:open"                                    // When the tray is opened
-	ServerTrayCloseEvent                             ServerEventType = "tray:close"                                   // When the tray is closed
-	ServerCommandPaletteInfoEvent                    ServerEventType = "command-palette:info"                         // When the command palette sends its state to the client
-	ServerCommandPaletteUpdatedEvent                 ServerEventType = "command-palette:updated"                      // When the command palette is updated
-	ServerCommandPaletteOpenEvent                    ServerEventType = "command-palette:open"                         // When the command palette is opened
-	ServerCommandPaletteCloseEvent                   ServerEventType = "command-palette:close"                        // When the command palette is closed
-	ServerCommandPaletteGetInputEvent                ServerEventType = "command-palette:get-input"                    // When the command palette requests the input from the client
-	ServerCommandPaletteSetInputEvent                ServerEventType = "command-palette:set-input"                    // When the command palette sets the input
-	ServerActionRenderAnimePageButtonsEvent          ServerEventType = "action:anime-page-buttons:updated"            // When the server renders the anime page buttons
-	ServerActionRenderAnimePageDropdownItemsEvent    ServerEventType = "action:anime-page-dropdown-items:updated"     // When the server renders the anime page dropdown items
-	ServerActionRenderMangaPageButtonsEvent          ServerEventType = "action:manga-page-buttons:updated"            // When the server renders the manga page buttons
-	ServerActionRenderMediaCardContextMenuItemsEvent ServerEventType = "action:media-card-context-menu-items:updated" // When the server renders the media card context menu items
-	ServerActionRenderAnimeLibraryDropdownItemsEvent ServerEventType = "action:anime-library-dropdown-items:updated"  // When the server renders the anime library dropdown items
-	ServerFormResetEvent                             ServerEventType = "form:reset"
-	ServerFormSetValuesEvent                         ServerEventType = "form:set-values"
-	ServerFieldRefSetValueEvent                      ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
-	ServerFatalErrorEvent                            ServerEventType = "fatal-error"         // When the UI encounters a fatal error
-	ServerScreenNavigateToEvent                      ServerEventType = "screen:navigate-to"  // Navigate to a new screen
-	ServerScreenReloadEvent                          ServerEventType = "screen:reload"       // Reload the current screen
-	ServerScreenGetCurrentEvent                      ServerEventType = "screen:get-current"  // Get the current screen
+	ServerTrayUpdatedEvent                             ServerEventType = "tray:updated"                                   // When the trays are updated
+	ServerTrayIconEvent                                ServerEventType = "tray:icon"                                      // When the tray sends its icon to the client
+	ServerTrayBadgeUpdatedEvent                        ServerEventType = "tray:badge-updated"                             // When the tray badge is updated
+	ServerTrayOpenEvent                                ServerEventType = "tray:open"                                      // When the tray is opened
+	ServerTrayCloseEvent                               ServerEventType = "tray:close"                                     // When the tray is closed
+	ServerCommandPaletteInfoEvent                      ServerEventType = "command-palette:info"                           // When the command palette sends its state to the client
+	ServerCommandPaletteUpdatedEvent                   ServerEventType = "command-palette:updated"                        // When the command palette is updated
+	ServerCommandPaletteOpenEvent                      ServerEventType = "command-palette:open"                           // When the command palette is opened
+	ServerCommandPaletteCloseEvent                     ServerEventType = "command-palette:close"                          // When the command palette is closed
+	ServerCommandPaletteGetInputEvent                  ServerEventType = "command-palette:get-input"                      // When the command palette requests the input from the client
+	ServerCommandPaletteSetInputEvent                  ServerEventType = "command-palette:set-input"                      // When the command palette sets the input
+	ServerActionRenderAnimePageButtonsEvent            ServerEventType = "action:anime-page-buttons:updated"              // When the server renders the anime page buttons
+	ServerActionRenderAnimePageDropdownItemsEvent      ServerEventType = "action:anime-page-dropdown-items:updated"       // When the server renders the anime page dropdown items
+	ServerActionRenderMangaPageButtonsEvent            ServerEventType = "action:manga-page-buttons:updated"              // When the server renders the manga page buttons
+	ServerActionRenderMediaCardContextMenuItemsEvent   ServerEventType = "action:media-card-context-menu-items:updated"   // When the server renders the media card context menu items
+	ServerActionRenderEpisodeCardContextMenuItemsEvent ServerEventType = "action:episode-card-context-menu-items:updated" // When the server renders the episode card context menu items
+	ServerActionRenderEpisodeGridItemMenuItemsEvent    ServerEventType = "action:episode-grid-item-menu-items:updated"    // When the server renders the episode grid item menu items
+	ServerActionRenderAnimeLibraryDropdownItemsEvent   ServerEventType = "action:anime-library-dropdown-items:updated"    // When the server renders the anime library dropdown items
+	ServerFormResetEvent                               ServerEventType = "form:reset"
+	ServerFormSetValuesEvent                           ServerEventType = "form:set-values"
+	ServerFieldRefSetValueEvent                        ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
+	ServerFatalErrorEvent                              ServerEventType = "fatal-error"         // When the UI encounters a fatal error
+	ServerScreenNavigateToEvent                        ServerEventType = "screen:navigate-to"  // Navigate to a new screen
+	ServerScreenReloadEvent                            ServerEventType = "screen:reload"       // Reload the current screen
+	ServerScreenGetCurrentEvent                        ServerEventType = "screen:get-current"  // Get the current screen
 
 	ServerDOMQueryEvent       ServerEventType = "dom:query"        // When the server queries for DOM elements
 	ServerDOMQueryOneEvent    ServerEventType = "dom:query-one"    // When the server queries for a single DOM element
@@ -262,6 +268,14 @@ type ServerActionRenderMediaCardContextMenuItemsEventPayload struct {
 }
 
 type ServerActionRenderAnimeLibraryDropdownItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerActionRenderEpisodeCardContextMenuItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerActionRenderEpisodeGridItemMenuItemsEventPayload struct {
 	Items interface{} `json:"items"`
 }
 

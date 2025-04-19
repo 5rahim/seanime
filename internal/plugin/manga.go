@@ -112,12 +112,14 @@ func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) *go
 
 	mangaRepo, ok := m.ctx.mangaRepository.Get()
 	if !ok {
-		reject(errors.New("manga repository not found"))
+		jsErr := m.vm.NewGoError(errors.New("manga repository not found"))
+		_ = reject(jsErr)
 		return promise
 	}
 	anilistPlatform, foundAnilistPlatform := m.ctx.anilistPlatform.Get()
 	if !foundAnilistPlatform {
-		reject(errors.New("anilist platform not found"))
+		jsErr := m.vm.NewGoError(errors.New("anilist platform not found"))
+		_ = reject(jsErr)
 		return promise
 	}
 

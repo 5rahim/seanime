@@ -1,18 +1,23 @@
-import { AL_BaseAnime, AL_BaseManga } from "@/api/generated/types"
-import { Button, ButtonProps } from "@/components/ui/button"
+import { AL_BaseAnime, AL_BaseManga, Anime_Episode, Onlinestream_Episode } from "@/api/generated/types"
+import { Button, ButtonProps, IconButton } from "@/components/ui/button"
 import { ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu"
-import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import React, { useEffect, useState } from "react"
+import { BiDotsHorizontal } from "react-icons/bi"
 import {
     usePluginListenActionRenderAnimeLibraryDropdownItemsEvent,
     usePluginListenActionRenderAnimePageButtonsEvent,
     usePluginListenActionRenderAnimePageDropdownItemsEvent,
+    usePluginListenActionRenderEpisodeCardContextMenuItemsEvent,
+    usePluginListenActionRenderEpisodeGridItemMenuItemsEvent,
     usePluginListenActionRenderMangaPageButtonsEvent,
     usePluginListenActionRenderMediaCardContextMenuItemsEvent,
     usePluginSendActionClickedEvent,
     usePluginSendActionRenderAnimeLibraryDropdownItemsEvent,
     usePluginSendActionRenderAnimePageButtonsEvent,
     usePluginSendActionRenderAnimePageDropdownItemsEvent,
+    usePluginSendActionRenderEpisodeCardContextMenuItemsEvent,
+    usePluginSendActionRenderEpisodeGridItemMenuItemsEvent,
     usePluginSendActionRenderMangaPageButtonsEvent,
     usePluginSendActionRenderMediaCardContextMenuItemsEvent,
 } from "../generated/plugin-events"
@@ -232,6 +237,125 @@ export function PluginAnimeLibraryDropdownItems() {
     </>
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type PluginEpisodeCardContextMenuItem = {
+    extensionId: string
+    onClick: string
+    label: string
+    id: string
+    style: React.CSSProperties
+}
+
+export function PluginEpisodeCardContextMenuItems(props: { episode: Anime_Episode | undefined }) {
+    const [items, setItems] = useState<PluginEpisodeCardContextMenuItem[]>([])
+
+    const { sendActionRenderEpisodeCardContextMenuItemsEvent } = usePluginSendActionRenderEpisodeCardContextMenuItemsEvent()
+    const { sendActionClickedEvent } = usePluginSendActionClickedEvent()
+
+    useEffect(() => {
+        sendActionRenderEpisodeCardContextMenuItemsEvent({}, "")
+    }, [])
+
+    // Listen for the action to render the episode card context menu items
+    usePluginListenActionRenderEpisodeCardContextMenuItemsEvent((event, extensionId) => {
+        setItems(p => {
+            const otherItems = p.filter(i => i.extensionId !== extensionId)
+            const extItems = event.items.map((i: Record<string, any>) => ({ ...i, extensionId } as PluginEpisodeCardContextMenuItem))
+            return sortItems([...otherItems, ...extItems])
+        })
+    }, "")
+
+    // Send
+    function handleClick(item: PluginEpisodeCardContextMenuItem) {
+        sendActionClickedEvent({
+            actionId: item.id,
+            event: {
+                episode: props.episode,
+            },
+        }, item.extensionId)
+    }
+
+    if (items.length === 0) return null
+
+    return <>
+        <ContextMenuSeparator />
+        {items.map(i => (
+            <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</ContextMenuItem>
+        ))}
+    </>
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type PluginEpisodeGridItemMenuItem = {
+    extensionId: string
+    onClick: string
+    label: string
+    id: string
+    type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
+    style: React.CSSProperties
+}
+
+export function PluginEpisodeGridItemMenuItems(props: {
+    isDropdownMenu: boolean,
+    type: PluginEpisodeGridItemMenuItem["type"],
+    episode: Anime_Episode | Onlinestream_Episode | undefined
+}) {
+    const [items, setItems] = useState<PluginEpisodeGridItemMenuItem[]>([])
+
+    const { sendActionRenderEpisodeGridItemMenuItemsEvent } = usePluginSendActionRenderEpisodeGridItemMenuItemsEvent()
+    const { sendActionClickedEvent } = usePluginSendActionClickedEvent()
+
+    useEffect(() => {
+        sendActionRenderEpisodeGridItemMenuItemsEvent({}, "")
+    }, [])
+
+    // Listen for the action to render the episode grid item context menu items
+    usePluginListenActionRenderEpisodeGridItemMenuItemsEvent((event, extensionId) => {
+        setItems(p => {
+            const otherItems = p.filter(i => i.extensionId !== extensionId && i.type === props.type)
+            const extItems = event.items.filter((i: PluginEpisodeGridItemMenuItem) => i.type === props.type)
+                .map((i: Record<string, any>) => ({ ...i, extensionId } as PluginEpisodeGridItemMenuItem))
+            return sortItems([...otherItems, ...extItems])
+        })
+    }, "")
+
+    // Send
+    function handleClick(item: PluginEpisodeGridItemMenuItem) {
+        sendActionClickedEvent({
+            actionId: item.id,
+            event: {
+                episode: props.episode,
+            },
+        }, item.extensionId)
+    }
+
+    if (items.length === 0) return null
+
+    if (props.isDropdownMenu) {
+        return <DropdownMenu
+            trigger={
+                <IconButton
+                    icon={<BiDotsHorizontal />}
+                    intent="gray-basic"
+                    size="xs"
+                />
+            }
+        >
+            {items.map(i => (
+                <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+            ))}
+        </DropdownMenu>
+    }
+
+    return <>
+        <DropdownMenuSeparator />
+        {items.map(i => (
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+        ))}
+    </>
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type PluginAnimePageDropdownMenuItem = {

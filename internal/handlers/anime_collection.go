@@ -5,8 +5,8 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
+	"seanime/internal/util"
 
-	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
 )
 
@@ -46,7 +46,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	}
 
 	if (h.App.SecondarySettings.Torrentstream != nil && h.App.SecondarySettings.Torrentstream.Enabled && h.App.SecondarySettings.Torrentstream.IncludeInLibrary) ||
-		(h.App.Settings.Library != nil && h.App.Settings.Library.EnableOnlinestream && h.App.Settings.Library.IncludeOnlineStreamingInLibrary) ||
+		(h.App.Settings.GetLibrary() != nil && h.App.Settings.GetLibrary().EnableOnlinestream && h.App.Settings.GetLibrary().IncludeOnlineStreamingInLibrary) ||
 		(h.App.SecondarySettings.Debrid != nil && h.App.SecondarySettings.Debrid.Enabled && h.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
 		h.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
 			AnimeCollection:   animeCollection,
@@ -57,7 +57,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 
 	// Hydrate total library size
 	if libraryCollection != nil && libraryCollection.Stats != nil {
-		libraryCollection.Stats.TotalSize = humanize.Bytes(h.App.TotalLibrarySize)
+		libraryCollection.Stats.TotalSize = util.Bytes(h.App.TotalLibrarySize)
 	}
 
 	return h.RespondWithData(c, libraryCollection)

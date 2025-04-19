@@ -380,7 +380,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <p
                                                             key={i}
                                                             className={cn(
-                                                                "w-full hover:text-white",
+                                                                "w-full hover:text-white text-sm py-1",
                                                                 i % 2 === 0 ? "bg-gray-900" : "bg-gray-800",
                                                                 l.includes("|ERR|") && "text-white bg-red-800",
                                                                 l.includes("|WRN|") && "text-orange-500",

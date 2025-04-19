@@ -526,10 +526,20 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/manga",
         },
-        SetDiscordAnimeActivity: {
-            key: "DISCORD-set-discord-anime-activity",
+        SetDiscordLegacyAnimeActivity: {
+            key: "DISCORD-set-discord-legacy-anime-activity",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/legacy-anime",
+        },
+        SetDiscordAnimeActivityWithProgress: {
+            key: "DISCORD-set-discord-anime-activity-with-progress",
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/anime",
+        },
+        UpdateDiscordAnimeActivityWithProgress: {
+            key: "DISCORD-update-discord-anime-activity-with-progress",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/anime-update",
         },
         CancelDiscordActivity: {
             key: "DISCORD-cancel-discord-activity",
@@ -627,6 +637,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/all",
         },
+        GetExtensionUpdateData: {
+            key: "EXTENSIONS-get-extension-update-data",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/updates",
+        },
         ListMangaProviderExtensions: {
             key: "EXTENSIONS-list-manga-provider-extensions",
             methods: ["GET"],
@@ -676,6 +691,11 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-save-extension-user-config",
             methods: ["POST"],
             endpoint: "/api/v1/extensions/user-config",
+        },
+        GetMarketplaceExtensions: {
+            key: "EXTENSIONS-get-marketplace-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/marketplace",
         },
     },
     FILECACHE: {
@@ -1186,8 +1206,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
-         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
+         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",

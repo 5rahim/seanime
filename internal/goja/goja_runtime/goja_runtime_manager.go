@@ -3,6 +3,7 @@ package goja_runtime
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"seanime/internal/util/result"
 	"sync"
 	"sync/atomic"
@@ -18,7 +19,24 @@ type Manager struct {
 	logger      *zerolog.Logger
 }
 
-func NewManager(logger *zerolog.Logger, size int32) *Manager {
+type Pool struct {
+	sp      sync.Pool
+	factory func() *goja.Runtime
+	logger  *zerolog.Logger
+	size    int32
+	metrics metrics
+}
+
+// metrics holds counters for pool stats.
+type metrics struct {
+	prewarmed   atomic.Int64
+	created     atomic.Int64
+	reused      atomic.Int64
+	timeouts    atomic.Int64
+	invocations atomic.Int64
+}
+
+func NewManager(logger *zerolog.Logger) *Manager {
 	return &Manager{
 		logger: logger,
 	}
@@ -43,8 +61,36 @@ func (m *Manager) DeletePluginPool(extID string) {
 	if m.pluginPools == nil {
 		return
 	}
+
+	// Get the pool first to interrupt all runtimes
+	if pool, ok := m.pluginPools.Get(extID); ok {
+		// Drain the pool and interrupt all runtimes
+		m.logger.Debug().Msgf("plugin: Interrupting all runtimes in pool for extension %s", extID)
+
+		interruptedCount := 0
+		for {
+			// Get a runtime without using a context to avoid blocking
+			runtimeV := pool.sp.Get()
+			if runtimeV == nil {
+				break // No more runtimes in the pool or error occurred
+			}
+
+			runtime, ok := runtimeV.(*goja.Runtime)
+			if !ok {
+				break
+			}
+
+			// Interrupt the runtime
+			runtime.ClearInterrupt()
+			interruptedCount++
+		}
+
+		m.logger.Debug().Msgf("plugin: Interrupted %d runtimes in pool for extension %s", interruptedCount, extID)
+	}
+
 	// Delete the pool
 	m.pluginPools.Delete(extID)
+	runtime.GC()
 }
 
 // GetOrCreateSharedPool returns the shared pool.
@@ -112,23 +158,6 @@ func (m *Manager) PrintBasePoolMetrics() {
 		Int64("invocations", stats["invocations"]).
 		Int64("timeouts", stats["timeouts"]).
 		Msg("goja runtime: Base VM Pool Metrics")
-}
-
-type Pool struct {
-	sp      sync.Pool
-	factory func() *goja.Runtime
-	logger  *zerolog.Logger
-	size    int32
-	metrics metrics
-}
-
-// metrics holds counters for pool stats.
-type metrics struct {
-	prewarmed   atomic.Int64
-	created     atomic.Int64
-	reused      atomic.Int64
-	timeouts    atomic.Int64
-	invocations atomic.Int64
 }
 
 // newPool creates a new Pool using sync.Pool, pre-warming it with size items.

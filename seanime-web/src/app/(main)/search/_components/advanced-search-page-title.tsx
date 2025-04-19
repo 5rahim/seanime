@@ -10,7 +10,10 @@ export function AdvancedSearchPageTitle() {
 
     const title = React.useMemo(() => {
         let str = ""
-        if (params.title && params.title.length > 0) str += startCase(params.title)
+        if (params.title && params.title.length > 0) {
+            str += startCase(params.title)
+            return str
+        }
         // if (!!__advancedSearch_getValue(params.genre)) str += params.genre?.join(", ") || ""
         if (__advancedSearch_getValue(params.sorting)?.includes("SCORE_DESC")) str += "Highest rated"
         if (__advancedSearch_getValue(params.sorting)?.includes("TRENDING_DESC")) str += "Trending"

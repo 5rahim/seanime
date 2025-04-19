@@ -54,16 +54,16 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                     contentClass="max-w-2xl"
                 >
                     <p>
-                        Seanime failed to load this extension.
+                        Seanime failed to load this extension. If you aren't sure what this means, please contact the author.
                     </p>
-                    <code className="code">
-                        {extension.code}
-                    </code>
+                    <p>
+                        Code: <strong>{extension.code}</strong>
+                    </p>
                     <code className="code text-red-200">
                         {extension.reason}
                     </code>
 
-                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-sm text-center">
+                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-xs text-center tracking-wide text-[--muted]">
                         {extension.path}
                     </p>
                 </Modal>
@@ -134,6 +134,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 <div>
                     <p className="text-red-400 text-sm">
                         {extension.code === "invalid_manifest" && "Manifest error"}
+                        {extension.code === "invalid_semver_constraint" && "Incompatible with this version of Seanime"}
                         {extension.code === "invalid_payload" && "Invalid or incompatible code"}
                     </p>
                 </div>

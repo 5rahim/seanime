@@ -1,4 +1,5 @@
 .idea
+.junie
 logs/
 *.db
 .run/
@@ -79,5 +80,6 @@ seanime-web/CHANGELOG-priv.md
 
 codegen/generated/hooks.mdx
 
+
 internal/extension_repo/goja_onlinestream_test/test1.ts
-internal/util/proxies/_proxy.go
+itanternal/extension_repo/goja_plugin_test/edit-media-images.ts

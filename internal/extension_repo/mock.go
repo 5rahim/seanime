@@ -23,7 +23,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		FileCacher:     filecacher,
 	})
 
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "comick",
 		Name:        "ComicK",
 		Version:     "",
@@ -36,7 +36,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
 	}, manga_providers.NewComicK(logger))
 
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "comick-multi",
 		Name:        "ComicK (Multi)",
 		Version:     "",
@@ -49,7 +49,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
 	}, manga_providers.NewComicKMulti(logger))
 
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "mangapill",
 		Name:        "Mangapill",
 		Version:     "",
@@ -61,7 +61,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangapill.png",
 	}, manga_providers.NewMangapill(logger))
 
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "mangadex",
 		Name:        "Mangadex",
 		Version:     "",
@@ -73,7 +73,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
 	}, manga_providers.NewMangadex(logger))
 
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "manganato",
 		Name:        "Manganato",
 		Version:     "",
@@ -89,7 +89,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 	// Built-in online stream providers
 	//
 
-	extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "gogoanime",
 		Name:        "Gogoanime",
 		Version:     "",
@@ -101,7 +101,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
 	}, onlinestream_providers.NewGogoanime(logger))
 
-	extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "zoro",
 		Name:        "Hianime",
 		Version:     "",
@@ -117,7 +117,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 	// Built-in torrent providers
 	//
 
-	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "nyaa",
 		Name:        "Nyaa",
 		Version:     "",
@@ -127,9 +127,9 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Author:      "Seanime",
 		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
-	}, nyaa.NewProvider(logger))
+	}, nyaa.NewProvider(logger, nyaa.CategoryAnimeEng))
 
-	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "nyaa-sukebei",
 		Name:        "Nyaa Sukebei",
 		Version:     "",
@@ -141,7 +141,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
 	}, nyaa.NewSukebeiProvider(logger))
 
-	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "animetosho",
 		Name:        "AnimeTosho",
 		Version:     "",
@@ -153,7 +153,7 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animetosho.png",
 	}, animetosho.NewProvider(logger))
 
-	extensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "seadex",
 		Name:        "SeaDex",
 		Version:     "",

@@ -3,6 +3,7 @@ import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinu
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -74,6 +75,7 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                         >
                             <EpisodeCard
                                 key={episode.localFile?.path || ""}
+                                episode={episode}
                                 image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                 topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                 title={episode.displayTitle}
@@ -128,6 +130,8 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                 summary={episode.episodeMetadata?.overview}
                                 isInvalid={episode.isInvalid}
                             />
+
+                            <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="torrentstream" episode={episode} />
                         </>}
                     />
                 ))}

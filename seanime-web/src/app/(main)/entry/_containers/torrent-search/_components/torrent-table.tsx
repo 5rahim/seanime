@@ -1,24 +1,30 @@
-import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import {
+    Anime_Entry,
+    Debrid_TorrentItemInstantAvailability,
+    HibikeTorrent_AnimeTorrent,
+    Metadata_AnimeMetadata,
+    Torrent_TorrentMetadata,
+} from "@/api/generated/types"
+import {
+    filterItems,
+    sortItems,
+    TorrentFilterSortControls,
+    useTorrentFiltering,
+    useTorrentSorting,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
 import {
     TorrentDebridInstantAvailabilityBadge,
+    TorrentParsedMetadata,
     TorrentResolutionBadge,
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
-import {
-    getSortIcon,
-    handleSort,
-    SortDirection,
-    SortField,
-    sortTorrents,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-sorting-helpers"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { ScrollAreaBox } from "@/components/shared/scroll-area-box"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-import React, { memo, useState } from "react"
+import React, { memo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { TorrentPreviewItem } from "./torrent-preview-item"
 
@@ -34,6 +40,8 @@ type TorrentTable = {
     isFetching: boolean
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
     debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
+    animeMetadata: Metadata_AnimeMetadata | undefined
+    torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
 }
 
 export const TorrentTable = memo((
@@ -49,13 +57,18 @@ export const TorrentTable = memo((
         isLoading,
         onToggleTorrent,
         debridInstantAvailability,
+        animeMetadata,
+        torrentMetadata,
     }: TorrentTable) => {
-    // Add sorting state
-    const [sortField, setSortField] = useState<SortField>("seeders")
-    const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+    // Use hooks for sorting and filtering
+    const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
+    const { filters, handleFilterChange } = useTorrentFiltering()
 
-    // Sort the torrents
-    const sortedTorrents = sortTorrents(torrents, sortField, sortDirection)
+    // Apply filters using the generic helper
+    const filteredTorrents = filterItems(torrents, torrentMetadata, filters)
+
+    // Sort the torrents after filtering using the generic helper
+    const sortedTorrents = sortItems(filteredTorrents, sortField, sortDirection)
 
     return (
         <>
@@ -73,76 +86,67 @@ export const TorrentTable = memo((
                 <LuffyError title="Nothing found" />
             </div> : (
                 <>
-                    <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm text-[--muted] flex-none">{torrents?.length} results</p>
-                        <div className="flex items-center gap-1 flex-wrap">
-                            <Button
-                                size="xs"
-                                intent="gray-basic"
-                                leftIcon={<>
-                                    {/* <RiSeedlingLine className="mr-1 text-lg" /> */}
-                                    {getSortIcon(sortField, "seeders", sortDirection)}
-                                </>}
-                                onClick={() => handleSort("seeders", sortField, sortDirection, setSortField, setSortDirection)}
-                            >
-                                Seeders
-                            </Button>
-                            <Button
-                                size="xs"
-                                intent="gray-basic"
-                                leftIcon={<>
-                                    {/* <LuFile className="mr-1 text-lg" /> */}
-                                    {getSortIcon(sortField, "size", sortDirection)}
-                                </>}
-                                onClick={() => handleSort("size", sortField, sortDirection, setSortField, setSortDirection)}
-                            >
-                                Size
-                            </Button>
-                            <Button
-                                size="xs"
-                                intent="gray-basic"
-                                leftIcon={<>
-                                    {/* <BiCalendarAlt className="mr-1 text-lg" /> */}
-                                    {getSortIcon(sortField, "date", sortDirection)}
-                                </>}
-                                onClick={() => handleSort("date", sortField, sortDirection, setSortField, setSortDirection)}
-                            >
-                                Date
-                            </Button>
-                            <Button
-                                size="xs"
-                                intent="gray-basic"
-                                leftIcon={<>
-                                    {/* <HiOutlineVideoCamera className="mr-1 text-lg" /> */}
-                                    {getSortIcon(sortField, "resolution", sortDirection)}
-                                </>}
-                                onClick={() => handleSort("resolution", sortField, sortDirection, setSortField, setSortDirection)}
-                            >
-                                Resolution
-                            </Button>
-                        </div>
-                    </div>
+                    <TorrentFilterSortControls
+                        resultCount={sortedTorrents?.length || 0}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        filters={filters}
+                        onSortChange={handleSortChange}
+                        onFilterChange={handleFilterChange}
+                    />
                     <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
                         {sortedTorrents.map(torrent => {
+                            const parsedEpisodeNumberStr = torrentMetadata?.[torrent.infoHash!]?.metadata?.episode_number?.[0]
+                            const parsedEpisodeNumber = parsedEpisodeNumberStr ? parseInt(parsedEpisodeNumberStr) : undefined
+                            const releaseGroup = torrent.releaseGroup || torrentMetadata?.[torrent.infoHash!]?.metadata?.release_group || ""
+                            let episodeNumber = torrent.episodeNumber || parsedEpisodeNumber || -1
+                            let totalEpisodes = entry?.media?.episodes || (entry?.media?.nextAiringEpisode?.episode ? entry?.media?.nextAiringEpisode?.episode : 0)
+                            if (episodeNumber > totalEpisodes) {
+                                // normalize episode number
+                                for (const epKey in animeMetadata?.episodes) {
+                                    const ep = animeMetadata?.episodes?.[epKey]
+                                    if (ep?.absoluteEpisodeNumber === episodeNumber) {
+                                        episodeNumber = ep.episodeNumber
+                                    }
+                                }
+                            }
+
+                            let episodeImage: string | undefined
+                            if (!!animeMetadata && (episodeNumber ?? -1) >= 0) {
+                                const episode = animeMetadata.episodes?.[episodeNumber!.toString()]
+                                if (episode) {
+                                    episodeImage = episode.image
+                                }
+                            }
+                            let distance = 9999
+                            if (!!torrentMetadata && !!torrent.infoHash) {
+                                const metadata = torrentMetadata[torrent.infoHash!]
+                                if (metadata) {
+                                    distance = metadata.distance
+                                }
+                            }
+                            if (distance > 20) {
+                                episodeImage = undefined
+                            }
                             return (
                                 <TorrentPreviewItem
-                                    isBasic
+                                    // isBasic
                                     link={torrent.link}
                                     key={torrent.link}
                                     title={torrent.name}
-                                    releaseGroup={torrent.releaseGroup || ""}
-                                    subtitle={torrent.isBatch ? torrent.name : (torrent?.episodeNumber || -1) >= 0
-                                        ? `Episode ${torrent?.episodeNumber ?? "N/A"}`
+                                    releaseGroup={releaseGroup}
+                                    subtitle={torrent.isBatch ? torrent.name : (episodeNumber ?? -1) >= 0
+                                        ? `Episode ${episodeNumber}`
                                         : ""}
                                     isBatch={torrent.isBatch ?? false}
                                     isBestRelease={torrent.isBestRelease}
-                                    // image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
-                                    //     (torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
-                                    // fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
+                                    image={distance <= 20 ? episodeImage : undefined}
+                                    fallbackImage={(entry?.media?.coverImage?.large || entry?.media?.bannerImage)}
                                     isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
                                     onClick={() => onToggleTorrent(torrent!)}
+                                    // confirmed={distance === 0}
                                 >
-                                    <div className="flex flex-wrap gap-3 items-center">
+                                    <div className="flex flex-wrap gap-2 items-center">
                                         {torrent.isBestRelease && (
                                             <Badge
                                                 className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
@@ -162,38 +166,14 @@ export const TorrentTable = memo((
                                             <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
                                         </p>
                                     </div>
+                                    <TorrentParsedMetadata metadata={torrentMetadata?.[torrent.infoHash!]} />
                                 </TorrentPreviewItem>
                             )
                         })}
                     </ScrollAreaBox>
                 </>
             )}
-
-
-            {/* <DataGrid<HibikeTorrent_AnimeTorrent>*/}
-            {/*     columns={columns}*/}
-            {/*     data={torrents?.slice(0, 20)}*/}
-            {/*     rowCount={torrents?.length ?? 0}*/}
-            {/*     initialState={{*/}
-            {/*         pagination: {*/}
-            {/*             pageSize: 20,*/}
-            {/*             pageIndex: 0,*/}
-            {/*         },*/}
-            {/*     }}*/}
-            {/*     tdClass="py-4 data-[row-selected=true]:bg-gray-900"*/}
-            {/*     tableBodyClass="bg-transparent"*/}
-            {/*     footerClass="hidden"*/}
-            {/*     state={{*/}
-            {/*         globalFilter,*/}
-            {/*     }}*/}
-            {/*     enableManualFiltering={true}*/}
-            {/*     onGlobalFilterChange={setGlobalFilter}*/}
-            {/*     isLoading={isLoading || isFetching}*/}
-            {/*     isDataMutating={isFetching}*/}
-            {/*     hideGlobalSearchInput={smartSearch}*/}
-            {/* />*/}
         </>
     )
 
 })
-

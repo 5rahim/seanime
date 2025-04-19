@@ -1,4 +1,5 @@
 import { Extension_Extension } from "@/api/generated/types"
+import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,8 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
         extension,
         ...rest
     } = props
+
+    const isBuiltin = extension.manifestURI === "builtin"
 
     return (
         <>
@@ -73,9 +76,13 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                     <span className="text-[--muted]">Author:</span> <span className="">{extension.author}</span>
                 </p>
                 <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Language:</span> <span className="">{capitalize(extension.language)}</span>
+                    <span className="text-[--muted]">Language:</span>
+                    <span className="">{LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang}</span>
                 </p>
-                {!!extension.manifestURI && <p className="text-md w-full">
+                <p className="text-md line-clamp-1">
+                    <span className="text-[--muted]">Programming language:</span> <span className="">{capitalize(extension.language)}</span>
+                </p>
+                {(!!extension.manifestURI && !isBuiltin) && <p className="text-md w-full">
                     <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
                 </p>}
             </div>

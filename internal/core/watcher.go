@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/dustin/go-humanize"
 	"seanime/internal/library/scanner"
 	"seanime/internal/util"
 	"sync"
@@ -45,7 +44,7 @@ func (a *App) initLibraryWatcher(paths []string) {
 	wg.Wait()
 	a.TotalLibrarySize = dirSize
 
-	a.Logger.Info().Msgf("watcher: Library size: %s", humanize.Bytes(dirSize))
+	a.Logger.Info().Msgf("watcher: Library size: %s", util.Bytes(dirSize))
 
 	// Set the watcher
 	a.Watcher = watcher

@@ -141,10 +141,18 @@ export function useHandleMangaCollection() {
         } as Manga_Collection
     }, [data, params])
 
+    const libraryGenres = React.useMemo(() => {
+        const allGenres = filteredCollection?.lists?.flatMap(l => {
+            return l.entries?.flatMap(e => e.media?.genres) ?? []
+        })
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
+    }, [filteredCollection])
+
     return {
         genres,
         mangaCollection: sortedCollection,
         filteredMangaCollection: filteredCollection,
+        mangaCollectionGenres: libraryGenres,
         mangaCollectionLoading: isLoading,
         storedFilters,
         storedProviders,

@@ -47,6 +47,11 @@ declare namespace $ui {
         manga: Manga
 
         /**
+         * Anime
+         */
+        anime: Anime
+
+        /**
          * Discord
          */
         discord: Discord
@@ -493,6 +498,25 @@ declare namespace $ui {
          * @param props - Button properties
          */
         newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
+
+        /**
+         * Creates a new context menu item for the episode card
+         * @param props - Context menu item properties
+         */
+        newEpisodeCardContextMenuItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ episode: $app.Anime_Episode }>
+
+        /**
+         * Creates a new menu item for the episode grid item
+         * @param props - Menu item properties
+         */
+        newEpisodeGridItemMenuItem(props: {
+            label: string,
+            style?: Record<string, string>,
+            type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
+        }): ActionObject<{
+            episode: $app.Anime_Episode | $app.Onlinestream_Episode,
+            type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
+        }>
     }
 
     interface ActionObject<E extends any = {}> {
@@ -957,6 +981,16 @@ declare namespace $ui {
         send(message: string): void
     }
 
+    interface Anime {
+        /**
+         * Get an anime entry
+         * @param mediaId - The ID of the anime
+         * @returns A promise that resolves to an anime entry
+         * @throws Error if a needed repository is not found
+         */
+        getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
+    }
+
     interface Manga {
         /**
          * Get a chapter container for a manga.
@@ -1306,33 +1340,6 @@ declare namespace $store {
 }
 
 /**
- * Replaces the reference of the value with the new value.
- * @param value - The value to replace
- * @param newValue - The new value
- */
-declare function $replace<T = any>(value: T, newValue: T): void
-
-/**
- * Creates a deep copy of the value.
- * @param value - The value to copy
- * @returns A deep copy of the value
- */
-declare function $clone<T = any>(value: T): T
-
-/**
- * Converts a value to a string
- * @param value - The value to convert
- * @returns The string representation of the value
- */
-declare function $toString(value: any): string
-
-/**
- * Sleeps for a specified amount of time
- * @param milliseconds - The amount of time to sleep in milliseconds
- */
-declare function $sleep(milliseconds: number): void
-
-/**
  * Cron
  */
 
@@ -1593,41 +1600,4 @@ declare namespace $app {
      * @param queryKeys - Keys of the queries to invalidate
      */
     function invalidateClientQuery(queryKeys: string[]): void
-}
-
-declare namespace $habari {
-
-    interface Metadata {
-        season_number?: string[];
-        part_number?: string[];
-        title?: string;
-        formatted_title?: string;
-        anime_type?: string[];
-        year?: string;
-        audio_term?: string[];
-        device_compatibility?: string[];
-        episode_number?: string[];
-        other_episode_number?: string[];
-        episode_number_alt?: string[];
-        episode_title?: string;
-        file_checksum?: string;
-        file_extension?: string;
-        file_name?: string;
-        language?: string[];
-        release_group?: string;
-        release_information?: string[];
-        release_version?: string[];
-        source?: string[];
-        subtitles?: string[];
-        video_resolution?: string;
-        video_term?: string[];
-        volume_number?: string[];
-    }
-
-    /**
-     * Parses a filename and returns the metadata
-     * @param filename - The filename to parse
-     * @returns The metadata
-     */
-    function parse(filename: string): Metadata
 }

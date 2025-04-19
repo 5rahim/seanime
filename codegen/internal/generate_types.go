@@ -22,6 +22,7 @@ var additionalStructNames = []string{
 	"torrentstream.TorrentStatus",
 	"debrid_client.StreamState",
 	"extension_repo.TrayPluginExtensionItem",
+	"vendor_habari.Metadata",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.
@@ -253,6 +254,9 @@ func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string
 	if len(goStruct.Fields) > 0 {
 		f.WriteString(fmt.Sprintf("export type %s = {\n", goStruct.FormattedName))
 		for _, field := range goStruct.Fields {
+			if field.JsonName == "" {
+				continue
+			}
 			fieldNameSuffix := ""
 			if !field.Required {
 				fieldNameSuffix = "?"

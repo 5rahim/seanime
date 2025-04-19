@@ -37,23 +37,23 @@ export default function Library() {
 
     const ts = useThemeSettings()
 
-    const hasScanned = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
+    const hasEntries = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
 
     return (
         <div data-library-page-container>
 
-            {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
-            {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
+            {hasEntries && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
+            {hasEntries && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}
                 ignoredLocalFiles={ignoredLocalFiles}
                 unknownGroups={unknownGroups}
                 isLoading={isLoading}
-                hasScanned={hasScanned}
+                hasEntries={hasEntries}
             />
 
-            <EmptyLibraryView isLoading={isLoading} hasScanned={hasScanned} />
+            <EmptyLibraryView isLoading={isLoading} hasEntries={hasEntries} />
 
             <AnimatePresence mode="wait">
                 {view === "base" && <PageWrapper
@@ -74,7 +74,7 @@ export default function Library() {
                         filteredCollectionList={filteredLibraryCollectionList}
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
-                        hasScanned={hasScanned}
+                        hasEntries={hasEntries}
                     />
                 </PageWrapper>}
                 {view === "detailed" && <PageWrapper
@@ -93,7 +93,7 @@ export default function Library() {
                         collectionList={libraryCollectionList}
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
-                        hasScanned={hasScanned}
+                        hasEntries={hasEntries}
                     />
                 </PageWrapper>}
             </AnimatePresence>

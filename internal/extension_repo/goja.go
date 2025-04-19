@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
 	"seanime/internal/library/anime"
 	"seanime/internal/plugin"
@@ -27,9 +28,33 @@ import (
 type GojaExtension interface {
 	PutVM(*goja.Runtime)
 	ClearInterrupt()
+	GetExtension() *extension.Extension
 }
 
 var cachedArrayOfTypes = plugin.NewStore[reflect.Type, reflect.Type](nil)
+
+func BindUserConfig(vm *goja.Runtime, ext *extension.Extension, logger *zerolog.Logger) {
+	vm.Set("$getUserPreference", func(call goja.FunctionCall) goja.Value {
+		if ext.SavedUserConfig == nil {
+			return goja.Undefined()
+		}
+
+		key := call.Argument(0).String()
+		value, ok := ext.SavedUserConfig.Values[key]
+		if !ok {
+			// Check if the field has a default value
+			for _, field := range ext.UserConfig.Fields {
+				if field.Name == key && field.Default != "" {
+					return vm.ToValue(field.Default)
+				}
+			}
+
+			return goja.Undefined()
+		}
+
+		return vm.ToValue(value)
+	})
+}
 
 // ShareBinds binds the shared bindings to the VM
 // This is called once per VM

@@ -570,11 +570,33 @@
 //     })
 // }
 
-// export function useSetDiscordAnimeActivity() {
-//     return useServerMutation<boolean, SetDiscordAnimeActivity_Variables>({
-//         endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.endpoint,
-//         method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.methods[0],
-//         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.key],
+// export function useSetDiscordLegacyAnimeActivity() {
+//     return useServerMutation<boolean, SetDiscordLegacyAnimeActivity_Variables>({
+//         endpoint: API_ENDPOINTS.DISCORD.SetDiscordLegacyAnimeActivity.endpoint,
+//         method: API_ENDPOINTS.DISCORD.SetDiscordLegacyAnimeActivity.methods[0],
+//         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordLegacyAnimeActivity.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSetDiscordAnimeActivityWithProgress() {
+//     return useServerMutation<boolean, SetDiscordAnimeActivityWithProgress_Variables>({
+//         endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.endpoint,
+//         method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.methods[0],
+//         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivityWithProgress.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useUpdateDiscordAnimeActivityWithProgress() {
+//     return useServerMutation<boolean, UpdateDiscordAnimeActivityWithProgress_Variables>({
+//         endpoint: API_ENDPOINTS.DISCORD.UpdateDiscordAnimeActivityWithProgress.endpoint,
+//         method: API_ENDPOINTS.DISCORD.UpdateDiscordAnimeActivityWithProgress.methods[0],
+//         mutationKey: [API_ENDPOINTS.DISCORD.UpdateDiscordAnimeActivityWithProgress.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -754,6 +776,15 @@
 //     })
 // }
 
+// export function useGetExtensionUpdateData() {
+//     return useServerQuery<Array<ExtensionRepo_UpdateData>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useListMangaProviderExtensions() {
 //     return useServerQuery<Array<ExtensionRepo_MangaProviderExtensionItem>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListMangaProviderExtensions.endpoint,
@@ -840,6 +871,15 @@
 //         onSuccess: async () => {
 // 
 //         },
+//     })
+// }
+
+// export function useGetMarketplaceExtensions() {
+//     return useServerQuery<Array<ExtensionRepo_MarketplaceExtension>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.key],
+//         enabled: true,
 //     })
 // }
 

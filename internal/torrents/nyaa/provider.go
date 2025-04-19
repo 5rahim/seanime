@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"strconv"
@@ -15,8 +17,6 @@ import (
 	"github.com/mmcdole/gofeed"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (
@@ -24,13 +24,21 @@ const (
 )
 
 type Provider struct {
-	logger *zerolog.Logger
+	logger   *zerolog.Logger
+	category string
+
+	baseUrl string
 }
 
-func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
+func NewProvider(logger *zerolog.Logger, category string) hibiketorrent.AnimeProvider {
 	return &Provider{
-		logger: logger,
+		logger:   logger,
+		category: category,
 	}
+}
+
+func (n *Provider) SetSavedUserConfig(config extension.SavedUserConfig) {
+	n.baseUrl, _ = config.Values["apiUrl"]
 }
 
 func (n *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
@@ -50,10 +58,10 @@ func (n *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
 func (n *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	fp := gofeed.NewParser()
 
-	url, err := buildURL(BuildURLOptions{
+	url, err := buildURL(n.baseUrl, BuildURLOptions{
 		Provider: "nyaa",
 		Query:    "",
-		Category: "anime-eng",
+		Category: n.category,
 		SortBy:   "seeders",
 		Filter:   "",
 	})
@@ -80,10 +88,10 @@ func (n *Provider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiket
 
 	n.logger.Trace().Str("query", opts.Query).Msg("nyaa: Search query")
 
-	url, err := buildURL(BuildURLOptions{
+	url, err := buildURL(n.baseUrl, BuildURLOptions{
 		Provider: "nyaa",
 		Query:    opts.Query,
-		Category: "anime-eng",
+		Category: n.category,
 		SortBy:   "seeders",
 		Filter:   "",
 	})
@@ -121,10 +129,10 @@ func (n *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret 
 			defer wg.Done()
 			fp := gofeed.NewParser()
 			n.logger.Trace().Str("query", query).Msg("nyaa: Smart search query")
-			url, err := buildURL(BuildURLOptions{
+			url, err := buildURL(n.baseUrl, BuildURLOptions{
 				Provider: "nyaa",
 				Query:    query,
-				Category: "anime-eng",
+				Category: n.category,
 				SortBy:   "seeders",
 				Filter:   "",
 			})

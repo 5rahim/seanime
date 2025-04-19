@@ -256,6 +256,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
     return (
         <EpisodeCard
             key={episode.localFile?.path || ""}
+            episode={episode}
             image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
             topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
             title={episode.displayTitle}

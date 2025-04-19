@@ -1,9 +1,8 @@
 package handlers
 
 import (
+	"seanime/internal/util"
 	"strings"
-
-	"github.com/dustin/go-humanize"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +21,7 @@ func (h *Handler) HandleGetFileCacheTotalSize(c echo.Context) error {
 	}
 
 	// Return the cache size
-	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
+	return h.RespondWithData(c, util.Bytes(uint64(size)))
 }
 
 // HandleRemoveFileCacheBucket
@@ -71,7 +70,7 @@ func (h *Handler) HandleGetFileCacheMediastreamVideoFilesTotalSize(c echo.Contex
 	}
 
 	// Return the cache size
-	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
+	return h.RespondWithData(c, util.Bytes(uint64(size)))
 }
 
 // HandleClearFileCacheMediastreamVideoFiles

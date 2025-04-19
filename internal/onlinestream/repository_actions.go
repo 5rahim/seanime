@@ -3,9 +3,10 @@ package onlinestream
 import (
 	"errors"
 	"fmt"
+	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
-	"seanime/internal/onlinestream/providers"
+	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/util/comparison"
 	"strings"
 )
@@ -42,11 +43,11 @@ type (
 //   - This function can be used to only get the episode details by setting 'from' and 'to' to 0.
 //
 // Since the episode details are cached, we can request episode servers multiple times without fetching the episode details again.
-func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*string, from int, to int, dubbed bool, year int) (*episodeContainer, error) {
+func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAnime, from int, to int, dubbed bool, year int) (*episodeContainer, error) {
 
 	r.logger.Debug().
 		Str("provider", provider).
-		Int("mediaId", mId).
+		Int("mediaId", media.ID).
 		Int("from", from).
 		Int("to", to).
 		Bool("dubbed", dubbed).
@@ -55,7 +56,7 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 	// Key identifying the provider episode list in the file cache.
 	// It includes "dubbed" because Gogoanime has a different entry for dubbed anime.
 	// e.g. 1$provider$true
-	providerEpisodeListKey := fmt.Sprintf("%d$%s$%v", mId, provider, dubbed)
+	providerEpisodeListKey := fmt.Sprintf("%d$%s$%v", media.ID, provider, dubbed)
 
 	// Create the episode container
 	ec := &episodeContainer{
@@ -70,14 +71,14 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 		Msgf("onlinestream: Fetching %s episode list", provider)
 
 	// Buckets for caching the episode list and episode data.
-	fcEpisodeListBucket := r.getFcEpisodeListBucket(provider, mId)
-	fcEpisodeDataBucket := r.getFcEpisodeDataBucket(provider, mId)
+	fcEpisodeListBucket := r.getFcEpisodeListBucket(provider, media.ID)
+	fcEpisodeDataBucket := r.getFcEpisodeDataBucket(provider, media.ID)
 
 	// Check if the episode list is cached to avoid fetching it again.
 	var providerEpisodeList []*hibikeonlinestream.EpisodeDetails
 	if found, _ := r.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
-		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, mId, titles, dubbed, year)
+		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, media, dubbed, year)
 		if err != nil {
 			r.logger.Error().Err(err).Msg("onlinestream: Failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
@@ -96,7 +97,7 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 		if episodeDetails.Number >= from && episodeDetails.Number <= to {
 
 			// Check if the episode is cached to avoid fetching the sources again.
-			key := fmt.Sprintf("%d$%s$%d$%v", mId, provider, episodeDetails.Number, dubbed)
+			key := fmt.Sprintf("%d$%s$%d$%v", media.ID, provider, episodeDetails.Number, dubbed)
 
 			r.logger.Debug().
 				Str("key", key).
@@ -195,18 +196,20 @@ func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *
 
 // getProviderEpisodeListFromTitles gets all the hibikeonlinestream.EpisodeDetails from the provider based on the anime's titles.
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
-func (r *Repository) getProviderEpisodeListFromTitles(provider string, mId int, titles []*string, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
+func (r *Repository) getProviderEpisodeListFromTitles(provider string, media *anilist.BaseAnime, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
 	var ret []*hibikeonlinestream.EpisodeDetails
-	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
-	englishTitle := ""
-	if len(titles) > 1 {
-		englishTitle = strings.ReplaceAll(*titles[1], ":", "")
-	}
+	// romajiTitle := strings.ReplaceAll(media.GetEnglishTitleSafe(), ":", "")
+	// englishTitle := strings.ReplaceAll(media.GetRomajiTitleSafe(), ":", "")
+
+	romajiTitle := media.GetRomajiTitleSafe()
+	englishTitle := media.GetEnglishTitleSafe()
 
 	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.providerExtensionBank, provider)
 	if !ok {
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}
+
+	mId := media.ID
 
 	var matchId string
 
@@ -229,31 +232,75 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, mId int, 
 		// Get search results.
 		var searchResults []*hibikeonlinestream.SearchResult
 
-		// Search by romaji title
-		res, err := providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
-			Query: romajiTitle,
-			Dub:   dubbed,
-			Year:  year,
-		})
-		if err == nil {
-			searchResults = res
-		} else {
+		queryMedia := hibikeonlinestream.Media{
+			ID:           media.ID,
+			IDMal:        media.GetIDMal(),
+			Status:       string(*media.GetStatus()),
+			Format:       string(*media.GetFormat()),
+			EnglishTitle: media.GetTitle().GetEnglish(),
+			RomajiTitle:  media.GetRomajiTitleSafe(),
+			EpisodeCount: media.GetTotalEpisodeCount(),
+			Synonyms:     media.GetSynonymsContainingSeason(),
+			IsAdult:      *media.GetIsAdult(),
+			StartDate: &hibikeonlinestream.FuzzyDate{
+				Year:  *media.GetStartDate().GetYear(),
+				Month: media.GetStartDate().GetMonth(),
+				Day:   media.GetStartDate().GetDay(),
+			},
+		}
+
+		added := make(map[string]struct{})
+
+		if romajiTitle != "" {
+			// Search by romaji title
+			res, err := providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
+				Media: queryMedia,
+				Query: romajiTitle,
+				Dub:   dubbed,
+				Year:  year,
+			})
+			if err == nil && len(res) > 0 {
+				searchResults = append(searchResults, res...)
+				for _, r := range res {
+					added[r.ID] = struct{}{}
+				}
+			}
+			if err != nil {
+				r.logger.Error().Err(err).Msg("onlinestream: Failed to search for romaji title")
+			}
+			r.logger.Debug().
+				Int("romajiTitleResults", len(res)).
+				Msg("onlinestream: Found results for romaji title")
+		}
+
+		if englishTitle != "" {
 			// Search by english title
-			res, err = providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
+			res, err := providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
+				Media: queryMedia,
 				Query: englishTitle,
 				Dub:   dubbed,
 				Year:  year,
 			})
-			if err == nil {
-				searchResults = res
+			if err == nil && len(res) > 0 {
+				for _, r := range res {
+					if _, ok := added[r.ID]; !ok {
+						searchResults = append(searchResults, r)
+					}
+				}
 			}
+			if err != nil {
+				r.logger.Error().Err(err).Msg("onlinestream: Failed to search for english title")
+			}
+			r.logger.Debug().
+				Int("englishTitleResults", len(res)).
+				Msg("onlinestream: Found results for english title")
 		}
 
 		if len(searchResults) == 0 {
 			return nil, ErrNoAnimeFound
 		}
 
-		bestResult := GetBestSearchResult(searchResults, titles)
+		bestResult := GetBestSearchResult(searchResults, media.GetAllTitles())
 		matchId = bestResult.ID
 	}
 

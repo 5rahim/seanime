@@ -12,7 +12,14 @@ func (m *BaseAnime) GetTitleSafe() string {
 	if m.GetTitle().GetRomaji() != nil {
 		return *m.GetTitle().GetRomaji()
 	}
-	return "N/A"
+	return ""
+}
+
+func (m *BaseAnime) GetEnglishTitleSafe() string {
+	if m.GetTitle().GetEnglish() != nil {
+		return *m.GetTitle().GetEnglish()
+	}
+	return ""
 }
 
 func (m *BaseAnime) GetRomajiTitleSafe() string {
@@ -22,7 +29,7 @@ func (m *BaseAnime) GetRomajiTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
 		return *m.GetTitle().GetEnglish()
 	}
-	return "N/A"
+	return ""
 }
 
 func (m *BaseAnime) GetPreferredTitle() string {

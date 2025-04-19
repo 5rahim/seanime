@@ -23,7 +23,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Language: extension.LanguageGo,
 		Type:     extension.TypeAnimeTorrentProvider,
 		Author:   "Seanime",
-	}, nyaa.NewProvider(logger)))
+	}, nyaa.NewProvider(logger, nyaa.categoryAnimeEnd)))
 
 	extensionBank.Set("nyaa-sukebei", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "nyaa-sukebei",

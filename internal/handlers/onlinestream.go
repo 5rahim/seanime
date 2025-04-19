@@ -29,7 +29,7 @@ func (h *Handler) HandleGetOnlineStreamEpisodeList(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	if h.App.Settings == nil || !h.App.Settings.Library.EnableOnlinestream {
+	if h.App.Settings == nil || !h.App.Settings.GetLibrary().EnableOnlinestream {
 		return h.RespondWithError(c, errors.New("enable online streaming in the settings"))
 	}
 

@@ -26306,17 +26306,6 @@
         "comments": []
       },
       {
-        "name": "Settings",
-        "jsonName": "Settings",
-        "goType": "models.Settings",
-        "typescriptType": "Models_Settings",
-        "usedTypescriptType": "Models_Settings",
-        "usedStructName": "models.Settings",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AutoScanner",
         "jsonName": "AutoScanner",
         "goType": "autoscanner.AutoScanner",
@@ -26463,6 +26452,17 @@
         "usedTypescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -28821,6 +28821,24 @@
         "jsonName": "hideDownloadedEpisodeCardFilename",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomCSS",
+        "jsonName": "customCSS",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MobileCustomCSS",
+        "jsonName": "mobileCustomCSS",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -32416,16 +32434,6 @@
         "comments": []
       },
       {
-        "name": "lastSet",
-        "jsonName": "lastSet",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "hasSent",
         "jsonName": "hasSent",
         "goType": "bool",
@@ -32446,13 +32454,66 @@
       {
         "name": "mu",
         "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
-        "usedStructName": "sync.Mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedTypescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "animeActivity",
+        "jsonName": "animeActivity",
+        "goType": "AnimeActivity",
+        "typescriptType": "DiscordRPC_AnimeActivity",
+        "usedTypescriptType": "DiscordRPC_AnimeActivity",
+        "usedStructName": "discordrpc_presence.AnimeActivity",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastAnimeActivityUpdateSent",
+        "jsonName": "lastAnimeActivityUpdateSent",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastSent",
+        "jsonName": "lastSent",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "eventQueue",
+        "jsonName": "eventQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for the event loop context"
+        ]
       }
     ],
     "comments": []
@@ -32462,6 +32523,88 @@
     "filename": "presence.go",
     "name": "AnimeActivity",
     "formattedName": "DiscordRPC_AnimeActivity",
+    "package": "discordrpc_presence",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMovie",
+        "jsonName": "isMovie",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/discordrpc/presence/presence.go",
+    "filename": "presence.go",
+    "name": "LegacyAnimeActivity",
+    "formattedName": "DiscordRPC_LegacyAnimeActivity",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -32989,6 +33132,15 @@
         ]
       },
       {
+        "name": "SemverConstraint",
+        "jsonName": "semverConstraint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ManifestURI",
         "jsonName": "manifestURI",
         "goType": "string",
@@ -33133,6 +33285,19 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SavedUserConfig",
+        "jsonName": "",
+        "goType": "SavedUserConfig",
+        "typescriptType": "Extension_SavedUserConfig",
+        "usedTypescriptType": "Extension_SavedUserConfig",
+        "usedStructName": "extension.SavedUserConfig",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Contains the saved user config for the extension"
+        ]
       }
     ],
     "comments": []
@@ -33152,7 +33317,8 @@
         "\"invalid_payload\"",
         "\"user_config_error\"",
         "\"invalid_authorization\"",
-        "\"plugin_permissions_not_granted\""
+        "\"plugin_permissions_not_granted\"",
+        "\"invalid_semver_constraint\""
       ]
     },
     "comments": []
@@ -33250,6 +33416,27 @@
         "public": true,
         "comments": []
       },
+      {
+        "name": "Fields",
+        "jsonName": "fields",
+        "goType": "[]ConfigField",
+        "typescriptType": "Array\u003cExtension_ConfigField\u003e",
+        "usedTypescriptType": "Extension_ConfigField",
+        "usedStructName": "extension.ConfigField",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "Preferences",
+    "formattedName": "Extension_Preferences",
+    "package": "extension",
+    "fields": [
       {
         "name": "Fields",
         "jsonName": "fields",
@@ -33680,6 +33867,17 @@
     "package": "hibikeonlinestream",
     "fields": [
       {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "Media",
+        "typescriptType": "HibikeOnlinestream_Media",
+        "usedTypescriptType": "HibikeOnlinestream_Media",
+        "usedStructName": "hibikeonlinestream.Media",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Query",
         "jsonName": "query",
         "goType": "string",
@@ -33703,6 +33901,145 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
+    "filename": "types.go",
+    "name": "Media",
+    "formattedName": "HibikeOnlinestream_Media",
+    "package": "hibikeonlinestream",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IDMal",
+        "jsonName": "idMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnglishTitle",
+        "jsonName": "englishTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RomajiTitle",
+        "jsonName": "romajiTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeCount",
+        "jsonName": "episodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "FuzzyDate",
+        "typescriptType": "HibikeOnlinestream_FuzzyDate",
+        "usedTypescriptType": "HibikeOnlinestream_FuzzyDate",
+        "usedStructName": "hibikeonlinestream.FuzzyDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
+    "filename": "types.go",
+    "name": "FuzzyDate",
+    "formattedName": "HibikeOnlinestream_FuzzyDate",
+    "package": "hibikeonlinestream",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -35454,6 +35791,59 @@
         "typescriptType": "Manager",
         "usedTypescriptType": "Manager",
         "usedStructName": "hook.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "builtinExtensions",
+        "jsonName": "builtinExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateData",
+        "jsonName": "updateData",
+        "goType": "[]UpdateData",
+        "typescriptType": "Array\u003cExtensionRepo_UpdateData\u003e",
+        "usedTypescriptType": "ExtensionRepo_UpdateData",
+        "usedStructName": "extension_repo.UpdateData",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateDataMu",
+        "jsonName": "updateDataMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedTypescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "firstExternalExtensionLoadedFunc",
+        "jsonName": "firstExternalExtensionLoadedFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
         "comments": []
@@ -40859,8 +41249,8 @@
         "name": "ParsedData",
         "jsonName": "parsedData",
         "goType": "habari.Metadata",
-        "typescriptType": "Metadata",
-        "usedTypescriptType": "Metadata",
+        "typescriptType": "Habari_Metadata",
+        "usedTypescriptType": "Habari_Metadata",
         "usedStructName": "habari.Metadata",
         "required": false,
         "public": true,
@@ -46268,15 +46658,6 @@
         "usedTypescriptType": "Client",
         "usedStructName": "http.Client",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -53263,6 +53644,7 @@
         "jsonName": "AnimeLibraryPaths",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
+        "usedStructName": "plugin.[]string",
         "required": false,
         "public": true,
         "comments": []
@@ -53307,6 +53689,17 @@
         "typescriptType": "Manga_Repository",
         "usedTypescriptType": "Manga_Repository",
         "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -53438,6 +53831,15 @@
       {
         "name": "discordPresence",
         "jsonName": "discordPresence",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -54678,6 +55080,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "episodeCardContextMenuItems",
+        "jsonName": "episodeCardContextMenuItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "episodeGridItemMenuItems",
+        "jsonName": "episodeGridItemMenuItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -54753,6 +55173,40 @@
         "goType": "string",
         "typescriptType": "string",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "EpisodeCardContextMenuItem",
+    "formattedName": "EpisodeCardContextMenuItem",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseAction"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "EpisodeGridItemMenuItem",
+    "formattedName": "EpisodeGridItemMenuItem",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -55860,6 +56314,8 @@
         "\"action:manga-page-buttons:render\"",
         "\"action:media-card-context-menu-items:render\"",
         "\"action:anime-library-dropdown-items:render\"",
+        "\"action:episode-card-context-menu-items:render\"",
+        "\"action:episode-grid-item-menu-items:render\"",
         "\"action:clicked\"",
         "\"form:submitted\"",
         "\"screen:changed\"",
@@ -56004,6 +56460,24 @@
     "filename": "events.go",
     "name": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
     "formattedName": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "ClientActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "ClientActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -56471,6 +56945,8 @@
         "\"action:anime-page-dropdown-items:updated\"",
         "\"action:manga-page-buttons:updated\"",
         "\"action:media-card-context-menu-items:updated\"",
+        "\"action:episode-card-context-menu-items:updated\"",
+        "\"action:episode-grid-item-menu-items:updated\"",
         "\"action:anime-library-dropdown-items:updated\"",
         "\"form:reset\"",
         "\"form:set-values\"",
@@ -56940,6 +57416,44 @@
     "filename": "events.go",
     "name": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
     "formattedName": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "formattedName": "ServerActionRenderEpisodeCardContextMenuItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
+    "formattedName": "ServerActionRenderEpisodeGridItemMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
@@ -65356,6 +65870,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -65375,6 +65907,15 @@
         "usedTypescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -66084,6 +66625,36 @@
   {
     "filepath": "../internal/torrents/torrent/search.go",
     "filename": "search.go",
+    "name": "TorrentMetadata",
+    "formattedName": "Torrent_TorrentMetadata",
+    "package": "torrent",
+    "fields": [
+      {
+        "name": "Distance",
+        "jsonName": "distance",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Metadata",
+        "jsonName": "metadata",
+        "goType": "habari.Metadata",
+        "typescriptType": "Habari_Metadata",
+        "usedTypescriptType": "Habari_Metadata",
+        "usedStructName": "habari.Metadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
     "name": "SearchData",
     "formattedName": "Torrent_SearchData",
     "package": "torrent",
@@ -66115,6 +66686,19 @@
         ]
       },
       {
+        "name": "TorrentMetadata",
+        "jsonName": "torrentMetadata",
+        "goType": "map[string]TorrentMetadata",
+        "typescriptType": "Record\u003cstring, Torrent_TorrentMetadata\u003e",
+        "usedTypescriptType": "Torrent_TorrentMetadata",
+        "usedStructName": "torrent.TorrentMetadata",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Torrent metadata"
+        ]
+      },
+      {
         "name": "DebridInstantAvailability",
         "jsonName": "debridInstantAvailability",
         "goType": "map[string]debrid.TorrentItemInstantAvailability",
@@ -66125,6 +66709,19 @@
         "public": true,
         "comments": [
           " Debrid instant availability"
+        ]
+      },
+      {
+        "name": "AnimeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedTypescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
+        "required": false,
+        "public": true,
+        "comments": [
+          " AniZip media"
         ]
       }
     ],
@@ -69444,6 +70041,232 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/vendor_habari/vendor_habari.go",
+    "filename": "vendor_habari.go",
+    "name": "Metadata",
+    "formattedName": "Habari_Metadata",
+    "package": "vendor_habari",
+    "fields": [
+      {
+        "name": "SeasonNumber",
+        "jsonName": "season_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PartNumber",
+        "jsonName": "part_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FormattedTitle",
+        "jsonName": "formatted_title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeType",
+        "jsonName": "anime_type",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AudioTerm",
+        "jsonName": "audio_term",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DeviceCompatibility",
+        "jsonName": "device_compatibility",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episode_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OtherEpisodeNumber",
+        "jsonName": "other_episode_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumberAlt",
+        "jsonName": "episode_number_alt",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeTitle",
+        "jsonName": "episode_title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileChecksum",
+        "jsonName": "file_checksum",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileExtension",
+        "jsonName": "file_extension",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileName",
+        "jsonName": "file_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseGroup",
+        "jsonName": "release_group",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseInformation",
+        "jsonName": "release_information",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseVersion",
+        "jsonName": "release_version",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Source",
+        "jsonName": "source",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Subtitles",
+        "jsonName": "subtitles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoResolution",
+        "jsonName": "video_resolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoTerm",
+        "jsonName": "video_term",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VolumeNumber",
+        "jsonName": "volume_number",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }

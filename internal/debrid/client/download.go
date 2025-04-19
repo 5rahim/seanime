@@ -21,8 +21,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/dustin/go-humanize"
 )
 
 func (r *Repository) launchDownloadLoop(ctx context.Context) {
@@ -307,8 +305,8 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 				r.wsEventManager.SendEvent(events.DebridDownloadProgress, map[string]interface{}{
 					"status":     "downloading",
 					"itemID":     tId,
-					"totalBytes": humanize.Bytes(_totalBytes),
-					"totalSize":  humanize.Bytes(_totalSize),
+					"totalBytes": util.Bytes(_totalBytes),
+					"totalSize":  util.Bytes(_totalSize),
 					"speed":      speed,
 				})
 				lastSent = time.Now()

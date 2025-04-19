@@ -11,12 +11,7 @@ import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/medi
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import {
-    ADVANCED_SEARCH_FORMATS,
-    ADVANCED_SEARCH_MEDIA_GENRES,
-    ADVANCED_SEARCH_SEASONS,
-    ADVANCED_SEARCH_STATUS,
-} from "@/app/(main)/search/_lib/advanced-search-constants"
+import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_SEASONS, ADVANCED_SEARCH_STATUS } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
@@ -46,7 +41,7 @@ type LibraryViewProps = {
     collectionList: Anime_LibraryCollectionList[]
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
-    hasScanned: boolean
+    hasEntries: boolean
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -55,7 +50,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         // collectionList: _collectionList,
         continueWatchingList,
         isLoading,
-        hasScanned,
+        hasEntries,
         ...rest
     } = props
 
@@ -65,11 +60,12 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     const {
         stats,
         libraryCollectionList,
+        libraryGenres,
     } = useHandleDetailedLibraryCollection()
 
     if (isLoading) return <LoadingSpinner />
 
-    if (!hasScanned) return null
+    if (!hasEntries) return null
 
     return (
         <PageWrapper className="p-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
@@ -121,7 +117,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
 
             <SearchOptions />
 
-            <GenreSelector />
+            <GenreSelector genres={libraryGenres} />
 
             {libraryCollectionList.map(collection => {
                 if (!collection.entries?.length) return null
@@ -316,7 +312,7 @@ export function SearchOptions() {
     )
 }
 
-function GenreSelector() {
+function GenreSelector({ genres }: { genres: string[] }) {
     const [params, setParams] = useAtom(__library_paramsAtom)
     return (
         <MediaGenreSelector
@@ -329,7 +325,7 @@ function GenreSelector() {
                         return
                     }),
                 },
-                ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
+                ...genres.map(genre => ({
                     name: genre,
                     isCurrent: params!.genre?.includes(genre) ?? false,
                     onClick: () => setParams(draft => {

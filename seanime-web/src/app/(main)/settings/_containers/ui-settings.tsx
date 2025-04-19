@@ -1,5 +1,9 @@
 "use client"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
+import { useCustomCSS } from "@/components/shared/custom-css-provider"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion/accordion"
+import { Alert } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
@@ -19,13 +23,12 @@ import { colord } from "colord"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import React, { useState } from "react"
+import { useFormContext, UseFormReturn, useWatch } from "react-hook-form"
 import { toast } from "sonner"
+import { useServerStatus } from "../../_hooks/use-server-status"
 import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
-import { useServerStatus } from "../../_hooks/use-server-status"
-import { Alert } from "@/components/ui/alert"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -63,6 +66,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
     showMangaUnreadCount: z.boolean().default(THEME_DEFAULT_VALUES.showMangaUnreadCount),
     hideEpisodeCardDescription: z.boolean().default(THEME_DEFAULT_VALUES.hideEpisodeCardDescription),
     hideDownloadedEpisodeCardFilename: z.boolean().default(THEME_DEFAULT_VALUES.hideDownloadedEpisodeCardFilename),
+    customCSS: z.string().default(THEME_DEFAULT_VALUES.customCSS),
+    mobileCustomCSS: z.string().default(THEME_DEFAULT_VALUES.mobileCustomCSS),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -86,10 +91,107 @@ export function UISettings() {
 
     const { mutate, isPending } = useUpdateTheme()
     const [fixBorderRenderingArtifacts, setFixBorerRenderingArtifacts] = useAtom(__ui_fixBorderRenderingArtifacts)
+    const [enableLivePreview, setEnableLivePreview] = useState(false)
 
     const [tab, setTab] = useAtom(selectUISettingTabAtom)
 
     const formRef = React.useRef<UseFormReturn<any>>(null)
+
+    const { customCSS, setCustomCSS } = useCustomCSS()
+
+    const applyLivePreview = React.useCallback((bgColor: string, accentColor: string) => {
+        if (!enableLivePreview) return
+
+        let r = document.querySelector(":root") as any
+
+        // Background color
+        r.style.setProperty("--background", bgColor)
+        r.style.setProperty("--paper", colord(bgColor).lighten(0.025).toHex())
+        r.style.setProperty("--media-card-popup-background", colord(bgColor).lighten(0.025).toHex())
+        r.style.setProperty(
+            "--hover-from-background-color",
+            colord(bgColor).lighten(0.025).desaturate(0.05).toHex(),
+        )
+
+        // Gray colors
+        r.style.setProperty("--color-gray-400",
+            `${colord(bgColor).lighten(0.3).desaturate(0.2).toRgb().r} ${colord(bgColor).lighten(0.3).desaturate(0.2).toRgb().g} ${colord(bgColor)
+                .lighten(0.3)
+                .desaturate(0.2)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-500",
+            `${colord(bgColor).lighten(0.15).desaturate(0.2).toRgb().r} ${colord(bgColor).lighten(0.15).desaturate(0.2).toRgb().g} ${colord(bgColor)
+                .lighten(0.15)
+                .desaturate(0.2)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-600",
+            `${colord(bgColor).lighten(0.1).desaturate(0.2).toRgb().r} ${colord(bgColor).lighten(0.1).desaturate(0.2).toRgb().g} ${colord(bgColor)
+                .lighten(0.1)
+                .desaturate(0.2)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-700",
+            `${colord(bgColor).lighten(0.08).desaturate(0.2).toRgb().r} ${colord(bgColor).lighten(0.08).desaturate(0.2).toRgb().g} ${colord(bgColor)
+                .lighten(0.08)
+                .desaturate(0.2)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-800",
+            `${colord(bgColor).lighten(0.06).desaturate(0.2).toRgb().r} ${colord(bgColor).lighten(0.06).desaturate(0.2).toRgb().g} ${colord(bgColor)
+                .lighten(0.06)
+                .desaturate(0.2)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-900",
+            `${colord(bgColor).lighten(0.04).desaturate(0.05).toRgb().r} ${colord(bgColor).lighten(0.04).desaturate(0.05).toRgb().g} ${colord(bgColor)
+                .lighten(0.04)
+                .desaturate(0.05)
+                .toRgb().b}`)
+        r.style.setProperty("--color-gray-950",
+            `${colord(bgColor).lighten(0.008).desaturate(0.05).toRgb().r} ${colord(bgColor).lighten(0.008).desaturate(0.05).toRgb().g} ${colord(
+                bgColor).lighten(0.008).desaturate(0.05).toRgb().b}`)
+
+        // Accent color
+        r.style.setProperty("--color-brand-200",
+            `${colord(accentColor).lighten(0.35).desaturate(0.05).toRgb().r} ${colord(accentColor).lighten(0.35).desaturate(0.05).toRgb().g} ${colord(
+                accentColor).lighten(0.35).desaturate(0.05).toRgb().b}`)
+        r.style.setProperty("--color-brand-300",
+            `${colord(accentColor).lighten(0.3).desaturate(0.05).toRgb().r} ${colord(accentColor).lighten(0.3).desaturate(0.05).toRgb().g} ${colord(
+                accentColor).lighten(0.3).desaturate(0.05).toRgb().b}`)
+        r.style.setProperty("--color-brand-400",
+            `${colord(accentColor).lighten(0.1).toRgb().r} ${colord(accentColor).lighten(0.1).toRgb().g} ${colord(accentColor)
+                .lighten(0.1)
+                .toRgb().b}`)
+        r.style.setProperty("--color-brand-500", `${colord(accentColor).toRgb().r} ${colord(accentColor).toRgb().g} ${colord(accentColor).toRgb().b}`)
+        r.style.setProperty("--color-brand-600",
+            `${colord(accentColor).darken(0.1).toRgb().r} ${colord(accentColor).darken(0.1).toRgb().g} ${colord(accentColor).darken(0.1).toRgb().b}`)
+        r.style.setProperty("--color-brand-700",
+            `${colord(accentColor).darken(0.15).toRgb().r} ${colord(accentColor).darken(0.15).toRgb().g} ${colord(accentColor)
+                .darken(0.15)
+                .toRgb().b}`)
+        r.style.setProperty("--color-brand-800",
+            `${colord(accentColor).darken(0.2).toRgb().r} ${colord(accentColor).darken(0.2).toRgb().g} ${colord(accentColor).darken(0.2).toRgb().b}`)
+        r.style.setProperty("--color-brand-900",
+            `${colord(accentColor).darken(0.25).toRgb().r} ${colord(accentColor).darken(0.25).toRgb().g} ${colord(accentColor)
+                .darken(0.25)
+                .toRgb().b}`)
+        r.style.setProperty("--color-brand-950",
+            `${colord(accentColor).darken(0.3).toRgb().r} ${colord(accentColor).darken(0.3).toRgb().g} ${colord(accentColor).darken(0.3).toRgb().b}`)
+        r.style.setProperty("--brand", colord(accentColor).lighten(0.35).desaturate(0.1).toHex())
+    }, [enableLivePreview])
+
+    function ObserveColorSettings() {
+
+        const form = useFormContext()
+
+        const accentColor = useWatch({ control: form.control, name: "accentColor" })
+        const backgroundColor = useWatch({ control: form.control, name: "backgroundColor" })
+
+
+        React.useEffect(() => {
+            if (!enableLivePreview) return
+            applyLivePreview(backgroundColor, accentColor)
+        }, [enableLivePreview, backgroundColor, accentColor])
+
+        return null
+    }
 
     return (
         <Form
@@ -119,6 +221,11 @@ export function UISettings() {
                         }
                         formRef.current?.reset(formRef.current?.getValues())
                     },
+                })
+
+                setCustomCSS({
+                    customCSS: data.customCSS,
+                    mobileCustomCSS: data.mobileCustomCSS,
                 })
             }}
             defaultValues={{
@@ -154,12 +261,15 @@ export function UISettings() {
                 showMangaUnreadCount: themeSettings?.showMangaUnreadCount,
                 hideEpisodeCardDescription: themeSettings?.hideEpisodeCardDescription,
                 hideDownloadedEpisodeCardFilename: themeSettings?.hideDownloadedEpisodeCardFilename,
+                customCSS: themeSettings?.customCSS,
+                mobileCustomCSS: themeSettings?.mobileCustomCSS,
             }}
             stackClass="space-y-4 relative"
         >
             {(f) => (
                 <>
                     <SettingsIsDirty className="-top-14" />
+                    <ObserveColorSettings />
 
                     <Tabs
                         value={tab}
@@ -168,7 +278,7 @@ export function UISettings() {
                         triggerClass={tabsTriggerClass}
                         listClass={tabsListClass}
                     >
-                        <TabsList className="flex-wrap max-w-full">
+                        <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-lg">
                             <TabsTrigger value="main">Theme</TabsTrigger>
                             <TabsTrigger value="media">Media</TabsTrigger>
                             <TabsTrigger value="navigation">Navigation</TabsTrigger>
@@ -183,20 +293,39 @@ export function UISettings() {
                                     label="Enable color settings"
                                     name="enableColorSettings"
                                 />
-                                <div className="flex flex-col md:flex-row gap-3">
-                                    <Field.ColorPicker
-                                        name="backgroundColor"
-                                        label="Background color"
-                                        help="Default: #070707"
-                                        disabled={!f.watch("enableColorSettings")}
-                                    />
-                                    <Field.ColorPicker
-                                        name="accentColor"
-                                        label="Accent color"
-                                        help="Default: #6152df"
-                                        disabled={!f.watch("enableColorSettings")}
-                                    />
-                                </div>
+                                {f.watch("enableColorSettings") && (
+                                    <>
+                                        <Switch
+                                            side="right"
+                                            label="Live preview"
+                                            name="enableLivePreview"
+                                            help={enableLivePreview && "Disabling will reload the page without applying the changes."}
+                                            value={enableLivePreview}
+                                            onValueChange={(value) => {
+                                                setEnableLivePreview(value)
+                                                if (!value) {
+                                                    // Reset to saved values if disabling preview
+                                                    window.location.reload()
+                                                } else {
+                                                    // Apply current form values as preview
+                                                    applyLivePreview(f.watch("backgroundColor"), f.watch("accentColor"))
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex flex-col md:flex-row gap-3">
+                                            <Field.ColorPicker
+                                                name="backgroundColor"
+                                                label="Background color"
+                                                help="Default: #070707"
+                                            />
+                                            <Field.ColorPicker
+                                                name="accentColor"
+                                                label="Accent color"
+                                                help="Default: #6152df"
+                                            />
+                                        </div>
+                                    </>
+                                )}
 
                                 {f.watch("enableColorSettings") && (
                                     <div className="flex flex-wrap gap-3 w-full">
@@ -210,19 +339,24 @@ export function UISettings() {
                                                 onClick={() => {
                                                     f.setValue("backgroundColor", opt.backgroundColor)
                                                     f.setValue("accentColor", opt.accentColor)
-                                                    mutate({
-                                                        theme: {
-                                                            id: 0,
-                                                            ...themeSettings,
-                                                            enableColorSettings: true,
-                                                            backgroundColor: opt.backgroundColor,
-                                                            accentColor: opt.accentColor,
-                                                        },
-                                                    }, {
-                                                        onSuccess() {
-                                                            formRef.current?.reset(formRef.current?.getValues())
-                                                        },
-                                                    })
+
+                                                    if (enableLivePreview) {
+                                                        applyLivePreview(opt.backgroundColor, opt.accentColor)
+                                                    } else {
+                                                        mutate({
+                                                            theme: {
+                                                                id: 0,
+                                                                ...themeSettings,
+                                                                enableColorSettings: true,
+                                                                backgroundColor: opt.backgroundColor,
+                                                                accentColor: opt.accentColor,
+                                                            },
+                                                        }, {
+                                                            onSuccess() {
+                                                                formRef.current?.reset(formRef.current?.getValues())
+                                                            },
+                                                        })
+                                                    }
                                                 }}
                                             >
                                                 <div
@@ -301,6 +435,62 @@ export function UISettings() {
                                 </div>
 
                             </SettingsCard>
+
+                            <Accordion
+                                type="single"
+                                collapsible
+                                className="border rounded-[--radius-md]"
+                                triggerClass="dark:bg-[--paper]"
+                                contentClass="!pt-2 dark:bg-[--paper]"
+                            >
+                                <AccordionItem value="more">
+                                    <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
+                                        Advanced
+                                    </AccordionTrigger>
+                                    <AccordionContent className="space-y-4">
+
+                                        {serverStatus?.themeSettings?.customCSS !== customCSS.customCSS || serverStatus?.themeSettings?.mobileCustomCSS !== customCSS.mobileCustomCSS && (
+                                            <Button
+                                                intent="white"
+                                                disabled={serverStatus?.themeSettings?.customCSS === customCSS.customCSS && serverStatus?.themeSettings?.mobileCustomCSS === customCSS.mobileCustomCSS}
+                                                onClick={() => {
+                                                    setCustomCSS({
+                                                        customCSS: serverStatus?.themeSettings?.customCSS || "",
+                                                        mobileCustomCSS: serverStatus?.themeSettings?.mobileCustomCSS || "",
+                                                    })
+                                                }}
+                                            >
+                                                Apply to this client
+                                            </Button>
+                                        )}
+
+                                        <p className="text-[--muted] text-sm">
+                                            The custom CSS will be saved on the server and needs to be applied manually to each client.
+                                            <br />
+                                            In case of an error rendering the UI unusable, you can always remove it from the local storage using the
+                                            devtools.
+                                        </p>
+
+                                        <div className="flex flex-col md:flex-row gap-3">
+
+                                            <Field.Textarea
+                                                label="Custom CSS"
+                                                name="customCSS"
+                                                placeholder="Custom CSS"
+                                                help="Applied above 1024px screen size."
+                                            />
+
+                                            <Field.Textarea
+                                                label="Mobile custom CSS"
+                                                name="mobileCustomCSS"
+                                                placeholder="Custom CSS"
+                                                help="Applied below 1024px screen size."
+                                            />
+
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
 
                         </TabsContent>
 
@@ -422,7 +612,6 @@ export function UISettings() {
                                     name="mediaPageBannerInfoBoxSize"
                                     options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}
                                     stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
-                                // help={ThemeMediaPageInfoBoxSizeOptions.find(n => n.value === f.watch("mediaPageBannerInfoBoxSize"))?.description}
                                 />
 
                                 <Field.Switch

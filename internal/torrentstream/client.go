@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +18,6 @@ import (
 	alog "github.com/anacrolix/log"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/dustin/go-humanize"
 	"github.com/samber/mo"
 	"golang.org/x/time/rate"
 )
@@ -190,17 +190,17 @@ func (c *Client) initializeClient() error {
 					if elapsed > 0 {
 						bytesPerSecond := float64(downloadProgress-c.lastBytesCompleted) / elapsed
 						if bytesPerSecond > 0 {
-							downloadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+							downloadSpeed = fmt.Sprintf("%s/s", util.Bytes(uint64(bytesPerSecond)))
 						}
 					}
-					size := humanize.Bytes(uint64(f.Length()))
+					size := util.Bytes(uint64(f.Length()))
 
 					bytesWrittenData := t.Stats().BytesWrittenData
 					uploadSpeed := ""
 					if elapsed > 0 {
 						bytesPerSecond := float64((&bytesWrittenData).Int64()-c.lastBytesWrittenData) / elapsed
 						if bytesPerSecond > 0 {
-							uploadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+							uploadSpeed = fmt.Sprintf("%s/s", util.Bytes(uint64(bytesPerSecond)))
 						}
 					}
 

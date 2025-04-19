@@ -28,6 +28,7 @@ import { FaSearch } from "react-icons/fa"
 import { useUpdateEffect } from "react-use"
 import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
+import { PluginEpisodeGridItemMenuItems } from "../../_features/plugin/actions/plugin-actions"
 
 type OnlinestreamPageProps = {
     animeEntry?: Anime_Entry
@@ -277,6 +278,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             episodeTitle={episode.title}
                                             summary={episode?.description}
                                         />
+
+                                        <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="onlinestream" episode={episode} />
                                     </>}
                                 />
                             )

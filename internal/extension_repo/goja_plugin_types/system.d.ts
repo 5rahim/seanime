@@ -137,7 +137,7 @@ declare namespace $os {
 
 
     interface File {
-        chmod(mode: $os.FileMode): void
+        chmod(mode: number): void
 
         chown(uid: number, gid: number): void
 
@@ -153,7 +153,7 @@ declare namespace $os {
 
         readDir(n: number): $os.DirEntry[]
 
-        readFrom(r: io.Reader): number
+        readFrom(r: $io.Reader): number
 
         readdir(n: number): $os.FileInfo[]
 
@@ -180,7 +180,7 @@ declare namespace $os {
 
         writeString(s: string): number
 
-        writeTo(w: io.Writer): number
+        writeTo(w: $io.Writer): number
     }
 
     /**
@@ -379,7 +379,7 @@ declare namespace $os {
         size(): number
 
         /** File mode bits */
-        mode(): $os.FileMode
+        mode(): number
 
         /** Modification time */
         modTime(): Date
@@ -402,21 +402,16 @@ declare namespace $os {
         isDir(): boolean
 
         /** Returns the type bits for the entry */
-        type(): $os.FileMode
+        type(): number
 
         /** Returns the FileInfo for the file or subdirectory described by the entry */
         info(): $os.FileInfo
     }
 
     /**
-     * FileMode represents a file's mode and permission bits.
-     */
-    type FileMode = number
-
-    /**
      * Constants for file mode bits
      */
-    declare namespace FileMode {
+    namespace FileMode {
         /** Is a directory */
         const ModeDir: number
 
@@ -748,4 +743,80 @@ declare namespace $mime {
      * @throws Error if parsing fails
      */
     function parse(contentType: string): { mediaType: string; parameters: Record<string, string> }
+}
+
+/**
+ * IO module provides basic interfaces to I/O primitives.
+ * This is a restricted subset of Go's io package with permission checks.
+ */
+declare namespace $io {
+    /**
+     * Reader is the interface that wraps the basic Read method.
+     * Read reads up to len(p) bytes into p. It returns the number of bytes
+     * read (0 <= n <= len(p)) and any error encountered.
+     */
+    interface Reader {
+        read(p: Uint8Array): number
+    }
+
+    /**
+     * Writer is the interface that wraps the basic Write method.
+     * Write writes len(p) bytes from p to the underlying data stream.
+     * It returns the number of bytes written from p (0 <= n <= len(p))
+     * and any error encountered that caused the write to stop early.
+     */
+    interface Writer {
+        write(p: Uint8Array): number
+    }
+
+    /**
+     * Closer is the interface that wraps the basic Close method.
+     * The behavior of Close after already being called is undefined.
+     */
+    interface Closer {
+        close(): void
+    }
+
+    /**
+     * ReadWriter is the interface that groups the basic Read and Write methods.
+     */
+    interface ReadWriter extends Reader, Writer {
+    }
+
+    /**
+     * ReadCloser is the interface that groups the basic Read and Close methods.
+     */
+    interface ReadCloser extends Reader, Closer {
+    }
+
+    /**
+     * WriteCloser is the interface that groups the basic Write and Close methods.
+     */
+    interface WriteCloser extends Writer, Closer {
+    }
+
+    /**
+     * ReadWriteCloser is the interface that groups the basic Read, Write and Close methods.
+     */
+    interface ReadWriteCloser extends Reader, Writer, Closer {
+    }
+
+    /**
+     * ReaderFrom is the interface that wraps the ReadFrom method.
+     * ReadFrom reads data from r until EOF or error.
+     * The return value n is the number of bytes read.
+     */
+    interface ReaderFrom {
+        readFrom(r: Reader): number
+    }
+
+    /**
+     * WriterTo is the interface that wraps the WriteTo method.
+     * WriteTo writes data to w until there's no more data to write or
+     * when an error occurs. The return value n is the number of bytes
+     * written.
+     */
+    interface WriterTo {
+        writeTo(w: Writer): number
+    }
 }

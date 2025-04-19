@@ -20,7 +20,7 @@ type LibraryViewProps = {
     filteredCollectionList: Anime_LibraryCollectionList[]
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
-    hasScanned: boolean
+    hasEntries: boolean
 }
 
 export function LibraryView(props: LibraryViewProps) {
@@ -31,7 +31,7 @@ export function LibraryView(props: LibraryViewProps) {
         continueWatchingList,
         filteredCollectionList,
         isLoading,
-        hasScanned,
+        hasEntries,
         ...rest
     } = props
 

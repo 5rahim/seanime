@@ -111,11 +111,11 @@ export function DiscoverPageHeader() {
                     className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
                 ></div>}
 
-                {/*RIGHT FADE*/}
+                {/*LEFT FADE*/}
                 <div
                     data-discover-page-header-banner-image-right-gradient
                     className={cn(
-                        "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                         "opacity-100 duration-500",
                     )}
                 />
@@ -148,7 +148,7 @@ export function DiscoverPageHeader() {
                             },
                         }}
                         className={cn(
-                            "absolute right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block",
+                            "absolute left-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block",
                             "top-[5rem]",
                             ts.hideTopNavbar && "top-[4rem]",
                             ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "top-[4rem]",
@@ -159,7 +159,7 @@ export function DiscoverPageHeader() {
                     >
                         <div
                             data-discover-page-header-metadata-inner-container
-                            className="flex flex-row-reverse items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
+                            className="flex items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}
                         >
@@ -178,7 +178,7 @@ export function DiscoverPageHeader() {
                                     data-discover-page-header-metadata-media-image-link
                                 >
                                     {randomTrending.coverImage?.large && <div
-                                        className="w-[190px] h-[290px] relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md"
+                                        className="w-[180px] h-[280px] relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md"
                                         data-discover-page-header-metadata-media-image-inner-container
                                     >
                                         <Image
@@ -198,11 +198,11 @@ export function DiscoverPageHeader() {
                                 </SeaLink>
                             </motion.div>
                             <motion.div
-                                className="flex-auto space-y-2 z-[1] text-center"
+                                className="flex-auto space-y-2 z-[1]"
                                 initial={{ opacity: 0, x: 10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.5, delay: 0.6 }}
-                                data-discover-page-header-metadata-container
+                                data-discover-page-header-metadata-inner-container
                             >
                                 <SeaLink
                                     href={pageType === "anime"
@@ -211,21 +211,34 @@ export function DiscoverPageHeader() {
                                     data-discover-page-header-metadata-media-title
                                 >
                                     <TextGenerateEffect
-                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 text-center max-w-md text-pretty text-3xl overflow-ellipsis"
+                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 max-w-md text-pretty text-3xl overflow-ellipsis"
                                         words={randomTrending.title?.userPreferred || ""}
                                     />
                                 </SeaLink>
+                                <div className="flex flex-wrap gap-2">
+                                    {randomTrending.genres?.map((genre) => (
+                                        <div key={genre} className="text-sm font-semibold px-1 text-gray-300">
+                                            {genre}
+                                        </div>
+                                    ))}
+                                </div>
                                 {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
-                                <div className="flex justify-center items-center max-w-md gap-4" data-discover-page-header-metadata-media-info>
+                                <div className="flex items-center max-w-lg gap-4" data-discover-page-header-metadata-media-info>
+                                    {randomTrending.meanScore &&
+                                        <div className="rounded-full w-fit inline-block" data-discover-page-header-metadata-media-score>
+                                            <MediaEntryAudienceScore
+                                                meanScore={randomTrending.meanScore}
+                                            />
+                                        </div>}
                                     {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
                                         <p
-                                            className="text-lg text-brand-200 inline-flex items-center gap-1.5"
+                                            className="text-base text-brand-200 inline-flex items-center gap-1.5"
                                             data-discover-page-header-metadata-media-airing-now
                                         >
                                             <RiSignalTowerLine /> Releasing now
                                         </p>}
                                     {((!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (randomTrending as AL_BaseAnime)?.format !== "MOVIE") && (
-                                        <p className="text-lg font-semibold" data-discover-page-header-metadata-media-episodes>
+                                        <p className="text-base font-medium" data-discover-page-header-metadata-media-episodes>
                                             {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
                                                 <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episode{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1 === 1
                                                     ? ""
@@ -236,23 +249,18 @@ export function DiscoverPageHeader() {
                                                         : "s"}</span>}
                                         </p>
                                     )}
-                                    {randomTrending.meanScore &&
-                                        <div className="rounded-full w-fit inline-block" data-discover-page-header-metadata-media-score>
-                                        <MediaEntryAudienceScore
-                                            meanScore={randomTrending.meanScore}
-                                        />
-                                    </div>}
+
                                 </div>
                                 <motion.div
-                                    className="pt-2"
+                                    className="pt-0 left-0"
                                     initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.5, delay: 0.7 }}
                                     data-discover-page-header-metadata-media-description-container
                                 >
                                     <ScrollArea
                                         data-discover-page-header-metadata-media-description-scroll-area
-                                        className="max-w-md leading-6 h-[72px] mb-4"
+                                        className="max-w-lg leading-3 h-[77px] mb-4 p-0 text-sm"
                                     >{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,
                                         "")}</ScrollArea>

@@ -25,6 +25,7 @@ var (
 		"anilist.MediaSort",
 		"anilist.ListRecentAnime",
 		"anilist.AnimeCollectionWithRelations",
+		"onlinestream.Episode",
 	}
 )
 
@@ -543,7 +544,7 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 			}
 
 			typeText := field.TypescriptType
-			if typeText == "Metadata" {
+			if typeText == "Habari_Metadata" {
 				typeText = "$habari.Metadata"
 			}
 

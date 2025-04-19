@@ -8,7 +8,6 @@ import (
 	"seanime/internal/constants"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
-	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
@@ -17,7 +16,6 @@ import (
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
 	"seanime/internal/hook"
-	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
@@ -73,7 +71,6 @@ type (
 		MediaPlayerRepository   *mediaplayer.Repository
 		Version                 string
 		Updater                 *updater.Updater
-		Settings                *models.Settings
 		AutoScanner             *autoscanner.AutoScanner
 		PlaybackManager         *playbackmanager.PlaybackManager
 		FileCacher              *filecache.Cacher
@@ -88,6 +85,7 @@ type (
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
 		FeatureFlags            FeatureFlags
+		Settings                *models.Settings
 		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
@@ -113,91 +111,94 @@ type (
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
+	// Initialize logger with predefined format
 	logger := util.NewLogger()
 
+	// Log application version, OS, architecture and system info
 	logger.Info().Msgf("app: Seanime %s-%s", constants.Version, constants.VersionName)
 	logger.Info().Msgf("app: OS: %s", runtime.GOOS)
 	logger.Info().Msgf("app: Arch: %s", runtime.GOARCH)
 	logger.Info().Msgf("app: Processor count: %d", runtime.NumCPU())
 
+	// Initialize hook manager for plugin event system
 	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hookManager)
 	plugin.GlobalAppContext.SetLogger(logger)
 
+	// Store current version to detect version changes
 	previousVersion := constants.Version
 
+	// Add callback to track version changes
 	configOpts.OnVersionChange = append(configOpts.OnVersionChange, func(oldVersion string, newVersion string) {
 		logger.Info().Str("prev", oldVersion).Str("current", newVersion).Msg("app: Version change detected")
 		previousVersion = oldVersion
 	})
 
-	// Initialize the config
-	// If the config dir does not exist, it will be created
+	// Initialize configuration with provided options
+	// Creates config directory if it doesn't exist
 	cfg, err := NewConfig(configOpts, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 	}
 
+	// Create logs directory if it doesn't exist
 	_ = os.MkdirAll(cfg.Logs.Dir, 0755)
 
+	// Start background process to trim log files
 	go TrimLogEntries(cfg.Logs.Dir, logger)
 
 	logger.Info().Msgf("app: Data directory: %s", cfg.Data.AppDataDir)
-
-	// Print working directory
 	logger.Info().Msgf("app: Working directory: %s", cfg.Data.WorkingDir)
 
+	// Log if running in desktop sidecar mode
 	if configOpts.IsDesktopSidecar {
 		logger.Info().Msg("app: Desktop sidecar mode enabled")
 	}
 
-	// Initialize the database
+	// Initialize database connection
 	database, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 	}
 
-	// Add default local file entries if there are none
-	if _, _, err = db_bridge.GetLocalFiles(database); err != nil {
-		_, err = db_bridge.InsertLocalFiles(database, make([]*anime.LocalFile, 0))
-		if err != nil {
-			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
-		}
-	}
+	HandleNewDatabaseEntries(database, logger)
 
-	database.TrimLocalFileEntries()     // ran in goroutine
-	database.TrimScanSummaryEntries()   // ran in goroutine
-	database.TrimTorrentstreamHistory() // ran in goroutine
+	// Clean up old database entries in background goroutines
+	database.TrimLocalFileEntries()     // Remove old local file entries
+	database.TrimScanSummaryEntries()   // Remove old scan summaries
+	database.TrimTorrentstreamHistory() // Remove old torrent stream history
 
+	// Get anime library paths for plugin context
 	animeLibraryPaths, _ := database.GetAllLibraryPathsFromSettings()
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		Database:          database,
-		AnimeLibraryPaths: animeLibraryPaths,
+		AnimeLibraryPaths: &animeLibraryPaths,
 	})
 
-	// Get token from stored account or return empty string
+	// Get Anilist token from database if available
 	anilistToken := database.GetAnilistToken()
 
-	// Anilist Client Wrapper
+	// Initialize Anilist API client
 	anilistCW := anilist.NewAnilistClient(anilistToken)
 
-	// Websocket Event Manager
+	// Initialize WebSocket event manager for real-time communication
 	wsEventManager := events.NewWSEventManager(logger)
 
+	// Exit if no WebSocket connections in desktop sidecar mode
 	if configOpts.IsDesktopSidecar {
 		wsEventManager.ExitIfNoConnsAsDesktopSidecar()
 	}
 
-	// DoH
+	// Initialize DNS-over-HTTPS service in background
 	go doh.HandleDoH(cfg.Server.DoHUrl, logger)
 
-	// File Cacher
+	// Initialize file cache system for media and metadata
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize file cacher")
 	}
 
-	// Extension Repository
+	// Initialize extension repository
 	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
 		Logger:         logger,
 		ExtensionDir:   cfg.Extensions.Dir,
@@ -205,17 +206,19 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher:     fileCacher,
 		HookManager:    hookManager,
 	})
+	// Load extensions in background
 	go LoadExtensions(extensionRepository, logger)
 
-	// Metadata Provider
+	// Initialize metadata provider for media information
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
 	})
 
+	// Set initial metadata provider (will change if offline mode is enabled)
 	activeMetadataProvider := metadataProvider
 
-	// Manga Repository
+	// Initialize manga repository
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
@@ -226,14 +229,17 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:       database,
 	})
 
+	// Initialize Anilist platform
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
+	// Update plugin context with new modules
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		AnilistPlatform: anilistPlatform,
-		WSEventManager:  wsEventManager,
+		AnilistPlatform:  anilistPlatform,
+		WSEventManager:   wsEventManager,
+		MetadataProvider: metadataProvider,
 	})
 
-	// Platforms
+	// Initialize sync manager for offline/online synchronization
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
 		LocalDir:         cfg.Offline.Dir,
 		AssetDir:         cfg.Offline.AssetDir,
@@ -249,22 +255,24 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize sync manager")
 	}
 
+	// Use local metadata provider if in offline mode
 	if cfg.Server.Offline {
 		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
 	}
 
+	// Initialize local platform for offline operation
 	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
 	}
 
+	// Change active platform if offline mode is enabled
 	activePlatform := anilistPlatform
-	// If offline mode is enabled, use the local platform
 	if cfg.Server.Offline {
 		activePlatform = localPlatform
 	}
 
-	// Online Stream
+	// Initialize online streaming repository
 	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
 		Logger:           logger,
 		FileCacher:       fileCacher,
@@ -273,8 +281,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:         database,
 	})
 
+	// Initialize extension playground for testing extensions
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
+	// Create the main app instance with initialized components
 	app := &App{
 		Config:                        cfg,
 		Database:                      database,
@@ -319,33 +329,35 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager: hookManager,
 	}
 
-	// Perform necessary migrations if the version has changed
+	// Run database migrations if version has changed
 	app.runMigrations()
 
-	// Initialize all modules that only need to be initialized once
+	// Initialize modules that only need to be initialized once
 	app.initModulesOnce()
 
-	// Initialize all setting-dependent modules
+	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
 
-	// Load built-in extensions
+	// Load built-in extensions into extension consumers
 	app.AddExtensionBankToConsumers()
 
-	// Fetch Anilist collection and set account if not offline
+	// Initialize Anilist data if not in offline mode
 	if !app.IsOffline() {
 		app.InitOrRefreshAnilistData()
+	} else {
+		app.AnilistDataLoaded = true
 	}
 
-	// Initialize mediastream settings
+	// Initialize mediastream settings (for streaming media)
 	app.InitOrRefreshMediastreamSettings()
 
-	// Initialize torrentstream settings
+	// Initialize torrentstream settings (for torrent streaming)
 	app.InitOrRefreshTorrentstreamSettings()
 
-	// Initialize debrid settings
+	// Initialize debrid settings (for debrid services)
 	app.InitOrRefreshDebridSettings()
 
-	// Perform actions that need to be done after the app has been initialized
+	// Run one-time initialization actions
 	app.performActionsOnce()
 
 	return app

@@ -14,10 +14,10 @@ export default function Page() {
     const {
         mangaCollection,
         filteredMangaCollection,
-        genres,
         mangaCollectionLoading,
         storedFilters,
         storedProviders,
+        mangaCollectionGenres,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -56,7 +56,7 @@ export default function Page() {
             )}
 
             <MangaLibraryView
-                genres={genres}
+                genres={mangaCollectionGenres}
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
                 storedProviders={storedProviders}

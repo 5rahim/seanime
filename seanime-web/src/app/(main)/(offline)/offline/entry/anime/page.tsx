@@ -26,7 +26,11 @@ export default function Page() {
     return (
         <>
             <OfflineMetaSection type="anime" entry={animeEntry} />
-            <PageWrapper className="p-4 relative">
+            <PageWrapper
+                className="p-4 relative"
+                data-media={JSON.stringify(animeEntry.media)}
+                data-anime-entry-list-data={JSON.stringify(animeEntry.listData)}
+            >
                 <EpisodeSection
                     entry={animeEntry}
                     details={undefined}

@@ -8,12 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/ziflex/lecho/v3"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
+	"github.com/ziflex/lecho/v3"
 )
 
 type Handler struct {
@@ -357,7 +356,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Discord := v1.Group("/discord")
 	v1Discord.POST("/presence/manga", h.HandleSetDiscordMangaActivity)
-	v1Discord.POST("/presence/anime", h.HandleSetDiscordAnimeActivity)
+	v1Discord.POST("/presence/legacy-anime", h.HandleSetDiscordLegacyAnimeActivity)
+	v1Discord.POST("/presence/anime", h.HandleSetDiscordAnimeActivityWithProgress)
+	v1Discord.POST("/presence/anime-update", h.HandleUpdateDiscordAnimeActivityWithProgress)
 	v1Discord.POST("/presence/cancel", h.HandleCancelDiscordActivity)
 
 	//
@@ -402,6 +403,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtension)
 	v1Extensions.POST("/all", h.HandleGetAllExtensions)
+	v1Extensions.GET("/updates", h.HandleGetExtensionUpdateData)
 	v1Extensions.GET("/list", h.HandleListExtensionData)
 	v1Extensions.GET("/payload/:id", h.HandleGetExtensionPayload)
 	v1Extensions.GET("/list/development", h.HandleListDevelopmentModeExtensions)
@@ -410,6 +412,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
 	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
+	v1Extensions.GET("/marketplace", h.HandleGetMarketplaceExtensions)
 	v1Extensions.GET("/plugin-settings", h.HandleGetPluginSettings)
 	v1Extensions.POST("/plugin-settings/pinned-trays", h.HandleSetPluginSettingsPinnedTrays)
 	v1Extensions.POST("/plugin-permissions/grant", h.HandleGrantPluginPermissions)

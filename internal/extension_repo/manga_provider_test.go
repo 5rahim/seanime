@@ -50,7 +50,7 @@ func TestBuiltinMangaExtension(t *testing.T) {
 
 	// Load all extensions
 	// This should load all the extensions in the directory
-	repo.LoadBuiltInMangaProviderExtension(extension.Extension{
+	repo.ReloadBuiltInExtension(extension.Extension{
 		ID:          "seanime-builtin-mangapill",
 		Type:        "manga-provider",
 		Name:        "Mangapill",

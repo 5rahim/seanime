@@ -1,10 +1,10 @@
 package torrent_client
 
 import (
-	"github.com/dustin/go-humanize"
-	"github.com/hekmon/transmissionrpc/v3"
 	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/util"
+
+	"github.com/hekmon/transmissionrpc/v3"
 )
 
 const (
@@ -78,7 +78,7 @@ func (r *Repository) FromTransmissionTorrent(t *transmissionrpc.Torrent) *Torren
 
 	torrent.Size = "N/A"
 	if t.TotalSize != nil {
-		torrent.Size = humanize.Bytes(uint64(*t.TotalSize))
+		torrent.Size = util.Bytes(uint64(*t.TotalSize))
 	}
 
 	torrent.Eta = "???"
@@ -130,7 +130,7 @@ func (r *Repository) FromQbitTorrent(t *qbittorrent_model.Torrent) *Torrent {
 	torrent.UpSpeed = util.ToHumanReadableSpeed(t.Upspeed)
 	torrent.DownSpeed = util.ToHumanReadableSpeed(t.Dlspeed)
 	torrent.Progress = t.Progress
-	torrent.Size = humanize.Bytes(uint64(t.Size))
+	torrent.Size = util.Bytes(uint64(t.Size))
 	torrent.Eta = util.FormatETA(t.Eta)
 	torrent.ContentPath = t.ContentPath
 	torrent.Status = fromQbitTorrentStatus(t.State)

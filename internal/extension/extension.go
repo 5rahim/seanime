@@ -33,9 +33,10 @@ type Extension struct {
 	// ID is the unique identifier of the extension
 	// It must be unique across all extensions
 	// It must start with a letter and contain only alphanumeric characters
-	ID      string `json:"id"`      // e.g. "extension-example"
-	Name    string `json:"name"`    // e.g. "Extension"
-	Version string `json:"version"` // e.g. "1.0.0"
+	ID               string `json:"id"`      // e.g. "extension-example"
+	Name             string `json:"name"`    // e.g. "Extension"
+	Version          string `json:"version"` // e.g. "1.0.0"
+	SemverConstraint string `json:"semverConstraint,omitempty"`
 	// The URI to the extension manifest file.
 	// This is "builtin" if the extension is built-in and "" if the extension is local.
 	ManifestURI string `json:"manifestURI"` // e.g. "http://cdn.something.app/extensions/extension-example/manifest.json"
@@ -70,6 +71,8 @@ type Extension struct {
 	// IsDevelopment is true if the extension is in development mode.
 	// If true, the extension code will be loaded from PayloadURI and allow you to edit the code from an editor and reload the extension without restarting the application.
 	IsDevelopment bool `json:"isDevelopment,omitempty"`
+
+	SavedUserConfig *SavedUserConfig `json:"-"` // Contains the saved user config for the extension
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,27 +95,33 @@ type BaseExtension interface {
 	GetWebsite() string
 	GetPermissions() []string
 	GetUserConfig() *UserConfig
+	GetSavedUserConfig() *SavedUserConfig
 	GetIsDevelopment() bool
+}
+
+type Configurable interface {
+	SetSavedUserConfig(config SavedUserConfig)
 }
 
 func ToExtensionData(ext BaseExtension) *Extension {
 	return &Extension{
-		ID:            ext.GetID(),
-		Name:          ext.GetName(),
-		Version:       ext.GetVersion(),
-		ManifestURI:   ext.GetManifestURI(),
-		Language:      ext.GetLanguage(),
-		Lang:          GetExtensionLang(ext.GetLang()),
-		Type:          ext.GetType(),
-		Description:   ext.GetDescription(),
-		Author:        ext.GetAuthor(),
-		Permissions:   ext.GetPermissions(),
-		UserConfig:    ext.GetUserConfig(),
-		Icon:          ext.GetIcon(),
-		Website:       ext.GetWebsite(),
-		Payload:       ext.GetPayload(),
-		PayloadURI:    ext.GetPayloadURI(),
-		IsDevelopment: ext.GetIsDevelopment(),
+		ID:              ext.GetID(),
+		Name:            ext.GetName(),
+		Version:         ext.GetVersion(),
+		ManifestURI:     ext.GetManifestURI(),
+		Language:        ext.GetLanguage(),
+		Lang:            GetExtensionLang(ext.GetLang()),
+		Type:            ext.GetType(),
+		Description:     ext.GetDescription(),
+		Author:          ext.GetAuthor(),
+		Permissions:     ext.GetPermissions(),
+		UserConfig:      ext.GetUserConfig(),
+		Icon:            ext.GetIcon(),
+		Website:         ext.GetWebsite(),
+		Payload:         ext.GetPayload(),
+		PayloadURI:      ext.GetPayloadURI(),
+		IsDevelopment:   ext.GetIsDevelopment(),
+		SavedUserConfig: ext.GetSavedUserConfig(),
 	}
 }
 
@@ -140,6 +149,8 @@ const (
 	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
 	// InvalidExtensionPluginPermissionsNotGranted is returned when the plugin permissions have not been granted
 	InvalidExtensionPluginPermissionsNotGranted InvalidExtensionErrorCode = "plugin_permissions_not_granted"
+	// InvalidExtensionSemverConstraintError is returned when the semver constraint is invalid
+	InvalidExtensionSemverConstraintError InvalidExtensionErrorCode = "invalid_semver_constraint"
 )
 
 type InvalidExtension struct {
@@ -161,6 +172,11 @@ type UserConfig struct {
 	// Whether the extension requires user configuration.
 	RequiresConfig bool `json:"requiresConfig"`
 	// This will be used to generate the user configuration form, and the values will be passed to the extension.
+	Fields []ConfigField `json:"fields"`
+}
+
+type Preferences struct {
+	// This will be used to generate the preference form, and the values will be passed to the extension.
 	Fields []ConfigField `json:"fields"`
 }
 

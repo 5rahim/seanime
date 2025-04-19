@@ -33,7 +33,7 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import React from "react"
+import React, { useState } from "react"
 import { AiOutlineColumnHeight, AiOutlineColumnWidth } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
 import { FaRedo, FaRegImage } from "react-icons/fa"
@@ -311,7 +311,24 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     }
 
     const [open, setOpen] = useAtom(__manga__readerSettingsDrawerOpen)
+    const [fullscreen, setFullscreen] = useState(false)
 
+    function handleFullscreen() {
+        const el = document.documentElement
+        if (fullscreen && document.exitFullscreen) {
+            document.exitFullscreen()
+            setFullscreen(false)
+        } else if (!fullscreen) {
+            if (el.requestFullscreen) {
+                el.requestFullscreen()
+            } else if ((el as any).webkitRequestFullscreen) {
+                (el as any).webkitRequestFullscreen()
+            } else if ((el as any).msRequestFullscreen) {
+                (el as any).msRequestFullscreen()
+            }
+            setFullscreen(true)
+        }
+    }
     return (
         <>
             <DropdownMenu
@@ -327,6 +344,9 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 <DropdownMenuItem
                     onClick={() => setOpen(true)}
                 >Open settings</DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={handleFullscreen}
+                >Toggle fullscreen</DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => setHideBar((prev) => !prev)}
                 >{hiddenBar ? "Show" : "Hide"} bar</DropdownMenuItem>

@@ -8,6 +8,7 @@ import (
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
@@ -18,8 +19,6 @@ import (
 	"sync"
 
 	"github.com/samber/lo"
-
-	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (
@@ -174,7 +173,11 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 
 		if searchRes == nil || len(searchRes) == 0 {
 			r.logger.Error().Msg("manga: No search results found")
-			return nil, ErrNoResults
+			if err != nil {
+				return nil, fmt.Errorf("%w, %w", ErrNoResults, err)
+			} else {
+				return nil, ErrNoResults
+			}
 		}
 
 		// Overwrite the provider just in case

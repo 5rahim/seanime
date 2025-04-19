@@ -36,7 +36,28 @@ declare type VideoSubtitle = {
     isDefault: boolean
 }
 
+declare interface Media {
+    id: number
+    idMal?: number
+    status?: string
+    format?: string
+    englishTitle?: string
+    romajiTitle?: string
+    episodeCount?: number
+    absoluteSeasonOffset?: number
+    synonyms: string[]
+    isAdult: boolean
+    startDate?: FuzzyDate
+}
+
+declare interface FuzzyDate {
+    year: number
+    month?: number
+    day?: number
+}
+
 declare type SearchOptions = {
+    media: Media
     query: string
     dub: boolean
     year?: number

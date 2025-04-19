@@ -32,7 +32,7 @@ export type LibraryToolbarProps = {
     unmatchedLocalFiles: Anime_LocalFile[]
     unknownGroups: Anime_UnknownGroup[]
     isLoading: boolean
-    hasScanned: boolean
+    hasEntries: boolean
 }
 
 export function LibraryToolbar(props: LibraryToolbarProps) {
@@ -42,7 +42,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         ignoredLocalFiles,
         unmatchedLocalFiles,
         unknownGroups,
-        hasScanned,
+        hasEntries,
     } = props
 
     const ts = useThemeSettings()
@@ -61,7 +61,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     return (
         <>
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasScanned) && <div
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasEntries) && <div
                 className={cn(
                     "h-28",
                     ts.hideTopNavbar && "h-40",
@@ -70,7 +70,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
             ></div>}
             <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]" data-library-toolbar-container>
                 <div className="flex flex-1" data-library-toolbar-spacer></div>
-                {(!!status?.settings?.library?.libraryPath && hasScanned) && (
+                {(!!status?.settings?.library?.libraryPath && hasEntries) && (
                     <>
                         <Tooltip
                             trigger={<IconButton
@@ -96,12 +96,12 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                         <Button
                             data-library-toolbar-scan-button
-                            intent={hasScanned ? "primary-subtle" : "primary"}
-                            leftIcon={hasScanned ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
+                            intent={hasEntries ? "primary-subtle" : "primary"}
+                            leftIcon={hasEntries ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
                             onClick={() => setScannerModalOpen(true)}
                             hideTextOnSmallScreen
                         >
-                            {hasScanned ? "Refresh library" : "Scan your library"}
+                            {hasEntries ? "Refresh library" : "Scan your library"}
                         </Button>
                     </>
                 )}
@@ -131,47 +131,47 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         />}
                     >
 
-                    <DropdownMenuItem
-                        data-library-toolbar-open-directory-button
-                        disabled={!status?.settings?.library?.libraryPath}
-                        className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
-                        onClick={() => {
-                            openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
-                        }}
-                    >
-                        <BiFolder />
-                        <span>Open directory</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        data-library-toolbar-bulk-actions-button
-                        onClick={() => setBulkActionIsOpen(true)}
-                        disabled={!hasScanned}
-                        className={cn({ "!text-[--muted]": !hasScanned })}
-                    >
-                        <BiCollection />
-                        <span>Bulk actions</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        data-library-toolbar-ignored-files-button
-                        onClick={() => setIgnoredFileManagerOpen(true)}
-                        // disabled={!hasScanned}
-                        className={cn({ "!text-[--muted]": !hasScanned })}
-                    >
-                        <TbFileSad />
-                        <span>Ignored files</span>
-                    </DropdownMenuItem>
-
-                    <SeaLink href="/scan-summaries">
                         <DropdownMenuItem
-                            data-library-toolbar-scan-summaries-button
-                            // className={cn({ "!text-[--muted]": !hasScanned })}
+                            data-library-toolbar-open-directory-button
+                            disabled={!status?.settings?.library?.libraryPath}
+                            className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                            onClick={() => {
+                                openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
+                            }}
                         >
-                            <PiClockCounterClockwiseFill />
-                            <span>Scan summaries</span>
+                            <BiFolder />
+                            <span>Open directory</span>
                         </DropdownMenuItem>
-                    </SeaLink>
+
+                        <DropdownMenuItem
+                            data-library-toolbar-bulk-actions-button
+                            onClick={() => setBulkActionIsOpen(true)}
+                            disabled={!hasEntries}
+                            className={cn({ "!text-[--muted]": !hasEntries })}
+                        >
+                            <BiCollection />
+                            <span>Bulk actions</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                            data-library-toolbar-ignored-files-button
+                            onClick={() => setIgnoredFileManagerOpen(true)}
+                            // disabled={!hasEntries}
+                            className={cn({ "!text-[--muted]": !hasEntries })}
+                        >
+                            <TbFileSad />
+                            <span>Ignored files</span>
+                        </DropdownMenuItem>
+
+                        <SeaLink href="/scan-summaries">
+                            <DropdownMenuItem
+                                data-library-toolbar-scan-summaries-button
+                            // className={cn({ "!text-[--muted]": !hasEntries })}
+                            >
+                                <PiClockCounterClockwiseFill />
+                                <span>Scan summaries</span>
+                            </DropdownMenuItem>
+                        </SeaLink>
 
                         <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}

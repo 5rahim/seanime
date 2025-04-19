@@ -13,12 +13,49 @@ type (
 	}
 
 	SearchOptions struct {
+		// The media object provided by Seanime.
+		Media Media `json:"media"`
+		// The search query.
 		Query string `json:"query"`
 		// Whether to search for subbed or dubbed anime.
 		Dub bool `json:"dub"`
 		// The year the anime was released.
 		// Will be 0 if the year is not available.
 		Year int `json:"year"`
+	}
+
+	Media struct {
+		// AniList ID of the media.
+		ID int `json:"id"`
+		// MyAnimeList ID of the media.
+		IDMal *int `json:"idMal,omitempty"`
+		// e.g. "FINISHED", "RELEASING", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"
+		// This will be set to "NOT_YET_RELEASED" if the status is unknown.
+		Status string `json:"status,omitempty"`
+		// e.g. "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC"
+		// This will be set to "TV" if the format is unknown.
+		Format string `json:"format,omitempty"`
+		// e.g. "Attack on Titan"
+		// This will be undefined if the english title is unknown.
+		EnglishTitle *string `json:"englishTitle,omitempty"`
+		// e.g. "Shingeki no Kyojin"
+		RomajiTitle string `json:"romajiTitle,omitempty"`
+		// TotalEpisodes is total number of episodes of the media.
+		// This will be -1 if the total number of episodes is unknown / not applicable.
+		EpisodeCount int `json:"episodeCount,omitempty"`
+		// All alternative titles of the media.
+		Synonyms []string `json:"synonyms"`
+		// Whether the media is NSFW.
+		IsAdult bool `json:"isAdult"`
+		// Start date of the media.
+		// This will be undefined if it has no start date.
+		StartDate *FuzzyDate `json:"startDate,omitempty"`
+	}
+
+	FuzzyDate struct {
+		Year  int  `json:"year"`
+		Month *int `json:"month"`
+		Day   *int `json:"day"`
 	}
 
 	Settings struct {

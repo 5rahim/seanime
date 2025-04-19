@@ -114,6 +114,8 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     showMangaUnreadCount: true,
     hideEpisodeCardDescription: false,
     hideDownloadedEpisodeCardFilename: false,
+    customCSS: "",
+    mobileCustomCSS: "",
 }
 
 
@@ -161,6 +163,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         showMangaUnreadCount: getThemeValue("showMangaUnreadCount", serverStatus?.themeSettings),
         hideEpisodeCardDescription: getThemeValue("hideEpisodeCardDescription", serverStatus?.themeSettings),
         hideDownloadedEpisodeCardFilename: getThemeValue("hideDownloadedEpisodeCardFilename", serverStatus?.themeSettings),
+        customCSS: getThemeValue("customCSS", serverStatus?.themeSettings),
+        mobileCustomCSS: getThemeValue("mobileCustomCSS", serverStatus?.themeSettings),
     }
 }
 
