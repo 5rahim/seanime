@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.2
+
+- ✨ UI: Custom CSS support
+- ✨ In-app extension marketplace
+    - Find extensions to install directly from the interface
+- ⚡️ Discord: Rich Presence anime activity with progress track
+- ⚡️ Torrent: New 'Nyaa (Non-English)' built-in extension with smart search
+- ⚡️ Torrent search: Added labels for audio, video, subtitles, dubs
+- ⚡️ Torrent search: Improved non-smart search UI
+- ⚡️ Extensions: Built-in extensions now support user preferences
+  - API Urls are now configurable for some built-in extensions
+- ⚡️ Extensions: Auto check for updates with notification
+- ⚡️ Extensions: Added media object to Online streaming search options
+- ⚡️ Extensions: User config (preferences) now accessible with '$getUserPreference' global function
+- ⚡️ UI Settings: Color scheme live preview #277
+- ⚡️ Manga: Fullscreen toggle on mobile (Android) #279
+- 🦺 Library: Fixed genre selector making library disappear #275
+- 🦺 Online streaming: Fixed search query being altered
+- 🦺 Fixed offline mode infinite loading screen (regression from v2.7.2) #278
+- 🦺 Extensions: Fixed playground console output #276
+- 🦺 Extensions: Fixed JS extension pool memory leak
+- 🦺 Extensions: Fixed Plugin Actions API
+- 🏗️ Removed Cloudflare bypass from ComicK extension
+- 🏗️ Extensions: Deprecated 'getMagnetLinkFromTorrentData' in favor of '$torrentUtils.getMagnetLinkFromTorrentData'
+- 🏗️ Plugins: New 'ctx.anime' API
+- 🏗️ Server: Use binary (IEC) measurement on Windows and Linux #280
+- 🏗️ Extensions: Updated and fixed type declaration files
+- 🏗️ Extensions: New 'semverConstraint' field
+
 ## v2.8.1
 
 - 🦺 Fixed runtime error when launching the app for the first time
