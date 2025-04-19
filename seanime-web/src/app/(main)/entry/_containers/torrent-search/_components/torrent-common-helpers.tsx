@@ -236,6 +236,9 @@ export const TorrentFilterSortControls: React.FC<{
                         Filters
                     </Button>}
                 >
+                    <p className="text-sm text-[--muted] flex-none pb-2">
+                        Filters may miss some results
+                    </p>
                     <div className="space-y-1">
                         <Checkbox
                             label={<div className="flex items-center gap-1">
