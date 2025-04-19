@@ -18,7 +18,6 @@ import (
 	"sync"
 
 	"github.com/5rahim/habari"
-	"github.com/dustin/go-humanize"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 )
@@ -348,7 +347,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 	}
 
 	if opts.torrent.FormattedSize == "" {
-		opts.torrent.FormattedSize = humanize.IBytes(uint64(opts.torrent.Size))
+		opts.torrent.FormattedSize = util.Bytes(uint64(opts.torrent.Size))
 	}
 
 	if isBatch {

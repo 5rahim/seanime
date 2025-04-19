@@ -5,8 +5,8 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
+	"seanime/internal/util"
 
-	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
 )
 
@@ -57,7 +57,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 
 	// Hydrate total library size
 	if libraryCollection != nil && libraryCollection.Stats != nil {
-		libraryCollection.Stats.TotalSize = humanize.IBytes(h.App.TotalLibrarySize)
+		libraryCollection.Stats.TotalSize = util.Bytes(h.App.TotalLibrarySize)
 	}
 
 	return h.RespondWithData(c, libraryCollection)

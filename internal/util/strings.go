@@ -8,11 +8,23 @@ import (
 	"math/big"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/dustin/go-humanize"
 )
+
+func Bytes(size uint64) string {
+	switch runtime.GOOS {
+	case "darwin":
+		return humanize.Bytes(size)
+	default:
+		return humanize.IBytes(size)
+	}
+}
 
 func Decode(s string) string {
 	decoded, err := base64.StdEncoding.DecodeString(s)
