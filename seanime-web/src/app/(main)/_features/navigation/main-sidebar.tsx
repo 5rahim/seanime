@@ -1,5 +1,6 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
+import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
@@ -107,6 +108,8 @@ export function MainSidebar() {
     })
 
     const { syncIsActive } = useSyncIsActive()
+
+    const { data: updateData } = useGetExtensionUpdateData()
 
     return (
         <>
@@ -286,6 +289,14 @@ export function MainSidebar() {
                                     name: "Extensions",
                                     href: "/extensions",
                                     isCurrent: pathname.includes("/extensions"),
+                                    addon: !!updateData?.length
+                                        ? <Badge
+                                            className="absolute right-0 top-0 bg-red-500 animate-pulse" size="sm"
+                                            intent="alert-solid"
+                                        >
+                                            {updateData?.length || 1}
+                                        </Badge>
+                                        : undefined,
                                 },
                                 {
                                     iconType: IoCloudOfflineOutline,

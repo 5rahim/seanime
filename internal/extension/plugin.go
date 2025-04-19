@@ -383,6 +383,10 @@ func (m *PluginExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
 }
 
+func (m *PluginExtensionImpl) GetSavedUserConfig() *SavedUserConfig {
+	return m.ext.SavedUserConfig
+}
+
 func (m *PluginExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }

@@ -49,6 +49,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		vm.SetParserOptions(parser.WithDisableSourceMaps)
 		// Bind the shared bindings
 		ShareBinds(vm, logger)
+		BindUserConfig(vm, ext, logger)
 		return vm
 	}
 
@@ -65,6 +66,10 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		source:         source,
 		runtimeManager: runtimeManager,
 	}, nil
+}
+
+func (g *gojaProviderBase) GetExtension() *extension.Extension {
+	return g.ext
 }
 
 func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName string, args ...interface{}) (goja.Value, error) {

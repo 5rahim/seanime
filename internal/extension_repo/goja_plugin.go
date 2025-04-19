@@ -61,6 +61,10 @@ type GojaPlugin struct {
 	wsEventManager  events.WSEventManagerInterface
 }
 
+func (p *GojaPlugin) GetExtension() *extension.Extension {
+	return p.ext
+}
+
 func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 	p.pool.Put(vm)
 }
@@ -137,6 +141,7 @@ func NewGojaPlugin(
 	// 2. Create a new loader for the plugin
 	// Bind shared APIs to the loader
 	ShareBinds(p.loader, logger)
+	BindUserConfig(p.loader, ext, logger)
 	// Bind hooks to the loader
 	p.bindHooks()
 
@@ -156,6 +161,7 @@ func NewGojaPlugin(
 	p.pool, err = runtimeManager.GetOrCreatePrivatePool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
+		BindUserConfig(runtime, ext, logger)
 		p.BindPluginAPIs(runtime, logger)
 		return runtime
 	})
@@ -171,6 +177,7 @@ func NewGojaPlugin(
 	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
 	// Bind shared APIs
 	ShareBinds(uiVM, logger)
+	BindUserConfig(uiVM, ext, logger)
 	// Bind the store to the UI VM
 	p.BindPluginAPIs(uiVM, logger)
 	// Create a new UI instance

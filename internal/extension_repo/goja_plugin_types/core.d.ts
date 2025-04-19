@@ -1,21 +1,117 @@
 /**
+ * Replaces the reference of the value with the new value.
+ * @param value - The value to replace
+ * @param newValue - The new value
+ */
+declare function $replace<T = any>(value: T, newValue: T): void
+
+/**
+ * Creates a deep copy of the value.
+ * @param value - The value to copy
+ * @returns A deep copy of the value
+ */
+declare function $clone<T = any>(value: T): T
+
+/**
+ * Converts a value to a string
+ * @param value - The value to convert
+ * @returns The string representation of the value
+ */
+declare function $toString(value: any): string
+
+/**
+ * Converts a value to a bytes array
+ * @param value - The value to convert
+ * @returns The bytes array
+ */
+declare function $toBytes(value: any): Uint8Array
+
+/**
+ * Sleeps for a specified amount of time
+ * @param milliseconds - The amount of time to sleep in milliseconds
+ */
+declare function $sleep(milliseconds: number): void
+
+/**
+ *
+ * @param model
+ */
+declare function $arrayOf<T>(model: T): T[]
+
+/**
+ * Marshals and unmarshals a value to a JSON string
+ * @param data - The value to marshal
+ * @param dst - The destination to unmarshal the value to. Must be a reference.
+ * @throws If unmarshalling fails
+ */
+declare function $unmarshalJSON(data: any, dst: any): void
+
+/**
+ * Get a user preference
+ * @param key The key of the preference
+ * @returns The value of the preference set by the user, the default value if it is not set, or undefined.
+ */
+declare function $getUserPreference(key: string): string | undefined;
+
+/**
+ * Habari
+ */
+
+declare namespace $habari {
+
+    interface Metadata {
+        season_number?: string[]
+        part_number?: string[]
+        title?: string
+        formatted_title?: string
+        anime_type?: string[]
+        year?: string
+        audio_term?: string[]
+        device_compatibility?: string[]
+        episode_number?: string[]
+        other_episode_number?: string[]
+        episode_number_alt?: string[]
+        episode_title?: string
+        file_checksum?: string
+        file_extension?: string
+        file_name?: string
+        language?: string[]
+        release_group?: string
+        release_information?: string[]
+        release_version?: string[]
+        source?: string[]
+        subtitles?: string[]
+        video_resolution?: string
+        video_term?: string[]
+        volume_number?: string[]
+    }
+
+    /**
+     * Parses a filename and returns the metadata
+     * @param filename - The filename to parse
+     * @returns The metadata
+     */
+    function parse(filename: string): Metadata
+}
+
+/**
  * Buffer
  */
 
 declare class Buffer extends ArrayBuffer {
     static poolSize: number
 
-    constructor(arg?: string | ArrayBuffer | ArrayLike<number>, encoding?: string);
+    constructor(arg?: string | ArrayBuffer | ArrayLike<number>, encoding?: string)
 
-    static from(arrayBuffer: ArrayBuffer): Buffer;
-    static from(array: ArrayLike<number>): Buffer;
-    static from(string: string, encoding?: string): Buffer;
+    static from(arrayBuffer: ArrayBuffer): Buffer
+    static from(array: ArrayLike<number>): Buffer
+    static from(string: string, encoding?: string): Buffer
 
-    static alloc(size: number, fill?: string | number, encoding?: string): Buffer;
+    static alloc(size: number, fill?: string | number, encoding?: string): Buffer
 
-    equals(other: Buffer | Uint8Array): boolean;
+    equals(other: Buffer | Uint8Array): boolean
 
-    toString(encoding?: string): string;
+    toString(encoding?: string): string
 }
 
 
@@ -173,4 +269,23 @@ declare interface DocSelectionFunction {
  * Torrent
  */
 
+/**
+ * Get a magnet link from a base64 encoded torrent data
+ * @param b64 - The base64 encoded torrent data
+ * @returns The magnet link
+ * @deprecated This function will be removed soon, use $torrentUtils.getMagnetLinkFromTorrentData instead
+ */
 declare function getMagnetLinkFromTorrentData(b64: string): string
+
+/**
+ * Torrent utils
+ */
+
+declare interface $torrentUtils {
+    /**
+     * Get a magnet link from a base64 encoded torrent data
+     * @param b64 - The base64 encoded torrent data
+     * @returns The magnet link
+     */
+    getMagnetLinkFromTorrentData(b64: string): string
+}

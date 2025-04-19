@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { ExtensionRepo_UpdateData } from "@/api/generated/types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
@@ -21,7 +22,16 @@ export function useExtensionListener() {
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.ListExtensionData.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key] })
             })()
+        },
+    })
+
+    useWebsocketMessageListener<ExtensionRepo_UpdateData[]>({
+        type: WSEvents.EXTENSION_UPDATES_FOUND,
+        onMessage: async (data) => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key] })
         },
     })
 

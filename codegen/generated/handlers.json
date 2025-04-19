@@ -3170,6 +3170,33 @@
     }
   },
   {
+    "name": "HandleGetExtensionUpdateData",
+    "trimmedName": "GetExtensionUpdateData",
+    "comments": [
+      "HandleGetExtensionUpdateData",
+      "",
+      "\t@summary returns the update data that were found for the extensions.",
+      "\t@route /api/v1/extensions/updates [GET]",
+      "\t@returns []extension_repo.UpdateData",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the update data that were found for the extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/updates",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.UpdateData",
+      "returnGoType": "extension_repo.UpdateData",
+      "returnTypescriptType": "Array\u003cExtensionRepo_UpdateData\u003e"
+    }
+  },
+  {
     "name": "HandleListMangaProviderExtensions",
     "trimmedName": "ListMangaProviderExtensions",
     "comments": [
@@ -3471,6 +3498,33 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetMarketplaceExtensions",
+    "trimmedName": "GetMarketplaceExtensions",
+    "comments": [
+      "HandleGetMarketplaceExtensions",
+      "",
+      "\t@summary returns the marketplace extensions.",
+      "\t@route /api/v1/extensions/marketplace [GET]",
+      "\t@returns []extension_repo.MarketplaceExtension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the marketplace extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/marketplace",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.MarketplaceExtension",
+      "returnGoType": "extension_repo.MarketplaceExtension",
+      "returnTypescriptType": "Array\u003cExtensionRepo_MarketplaceExtension\u003e"
     }
   },
   {

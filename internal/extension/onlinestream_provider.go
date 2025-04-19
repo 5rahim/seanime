@@ -85,6 +85,10 @@ func (m *OnlinestreamProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
 }
 
+func (m *OnlinestreamProviderExtensionImpl) GetSavedUserConfig() *SavedUserConfig {
+	return m.ext.SavedUserConfig
+}
+
 func (m *OnlinestreamProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }

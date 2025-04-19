@@ -3,6 +3,7 @@ import { useGetExtensionUserConfig, useSaveExtensionUserConfig } from "@/api/hoo
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select"
@@ -148,7 +149,12 @@ function Content({ extension, userConfigError }: { extension: Extension_Extensio
             })}
 
             <div className="flex">
-                <Button intent="white" loading={isPending} onClick={handleSave}>
+                <Button
+                    intent="white"
+                    loading={isPending}
+                    onClick={handleSave}
+                    className={cn(!!userConfigError && "animate-pulse")}
+                >
                     Save
                 </Button>
                 <div className="flex flex-1"></div>

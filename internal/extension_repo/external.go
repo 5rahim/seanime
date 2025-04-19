@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,6 +165,11 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 	r.reloadExtension(ext.ID)
 
 	if update {
+		r.updateDataMu.Lock()
+		r.updateData = lo.Filter(r.updateData, func(item UpdateData, _ int) bool {
+			return item.ExtensionID != ext.ID
+		})
+		r.updateDataMu.Unlock()
 		return &ExtensionInstallResponse{
 			Message: fmt.Sprintf("Successfully updated %s", ext.Name),
 		}, nil
@@ -349,33 +355,47 @@ func (r *Repository) ReloadExternalExtension(id string) {
 	runtime.GC()
 }
 
-// killGojaVMs kills all VMs from currently loaded Goja extensions & clears the Goja extensions map.
-func (r *Repository) killGojaVMs() {
-	defer util.HandlePanicInModuleThen("extension_repo/killGojaVMs", func() {})
+// interruptExternalGojaExtensionVMs kills all VMs from currently loaded external Goja extensions & clears the Goja extensions map.
+func (r *Repository) interruptExternalGojaExtensionVMs() {
+	defer util.HandlePanicInModuleThen("extension_repo/interruptExternalGojaExtensionVMs", func() {})
 
-	r.logger.Trace().Msg("extensions: Killing Goja VMs")
+	r.logger.Trace().Msg("extensions: Interrupting Goja VMs")
 
-	r.gojaExtensions.Range(func(key string, ext GojaExtension) bool {
-		defer util.HandlePanicInModuleThen(fmt.Sprintf("extension_repo/killGojaVMs/%s", key), func() {})
+	count := 0
+	// Remove external extensions from the Goja extensions map
+	//r.gojaExtensions.Clear()
+	for _, key := range r.gojaExtensions.Keys() {
+		if gojaExt, ok := r.gojaExtensions.Get(key); ok {
+			if gojaExt.GetExtension().ManifestURI != "builtin" {
+				gojaExt.ClearInterrupt()
+				r.gojaExtensions.Delete(key)
+				count++
+			}
+		}
+	}
 
-		ext.ClearInterrupt()
-		return true
-	})
-
-	// Clear the Goja extensions map
-	r.gojaExtensions.Clear()
-
-	r.logger.Debug().Msg("extensions: Killed Goja VMs")
+	r.logger.Debug().Int("count", count).Msg("extensions: Killed Goja VMs")
 }
 
 // unloadExternalExtensions unloads all external extensions from the extension banks.
 func (r *Repository) unloadExternalExtensions() {
 	r.logger.Trace().Msg("extensions: Unloading external extensions")
 	// We also clear the invalid extensions list, assuming the extensions are reloaded
-	r.invalidExtensions.Clear()
+	//r.invalidExtensions.Clear()
+
+	count := 0
+
+	for _, key := range r.invalidExtensions.Keys() {
+		if invalidExt, ok := r.invalidExtensions.Get(key); ok {
+			if invalidExt.Extension.ManifestURI != "builtin" {
+				r.invalidExtensions.Delete(key)
+				count++
+			}
+		}
+	}
 	r.extensionBank.RemoveExternalExtensions()
 
-	r.logger.Debug().Msg("extensions: Unloaded external extensions")
+	r.logger.Debug().Int("count", count).Msg("extensions: Unloaded external extensions")
 }
 
 // loadExternalExtensions loads all external extensions from the extension directory.
@@ -383,8 +403,8 @@ func (r *Repository) unloadExternalExtensions() {
 func (r *Repository) loadExternalExtensions() {
 	r.logger.Trace().Msg("extensions: Loading external extensions")
 
-	// Kill all Goja VMs
-	r.killGojaVMs()
+	// Interrupt all Goja VMs
+	r.interruptExternalGojaExtensionVMs()
 
 	// Unload all external extensions
 	r.unloadExternalExtensions()
@@ -420,6 +440,10 @@ func (r *Repository) loadExternalExtensions() {
 	}
 
 	r.logger.Debug().Msg("extensions: Loaded external extensions")
+
+	if r.firstExternalExtensionLoadedFunc != nil {
+		r.firstExternalExtensionLoadedFunc()
+	}
 
 	r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
 }

@@ -11,6 +11,7 @@ import (
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/extension_repo"
+	goja_runtime "seanime/internal/goja/goja_runtime"
 	"seanime/internal/manga"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/platform"
@@ -23,8 +24,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-
-	goja_runtime "seanime/internal/goja/goja_runtime"
 )
 
 type (
@@ -143,9 +142,7 @@ func newPlaygroundResponse(playgroundLogger *PlaygroundDebugLogger, value interf
 		}
 	}
 
-	util.Spew(playgroundLogger.buff)
 	logs := playgroundLogger.buff.String()
-	util.Spew(logs)
 
 	return &RunPlaygroundCodeResponse{
 		Logs:  logs,

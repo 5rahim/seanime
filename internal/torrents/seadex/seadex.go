@@ -2,10 +2,13 @@ package seadex
 
 import (
 	"fmt"
+	"net/http"
+	"seanime/internal/extension"
+	"seanime/internal/util"
+	"strings"
+
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"net/http"
-	"strings"
 )
 
 type (
@@ -27,7 +30,14 @@ type (
 func New(logger *zerolog.Logger) *SeaDex {
 	return &SeaDex{
 		logger: logger,
-		uri:    "https://releases.moe/api/collections/entries/records",
+		uri:    util.Decode("aHR0cHM6Ly9yZWxlYXNlcy5tb2UvYXBpL2NvbGxlY3Rpb25zL2VudHJpZXMvcmVjb3Jkcw=="),
+	}
+}
+
+func (s *SeaDex) SetSavedUserConfig(savedConfig *extension.SavedUserConfig) {
+	url, _ := savedConfig.Values["apiUrl"]
+	if url != "" {
+		s.uri = url
 	}
 }
 

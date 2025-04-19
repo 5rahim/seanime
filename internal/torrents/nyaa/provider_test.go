@@ -13,7 +13,7 @@ import (
 
 func TestSearch(t *testing.T) {
 
-	nyaaProvider := NewProvider(util.NewLogger())
+	nyaaProvider := NewProvider(util.NewLogger(), categoryAnime)
 
 	torrents, err := nyaaProvider.Search(hibiketorrent.AnimeSearchOptions{
 		Query: "One Piece",
@@ -32,7 +32,7 @@ func TestSmartSearch(t *testing.T) {
 	logger := util.NewLogger()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
-	nyaaProvider := NewProvider(util.NewLogger())
+	nyaaProvider := NewProvider(util.NewLogger(), categoryAnime)
 
 	tests := []struct {
 		name           string

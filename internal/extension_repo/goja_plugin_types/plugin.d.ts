@@ -1325,33 +1325,6 @@ declare namespace $store {
 }
 
 /**
- * Replaces the reference of the value with the new value.
- * @param value - The value to replace
- * @param newValue - The new value
- */
-declare function $replace<T = any>(value: T, newValue: T): void
-
-/**
- * Creates a deep copy of the value.
- * @param value - The value to copy
- * @returns A deep copy of the value
- */
-declare function $clone<T = any>(value: T): T
-
-/**
- * Converts a value to a string
- * @param value - The value to convert
- * @returns The string representation of the value
- */
-declare function $toString(value: any): string
-
-/**
- * Sleeps for a specified amount of time
- * @param milliseconds - The amount of time to sleep in milliseconds
- */
-declare function $sleep(milliseconds: number): void
-
-/**
  * Cron
  */
 
@@ -1612,41 +1585,4 @@ declare namespace $app {
      * @param queryKeys - Keys of the queries to invalidate
      */
     function invalidateClientQuery(queryKeys: string[]): void
-}
-
-declare namespace $habari {
-
-    interface Metadata {
-        season_number?: string[];
-        part_number?: string[];
-        title?: string;
-        formatted_title?: string;
-        anime_type?: string[];
-        year?: string;
-        audio_term?: string[];
-        device_compatibility?: string[];
-        episode_number?: string[];
-        other_episode_number?: string[];
-        episode_number_alt?: string[];
-        episode_title?: string;
-        file_checksum?: string;
-        file_extension?: string;
-        file_name?: string;
-        language?: string[];
-        release_group?: string;
-        release_information?: string[];
-        release_version?: string[];
-        source?: string[];
-        subtitles?: string[];
-        video_resolution?: string;
-        video_term?: string[];
-        volume_number?: string[];
-    }
-
-    /**
-     * Parses a filename and returns the metadata
-     * @param filename - The filename to parse
-     * @returns The metadata
-     */
-    function parse(filename: string): Metadata
 }

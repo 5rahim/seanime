@@ -1,10 +1,12 @@
 package nyaa
 
 import (
-	"github.com/mmcdole/gofeed"
-	"github.com/rs/zerolog"
+	"seanime/internal/extension"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"sync"
+
+	"github.com/mmcdole/gofeed"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -12,13 +14,18 @@ const (
 )
 
 type SukebeiProvider struct {
-	logger *zerolog.Logger
+	logger  *zerolog.Logger
+	baseUrl string
 }
 
 func NewSukebeiProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	return &SukebeiProvider{
 		logger: logger,
 	}
+}
+
+func (n *SukebeiProvider) SetSavedUserConfig(config extension.SavedUserConfig) {
+	n.baseUrl, _ = config.Values["apiUrl"]
 }
 
 func (n *SukebeiProvider) GetSettings() hibiketorrent.AnimeProviderSettings {
@@ -32,7 +39,7 @@ func (n *SukebeiProvider) GetSettings() hibiketorrent.AnimeProviderSettings {
 func (n *SukebeiProvider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	fp := gofeed.NewParser()
 
-	url, err := buildURL(BuildURLOptions{
+	url, err := buildURL(n.baseUrl, BuildURLOptions{
 		Provider: "sukebei",
 		Query:    "",
 		Category: "art-anime",
@@ -75,7 +82,7 @@ func (n *SukebeiProvider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*
 
 	n.logger.Trace().Str("query", opts.Query).Msg("nyaa: Search query")
 
-	url, err := buildURL(BuildURLOptions{
+	url, err := buildURL(n.baseUrl, BuildURLOptions{
 		Provider: "sukebei",
 		Query:    opts.Query,
 		Category: "art-anime",

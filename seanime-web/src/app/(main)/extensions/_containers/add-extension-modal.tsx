@@ -63,14 +63,14 @@ export function AddExtensionModal(props: AddExtensionModalProps) {
                 <div className="flex gap-4 flex-col lg:flex-row">
                     <div className="lg:w-1/3">
                         <h3 className="text-2xl font-bold">Install from URL</h3>
-                        <p className="text-[--muted]">Install an extension by providing the URL to the extension manifest file.</p>
+                        <p className="text-[--muted]">Install an extension by entering URL of the manifest file.</p>
                     </div>
                     <div className="lg:w-2/3 gap-3 flex flex-col">
                         <TextInput
                             placeholder="https://example.com/extension.json"
                             value={manifestURL}
                             onValueChange={setManifestURL}
-                            label="Extension URL"
+                            label="URL"
                         />
                         <Button
                             leftIcon={<FiSearch />}

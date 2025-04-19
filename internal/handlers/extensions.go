@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/url"
 	"seanime/internal/extension"
 	"seanime/internal/extension_playground"
 
@@ -178,6 +179,15 @@ func (h *Handler) HandleGetAllExtensions(c echo.Context) error {
 	return h.RespondWithData(c, extensions)
 }
 
+// HandleGetExtensionUpdateData
+//
+//	@summary returns the update data that were found for the extensions.
+//	@route /api/v1/extensions/updates [GET]
+//	@returns []extension_repo.UpdateData
+func (h *Handler) HandleGetExtensionUpdateData(c echo.Context) error {
+	return h.RespondWithData(c, h.App.ExtensionRepository.GetUpdateData())
+}
+
 // HandleListMangaProviderExtensions
 //
 //	@summary returns the installed manga providers.
@@ -326,4 +336,27 @@ func (h *Handler) HandleSaveExtensionUserConfig(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetMarketplaceExtensions
+//
+//	@summary returns the marketplace extensions.
+//	@route /api/v1/extensions/marketplace [GET]
+//	@returns []extension_repo.MarketplaceExtension
+func (h *Handler) HandleGetMarketplaceExtensions(c echo.Context) error {
+	encodedMarketplaceUrl := c.QueryParam("marketplace")
+	marketplaceUrl := ""
+
+	if encodedMarketplaceUrl != "" {
+		marketplaceUrl, _ = url.PathUnescape(encodedMarketplaceUrl)
+	}
+
+	extensions, err := h.App.ExtensionRepository.GetMarketplaceExtensions(marketplaceUrl)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, extensions)
 }

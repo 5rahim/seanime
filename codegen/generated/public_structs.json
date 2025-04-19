@@ -33276,6 +33276,19 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SavedUserConfig",
+        "jsonName": "",
+        "goType": "SavedUserConfig",
+        "typescriptType": "Extension_SavedUserConfig",
+        "usedTypescriptType": "Extension_SavedUserConfig",
+        "usedStructName": "extension.SavedUserConfig",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Contains the saved user config for the extension"
+        ]
       }
     ],
     "comments": []
@@ -33393,6 +33406,27 @@
         "public": true,
         "comments": []
       },
+      {
+        "name": "Fields",
+        "jsonName": "fields",
+        "goType": "[]ConfigField",
+        "typescriptType": "Array\u003cExtension_ConfigField\u003e",
+        "usedTypescriptType": "Extension_ConfigField",
+        "usedStructName": "extension.ConfigField",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "Preferences",
+    "formattedName": "Extension_Preferences",
+    "package": "extension",
+    "fields": [
       {
         "name": "Fields",
         "jsonName": "fields",
@@ -35747,6 +35781,59 @@
         "typescriptType": "Manager",
         "usedTypescriptType": "Manager",
         "usedStructName": "hook.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedTypescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "builtinExtensions",
+        "jsonName": "builtinExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateData",
+        "jsonName": "updateData",
+        "goType": "[]UpdateData",
+        "typescriptType": "Array\u003cExtensionRepo_UpdateData\u003e",
+        "usedTypescriptType": "ExtensionRepo_UpdateData",
+        "usedStructName": "extension_repo.UpdateData",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateDataMu",
+        "jsonName": "updateDataMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedTypescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "firstExternalExtensionLoadedFunc",
+        "jsonName": "firstExternalExtensionLoadedFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
         "comments": []
@@ -55109,10 +55196,20 @@
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "EpisodeGridItemContextMenuItem",
-    "formattedName": "EpisodeGridItemContextMenuItem",
+    "name": "EpisodeGridItemMenuItem",
+    "formattedName": "EpisodeGridItemMenuItem",
     "package": "plugin_ui",
-    "fields": [],
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "plugin_ui.BaseAction"
@@ -65772,6 +65869,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -65791,6 +65906,15 @@
         "usedTypescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       }

@@ -21,6 +21,7 @@ import {
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
     ExtensionRepo_StoredPluginSettingsData,
+    ExtensionRepo_UpdateData,
     Nullish,
     RunPlaygroundCodeResponse,
 } from "@/api/generated/types"
@@ -230,5 +231,24 @@ export function useGrantPluginPermissions() {
             toast.success("Plugin permissions granted successfully.")
             queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
         },
+    })
+}
+
+export function useGetMarketplaceExtensions(marketplaceUrl?: string) {
+    const url = marketplaceUrl ? `?marketplace=${encodeURIComponent(marketplaceUrl)}` : ""
+    return useServerQuery<Array<Extension_Extension>>({
+        endpoint: `${API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.endpoint}${url}`,
+        method: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.key, marketplaceUrl],
+        enabled: true,
+    })
+}
+
+export function useGetExtensionUpdateData() {
+    return useServerQuery<Array<ExtensionRepo_UpdateData>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key],
+        enabled: true,
     })
 }

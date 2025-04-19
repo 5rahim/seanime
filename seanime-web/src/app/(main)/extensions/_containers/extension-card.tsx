@@ -8,6 +8,7 @@ import {
 import { ExtensionDetails } from "@/app/(main)/extensions/_components/extension-details"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { ExtensionUserConfigModal } from "@/app/(main)/extensions/_containers/extension-user-config"
+import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +17,6 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
-import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
 import { FaCode } from "react-icons/fa"
@@ -54,7 +54,8 @@ export function ExtensionCard(props: ExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-[--radius-md] p-3",
+                "bg-gray-950 rounded-md p-3",
+                !!updateData && "border-[--green]",
             )}
         >
             <div
@@ -64,27 +65,42 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 )}
             ></div>
 
-            {isBuiltin && <p className="text-[--muted] text-xs absolute italic top-2 right-3">
-                Built-in
-            </p>}
-
             <div className="absolute top-3 right-3 z-[2]">
-                <div className=" flex flex-row gap-1 z-[2] flex-wrap gap-1 justify-end">
-                    {!isBuiltin && (
-                        <ExtensionSettings extension={extension} isInstalled={isInstalled} updateData={updateData}>
-                            <div>
-                                <Tooltip
-                                    trigger={<IconButton
-                                        size="sm"
-                                        intent="gray-basic"
-                                        icon={<LuEllipsisVertical />}
-                                    />}
-                                >Settings</Tooltip>
-                            </div>
-                        </ExtensionSettings>
+                <div className=" flex flex-row gap-1 z-[2] flex-wrap justify-end">
+
+                    {!!extension.userConfig && (
+                        <>
+                            <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
+                                <div>
+                                    <Tooltip
+                                        side="top"
+                                        trigger={<IconButton
+                                            size="sm"
+                                            intent={userConfigError ? "alert" : "gray-basic"}
+                                            icon={<HiOutlineAdjustments />}
+                                            className={cn(
+                                                userConfigError && "animate-bounce",
+                                            )}
+                                        />}
+                                    >Preferences</Tooltip>
+                                </div>
+                            </ExtensionUserConfigModal>
+                        </>
                     )}
+
+                    <ExtensionSettings extension={extension} isInstalled={isInstalled} updateData={updateData}>
+                        <div>
+                            <Tooltip
+                                trigger={<IconButton
+                                    size="sm"
+                                    intent="gray-basic"
+                                    icon={<LuEllipsisVertical />}
+                                />}
+                            >Info</Tooltip>
+                        </div>
+                    </ExtensionSettings>
                 </div>
-                <div className="flex flex-row gap-1 z-[2] flex-wrap gap-1">
+                <div className="flex flex-row gap-1 z-[2] flex-wrap">
                     {!isBuiltin && (
                         <ExtensionCodeModal extension={extension}>
                             <div>
@@ -94,31 +110,13 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                         intent="gray-basic"
                                         icon={<FaCode />}
                                     />}
+                                    side="left"
                                 >Code</Tooltip>
                             </div>
                         </ExtensionCodeModal>
                     )}
 
-                    {!!extension.userConfig && (
-                        <>
-                            <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
-                                <div>
-                                    <Tooltip
-                                        side="right" trigger={<IconButton
-                                        size="sm"
-                                        intent={userConfigError ? "alert" : "gray-basic"}
-                                        icon={<HiOutlineAdjustments />}
-                                    className={cn(
-                                        userConfigError && "animate-bounce",
-                                    )}
-                                    />}
-                                    >Preferences</Tooltip>
-                                </div>
-                            </ExtensionUserConfigModal>
-                        </>
-                    )}
-
-                    {allowReload && (
+                    {(allowReload && !isBuiltin) && (
                         <div>
                             <Tooltip
                                 side="right" trigger={<IconButton
@@ -126,9 +124,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                 intent="gray-basic"
                                 icon={<LuRefreshCcw />}
                                 onClick={() => {
-                                if (!extension.id) return toast.error("Extension has no ID")
-                                reloadExternalExtension({ id: extension.id })
-                            }}
+                                    if (!extension.id) return toast.error("Extension has no ID")
+                                    reloadExternalExtension({ id: extension.id })
+                                }}
                                 disabled={isReloadingExtension}
                             />}
                             >Reload</Tooltip>
@@ -139,7 +137,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
 
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
+                    <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
                         {!!extension.icon ? (
                             <Image
                                 src={extension.icon}
@@ -161,26 +159,30 @@ export function ExtensionCard(props: ExtensionCardProps) {
                         <p className="font-semibold line-clamp-1">
                             {extension.name}
                         </p>
-                        <p className="text-[--muted] text-sm line-clamp-1 italic">
+                        <p className="opacity-30 text-xs line-clamp-1 tracking-wide">
                             {extension.id}
                         </p>
                     </div>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
-                    {!!extension.version && <Badge className="rounded-[--radius-md]">
+                    {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
+                        Built-in
+                    </Badge>}
+                    {!!extension.version && <Badge className="rounded-md tracking-wide">
                         {extension.version}
                     </Badge>}
-                    {!isBuiltin && <Badge className="rounded-[--radius-md]" intent="unstyled">
+                    {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {extension.lang.toUpperCase()}
+                    <Badge className="rounded-md" intent="unstyled">
+                        {/*{extension.lang.toUpperCase()}*/}
+                        {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
                     </Badge>
-                    <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {capitalize(extension.language)}
-                    </Badge>
-                    {!!updateData && <Badge className="rounded-[--radius-md]" intent="success">
+                    {/*<Badge className="rounded-md" intent="unstyled">*/}
+                    {/*    {capitalize(extension.language)}*/}
+                    {/*</Badge>*/}
+                    {!!updateData && <Badge className="rounded-md" intent="success">
                         Update available
                     </Badge>}
                 </div>
@@ -207,8 +209,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
         ...rest
     } = props
 
-    // If the extension is installed, it will not have a payload
-    // const installed = !extension.payload
+    const isBuiltin = extension.manifestURI === "builtin"
 
     const { mutate: uninstall, isPending: isUninstalling } = useUninstallExternalExtension()
 
@@ -268,52 +269,59 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
 
             <ExtensionDetails extension={extension} />
 
-            {isInstalled && (
-                <div className="flex gap-2">
-                    <>
-                        {!!extension.manifestURI && <Button
-                            intent="gray-outline"
-                            leftIcon={<GrUpdate className="text-lg" />}
-                            disabled={!extension.manifestURI}
-                            onClick={handleCheckUpdate}
-                            loading={isFetchingData}
-                        >
-                            Check for updates
-                        </Button>}
+            {!isBuiltin && (
+                <>
 
-                        <Button
-                            intent="alert-subtle"
-                            leftIcon={<RiDeleteBinLine className="text-xl" />}
-                            onClick={confirmUninstall.open}
-                        >
-                            Uninstall
-                        </Button>
-                    </>
-                </div>
+                    {isInstalled && (
+                        <div className="flex gap-2">
+                            <>
+                                {!!extension.manifestURI && <Button
+                                    intent="gray-outline"
+                                    leftIcon={<GrUpdate className="text-lg" />}
+                                    disabled={!extension.manifestURI}
+                                    onClick={handleCheckUpdate}
+                                    loading={isFetchingData}
+                                >
+                                    Check for updates
+                                </Button>}
+
+                                <Button
+                                    intent="alert-subtle"
+                                    leftIcon={<RiDeleteBinLine className="text-xl" />}
+                                    onClick={confirmUninstall.open}
+                                >
+                                    Uninstall
+                                </Button>
+                            </>
+                        </div>
+                    )}
+
+
+                    {((!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) || !!updateData) && (
+                        <AppLayoutStack>
+                            <p className="">
+                                Update available: <span className="font-bold text-white">{fetchedExtensionData?.version || updateData?.version}</span>
+                            </p>
+                            <Button
+                                intent="white"
+                                leftIcon={<TbCloudDownload className="text-lg" />}
+                                loading={isInstalling}
+                                onClick={() => {
+                                    installExtension({
+                                        manifestUri: fetchedExtensionData?.manifestURI || updateData?.manifestURI || "",
+                                    })
+                                }}
+                            >
+                                Install update
+                            </Button>
+                        </AppLayoutStack>
+                    )}
+
+                    <ConfirmationDialog {...confirmUninstall} />
+
+
+                </>
             )}
-
-
-            {((!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) || !!updateData) && (
-                <AppLayoutStack>
-                    <p className="">
-                        Update available: <span className="font-bold text-white">{fetchedExtensionData?.version || updateData?.version}</span>
-                    </p>
-                    <Button
-                        intent="white"
-                        leftIcon={<TbCloudDownload className="text-lg" />}
-                        loading={isInstalling}
-                        onClick={() => {
-                            installExtension({
-                                manifestUri: fetchedExtensionData?.manifestURI || updateData?.manifestURI || "",
-                            })
-                        }}
-                    >
-                        Install update
-                    </Button>
-                </AppLayoutStack>
-            )}
-
-            <ConfirmationDialog {...confirmUninstall} />
         </Modal>
     )
 }

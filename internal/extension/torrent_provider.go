@@ -85,6 +85,10 @@ func (m *AnimeTorrentProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
 }
 
+func (m *AnimeTorrentProviderExtensionImpl) GetSavedUserConfig() *SavedUserConfig {
+	return m.ext.SavedUserConfig
+}
+
 func (m *AnimeTorrentProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }

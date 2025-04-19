@@ -86,3 +86,12 @@ func (c *Map[K, V]) Values() []V {
 	})
 	return values
 }
+
+func (c *Map[K, V]) Keys() []K {
+	keys := make([]K, 0)
+	c.store.Range(func(key, value interface{}) bool {
+		keys = append(keys, key.(K))
+		return true
+	})
+	return keys
+}

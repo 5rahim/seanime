@@ -776,6 +776,15 @@
 //     })
 // }
 
+// export function useGetExtensionUpdateData() {
+//     return useServerQuery<Array<ExtensionRepo_UpdateData>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useListMangaProviderExtensions() {
 //     return useServerQuery<Array<ExtensionRepo_MangaProviderExtensionItem>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListMangaProviderExtensions.endpoint,
@@ -862,6 +871,15 @@
 //         onSuccess: async () => {
 // 
 //         },
+//     })
+// }
+
+// export function useGetMarketplaceExtensions() {
+//     return useServerQuery<Array<ExtensionRepo_MarketplaceExtension>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.key],
+//         enabled: true,
 //     })
 // }
 

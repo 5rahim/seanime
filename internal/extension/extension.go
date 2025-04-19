@@ -70,6 +70,8 @@ type Extension struct {
 	// IsDevelopment is true if the extension is in development mode.
 	// If true, the extension code will be loaded from PayloadURI and allow you to edit the code from an editor and reload the extension without restarting the application.
 	IsDevelopment bool `json:"isDevelopment,omitempty"`
+
+	SavedUserConfig *SavedUserConfig `json:"-"` // Contains the saved user config for the extension
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,27 +94,33 @@ type BaseExtension interface {
 	GetWebsite() string
 	GetPermissions() []string
 	GetUserConfig() *UserConfig
+	GetSavedUserConfig() *SavedUserConfig
 	GetIsDevelopment() bool
+}
+
+type Configurable interface {
+	SetSavedUserConfig(config SavedUserConfig)
 }
 
 func ToExtensionData(ext BaseExtension) *Extension {
 	return &Extension{
-		ID:            ext.GetID(),
-		Name:          ext.GetName(),
-		Version:       ext.GetVersion(),
-		ManifestURI:   ext.GetManifestURI(),
-		Language:      ext.GetLanguage(),
-		Lang:          GetExtensionLang(ext.GetLang()),
-		Type:          ext.GetType(),
-		Description:   ext.GetDescription(),
-		Author:        ext.GetAuthor(),
-		Permissions:   ext.GetPermissions(),
-		UserConfig:    ext.GetUserConfig(),
-		Icon:          ext.GetIcon(),
-		Website:       ext.GetWebsite(),
-		Payload:       ext.GetPayload(),
-		PayloadURI:    ext.GetPayloadURI(),
-		IsDevelopment: ext.GetIsDevelopment(),
+		ID:              ext.GetID(),
+		Name:            ext.GetName(),
+		Version:         ext.GetVersion(),
+		ManifestURI:     ext.GetManifestURI(),
+		Language:        ext.GetLanguage(),
+		Lang:            GetExtensionLang(ext.GetLang()),
+		Type:            ext.GetType(),
+		Description:     ext.GetDescription(),
+		Author:          ext.GetAuthor(),
+		Permissions:     ext.GetPermissions(),
+		UserConfig:      ext.GetUserConfig(),
+		Icon:            ext.GetIcon(),
+		Website:         ext.GetWebsite(),
+		Payload:         ext.GetPayload(),
+		PayloadURI:      ext.GetPayloadURI(),
+		IsDevelopment:   ext.GetIsDevelopment(),
+		SavedUserConfig: ext.GetSavedUserConfig(),
 	}
 }
 
@@ -161,6 +169,11 @@ type UserConfig struct {
 	// Whether the extension requires user configuration.
 	RequiresConfig bool `json:"requiresConfig"`
 	// This will be used to generate the user configuration form, and the values will be passed to the extension.
+	Fields []ConfigField `json:"fields"`
+}
+
+type Preferences struct {
+	// This will be used to generate the preference form, and the values will be passed to the extension.
 	Fields []ConfigField `json:"fields"`
 }
 

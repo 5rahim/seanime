@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"slices"
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (
@@ -85,13 +85,12 @@ func (c *ComicK) GetSettings() hibikemanga.Settings {
 }
 
 func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
-
-	c.logger.Debug().Str("query", opts.Query).Msg("comick: Searching manga")
-
 	searchUrl := fmt.Sprintf("%s/v1.0/search?q=%s&limit=25&page=1", c.Url, url.QueryEscape(opts.Query))
 	if opts.Year != 0 {
 		searchUrl += fmt.Sprintf("&from=%d&to=%d", opts.Year, opts.Year)
 	}
+
+	c.logger.Debug().Str("searchUrl", searchUrl).Msg("comick: Searching manga")
 
 	req, err := http.NewRequest("GET", searchUrl, nil)
 	if err != nil {
@@ -99,7 +98,7 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
+	//req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -117,7 +116,7 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 	var data []*ComicKResultItem
 	if err := json.Unmarshal(body, &data); err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf("failed to reach API: %w", err)
 	}
 
 	results := make([]*hibikemanga.SearchResult, 0)

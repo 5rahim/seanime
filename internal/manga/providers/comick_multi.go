@@ -29,7 +29,7 @@ func NewComicKMulti(logger *zerolog.Logger) *ComicKMulti {
 	c := &http.Client{
 		Timeout: 60 * time.Second,
 	}
-	c.Transport = util.AddCloudFlareByPass(c.Transport)
+	//c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &ComicKMulti{
 		Url:       "https://api.comick.fun",
 		Client:    c,
@@ -73,7 +73,7 @@ func (c *ComicKMulti) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sea
 	var data []*ComicKResultItem
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf("failed to reach API: %w", err)
 	}
 
 	results := make([]*hibikemanga.SearchResult, 0)

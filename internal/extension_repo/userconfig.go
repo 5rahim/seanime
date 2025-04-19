@@ -48,14 +48,23 @@ func (r *Repository) loadUserConfig(ext *extension.Extension) (err error) {
 		return ErrIncompatibleUserConfig
 	}
 
+	// Store the user config so it's accessible inside the VMs
+	ext.SavedUserConfig = &savedConfig
+	if ext.SavedUserConfig.Values == nil {
+		ext.SavedUserConfig.Values = make(map[string]string)
+	}
+	ext.SavedUserConfig.Version = ext.UserConfig.Version
+
 	if found {
 		// Replace the placeholders in the payload with the saved values
 		for _, field := range ext.UserConfig.Fields {
 			savedValue, found := savedConfig.Values[field.Name]
 			if !found {
 				ext.Payload = strings.ReplaceAll(ext.Payload, fmt.Sprintf("{{%s}}", field.Name), field.Default)
+				ext.SavedUserConfig.Values[field.Name] = field.Default // Update saved config
 			} else {
 				ext.Payload = strings.ReplaceAll(ext.Payload, fmt.Sprintf("{{%s}}", field.Name), savedValue)
+				ext.SavedUserConfig.Values[field.Name] = savedValue // Update saved config
 			}
 		}
 		return nil
@@ -63,6 +72,7 @@ func (r *Repository) loadUserConfig(ext *extension.Extension) (err error) {
 		// If the user config is missing but isn't required, replace the placeholders with the default values
 		for _, field := range ext.UserConfig.Fields {
 			ext.Payload = strings.ReplaceAll(ext.Payload, fmt.Sprintf("{{%s}}", field.Name), field.Default)
+			ext.SavedUserConfig.Values[field.Name] = field.Default // Update saved config
 		}
 	}
 
@@ -113,6 +123,13 @@ func (r *Repository) SaveExtensionUserConfig(id string, savedConfig *extension.S
 		return err
 	}
 
+	// If the extension is built-in, reload it
+	builtinExt, isBuiltIn := r.builtinExtensions.Get(id)
+	if isBuiltIn {
+		r.reloadBuiltInExtension(builtinExt.Extension, builtinExt.provider)
+		return nil
+	}
+
 	// Reload the extension
 	r.reloadExtension(id)
 
@@ -134,10 +151,9 @@ func (r *Repository) deleteExtensionUserConfig(id string) (err error) {
 }
 
 // This should be called when the extension is uninstalled
-func (r *Repository) deletePluginData(id string) (err error) {
-	defer util.HandlePanicInModuleWithError("extension_repo/deletePluginData", &err)
+func (r *Repository) deletePluginData(id string) {
+	defer util.HandlePanicInModuleThen("extension_repo/deletePluginData", func() {
+	})
 
 	plugin.GlobalAppContext.DropPluginData(id)
-
-	return nil
 }
