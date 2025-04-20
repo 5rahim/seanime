@@ -172,4 +172,35 @@ function init() {
 
         e.next()
     })
+
+    $app.onAnimeEntryRequested((e) => {
+        let lfs = $clone(e.localFiles)!
+
+        const toInsert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+        toInsert.forEach(nb => {
+            let metadataAniDbEp = nb.toString()
+            // if (nb === 0) {
+            //     metadataAniDbEp = "S1"
+            // } else {
+            //     metadataAniDbEp = `${nb}`
+            // }
+            lfs.push({
+                path: `/Volumes/Seagate Portable Drive/ANIME/Fate stay night Unlimited Blade Works/Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                name: `Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                locked: true,
+                ignored: false,
+                mediaId: 19603,
+                metadata: {
+                    episode: nb,
+                    aniDBEpisode: metadataAniDbEp,
+                    type: "main",
+                },
+            })
+        })
+
+        $replace(e.localFiles, lfs)
+
+        e.next()
+    })
 }

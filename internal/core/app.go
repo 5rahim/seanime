@@ -104,7 +104,7 @@ type (
 		previousVersion    string
 		moduleMu           sync.Mutex
 		HookManager        hook.Manager
-		AnilistDataLoaded  bool // Whether the Anilist data from the first request has been fetched
+		ServerReady        bool // Whether the Anilist data from the first request has been fetched
 	}
 )
 
@@ -345,7 +345,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	if !app.IsOffline() {
 		app.InitOrRefreshAnilistData()
 	} else {
-		app.AnilistDataLoaded = true
+		app.ServerReady = true
 	}
 
 	// Initialize mediastream settings (for streaming media)

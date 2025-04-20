@@ -9,6 +9,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { atom, useSetAtom } from "jotai"
 import { orderBy } from "lodash"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -25,6 +26,8 @@ type ExtensionListProps = {
     children?: React.ReactNode
 }
 
+export const __extensions_currentPageAtom = atom<"installed" | "marketplace">("installed")
+
 export function ExtensionList(props: ExtensionListProps) {
 
     const {
@@ -37,6 +40,8 @@ export function ExtensionList(props: ExtensionListProps) {
     const [checkForUpdates, setCheckForUpdates] = React.useState(false)
 
     const { data: allExtensions, isPending: isLoading, refetch } = useGetAllExtensions(checkForUpdates)
+
+    const setPage = useSetAtom(__extensions_currentPageAtom)
 
     const {
         mutate: installExtension,
@@ -136,6 +141,14 @@ export function ExtensionList(props: ExtensionListProps) {
                             }}
                         >
                             <span>Playground</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setPage("marketplace")
+                            }}
+                        >
+                            <span>Marketplace</span>
                         </DropdownMenuItem>
                     </DropdownMenu>
                 </div>

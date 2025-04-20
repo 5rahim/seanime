@@ -180,10 +180,19 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                 >
                                     {day.events[0] && (
                                         <>
-                                            <div className="absolute top-0 left-0 z-[0] w-full h-full overflow-hidden opacity-30">
+                                            <div
+                                                className={`absolute top-0 left-0 z-[0] w-full h-full overflow-hidden ${
+                                                    day.isToday ? "opacity-80" : "opacity-20"
+                                                }`}
+                                            >
                                                 <Image src={day.events[0]?.image || ""} alt="banner" fill className="object-cover" />
                                             </div>
-                                            <div className="absolute left-0 bottom-0 z-[1] w-full h-full bg-gradient-to-t from-gray-950 to-transparent" />
+                                            <div
+                                                className={cn(
+                                                    "absolute left-0 bottom-0 z-[1] w-full h-full bg-gradient-to-t from-gray-950/100 via-gray-950/80 via-40% to-transparent",
+                                                    day.isToday && "from-gray-950/90 via-gray-950/80 via-40%",
+                                                )}
+                                            />
                                         </>
                                     )}
                                     <time

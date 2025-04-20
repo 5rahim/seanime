@@ -409,6 +409,23 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 
 	titles := anime.GetAllTitles()
 
+	queryMedia := hibikeonlinestream.Media{
+		ID:           anime.GetID(),
+		IDMal:        anime.GetIDMal(),
+		Status:       string(*anime.GetStatus()),
+		Format:       string(*anime.GetFormat()),
+		EnglishTitle: anime.GetTitle().GetEnglish(),
+		RomajiTitle:  anime.GetRomajiTitleSafe(),
+		EpisodeCount: anime.GetTotalEpisodeCount(),
+		Synonyms:     anime.GetSynonymsContainingSeason(),
+		IsAdult:      *anime.GetIsAdult(),
+		StartDate: &hibikeonlinestream.FuzzyDate{
+			Year:  *anime.GetStartDate().GetYear(),
+			Month: anime.GetStartDate().GetMonth(),
+			Day:   anime.GetStartDate().GetDay(),
+		},
+	}
+
 	switch params.Language {
 	case extension.LanguageGo:
 	//...
@@ -426,6 +443,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 			ret := make([]*hibikeonlinestream.SearchResult, 0)
 			for _, title := range titles {
 				res, err := provider.Search(hibikeonlinestream.SearchOptions{
+					Media: queryMedia,
 					Query: *title,
 					Dub:   params.Inputs["dub"].(bool),
 					Year:  anime.GetStartYearSafe(),
@@ -436,7 +454,14 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 				ret = append(ret, res...)
 			}
 
-			bestRes := onlinestream.GetBestSearchResult(ret, titles)
+			if len(ret) == 0 {
+				return newPlaygroundResponse(playgroundLogger, onlinestream.ErrNoAnimeFound), nil
+			}
+
+			bestRes, found := onlinestream.GetBestSearchResult(ret, titles)
+			if !found {
+				return newPlaygroundResponse(playgroundLogger, onlinestream.ErrNoAnimeFound), nil
+			}
 
 			return newPlaygroundResponse(playgroundLogger, bestRes), nil
 

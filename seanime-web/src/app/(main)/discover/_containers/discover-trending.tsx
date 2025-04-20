@@ -12,6 +12,14 @@ import React, { useEffect, useState } from "react"
 
 export const __discover_randomTrendingAtom = atom<AL_BaseAnime | AL_BaseManga | undefined>(undefined)
 export const __discover_headerIsTransitioningAtom = atom(false)
+export const __discover_animeRandomNumberAtom = atom<number>(0)
+export const __discover_animeTotalItemsAtom = atom<number>(0)
+export const __discover_setAnimeRandomNumberAtom = atom(
+    null,
+    (get, set, randomNumber: number) => {
+        set(__discover_animeRandomNumberAtom, randomNumber)
+    },
+)
 
 export function DiscoverTrending() {
 
@@ -19,15 +27,24 @@ export function DiscoverTrending() {
     const setRandomTrendingAtom = useSetAtom(__discover_randomTrendingAtom)
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
+    const setAnimeTotalItems = useSetAtom(__discover_animeTotalItemsAtom)
+    const [animeRandomNumber, setAnimeRandomNumber] = useAtom(__discover_animeRandomNumberAtom)
 
-    const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 8))
+    // Random number between 0 and 12
+    const [randomNumber, setRandomNumber] = useState(0)
+
+    // Update the atom when randomNumber changes
+    useEffect(() => {
+        setAnimeRandomNumber(randomNumber)
+    }, [randomNumber])
 
     useEffect(() => {
+        console.log(isHoveringHeader, "isHoveringHeader")
         const t = setInterval(() => {
             setHeaderIsTransitioning(true)
             setTimeout(() => {
                 setRandomNumber(p => {
-                    return p < 10 ? p + 1 : 0
+                    return p < 11 ? p + 1 : 0
                 })
                 setHeaderIsTransitioning(false)
             }, 900)
@@ -38,10 +55,23 @@ export function DiscoverTrending() {
         return () => clearInterval(t)
     }, [isHoveringHeader])
 
+    // Update randomNumber when animeRandomNumber changes from outside
+    useEffect(() => {
+        if (animeRandomNumber !== randomNumber) {
+            setHeaderIsTransitioning(true)
+            setTimeout(() => {
+                setRandomNumber(animeRandomNumber)
+                setHeaderIsTransitioning(false)
+            }, 900)
+        }
+    }, [animeRandomNumber])
+
     const firedRef = React.useRef(false)
     React.useEffect(() => {
         if (!firedRef.current && data) {
-            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
+            const mediaItems = data?.Page?.media?.filter(Boolean) || []
+            setAnimeTotalItems(mediaItems.length)
+            const random = mediaItems[randomNumber]
             if (random) {
                 setRandomTrendingAtom(random)
                 firedRef.current = true
@@ -51,12 +81,13 @@ export function DiscoverTrending() {
 
     React.useEffect(() => {
         if (firedRef.current) {
-            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
+            const mediaItems = data?.Page?.media?.filter(Boolean) || []
+            const random = mediaItems[randomNumber]
             if (random) {
                 setRandomTrendingAtom(random)
             }
         }
-    }, [randomNumber])
+    }, [randomNumber, data])
 
     return (
         <Carousel
@@ -121,4 +152,3 @@ function GenreSelector(props: GenreSelectorProps) {
         />
     )
 }
-

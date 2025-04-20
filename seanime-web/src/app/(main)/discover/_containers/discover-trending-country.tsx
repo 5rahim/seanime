@@ -12,6 +12,15 @@ import React, { useEffect, useState } from "react"
 
 const trendingGenresAtom = atom<string[]>([])
 
+export const __discover_mangaRandomNumberAtom = atom<number>(0)
+export const __discover_mangaTotalItemsAtom = atom<number>(0)
+export const __discover_setMangaRandomNumberAtom = atom(
+    null,
+    (get, set, randomNumber: number) => {
+        set(__discover_mangaRandomNumberAtom, randomNumber)
+    },
+)
+
 export function DiscoverTrendingCountry({ country }: { country: string }) {
     const genres = useAtomValue(trendingGenresAtom)
     const { data, isLoading } = useAnilistListManga({
@@ -25,8 +34,26 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
     const setRandomTrendingAtom = useSetAtom(__discover_randomTrendingAtom)
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
+    const setMangaTotalItems = useSetAtom(__discover_mangaTotalItemsAtom)
+    const [mangaRandomNumber, setMangaRandomNumber] = useAtom(__discover_mangaRandomNumberAtom)
 
-    const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 8))
+    const [randomNumber, setRandomNumber] = useState(0)
+
+    // Update the atom when randomNumber changes
+    useEffect(() => {
+        setMangaRandomNumber(randomNumber)
+    }, [randomNumber])
+
+    // Update randomNumber when mangaRandomNumber changes from outside
+    useEffect(() => {
+        if (mangaRandomNumber !== randomNumber) {
+            setHeaderIsTransitioning(true)
+            setTimeout(() => {
+                setRandomNumber(mangaRandomNumber)
+                setHeaderIsTransitioning(false)
+            }, 900)
+        }
+    }, [mangaRandomNumber])
 
     useEffect(() => {
         if (country !== "JP") return
@@ -34,7 +61,7 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
             setHeaderIsTransitioning(true)
             setTimeout(() => {
                 setRandomNumber(p => {
-                    return p < 10 ? p + 1 : 0
+                    return p < 11 ? p + 1 : 0
                 })
                 setHeaderIsTransitioning(false)
             }, 900)
@@ -49,8 +76,10 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
     React.useEffect(() => {
         if (country !== "JP") return
         if (!firedRef.current && data) {
-            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
+            const mediaItems = data?.Page?.media?.filter(Boolean) || []
+            const random = mediaItems[randomNumber]
             if (random) {
+                setMangaTotalItems(mediaItems.length)
                 setRandomTrendingAtom(random)
                 firedRef.current = true
             }
