@@ -78,7 +78,7 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 	var providerEpisodeList []*hibikeonlinestream.EpisodeDetails
 	if found, _ := r.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
-		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, media, dubbed, year)
+		providerEpisodeList, err = r.getProviderEpisodeList(provider, media, dubbed, year)
 		if err != nil {
 			r.logger.Error().Err(err).Msg("onlinestream: Failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
@@ -194,9 +194,9 @@ func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *
 	return providerServers, nil
 }
 
-// getProviderEpisodeListFromTitles gets all the hibikeonlinestream.EpisodeDetails from the provider based on the anime's titles.
+// getProviderEpisodeList gets all the hibikeonlinestream.EpisodeDetails from the provider based on the anime's titles.
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
-func (r *Repository) getProviderEpisodeListFromTitles(provider string, media *anilist.BaseAnime, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
+func (r *Repository) getProviderEpisodeList(provider string, media *anilist.BaseAnime, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
 	var ret []*hibikeonlinestream.EpisodeDetails
 	// romajiTitle := strings.ReplaceAll(media.GetEnglishTitleSafe(), ":", "")
 	// englishTitle := strings.ReplaceAll(media.GetRomajiTitleSafe(), ":", "")
@@ -300,7 +300,10 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, media *an
 			return nil, ErrNoAnimeFound
 		}
 
-		bestResult := GetBestSearchResult(searchResults, media.GetAllTitles())
+		bestResult, found := GetBestSearchResult(searchResults, media.GetAllTitles())
+		if !found {
+			return nil, ErrNoAnimeFound
+		}
 		matchId = bestResult.ID
 	}
 
@@ -317,7 +320,7 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, media *an
 	return ret, nil
 }
 
-func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, titles []*string) *hibikeonlinestream.SearchResult {
+func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, titles []*string) (*hibikeonlinestream.SearchResult, bool) {
 	// Filter results to get the best match.
 	compBestResults := make([]*comparison.LevenshteinResult, 0, len(searchResults))
 	for _, r := range searchResults {
@@ -327,6 +330,11 @@ func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, title
 			compBestResults = append(compBestResults, compBestResult)
 		}
 	}
+
+	if len(compBestResults) == 0 {
+		return nil, false
+	}
+
 	compBestResult := compBestResults[0]
 	for _, r := range compBestResults {
 		if r.Distance < compBestResult.Distance {
@@ -342,5 +350,5 @@ func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, title
 			break
 		}
 	}
-	return bestResult
+	return bestResult, true
 }

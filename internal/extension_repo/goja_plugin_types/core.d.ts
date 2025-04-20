@@ -1,4 +1,53 @@
 /**
+ * Fetch
+ */
+declare function fetch(url: string, options?: FetchOptions): Promise<FetchResponse>
+
+interface FetchOptions {
+    /** HTTP method, defaults to GET */
+    method?: string
+    /** Request headers */
+    headers?: Record<string, string>
+    /** Request body */
+    body?: any
+    /** Whether to bypass cloudflare */
+    noCloudflareBypass?: boolean
+    /** Timeout in seconds, defaults to 35 */
+    timeout?: number
+}
+
+interface FetchResponse {
+    /** Response status code */
+    status: number
+    /** Response status text */
+    statusText: string
+    /** Request method used */
+    method: string
+    /** Raw response headers */
+    rawHeaders: Record<string, string[]>
+    /** Whether the response was successful (status in range 200-299) */
+    ok: boolean
+    /** Request URL */
+    url: string
+    /** Response headers */
+    headers: Record<string, string>
+    /** Response cookies */
+    cookies: Record<string, string>
+    /** Whether the response was redirected */
+    redirected: boolean
+    /** Response content type */
+    contentType: string
+    /** Response content length */
+    contentLength: number
+
+    /** Get response text */
+    text(): string
+
+    /** Parse response as JSON */
+    json<T = any>(): T
+}
+
+/**
  * Replaces the reference of the value with the new value.
  * @param value - The value to replace
  * @param newValue - The new value

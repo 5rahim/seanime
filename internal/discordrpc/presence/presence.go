@@ -99,8 +99,12 @@ func (p *Presence) startEventLoop() {
 // Close closes the discord rpc client.
 // If the client is nil, it does nothing.
 func (p *Presence) Close() {
-	defer util.HandlePanicInModuleThen("discordrpc/presence/Close", func() {})
+	p.close()
+	p.animeActivity = nil
+}
 
+func (p *Presence) close() {
+	defer util.HandlePanicInModuleThen("discordrpc/presence/Close", func() {})
 	p.clearEventQueue()
 
 	// Cancel the event loop goroutine
@@ -226,9 +230,6 @@ var (
 			Start: &discordrpc_client.Epoch{
 				Time: time.Now(),
 			},
-			End: &discordrpc_client.Epoch{
-				Time: time.Now(),
-			},
 		},
 		Buttons: []*discordrpc_client.Button{
 			{
@@ -326,10 +327,10 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	select {
 	case p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)
-		// p.logger.Debug().Int("progress", a.Progress).Int("duration", a.Duration).Msgf("discordrpc: Anime activity set")
+		// p.logger.Debug().Int("progress", a.Progress).Int("duration", a.Duration).Msgf("discordrpc: Anime activity set for %s", a.Title)
 	}:
 	default:
-		// p.logger.Error().Msg("discordrpc: event queue is full")
+		//p.logger.Error().Msgf("discordrpc: event queue is full for %s", a.Title)
 	}
 }
 
@@ -359,7 +360,7 @@ func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) 
 
 	// Pause status	changed
 	if p.animeActivity.Paused != paused {
-		// p.logger.Debug().Msgf("discordrpc: Pause status changed to %t", paused)
+		// p.logger.Debug().Msgf("discordrpc: Pause status changed to %t for %s", paused, p.animeActivity.Title)
 		p.animeActivity.Paused = paused
 		p.lastAnimeActivityUpdateSent = time.Now()
 
@@ -367,11 +368,12 @@ func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) 
 		p.clearEventQueue()
 
 		if paused {
-			// p.logger.Debug().Msg("discordrpc: Stopping activity")
+			// p.logger.Debug().Msgf("discordrpc: Stopping activity for %s", p.animeActivity.Title)
 			// Stop the current activity if paused
-			p.Close()
+			// but do not erase the current activity
+			p.close()
 		} else {
-			// p.logger.Debug().Msg("discordrpc: Restarting activity")
+			// p.logger.Debug().Msgf("discordrpc: Restarting activity for %s", p.animeActivity.Title)
 			// Restart the current activity if unpaused
 			p.SetAnimeActivity(p.animeActivity)
 		}
@@ -382,7 +384,7 @@ func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) 
 	if !p.animeActivity.Paused {
 		// If the last update was more than 5 seconds ago, update the activity
 		if time.Since(p.lastAnimeActivityUpdateSent) > 6*time.Second {
-			// p.logger.Debug().Msg("discordrpc: Updating activity")
+			// p.logger.Debug().Msgf("discordrpc: Updating activity for %s", p.animeActivity.Title)
 			p.lastAnimeActivityUpdateSent = time.Now()
 			p.SetAnimeActivity(p.animeActivity)
 		}
@@ -486,6 +488,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
+	activity.Timestamps.End = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
