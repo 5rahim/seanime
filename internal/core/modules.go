@@ -572,12 +572,12 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	acc, err := a.Database.GetAccount()
 	if err != nil {
-		a.AnilistDataLoaded = true
+		a.ServerReady = true
 		return
 	}
 
 	if acc.Token == "" || acc.Username == "" {
-		a.AnilistDataLoaded = true
+		a.ServerReady = true
 		return
 	}
 
@@ -594,8 +594,8 @@ func (a *App) InitOrRefreshAnilistData() {
 			a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist anime collection")
 		}
 
-		a.AnilistDataLoaded = true
-		a.WSEventManager.SendEvent(events.AnilistDataLoaded, nil)
+		a.ServerReady = true
+		a.WSEventManager.SendEvent(events.ServerReady, nil)
 
 		_, err = a.RefreshMangaCollection()
 		if err != nil {

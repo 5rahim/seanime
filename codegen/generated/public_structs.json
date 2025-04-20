@@ -26621,8 +26621,8 @@
         "comments": []
       },
       {
-        "name": "AnilistDataLoaded",
-        "jsonName": "AnilistDataLoaded",
+        "name": "ServerReady",
+        "jsonName": "ServerReady",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -26851,7 +26851,7 @@
         "jsonName": "Experimental",
         "goType": "INTERNAL_Config_Experimental",
         "typescriptType": "INTERNAL_Config_Experimental",
-        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; }",
+        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; Password: string; }",
         "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
@@ -27136,6 +27136,15 @@
         "jsonName": "MainServerTorrentStreaming",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Password",
+        "jsonName": "Password",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -37339,8 +37348,8 @@
         "comments": []
       },
       {
-        "name": "AnilistDataLoaded",
-        "jsonName": "anilistDataLoaded",
+        "name": "ServerReady",
+        "jsonName": "serverReady",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -53622,6 +53631,71 @@
     "comments": []
   },
   {
+    "filepath": "../internal/plugin/anime.go",
+    "filename": "anime.go",
+    "name": "Anime",
+    "formattedName": "Anime",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "AppContextImpl",
+        "typescriptType": "AppContextImpl",
+        "usedTypescriptType": "AppContextImpl",
+        "usedStructName": "plugin.AppContextImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedTypescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "extension.Extension",
+        "typescriptType": "Extension_Extension",
+        "usedTypescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedTypescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/plugin/app_context.go",
     "filename": "app_context.go",
     "name": "AppContextModules",
@@ -53722,6 +53796,17 @@
         "typescriptType": "DiscordRPC_Presence",
         "usedTypescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FillerManager",
+        "jsonName": "FillerManager",
+        "goType": "fillermanager.FillerManager",
+        "typescriptType": "FillerManager",
+        "usedTypescriptType": "FillerManager",
+        "usedStructName": "fillermanager.FillerManager",
         "required": false,
         "public": true,
         "comments": []
@@ -53840,6 +53925,15 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fillerManager",
+        "jsonName": "fillerManager",
         "goType": "",
         "typescriptType": "any",
         "required": true,

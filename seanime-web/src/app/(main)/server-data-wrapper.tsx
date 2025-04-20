@@ -49,11 +49,11 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         },
     })
 
-    // Refetch the server status every 2 seconds if anilistDataLoaded is false
+    // Refetch the server status every 2 seconds if serverReady is false
     // This is a fallback to the websocket
     const intervalId = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        if (!serverStatus?.anilistDataLoaded) {
+        if (!serverStatus?.serverReady) {
             intervalId.current = setInterval(() => {
                 logger("Data Wrapper").info("Refetching server status")
                 refetch()
@@ -66,13 +66,13 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                 intervalId.current = null
             }
         }
-    }, [serverStatus?.anilistDataLoaded])
+    }, [serverStatus?.serverReady])
 
     /**
      * If the server status is loading or doesn't exist, show the loading overlay
      */
     if (isLoading || !serverStatus) return <LoadingOverlayWithLogo />
-    if (!serverStatus?.anilistDataLoaded) return <LoadingOverlayWithLogo title="L o a d i n g" />
+    if (!serverStatus?.serverReady) return <LoadingOverlayWithLogo title="L o a d i n g" />
 
     /**
      * If the pathname is /auth/callback, show the callback page

@@ -13,7 +13,7 @@ type WebsocketClientEvent struct {
 }
 
 const (
-	AnilistDataLoaded = "anilist-data-loaded" // The anilist data has been loaded
+	ServerReady = "server-ready" // The anilist data has been loaded
 
 	EventScanProgress               = "scan-progress"                      // Progress of the scan
 	EventScanStatus                 = "scan-status"                        // Status text of the scan

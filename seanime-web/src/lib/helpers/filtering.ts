@@ -379,10 +379,12 @@ export function filterAnimeCollectionEntries<T extends Anime_LibraryCollectionEn
 
     // Sort by unwatched episodes
     if (getParamValue(params.sorting) === "UNWATCHED_EPISODES") {
-        arr = sortBy(arr, n => n.libraryData?.unwatchedCount ?? (anilist_getUnwatchedCount(n.media, n.listData?.progress) || 99999))
+        arr = sortBy(arr,
+            n => !!n.libraryData?.mainFileCount ? n.libraryData?.unwatchedCount : (anilist_getUnwatchedCount(n.media, n.listData?.progress) || 99999))
     }
     if (getParamValue(params.sorting) === "UNWATCHED_EPISODES_DESC") {
-        arr = sortBy(arr, n => n.libraryData?.unwatchedCount ?? anilist_getUnwatchedCount(n.media, n.listData?.progress)).reverse()
+        arr = sortBy(arr,
+            n => !!n.libraryData?.mainFileCount ? n.libraryData?.unwatchedCount : anilist_getUnwatchedCount(n.media, n.listData?.progress)).reverse()
     }
 
     // Sort by last watched

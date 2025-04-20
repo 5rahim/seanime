@@ -29,8 +29,9 @@ export function AnimeEntryCardUnwatchedBadge(props: AnimeEntryCardUnwatchedBadge
     const unwatched = progressTotal - (progress ?? 0)
 
     const unwatchedFromLibrary = libraryData?.unwatchedCount ?? 0
+    const isInLibrary = !!libraryData?.mainFileCount
 
-    const unwatchedCount = unwatchedFromLibrary ?? unwatched
+    const unwatchedCount = isInLibrary ? unwatchedFromLibrary : unwatched
 
     if (unwatchedCount <= 0) return null
 

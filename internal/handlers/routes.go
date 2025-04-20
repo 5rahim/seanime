@@ -23,7 +23,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization"},
 		AllowCredentials: true,
 	}))
 

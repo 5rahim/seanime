@@ -84,14 +84,22 @@ export function useHandleLibraryCollection() {
             //
             let sortingParams = {
                 ...DEFAULT_ANIME_COLLECTION_PARAMS,
+                continueWatchingOnly: params.continueWatchingOnly,
                 sorting: animeLibraryCollectionDefaultSorting as any,
             } as CollectionParams<"anime">
 
+            let continueWatchingList = [...(data.continueWatchingList ?? [])]
+
+            if (data.stream) {
+                for (let entry of (data.stream?.continueWatchingList ?? [])) {
+                    continueWatchingList = [...continueWatchingList, entry]
+                }
+            }
             let arr = filterAnimeCollectionEntries(
                 obj.entries,
                 sortingParams,
                 serverStatus?.settings?.anilist?.enableAdultContent,
-                data.continueWatchingList,
+                continueWatchingList,
                 watchHistory
             )
 
@@ -108,7 +116,7 @@ export function useHandleLibraryCollection() {
                     obj.entries,
                     sortingParams,
                     serverStatus?.settings?.anilist?.enableAdultContent,
-                    data.continueWatchingList,
+                    continueWatchingList,
                     watchHistory
                 )
             }
