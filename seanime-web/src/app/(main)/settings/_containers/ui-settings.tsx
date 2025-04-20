@@ -502,6 +502,7 @@ export function UISettings() {
                                     side="right"
                                     label="Expand sidebar on hover"
                                     name="expandSidebarOnHover"
+                                    help="Causes visual glitches with plugin tray."
                                 />
 
                                 <Field.Switch

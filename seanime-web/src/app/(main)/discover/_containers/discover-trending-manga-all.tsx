@@ -10,7 +10,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { FiSearch } from "react-icons/fi"
 
 const trendingGenresAtom = atom<string[]>([])
@@ -28,43 +28,57 @@ export function DiscoverTrendingMangaAll() {
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
 
-    const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() * 8))
 
-    useEffect(() => {
-        const t = setInterval(() => {
-            setHeaderIsTransitioning(true)
-            setTimeout(() => {
-                setRandomNumber(p => {
-                    return p < 10 ? p + 1 : 0
-                })
-                setHeaderIsTransitioning(false)
-            }, 900)
-        }, 6000)
-        if (isHoveringHeader) {
-            clearInterval(t)
-        }
-        return () => clearInterval(t)
-    }, [isHoveringHeader])
-
-    const firedRef = React.useRef(false)
-    React.useEffect(() => {
-        if (!firedRef.current && data) {
-            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
-            if (random) {
-                setRandomTrendingAtom(random)
-                firedRef.current = true
-            }
-        }
-    }, [data, randomNumber])
-
-    React.useEffect(() => {
-        if (firedRef.current) {
-            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
-            if (random) {
-                setRandomTrendingAtom(random)
-            }
-        }
-    }, [randomNumber])
+    // useEffect(() => {
+    //     const t = setInterval(() => {
+    //         setHeaderIsTransitioning(true)
+    //         setTimeout(() => {
+    //             setRandomNumber(p => {
+    //                 return p < 10 ? p + 1 : 0
+    //             })
+    //             setHeaderIsTransitioning(false)
+    //         }, 900)
+    //     }, 6000)
+    //     if (isHoveringHeader) {
+    //         clearInterval(t)
+    //     }
+    //     return () => clearInterval(t)
+    // }, [isHoveringHeader])
+    //
+    // // Update randomNumber when mangaRandomNumber changes from outside
+    // useEffect(() => {
+    //     if (mangaRandomNumber !== randomNumber) {
+    //         setHeaderIsTransitioning(true)
+    //         setTimeout(() => {
+    //             setRandomNumber(mangaRandomNumber)
+    //             setHeaderIsTransitioning(false)
+    //         }, 900)
+    //     }
+    // }, [mangaRandomNumber])
+    //
+    // const firedRef = React.useRef(false)
+    // React.useEffect(() => {
+    //     console.log("firedRef.current", firedRef.current, data?.Page?.media?.length)
+    //     if (!firedRef.current && data) {
+    //         const mediaItems = data?.Page?.media?.filter(Boolean) || []
+    //         setMangaTotalItems(mediaItems.length)
+    //         const random = mediaItems[randomNumber]
+    //         if (random) {
+    //             setRandomTrendingAtom(random)
+    //             firedRef.current = true
+    //         }
+    //     }
+    // }, [data, randomNumber])
+    //
+    // React.useEffect(() => {
+    //     if (firedRef.current) {
+    //         const mediaItems = data?.Page?.media?.filter(Boolean) || []
+    //         const random = mediaItems[randomNumber]
+    //         if (random) {
+    //             setRandomTrendingAtom(random)
+    //         }
+    //     }
+    // }, [randomNumber, data])
 
     return (
         <Carousel

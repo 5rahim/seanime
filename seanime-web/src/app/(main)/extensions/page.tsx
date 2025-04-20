@@ -1,17 +1,20 @@
 "use client"
 
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
-import { ExtensionList } from "@/app/(main)/extensions/_containers/extension-list"
+import { __extensions_currentPageAtom, ExtensionList } from "@/app/(main)/extensions/_containers/extension-list"
 import { MarketplaceExtensions } from "@/app/(main)/extensions/_containers/marketplace-extensions"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { StaticTabs } from "@/components/ui/tabs"
 import { AnimatePresence } from "framer-motion"
+import { useAtom } from "jotai"
 import React from "react"
 import { LuDownload, LuGlobe } from "react-icons/lu"
 
 export default function Page() {
 
-    const [page, setPage] = React.useState<"installed" | "marketplace">("installed")
+    const [page, setPage] = useAtom(__extensions_currentPageAtom)
+
+    console.log("page", page)
 
     return (
         <PageWrapper className="p-4 sm:p-8 space-y-4">

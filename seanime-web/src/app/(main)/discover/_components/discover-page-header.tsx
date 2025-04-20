@@ -1,11 +1,20 @@
 import { AL_BaseAnime } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
-import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import {
+    __discover_animeRandomNumberAtom,
+    __discover_animeTotalItemsAtom,
+    __discover_headerIsTransitioningAtom,
+    __discover_randomTrendingAtom,
+    __discover_setAnimeRandomNumberAtom,
+} from "@/app/(main)/discover/_containers/discover-trending"
+import { __discover_mangaTotalItemsAtom } from "@/app/(main)/discover/_containers/discover-trending-country"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
@@ -16,10 +25,66 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
+import { __discover_mangaRandomNumberAtom, __discover_setMangaRandomNumberAtom } from "../_containers/discover-trending-country"
+
 
 export const __discover_hoveringHeaderAtom = atom(false)
 
 const MotionImage = motion.create(Image)
+const MotionIframe = motion.create("iframe")
+
+type HeaderCarouselDotsProps = {
+    className?: string
+}
+
+function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
+    const ts = useThemeSettings()
+    const [pageType] = useAtom(__discord_pageTypeAtom)
+
+    // Get the appropriate atoms based on the page type
+    const animeRandomNumber = useAtomValue(__discover_animeRandomNumberAtom)
+    const animeTotalItems = useAtomValue(__discover_animeTotalItemsAtom)
+    const setAnimeRandomNumber = useSetAtom(__discover_setAnimeRandomNumberAtom)
+
+    const mangaRandomNumber = useAtomValue(__discover_mangaRandomNumberAtom)
+    const mangaTotalItems = useAtomValue(__discover_mangaTotalItemsAtom)
+    const setMangaRandomNumber = useSetAtom(__discover_setMangaRandomNumberAtom)
+
+    // Use the appropriate values based on the page type
+    const currentIndex = pageType === "anime" ? animeRandomNumber : mangaRandomNumber
+    const totalItems = pageType === "anime" ? animeTotalItems : mangaTotalItems
+    const setCurrentIndex = pageType === "anime" ? setAnimeRandomNumber : setMangaRandomNumber
+
+    // Don't render if there are no items or only one item
+    if (totalItems <= 1) return null
+
+    // Limit to a maximum of 10 dots
+    const maxDots = Math.min(totalItems, 12)
+
+    return (
+        <div
+            data-discover-page-header-carousel-dots
+            className={cn(
+                "absolute hidden lg:flex items-center justify-center gap-2 z-[10] pl-8",
+                ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-[4rem]",
+                process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[2rem]",
+                className,
+            )}
+        >
+            {Array.from({ length: maxDots }).map((_, index) => (
+                <button
+                    key={index}
+                    className={cn(
+                        "h-1.5 rounded-sm transition-all duration-300 cursor-pointer",
+                        index === currentIndex ? "w-6 bg-[--muted]" : "w-3 bg-[--subtle] hover:bg-gray-300",
+                    )}
+                    onClick={() => setCurrentIndex(index)}
+                    aria-label={`Go to slide ${index + 1}`}
+                />
+            ))}
+        </div>
+    )
+}
 
 export function DiscoverPageHeader() {
     const ts = useThemeSettings()
@@ -30,7 +95,10 @@ export function DiscoverPageHeader() {
     const randomTrending = useAtomValue(__discover_randomTrendingAtom)
     const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
 
-    const setHoveringHeader = useSetAtom(__discover_hoveringHeaderAtom)
+    const [isHoveringHeader, setHoveringHeader] = useAtom(__discover_hoveringHeaderAtom)
+    const [showTrailer, setShowTrailer] = React.useState(false)
+    const [trailerLoaded, setTrailerLoaded] = React.useState(false)
+    const hoverTimerRef = React.useRef<NodeJS.Timeout | null>(null)
 
     // Reset page type to anime when on home page
     React.useLayoutEffect(() => {
@@ -39,9 +107,37 @@ export function DiscoverPageHeader() {
         }
     }, [pathname])
 
+    // Handle hover with timer
+    React.useEffect(() => {
+        if (isHoveringHeader && !showTrailer && (randomTrending as AL_BaseAnime)?.trailer?.id) {
+            hoverTimerRef.current = setTimeout(() => {
+                setShowTrailer(true)
+            }, 1000) // 1 second delay before showing trailer
+        } else if (!isHoveringHeader) {
+            if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current)
+                hoverTimerRef.current = null
+            }
+            setShowTrailer(false)
+            setTrailerLoaded(false)
+        }
+
+        return () => {
+            if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current)
+                hoverTimerRef.current = null
+            }
+        }
+    }, [isHoveringHeader, showTrailer, randomTrending])
+
     const bannerImage = randomTrending?.bannerImage || randomTrending?.coverImage?.extraLarge
+    const trailerId = (randomTrending as AL_BaseAnime)?.trailer?.id
+    const trailerSite = (randomTrending as AL_BaseAnime)?.trailer?.site || "youtube"
 
     const shouldBlurBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable && !randomTrending?.bannerImage)
+
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
     return (
         <motion.div
             data-discover-page-header
@@ -61,6 +157,8 @@ export function DiscoverPageHeader() {
                 },
             }}
         >
+            {/* Carousel Rectangular Dots */}
+            <HeaderCarouselDots />
             <div
                 data-discover-page-header-banner-image-container
                 className={cn(
@@ -102,10 +200,37 @@ export function DiscoverPageHeader() {
                                 isTransitioning && "scale-[1.01] -translate-x-0.5",
                                 !isTransitioning && "scale-100 translate-x-0",
                                 !randomTrending?.bannerImage && "opacity-35",
+                                trailerLoaded && "opacity-0",
                             )}
                         />
                     )}
                 </AnimatePresence>
+
+                {/* Trailer */}
+                {(showTrailer && trailerId && trailerSite === "youtube") && (
+                    <div
+                        data-discover-page-header-trailer-container
+                        className={cn(
+                            "absolute w-full h-full overflow-hidden z-[1]",
+                            !trailerLoaded && "opacity-0",
+                        )}
+                    >
+                        <MotionIframe
+                            data-discover-page-header-trailer
+                            src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja`}
+                            className="w-full h-full absolute left-0 object-cover object-center lg:scale-[1.8] 2xl:scale-[2.5]"
+                            allow="autoplay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: trailerLoaded ? 1 : 0 }}
+                            transition={{ duration: 0.5 }}
+                            onLoad={() => setTrailerLoaded(true)}
+                            onError={() => {
+                                setShowTrailer(false)
+                                setTrailerLoaded(false)
+                            }}
+                        />
+                    </div>
+                )}
                 {shouldBlurBanner && <div
                     data-discover-page-header-banner-image-blur
                     className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
@@ -264,6 +389,14 @@ export function DiscoverPageHeader() {
                                     >{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,
                                         "")}</ScrollArea>
+
+                                    <Button
+                                        size="sm" intent="gray-outline" className="rounded-full"
+                                        // rightIcon={<ImEnlarge2 />}
+                                        onClick={() => setPreviewModalMediaId(randomTrending?.id, pageType)}
+                                    >
+                                        Preview
+                                    </Button>
                                     {/*<SeaLink*/}
                                     {/*    href={pageType === "anime"*/}
                                     {/*        ? `/entry?id=${randomTrending.id}`*/}
