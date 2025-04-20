@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.3
+
+- ⚡️ Updated Playground 
+- ⚡️ Discover page: Play the trailer on hover; carousel buttons 
+- 🦺 Playground: Fix online streaming search options missing media object
+- 🦺 Discord: Fixed anime rich presence displaying old episodes
+- 🦺 Discord: Fixed manga rich presence activity #282
+- 🦺 Library: Fixed anime unwatched count for shows not in the library
+- 🦺 Library: Fixed filtering for shows not in the library
+- 🦺 Library: Fixed 'Show unwatched only' filter
+- 🦺 Torrent search: Fixed Nyaa batch search with 'any' resolution
+- 🏗️ Torrent Search: Truncate displayed language label number
+
 ## v2.8.2
 
 - ✨ UI: Custom CSS support

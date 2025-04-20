@@ -40,6 +40,7 @@ type HeaderCarouselDotsProps = {
 function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
     const ts = useThemeSettings()
     const [pageType] = useAtom(__discord_pageTypeAtom)
+    const pathname = usePathname()
 
     // Get the appropriate atoms based on the page type
     const animeRandomNumber = useAtomValue(__discover_animeRandomNumberAtom)
@@ -68,6 +69,7 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
                 "absolute hidden lg:flex items-center justify-center gap-2 z-[10] pl-8",
                 ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-[4rem]",
                 process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[2rem]",
+                pathname === "/" && "hidden lg:hidden",
                 className,
             )}
         >
