@@ -139,6 +139,7 @@ func (n *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret 
 			if err != nil {
 				return
 			}
+			n.logger.Trace().Str("url", url).Msg("nyaa: Smart search url")
 			// get content
 			feed, err := fp.ParseURL(url)
 			if err != nil {
@@ -346,6 +347,8 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]str
 	query := fmt.Sprintf("%s%s%s", titleStr, batchStr, normalStr)
 	if opts.Resolution != "" {
 		query = fmt.Sprintf("%s(%s)", query, opts.Resolution)
+	} else {
+		query = fmt.Sprintf("%s(%s)", query, strings.Join([]string{"360", "480", "720", "1080"}, "|"))
 	}
 	query2 := ""
 

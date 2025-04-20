@@ -53,8 +53,29 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
     // const hasSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("sub"))
     const hasMultiSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("multi"))
 
+    const languages = !!metadata.metadata?.language?.length ? [...new Set(metadata.metadata?.language)] : []
+
     return (
         <div className="flex flex-row gap-1 flex-wrap justify-end w-full lg:absolute bottom-0 right-0">
+            {!!languages?.length && languages.length == 2 ? languages.slice(0, 2)?.map(term => (
+                <Badge
+                    key={term}
+                    className="rounded-md bg-transparent border-transparent px-1"
+                >
+                    <PiChatTeardropDuotone className="text-lg text-[--blue]" /> {term}
+                </Badge>
+            )) : null}
+            {!!languages?.length && languages.length > 2 ? <Tooltip
+                trigger={<Badge
+                    className="rounded-md bg-transparent border-transparent px-1"
+                >
+                    <PiChatTeardropDuotone className="text-lg text-[--blue]" /> Multiple languages
+                </Badge>}
+            >
+                <span>
+                    {languages.join(", ")}
+                </span>
+            </Tooltip> : null}
             {metadata.metadata?.video_term?.map(term => (
                 <Badge
                     key={term}
@@ -63,14 +84,6 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
                     {term}
                 </Badge>
             ))}
-            {!!metadata.metadata?.language?.length ? [...new Set(metadata.metadata?.language)].map(term => (
-                <Badge
-                    key={term}
-                    className="rounded-md border-transparent bg-[--subtle] px-1"
-                >
-                    <PiChatTeardropDuotone className="text-lg text-[--blue]" /> {term}
-                </Badge>
-            )) : null}
             {metadata.metadata?.audio_term?.filter(term => term.toLowerCase().includes("dual") || term.toLowerCase().includes("multi")).map(term => (
                 <Badge
                     key={term}
