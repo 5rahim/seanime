@@ -116,7 +116,16 @@ func (u *UI) Destroyed() <-chan struct{} {
 
 // signalDestroyed tells the plugin that the UI has been destroyed.
 // This is used to interrupt the Plugin when the UI is stopped
+// TODO: FIX
 func (u *UI) signalDestroyed() {
+	defer func() {
+		if r := recover(); r != nil {
+			u.logger.Error().Msgf("plugin: Panic in signalDestroyed: %v", r)
+		}
+	}()
+
+	u.mu.Lock()
+	defer u.mu.Unlock()
 	if u.destroyed {
 		return
 	}

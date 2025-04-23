@@ -1337,6 +1337,13 @@ declare namespace $store {
      * @returns An array of all values in the store
      */
     function values(): any[]
+
+    /**
+     * Watches a key in the store.
+     * @param key - The key to watch
+     * @param callback - The callback to call when the key changes
+     */
+    function watch<T = any>(key: string, callback: (value: T) => void): void
 }
 
 /**
