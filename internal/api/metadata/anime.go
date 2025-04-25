@@ -115,7 +115,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	event.EpisodeMetadata = &ret
 	event.EpisodeNumber = epNum
 	event.MediaId = aw.baseAnime.GetID()
-	hook.GlobalHookManager.OnAnimeEpisodeMetadataEvent().Trigger(event)
+	hook.GlobalHookManager.OnAnimeEpisodeMetadata().Trigger(event)
 	if event.EpisodeMetadata == nil {
 		return ret
 	}

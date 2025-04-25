@@ -16,11 +16,22 @@ var (
 //
 // It is similar to the builtin "uncapFieldNameMapper" but also converts
 // all uppercase identifiers to their lowercase equivalent (eg. "GET" -> "get").
+// It also checks for JSON tags and uses them if they exist.
 type FieldMapper struct {
 }
 
 // FieldName implements the [FieldNameMapper.FieldName] interface method.
-func (u FieldMapper) FieldName(_ reflect.Type, f reflect.StructField) string {
+func (u FieldMapper) FieldName(t reflect.Type, f reflect.StructField) string {
+	// First check for a JSON tag
+	if jsonTag := f.Tag.Get("json"); jsonTag != "" {
+		// Split by comma to handle cases like `json:"name,omitempty"`
+		parts := strings.Split(jsonTag, ",")
+		// If the JSON tag isn't "-" (which means don't include this field)
+		if parts[0] != "-" && parts[0] != "" {
+			return parts[0]
+		}
+	}
+	// Fall back to default conversion
 	return convertGoToJSName(f.Name)
 }
 

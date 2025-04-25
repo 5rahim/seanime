@@ -4,12 +4,12 @@ import { Modal } from "@/components/ui/modal"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
+import { upath } from "@/lib/helpers/upath"
 import React from "react"
 import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
 import { FaFolder } from "react-icons/fa"
 import { FiChevronLeft, FiFolder } from "react-icons/fi"
 import { useUpdateEffect } from "react-use"
-import * as upath from "upath"
 import { useDebounce } from "use-debounce"
 
 export type DirectorySelectorProps = {
@@ -31,7 +31,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
 
     const firstRender = React.useRef(true)
 
-    const [input, setInput] = React.useState(defaultValue ? upath.normalize(defaultValue) : "")
+    const [input, setInput] = React.useState(defaultValue ? upath.normalizeSafe(defaultValue) : "")
     const [debouncedInput] = useDebounce(input, 300)
     const selectorState = useBoolean(false)
     const prevState = React.useRef<string>(input)
@@ -82,7 +82,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     function sanitizeInput(input: string) {
         // cross-platform sanitization
         input = input.replace(/[<>"]/g, '');
-        return upath.normalize(input.trim())
+        return upath.normalizeSafe(input.trim())
     }
 
     return (
@@ -137,7 +137,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <BiCheck className="text-green-500" /> : shouldExist ?
                                 <BiX className="text-red-500" /> : <BiFolderPlus />)}
                         onChange={e => {
-                            setInput(upath.normalize(e.target.value ?? ""))
+                            setInput(upath.normalizeSafe(e.target.value ?? ""))
                         }}
                         onClick={() => {
                             if (shouldExist) selectorState.on()
@@ -155,7 +155,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="py-1 flex items-center gap-2 text-sm px-3 rounded-[--radius-md] border flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalize(folder.fullPath))}
+                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>
@@ -172,7 +172,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                             <div
                                 key={folder.fullPath}
                                 className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-gray-800"
-                                onClick={() => setInput(upath.normalize(folder.fullPath))}
+                                onClick={() => setInput(upath.normalizeSafe(folder.fullPath))}
                             >
                                 <FiFolder className="w-4 h-4 text-[--brand]" />
                                 <span className="break-normal">{folder.folderName}</span>

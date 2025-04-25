@@ -426,7 +426,7 @@ func TestGojaPluginStore(t *testing.T) {
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
 
-	_, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
 	m, err := anilistPlatform.GetAnime(178022)
@@ -443,6 +443,41 @@ func TestGojaPluginStore(t *testing.T) {
 	}
 
 	util.Spew(m.Title)
+
+	value := plugin.store.Get("value")
+	require.NotNil(t, value)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+func TestGojaPluginJsonFieldNames(t *testing.T) {
+	payload := `
+	function init() {
+
+		$app.onPreUpdateEntryProgress((e) => {
+			console.log("pre update entry progress", e)
+
+			$store.set("mediaId", e.mediaId);
+
+			e.next();
+		});
+
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	err = anilistPlatform.UpdateEntryProgress(178022, 1, lo.ToPtr(1))
+	if err != nil {
+		t.Fatalf("GetAnime returned error: %v", err)
+	}
+
+	mediaId := plugin.store.Get("mediaId")
+	require.NotNil(t, mediaId)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 }

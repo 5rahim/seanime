@@ -85,7 +85,7 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 			MediaId:       mId,
 			AnimeMetadata: ret,
 		}
-		err = hook.GlobalHookManager.OnAnimeMetadataEvent().Trigger(event)
+		err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +153,7 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 		MediaId:       mId,
 		AnimeMetadata: ret,
 	}
-	err = hook.GlobalHookManager.OnAnimeMetadataEvent().Trigger(event)
+	err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
 	if err != nil {
 		return nil, err
 	}

@@ -334,7 +334,6 @@ export function useDOMManager(extensionId: string) {
         if (!container) {
             container = document.createElement("div")
             container.id = "plugin-dom-container"
-            container.style.display = "none"
             document.body.appendChild(container)
         }
 

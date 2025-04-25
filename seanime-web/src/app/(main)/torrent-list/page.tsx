@@ -13,10 +13,10 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
+import { upath } from "@/lib/helpers/upath"
 import capitalize from "lodash/capitalize"
 import React from "react"
 import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
-import * as upath from "upath"
 
 export const dynamic = "force-static"
 
