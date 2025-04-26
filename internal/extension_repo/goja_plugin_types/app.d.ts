@@ -660,6 +660,84 @@ declare namespace $app {
 
 
     /**
+     * @package discordrpc_presence
+     */
+
+    /**
+     * @event DiscordPresenceAnimeActivityRequestedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
+     */
+    function onDiscordPresenceAnimeActivityRequested(cb: (event: DiscordPresenceAnimeActivityRequestedEvent) => void): void;
+
+    interface DiscordPresenceAnimeActivityRequestedEvent {
+        animeActivity?: DiscordRPC_AnimeActivity;
+        details: string;
+        state: string;
+        startTimestamp?: number;
+        endTimestamp?: number;
+        largeImage: string;
+        largeText: string;
+        smallImage: string;
+        smallText: string;
+        buttons?: Array<DiscordRPC_Button>;
+        instance: boolean;
+        type: number;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event DiscordPresenceMangaActivityRequestedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
+     */
+    function onDiscordPresenceMangaActivityRequested(cb: (event: DiscordPresenceMangaActivityRequestedEvent) => void): void;
+
+    interface DiscordPresenceMangaActivityRequestedEvent {
+        mangaActivity?: DiscordRPC_MangaActivity;
+        details: string;
+        state: string;
+        startTimestamp?: number;
+        endTimestamp?: number;
+        largeImage: string;
+        largeText: string;
+        smallImage: string;
+        smallText: string;
+        buttons?: Array<DiscordRPC_Button>;
+        instance: boolean;
+        type: number;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event DiscordPresenceClientClosedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceClientClosedEvent is triggered when the discord rpc client is closed.
+     */
+    function onDiscordPresenceClientClosed(cb: (event: DiscordPresenceClientClosedEvent) => void): void;
+
+    interface DiscordPresenceClientClosedEvent {
+        next(): void;
+
+    }
+
+
+    /**
      * @package manga
      */
 
@@ -2779,6 +2857,28 @@ declare namespace $app {
         paused: boolean;
         progress: number;
         duration: number;
+        totalEpisodes?: number;
+        currentEpisodeCount?: number;
+        episodeTitle?: string;
+    }
+
+    /**
+     * - Filepath: internal/discordrpc/client/activity.go
+     */
+    interface DiscordRPC_Button {
+        label?: string;
+        url?: string;
+    }
+
+    /**
+     * - Filepath: internal/discordrpc/presence/presence.go
+     */
+    interface DiscordRPC_LegacyAnimeActivity {
+        id: number;
+        title: string;
+        image: string;
+        isMovie: boolean;
+        episodeNumber: number;
     }
 
     /**

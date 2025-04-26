@@ -6,11 +6,13 @@ import (
 	"seanime/internal/constants"
 	"seanime/internal/database/models"
 	discordrpc_client "seanime/internal/discordrpc/client"
+	"seanime/internal/hook"
 	"seanime/internal/util"
 	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type Presence struct {
@@ -118,6 +120,8 @@ func (p *Presence) close() {
 	}
 	p.client.Close()
 	p.client = nil
+
+	_ = hook.GlobalHookManager.OnDiscordPresenceClientClosed().Trigger(&DiscordPresenceClientClosedEvent{})
 }
 
 func (p *Presence) SetSettings(settings *models.DiscordSettings) {
@@ -243,14 +247,17 @@ var (
 )
 
 type AnimeActivity struct {
-	ID            int    `json:"id"`
-	Title         string `json:"title"`
-	Image         string `json:"image"`
-	IsMovie       bool   `json:"isMovie"`
-	EpisodeNumber int    `json:"episodeNumber"`
-	Paused        bool   `json:"paused"`
-	Progress      int    `json:"progress"`
-	Duration      int    `json:"duration"`
+	ID                  int     `json:"id"`
+	Title               string  `json:"title"`
+	Image               string  `json:"image"`
+	IsMovie             bool    `json:"isMovie"`
+	EpisodeNumber       int     `json:"episodeNumber"`
+	Paused              bool    `json:"paused"`
+	Progress            int     `json:"progress"`
+	Duration            int     `json:"duration"`
+	TotalEpisodes       *int    `json:"totalEpisodes,omitempty"`
+	CurrentEpisodeCount *int    `json:"currentEpisodeCount,omitempty"`
+	EpisodeTitle        *string `json:"episodeTitle,omitempty"`
 }
 
 func animeActivityKey(a *AnimeActivity) string {
@@ -276,6 +283,8 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 		p.clearEventQueue()
 	}
 
+	event := &DiscordPresenceAnimeActivityRequestedEvent{}
+
 	state := fmt.Sprintf("Watching Episode %d", a.EpisodeNumber)
 	if a.IsMovie {
 		state = "Watching Movie"
@@ -294,9 +303,12 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	activity.Timestamps.Start.Time = startTime
+	event.StartTimestamp = lo.ToPtr(startTime.Unix())
+	endTime := startTime.Add(time.Duration(a.Duration) * time.Second)
 	activity.Timestamps.End = &discordrpc_client.Epoch{
-		Time: startTime.Add(time.Duration(a.Duration) * time.Second),
+		Time: endTime,
 	}
+	event.EndTimestamp = lo.ToPtr(endTime.Unix())
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -323,6 +335,54 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	// p.logger.Debug().Msgf("discordrpc: Setting anime activity: %s", a.Title)
 
 	p.animeActivity = a
+
+	event.AnimeActivity = a
+	event.Details = a.Title
+	event.State = state
+	event.LargeImage = a.Image
+	event.SmallImage = activity.Assets.SmallImage
+	event.LargeText = a.Title
+	event.SmallText = activity.Assets.SmallText
+	event.Buttons = activity.Buttons
+	event.Instance = defaultActivity.Instance
+	event.Type = defaultActivity.Type
+
+	_ = hook.GlobalHookManager.OnDiscordPresenceAnimeActivityRequested().Trigger(event)
+
+	if event.DefaultPrevented {
+		return
+	}
+
+	// Update the activity
+	activity.Details = event.Details
+	activity.State = event.State
+	activity.Assets.LargeImage = event.LargeImage
+	activity.Assets.LargeText = event.LargeText
+	activity.Assets.SmallImage = event.SmallImage
+	// activity.Assets.SmallText = event.SmallText
+	activity.Buttons = event.Buttons
+	// Update start timestamp
+	if event.StartTimestamp != nil {
+		activity.Timestamps.Start.Time = time.Unix(*event.StartTimestamp, 0)
+	} else {
+		activity.Timestamps.Start = nil
+	}
+	// Update end timestamp
+	if event.EndTimestamp != nil {
+		activity.Timestamps.End = &discordrpc_client.Epoch{
+			Time: time.Unix(*event.EndTimestamp, 0),
+		}
+	} else {
+		activity.Timestamps.End = nil
+	}
+	// Reset timestamps if both are nil
+	if event.StartTimestamp == nil && event.EndTimestamp == nil {
+		activity.Timestamps = nil
+	}
+	activity.Instance = event.Instance
+	activity.Type = event.Type
+
+	util.Spew(activity)
 
 	select {
 	case p.eventQueue <- func() {
@@ -482,13 +542,18 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 		return
 	}
 
+	event := &DiscordPresenceMangaActivityRequestedEvent{}
+
 	activity := defaultActivity
 	activity.Details = a.Title
 	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
-	activity.Timestamps.Start.Time = time.Now()
+	now := time.Now()
+	activity.Timestamps.Start.Time = now
+	event.StartTimestamp = lo.ToPtr(now.Unix())
 	activity.Timestamps.End = nil
+	event.EndTimestamp = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -510,6 +575,52 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 			Label: "Seanime",
 			Url:   "https://github.com/5rahim/seanime",
 		})
+	}
+
+	event.MangaActivity = a
+	event.Details = a.Title
+	event.State = activity.State
+	event.LargeImage = activity.Assets.LargeImage
+	event.SmallImage = activity.Assets.SmallImage
+	event.LargeText = activity.Assets.LargeText
+	event.SmallText = activity.Assets.SmallText
+	event.Buttons = activity.Buttons
+	event.Instance = activity.Instance
+	event.Type = activity.Type
+
+	_ = hook.GlobalHookManager.OnDiscordPresenceMangaActivityRequested().Trigger(event)
+
+	if event.DefaultPrevented {
+		return
+	}
+
+	// Update the activity
+	activity.Details = event.Details
+	activity.State = event.State
+	activity.Assets.LargeImage = event.LargeImage
+	activity.Assets.LargeText = event.LargeText
+	activity.Assets.SmallImage = event.SmallImage
+	// activity.Assets.SmallText = event.SmallText
+	activity.Buttons = event.Buttons
+	activity.Instance = event.Instance
+	activity.Type = event.Type
+	// Update start timestamp
+	if event.StartTimestamp != nil {
+		activity.Timestamps.Start.Time = time.Unix(*event.StartTimestamp, 0)
+	} else {
+		activity.Timestamps.Start = nil
+	}
+	// Update end timestamp
+	if event.EndTimestamp != nil {
+		activity.Timestamps.End = &discordrpc_client.Epoch{
+			Time: time.Unix(*event.EndTimestamp, 0),
+		}
+	} else {
+		activity.Timestamps.End = nil
+	}
+	// Reset timestamps if both are nil
+	if event.StartTimestamp == nil && event.EndTimestamp == nil {
+		activity.Timestamps = nil
 	}
 
 	p.logger.Debug().Msgf("discordrpc: Setting manga activity: %s", a.Title)

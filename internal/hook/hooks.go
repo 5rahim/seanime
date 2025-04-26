@@ -112,6 +112,11 @@ type Manager interface {
 	OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver]
 	OnWatchHistoryLocalFileEpisodeItemRequested() *Hook[hook_resolver.Resolver]
 	OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_resolver.Resolver]
+
+	// Discord RPC events
+	OnDiscordPresenceAnimeActivityRequested() *Hook[hook_resolver.Resolver]
+	OnDiscordPresenceMangaActivityRequested() *Hook[hook_resolver.Resolver]
+	OnDiscordPresenceClientClosed() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -204,6 +209,10 @@ type ManagerImpl struct {
 	onWatchHistoryItemRequested                 *Hook[hook_resolver.Resolver]
 	onWatchHistoryLocalFileEpisodeItemRequested *Hook[hook_resolver.Resolver]
 	onWatchHistoryStreamEpisodeItemRequested    *Hook[hook_resolver.Resolver]
+	// Discord RPC events
+	onDiscordPresenceAnimeActivityRequested *Hook[hook_resolver.Resolver]
+	onDiscordPresenceMangaActivityRequested *Hook[hook_resolver.Resolver]
+	onDiscordPresenceClientClosed           *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -317,6 +326,10 @@ func (m *ManagerImpl) initHooks() {
 	m.onWatchHistoryItemRequested = &Hook[hook_resolver.Resolver]{}
 	m.onWatchHistoryLocalFileEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
 	m.onWatchHistoryStreamEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
+	// Discord RPC events
+	m.onDiscordPresenceAnimeActivityRequested = &Hook[hook_resolver.Resolver]{}
+	m.onDiscordPresenceMangaActivityRequested = &Hook[hook_resolver.Resolver]{}
+	m.onDiscordPresenceClientClosed = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -863,4 +876,27 @@ func (m *ManagerImpl) OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_reso
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onWatchHistoryStreamEpisodeItemRequested
+}
+
+// Discord RPC events
+
+func (m *ManagerImpl) OnDiscordPresenceAnimeActivityRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceAnimeActivityRequested
+}
+
+func (m *ManagerImpl) OnDiscordPresenceMangaActivityRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceMangaActivityRequested
+}
+
+func (m *ManagerImpl) OnDiscordPresenceClientClosed() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceClientClosed
 }

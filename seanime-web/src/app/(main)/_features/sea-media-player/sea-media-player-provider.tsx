@@ -8,6 +8,7 @@ type MediaPlayerProviderProps = {
     progress: {
         currentProgress: number | null
         currentEpisodeNumber: number | null
+        currentEpisodeTitle: string | null
     }
 }
 type MediaPlayerState = {} & MediaPlayerProviderProps
@@ -19,7 +20,10 @@ type ProgressItem = {
 export const __seaMediaPlayer_scopedProgressItemAtom = atom<ProgressItem | null>(null)
 export const __seaMediaPlayer_scopedCurrentProgressAtom = atom<number>(0)
 
-const MediaPlayerContext = createContext<MediaPlayerState>({ media: null, progress: { currentProgress: null, currentEpisodeNumber: null } })
+const MediaPlayerContext = createContext<MediaPlayerState>({
+    media: null,
+    progress: { currentProgress: null, currentEpisodeNumber: null, currentEpisodeTitle: null },
+})
 
 export function SeaMediaPlayerProvider({ children, ...providerProps }: { children?: React.ReactNode } & MediaPlayerProviderProps) {
 

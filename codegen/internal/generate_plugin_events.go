@@ -20,6 +20,7 @@ var (
 	additionalStructNamesForHooks = []string{
 		"discordrpc_presence.MangaActivity",
 		"discordrpc_presence.AnimeActivity",
+		"discordrpc_presence.LegacyAnimeActivity",
 		"anilist.ListAnime",
 		"anilist.ListManga",
 		"anilist.MediaSort",

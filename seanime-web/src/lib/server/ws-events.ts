@@ -38,6 +38,7 @@ export const enum WSEvents {
     CHECK_FOR_UPDATES = "check-for-updates",
     INVALIDATE_QUERIES = "invalidate-queries",
     CONSOLE_LOG = "console-log",
+    CONSOLE_WARN = "console-warn",
 }
 
 export const enum WebviewEvents {

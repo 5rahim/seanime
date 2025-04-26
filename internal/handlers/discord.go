@@ -76,13 +76,16 @@ func (h *Handler) HandleSetDiscordLegacyAnimeActivity(c echo.Context) error {
 func (h *Handler) HandleSetDiscordAnimeActivityWithProgress(c echo.Context) error {
 
 	type body struct {
-		MediaId       int    `json:"mediaId"`
-		Title         string `json:"title"`
-		Image         string `json:"image"`
-		IsMovie       bool   `json:"isMovie"`
-		EpisodeNumber int    `json:"episodeNumber"`
-		Progress      int    `json:"progress"`
-		Duration      int    `json:"duration"`
+		MediaId             int     `json:"mediaId"`
+		Title               string  `json:"title"`
+		Image               string  `json:"image"`
+		IsMovie             bool    `json:"isMovie"`
+		EpisodeNumber       int     `json:"episodeNumber"`
+		Progress            int     `json:"progress"`
+		Duration            int     `json:"duration"`
+		TotalEpisodes       *int    `json:"totalEpisodes,omitempty"`
+		CurrentEpisodeCount *int    `json:"currentEpisodeCount,omitempty"`
+		EpisodeTitle        *string `json:"episodeTitle,omitempty"`
 	}
 
 	var b body
@@ -92,13 +95,16 @@ func (h *Handler) HandleSetDiscordAnimeActivityWithProgress(c echo.Context) erro
 	}
 
 	h.App.DiscordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-		ID:            b.MediaId,
-		Title:         b.Title,
-		Image:         b.Image,
-		IsMovie:       b.IsMovie,
-		EpisodeNumber: b.EpisodeNumber,
-		Progress:      b.Progress,
-		Duration:      b.Duration,
+		ID:                  b.MediaId,
+		Title:               b.Title,
+		Image:               b.Image,
+		IsMovie:             b.IsMovie,
+		EpisodeNumber:       b.EpisodeNumber,
+		Progress:            b.Progress,
+		Duration:            b.Duration,
+		TotalEpisodes:       b.TotalEpisodes,
+		CurrentEpisodeCount: b.CurrentEpisodeCount,
+		EpisodeTitle:        b.EpisodeTitle,
 	})
 
 	return h.RespondWithData(c, true)

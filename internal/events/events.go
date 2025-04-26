@@ -65,4 +65,5 @@ const (
 
 	InvalidateQueries = "invalidate-queries"
 	ConsoleLog        = "console-log"
+	ConsoleWarn       = "console-warn"
 )

@@ -40,6 +40,8 @@ type UI struct {
 	appContext     plugin.AppContext
 	scheduler      *goja_util.Scheduler
 
+	lastException string
+
 	// Channel to signal the UI has been unloaded
 	// This is used to interrupt the Plugin when the UI is stopped
 	destroyedCh chan struct{}
@@ -77,9 +79,6 @@ func NewUI(options NewUIOptions) *UI {
 func (u *UI) Unload(signalDestroyed bool) {
 	u.logger.Debug().Msg("plugin: Stopping UI")
 
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
 	u.UnloadFromInside(signalDestroyed)
 
 	u.logger.Debug().Msg("plugin: Stopped UI")
@@ -87,6 +86,9 @@ func (u *UI) Unload(signalDestroyed bool) {
 
 // UnloadFromInside is called by the UI module itself when it's being unloaded
 func (u *UI) UnloadFromInside(signalDestroyed bool) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+
 	if u.destroyed {
 		return
 	}
@@ -124,8 +126,6 @@ func (u *UI) signalDestroyed() {
 		}
 	}()
 
-	u.mu.Lock()
-	defer u.mu.Unlock()
 	if u.destroyed {
 		return
 	}

@@ -84,8 +84,10 @@ func (s *Scheduler) start() {
 }
 
 func (s *Scheduler) Stop() {
-	s.cancel()
-	s.wg.Wait()
+	if s.cancel != nil {
+		s.cancel()
+	}
+	//s.wg.Wait()
 }
 
 // Schedule adds a job to the queue and waits for its completion

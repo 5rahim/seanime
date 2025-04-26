@@ -1039,15 +1039,25 @@ declare namespace $ui {
         /**
          * Set the manga activity
          */
-        setMangaActivity(opts: $app.DiscordRPC_MangaActivity): void
+        setMangaActivity(activity: $app.DiscordRPC_MangaActivity): void
 
         /**
          * Set the anime activity
          */
-        setAnimeActivity(opts: $app.DiscordRPC_AnimeActivity): void
+        setAnimeActivity(activity: $app.DiscordRPC_AnimeActivity): void
 
         /**
-         * Cancels the current activity
+         * Update the anime activity
+         */
+        updateAnimeActivity(progress: number, duration: number, paused: boolean): void
+
+        /**
+         * Set the anime activity (no progress tracking)
+         */
+        setLegacyAnimeActivity(activity: $app.DiscordRPC_LegacyAnimeActivity): void
+
+        /**
+         * Cancels the current activity by closing the discord RPC client
          */
         cancelActivity(): void
     }

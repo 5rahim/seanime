@@ -358,6 +358,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                 episodeNumber: progress.currentEpisodeNumber ?? 0,
                 progress: Math.floor(videoProgress),
                 duration: Math.floor(videoDuration),
+                totalEpisodes: media?.episodes,
+                currentEpisodeCount: media?.nextAiringEpisode?.episode ? media?.nextAiringEpisode?.episode - 1 : media?.episodes,
+                episodeTitle: progress?.currentEpisodeTitle || undefined,
             })
         }
 

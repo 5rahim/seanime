@@ -105,6 +105,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         return () => clearTimeout(t)
     }, [mediaId])
 
+    const episodeTitle = episodes?.find(e => e.number === currentEpisodeNumber)?.title
+
     function goToNextEpisode() {
         if (currentEpisodeNumber < maxEp) {
             // check if the episode exists
@@ -188,6 +190,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             progress={{
                 currentProgress: progress,
                 currentEpisodeNumber,
+                currentEpisodeTitle: episodeTitle || null,
             }}
         >
             <OnlinestreamManagerProvider opts={opts}>

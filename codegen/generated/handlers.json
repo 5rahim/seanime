@@ -2564,6 +2564,33 @@
           "typescriptType": "number",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "TotalEpisodes",
+          "jsonName": "totalEpisodes",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "CurrentEpisodeCount",
+          "jsonName": "currentEpisodeCount",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeTitle",
+          "jsonName": "episodeTitle",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "bool",

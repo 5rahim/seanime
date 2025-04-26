@@ -20,7 +20,23 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 		presence.SetMangaActivity(&opts)
 		return goja.Undefined()
 	})
-	_ = discordObj.Set("setAnimeActivity", func(opts discordrpc_presence.LegacyAnimeActivity) goja.Value {
+	_ = discordObj.Set("setAnimeActivity", func(opts discordrpc_presence.AnimeActivity) goja.Value {
+		presence, ok := a.discordPresence.Get()
+		if !ok {
+			return goja.Undefined()
+		}
+		presence.SetAnimeActivity(&opts)
+		return goja.Undefined()
+	})
+	_ = discordObj.Set("updateAnimeActivity", func(progress int, duration int, paused bool) goja.Value {
+		presence, ok := a.discordPresence.Get()
+		if !ok {
+			return goja.Undefined()
+		}
+		presence.UpdateAnimeActivity(progress, duration, paused)
+		return goja.Undefined()
+	})
+	_ = discordObj.Set("setLegacyAnimeActivity", func(opts discordrpc_presence.LegacyAnimeActivity) goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
 			return goja.Undefined()

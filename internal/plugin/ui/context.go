@@ -365,19 +365,23 @@ func (c *Context) handleException(err error) {
 	// c.mu.Lock()
 	// defer c.mu.Unlock()
 
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
+
 	c.exceptionCount++
 	if c.exceptionCount >= MaxExceptions {
 		newErr := fmt.Errorf("plugin(%s): Encountered too many exceptions, last error: %w", c.ext.ID, err)
-		c.logger.Error().Err(newErr).Msg("plugin: Encountered too many exceptions, interrupting UI")
+		c.logger.Error().Err(newErr).Msg("plugin: Encountered too many exceptions, interrupting plugin")
 		c.fatalError(newErr)
 	}
 }
 
 func (c *Context) fatalError(err error) {
-	c.logger.Error().Err(err).Msg("plugin: Encountered fatal error, interrupting UI")
+	c.logger.Error().Err(err).Msg("plugin: Encountered fatal error, interrupting plugin")
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Encountered fatal error, interrupting plugin", c.ext.ID))
+	c.ui.lastException = err.Error()
 
 	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
-	c.wsEventManager.SendEvent(events.ConsoleLog, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
 
 	// Unload the UI and signal the Plugin that it's been terminated
 	c.ui.Unload(true)

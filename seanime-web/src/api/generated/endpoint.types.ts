@@ -15,9 +15,9 @@ import type {
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
-    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -579,6 +579,9 @@ export type SetDiscordAnimeActivityWithProgress_Variables = {
     episodeNumber: number
     progress: number
     duration: number
+    totalEpisodes?: number
+    currentEpisodeCount?: number
+    episodeTitle?: string
 }
 
 /**
@@ -1642,7 +1645,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string
