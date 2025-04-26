@@ -93,6 +93,36 @@ type AppContext interface {
 	// BindDiscordToContextObj binds 'discord' to the UI context object
 	BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 
+	// BindContinuityToContextObj binds 'continuity' to the UI context object
+	BindContinuityToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindTorrentClientToContextObj binds 'torrentClient' to the UI context object
+	BindTorrentClientToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindTorrentstreamToContextObj binds 'torrentstream' to the UI context object
+	BindTorrentstreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindMediastreamToContextObj binds 'mediastream' to the UI context object
+	BindMediastreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindOnlinestreamToContextObj binds 'onlinestream' to the UI context object
+	BindOnlinestreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindFillerManagerToContextObj binds 'fillerManager' to the UI context object
+	BindFillerManagerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindAutoDownloaderToContextObj binds 'autoDownloader' to the UI context object
+	BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindAutoScannerToContextObj binds 'autoScanner' to the UI context object
+	BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindFileCacherToContextObj binds 'fileCacher' to the UI context object
+	BindFileCacherToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindExternalPlayerLinkToContextObj binds 'externalPlayerLink' to the UI context object
+	BindExternalPlayerLinkToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
 	DropPluginData(extId string)
 }
 
@@ -225,6 +255,38 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 
 	if modules.WSEventManager != nil {
 		a.wsEventManager = mo.Some(modules.WSEventManager)
+	}
+
+	if modules.ContinuityManager != nil {
+		a.continuityManager = mo.Some(modules.ContinuityManager)
+	}
+
+	if modules.TorrentClientRepository != nil {
+		a.torrentClientRepository = mo.Some(modules.TorrentClientRepository)
+	}
+
+	if modules.TorrentstreamRepository != nil {
+		a.torrentstreamRepository = mo.Some(modules.TorrentstreamRepository)
+	}
+
+	if modules.MediastreamRepository != nil {
+		a.mediastreamRepository = mo.Some(modules.MediastreamRepository)
+	}
+
+	if modules.OnlinestreamRepository != nil {
+		a.onlinestreamRepository = mo.Some(modules.OnlinestreamRepository)
+	}
+
+	if modules.AutoDownloader != nil {
+		a.autoDownloader = mo.Some(modules.AutoDownloader)
+	}
+
+	if modules.AutoScanner != nil {
+		a.autoScanner = mo.Some(modules.AutoScanner)
+	}
+
+	if modules.FileCacher != nil {
+		a.fileCacher = mo.Some(modules.FileCacher)
 	}
 }
 

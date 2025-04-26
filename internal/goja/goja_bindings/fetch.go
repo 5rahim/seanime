@@ -89,14 +89,16 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 
 	// Input validation
 	if len(call.Arguments) == 0 {
-		_ = reject(f.vm.ToValue("TypeError: fetch requires at least 1 argument"))
-		return f.vm.ToValue(promise)
+		//_ = reject(NewErrorString(f.vm, "TypeError: fetch requires at least 1 argument"))
+		//return f.vm.ToValue(promise)
+		PanicThrowTypeError(f.vm, "fetch requires at least 1 argument")
 	}
 
 	url, ok := call.Argument(0).Export().(string)
 	if !ok {
-		_ = reject(f.vm.ToValue("TypeError: URL parameter must be a string"))
-		return f.vm.ToValue(promise)
+		//_ = reject(NewErrorString(f.vm, "TypeError: URL parameter must be a string"))
+		//return f.vm.ToValue(promise)
+		PanicThrowTypeError(f.vm, "URL parameter must be a string")
 	}
 
 	// Parse options
@@ -167,7 +169,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		case map[string]interface{}:
 			jsonBody, err := json.Marshal(v)
 			if err != nil {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 				return f.vm.ToValue(promise)
 			}
 			reqBody = bytes.NewReader(jsonBody)
@@ -190,7 +192,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		req, err := http.NewRequestWithContext(ctx, options.Method, url, reqBody)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}
@@ -215,7 +217,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		resp, err := client.Do(req)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}
@@ -224,7 +226,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		rawBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}

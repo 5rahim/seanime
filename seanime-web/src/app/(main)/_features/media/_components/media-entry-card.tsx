@@ -161,12 +161,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     return (
         <MediaEntryCardContainer
             data-media-id={media.id}
+            data-media-mal-id={media.idMal}
             data-media-type={type}
             mRef={ref}
             className={props.containerClassName}
             data-list-data={JSON.stringify(listData)}
         >
-
 
             <MediaEntryCardOverlay overlay={overlay} />
 

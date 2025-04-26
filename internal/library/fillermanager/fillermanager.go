@@ -1,8 +1,6 @@
 package fillermanager
 
 import (
-	"github.com/rs/zerolog"
-	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/filler"
 	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
@@ -11,6 +9,9 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	lop "github.com/samber/lo/parallel"
 )
 
 type (
@@ -101,6 +102,19 @@ func (fm *FillerManager) HasFillerFetched(mediaId int) bool {
 	return ok
 }
 
+func (fm *FillerManager) GetFillerEpisodes(mediaId int) ([]string, bool) {
+
+	defer util.HandlePanicInModuleThen("library/fillermanager/GetFillerEpisodes", func() {
+	})
+
+	fillerItem, ok := fm.db.GetMediaFillerItem(mediaId)
+	if !ok {
+		return nil, false
+	}
+
+	return fillerItem.FillerEpisodes, true
+}
+
 func (fm *FillerManager) FetchAndStoreFillerData(mediaId int, titles []string) error {
 
 	defer util.HandlePanicInModuleThen("library/fillermanager/FetchAndStoreFillerData", func() {
@@ -117,10 +131,10 @@ func (fm *FillerManager) FetchAndStoreFillerData(mediaId int, titles []string) e
 
 	fm.logger.Debug().Int("mediaId", mediaId).Str("slug", res.Slug).Msg("fillermanager: Fetched filler data")
 
-	return fm.FetchAndStoreFillerDataFromSlug(mediaId, res.Slug)
+	return fm.fetchAndStoreFillerDataFromSlug(mediaId, res.Slug)
 }
 
-func (fm *FillerManager) FetchAndStoreFillerDataFromSlug(mediaId int, slug string) error {
+func (fm *FillerManager) fetchAndStoreFillerDataFromSlug(mediaId int, slug string) error {
 
 	defer util.HandlePanicInModuleThen("library/fillermanager/FetchAndStoreFillerDataFromSlug", func() {
 	})
@@ -142,6 +156,20 @@ func (fm *FillerManager) FetchAndStoreFillerDataFromSlug(mediaId int, slug strin
 	}
 
 	return nil
+}
+
+func (fm *FillerManager) StoreFillerData(source string, slug string, mediaId int, fillerEpisodes []string) error {
+
+	defer util.HandlePanicInModuleThen("library/fillermanager/StoreFillerDataForMedia", func() {
+	})
+
+	return fm.db.InsertMediaFiller(
+		source,
+		mediaId,
+		slug,
+		time.Now(),
+		fillerEpisodes,
+	)
 }
 
 func (fm *FillerManager) RemoveFillerData(mediaId int) error {

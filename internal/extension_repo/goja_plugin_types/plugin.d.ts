@@ -57,6 +57,36 @@ declare namespace $ui {
         discord: Discord
 
         /**
+         * Continuity
+         */
+        continuity: Continuity
+
+        /**
+         * Auto Scanner
+         */
+        autoScanner: AutoScanner
+
+        /**
+         * External Player Link
+         */
+        externalPlayerLink: ExternalPlayerLink
+
+        /**
+         * Auto Downloader
+         */
+        autoDownloader: AutoDownloader
+
+        /**
+         * Filler Manager
+         */
+        fillerManager: FillerManager
+
+        /**
+         * Torrent Client
+         */
+        torrentClient: TorrentClient
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -719,7 +749,7 @@ declare namespace $ui {
         // children: DOMElement[]
         textContent?: string
         innerHTML?: string
-
+        outerHTML?: string
         // Properties
         /**
          * Gets the text content of the element
@@ -921,6 +951,11 @@ declare namespace $ui {
         withInnerHTML?: boolean
 
         /**
+         * Whether to include the outerHTML of the element
+         */
+        withOuterHTML?: boolean
+
+        /**
          * Whether to assign plugin-element IDs to all child elements
          * This is useful when you need to interact with child elements directly
          */
@@ -1033,6 +1068,12 @@ declare namespace $ui {
          * @returns A promise that resolves to void
          */
         emptyCache(mediaId: number): Promise<void>
+
+        /**
+         * Get the manga providers
+         * @returns A map of provider IDs to provider names
+         */
+        getProviders(): Record<string, string>
     }
 
     interface Discord {
@@ -1060,6 +1101,146 @@ declare namespace $ui {
          * Cancels the current activity by closing the discord RPC client
          */
         cancelActivity(): void
+    }
+
+    interface Continuity {
+        /**
+         * Get the watch history
+         * @returns A record of media IDs to watch history items
+         * @throws Error if something goes wrong
+         */
+        getWatchHistory(): Record<number, $app.Continuity_WatchHistoryItem>
+
+        /**
+         * Delete a watch history item
+         * @param mediaId - The ID of the media
+         * @throws Error if something goes wrong
+         */
+        deleteWatchHistoryItem(mediaId: number): void
+
+        /**
+         * Update a watch history item
+         * @param mediaId - The ID of the media
+         * @param watchHistoryItem - The watch history item to update
+         * @throws Error if something goes wrong
+         */
+        updateWatchHistoryItem(mediaId: number, watchHistoryItem: $app.Continuity_WatchHistoryItem): void
+
+        /**
+         * Get a watch history item
+         * @param mediaId - The ID of the media
+         * @returns The watch history item
+         * @throws Error if something goes wrong
+         */
+        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem
+    }
+
+    interface AutoScanner {
+        /**
+         * Notify the auto scanner to scan the libraries if it is enabled.
+         * This is a non-blocking call that simply schedules a scan if one is not already running planned.
+         */
+        notify(): void
+    }
+
+    interface ExternalPlayerLink {
+        /**
+         * Open a URL in the external player.
+         * @param url - The URL to open
+         * @param mediaId - The ID of the media (used for the modal)
+         * @param episodeNumber - The episode number (used for the modal)
+         */
+        open(url: string, mediaId: number, episodeNumber: number): void
+    }
+
+    interface AutoDownloader {
+        /**
+         * Run the auto downloader if it is enabled.
+         * This is a non-blocking call.
+         */
+        run(): void
+    }
+
+    interface FillerManager {
+        /**
+         * Get the filler episodes for a media ID
+         * @param mediaId - The media ID
+         * @returns The filler episodes
+         */
+        getFillerEpisodes(mediaId: number): string[]
+
+        /**
+         * Set the filler episodes for a media ID
+         * @param mediaId - The media ID
+         * @param fillerEpisodes - The filler episodes
+         */
+        setFillerEpisodes(mediaId: number, fillerEpisodes: string[]): void
+
+        /**
+         * Check if an episode is a filler
+         * @param mediaId - The media ID
+         * @param episodeNumber - The episode number
+         */
+        isEpisodeFiller(mediaId: number, episodeNumber: number): boolean
+
+        /**
+         * Hydrate the filler data for an anime entry
+         * @param e - The anime entry
+         */
+        hydrateFillerData(e: $app.Anime_Entry): void
+
+        /**
+         * Hydrate the filler data for an onlinestream episode
+         * @param mId - The media ID
+         * @param episodes - The episodes
+         */
+        hydrateOnlinestreamFillerData(mId: number, episodes: $app.Onlinestream_Episode[]): void
+
+        /**
+         * Remove the filler data for a media ID
+         * @param mediaId - The media ID
+         */
+        removeFillerData(mediaId: number): void
+    }
+
+    interface TorrentClient {
+        /**
+         * Get all torrents
+         * @returns A promise that resolves to an array of torrents
+         */
+        getTorrents(): Promise<$app.TorrentClient_Torrent[]>
+
+        /**
+         * Get the active torrents
+         * @returns A promise that resolves to an array of active torrents
+         */
+        getActiveTorrents(): Promise<$app.TorrentClient_Torrent[]>
+
+        /**
+         * Pause some torrents
+         * @param hashes - The hashes of the torrents to pause
+         */
+        pauseTorrents(hashes: string[]): Promise<void>
+
+        /**
+         * Resume some torrents
+         * @param hashes - The hashes of the torrents to resume
+         */
+        resumeTorrents(hashes: string[]): Promise<void>
+
+        /**
+         * Deselect some files from a torrent
+         * @param hash - The hash of the torrent
+         * @param indices - The indices of the files to deselect
+         */
+        deselectFiles(hash: string, indices: number[]): Promise<void>
+
+        /**
+         * Get the files of a torrent
+         * @param hash - The hash of the torrent
+         * @returns A promise that resolves to an array of files
+         */
+        getFiles(hash: string): Promise<string[]>
     }
 
     type Intent =

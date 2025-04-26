@@ -888,6 +888,7 @@ export type Plugin_Server_DOMQueryEventPayload = {
     selector: string
     requestId: string
     withInnerHTML: boolean
+    withOuterHTML: boolean
     identifyChildren: boolean
 }
 
@@ -903,6 +904,7 @@ export type Plugin_Server_DOMQueryOneEventPayload = {
     selector: string
     requestId: string
     withInnerHTML: boolean
+    withOuterHTML: boolean
     identifyChildren: boolean
 }
 
@@ -918,6 +920,7 @@ export type Plugin_Server_DOMObserveEventPayload = {
     selector: string
     observerId: string
     withInnerHTML: boolean
+    withOuterHTML: boolean
     identifyChildren: boolean
 }
 

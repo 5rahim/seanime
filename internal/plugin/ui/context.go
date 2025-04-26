@@ -147,6 +147,20 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	plugin.GlobalAppContext.BindMangaToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 	// Bind anime
 	plugin.GlobalAppContext.BindAnimeToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind continuity
+	plugin.GlobalAppContext.BindContinuityToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind filler manager
+	plugin.GlobalAppContext.BindFillerManagerToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind auto downloader
+	plugin.GlobalAppContext.BindAutoDownloaderToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind auto scanner
+	plugin.GlobalAppContext.BindAutoScannerToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind external player link
+	plugin.GlobalAppContext.BindExternalPlayerLinkToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind onlinestream
+	plugin.GlobalAppContext.BindOnlinestreamToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind mediastream
+	plugin.GlobalAppContext.BindMediastreamToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 
 	if c.ext.Plugin != nil {
 		for _, permission := range c.ext.Plugin.Permissions.Scopes {
@@ -166,6 +180,9 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionDiscord:
 				// Bind discord to the context object
 				plugin.GlobalAppContext.BindDiscordToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+			case extension.PluginPermissionTorrentClient:
+				// Bind torrent client to the context object
+				plugin.GlobalAppContext.BindTorrentClientToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			}
 		}
 	}

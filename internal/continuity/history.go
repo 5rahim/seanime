@@ -141,6 +141,20 @@ func (m *Manager) UpdateWatchHistoryItem(opts *UpdateWatchHistoryItemOptions) (e
 	return nil
 }
 
+func (m *Manager) DeleteWatchHistoryItem(mediaId int) (err error) {
+	defer util.HandlePanicInModuleWithError("continuity/DeleteWatchHistoryItem", &err)
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	err = m.fileCacher.Delete(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId))
+	if err != nil {
+		return fmt.Errorf("continuity: Failed to delete watch history item: %w", err)
+	}
+
+	return nil
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // GetExternalPlayerEpisodeWatchHistoryItem is called before launching the external player to get the last known position.

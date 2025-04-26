@@ -27,6 +27,11 @@ var (
 		"anilist.ListRecentAnime",
 		"anilist.AnimeCollectionWithRelations",
 		"onlinestream.Episode",
+		"continuity.WatchHistoryItem",
+		"continuity.WatchHistoryItemResponse",
+		"continuity.UpdateWatchHistoryItemOptions",
+		"continuity.WatchHistory",
+		"torrent_client.Torrent",
 	}
 )
 

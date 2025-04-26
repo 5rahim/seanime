@@ -675,6 +675,10 @@ declare namespace $app {
     function onDiscordPresenceAnimeActivityRequested(cb: (event: DiscordPresenceAnimeActivityRequestedEvent) => void): void;
 
     interface DiscordPresenceAnimeActivityRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         animeActivity?: DiscordRPC_AnimeActivity;
         details: string;
         state: string;
@@ -687,10 +691,6 @@ declare namespace $app {
         buttons?: Array<DiscordRPC_Button>;
         instance: boolean;
         type: number;
-
-        next(): void;
-
-        preventDefault(): void;
     }
 
     /**
@@ -705,6 +705,10 @@ declare namespace $app {
     function onDiscordPresenceMangaActivityRequested(cb: (event: DiscordPresenceMangaActivityRequestedEvent) => void): void;
 
     interface DiscordPresenceMangaActivityRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         mangaActivity?: DiscordRPC_MangaActivity;
         details: string;
         state: string;
@@ -717,10 +721,6 @@ declare namespace $app {
         buttons?: Array<DiscordRPC_Button>;
         instance: boolean;
         type: number;
-
-        next(): void;
-
-        preventDefault(): void;
     }
 
     /**
@@ -2834,6 +2834,23 @@ declare namespace $app {
     /**
      * - Filepath: internal/continuity/history.go
      */
+    interface Continuity_UpdateWatchHistoryItemOptions {
+        currentTime: number;
+        duration: number;
+        mediaId: number;
+        episodeNumber: number;
+        filepath?: string;
+        kind: Continuity_Kind;
+    }
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
+    export type Continuity_WatchHistory = Record<number, Continuity_WatchHistoryItem>;
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
     interface Continuity_WatchHistoryItem {
         kind: Continuity_Kind;
         filepath: string;
@@ -2843,6 +2860,14 @@ declare namespace $app {
         duration: number;
         timeAdded?: string;
         timeUpdated?: string;
+    }
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
+    interface Continuity_WatchHistoryItemResponse {
+        item?: Continuity_WatchHistoryItem;
+        found: boolean;
     }
 
     /**
@@ -3105,5 +3130,26 @@ declare namespace $app {
         description?: string;
         isFiller?: boolean;
     }
+
+    /**
+     * - Filepath: internal/torrent_clients/torrent_client/torrent.go
+     */
+    interface TorrentClient_Torrent {
+        name: string;
+        hash: string;
+        seeds: number;
+        upSpeed: string;
+        downSpeed: string;
+        progress: number;
+        size: string;
+        eta: string;
+        status: TorrentClient_TorrentStatus;
+        contentPath: string;
+    }
+
+    /**
+     * - Filepath: internal/torrent_clients/torrent_client/torrent.go
+     */
+    export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped";
 
 }

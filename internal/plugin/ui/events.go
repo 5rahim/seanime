@@ -346,6 +346,7 @@ type ServerDOMQueryEventPayload struct {
 	Selector         string `json:"selector"`
 	RequestID        string `json:"requestId"`
 	WithInnerHTML    bool   `json:"withInnerHTML"`
+	WithOuterHTML    bool   `json:"withOuterHTML"`
 	IdentifyChildren bool   `json:"identifyChildren"`
 }
 
@@ -353,6 +354,7 @@ type ServerDOMQueryOneEventPayload struct {
 	Selector         string `json:"selector"`
 	RequestID        string `json:"requestId"`
 	WithInnerHTML    bool   `json:"withInnerHTML"`
+	WithOuterHTML    bool   `json:"withOuterHTML"`
 	IdentifyChildren bool   `json:"identifyChildren"`
 }
 
@@ -360,6 +362,7 @@ type ServerDOMObserveEventPayload struct {
 	Selector         string `json:"selector"`
 	ObserverId       string `json:"observerId"`
 	WithInnerHTML    bool   `json:"withInnerHTML"`
+	WithOuterHTML    bool   `json:"withOuterHTML"`
 	IdentifyChildren bool   `json:"identifyChildren"`
 }
 

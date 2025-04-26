@@ -56850,6 +56850,15 @@
         "comments": []
       },
       {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IdentifyChildren",
         "jsonName": "identifyChildren",
         "goType": "bool",
@@ -58169,6 +58178,15 @@
         "comments": []
       },
       {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IdentifyChildren",
         "jsonName": "identifyChildren",
         "goType": "bool",
@@ -58217,6 +58235,15 @@
         "comments": []
       },
       {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IdentifyChildren",
         "jsonName": "identifyChildren",
         "goType": "bool",
@@ -58256,6 +58283,15 @@
       {
         "name": "WithInnerHTML",
         "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -58958,6 +58994,15 @@
         "usedTypescriptType": "Scheduler",
         "usedStructName": "goja_util.Scheduler",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastException",
+        "jsonName": "lastException",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       },

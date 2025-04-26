@@ -3,6 +3,7 @@ package plugin
 import (
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/extension"
+	"seanime/internal/goja/goja_bindings"
 	goja_util "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
@@ -15,7 +16,7 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 	_ = discordObj.Set("setMangaActivity", func(opts discordrpc_presence.MangaActivity) goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
-			return goja.Undefined()
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
 		}
 		presence.SetMangaActivity(&opts)
 		return goja.Undefined()
@@ -23,7 +24,7 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 	_ = discordObj.Set("setAnimeActivity", func(opts discordrpc_presence.AnimeActivity) goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
-			return goja.Undefined()
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
 		}
 		presence.SetAnimeActivity(&opts)
 		return goja.Undefined()
@@ -31,7 +32,7 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 	_ = discordObj.Set("updateAnimeActivity", func(progress int, duration int, paused bool) goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
-			return goja.Undefined()
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
 		}
 		presence.UpdateAnimeActivity(progress, duration, paused)
 		return goja.Undefined()
@@ -39,7 +40,7 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 	_ = discordObj.Set("setLegacyAnimeActivity", func(opts discordrpc_presence.LegacyAnimeActivity) goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
-			return goja.Undefined()
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
 		}
 		presence.LegacySetAnimeActivity(&opts)
 		return goja.Undefined()
@@ -47,7 +48,7 @@ func (a *AppContextImpl) BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Obj
 	_ = discordObj.Set("cancelActivity", func() goja.Value {
 		presence, ok := a.discordPresence.Get()
 		if !ok {
-			return goja.Undefined()
+			goja_bindings.PanicThrowErrorString(vm, "discord rpc client not set")
 		}
 		presence.Close()
 		return goja.Undefined()

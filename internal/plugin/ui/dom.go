@@ -108,6 +108,7 @@ func (d *DOMManager) jsQuery(call goja.FunctionCall) goja.Value {
 		Selector:         selector,
 		RequestID:        requestId,
 		WithInnerHTML:    opts.WithInnerHTML,
+		WithOuterHTML:    opts.WithOuterHTML,
 		IdentifyChildren: opts.IdentifyChildren,
 	})
 
@@ -136,10 +137,10 @@ func (d *DOMManager) jsQueryOne(call goja.FunctionCall) goja.Value {
 					if elemData, ok := payload.Element.(map[string]interface{}); ok {
 						resolve(d.ctx.vm.ToValue(d.createDOMElementObject(elemData)))
 					} else {
-						resolve(goja.Null())
+						resolve(d.ctx.vm.ToValue(goja.Null()))
 					}
 				} else {
-					resolve(goja.Null())
+					resolve(d.ctx.vm.ToValue(goja.Null()))
 				}
 				return nil
 			})
@@ -152,6 +153,7 @@ func (d *DOMManager) jsQueryOne(call goja.FunctionCall) goja.Value {
 		Selector:         selector,
 		RequestID:        requestId,
 		WithInnerHTML:    opts.WithInnerHTML,
+		WithOuterHTML:    opts.WithOuterHTML,
 		IdentifyChildren: opts.IdentifyChildren,
 	})
 
@@ -160,12 +162,14 @@ func (d *DOMManager) jsQueryOne(call goja.FunctionCall) goja.Value {
 
 type QueryElementOptions struct {
 	WithInnerHTML    bool `json:"withInnerHTML"`
+	WithOuterHTML    bool `json:"withOuterHTML"`
 	IdentifyChildren bool `json:"identifyChildren"`
 }
 
 func (d *DOMManager) getQueryElementOptions(argument goja.Value) QueryElementOptions {
 	options := QueryElementOptions{
 		WithInnerHTML:    false,
+		WithOuterHTML:    false,
 		IdentifyChildren: false,
 	}
 
@@ -188,6 +192,14 @@ func (d *DOMManager) getQueryElementOptions(argument goja.Value) QueryElementOpt
 			options.IdentifyChildren, ok = val.(bool)
 			if !ok {
 				d.ctx.handleTypeError("'identifyChildren' property must be a boolean")
+			}
+		}
+
+		// Extract 'withOuterHTML' from 'opts' if present
+		if val, exists := optsObj["withOuterHTML"]; exists {
+			options.WithOuterHTML, ok = val.(bool)
+			if !ok {
+				d.ctx.handleTypeError("'withOuterHTML' property must be a boolean")
 			}
 		}
 	}
@@ -222,6 +234,7 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 		Selector:         selector,
 		ObserverId:       observerId,
 		WithInnerHTML:    options.WithInnerHTML,
+		WithOuterHTML:    options.WithOuterHTML,
 		IdentifyChildren: options.IdentifyChildren,
 	})
 
@@ -265,6 +278,7 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 			Selector:         selector,
 			ObserverId:       observerId,
 			WithInnerHTML:    options.WithInnerHTML,
+			WithOuterHTML:    options.WithOuterHTML,
 			IdentifyChildren: options.IdentifyChildren,
 		})
 	})
@@ -285,6 +299,7 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 			Selector:         selector,
 			ObserverId:       observerId,
 			WithInnerHTML:    options.WithInnerHTML,
+			WithOuterHTML:    options.WithOuterHTML,
 			IdentifyChildren: options.IdentifyChildren,
 		})
 	}
@@ -427,6 +442,10 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 		_ = elementObj.Set("innerHTML", innerHTML)
 	}
 
+	if outerHTML, ok := elemData["outerHTML"].(string); ok {
+		_ = elementObj.Set("outerHTML", outerHTML)
+	}
+
 	d.assignDOMElementMethods(elementObj, elementId)
 
 	return elementObj
@@ -440,6 +459,14 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 
 	_ = elementObj.Set("setText", func(text string) {
 		d.setElementText(elementId, text)
+	})
+
+	_ = elementObj.Set("setInnerHTML", func(innerHTML string) {
+		d.setElementInnerHTML(elementId, innerHTML)
+	})
+
+	_ = elementObj.Set("setOuterHTML", func(outerHTML string) {
+		d.setElementOuterHTML(elementId, outerHTML)
 	})
 
 	_ = elementObj.Set("getAttribute", func(name string) goja.Value {
@@ -499,18 +526,18 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 	})
 
 	_ = elementObj.Set("append", func(child *goja.Object) {
-		childID := child.Get("id").String()
-		d.appendElement(elementId, childID)
+		childId := child.Get("id").String()
+		d.appendElement(elementId, childId)
 	})
 
 	_ = elementObj.Set("before", func(sibling *goja.Object) {
-		siblingID := sibling.Get("id").String()
-		d.insertElementBefore(elementId, siblingID)
+		siblingId := sibling.Get("id").String()
+		d.insertElementBefore(elementId, siblingId)
 	})
 
 	_ = elementObj.Set("after", func(sibling *goja.Object) {
-		siblingID := sibling.Get("id").String()
-		d.insertElementAfter(elementId, siblingID)
+		siblingId := sibling.Get("id").String()
+		d.insertElementAfter(elementId, siblingId)
 	})
 
 	_ = elementObj.Set("remove", func() {
@@ -832,32 +859,32 @@ func (d *DOMManager) getElementComputedStyle(elementId, property string) goja.Va
 	return d.ctx.vm.ToValue(promise)
 }
 
-func (d *DOMManager) appendElement(parentID, childID string) {
+func (d *DOMManager) appendElement(parentID, childId string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: parentID,
 		Action:    "append",
 		Params: map[string]interface{}{
-			"childID": childID,
+			"childId": childId,
 		},
 	})
 }
 
-func (d *DOMManager) insertElementBefore(elementId, siblingID string) {
+func (d *DOMManager) insertElementBefore(elementId, siblingId string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "before",
 		Params: map[string]interface{}{
-			"siblingID": siblingID,
+			"siblingId": siblingId,
 		},
 	})
 }
 
-func (d *DOMManager) insertElementAfter(elementId, siblingID string) {
+func (d *DOMManager) insertElementAfter(elementId, siblingId string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "after",
 		Params: map[string]interface{}{
-			"siblingID": siblingID,
+			"siblingId": siblingId,
 		},
 	})
 }
@@ -891,13 +918,13 @@ func (d *DOMManager) getElementParent(elementId string, opts QueryElementOptions
 						})
 					} else {
 						d.ctx.scheduler.ScheduleAsync(func() error {
-							resolve(goja.Null())
+							resolve(d.ctx.vm.ToValue(goja.Null()))
 							return nil
 						})
 					}
 				} else {
 					d.ctx.scheduler.ScheduleAsync(func() error {
-						resolve(goja.Null())
+						resolve(d.ctx.vm.ToValue(goja.Null()))
 						return nil
 					})
 				}
@@ -1373,6 +1400,7 @@ func (d *DOMManager) elementQuery(elementId, selector string, opts QueryElementO
 			"selector":      selector,
 			"requestId":     requestId,
 			"withInnerHTML": opts.WithInnerHTML,
+			"withOuterHTML": opts.WithOuterHTML,
 		},
 	})
 
@@ -1397,10 +1425,10 @@ func (d *DOMManager) elementQueryOne(elementId, selector string, opts QueryEleme
 					if elemData, ok := payload.Element.(map[string]interface{}); ok {
 						resolve(d.ctx.vm.ToValue(d.createDOMElementObject(elemData)))
 					} else {
-						resolve(goja.Null())
+						resolve(d.ctx.vm.ToValue(goja.Null()))
 					}
 				} else {
-					resolve(goja.Null())
+					resolve(d.ctx.vm.ToValue(goja.Null()))
 				}
 				return nil
 			})
@@ -1416,8 +1444,25 @@ func (d *DOMManager) elementQueryOne(elementId, selector string, opts QueryEleme
 			"selector":      selector,
 			"requestId":     requestId,
 			"withInnerHTML": opts.WithInnerHTML,
+			"withOuterHTML": opts.WithOuterHTML,
 		},
 	})
 
 	return d.ctx.vm.ToValue(promise)
+}
+
+func (d *DOMManager) setElementInnerHTML(elementId, innerHTML string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementId: elementId,
+		Action:    "setInnerHTML",
+		Params:    map[string]interface{}{"innerHTML": innerHTML},
+	})
+}
+
+func (d *DOMManager) setElementOuterHTML(elementId, outerHTML string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementId: elementId,
+		Action:    "setOuterHTML",
+		Params:    map[string]interface{}{"outerHTML": outerHTML},
+	})
 }

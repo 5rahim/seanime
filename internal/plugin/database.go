@@ -35,51 +35,51 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 
 	// Local files
 	localFilesObj := vm.NewObject()
-	localFilesObj.Set("getAll", db.getAllLocalFiles)
-	localFilesObj.Set("findBy", db.findLocalFilesBy)
-	localFilesObj.Set("save", db.saveLocalFiles)
-	localFilesObj.Set("insert", db.insertLocalFiles)
-	dbObj.Set("localFiles", localFilesObj)
+	_ = localFilesObj.Set("getAll", db.getAllLocalFiles)
+	_ = localFilesObj.Set("findBy", db.findLocalFilesBy)
+	_ = localFilesObj.Set("save", db.saveLocalFiles)
+	_ = localFilesObj.Set("insert", db.insertLocalFiles)
+	_ = dbObj.Set("localFiles", localFilesObj)
 
 	// Anilist
 	anilistObj := vm.NewObject()
-	anilistObj.Set("getToken", db.getAnilistToken)
-	anilistObj.Set("getUsername", db.getAnilistUsername)
-	dbObj.Set("anilist", anilistObj)
+	_ = anilistObj.Set("getToken", db.getAnilistToken)
+	_ = anilistObj.Set("getUsername", db.getAnilistUsername)
+	_ = dbObj.Set("anilist", anilistObj)
 
 	// Auto downloader rules
 	autoDownloaderRulesObj := vm.NewObject()
-	autoDownloaderRulesObj.Set("getAll", db.getAllAutoDownloaderRules)
-	autoDownloaderRulesObj.Set("get", db.getAutoDownloaderRule)
-	autoDownloaderRulesObj.Set("getByMediaId", db.getAutoDownloaderRulesByMediaId)
-	autoDownloaderRulesObj.Set("update", db.updateAutoDownloaderRule)
-	autoDownloaderRulesObj.Set("insert", db.insertAutoDownloaderRule)
-	autoDownloaderRulesObj.Set("remove", db.deleteAutoDownloaderRule)
-	dbObj.Set("autoDownloaderRules", autoDownloaderRulesObj)
+	_ = autoDownloaderRulesObj.Set("getAll", db.getAllAutoDownloaderRules)
+	_ = autoDownloaderRulesObj.Set("get", db.getAutoDownloaderRule)
+	_ = autoDownloaderRulesObj.Set("getByMediaId", db.getAutoDownloaderRulesByMediaId)
+	_ = autoDownloaderRulesObj.Set("update", db.updateAutoDownloaderRule)
+	_ = autoDownloaderRulesObj.Set("insert", db.insertAutoDownloaderRule)
+	_ = autoDownloaderRulesObj.Set("remove", db.deleteAutoDownloaderRule)
+	_ = dbObj.Set("autoDownloaderRules", autoDownloaderRulesObj)
 
 	// Auto downloader items
 	autoDownloaderItemsObj := vm.NewObject()
-	autoDownloaderItemsObj.Set("getAll", db.getAllAutoDownloaderItems)
-	autoDownloaderItemsObj.Set("get", db.getAutoDownloaderItem)
-	autoDownloaderItemsObj.Set("getByMediaId", db.getAutoDownloaderItemsByMediaId)
-	autoDownloaderItemsObj.Set("insert", db.insertAutoDownloaderItem)
-	autoDownloaderItemsObj.Set("remove", db.deleteAutoDownloaderItem)
-	dbObj.Set("autoDownloaderItems", autoDownloaderItemsObj)
+	_ = autoDownloaderItemsObj.Set("getAll", db.getAllAutoDownloaderItems)
+	_ = autoDownloaderItemsObj.Set("get", db.getAutoDownloaderItem)
+	_ = autoDownloaderItemsObj.Set("getByMediaId", db.getAutoDownloaderItemsByMediaId)
+	_ = autoDownloaderItemsObj.Set("insert", db.insertAutoDownloaderItem)
+	_ = autoDownloaderItemsObj.Set("remove", db.deleteAutoDownloaderItem)
+	_ = dbObj.Set("autoDownloaderItems", autoDownloaderItemsObj)
 
 	// Silenced media entries
 	silencedMediaEntriesObj := vm.NewObject()
-	silencedMediaEntriesObj.Set("getAllIds", db.getAllSilencedMediaEntryIds)
-	silencedMediaEntriesObj.Set("isSilenced", db.isSilenced)
-	silencedMediaEntriesObj.Set("setSilenced", db.setSilenced)
-	dbObj.Set("silencedMediaEntries", silencedMediaEntriesObj)
+	_ = silencedMediaEntriesObj.Set("getAllIds", db.getAllSilencedMediaEntryIds)
+	_ = silencedMediaEntriesObj.Set("isSilenced", db.isSilenced)
+	_ = silencedMediaEntriesObj.Set("setSilenced", db.setSilenced)
+	_ = dbObj.Set("silencedMediaEntries", silencedMediaEntriesObj)
 
 	// Media fillers
 	mediaFillersObj := vm.NewObject()
-	mediaFillersObj.Set("getAll", db.getAllMediaFillers)
-	mediaFillersObj.Set("get", db.getMediaFiller)
-	mediaFillersObj.Set("insert", db.insertMediaFiller)
-	mediaFillersObj.Set("remove", db.deleteMediaFiller)
-	dbObj.Set("mediaFillers", mediaFillersObj)
+	_ = mediaFillersObj.Set("getAll", db.getAllMediaFillers)
+	_ = mediaFillersObj.Set("get", db.getMediaFiller)
+	_ = mediaFillersObj.Set("insert", db.insertMediaFiller)
+	_ = mediaFillersObj.Set("remove", db.deleteMediaFiller)
+	_ = dbObj.Set("mediaFillers", mediaFillersObj)
 
 	_ = vm.Set("$database", dbObj)
 }
@@ -257,6 +257,11 @@ func (d *Database) updateAutoDownloaderRule(id uint, rule *anime.AutoDownloaderR
 		return err
 	}
 
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAutoDownloaderRulesEndpoint, events.GetAutoDownloaderItemsEndpoint, events.GetAnimeEntryEndpoint})
+	}
+
 	return nil
 }
 
@@ -271,6 +276,11 @@ func (d *Database) insertAutoDownloaderRule(rule *anime.AutoDownloaderRule) erro
 		return err
 	}
 
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAutoDownloaderRulesEndpoint, events.GetAutoDownloaderRulesByAnimeEndpoint, events.GetAutoDownloaderRuleEndpoint, events.GetAutoDownloaderItemsEndpoint, events.GetAnimeEntryEndpoint})
+	}
+
 	return nil
 }
 
@@ -283,6 +293,11 @@ func (d *Database) deleteAutoDownloaderRule(id uint) error {
 	err := db_bridge.DeleteAutoDownloaderRule(db, id)
 	if err != nil {
 		return err
+	}
+
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAutoDownloaderRulesEndpoint, events.GetAutoDownloaderRulesByAnimeEndpoint, events.GetAutoDownloaderRuleEndpoint, events.GetAutoDownloaderItemsEndpoint, events.GetAnimeEntryEndpoint})
 	}
 
 	return nil
@@ -343,6 +358,11 @@ func (d *Database) insertAutoDownloaderItem(item *models.AutoDownloaderItem) err
 		return err
 	}
 
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAutoDownloaderRulesEndpoint, events.GetAutoDownloaderRulesByAnimeEndpoint, events.GetAutoDownloaderRuleEndpoint, events.GetAutoDownloaderItemsEndpoint, events.GetAnimeEntryEndpoint})
+	}
+
 	return nil
 }
 
@@ -355,6 +375,11 @@ func (d *Database) deleteAutoDownloaderItem(id uint) error {
 	err := db.DeleteAutoDownloaderItem(id)
 	if err != nil {
 		return err
+	}
+
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAutoDownloaderRulesEndpoint, events.GetAutoDownloaderRulesByAnimeEndpoint, events.GetAutoDownloaderRuleEndpoint, events.GetAutoDownloaderItemsEndpoint, events.GetAnimeEntryEndpoint})
 	}
 
 	return nil
@@ -411,6 +436,11 @@ func (d *Database) setSilenced(mediaId int, silenced bool) error {
 		}
 	}
 
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAnimeEntrySilenceStatusEndpoint})
+	}
+
 	return nil
 }
 
@@ -455,6 +485,11 @@ func (d *Database) insertMediaFiller(provider string, mediaId int, slug string, 
 		return err
 	}
 
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAnimeEntryEndpoint})
+	}
+
 	return nil
 }
 
@@ -464,5 +499,15 @@ func (d *Database) deleteMediaFiller(mediaId int) error {
 		return errors.New("database not initialized")
 	}
 
-	return db.DeleteMediaFiller(mediaId)
+	err := db.DeleteMediaFiller(mediaId)
+	if err != nil {
+		return err
+	}
+
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetAnimeEntryEndpoint})
+	}
+
+	return nil
 }
