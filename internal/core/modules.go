@@ -390,6 +390,11 @@ func (a *App) InitOrRefreshModules() {
 
 		// Set AutoDownloader qBittorrent client
 		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)
+
+		plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+			TorrentClientRepository: a.TorrentClientRepository,
+			AutoDownloader:          a.AutoDownloader,
+		})
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize torrent client module, no settings found")
 	}

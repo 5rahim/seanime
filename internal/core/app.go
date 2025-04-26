@@ -329,6 +329,16 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager: hookManager,
 	}
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		ContinuityManager:       app.ContinuityManager,
+		AutoScanner:             app.AutoScanner,
+		AutoDownloader:          app.AutoDownloader,
+		FileCacher:              app.FileCacher,
+		OnlinestreamRepository:  app.OnlinestreamRepository,
+		MediastreamRepository:   app.MediastreamRepository,
+		TorrentstreamRepository: app.TorrentstreamRepository,
+	})
+
 	// Run database migrations if version has changed
 	app.runMigrations()
 

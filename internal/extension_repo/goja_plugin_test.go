@@ -96,7 +96,11 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 
 	manager := goja_runtime.NewManager(logger)
 
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		Database:          database,
 		AnilistPlatform:   anilistPlatform,
 		WSEventManager:    wsEventManager,
 		AnimeLibraryPaths: &[]string{},
@@ -307,6 +311,8 @@ function init() {
 	time.Sleep(16 * time.Second)
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 // Tests that we can register hooks and the UI handler.
 // Tests that the state updates correctly and effects run as expected.
 // Tests that we can fetch data from an external source.
@@ -400,6 +406,8 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 	time.Sleep(3 * time.Second)
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 func TestGojaPluginStore(t *testing.T) {
 	payload := `
 	function init() {
@@ -450,6 +458,8 @@ func TestGojaPluginStore(t *testing.T) {
 	manager.PrintPluginPoolMetrics(opts.ID)
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 func TestGojaPluginJsonFieldNames(t *testing.T) {
 	payload := `
 	function init() {
@@ -480,6 +490,127 @@ func TestGojaPluginJsonFieldNames(t *testing.T) {
 	require.NotNil(t, mediaId)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginStorage(t *testing.T) {
+	payload := `
+	function init() {
+
+		$app.onGetAnime((e) => {
+
+			if ($storage.get("foo") !== "qux") {
+				throw new Error("foo should be qux")
+			}
+
+			$storage.set("foo", "anime")
+			console.log("foo", $storage.get("foo"))
+			$store.set("expectedValue4", "anime")
+
+			e.next();
+		});
+
+		$ui.register((ctx) => {
+			
+			$storage.set("foo", "bar")
+			console.log("foo", $storage.get("foo"))
+
+			$store.set("expectedValue1", "bar")
+
+			ctx.setTimeout(() => {
+				console.log("foo", $storage.get("foo"))
+				$storage.set("foo", "baz")
+				console.log("foo", $storage.get("foo"))
+				$store.set("expectedValue2", "baz")
+			}, 1000)
+
+			ctx.setTimeout(() => {
+				console.log("foo", $storage.get("foo"))
+				$storage.set("foo", "qux")
+				console.log("foo", $storage.get("foo"))
+				$store.set("expectedValue3", "qux")
+			}, 1500)
+			
+		})
+
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionDatabase,
+			extension.PluginPermissionStorage,
+		},
+	}
+
+	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	_ = plugin
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	time.Sleep(2 * time.Second)
+
+	_, err = anilistPlatform.GetAnime(178022)
+	require.NoError(t, err)
+
+	expectedValue1 := plugin.store.Get("expectedValue1")
+	require.Equal(t, "bar", expectedValue1)
+
+	expectedValue2 := plugin.store.Get("expectedValue2")
+	require.Equal(t, "baz", expectedValue2)
+
+	expectedValue3 := plugin.store.Get("expectedValue3")
+	require.Equal(t, "qux", expectedValue3)
+
+	expectedValue4 := plugin.store.Get("expectedValue4")
+	require.Equal(t, "anime", expectedValue4)
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginTryCatch(t *testing.T) {
+	payload := `
+	function init() {
+
+		$ui.register((ctx) => {
+			try {
+				throw new Error("test error")
+			} catch (e) {
+				console.log("catch", e)
+				$store.set("error", e)
+			}
+
+			try {
+				undefined.f()
+			} catch (e) {
+				console.log("catch 2", e)
+				$store.set("error2", e)
+			}
+			
+		})
+
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	err1 := plugin.store.Get("error")
+	require.NotNil(t, err1)
+
+	err2 := plugin.store.Get("error2")
+	require.NotNil(t, err2)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////s

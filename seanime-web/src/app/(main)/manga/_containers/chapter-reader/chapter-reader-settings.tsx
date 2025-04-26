@@ -495,7 +495,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
                     {!isMobile && (
                         <>
-                            <h4>Editable Keybindings</h4>
+                            <div>
+                                <h4>Editable Keybindings</h4>
+                                <p className="text-[--muted] text-xs">Click to edit</p>
+                            </div>
 
                             {[
                                 {
@@ -528,9 +531,16 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                         <div className="">
                                             <Button
                                                 onKeyDownCapture={(e) => setKbs(e, item.key)}
-                                                className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
+                                                className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1 focus-visible:ring-2 focus-visible:ring-[--brand] focus-visible:ring-offset-1"
                                                 size="sm"
                                                 intent="primary-subtle"
+                                                id={`chapter-reader-settings-kbs-${item.key}`}
+                                                onClick={() => {
+                                                    const el = document.getElementById(`chapter-reader-settings-kbs-${item.key}`)
+                                                    if (el) {
+                                                        el.focus()
+                                                    }
+                                                }}
                                             >
                                                 {item.value}
                                             </Button>

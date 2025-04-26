@@ -81,6 +81,12 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 		return nil, fmt.Errorf("failed sanity check, %w", err)
 	}
 
+	// Check if the extension is development mode
+	if ext.IsDevelopment {
+		r.logger.Error().Str("id", ext.ID).Msg("extensions: Development mode enabled, cannot install development mode extensions for security reasons")
+		return nil, fmt.Errorf("cannot install development mode extensions for security reasons")
+	}
+
 	return &ext, nil
 }
 
@@ -537,7 +543,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	// | Check plugin permissions
 	// +
 
-	if ext.Type == extension.TypePlugin {
+	if ext.Type == extension.TypePlugin && !ext.IsDevelopment {
 		if ext.Plugin == nil { // Shouldn't happen because of sanity check, but just in case
 			r.logger.Error().Str("id", ext.ID).Msg("extensions: Plugin manifest is missing plugin object")
 			return
@@ -552,7 +558,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 				Extension:                   *ext,
 				PluginPermissionDescription: ext.Plugin.Permissions.GetDescription(),
 			})
-			r.logger.Warn().Err(permissionErr).Str("id", ext.ID).Msg("extensions: Plugin permissions not granted")
+			r.logger.Warn().Err(permissionErr).Str("id", ext.ID).Msg("extensions: Plugin permissions not granted. Please grant the permissions in the extension page.")
 			return
 		}
 	}

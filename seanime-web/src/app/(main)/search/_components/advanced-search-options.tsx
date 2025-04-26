@@ -15,12 +15,12 @@ import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-s
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
+import { cn } from "@/components/ui/core/styling"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getYear } from "date-fns"
-import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { useState } from "react"
 import { BiTrash, BiWorld } from "react-icons/bi"
@@ -37,10 +37,19 @@ export function AdvancedSearchOptions() {
     const serverStatus = useServerStatus()
     const [params, setParams] = useAtom(__advancedSearch_paramsAtom)
 
+    const highlightTrash = React.useMemo(() => {
+        return !(!params.title?.length &&
+            (params.sorting === null || params.sorting?.[0] === "SCORE_DESC") &&
+            (params.genre === null || !params.genre.length) &&
+            (params.status === null || !params.status.length) &&
+            params.format === null && params.season === null && params.year === null && params.isAdult === false && params.minScore === null &&
+            (params.countryOfOrigin === null || params.type === "anime"))
+    }, [params])
+
     return (
         <AppLayoutStack data-advanced-search-options-container className="px-4 xl:px-0">
             <div data-advanced-search-options-header className="flex flex-col md:flex-row xl:flex-col gap-4">
-                <TitleInput/>
+                <TitleInput />
                 <Select
                     className="w-full"
                     options={ADVANCED_SEARCH_TYPE}
@@ -52,7 +61,8 @@ export function AdvancedSearchOptions() {
                 />
                 <Select
                     // label="Sorting"
-                    leftAddon={<FaSortAmountDown />}
+                    leftAddon={
+                        <FaSortAmountDown className={cn((params.sorting !== null && params.sorting?.[0] !== "SCORE_DESC") && "text-indigo-300 font-bold text-xl")} />}
                     className="w-full"
                     options={params.type === "anime" ? ADVANCED_SEARCH_SORTING : ADVANCED_SEARCH_SORTING_MANGA}
                     value={params.sorting?.[0] || "SCORE_DESC"}
@@ -66,7 +76,7 @@ export function AdvancedSearchOptions() {
             <div data-advanced-search-options-content className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 items-end xl:items-start">
                 <Combobox
                     multiple
-                    leftAddon={<TbSwords />}
+                    leftAddon={<TbSwords className={cn((params.genre !== null && !!params.genre.length) && "text-indigo-300 font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Genre" placeholder="All genres" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
@@ -78,7 +88,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 {params.type === "anime" && <Select
-                    leftAddon={<MdPersonalVideo />}
+                    leftAddon={<MdPersonalVideo className={cn((params.format !== null && !!params.format) && "text-indigo-300 font-bold text-xl")} />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS}
                     value={params.format || ""}
@@ -89,7 +99,8 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 {params.type === "manga" && <Select
-                    leftAddon={<BiWorld />}
+                    leftAddon={
+                        <BiWorld className={cn((params.countryOfOrigin !== null && !!params.countryOfOrigin) && "text-indigo-300 font-bold text-xl")} />}
                     label="Format" placeholder="All countries" className="w-full"
                     options={ADVANCED_SEARCH_COUNTRIES_MANGA}
                     value={params.countryOfOrigin || ""}
@@ -100,7 +111,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 {params.type === "manga" && <Select
-                    leftAddon={<MdOutlineBook />}
+                    leftAddon={<MdOutlineBook className={cn((params.format !== null && !!params.format) && "text-indigo-300 font-bold text-xl")} />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS_MANGA}
                     value={params.format || ""}
@@ -111,7 +122,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 {params.type === "anime" && <Select
-                    leftAddon={<LuLeaf />}
+                    leftAddon={<LuLeaf className={cn((params.season !== null && !!params.season) && "text-indigo-300 font-bold text-xl")} />}
                     placeholder="All seasons" className="w-full"
                     options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
                     value={params.season || ""}
@@ -122,7 +133,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 <Select
-                    leftAddon={<LuCalendar />}
+                    leftAddon={<LuCalendar className={cn((params.year !== null && !!params.year) && "text-indigo-300 font-bold text-xl")} />}
                     label="Year" placeholder="Timeless" className="w-full"
                     options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({
                         value: String(year),
@@ -136,7 +147,8 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<RiSignalTowerLine />}
+                    leftAddon={
+                        <RiSignalTowerLine className={cn((params.status !== null && !!params.status.length) && "text-indigo-300 font-bold text-xl")} />}
                     label="Status" placeholder="All statuses" className="w-full"
                     options={ADVANCED_SEARCH_STATUS}
                     value={params.status?.[0] || ""}
@@ -147,7 +159,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<FaRegStar />}
+                    leftAddon={<FaRegStar className={cn((params.minScore !== null && !!params.minScore) && "text-indigo-300 font-bold text-xl")} />}
                     placeholder="All scores" className="w-full"
                     options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({
                         value: String(score),
@@ -169,7 +181,7 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />}
                 <IconButton
-                    icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
+                    icon={<BiTrash />} intent={highlightTrash ? "alert" : "gray-subtle"} className="flex-none" onClick={() => {
                     setParams(prev => ({
                         ...prev,
                         active: true,
@@ -181,8 +193,12 @@ export function AdvancedSearchOptions() {
                         season: null,
                         year: null,
                         minScore: null,
+                        countryOfOrigin: null,
+                        // isAdult: false,
                     }))
-                }}/>
+                }}
+                    disabled={!highlightTrash}
+                />
             </div>
 
         </AppLayoutStack>
@@ -192,7 +208,7 @@ export function AdvancedSearchOptions() {
 function TitleInput() {
     const [inputValue, setInputValue] = useState("")
     const debouncedTitle = useDebounce(inputValue, 500)
-    const setParams = useSetAtom(__advancedSearch_paramsAtom)
+    const [params, setParams] = useAtom(__advancedSearch_paramsAtom)
 
     useUpdateEffect(() => {
         setParams(draft => {
@@ -200,6 +216,10 @@ function TitleInput() {
             return
         })
     }, [debouncedTitle])
+
+    useUpdateEffect(() => {
+        setInputValue(params.title || "")
+    }, [params.title])
 
     return (
         <TextInput

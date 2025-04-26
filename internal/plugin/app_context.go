@@ -2,16 +2,24 @@ package plugin
 
 import (
 	"seanime/internal/api/metadata"
+	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/library/autodownloader"
+	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediastream"
+	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/torrentstream"
+	"seanime/internal/util/filecache"
 	goja_util "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
@@ -29,6 +37,14 @@ type AppContextModules struct {
 	MetadataProvider                metadata.Provider
 	WSEventManager                  events.WSEventManagerInterface
 	DiscordPresence                 *discordrpc_presence.Presence
+	TorrentClientRepository         *torrent_client.Repository
+	ContinuityManager               *continuity.Manager
+	AutoScanner                     *autoscanner.AutoScanner
+	AutoDownloader                  *autodownloader.AutoDownloader
+	FileCacher                      *filecache.Cacher
+	OnlinestreamRepository          *onlinestream.Repository
+	MediastreamRepository           *mediastream.Repository
+	TorrentstreamRepository         *torrentstream.Repository
 	FillerManager                   *fillermanager.FillerManager
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
@@ -98,6 +114,14 @@ type AppContextImpl struct {
 	discordPresence                 mo.Option[*discordrpc_presence.Presence]
 	metadataProvider                mo.Option[metadata.Provider]
 	fillerManager                   mo.Option[*fillermanager.FillerManager]
+	torrentClientRepository         mo.Option[*torrent_client.Repository]
+	torrentstreamRepository         mo.Option[*torrentstream.Repository]
+	mediastreamRepository           mo.Option[*mediastream.Repository]
+	onlinestreamRepository          mo.Option[*onlinestream.Repository]
+	continuityManager               mo.Option[*continuity.Manager]
+	autoScanner                     mo.Option[*autoscanner.AutoScanner]
+	autoDownloader                  mo.Option[*autodownloader.AutoDownloader]
+	fileCacher                      mo.Option[*filecache.Cacher]
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
 }
@@ -115,6 +139,14 @@ func NewAppContext() AppContext {
 		wsEventManager:                  mo.None[events.WSEventManagerInterface](),
 		discordPresence:                 mo.None[*discordrpc_presence.Presence](),
 		fillerManager:                   mo.None[*fillermanager.FillerManager](),
+		torrentClientRepository:         mo.None[*torrent_client.Repository](),
+		torrentstreamRepository:         mo.None[*torrentstream.Repository](),
+		mediastreamRepository:           mo.None[*mediastream.Repository](),
+		onlinestreamRepository:          mo.None[*onlinestream.Repository](),
+		continuityManager:               mo.None[*continuity.Manager](),
+		autoScanner:                     mo.None[*autoscanner.AutoScanner](),
+		autoDownloader:                  mo.None[*autodownloader.AutoDownloader](),
+		fileCacher:                      mo.None[*filecache.Cacher](),
 		onRefreshAnilistAnimeCollection: mo.None[func()](),
 		onRefreshAnilistMangaCollection: mo.None[func()](),
 	}

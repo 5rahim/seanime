@@ -66,20 +66,43 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 	return func(call goja.FunctionCall) goja.Value {
 		var ret []string
 		for _, arg := range call.Arguments {
+			// Check if the argument is a goja.Object
 			if obj, ok := arg.(*goja.Object); ok {
+				// Attempt to check if it's an Error object by looking for common properties
+				message := obj.Get("message")
+				stack := obj.Get("stack")
+
+				// If it has a message or stack, format it as an error
+				if message != nil || stack != nil {
+					errStr := "Error"
+					if message != nil && !goja.IsUndefined(message) && !goja.IsNull(message) {
+						errStr += ": " + message.String()
+					}
+					if stack != nil && !goja.IsUndefined(stack) && !goja.IsNull(stack) {
+						errStr += "\nStack: " + stack.String()
+					}
+					ret = append(ret, errStr)
+					continue // Skip default handling if we formatted it as an error
+				}
+				// Fallback for other objects: Try calling toString() if available
 				if hasOwnPropFn, ok := goja.AssertFunction(obj.Get("hasOwnProperty")); ok {
 					if retVal, err := hasOwnPropFn(obj, c.vm.ToValue("toString")); err == nil && retVal.ToBoolean() {
 						tsVal := obj.Get("toString")
 						if fn, ok := goja.AssertFunction(tsVal); ok {
 							strVal, err := fn(obj)
 							if err == nil {
-								ret = append(ret, strVal.String())
-								continue
+								// Avoid double logging if toString() is just "[object Object]"
+								if strVal.String() != "[object Object]" {
+									ret = append(ret, strVal.String())
+									continue // Skip default handling if toString() worked
+								}
 							}
 						}
 					}
 				}
 			}
+
+			// Original default handling
 			switch v := arg.Export().(type) {
 			case nil:
 				ret = append(ret, "undefined")
