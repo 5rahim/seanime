@@ -329,6 +329,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager: hookManager,
 	}
 
+	// Run database migrations if version has changed
+	app.runMigrations()
+
+	// Initialize modules that only need to be initialized once
+	app.initModulesOnce()
+
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		ContinuityManager:       app.ContinuityManager,
 		AutoScanner:             app.AutoScanner,
@@ -338,12 +344,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MediastreamRepository:   app.MediastreamRepository,
 		TorrentstreamRepository: app.TorrentstreamRepository,
 	})
-
-	// Run database migrations if version has changed
-	app.runMigrations()
-
-	// Initialize modules that only need to be initialized once
-	app.initModulesOnce()
 
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()

@@ -387,6 +387,7 @@ func (c *Context) handleException(err error) {
 	// defer c.mu.Unlock()
 
 	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Exception: %s", c.ext.ID, err.Error()))
+	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Exception: %s", c.ext.ID, err.Error()))
 
 	c.exceptionCount++
 	if c.exceptionCount >= MaxExceptions {
