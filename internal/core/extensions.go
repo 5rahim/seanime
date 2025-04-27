@@ -19,31 +19,31 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	// Built-in manga providers
 	//
 
-	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
-	// 	ID:          "comick",
-	// 	Name:        "ComicK",
-	// 	Version:     "",
-	// 	ManifestURI: "builtin",
-	// 	Language:    extension.LanguageGo,
-	// 	Type:        extension.TypeMangaProvider,
-	// 	Author:      "Seanime",
-	// 	Description: "",
-	// 	Lang:        "en",
-	// 	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
-	// }, manga_providers.NewComicK(logger))
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
+		ID:          "comick",
+		Name:        "ComicK",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
+		Description: "",
+		Lang:        "en",
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
+	}, manga_providers.NewComicK(logger))
 
-	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
-	// 	ID:          "comick-multi",
-	// 	Name:        "ComicK (Multi)",
-	// 	Version:     "",
-	// 	ManifestURI: "builtin",
-	// 	Language:    extension.LanguageGo,
-	// 	Type:        extension.TypeMangaProvider,
-	// 	Author:      "Seanime",
-	// 	Description: "",
-	// 	Lang:        "multi",
-	// 	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
-	// }, manga_providers.NewComicKMulti(logger))
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
+		ID:          "comick-multi",
+		Name:        "ComicK (Multi)",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
+		Description: "",
+		Lang:        "multi",
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
+	}, manga_providers.NewComicKMulti(logger))
 
 	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "mangapill",
