@@ -53,6 +53,30 @@ declare namespace $app {
     }
 
     /**
+     * @event GetCachedAnimeCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
+
+    interface GetCachedAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedMangaCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
+
+    interface GetCachedMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
      * @event GetAnimeCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
@@ -74,6 +98,30 @@ declare namespace $app {
         next(): void;
 
         mangaCollection?: AL_MangaCollection;
+    }
+
+    /**
+     * @event GetCachedRawAnimeCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
+
+    interface GetCachedRawAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedRawMangaCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
+
+    interface GetCachedRawMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
     }
 
     /**
@@ -545,6 +593,20 @@ declare namespace $app {
 
         mediaId: number;
         watchHistoryItem?: Continuity_WatchHistoryItem;
+    }
+
+    /**
+     * @event WatchHistoryItemUpdatedEvent
+     * @file internal/continuity/hook_events.go
+     * @description
+     * WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated.
+     */
+    function onWatchHistoryItemUpdated(cb: (event: WatchHistoryItemUpdatedEvent) => void): void;
+
+    interface WatchHistoryItemUpdatedEvent {
+        watchHistoryItem?: Continuity_WatchHistoryItem;
+
+        next(): void;
     }
 
     /**
