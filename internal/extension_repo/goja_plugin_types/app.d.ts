@@ -59,9 +59,9 @@ declare namespace $app {
     function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
 
     interface GetCachedAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -71,9 +71,9 @@ declare namespace $app {
     function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
 
     interface GetCachedMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -107,9 +107,9 @@ declare namespace $app {
     function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
 
     interface GetCachedRawAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -119,9 +119,9 @@ declare namespace $app {
     function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
 
     interface GetCachedRawMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -604,9 +604,9 @@ declare namespace $app {
     function onWatchHistoryItemUpdated(cb: (event: WatchHistoryItemUpdatedEvent) => void): void;
 
     interface WatchHistoryItemUpdatedEvent {
-        watchHistoryItem?: Continuity_WatchHistoryItem;
-
         next(): void;
+
+        watchHistoryItem?: Continuity_WatchHistoryItem;
     }
 
     /**
@@ -1461,14 +1461,14 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_AnimeCollection {
-        mediaListCollection?: AL_AnimeCollection_MediaListCollection;
+        MediaListCollection?: AL_AnimeCollection_MediaListCollection;
     }
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_AnimeCollectionWithRelations {
-        mediaListCollection?: AL_AnimeCollectionWithRelations_MediaListCollection;
+        MediaListCollection?: AL_AnimeCollectionWithRelations_MediaListCollection;
     }
 
     /**
@@ -2111,7 +2111,7 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_ListAnime {
-        page?: AL_ListAnime_Page;
+        Page?: AL_ListAnime_Page;
     }
 
     /**
@@ -2137,7 +2137,7 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_ListManga {
-        page?: AL_ListManga_Page;
+        Page?: AL_ListManga_Page;
     }
 
     /**
@@ -2163,7 +2163,7 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_ListRecentAnime {
-        page?: AL_ListRecentAnime_Page;
+        Page?: AL_ListRecentAnime_Page;
     }
 
     /**
@@ -2200,7 +2200,7 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_MangaCollection {
-        mediaListCollection?: AL_MangaCollection_MediaListCollection;
+        MediaListCollection?: AL_MangaCollection_MediaListCollection;
     }
 
     /**
@@ -2517,7 +2517,7 @@ declare namespace $app {
      * - Filepath: internal/api/anilist/client_gen.go
      */
     interface AL_StudioDetails {
-        studio?: AL_StudioDetails_Studio;
+        Studio?: AL_StudioDetails_Studio;
     }
 
     /**

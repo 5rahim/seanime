@@ -554,7 +554,7 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 				typeText = "$habari.Metadata"
 			}
 
-			f.WriteString(fmt.Sprintf("        %s%s: %s;\n", convertGoToJSName(field.JsonName), fieldNameSuffix, typeText))
+			f.WriteString(fmt.Sprintf("        %s%s: %s;\n", field.JsonName, fieldNameSuffix, typeText))
 		}
 		f.WriteString("    }\n\n")
 	}
