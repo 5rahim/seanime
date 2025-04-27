@@ -14,6 +14,12 @@ type WatchHistoryItemRequestedEvent struct {
 	WatchHistoryItem *WatchHistoryItem `json:"watchHistoryItem"`
 }
 
+// WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated.
+type WatchHistoryItemUpdatedEvent struct {
+	hook_resolver.Event
+	WatchHistoryItem *WatchHistoryItem `json:"watchHistoryItem"`
+}
+
 type WatchHistoryLocalFileEpisodeItemRequestedEvent struct {
 	hook_resolver.Event
 	Path string

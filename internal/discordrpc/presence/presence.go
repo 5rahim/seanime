@@ -382,8 +382,6 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Instance = event.Instance
 	activity.Type = event.Type
 
-	util.Spew(activity)
-
 	select {
 	case p.eventQueue <- func() {
 		_ = p.client.SetActivity(activity)

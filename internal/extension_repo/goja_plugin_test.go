@@ -613,6 +613,44 @@ func TestGojaPluginTryCatch(t *testing.T) {
 	require.NotNil(t, err2)
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaSharedMemory(t *testing.T) {
+	payload := `
+	function init() {
+
+		$ui.register((ctx) => {
+			const state = ctx.state("test")
+
+			$store.set("state", state)
+			
+		})
+
+		$app.onGetAnime((e) => {
+			const state = $store.get("state")
+			console.log("state", state)
+			console.log("state value", state.get())
+			e.next();
+		})
+
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+	_ = plugin
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	_, err = anilistPlatform.GetAnime(178022)
+	require.NoError(t, err)
+
+	time.Sleep(2 * time.Second)
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////s
 
 func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilist.AnimeCollection, error) {

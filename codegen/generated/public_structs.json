@@ -25795,6 +25795,32 @@
   {
     "filepath": "../internal/continuity/hook_events.go",
     "filename": "hook_events.go",
+    "name": "WatchHistoryItemUpdatedEvent",
+    "formattedName": "Continuity_WatchHistoryItemUpdatedEvent",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "WatchHistoryItem",
+        "jsonName": "watchHistoryItem",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedTypescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/continuity/hook_events.go",
+    "filename": "hook_events.go",
     "name": "WatchHistoryLocalFileEpisodeItemRequestedEvent",
     "formattedName": "Continuity_WatchHistoryLocalFileEpisodeItemRequestedEvent",
     "package": "continuity",
@@ -37819,6 +37845,24 @@
         "comments": []
       },
       {
+        "name": "onGetCachedAnimeCollection",
+        "jsonName": "onGetCachedAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedMangaCollection",
+        "jsonName": "onGetCachedMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onGetRawAnimeCollection",
         "jsonName": "onGetRawAnimeCollection",
         "goType": "",
@@ -37830,6 +37874,24 @@
       {
         "name": "onGetRawMangaCollection",
         "jsonName": "onGetRawMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedRawAnimeCollection",
+        "jsonName": "onGetCachedRawAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedRawMangaCollection",
+        "jsonName": "onGetCachedRawMangaCollection",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -38424,6 +38486,15 @@
       {
         "name": "onWatchHistoryItemRequested",
         "jsonName": "onWatchHistoryItemRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onWatchHistoryItemUpdated",
+        "jsonName": "onWatchHistoryItemUpdated",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -53514,6 +53585,54 @@
   {
     "filepath": "../internal/platforms/anilist_platform/hook_events.go",
     "filename": "hook_events.go",
+    "name": "GetCachedAnimeCollectionEvent",
+    "formattedName": "GetCachedAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedMangaCollectionEvent",
+    "formattedName": "GetCachedMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
     "name": "GetAnimeCollectionEvent",
     "formattedName": "GetAnimeCollectionEvent",
     "package": "anilist_platform",
@@ -53540,6 +53659,54 @@
     "filename": "hook_events.go",
     "name": "GetMangaCollectionEvent",
     "formattedName": "GetMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedRawAnimeCollectionEvent",
+    "formattedName": "GetCachedRawAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedRawMangaCollectionEvent",
+    "formattedName": "GetCachedRawMangaCollectionEvent",
     "package": "anilist_platform",
     "fields": [
       {

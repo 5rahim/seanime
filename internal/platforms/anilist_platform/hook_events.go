@@ -29,12 +29,32 @@ type GetMangaDetailsEvent struct {
 	Manga *anilist.MangaDetailsById_Media `json:"manga"`
 }
 
+type GetCachedAnimeCollectionEvent struct {
+	hook_resolver.Event
+	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
+}
+
+type GetCachedMangaCollectionEvent struct {
+	hook_resolver.Event
+	MangaCollection *anilist.MangaCollection `json:"mangaCollection"`
+}
+
 type GetAnimeCollectionEvent struct {
 	hook_resolver.Event
 	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
 }
 
 type GetMangaCollectionEvent struct {
+	hook_resolver.Event
+	MangaCollection *anilist.MangaCollection `json:"mangaCollection"`
+}
+
+type GetCachedRawAnimeCollectionEvent struct {
+	hook_resolver.Event
+	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
+}
+
+type GetCachedRawMangaCollectionEvent struct {
 	hook_resolver.Event
 	MangaCollection *anilist.MangaCollection `json:"mangaCollection"`
 }

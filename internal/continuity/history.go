@@ -133,6 +133,10 @@ func (m *Manager) UpdateWatchHistoryItem(opts *UpdateWatchHistoryItemOptions) (e
 		return fmt.Errorf("continuity: Failed to save watch history item: %w", err)
 	}
 
+	_ = hook.GlobalHookManager.OnWatchHistoryItemUpdated().Trigger(&WatchHistoryItemUpdatedEvent{
+		WatchHistoryItem: i,
+	})
+
 	// If the item was added, check if we need to remove the oldest item
 	if added {
 		_ = m.trimWatchHistoryItems()
