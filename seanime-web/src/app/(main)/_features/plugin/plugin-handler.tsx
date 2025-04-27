@@ -1,4 +1,5 @@
-import { useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useWebsocketMessageListener, useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useDOMManager } from "./dom-manager"
 import {
     Plugin_Server_DOMCreateEventPayload,
@@ -10,7 +11,7 @@ import {
     PluginServerEvents,
 } from "./generated/plugin-events"
 
-export function PluginHandler({ extensionId }: { extensionId: string }) {
+export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string, onUnloaded: () => void }) {
     // DOM Manager
     const {
         handleDOMQuery,
@@ -21,6 +22,16 @@ export function PluginHandler({ extensionId }: { extensionId: string }) {
         handleDOMManipulate,
         cleanup: cleanupDOMManager,
     } = useDOMManager(extensionId)
+
+    useWebsocketMessageListener({
+        type: WSEvents.PLUGIN_UNLOADED,
+        onMessage: (_extensionId) => {
+            if (_extensionId === extensionId) {
+                cleanupDOMManager()
+                onUnloaded()
+            }
+        },
+    })
 
     // Listen for DOM events
     useWebsocketPluginMessageListener({

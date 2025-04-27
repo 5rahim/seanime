@@ -56591,6 +56591,15 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "registeredInlineEventHandlers",
+        "jsonName": "registeredInlineEventHandlers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [

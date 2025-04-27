@@ -44,6 +44,8 @@ export function useDOMManager(extensionId: string) {
     const mutationObserverRef = useRef<MutationObserver | null>(null)
     const disposedRef = useRef<boolean>(false)
     const domReadySentRef = useRef<boolean>(false)
+    // Track only elements created by this plugin
+    const createdElementsRef = useRef<Set<string>>(new Set())
 
     const safeSendPluginMessage = (type: string, payload: any) => {
         if (disposedRef.current) return // Prevent sending messages if disposed
@@ -334,6 +336,9 @@ export function useDOMManager(extensionId: string) {
         const element = document.createElement(tagName)
         element.id = `plugin-element-${uuidv4()}`
 
+        // Track this element as it was created by the plugin
+        createdElementsRef.current.add(element.id)
+
         // Add to a hidden container for now
         let container = document.getElementById("plugin-dom-container")
         if (!container) {
@@ -499,6 +504,15 @@ export function useDOMManager(extensionId: string) {
 
                 element.style.setProperty(params.property, params.value)
                 break
+            case "setCssText":
+                // Store previous styles
+                if (element instanceof HTMLElement && params.cssText) {
+                    storeOriginalValue(element, "style", "cssText", element.style.cssText)
+                }
+
+                // Set the styles
+                element.style.cssText = params.cssText
+                break
             case "getStyle":
                 if (params.property) {
                     result = element.style.getPropertyValue(params.property)
@@ -515,7 +529,6 @@ export function useDOMManager(extensionId: string) {
                 break
             case "append":
                 const childToAppend = document.getElementById(params.childId)
-                console.log("Appending child", params, element.id)
                 if (childToAppend) {
                     element.appendChild(childToAppend)
                 }
@@ -702,14 +715,30 @@ export function useDOMManager(extensionId: string) {
             }
         })
 
+        // Remove only elements that were created by this plugin
+        createdElementsRef.current.forEach(elementId => {
+            const element = document.getElementById(elementId)
+            if (element) {
+                // Remove any event listeners attached to this element
+                const elementListeners = Array.from(eventListenersRef.current.values())
+                    .filter(l => l.elementId === elementId)
+                elementListeners.forEach(listener => {
+                    element.removeEventListener(listener.eventType, listener.callback)
+                })
+                // Remove the element itself
+                element.remove()
+            }
+        })
+
         // Clear the maps
         elementObserversRef.current.clear()
         eventListenersRef.current.clear()
         observedElementsRef.current.clear()
+        createdElementsRef.current.clear()
 
-        // Remove plugin container if it exists
+        // Remove plugin container if it exists and is empty
         const container = document.getElementById("plugin-dom-container")
-        if (container) {
+        if (container && (!container.hasChildNodes() || container.children.length === 0)) {
             container.remove()
         }
     }

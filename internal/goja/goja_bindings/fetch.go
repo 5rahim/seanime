@@ -67,6 +67,7 @@ type fetchResult struct {
 	body     []byte
 	request  *http.Request
 	response *http.Response
+	json     interface{}
 }
 
 // BindFetch binds the fetch function to the VM
@@ -77,6 +78,11 @@ func BindFetch(vm *goja.Runtime) *Fetch {
 
 	go func() {
 		for fn := range f.ResponseChannel() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Warn().Msgf("extension: response channel panic: %v", r)
+				}
+			}()
 			fn()
 		}
 	}()
@@ -85,6 +91,12 @@ func BindFetch(vm *goja.Runtime) *Fetch {
 }
 
 func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Warn().Msgf("extension: fetch panic: %v", r)
+		}
+	}()
+
 	promise, resolve, reject := f.vm.NewPromise()
 
 	// Input validation
@@ -234,6 +246,16 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		result.body = rawBody
 		result.response = resp
 		result.request = req
+
+		if len(rawBody) > 0 {
+			var data interface{}
+			if err := json.Unmarshal(rawBody, &data); err != nil {
+				result.json = nil
+			} else {
+				result.json = data
+			}
+		}
+
 		f.vmResponseCh <- func() {
 			_ = resolve(result.toGojaObject(f.vm))
 			return
@@ -274,21 +296,8 @@ func (f *fetchResult) toGojaObject(vm *goja.Runtime) *goja.Object {
 		return string(f.body)
 	})
 
-	var jsonValue goja.Value
-	var jsonInterface map[string]interface{}
-	if err := json.Unmarshal(f.body, &jsonInterface); err != nil {
-		var jsonInterface []interface{}
-		if err := json.Unmarshal(f.body, &jsonInterface); err != nil {
-			jsonValue = goja.Undefined()
-		} else {
-			jsonValue = vm.ToValue(jsonInterface)
-		}
-	} else {
-		jsonValue = vm.ToValue(jsonInterface)
-	}
-
-	_ = obj.Set("json", func(call goja.FunctionCall) goja.Value {
-		return jsonValue
+	_ = obj.Set("json", func(call goja.FunctionCall) (ret goja.Value) {
+		return vm.ToValue(f.json)
 	})
 
 	return obj

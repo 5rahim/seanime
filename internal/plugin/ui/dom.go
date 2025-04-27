@@ -513,6 +513,10 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 		d.setElementStyle(elementId, property, value)
 	})
 
+	_ = elementObj.Set("setCssText", func(cssText string) {
+		d.setElementCssText(elementId, cssText)
+	})
+
 	_ = elementObj.Set("getStyle", func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) > 0 && !goja.IsUndefined(call.Argument(0)) {
 			property := call.Argument(0).String()
@@ -773,6 +777,16 @@ func (d *DOMManager) setElementStyle(elementId, property, value string) {
 		Params: map[string]interface{}{
 			"property": property,
 			"value":    value,
+		},
+	})
+}
+
+func (d *DOMManager) setElementCssText(elementId, cssText string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementId: elementId,
+		Action:    "setCssText",
+		Params: map[string]interface{}{
+			"cssText": cssText,
 		},
 	})
 }

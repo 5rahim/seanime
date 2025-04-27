@@ -2,6 +2,7 @@ import { RenderPluginComponents } from "@/app/(main)/_features/plugin/components
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/components/ui/core/styling"
 import { DatePicker } from "@/components/ui/date-picker"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { RadioGroup } from "@/components/ui/radio-group"
@@ -39,6 +40,7 @@ interface PluginButtonProps {
     disabled?: boolean
     loading?: boolean
     size?: "xs" | "sm" | "md" | "lg"
+    className?: string
 }
 
 export function PluginButton(props: PluginButtonProps) {
@@ -62,6 +64,7 @@ export function PluginButton(props: PluginButtonProps) {
             disabled={props.disabled}
             loading={props.loading}
             size={props.size || "sm"}
+            className={props.className}
         >
             {props.label || "Button"}
         </Button>
@@ -82,6 +85,7 @@ interface InputProps {
     fieldRef?: FieldRef<string>
     disabled?: boolean
     size?: "sm" | "md" | "lg"
+    className?: string
 }
 
 export function PluginInput(props: InputProps) {
@@ -129,6 +133,7 @@ export function PluginInput(props: InputProps) {
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
             size={props.size || "md"}
+            fieldClass={props.className}
         />
     )
 }
@@ -148,6 +153,7 @@ interface SelectProps {
     value?: string
     disabled?: boolean
     size?: "sm" | "md" | "lg"
+    className?: string
 }
 
 export function PluginSelect(props: SelectProps) {
@@ -193,6 +199,7 @@ export function PluginSelect(props: SelectProps) {
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
             size={props.size || "md"}
+            fieldClass={props.className}
         />
     )
 }
@@ -208,6 +215,7 @@ interface CheckboxProps {
     fieldRef?: FieldRef<boolean>
     disabled?: boolean
     size?: "sm" | "md" | "lg"
+    className?: string
 }
 
 export function PluginCheckbox(props: CheckboxProps) {
@@ -252,6 +260,7 @@ export function PluginCheckbox(props: CheckboxProps) {
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
             disabled={props.disabled}
             size={props.size || "md"}
+            fieldClass={props.className}
         />
     )
 }
@@ -268,6 +277,7 @@ interface SwitchProps {
     disabled?: boolean
     size?: "sm" | "md" | "lg"
     side?: "left" | "right"
+    className?: string
 }
 
 export function PluginSwitch(props: SwitchProps) {
@@ -313,6 +323,7 @@ export function PluginSwitch(props: SwitchProps) {
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
             disabled={props.disabled}
             size={props.size || "sm"}
+            fieldClass={props.className}
         />
     )
 }
@@ -332,6 +343,7 @@ interface RadioGroupProps {
     value?: string
     disabled?: boolean
     size?: "sm" | "md" | "lg"
+    className?: string
 }
 
 export function PluginRadioGroup(props: RadioGroupProps) {
@@ -376,6 +388,7 @@ export function PluginRadioGroup(props: RadioGroupProps) {
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
             size={props.size || "md"}
+            fieldClass={props.className}
         />
     )
 }
@@ -388,12 +401,13 @@ interface FlexProps {
     direction?: "row" | "column"
     gap?: number
     style?: React.CSSProperties
+    className?: string
 }
 
-export function PluginFlex({ items = [], direction = "row", gap = 2, style }: FlexProps) {
+export function PluginFlex({ items = [], direction = "row", gap = 2, style, className }: FlexProps) {
     return (
         <div
-            className="flex"
+            className={cn("flex", className)}
             style={{
                 ...(style || {}),
                 gap: `${gap * 0.25}rem`,
@@ -411,12 +425,13 @@ interface StackProps {
     items?: any[]
     style?: React.CSSProperties,
     gap?: number
+    className?: string
 }
 
-export function PluginStack({ items = [], style, gap = 2 }: StackProps) {
+export function PluginStack({ items = [], style, gap = 2, className }: StackProps) {
     return (
         <div
-            className="flex"
+            className={cn("flex", className)}
             style={{
                 ...(style || {}),
                 gap: `${gap * 0.25}rem`,
@@ -433,12 +448,13 @@ export function PluginStack({ items = [], style, gap = 2 }: StackProps) {
 interface DivProps {
     items?: any[]
     style?: React.CSSProperties
+    className?: string
 }
 
-export function PluginDiv({ items = [], style }: DivProps) {
+export function PluginDiv({ items = [], style, className }: DivProps) {
     return (
         <div
-            className="relative"
+            className={cn("relative", className)}
             style={style}
         >
             {items && items.length > 0 && <RenderPluginComponents data={items} />}
@@ -451,10 +467,11 @@ export function PluginDiv({ items = [], style }: DivProps) {
 interface TextProps {
     text: string
     style?: React.CSSProperties
+    className?: string
 }
 
-export function PluginText({ text, style }: TextProps) {
-    return <p className="w-full break-all" style={style}>{text}</p>
+export function PluginText({ text, style, className }: TextProps) {
+    return <p className={cn("w-full break-all", className)} style={style}>{text}</p>
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

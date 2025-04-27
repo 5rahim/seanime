@@ -53,6 +53,7 @@ const (
 	ExtensionsReloaded    = "extensions-reloaded"
 	ExtensionUpdatesFound = "extension-updates-found"
 	PluginUnloaded        = "plugin-unloaded"
+	PluginLoaded          = "plugin-loaded"
 
 	ActiveTorrentCountUpdated = "active-torrent-count-updated"
 

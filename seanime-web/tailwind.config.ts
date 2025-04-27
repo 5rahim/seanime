@@ -41,6 +41,121 @@ const config: Config = {
         "text-audienceScore-600", "text-audienceScore-700", "text-audienceScore-800", "text-audienceScore-900",
         "drop-shadow-sm",
         "-top-10 top-10",
+
+        {
+            pattern: /bg-(red|green|blue|gray|brand|orange|yellow)-(100|200|300|400|500|600|700|800|900|950)/,
+            variants: ["hover"],
+        },
+        // {
+        //     pattern: /text-(red|green|blue|gray|brand|orange|yellow)-(100|200|300|400|500|600|700|800|900|950)/,
+        //     variants: ['hover'],
+        // },
+        // {
+        //     pattern: /border-(red|green|blue|gray|brand|orange|yellow)-(100|200|300|400|500|600|700|800|900|950)/,
+        // },
+
+        {
+            pattern: /p-[0-9]+/,
+        },
+        {
+            pattern: /m-[0-9]+/,
+        },
+        {
+            pattern: /gap-[0-9]+/,
+        },
+        {
+            pattern: /(px|py|pt|pb|pl|pr)-[0-9]+/,
+        },
+        {
+            pattern: /(mx|my|mt|mb|ml|mr)-[0-9]+/,
+        },
+
+        {
+            pattern: /grid-cols-[1-9]+/,
+            variants: ["lg"],
+        },
+        {
+            pattern: /col-span-[1-9]+/,
+            variants: ["lg"],
+        },
+        "flex", "inline-flex", "grid", "inline-grid",
+        "flex-row", "flex-col", "flex-row-reverse", "flex-col-reverse",
+        "flex-wrap", "flex-nowrap", "flex-wrap-reverse",
+        "items-start", "items-center", "items-end", "items-baseline", "items-stretch",
+        "justify-start", "justify-center", "justify-end", "justify-between", "justify-around", "justify-evenly",
+
+        {
+            pattern: /flex|inline-flex|grid|inline-grid|flex-row|flex-col|flex-row-reverse|flex-col-reverse|flex-wrap|flex-nowrap|flex-wrap-reverse|items-start|items-center|items-end|items-baseline|items-stretch|justify-start|justify-center|justify-end|justify-between|justify-around|justify-evenly/,
+            variants: ["lg", "md"],
+        },
+
+
+        // {
+        //     pattern: /w-[0-9]+/,
+        //     variants: ['lg', 'md', 'sm', 'xl', '2xl'],
+        // },
+        // {
+        //     pattern: /h-[0-9]+/,
+        //     variants: ['lg', 'md', 'sm', 'xl', '2xl'],
+        // },
+        "w-full", "h-full", "w-screen", "h-screen", "w-auto", "h-auto",
+        "min-w-0", "min-h-0", "max-w-none", "max-h-none",
+
+        {
+            pattern: /text-xs|text-sm|text-base|text-lg|text-xl|text-2xl|text-3xl/,
+            variants: ["lg", "md"],
+        },
+
+        {
+            pattern: /font-thin|font-light|font-normal|font-medium|font-semibold|font-bold/,
+            variants: ["lg", "md"],
+        },
+
+        {
+            pattern: /text-left|text-center|text-right|text-justify/,
+            variants: ["lg", "md"],
+        },
+
+
+        "uppercase", "lowercase", "capitalize", "normal-case",
+        "truncate", "overflow-ellipsis", "overflow-clip",
+
+        "rounded-none", "rounded-sm", "rounded", "rounded-md", "rounded-lg", "rounded-xl", "rounded-2xl", "rounded-3xl", "rounded-full",
+        "border", "border-0", "border-2", "border-4", "border-8",
+        // {
+        //     pattern: /border-[0-9]+/,
+        //     variants: ['lg', 'md', 'sm', 'xl', '2xl', 'hover', 'focus'],
+        // },
+
+        "shadow-sm", "shadow", "shadow-md", "shadow-lg", "shadow-xl", "shadow-2xl", "shadow-inner", "shadow-none",
+        "opacity-0", "opacity-25", "opacity-50", "opacity-75", "opacity-100",
+
+
+        // "transition", "transition-all", "transition-colors", "transition-opacity", "transition-shadow", "transition-transform",
+        // "duration-75", "duration-100", "duration-150", "duration-200", "duration-300", "duration-500", "duration-700", "duration-1000",
+        // "ease-linear", "ease-in", "ease-out", "ease-in-out",
+        // "scale-0", "scale-50", "scale-75", "scale-90", "scale-95", "scale-100", "scale-105", "scale-110", "scale-125", "scale-150",
+        // "rotate-0", "rotate-45", "rotate-90", "rotate-180", "-rotate-45", "-rotate-90", "-rotate-180",
+        // "translate-x-0", "translate-x-1", "translate-x-2", "translate-x-4", "translate-x-8",
+        // "translate-y-0", "translate-y-1", "translate-y-2", "translate-y-4", "translate-y-8",
+
+        "cursor-pointer", "cursor-not-allowed", "cursor-wait", "cursor-text", "cursor-move", "cursor-help",
+        "select-none", "select-text", "select-all", "select-auto",
+        "pointer-events-none", "pointer-events-auto",
+        "resize", "resize-none", "resize-y", "resize-x",
+
+        "static", "fixed", "absolute", "relative", "sticky",
+        "top-0", "right-0", "bottom-0", "left-0",
+        "z-0", "z-10", "z-20", "z-30", "z-40", "z-50", "z-auto",
+
+        "block", "inline-block", "inline", "hidden",
+        {
+            pattern: /hidden|block|inline|inline-block/,
+            variants: ["lg", "md"],
+        },
+
+        "overflow-auto", "overflow-hidden", "overflow-visible", "overflow-scroll",
+        "overflow-x-auto", "overflow-y-auto", "overflow-x-hidden", "overflow-y-hidden",
     ],
     theme: {
         container: {

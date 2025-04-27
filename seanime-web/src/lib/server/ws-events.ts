@@ -29,6 +29,7 @@ export const enum WSEvents {
     EXTENSIONS_RELOADED = "extensions-reloaded",
     EXTENSION_UPDATES_FOUND = "extension-updates-found",
     PLUGIN_UNLOADED = "plugin-unloaded",
+    PLUGIN_LOADED = "plugin-loaded",
     ACTIVE_TORRENT_COUNT_UPDATED = "active-torrent-count-updated",
     SYNC_LOCAL_QUEUE_STATE = "sync-local-queue-state",
     SYNC_LOCAL_FINISHED = "sync-local-finished",

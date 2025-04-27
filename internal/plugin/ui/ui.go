@@ -69,6 +69,7 @@ func NewUI(options NewUIOptions) *UI {
 	}
 	ui.context = NewContext(ui)
 	ui.context.scheduler.SetOnException(func(err error) {
+		ui.logger.Error().Err(err).Msg("plugin: Encountered exception in asynchronous task")
 		ui.context.handleException(err)
 	})
 
@@ -243,6 +244,8 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderEpisodeGridItemMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
+
+	u.wsEventManager.SendEvent(events.PluginLoaded, u.ext.ID)
 
 	u.mu.Unlock()
 	return nil
