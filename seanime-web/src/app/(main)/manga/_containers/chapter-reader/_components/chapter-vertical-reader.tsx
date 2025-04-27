@@ -175,6 +175,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                     "w-full h-[calc(100dvh-3rem)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",
                     hiddenBar && "h-dvh",
                     pageGap && "space-y-4",
+                    isMobile() && "hide-scrollbar",
                 )}
                 ref={containerRef}
                 tabIndex={-1}
