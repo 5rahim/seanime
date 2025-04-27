@@ -20,12 +20,18 @@ var (
 	additionalStructNamesForHooks = []string{
 		"discordrpc_presence.MangaActivity",
 		"discordrpc_presence.AnimeActivity",
+		"discordrpc_presence.LegacyAnimeActivity",
 		"anilist.ListAnime",
 		"anilist.ListManga",
 		"anilist.MediaSort",
 		"anilist.ListRecentAnime",
 		"anilist.AnimeCollectionWithRelations",
 		"onlinestream.Episode",
+		"continuity.WatchHistoryItem",
+		"continuity.WatchHistoryItemResponse",
+		"continuity.UpdateWatchHistoryItemOptions",
+		"continuity.WatchHistory",
+		"torrent_client.Torrent",
 	}
 )
 

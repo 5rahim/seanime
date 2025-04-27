@@ -283,6 +283,8 @@ export function DiscoverPageHeader() {
                             (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
                             (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
                         )}
+                        data-media-id={randomTrending?.id}
+                        data-media-mal-id={randomTrending?.idMal}
                     >
                         <div
                             data-discover-page-header-metadata-inner-container

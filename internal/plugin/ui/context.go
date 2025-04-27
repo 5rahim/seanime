@@ -65,6 +65,8 @@ type Context struct {
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
 	cron                 mo.Option[*plugin.Cron]
+
+	registeredInlineEventHandlers *result.Map[string, *EventListener]
 }
 
 type State struct {
@@ -84,22 +86,23 @@ type EventListener struct {
 
 func NewContext(ui *UI) *Context {
 	ret := &Context{
-		ui:                   ui,
-		ext:                  ui.ext,
-		logger:               ui.logger,
-		vm:                   ui.vm,
-		states:               result.NewResultMap[string, *State](),
-		fetchSem:             make(chan struct{}, MaxConcurrentFetchRequests),
-		stateSubscribers:     make([]chan *State, 0),
-		eventBus:             result.NewResultMap[ClientEventType, *result.Map[string, *EventListener]](),
-		wsEventManager:       ui.wsEventManager,
-		effectStack:          make(map[string]bool),
-		effectCalls:          make(map[string][]time.Time),
-		pendingStateUpdates:  make(map[string]struct{}),
-		lastUIUpdateAt:       time.Now().Add(-time.Hour), // Initialize to a time in the past
-		atomicCleanupCounter: atomic.Int64{},
-		onCleanupFns:         result.NewResultMap[int64, func()](),
-		cron:                 mo.None[*plugin.Cron](),
+		ui:                            ui,
+		ext:                           ui.ext,
+		logger:                        ui.logger,
+		vm:                            ui.vm,
+		states:                        result.NewResultMap[string, *State](),
+		fetchSem:                      make(chan struct{}, MaxConcurrentFetchRequests),
+		stateSubscribers:              make([]chan *State, 0),
+		eventBus:                      result.NewResultMap[ClientEventType, *result.Map[string, *EventListener]](),
+		wsEventManager:                ui.wsEventManager,
+		effectStack:                   make(map[string]bool),
+		effectCalls:                   make(map[string][]time.Time),
+		pendingStateUpdates:           make(map[string]struct{}),
+		lastUIUpdateAt:                time.Now().Add(-time.Hour), // Initialize to a time in the past
+		atomicCleanupCounter:          atomic.Int64{},
+		onCleanupFns:                  result.NewResultMap[int64, func()](),
+		cron:                          mo.None[*plugin.Cron](),
+		registeredInlineEventHandlers: result.NewResultMap[string, *EventListener](),
 	}
 
 	ret.scheduler = ui.scheduler
@@ -132,6 +135,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("setInterval", c.jsSetInterval)
 	_ = obj.Set("effect", c.jsEffect)
 	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
+	_ = obj.Set("eventHandler", c.jsEventHandler)
 	_ = obj.Set("fieldRef", c.jsfieldRef)
 
 	c.bindFetch(obj)
@@ -147,6 +151,20 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	plugin.GlobalAppContext.BindMangaToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 	// Bind anime
 	plugin.GlobalAppContext.BindAnimeToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind continuity
+	plugin.GlobalAppContext.BindContinuityToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind filler manager
+	plugin.GlobalAppContext.BindFillerManagerToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind auto downloader
+	plugin.GlobalAppContext.BindAutoDownloaderToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind auto scanner
+	plugin.GlobalAppContext.BindAutoScannerToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind external player link
+	plugin.GlobalAppContext.BindExternalPlayerLinkToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind onlinestream
+	plugin.GlobalAppContext.BindOnlinestreamToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+	// Bind mediastream
+	plugin.GlobalAppContext.BindMediastreamToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 
 	if c.ext.Plugin != nil {
 		for _, permission := range c.ext.Plugin.Permissions.Scopes {
@@ -166,6 +184,9 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionDiscord:
 				// Bind discord to the context object
 				plugin.GlobalAppContext.BindDiscordToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+			case extension.PluginPermissionTorrentClient:
+				// Bind torrent client to the context object
+				plugin.GlobalAppContext.BindTorrentClientToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			}
 		}
 	}
@@ -365,19 +386,24 @@ func (c *Context) handleException(err error) {
 	// c.mu.Lock()
 	// defer c.mu.Unlock()
 
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Exception: %s", c.ext.ID, err.Error()))
+	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Exception: %s", c.ext.ID, err.Error()))
+
 	c.exceptionCount++
 	if c.exceptionCount >= MaxExceptions {
 		newErr := fmt.Errorf("plugin(%s): Encountered too many exceptions, last error: %w", c.ext.ID, err)
-		c.logger.Error().Err(newErr).Msg("plugin: Encountered too many exceptions, interrupting UI")
+		c.logger.Error().Err(newErr).Msg("plugin: Encountered too many exceptions, interrupting plugin")
 		c.fatalError(newErr)
 	}
 }
 
 func (c *Context) fatalError(err error) {
-	c.logger.Error().Err(err).Msg("plugin: Encountered fatal error, interrupting UI")
+	c.logger.Error().Err(err).Msg("plugin: Encountered fatal error, interrupting plugin")
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Encountered fatal error, interrupting plugin", c.ext.ID))
+	c.ui.lastException = err.Error()
 
 	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
-	c.wsEventManager.SendEvent(events.ConsoleLog, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
+	c.wsEventManager.SendEvent(events.ConsoleWarn, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
 
 	// Unload the UI and signal the Plugin that it's been terminated
 	c.ui.Unload(true)
@@ -775,10 +801,57 @@ func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
+// jsEventHandler - inline event handler
+//
+//	Example:
+//	tray.render(() => tray.button("Click me", {
+//		onClick: ctx.eventHandler("unique-key", (e) => {
+//			console.log("Button clicked", e);
+//		})
+//	}));
+func (c *Context) jsEventHandler(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 2 {
+		c.handleTypeError("eventHandler requires a function")
+	}
+
+	uniqueKey := call.Argument(0).String()
+	if existingListener, ok := c.registeredInlineEventHandlers.Get(uniqueKey); ok {
+		c.UnregisterEventListenerE(existingListener)
+	}
+
+	handlerCallback, ok := goja.AssertFunction(call.Argument(1))
+	if !ok {
+		c.handleTypeError("second argument to eventHandler must be a function")
+	}
+
+	id := "__eventHandler__" + uuid.New().String()
+
+	eventListener := c.RegisterEventListener(ClientEventHandlerTriggeredEvent)
+	payload := ClientEventHandlerTriggeredEventPayload{}
+
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
+			// Check if the handler name matches
+			if payload.HandlerName == id {
+				c.scheduler.ScheduleAsync(func() error {
+					// Trigger the callback with the event payload
+					_, err := handlerCallback(goja.Undefined(), c.vm.ToValue(payload.Event))
+					return err
+				})
+			}
+		}
+	})
+
+	c.registeredInlineEventHandlers.Set(uniqueKey, eventListener)
+
+	return c.vm.ToValue(id)
+}
+
 // jsfieldRef allows to dynamically handle the value of a field outside the rendering context
 //
 //	Example:
-//	const fieldRef = ctx.fieldRef("my-field")
+//	const fieldRef = ctx.fieldRef("defaultValue")
+//	fieldRef.current // "defaultValue"
 //	fieldRef.setValue("Hello World!") // Triggers an immediate update on the client
 //	fieldRef.current // "Hello World!"
 //
@@ -797,8 +870,15 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 	c.fieldRefCount++
 
 	var valueRef interface{}
-
 	var onChangeCallback func(value interface{})
+
+	// Handle default value if provided
+	if len(call.Arguments) > 0 {
+		valueRef = call.Argument(0).Export()
+		fieldRefObj.Set("current", valueRef)
+	} else {
+		fieldRefObj.Set("current", goja.Undefined())
+	}
 
 	fieldRefObj.Set("setValue", func(call goja.FunctionCall) goja.Value {
 		value := call.Argument(0).Export()
@@ -832,10 +912,6 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 
 		return goja.Undefined()
 	})
-
-	valueRef = nil
-	onChangeCallback = nil
-	fieldRefObj.Set("current", goja.Undefined())
 
 	// Listen for changes from the client
 	eventListener := c.RegisterEventListener(ClientFieldRefSendValueEvent, ClientRenderTrayEvent)

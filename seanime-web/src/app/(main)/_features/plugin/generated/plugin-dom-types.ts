@@ -5,6 +5,7 @@ export type PluginDOMElement = {
     children: PluginDOMElement[]
     textContent?: string
     innerHTML?: string
+    outerHTML?: string
 }
 
 export type PluginDOMQueryResult = {
@@ -29,6 +30,7 @@ export type PluginDOMManipulateOptions = {
     action: "setAttribute"
     | "removeAttribute"
     | "setInnerHTML"
+        | "setOuterHTML"
     | "appendChild"
     | "removeChild"
     | "getText"

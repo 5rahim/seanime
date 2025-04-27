@@ -109,9 +109,6 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 //	@returns handlers.Status
 func (h *Handler) HandleGetStatus(c echo.Context) error {
 
-	// Show cookie
-	util.Spew(c.Request().Header.Get("Authorization"))
-
 	status := h.NewStatus(c)
 
 	return h.RespondWithData(c, status)

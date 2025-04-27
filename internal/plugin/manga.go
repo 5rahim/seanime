@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"seanime/internal/extension"
+	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/manga"
 	goja_util "seanime/internal/util/goja"
 
@@ -35,7 +36,21 @@ func (a *AppContextImpl) BindMangaToContextObj(vm *goja.Runtime, obj *goja.Objec
 	_ = mangaObj.Set("refreshChapters", m.refreshChapterContainers)
 	_ = mangaObj.Set("emptyCache", m.emptyCache)
 	_ = mangaObj.Set("getChapterContainer", m.getChapterContainer)
+	_ = mangaObj.Set("getProviders", m.getProviders)
 	_ = obj.Set("manga", mangaObj)
+}
+
+func (m *Manga) getProviders() (map[string]string, error) {
+	mangaRepo, ok := m.ctx.mangaRepository.Get()
+	if !ok {
+		return nil, errors.New("manga repository not found")
+	}
+	providers := make(map[string]string)
+	extension.RangeExtensions(mangaRepo.GetProviderExtensionBank(), func(id string, ext extension.MangaProviderExtension) bool {
+		providers[id] = ext.GetName()
+		return true
+	})
+	return providers, nil
 }
 
 type GetChapterContainerOptions struct {
@@ -45,13 +60,14 @@ type GetChapterContainerOptions struct {
 	Year     int
 }
 
-func (m *Manga) getChapterContainer(opts *GetChapterContainerOptions) *goja.Promise {
+func (m *Manga) getChapterContainer(opts *GetChapterContainerOptions) goja.Value {
 	promise, resolve, reject := m.vm.NewPromise()
 
 	mangaRepo, ok := m.ctx.mangaRepository.Get()
 	if !ok {
-		reject(errors.New("manga repository not found"))
-		return promise
+		// reject(goja_bindings.NewErrorString(m.vm, "manga repository not set"))
+		// return m.vm.ToValue(promise)
+		goja_bindings.PanicThrowErrorString(m.vm, "manga repository not set")
 	}
 
 	go func() {
@@ -71,7 +87,7 @@ func (m *Manga) getChapterContainer(opts *GetChapterContainerOptions) *goja.Prom
 		})
 	}()
 
-	return promise
+	return m.vm.ToValue(promise)
 }
 
 func (m *Manga) getDownloadedChapterContainers() ([]*manga.ChapterContainer, error) {
@@ -107,26 +123,26 @@ func (m *Manga) getCollection() (*manga.Collection, error) {
 	})
 }
 
-func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) *goja.Promise {
+func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) goja.Value {
 	promise, resolve, reject := m.vm.NewPromise()
 
 	mangaRepo, ok := m.ctx.mangaRepository.Get()
 	if !ok {
 		jsErr := m.vm.NewGoError(errors.New("manga repository not found"))
 		_ = reject(jsErr)
-		return promise
+		return m.vm.ToValue(promise)
 	}
 	anilistPlatform, foundAnilistPlatform := m.ctx.anilistPlatform.Get()
 	if !foundAnilistPlatform {
 		jsErr := m.vm.NewGoError(errors.New("anilist platform not found"))
 		_ = reject(jsErr)
-		return promise
+		return m.vm.ToValue(promise)
 	}
 
 	mangaCollection, err := anilistPlatform.GetMangaCollection(false)
 	if err != nil {
 		reject(err.Error())
-		return promise
+		return m.vm.ToValue(promise)
 	}
 
 	go func() {
@@ -141,16 +157,17 @@ func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) *go
 		})
 	}()
 
-	return promise
+	return m.vm.ToValue(promise)
 }
 
-func (m *Manga) emptyCache(mediaId int) *goja.Promise {
+func (m *Manga) emptyCache(mediaId int) goja.Value {
 	promise, resolve, reject := m.vm.NewPromise()
 
 	mangaRepo, ok := m.ctx.mangaRepository.Get()
 	if !ok {
-		reject(errors.New("manga repository not found"))
-		return promise
+		// reject(goja_bindings.NewErrorString(m.vm, "manga repository not found"))
+		// return m.vm.ToValue(promise)
+		goja_bindings.PanicThrowErrorString(m.vm, "manga repository not found")
 	}
 
 	go func() {
@@ -165,5 +182,5 @@ func (m *Manga) emptyCache(mediaId int) *goja.Promise {
 		})
 	}()
 
-	return promise
+	return m.vm.ToValue(promise)
 }

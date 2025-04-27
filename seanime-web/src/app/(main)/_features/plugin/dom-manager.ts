@@ -21,6 +21,7 @@ function uuidv4(): string {
 
 type ElementToDOMElementOptions = {
     withInnerHTML?: boolean
+    withOuterHTML?: boolean
     identifyChildren?: boolean
 }
 
@@ -34,6 +35,7 @@ export function useDOMManager(extensionId: string) {
     const elementObserversRef = useRef<Map<string, {
         selector: string;
         withInnerHTML?: boolean;
+        withOuterHTML?: boolean;
         identifyChildren?: boolean;
         callback: (elements: Element[]) => void
     }>>(new Map())
@@ -42,6 +44,8 @@ export function useDOMManager(extensionId: string) {
     const mutationObserverRef = useRef<MutationObserver | null>(null)
     const disposedRef = useRef<boolean>(false)
     const domReadySentRef = useRef<boolean>(false)
+    // Track only elements created by this plugin
+    const createdElementsRef = useRef<Set<string>>(new Set())
 
     const safeSendPluginMessage = (type: string, payload: any) => {
         if (disposedRef.current) return // Prevent sending messages if disposed
@@ -100,6 +104,7 @@ export function useDOMManager(extensionId: string) {
             attributes,
             // textContent: element.textContent || undefined,
             innerHTML: options?.withInnerHTML ? element.innerHTML : undefined,
+            outerHTML: options?.withOuterHTML ? element.outerHTML : undefined,
             children: [],
             // children: Array.from(element.children).map(child => elementToDOMElement(child)),
         }
@@ -215,6 +220,7 @@ export function useDOMManager(extensionId: string) {
                         if (!e.id) e.id = `plugin-element-${uuidv4()}`
                         return elementToDOMElement(e, {
                             withInnerHTML: observer.withInnerHTML,
+                            withOuterHTML: observer.withOuterHTML,
                             identifyChildren: observer.identifyChildren,
                         })
                     })
@@ -246,10 +252,10 @@ export function useDOMManager(extensionId: string) {
 
     // Handler functions
     const handleDOMQuery = (payload: Plugin_Server_DOMQueryEventPayload) => {
-        const { selector, requestId, withInnerHTML, identifyChildren } = payload
+        const { selector, requestId, withInnerHTML, identifyChildren, withOuterHTML } = payload
         if (disposedRef.current) return
         const elements = document.querySelectorAll(selector)
-        const domElements = Array.from(elements).map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren }))
+        const domElements = Array.from(elements).map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren, withOuterHTML }))
         safeSendPluginMessage(PluginClientEvents.DOMQueryResult, {
             requestId,
             elements: domElements,
@@ -257,10 +263,10 @@ export function useDOMManager(extensionId: string) {
     }
 
     const handleDOMQueryOne = (payload: Plugin_Server_DOMQueryOneEventPayload) => {
-        const { selector, requestId, withInnerHTML, identifyChildren } = payload
+        const { selector, requestId, withInnerHTML, identifyChildren, withOuterHTML } = payload
         if (disposedRef.current) return
         const element = document.querySelector(selector)
-        const domElement = element ? elementToDOMElement(element, { withInnerHTML, identifyChildren }) : null
+        const domElement = element ? elementToDOMElement(element, { withInnerHTML, identifyChildren, withOuterHTML }) : null
 
         safeSendPluginMessage(PluginClientEvents.DOMQueryOneResult, {
             requestId,
@@ -269,7 +275,7 @@ export function useDOMManager(extensionId: string) {
     }
 
     const handleDOMObserve = (payload: Plugin_Server_DOMObserveEventPayload) => {
-        const { selector, observerId, withInnerHTML, identifyChildren } = payload
+        const { selector, observerId, withInnerHTML, identifyChildren, withOuterHTML } = payload
         if (disposedRef.current) return
 
         // console.log(`Registering observer ${observerId} for selector ${selector}`)
@@ -281,6 +287,7 @@ export function useDOMManager(extensionId: string) {
         elementObserversRef.current.set(observerId, {
             selector,
             withInnerHTML,
+            withOuterHTML,
             identifyChildren,
             callback: (elements) => {
                 // This callback is called when elements matching the selector are found
@@ -300,7 +307,7 @@ export function useDOMManager(extensionId: string) {
             })
 
             // Convert to DOM elements for sending to plugin
-            const domElements = matchedElements.map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren }))
+            const domElements = matchedElements.map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren, withOuterHTML }))
 
             // Track these elements as observed
             const observedSet = observedElementsRef.current.get(observerId)!
@@ -328,6 +335,9 @@ export function useDOMManager(extensionId: string) {
         if (disposedRef.current) return
         const element = document.createElement(tagName)
         element.id = `plugin-element-${uuidv4()}`
+
+        // Track this element as it was created by the plugin
+        createdElementsRef.current.add(element.id)
 
         // Add to a hidden container for now
         let container = document.getElementById("plugin-dom-container")
@@ -412,12 +422,19 @@ export function useDOMManager(extensionId: string) {
                 break
             case "setInnerHTML":
                 // Store previous HTML
-                if (element instanceof HTMLElement) {
-                    storeOriginalValue(element, "html", "innerHTML", element.innerHTML)
-                }
+                // if (element instanceof HTMLElement) {
+                //     storeOriginalValue(element, "html", "innerHTML", element.innerHTML)
+                // }
 
                 element.innerHTML = params.html
                 break
+            case "setOuterHTML":
+                // Store previous HTML
+                // if (element instanceof HTMLElement) {
+                //     storeOriginalValue(element, "html", "outerHTML", element.outerHTML)
+                // }
+
+                element.outerHTML = params.html
             case "appendChild":
                 const child = document.getElementById(params.childId)
                 if (child) {
@@ -487,6 +504,15 @@ export function useDOMManager(extensionId: string) {
 
                 element.style.setProperty(params.property, params.value)
                 break
+            case "setCssText":
+                // Store previous styles
+                if (element instanceof HTMLElement && params.cssText) {
+                    storeOriginalValue(element, "style", "cssText", element.style.cssText)
+                }
+
+                // Set the styles
+                element.style.cssText = params.cssText
+                break
             case "getStyle":
                 if (params.property) {
                     result = element.style.getPropertyValue(params.property)
@@ -525,12 +551,14 @@ export function useDOMManager(extensionId: string) {
             case "getParent":
                 result = element.parentElement ? elementToDOMElement(element.parentElement, {
                     withInnerHTML: params.withInnerHTML,
+                    withOuterHTML: params.withOuterHTML,
                     identifyChildren: params.identifyChildren,
                 }) : null
                 break
             case "getChildren":
                 result = Array.from(element.children).map(e => elementToDOMElement(e, {
                     withInnerHTML: params.withInnerHTML,
+                    withOuterHTML: params.withOuterHTML,
                     identifyChildren: params.identifyChildren,
                 }))
                 break
@@ -540,6 +568,7 @@ export function useDOMManager(extensionId: string) {
                 const queryDomElements = Array.from(queryElements).map(e => elementToDOMElement(e, {
                     withInnerHTML: params.withInnerHTML,
                     identifyChildren: params.identifyChildren,
+                    withOuterHTML: params.withOuterHTML,
                 }))
 
                 // Send the results back using the DOMQueryResult event
@@ -555,6 +584,7 @@ export function useDOMManager(extensionId: string) {
                 const queryOneDomElement = queryOneElement ? elementToDOMElement(queryOneElement, {
                     withInnerHTML: params.withInnerHTML,
                     identifyChildren: params.identifyChildren,
+                    withOuterHTML: params.withOuterHTML,
                 }) : null
 
                 // Send the result back using the DOMQueryOneResult event
@@ -685,14 +715,30 @@ export function useDOMManager(extensionId: string) {
             }
         })
 
+        // Remove only elements that were created by this plugin
+        createdElementsRef.current.forEach(elementId => {
+            const element = document.getElementById(elementId)
+            if (element) {
+                // Remove any event listeners attached to this element
+                const elementListeners = Array.from(eventListenersRef.current.values())
+                    .filter(l => l.elementId === elementId)
+                elementListeners.forEach(listener => {
+                    element.removeEventListener(listener.eventType, listener.callback)
+                })
+                // Remove the element itself
+                element.remove()
+            }
+        })
+
         // Clear the maps
         elementObserversRef.current.clear()
         eventListenersRef.current.clear()
         observedElementsRef.current.clear()
+        createdElementsRef.current.clear()
 
-        // Remove plugin container if it exists
+        // Remove plugin container if it exists and is empty
         const container = document.getElementById("plugin-dom-container")
-        if (container) {
+        if (container && (!container.hasChildNodes() || container.children.length === 0)) {
             container.remove()
         }
     }

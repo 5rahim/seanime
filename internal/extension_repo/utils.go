@@ -83,6 +83,8 @@ func manifestSanityCheck(ext *extension.Extension) error {
 		}
 	}
 
+	ext.Lang = strings.ToLower(ext.Lang)
+
 	return nil
 }
 

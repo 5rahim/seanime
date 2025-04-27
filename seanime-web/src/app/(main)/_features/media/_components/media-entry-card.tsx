@@ -56,6 +56,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     showTrailer?: T extends "anime" ? boolean : never
     libraryData?: T extends "anime" ? Anime_EntryLibraryData : never
     hideUnseenCountBadge?: boolean
+    hideAnilistEntryEditButton?: boolean
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -70,6 +71,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         type,
         withAudienceScore = true,
         hideUnseenCountBadge = false,
+        hideAnilistEntryEditButton = false,
     } = props
 
     const router = useRouter()
@@ -159,12 +161,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     return (
         <MediaEntryCardContainer
             data-media-id={media.id}
+            data-media-mal-id={media.idMal}
             data-media-type={type}
             mRef={ref}
             className={props.containerClassName}
             data-list-data={JSON.stringify(listData)}
         >
-
 
             <MediaEntryCardOverlay overlay={overlay} />
 
@@ -266,21 +268,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             {(type === "anime" && !!libraryData) &&
                                 <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
 
-                            <AnilistMediaEntryModal listData={listData} media={media} type={type} />
-
-                            {/*{!serverStatus?.isOffline && <Tooltip*/}
-                            {/*    trigger={<IconButton*/}
-                            {/*        intent="gray-subtle"*/}
-                            {/*        icon={<PiEye />}*/}
-                            {/*        rounded*/}
-                            {/*        size="sm"*/}
-                            {/*        onClick={() => {*/}
-                            {/*            setPreviewModalMediaId(media.id!, type)*/}
-                            {/*        }}*/}
-                            {/*    />}*/}
-                            {/*>*/}
-                            {/*    Preview*/}
-                            {/*</Tooltip>}*/}
+                            {!hideAnilistEntryEditButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
 
                             {withAudienceScore &&
                                 <MediaEntryAudienceScore

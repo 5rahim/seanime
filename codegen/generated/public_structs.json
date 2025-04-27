@@ -25795,6 +25795,32 @@
   {
     "filepath": "../internal/continuity/hook_events.go",
     "filename": "hook_events.go",
+    "name": "WatchHistoryItemUpdatedEvent",
+    "formattedName": "Continuity_WatchHistoryItemUpdatedEvent",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "WatchHistoryItem",
+        "jsonName": "watchHistoryItem",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedTypescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/continuity/hook_events.go",
+    "filename": "hook_events.go",
     "name": "WatchHistoryLocalFileEpisodeItemRequestedEvent",
     "formattedName": "Continuity_WatchHistoryLocalFileEpisodeItemRequestedEvent",
     "package": "continuity",
@@ -26851,7 +26877,7 @@
         "jsonName": "Experimental",
         "goType": "INTERNAL_Config_Experimental",
         "typescriptType": "INTERNAL_Config_Experimental",
-        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; Password: string; }",
+        "usedTypescriptType": "{ MainServerTorrentStreaming: boolean; }",
         "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
@@ -27136,15 +27162,6 @@
         "jsonName": "MainServerTorrentStreaming",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Password",
-        "jsonName": "Password",
-        "goType": "string",
-        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -31853,7 +31870,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Activity",
-    "formattedName": "Activity",
+    "formattedName": "DiscordRPC_Activity",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -31878,8 +31895,8 @@
         "name": "Timestamps",
         "jsonName": "timestamps",
         "goType": "Timestamps",
-        "typescriptType": "Timestamps",
-        "usedTypescriptType": "Timestamps",
+        "typescriptType": "DiscordRPC_Timestamps",
+        "usedTypescriptType": "DiscordRPC_Timestamps",
         "usedStructName": "discordrpc_client.Timestamps",
         "required": false,
         "public": true,
@@ -31889,8 +31906,8 @@
         "name": "Assets",
         "jsonName": "assets",
         "goType": "Assets",
-        "typescriptType": "Assets",
-        "usedTypescriptType": "Assets",
+        "typescriptType": "DiscordRPC_Assets",
+        "usedTypescriptType": "DiscordRPC_Assets",
         "usedStructName": "discordrpc_client.Assets",
         "required": false,
         "public": true,
@@ -31900,8 +31917,8 @@
         "name": "Party",
         "jsonName": "party",
         "goType": "Party",
-        "typescriptType": "Party",
-        "usedTypescriptType": "Party",
+        "typescriptType": "DiscordRPC_Party",
+        "usedTypescriptType": "DiscordRPC_Party",
         "usedStructName": "discordrpc_client.Party",
         "required": false,
         "public": true,
@@ -31911,8 +31928,8 @@
         "name": "Secrets",
         "jsonName": "secrets",
         "goType": "Secrets",
-        "typescriptType": "Secrets",
-        "usedTypescriptType": "Secrets",
+        "typescriptType": "DiscordRPC_Secrets",
+        "usedTypescriptType": "DiscordRPC_Secrets",
         "usedStructName": "discordrpc_client.Secrets",
         "required": false,
         "public": true,
@@ -31922,8 +31939,8 @@
         "name": "Buttons",
         "jsonName": "buttons",
         "goType": "[]Button",
-        "typescriptType": "Array\u003cButton\u003e",
-        "usedTypescriptType": "Button",
+        "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+        "usedTypescriptType": "DiscordRPC_Button",
         "usedStructName": "discordrpc_client.Button",
         "required": false,
         "public": true,
@@ -31958,15 +31975,15 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Timestamps",
-    "formattedName": "Timestamps",
+    "formattedName": "DiscordRPC_Timestamps",
     "package": "discordrpc_client",
     "fields": [
       {
         "name": "Start",
         "jsonName": "start",
         "goType": "Epoch",
-        "typescriptType": "Epoch",
-        "usedTypescriptType": "Epoch",
+        "typescriptType": "DiscordRPC_Epoch",
+        "usedTypescriptType": "DiscordRPC_Epoch",
         "usedStructName": "discordrpc_client.Epoch",
         "required": false,
         "public": true,
@@ -31976,8 +31993,8 @@
         "name": "End",
         "jsonName": "end",
         "goType": "Epoch",
-        "typescriptType": "Epoch",
-        "usedTypescriptType": "Epoch",
+        "typescriptType": "DiscordRPC_Epoch",
+        "usedTypescriptType": "DiscordRPC_Epoch",
         "usedStructName": "discordrpc_client.Epoch",
         "required": false,
         "public": true,
@@ -31994,7 +32011,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Epoch",
-    "formattedName": "Epoch",
+    "formattedName": "DiscordRPC_Epoch",
     "package": "discordrpc_client",
     "fields": [],
     "comments": [
@@ -32008,7 +32025,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Assets",
-    "formattedName": "Assets",
+    "formattedName": "DiscordRPC_Assets",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32058,7 +32075,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Party",
-    "formattedName": "Party",
+    "formattedName": "DiscordRPC_Party",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32090,7 +32107,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Secrets",
-    "formattedName": "Secrets",
+    "formattedName": "DiscordRPC_Secrets",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32129,7 +32146,7 @@
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Button",
-    "formattedName": "Button",
+    "formattedName": "DiscordRPC_Button",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32157,7 +32174,7 @@
     "filepath": "../internal/discordrpc/client/client.go",
     "filename": "client.go",
     "name": "Client",
-    "formattedName": "Client",
+    "formattedName": "DiscordRPC_Client",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32189,15 +32206,15 @@
     "filepath": "../internal/discordrpc/client/command.go",
     "filename": "command.go",
     "name": "Payload",
-    "formattedName": "Payload",
+    "formattedName": "DiscordRPC_Payload",
     "package": "discordrpc_client",
     "fields": [
       {
         "name": "Cmd",
         "jsonName": "cmd",
         "goType": "command",
-        "typescriptType": "command",
-        "usedTypescriptType": "command",
+        "typescriptType": "DiscordRPC_command",
+        "usedTypescriptType": "DiscordRPC_command",
         "usedStructName": "discordrpc_client.command",
         "required": true,
         "public": true,
@@ -32207,8 +32224,8 @@
         "name": "Args",
         "jsonName": "args",
         "goType": "Args",
-        "typescriptType": "Args",
-        "usedTypescriptType": "Args",
+        "typescriptType": "DiscordRPC_Args",
+        "usedTypescriptType": "DiscordRPC_Args",
         "usedStructName": "discordrpc_client.Args",
         "required": true,
         "public": true,
@@ -32218,8 +32235,8 @@
         "name": "Event",
         "jsonName": "evt",
         "goType": "event",
-        "typescriptType": "event",
-        "usedTypescriptType": "event",
+        "typescriptType": "DiscordRPC_event",
+        "usedTypescriptType": "DiscordRPC_event",
         "usedStructName": "discordrpc_client.event",
         "required": false,
         "public": true,
@@ -32229,8 +32246,8 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "Data",
-        "typescriptType": "Data",
-        "usedTypescriptType": "Data",
+        "typescriptType": "DiscordRPC_Data",
+        "usedTypescriptType": "DiscordRPC_Data",
         "usedStructName": "discordrpc_client.Data",
         "required": false,
         "public": true,
@@ -32254,7 +32271,7 @@
     "filepath": "../internal/discordrpc/client/events.go",
     "filename": "events.go",
     "name": "ActivityEventData",
-    "formattedName": "ActivityEventData",
+    "formattedName": "DiscordRPC_ActivityEventData",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32270,8 +32287,8 @@
         "name": "User",
         "jsonName": "user",
         "goType": "User",
-        "typescriptType": "User",
-        "usedTypescriptType": "User",
+        "typescriptType": "DiscordRPC_User",
+        "usedTypescriptType": "DiscordRPC_User",
         "usedStructName": "discordrpc_client.User",
         "required": false,
         "public": true,
@@ -32284,7 +32301,7 @@
     "filepath": "../internal/discordrpc/client/types.go",
     "filename": "types.go",
     "name": "Data",
-    "formattedName": "Data",
+    "formattedName": "DiscordRPC_Data",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32314,7 +32331,7 @@
     "filepath": "../internal/discordrpc/client/types.go",
     "filename": "types.go",
     "name": "Args",
-    "formattedName": "Args",
+    "formattedName": "DiscordRPC_Args",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32330,8 +32347,8 @@
         "name": "Activity",
         "jsonName": "activity",
         "goType": "Activity",
-        "typescriptType": "Activity",
-        "usedTypescriptType": "Activity",
+        "typescriptType": "DiscordRPC_Activity",
+        "usedTypescriptType": "DiscordRPC_Activity",
         "usedStructName": "discordrpc_client.Activity",
         "required": false,
         "public": true,
@@ -32346,7 +32363,7 @@
     "filepath": "../internal/discordrpc/client/types.go",
     "filename": "types.go",
     "name": "User",
-    "formattedName": "User",
+    "formattedName": "DiscordRPC_User",
     "package": "discordrpc_client",
     "fields": [
       {
@@ -32403,6 +32420,280 @@
     ]
   },
   {
+    "filepath": "../internal/discordrpc/presence/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "DiscordPresenceAnimeActivityRequestedEvent",
+    "formattedName": "DiscordRPC_DiscordPresenceAnimeActivityRequestedEvent",
+    "package": "discordrpc_presence",
+    "fields": [
+      {
+        "name": "AnimeActivity",
+        "jsonName": "animeActivity",
+        "goType": "AnimeActivity",
+        "typescriptType": "DiscordRPC_AnimeActivity",
+        "usedTypescriptType": "DiscordRPC_AnimeActivity",
+        "usedStructName": "discordrpc_presence.AnimeActivity",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Details",
+        "jsonName": "details",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTimestamp",
+        "jsonName": "startTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTimestamp",
+        "jsonName": "endTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeImage",
+        "jsonName": "largeImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeText",
+        "jsonName": "largeText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallImage",
+        "jsonName": "smallImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallText",
+        "jsonName": "smallText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Buttons",
+        "jsonName": "buttons",
+        "goType": "[]discordrpc_client.Button",
+        "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+        "usedTypescriptType": "DiscordRPC_Button",
+        "usedStructName": "discordrpc_client.Button",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Instance",
+        "jsonName": "instance",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right before the activity is sent to queue.",
+      " There is no guarantee as to when or if the activity will be successfully sent to discord.",
+      " Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.",
+      " Prevent default to stop the activity from being sent to discord."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/discordrpc/presence/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "DiscordPresenceMangaActivityRequestedEvent",
+    "formattedName": "DiscordRPC_DiscordPresenceMangaActivityRequestedEvent",
+    "package": "discordrpc_presence",
+    "fields": [
+      {
+        "name": "MangaActivity",
+        "jsonName": "mangaActivity",
+        "goType": "MangaActivity",
+        "typescriptType": "DiscordRPC_MangaActivity",
+        "usedTypescriptType": "DiscordRPC_MangaActivity",
+        "usedStructName": "discordrpc_presence.MangaActivity",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Details",
+        "jsonName": "details",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTimestamp",
+        "jsonName": "startTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTimestamp",
+        "jsonName": "endTimestamp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeImage",
+        "jsonName": "largeImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LargeText",
+        "jsonName": "largeText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallImage",
+        "jsonName": "smallImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallText",
+        "jsonName": "smallText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Buttons",
+        "jsonName": "buttons",
+        "goType": "[]discordrpc_client.Button",
+        "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+        "usedTypescriptType": "DiscordRPC_Button",
+        "usedStructName": "discordrpc_client.Button",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Instance",
+        "jsonName": "instance",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right before the activity is sent to queue.",
+      " There is no guarantee as to when or if the activity will be successfully sent to discord.",
+      " Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.",
+      " Prevent default to stop the activity from being sent to discord."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/discordrpc/presence/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "DiscordPresenceClientClosedEvent",
+    "formattedName": "DiscordRPC_DiscordPresenceClientClosedEvent",
+    "package": "discordrpc_presence",
+    "fields": [],
+    "comments": [
+      " DiscordPresenceClientClosedEvent is triggered when the discord rpc client is closed."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/discordrpc/presence/presence.go",
     "filename": "presence.go",
     "name": "Presence",
@@ -32413,8 +32704,8 @@
         "name": "client",
         "jsonName": "client",
         "goType": "discordrpc_client.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
+        "typescriptType": "DiscordRPC_Client",
+        "usedTypescriptType": "DiscordRPC_Client",
         "usedStructName": "discordrpc_client.Client",
         "required": false,
         "public": false,
@@ -32603,6 +32894,33 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalEpisodes",
+        "jsonName": "totalEpisodes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisodeCount",
+        "jsonName": "currentEpisodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeTitle",
+        "jsonName": "episodeTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -35701,7 +36019,8 @@
       " FieldMapper provides custom mapping between Go and JavaScript property names.",
       "",
       " It is similar to the builtin \"uncapFieldNameMapper\" but also converts",
-      " all uppercase identifiers to their lowercase equivalent (eg. \"GET\" -\u003e \"get\")."
+      " all uppercase identifiers to their lowercase equivalent (eg. \"GET\" -\u003e \"get\").",
+      " It also checks for JSON tags and uses them if they exist."
     ]
   },
   {
@@ -37526,6 +37845,24 @@
         "comments": []
       },
       {
+        "name": "onGetCachedAnimeCollection",
+        "jsonName": "onGetCachedAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedMangaCollection",
+        "jsonName": "onGetCachedMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onGetRawAnimeCollection",
         "jsonName": "onGetRawAnimeCollection",
         "goType": "",
@@ -37537,6 +37874,24 @@
       {
         "name": "onGetRawMangaCollection",
         "jsonName": "onGetRawMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedRawAnimeCollection",
+        "jsonName": "onGetCachedRawAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetCachedRawMangaCollection",
+        "jsonName": "onGetCachedRawMangaCollection",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -37895,8 +38250,8 @@
         "comments": []
       },
       {
-        "name": "onAnimeMetadataEvent",
-        "jsonName": "onAnimeMetadataEvent",
+        "name": "onAnimeMetadata",
+        "jsonName": "onAnimeMetadata",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -37913,8 +38268,8 @@
         "comments": []
       },
       {
-        "name": "onAnimeEpisodeMetadataEvent",
-        "jsonName": "onAnimeEpisodeMetadataEvent",
+        "name": "onAnimeEpisodeMetadata",
+        "jsonName": "onAnimeEpisodeMetadata",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -38138,6 +38493,15 @@
         "comments": []
       },
       {
+        "name": "onWatchHistoryItemUpdated",
+        "jsonName": "onWatchHistoryItemUpdated",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onWatchHistoryLocalFileEpisodeItemRequested",
         "jsonName": "onWatchHistoryLocalFileEpisodeItemRequested",
         "goType": "",
@@ -38149,6 +38513,33 @@
       {
         "name": "onWatchHistoryStreamEpisodeItemRequested",
         "jsonName": "onWatchHistoryStreamEpisodeItemRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onDiscordPresenceAnimeActivityRequested",
+        "jsonName": "onDiscordPresenceAnimeActivityRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onDiscordPresenceMangaActivityRequested",
+        "jsonName": "onDiscordPresenceMangaActivityRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onDiscordPresenceClientClosed",
+        "jsonName": "onDiscordPresenceClientClosed",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -53194,6 +53585,54 @@
   {
     "filepath": "../internal/platforms/anilist_platform/hook_events.go",
     "filename": "hook_events.go",
+    "name": "GetCachedAnimeCollectionEvent",
+    "formattedName": "GetCachedAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedMangaCollectionEvent",
+    "formattedName": "GetCachedMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
     "name": "GetAnimeCollectionEvent",
     "formattedName": "GetAnimeCollectionEvent",
     "package": "anilist_platform",
@@ -53220,6 +53659,54 @@
     "filename": "hook_events.go",
     "name": "GetMangaCollectionEvent",
     "formattedName": "GetMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedRawAnimeCollectionEvent",
+    "formattedName": "GetCachedRawAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetCachedRawMangaCollectionEvent",
+    "formattedName": "GetCachedRawMangaCollectionEvent",
     "package": "anilist_platform",
     "fields": [
       {
@@ -53801,6 +54288,94 @@
         "comments": []
       },
       {
+        "name": "TorrentClientRepository",
+        "jsonName": "TorrentClientRepository",
+        "goType": "torrent_client.Repository",
+        "typescriptType": "TorrentClient_Repository",
+        "usedTypescriptType": "TorrentClient_Repository",
+        "usedStructName": "torrent_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinuityManager",
+        "jsonName": "ContinuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedTypescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoScanner",
+        "jsonName": "AutoScanner",
+        "goType": "autoscanner.AutoScanner",
+        "typescriptType": "AutoScanner_AutoScanner",
+        "usedTypescriptType": "AutoScanner_AutoScanner",
+        "usedStructName": "autoscanner.AutoScanner",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoDownloader",
+        "jsonName": "AutoDownloader",
+        "goType": "autodownloader.AutoDownloader",
+        "typescriptType": "AutoDownloader_AutoDownloader",
+        "usedTypescriptType": "AutoDownloader_AutoDownloader",
+        "usedStructName": "autodownloader.AutoDownloader",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedTypescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnlinestreamRepository",
+        "jsonName": "OnlinestreamRepository",
+        "goType": "onlinestream.Repository",
+        "typescriptType": "Onlinestream_Repository",
+        "usedTypescriptType": "Onlinestream_Repository",
+        "usedStructName": "onlinestream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediastreamRepository",
+        "jsonName": "MediastreamRepository",
+        "goType": "mediastream.Repository",
+        "typescriptType": "Mediastream_Repository",
+        "usedTypescriptType": "Mediastream_Repository",
+        "usedStructName": "mediastream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedTypescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "FillerManager",
         "jsonName": "FillerManager",
         "goType": "fillermanager.FillerManager",
@@ -53934,6 +54509,78 @@
       {
         "name": "fillerManager",
         "jsonName": "fillerManager",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentClientRepository",
+        "jsonName": "torrentClientRepository",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentstreamRepository",
+        "jsonName": "torrentstreamRepository",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediastreamRepository",
+        "jsonName": "mediastreamRepository",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onlinestreamRepository",
+        "jsonName": "onlinestreamRepository",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "continuityManager",
+        "jsonName": "continuityManager",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "autoScanner",
+        "jsonName": "autoScanner",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "autoDownloader",
+        "jsonName": "autoDownloader",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -56111,6 +56758,15 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "registeredInlineEventHandlers",
+        "jsonName": "registeredInlineEventHandlers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -56363,6 +57019,15 @@
       {
         "name": "WithInnerHTML",
         "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -57689,6 +58354,15 @@
         "comments": []
       },
       {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IdentifyChildren",
         "jsonName": "identifyChildren",
         "goType": "bool",
@@ -57737,6 +58411,15 @@
         "comments": []
       },
       {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IdentifyChildren",
         "jsonName": "identifyChildren",
         "goType": "bool",
@@ -57776,6 +58459,15 @@
       {
         "name": "WithInnerHTML",
         "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithOuterHTML",
+        "jsonName": "withOuterHTML",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -58478,6 +59170,15 @@
         "usedTypescriptType": "Scheduler",
         "usedStructName": "goja_util.Scheduler",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastException",
+        "jsonName": "lastException",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       },

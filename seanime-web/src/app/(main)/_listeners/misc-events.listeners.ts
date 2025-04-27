@@ -42,4 +42,10 @@ export function useMiscEventListeners() {
         },
     })
 
+    useWebsocketMessageListener<string>({
+        type: WSEvents.CONSOLE_WARN, onMessage: data => {
+            console.warn(data)
+        },
+    })
+
 }

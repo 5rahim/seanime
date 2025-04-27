@@ -53,6 +53,30 @@ declare namespace $app {
     }
 
     /**
+     * @event GetCachedAnimeCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
+
+    interface GetCachedAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedMangaCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
+
+    interface GetCachedMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
      * @event GetAnimeCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
@@ -74,6 +98,30 @@ declare namespace $app {
         next(): void;
 
         mangaCollection?: AL_MangaCollection;
+    }
+
+    /**
+     * @event GetCachedRawAnimeCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
+
+    interface GetCachedRawAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedRawMangaCollectionEvent
+     * @file internal/platforms/anilist_platform/hook_events.go
+     */
+    function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
+
+    interface GetCachedRawMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
     }
 
     /**
@@ -548,6 +596,20 @@ declare namespace $app {
     }
 
     /**
+     * @event WatchHistoryItemUpdatedEvent
+     * @file internal/continuity/hook_events.go
+     * @description
+     * WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated.
+     */
+    function onWatchHistoryItemUpdated(cb: (event: WatchHistoryItemUpdatedEvent) => void): void;
+
+    interface WatchHistoryItemUpdatedEvent {
+        watchHistoryItem?: Continuity_WatchHistoryItem;
+
+        next(): void;
+    }
+
+    /**
      * @event WatchHistoryLocalFileEpisodeItemRequestedEvent
      * @file internal/continuity/hook_events.go
      */
@@ -656,6 +718,84 @@ declare namespace $app {
         torrentName: string;
         destination: string;
         downloadUrl: string;
+    }
+
+
+    /**
+     * @package discordrpc_presence
+     */
+
+    /**
+     * @event DiscordPresenceAnimeActivityRequestedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
+     */
+    function onDiscordPresenceAnimeActivityRequested(cb: (event: DiscordPresenceAnimeActivityRequestedEvent) => void): void;
+
+    interface DiscordPresenceAnimeActivityRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        animeActivity?: DiscordRPC_AnimeActivity;
+        details: string;
+        state: string;
+        startTimestamp?: number;
+        endTimestamp?: number;
+        largeImage: string;
+        largeText: string;
+        smallImage: string;
+        smallText: string;
+        buttons?: Array<DiscordRPC_Button>;
+        instance: boolean;
+        type: number;
+    }
+
+    /**
+     * @event DiscordPresenceMangaActivityRequestedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
+     */
+    function onDiscordPresenceMangaActivityRequested(cb: (event: DiscordPresenceMangaActivityRequestedEvent) => void): void;
+
+    interface DiscordPresenceMangaActivityRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        mangaActivity?: DiscordRPC_MangaActivity;
+        details: string;
+        state: string;
+        startTimestamp?: number;
+        endTimestamp?: number;
+        largeImage: string;
+        largeText: string;
+        smallImage: string;
+        smallText: string;
+        buttons?: Array<DiscordRPC_Button>;
+        instance: boolean;
+        type: number;
+    }
+
+    /**
+     * @event DiscordPresenceClientClosedEvent
+     * @file internal/discordrpc/presence/hook_events.go
+     * @description
+     * DiscordPresenceClientClosedEvent is triggered when the discord rpc client is closed.
+     */
+    function onDiscordPresenceClientClosed(cb: (event: DiscordPresenceClientClosedEvent) => void): void;
+
+    interface DiscordPresenceClientClosedEvent {
+        next(): void;
+
     }
 
 
@@ -2756,6 +2896,23 @@ declare namespace $app {
     /**
      * - Filepath: internal/continuity/history.go
      */
+    interface Continuity_UpdateWatchHistoryItemOptions {
+        currentTime: number;
+        duration: number;
+        mediaId: number;
+        episodeNumber: number;
+        filepath?: string;
+        kind: Continuity_Kind;
+    }
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
+    export type Continuity_WatchHistory = Record<number, Continuity_WatchHistoryItem>;
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
     interface Continuity_WatchHistoryItem {
         kind: Continuity_Kind;
         filepath: string;
@@ -2765,6 +2922,14 @@ declare namespace $app {
         duration: number;
         timeAdded?: string;
         timeUpdated?: string;
+    }
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
+    interface Continuity_WatchHistoryItemResponse {
+        item?: Continuity_WatchHistoryItem;
+        found: boolean;
     }
 
     /**
@@ -2779,6 +2944,28 @@ declare namespace $app {
         paused: boolean;
         progress: number;
         duration: number;
+        totalEpisodes?: number;
+        currentEpisodeCount?: number;
+        episodeTitle?: string;
+    }
+
+    /**
+     * - Filepath: internal/discordrpc/client/activity.go
+     */
+    interface DiscordRPC_Button {
+        label?: string;
+        url?: string;
+    }
+
+    /**
+     * - Filepath: internal/discordrpc/presence/presence.go
+     */
+    interface DiscordRPC_LegacyAnimeActivity {
+        id: number;
+        title: string;
+        image: string;
+        isMovie: boolean;
+        episodeNumber: number;
     }
 
     /**
@@ -3005,5 +3192,26 @@ declare namespace $app {
         description?: string;
         isFiller?: boolean;
     }
+
+    /**
+     * - Filepath: internal/torrent_clients/torrent_client/torrent.go
+     */
+    interface TorrentClient_Torrent {
+        name: string;
+        hash: string;
+        seeds: number;
+        upSpeed: string;
+        downSpeed: string;
+        progress: number;
+        size: string;
+        eta: string;
+        status: TorrentClient_TorrentStatus;
+        contentPath: string;
+    }
+
+    /**
+     * - Filepath: internal/torrent_clients/torrent_client/torrent.go
+     */
+    export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped";
 
 }

@@ -11,15 +11,16 @@ const (
 )
 
 var (
-	PluginPermissionStorage      PluginPermissionScope = "storage"       // Allows the plugin to store its own data
-	PluginPermissionDatabase     PluginPermissionScope = "database"      // Allows the plugin to read non-auth data from the database and write to it
-	PluginPermissionPlayback     PluginPermissionScope = "playback"      // Allows the plugin to use the playback manager
-	PluginPermissionAnilist      PluginPermissionScope = "anilist"       // Allows the plugin to use the Anilist client
-	PluginPermissionAnilistToken PluginPermissionScope = "anilist-token" // Allows the plugin to see and use the Anilist token
-	PluginPermissionSystem       PluginPermissionScope = "system"        // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
-	PluginPermissionCron         PluginPermissionScope = "cron"          // Allows the plugin to use the cron manager
-	PluginPermissionNotification PluginPermissionScope = "notification"  // Allows the plugin to use the notification manager
-	PluginPermissionDiscord      PluginPermissionScope = "discord"       // Allows the plugin to use the discord rpc
+	PluginPermissionStorage       PluginPermissionScope = "storage"        // Allows the plugin to store its own data
+	PluginPermissionDatabase      PluginPermissionScope = "database"       // Allows the plugin to read non-auth data from the database and write to it
+	PluginPermissionPlayback      PluginPermissionScope = "playback"       // Allows the plugin to use the playback manager
+	PluginPermissionAnilist       PluginPermissionScope = "anilist"        // Allows the plugin to use the Anilist client
+	PluginPermissionAnilistToken  PluginPermissionScope = "anilist-token"  // Allows the plugin to see and use the Anilist token
+	PluginPermissionSystem        PluginPermissionScope = "system"         // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
+	PluginPermissionCron          PluginPermissionScope = "cron"           // Allows the plugin to use the cron manager
+	PluginPermissionNotification  PluginPermissionScope = "notification"   // Allows the plugin to use the notification manager
+	PluginPermissionDiscord       PluginPermissionScope = "discord"        // Allows the plugin to use the discord rpc
+	PluginPermissionTorrentClient PluginPermissionScope = "torrent-client" // Allows the plugin to use the torrent client
 )
 
 type PluginManifest struct {

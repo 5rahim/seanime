@@ -155,9 +155,6 @@ func (s *Storage) saveDataMap(pluginData *models.PluginData, data map[string]int
 	// Update the cache
 	s.pluginDataCache.Set(s.ext.ID, pluginData)
 
-	// Don't clear the key data cache here as it would invalidate
-	// recently set values. Individual operations (Delete, Clear, Drop)
-	// will handle their own cache invalidation as needed.
 	s.keyDataCache.Clear()
 
 	return nil

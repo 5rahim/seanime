@@ -40,6 +40,8 @@ type UI struct {
 	appContext     plugin.AppContext
 	scheduler      *goja_util.Scheduler
 
+	lastException string
+
 	// Channel to signal the UI has been unloaded
 	// This is used to interrupt the Plugin when the UI is stopped
 	destroyedCh chan struct{}
@@ -67,6 +69,7 @@ func NewUI(options NewUIOptions) *UI {
 	}
 	ui.context = NewContext(ui)
 	ui.context.scheduler.SetOnException(func(err error) {
+		ui.logger.Error().Err(err).Msg("plugin: Encountered exception in asynchronous task")
 		ui.context.handleException(err)
 	})
 
@@ -77,9 +80,6 @@ func NewUI(options NewUIOptions) *UI {
 func (u *UI) Unload(signalDestroyed bool) {
 	u.logger.Debug().Msg("plugin: Stopping UI")
 
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
 	u.UnloadFromInside(signalDestroyed)
 
 	u.logger.Debug().Msg("plugin: Stopped UI")
@@ -87,6 +87,9 @@ func (u *UI) Unload(signalDestroyed bool) {
 
 // UnloadFromInside is called by the UI module itself when it's being unloaded
 func (u *UI) UnloadFromInside(signalDestroyed bool) {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+
 	if u.destroyed {
 		return
 	}
@@ -116,7 +119,14 @@ func (u *UI) Destroyed() <-chan struct{} {
 
 // signalDestroyed tells the plugin that the UI has been destroyed.
 // This is used to interrupt the Plugin when the UI is stopped
+// TODO: FIX
 func (u *UI) signalDestroyed() {
+	defer func() {
+		if r := recover(); r != nil {
+			u.logger.Error().Msgf("plugin: Panic in signalDestroyed: %v", r)
+		}
+	}()
+
 	if u.destroyed {
 		return
 	}
@@ -234,6 +244,8 @@ func (u *UI) Register(callback string) error {
 	u.context.actionManager.renderEpisodeGridItemMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
+
+	u.wsEventManager.SendEvent(events.PluginLoaded, u.ext.ID)
 
 	u.mu.Unlock()
 	return nil

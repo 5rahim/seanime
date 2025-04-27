@@ -7,6 +7,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 func (c *ComponentManager) renderComponents(renderFunc func(goja.FunctionCall) goja.Value) (interface{}, error) {
@@ -142,6 +143,7 @@ func defineComponent(vm *goja.Runtime, call goja.FunctionCall, t string, propDef
 			if val, ok := propsList[propDef.Name]; ok {
 				err := propDef.Validate(val)
 				if err != nil {
+					log.Error().Msgf("Invalid prop value: %s", err.Error())
 					panic(vm.NewTypeError(err.Error()))
 				}
 			}
@@ -164,6 +166,9 @@ func defineComponent(vm *goja.Runtime, call goja.FunctionCall, t string, propDef
 // Helper function to create a validation function for a specific type
 func validateType(expectedType string) func(interface{}) error {
 	return func(value interface{}) error {
+		if value == nil {
+			return fmt.Errorf("expected %s, got nil", expectedType)
+		}
 		switch expectedType {
 		case "string":
 			_, ok := value.(string)
@@ -212,6 +217,12 @@ func validateType(expectedType string) func(interface{}) error {
 					return nil
 				}
 				return fmt.Errorf("expected object, got %T", value)
+			}
+			return nil
+		case "function":
+			_, ok := value.(func(goja.FunctionCall) goja.Value)
+			if !ok {
+				return fmt.Errorf("expected function, got %T", value)
 			}
 			return nil
 		default:

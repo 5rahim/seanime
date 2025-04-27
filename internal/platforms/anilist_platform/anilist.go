@@ -303,7 +303,13 @@ func (ap *AnilistPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsBy
 
 func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.animeCollection.IsPresent() {
-		return ap.animeCollection.MustGet(), nil
+		event := new(GetCachedAnimeCollectionEvent)
+		event.AnimeCollection = ap.animeCollection.MustGet()
+		err := hook.GlobalHookManager.OnGetCachedAnimeCollection().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		return event.AnimeCollection, nil
 	}
 
 	if ap.username.IsAbsent() {
@@ -328,7 +334,13 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 
 func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.rawAnimeCollection.IsPresent() {
-		return ap.rawAnimeCollection.MustGet(), nil
+		event := new(GetCachedRawAnimeCollectionEvent)
+		event.AnimeCollection = ap.rawAnimeCollection.MustGet()
+		err := hook.GlobalHookManager.OnGetCachedRawAnimeCollection().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		return event.AnimeCollection, nil
 	}
 
 	if ap.username.IsAbsent() {
@@ -365,6 +377,14 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 	event.AnimeCollection = ap.animeCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetAnimeCollection().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	event2 := new(GetRawAnimeCollectionEvent)
+	event2.AnimeCollection = ap.rawAnimeCollection.MustGet()
+
+	err = hook.GlobalHookManager.OnGetRawAnimeCollection().Trigger(event2)
 	if err != nil {
 		return nil, err
 	}
@@ -421,7 +441,13 @@ func (ap *AnilistPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeColl
 func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
 
 	if !bypassCache && ap.mangaCollection.IsPresent() {
-		return ap.mangaCollection.MustGet(), nil
+		event := new(GetCachedMangaCollectionEvent)
+		event.MangaCollection = ap.mangaCollection.MustGet()
+		err := hook.GlobalHookManager.OnGetCachedMangaCollection().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		return event.MangaCollection, nil
 	}
 
 	if ap.username.IsAbsent() {
@@ -449,7 +475,13 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 
 	if !bypassCache && ap.rawMangaCollection.IsPresent() {
 		ap.logger.Trace().Msg("anilist platform: Returning raw manga collection from cache")
-		return ap.rawMangaCollection.MustGet(), nil
+		event := new(GetCachedRawMangaCollectionEvent)
+		event.MangaCollection = ap.rawMangaCollection.MustGet()
+		err := hook.GlobalHookManager.OnGetCachedRawMangaCollection().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		return event.MangaCollection, nil
 	}
 
 	if ap.username.IsAbsent() {
@@ -486,6 +518,14 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 	event.MangaCollection = ap.mangaCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetMangaCollection().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	event2 := new(GetRawMangaCollectionEvent)
+	event2.MangaCollection = ap.rawMangaCollection.MustGet()
+
+	err = hook.GlobalHookManager.OnGetRawMangaCollection().Trigger(event2)
 	if err != nil {
 		return nil, err
 	}

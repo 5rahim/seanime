@@ -360,6 +360,62 @@
     "goStruct": {
       "filepath": "../internal/continuity/hook_events.go",
       "filename": "hook_events.go",
+      "name": "WatchHistoryItemUpdatedEvent",
+      "formattedName": "Continuity_WatchHistoryItemUpdatedEvent",
+      "package": "continuity",
+      "fields": [
+        {
+          "name": "WatchHistoryItem",
+          "jsonName": "watchHistoryItem",
+          "goType": "WatchHistoryItem",
+          "typescriptType": "Continuity_WatchHistoryItem",
+          "usedTypescriptType": "Continuity_WatchHistoryItem",
+          "usedStructName": "continuity.WatchHistoryItem",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " WatchHistoryItemUpdatedEvent is triggered when a watch history item is updated."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "continuity",
+    "goStruct": {
+      "filepath": "../internal/continuity/hook_events.go",
+      "filename": "hook_events.go",
       "name": "WatchHistoryLocalFileEpisodeItemRequestedEvent",
       "formattedName": "Continuity_WatchHistoryLocalFileEpisodeItemRequestedEvent",
       "package": "continuity",
@@ -794,6 +850,371 @@
       "comments": [
         " DebridLocalDownloadRequestedEvent is triggered when Seanime is about to download a debrid torrent locally.",
         " Prevent default to skip the default download and override the download."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "discordrpc_presence",
+    "goStruct": {
+      "filepath": "../internal/discordrpc/presence/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "DiscordPresenceAnimeActivityRequestedEvent",
+      "formattedName": "DiscordRPC_DiscordPresenceAnimeActivityRequestedEvent",
+      "package": "discordrpc_presence",
+      "fields": [
+        {
+          "name": "AnimeActivity",
+          "jsonName": "animeActivity",
+          "goType": "AnimeActivity",
+          "typescriptType": "DiscordRPC_AnimeActivity",
+          "usedTypescriptType": "DiscordRPC_AnimeActivity",
+          "usedStructName": "discordrpc_presence.AnimeActivity",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Details",
+          "jsonName": "details",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "State",
+          "jsonName": "state",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StartTimestamp",
+          "jsonName": "startTimestamp",
+          "goType": "int64",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "EndTimestamp",
+          "jsonName": "endTimestamp",
+          "goType": "int64",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "LargeImage",
+          "jsonName": "largeImage",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "LargeText",
+          "jsonName": "largeText",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "SmallImage",
+          "jsonName": "smallImage",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "SmallText",
+          "jsonName": "smallText",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Buttons",
+          "jsonName": "buttons",
+          "goType": "[]discordrpc_client.Button",
+          "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+          "usedTypescriptType": "DiscordRPC_Button",
+          "usedStructName": "discordrpc_client.Button",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Instance",
+          "jsonName": "instance",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Type",
+          "jsonName": "type",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right before the activity is sent to queue.",
+        " There is no guarantee as to when or if the activity will be successfully sent to discord.",
+        " Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.",
+        " Prevent default to stop the activity from being sent to discord."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "discordrpc_presence",
+    "goStruct": {
+      "filepath": "../internal/discordrpc/presence/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "DiscordPresenceMangaActivityRequestedEvent",
+      "formattedName": "DiscordRPC_DiscordPresenceMangaActivityRequestedEvent",
+      "package": "discordrpc_presence",
+      "fields": [
+        {
+          "name": "MangaActivity",
+          "jsonName": "mangaActivity",
+          "goType": "MangaActivity",
+          "typescriptType": "DiscordRPC_MangaActivity",
+          "usedTypescriptType": "DiscordRPC_MangaActivity",
+          "usedStructName": "discordrpc_presence.MangaActivity",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Details",
+          "jsonName": "details",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "State",
+          "jsonName": "state",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StartTimestamp",
+          "jsonName": "startTimestamp",
+          "goType": "int64",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "EndTimestamp",
+          "jsonName": "endTimestamp",
+          "goType": "int64",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "LargeImage",
+          "jsonName": "largeImage",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "LargeText",
+          "jsonName": "largeText",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "SmallImage",
+          "jsonName": "smallImage",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "SmallText",
+          "jsonName": "smallText",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Buttons",
+          "jsonName": "buttons",
+          "goType": "[]discordrpc_client.Button",
+          "typescriptType": "Array\u003cDiscordRPC_Button\u003e",
+          "usedTypescriptType": "DiscordRPC_Button",
+          "usedStructName": "discordrpc_client.Button",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Instance",
+          "jsonName": "instance",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Type",
+          "jsonName": "type",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right before the activity is sent to queue.",
+        " There is no guarantee as to when or if the activity will be successfully sent to discord.",
+        " Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.",
+        " Prevent default to stop the activity from being sent to discord."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "discordrpc_presence",
+    "goStruct": {
+      "filepath": "../internal/discordrpc/presence/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "DiscordPresenceClientClosedEvent",
+      "formattedName": "DiscordRPC_DiscordPresenceClientClosedEvent",
+      "package": "discordrpc_presence",
+      "fields": [
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " DiscordPresenceClientClosedEvent is triggered when the discord rpc client is closed."
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"
@@ -4268,6 +4689,114 @@
     "goStruct": {
       "filepath": "../internal/platforms/anilist_platform/hook_events.go",
       "filename": "hook_events.go",
+      "name": "GetCachedAnimeCollectionEvent",
+      "formattedName": "GetCachedAnimeCollectionEvent",
+      "package": "anilist_platform",
+      "fields": [
+        {
+          "name": "AnimeCollection",
+          "jsonName": "animeCollection",
+          "goType": "anilist.AnimeCollection",
+          "typescriptType": "AL_AnimeCollection",
+          "usedTypescriptType": "AL_AnimeCollection",
+          "usedStructName": "anilist.AnimeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anilist_platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "GetCachedMangaCollectionEvent",
+      "formattedName": "GetCachedMangaCollectionEvent",
+      "package": "anilist_platform",
+      "fields": [
+        {
+          "name": "MangaCollection",
+          "jsonName": "mangaCollection",
+          "goType": "anilist.MangaCollection",
+          "typescriptType": "AL_MangaCollection",
+          "usedTypescriptType": "AL_MangaCollection",
+          "usedStructName": "anilist.MangaCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anilist_platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filename": "hook_events.go",
       "name": "GetAnimeCollectionEvent",
       "formattedName": "GetAnimeCollectionEvent",
       "package": "anilist_platform",
@@ -4324,6 +4853,114 @@
       "filename": "hook_events.go",
       "name": "GetMangaCollectionEvent",
       "formattedName": "GetMangaCollectionEvent",
+      "package": "anilist_platform",
+      "fields": [
+        {
+          "name": "MangaCollection",
+          "jsonName": "mangaCollection",
+          "goType": "anilist.MangaCollection",
+          "typescriptType": "AL_MangaCollection",
+          "usedTypescriptType": "AL_MangaCollection",
+          "usedStructName": "anilist.MangaCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anilist_platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "GetCachedRawAnimeCollectionEvent",
+      "formattedName": "GetCachedRawAnimeCollectionEvent",
+      "package": "anilist_platform",
+      "fields": [
+        {
+          "name": "AnimeCollection",
+          "jsonName": "animeCollection",
+          "goType": "anilist.AnimeCollection",
+          "typescriptType": "AL_AnimeCollection",
+          "usedTypescriptType": "AL_AnimeCollection",
+          "usedStructName": "anilist.AnimeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anilist_platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "GetCachedRawMangaCollectionEvent",
+      "formattedName": "GetCachedRawMangaCollectionEvent",
       "package": "anilist_platform",
       "fields": [
         {

@@ -66,20 +66,55 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 	return func(call goja.FunctionCall) goja.Value {
 		var ret []string
 		for _, arg := range call.Arguments {
+			// Check if the argument is a goja.Object
 			if obj, ok := arg.(*goja.Object); ok {
+				// First check if it's a Go error
+				if _, ok := obj.Export().(error); ok {
+					ret = append(ret, fmt.Sprintf("%+v", obj.Export()))
+					continue
+				}
+
+				// Then check if it's a JavaScript Error object by checking its constructor name
+				constructor := obj.Get("constructor")
+				if constructor != nil && !goja.IsUndefined(constructor) && !goja.IsNull(constructor) {
+					if constructorObj, ok := constructor.(*goja.Object); ok {
+						if name := constructorObj.Get("name"); name != nil && !goja.IsUndefined(name) && !goja.IsNull(name) {
+							if name.String() == "Error" || strings.HasSuffix(name.String(), "Error") {
+								message := obj.Get("message")
+								stack := obj.Get("stack")
+								errStr := name.String()
+								if message != nil && !goja.IsUndefined(message) && !goja.IsNull(message) {
+									errStr += ": " + fmt.Sprintf("%+v", message.Export())
+								}
+								if stack != nil && !goja.IsUndefined(stack) && !goja.IsNull(stack) {
+									errStr += "\nStack: " + fmt.Sprintf("%+v", stack.Export())
+								}
+								ret = append(ret, errStr)
+								continue
+							}
+						}
+					}
+				}
+
+				// Fallback for other objects: Try calling toString() if available
 				if hasOwnPropFn, ok := goja.AssertFunction(obj.Get("hasOwnProperty")); ok {
 					if retVal, err := hasOwnPropFn(obj, c.vm.ToValue("toString")); err == nil && retVal.ToBoolean() {
 						tsVal := obj.Get("toString")
 						if fn, ok := goja.AssertFunction(tsVal); ok {
 							strVal, err := fn(obj)
 							if err == nil {
-								ret = append(ret, strVal.String())
-								continue
+								// Avoid double logging if toString() is just "[object Object]"
+								if strVal.String() != "[object Object]" {
+									ret = append(ret, strVal.String())
+									continue // Skip default handling if toString() worked
+								}
 							}
 						}
 					}
 				}
 			}
+
+			// Original default handling
 			switch v := arg.Export().(type) {
 			case nil:
 				ret = append(ret, "undefined")

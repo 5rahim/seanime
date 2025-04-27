@@ -16,8 +16,12 @@ type Manager interface {
 	OnGetMangaDetails() *Hook[hook_resolver.Resolver]
 	OnGetAnimeCollection() *Hook[hook_resolver.Resolver]
 	OnGetMangaCollection() *Hook[hook_resolver.Resolver]
+	OnGetCachedAnimeCollection() *Hook[hook_resolver.Resolver]
+	OnGetCachedMangaCollection() *Hook[hook_resolver.Resolver]
 	OnGetRawAnimeCollection() *Hook[hook_resolver.Resolver]
 	OnGetRawMangaCollection() *Hook[hook_resolver.Resolver]
+	OnGetCachedRawAnimeCollection() *Hook[hook_resolver.Resolver]
+	OnGetCachedRawMangaCollection() *Hook[hook_resolver.Resolver]
 	OnGetStudioDetails() *Hook[hook_resolver.Resolver]
 	OnPreUpdateEntry() *Hook[hook_resolver.Resolver]
 	OnPostUpdateEntry() *Hook[hook_resolver.Resolver]
@@ -71,9 +75,9 @@ type Manager interface {
 
 	// Anime metadata events
 	OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver]
-	OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver]
+	OnAnimeMetadata() *Hook[hook_resolver.Resolver]
 	OnAnimeEpisodeMetadataRequested() *Hook[hook_resolver.Resolver]
-	OnAnimeEpisodeMetadataEvent() *Hook[hook_resolver.Resolver]
+	OnAnimeEpisodeMetadata() *Hook[hook_resolver.Resolver]
 
 	// Manga events
 	OnMangaEntryRequested() *Hook[hook_resolver.Resolver]
@@ -110,28 +114,38 @@ type Manager interface {
 
 	// Continuity events
 	OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver]
+	OnWatchHistoryItemUpdated() *Hook[hook_resolver.Resolver]
 	OnWatchHistoryLocalFileEpisodeItemRequested() *Hook[hook_resolver.Resolver]
 	OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_resolver.Resolver]
+
+	// Discord RPC events
+	OnDiscordPresenceAnimeActivityRequested() *Hook[hook_resolver.Resolver]
+	OnDiscordPresenceMangaActivityRequested() *Hook[hook_resolver.Resolver]
+	OnDiscordPresenceClientClosed() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
 	logger *zerolog.Logger
 	// AniList events
-	onGetAnime                *Hook[hook_resolver.Resolver]
-	onGetAnimeDetails         *Hook[hook_resolver.Resolver]
-	onGetManga                *Hook[hook_resolver.Resolver]
-	onGetMangaDetails         *Hook[hook_resolver.Resolver]
-	onGetAnimeCollection      *Hook[hook_resolver.Resolver]
-	onGetMangaCollection      *Hook[hook_resolver.Resolver]
-	onGetRawAnimeCollection   *Hook[hook_resolver.Resolver]
-	onGetRawMangaCollection   *Hook[hook_resolver.Resolver]
-	onGetStudioDetails        *Hook[hook_resolver.Resolver]
-	onPreUpdateEntry          *Hook[hook_resolver.Resolver]
-	onPostUpdateEntry         *Hook[hook_resolver.Resolver]
-	onPreUpdateEntryProgress  *Hook[hook_resolver.Resolver]
-	onPostUpdateEntryProgress *Hook[hook_resolver.Resolver]
-	onPreUpdateEntryRepeat    *Hook[hook_resolver.Resolver]
-	onPostUpdateEntryRepeat   *Hook[hook_resolver.Resolver]
+	onGetAnime                    *Hook[hook_resolver.Resolver]
+	onGetAnimeDetails             *Hook[hook_resolver.Resolver]
+	onGetManga                    *Hook[hook_resolver.Resolver]
+	onGetMangaDetails             *Hook[hook_resolver.Resolver]
+	onGetAnimeCollection          *Hook[hook_resolver.Resolver]
+	onGetMangaCollection          *Hook[hook_resolver.Resolver]
+	onGetCachedAnimeCollection    *Hook[hook_resolver.Resolver]
+	onGetCachedMangaCollection    *Hook[hook_resolver.Resolver]
+	onGetRawAnimeCollection       *Hook[hook_resolver.Resolver]
+	onGetRawMangaCollection       *Hook[hook_resolver.Resolver]
+	onGetCachedRawAnimeCollection *Hook[hook_resolver.Resolver]
+	onGetCachedRawMangaCollection *Hook[hook_resolver.Resolver]
+	onGetStudioDetails            *Hook[hook_resolver.Resolver]
+	onPreUpdateEntry              *Hook[hook_resolver.Resolver]
+	onPostUpdateEntry             *Hook[hook_resolver.Resolver]
+	onPreUpdateEntryProgress      *Hook[hook_resolver.Resolver]
+	onPostUpdateEntryProgress     *Hook[hook_resolver.Resolver]
+	onPreUpdateEntryRepeat        *Hook[hook_resolver.Resolver]
+	onPostUpdateEntryRepeat       *Hook[hook_resolver.Resolver]
 	// Anime library events
 	onAnimeEntryRequested             *Hook[hook_resolver.Resolver]
 	onAnimeEntry                      *Hook[hook_resolver.Resolver]
@@ -169,9 +183,9 @@ type ManagerImpl struct {
 	onScanLocalFileHydrated         *Hook[hook_resolver.Resolver]
 	// Anime metadata events
 	onAnimeMetadataRequested        *Hook[hook_resolver.Resolver]
-	onAnimeMetadataEvent            *Hook[hook_resolver.Resolver]
+	onAnimeMetadata                 *Hook[hook_resolver.Resolver]
 	onAnimeEpisodeMetadataRequested *Hook[hook_resolver.Resolver]
-	onAnimeEpisodeMetadataEvent     *Hook[hook_resolver.Resolver]
+	onAnimeEpisodeMetadata          *Hook[hook_resolver.Resolver]
 	// Manga events
 	onMangaEntryRequested                       *Hook[hook_resolver.Resolver]
 	onMangaEntry                                *Hook[hook_resolver.Resolver]
@@ -202,8 +216,13 @@ type ManagerImpl struct {
 	onTorrentStreamSendStreamToMediaPlayer   *Hook[hook_resolver.Resolver]
 	// Continuity events
 	onWatchHistoryItemRequested                 *Hook[hook_resolver.Resolver]
+	onWatchHistoryItemUpdated                   *Hook[hook_resolver.Resolver]
 	onWatchHistoryLocalFileEpisodeItemRequested *Hook[hook_resolver.Resolver]
 	onWatchHistoryStreamEpisodeItemRequested    *Hook[hook_resolver.Resolver]
+	// Discord RPC events
+	onDiscordPresenceAnimeActivityRequested *Hook[hook_resolver.Resolver]
+	onDiscordPresenceMangaActivityRequested *Hook[hook_resolver.Resolver]
+	onDiscordPresenceClientClosed           *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -236,8 +255,12 @@ func (m *ManagerImpl) initHooks() {
 	m.onGetMangaDetails = &Hook[hook_resolver.Resolver]{}
 	m.onGetAnimeCollection = &Hook[hook_resolver.Resolver]{}
 	m.onGetMangaCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetCachedAnimeCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetCachedMangaCollection = &Hook[hook_resolver.Resolver]{}
 	m.onGetRawAnimeCollection = &Hook[hook_resolver.Resolver]{}
 	m.onGetRawMangaCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetCachedRawAnimeCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetCachedRawMangaCollection = &Hook[hook_resolver.Resolver]{}
 	m.onGetStudioDetails = &Hook[hook_resolver.Resolver]{}
 	m.onPreUpdateEntry = &Hook[hook_resolver.Resolver]{}
 	m.onPostUpdateEntry = &Hook[hook_resolver.Resolver]{}
@@ -282,9 +305,9 @@ func (m *ManagerImpl) initHooks() {
 	m.onScanLocalFileHydrated = &Hook[hook_resolver.Resolver]{}
 	// Anime metadata events
 	m.onAnimeMetadataRequested = &Hook[hook_resolver.Resolver]{}
-	m.onAnimeMetadataEvent = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeMetadata = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEpisodeMetadataRequested = &Hook[hook_resolver.Resolver]{}
-	m.onAnimeEpisodeMetadataEvent = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEpisodeMetadata = &Hook[hook_resolver.Resolver]{}
 	// Manga events
 	m.onMangaEntryRequested = &Hook[hook_resolver.Resolver]{}
 	m.onMangaEntry = &Hook[hook_resolver.Resolver]{}
@@ -315,8 +338,13 @@ func (m *ManagerImpl) initHooks() {
 	m.onTorrentStreamSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
 	// Continuity events
 	m.onWatchHistoryItemRequested = &Hook[hook_resolver.Resolver]{}
+	m.onWatchHistoryItemUpdated = &Hook[hook_resolver.Resolver]{}
 	m.onWatchHistoryLocalFileEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
 	m.onWatchHistoryStreamEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
+	// Discord RPC events
+	m.onDiscordPresenceAnimeActivityRequested = &Hook[hook_resolver.Resolver]{}
+	m.onDiscordPresenceMangaActivityRequested = &Hook[hook_resolver.Resolver]{}
+	m.onDiscordPresenceClientClosed = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -361,6 +389,20 @@ func (m *ManagerImpl) OnGetMangaCollection() *Hook[hook_resolver.Resolver] {
 	return m.onGetMangaCollection
 }
 
+func (m *ManagerImpl) OnGetCachedAnimeCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onGetCachedAnimeCollection
+}
+
+func (m *ManagerImpl) OnGetCachedMangaCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onGetCachedMangaCollection
+}
+
 func (m *ManagerImpl) OnGetRawAnimeCollection() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
@@ -373,6 +415,20 @@ func (m *ManagerImpl) OnGetRawMangaCollection() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onGetRawMangaCollection
+}
+
+func (m *ManagerImpl) OnGetCachedRawAnimeCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onGetCachedRawAnimeCollection
+}
+
+func (m *ManagerImpl) OnGetCachedRawMangaCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onGetCachedRawMangaCollection
 }
 
 func (m *ManagerImpl) OnGetStudioDetails() *Hook[hook_resolver.Resolver] {
@@ -650,11 +706,11 @@ func (m *ManagerImpl) OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver] {
 	return m.onAnimeMetadataRequested
 }
 
-func (m *ManagerImpl) OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver] {
+func (m *ManagerImpl) OnAnimeMetadata() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}
-	return m.onAnimeMetadataEvent
+	return m.onAnimeMetadata
 }
 
 func (m *ManagerImpl) OnAnimeEpisodeMetadataRequested() *Hook[hook_resolver.Resolver] {
@@ -664,11 +720,11 @@ func (m *ManagerImpl) OnAnimeEpisodeMetadataRequested() *Hook[hook_resolver.Reso
 	return m.onAnimeEpisodeMetadataRequested
 }
 
-func (m *ManagerImpl) OnAnimeEpisodeMetadataEvent() *Hook[hook_resolver.Resolver] {
+func (m *ManagerImpl) OnAnimeEpisodeMetadata() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}
-	return m.onAnimeEpisodeMetadataEvent
+	return m.onAnimeEpisodeMetadata
 }
 
 // Manga events
@@ -851,6 +907,13 @@ func (m *ManagerImpl) OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver
 	return m.onWatchHistoryItemRequested
 }
 
+func (m *ManagerImpl) OnWatchHistoryItemUpdated() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onWatchHistoryItemUpdated
+}
+
 func (m *ManagerImpl) OnWatchHistoryLocalFileEpisodeItemRequested() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
@@ -863,4 +926,27 @@ func (m *ManagerImpl) OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_reso
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onWatchHistoryStreamEpisodeItemRequested
+}
+
+// Discord RPC events
+
+func (m *ManagerImpl) OnDiscordPresenceAnimeActivityRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceAnimeActivityRequested
+}
+
+func (m *ManagerImpl) OnDiscordPresenceMangaActivityRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceMangaActivityRequested
+}
+
+func (m *ManagerImpl) OnDiscordPresenceClientClosed() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDiscordPresenceClientClosed
 }

@@ -16,6 +16,7 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
+import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
@@ -25,7 +26,6 @@ import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
 import { MdVerified } from "react-icons/md"
 import { toast } from "sonner"
-import upath from "upath"
 
 type AutoDownloaderBatchRuleFormProps = {
     onRuleCreated: () => void

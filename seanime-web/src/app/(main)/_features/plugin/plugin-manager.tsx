@@ -1,6 +1,8 @@
 import { useListExtensionData } from "@/api/hooks/extensions.hooks"
+import { WSEvents } from "@/lib/server/ws-events"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { startTransition, useEffect, useState } from "react"
+import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
 import { PluginCommandPalettes } from "./command/plugin-command-palettes"
 import {
     usePluginListenScreenGetCurrentEvent,
@@ -18,6 +20,16 @@ export function PluginManager() {
 
     const { data: extensions } = useListExtensionData()
 
+    const [unloadedExtensions, setUnloadedExtensions] = useState<string[]>([])
+
+    useWebsocketMessageListener({
+        type: WSEvents.PLUGIN_LOADED,
+        onMessage: (extensionId: string) => {
+            startTransition(() => {
+                setUnloadedExtensions(prev => prev.filter(id => id !== extensionId))
+            })
+        },
+    })
 
     useEffect(() => {
         sendScreenChangedEvent({
@@ -51,8 +63,8 @@ export function PluginManager() {
 
     return <>
         {/* Render plugin handlers for each extension */}
-        {extensions?.filter(e => e.type === "plugin").map(extension => (
-            <PluginHandler key={extension.id} extensionId={extension.id} />
+        {extensions?.filter(e => e.type === "plugin" && !unloadedExtensions.includes(e.id)).map(extension => (
+            <PluginHandler key={extension.id} extensionId={extension.id} onUnloaded={() => setUnloadedExtensions(prev => [...prev, extension.id])} />
         ))}
         <PluginCommandPalettes />
     </>

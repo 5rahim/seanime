@@ -6,12 +6,12 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Drawer } from "@/components/ui/drawer"
+import { upath } from "@/lib/helpers/upath"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { TbFileSad } from "react-icons/tb"
 import { toast } from "sonner"
-import upath from "upath"
 
 export const __ignoredFileManagerIsOpen = atom(false)
 

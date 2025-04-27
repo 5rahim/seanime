@@ -206,8 +206,8 @@ const ExtensionList = ({
                                 These extensions are loaded in development mode.
                             </p>
                         </div>
-                        {developmentModeExtensions?.map(extension => (
-                            <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
+                        {developmentModeExtensions?.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true })).map(extension => (
+                            <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1">
                                 <p className="text-sm font-medium">{extension.id}</p>
                                 <div>
                                     <IconButton

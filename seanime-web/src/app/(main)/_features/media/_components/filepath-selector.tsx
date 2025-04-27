@@ -1,8 +1,8 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { Separator } from "@/components/ui/separator"
+import { upath } from "@/lib/helpers/upath"
 import React from "react"
-import upath from "upath"
 
 type FilepathSelectorProps = {
     filepaths: string[]

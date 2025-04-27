@@ -67,6 +67,7 @@ type fetchResult struct {
 	body     []byte
 	request  *http.Request
 	response *http.Response
+	json     interface{}
 }
 
 // BindFetch binds the fetch function to the VM
@@ -77,6 +78,11 @@ func BindFetch(vm *goja.Runtime) *Fetch {
 
 	go func() {
 		for fn := range f.ResponseChannel() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Warn().Msgf("extension: response channel panic: %v", r)
+				}
+			}()
 			fn()
 		}
 	}()
@@ -85,18 +91,26 @@ func BindFetch(vm *goja.Runtime) *Fetch {
 }
 
 func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Warn().Msgf("extension: fetch panic: %v", r)
+		}
+	}()
+
 	promise, resolve, reject := f.vm.NewPromise()
 
 	// Input validation
 	if len(call.Arguments) == 0 {
-		_ = reject(f.vm.ToValue("TypeError: fetch requires at least 1 argument"))
-		return f.vm.ToValue(promise)
+		//_ = reject(NewErrorString(f.vm, "TypeError: fetch requires at least 1 argument"))
+		//return f.vm.ToValue(promise)
+		PanicThrowTypeError(f.vm, "fetch requires at least 1 argument")
 	}
 
 	url, ok := call.Argument(0).Export().(string)
 	if !ok {
-		_ = reject(f.vm.ToValue("TypeError: URL parameter must be a string"))
-		return f.vm.ToValue(promise)
+		//_ = reject(NewErrorString(f.vm, "TypeError: URL parameter must be a string"))
+		//return f.vm.ToValue(promise)
+		PanicThrowTypeError(f.vm, "URL parameter must be a string")
 	}
 
 	// Parse options
@@ -167,7 +181,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		case map[string]interface{}:
 			jsonBody, err := json.Marshal(v)
 			if err != nil {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 				return f.vm.ToValue(promise)
 			}
 			reqBody = bytes.NewReader(jsonBody)
@@ -190,7 +204,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		req, err := http.NewRequestWithContext(ctx, options.Method, url, reqBody)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}
@@ -215,7 +229,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		resp, err := client.Do(req)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}
@@ -224,7 +238,7 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		rawBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			f.vmResponseCh <- func() {
-				_ = reject(f.vm.ToValue(err.Error()))
+				_ = reject(NewError(f.vm, err))
 			}
 			return
 		}
@@ -232,6 +246,16 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 		result.body = rawBody
 		result.response = resp
 		result.request = req
+
+		if len(rawBody) > 0 {
+			var data interface{}
+			if err := json.Unmarshal(rawBody, &data); err != nil {
+				result.json = nil
+			} else {
+				result.json = data
+			}
+		}
+
 		f.vmResponseCh <- func() {
 			_ = resolve(result.toGojaObject(f.vm))
 			return
@@ -272,21 +296,8 @@ func (f *fetchResult) toGojaObject(vm *goja.Runtime) *goja.Object {
 		return string(f.body)
 	})
 
-	var jsonValue goja.Value
-	var jsonInterface map[string]interface{}
-	if err := json.Unmarshal(f.body, &jsonInterface); err != nil {
-		var jsonInterface []interface{}
-		if err := json.Unmarshal(f.body, &jsonInterface); err != nil {
-			jsonValue = goja.Undefined()
-		} else {
-			jsonValue = vm.ToValue(jsonInterface)
-		}
-	} else {
-		jsonValue = vm.ToValue(jsonInterface)
-	}
-
-	_ = obj.Set("json", func(call goja.FunctionCall) goja.Value {
-		return jsonValue
+	_ = obj.Set("json", func(call goja.FunctionCall) (ret goja.Value) {
+		return vm.ToValue(f.json)
 	})
 
 	return obj

@@ -3,6 +3,7 @@ package goja_util
 import (
 	"context"
 	"fmt"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -84,8 +85,10 @@ func (s *Scheduler) start() {
 }
 
 func (s *Scheduler) Stop() {
-	s.cancel()
-	s.wg.Wait()
+	if s.cancel != nil {
+		s.cancel()
+	}
+	//s.wg.Wait()
 }
 
 // Schedule adds a job to the queue and waits for its completion
@@ -144,8 +147,12 @@ func (s *Scheduler) ScheduleAsync(fn func() error) {
 		fn: func() error {
 			defer func() {
 				if r := recover(); r != nil {
+					// Get stack trace for better identification
+					stack := debug.Stack()
+					jobInfo := fmt.Sprintf("async job panic: %v\nStack: %s", r, stack)
+
 					if onException, ok := s.onException.Get(); ok {
-						onException(fmt.Errorf("panic in async job: %v", r))
+						onException(fmt.Errorf("panic in async job: %v\n%s", r, jobInfo))
 					}
 				}
 			}()
@@ -154,7 +161,6 @@ func (s *Scheduler) ScheduleAsync(fn func() error) {
 		resultCh: nil, // No result channel needed
 		async:    true,
 	}
-
 	// Queue the job without blocking
 	select {
 	case <-s.ctx.Done():

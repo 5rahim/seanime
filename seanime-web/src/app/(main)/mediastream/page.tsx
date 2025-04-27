@@ -81,6 +81,9 @@ export default function Page() {
     const episodeNumber = React.useMemo(() => {
         return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1
     }, [episodes, filePath])
+    const episodeTitle = React.useMemo(() => {
+        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeTitle
+    }, [episodes, filePath])
 
     const progress = animeEntry?.listData?.progress
 
@@ -117,6 +120,7 @@ export default function Page() {
             progress={{
                 currentProgress: progress ?? 0,
                 currentEpisodeNumber: episodeNumber === -1 ? null : episodeNumber,
+                currentEpisodeTitle: episodeTitle || null,
             }}
         >
             <AppLayoutStack className="p-4 lg:p-8 z-[5]">

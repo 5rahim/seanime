@@ -1,15 +1,19 @@
 "use client"
 
-import { MediaPlayerInstance } from "@vidstack/react"
-import { useRef } from "react"
-import { SeaMediaPlayer } from "../_features/sea-media-player/sea-media-player"
-import { SeaMediaPlayerLayout } from "../_features/sea-media-player/sea-media-player-layout"
-import { AppLayoutStack } from "@/components/ui/app-layout"
 import { DirectorySelector } from "@/components/shared/directory-selector"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { upath } from "@/lib/helpers/upath"
+import { MediaPlayerInstance } from "@vidstack/react"
+import React, { useRef } from "react"
 
 export default function TestPage() {
 
     const playerRef = useRef<MediaPlayerInstance>(null)
+
+    React.useEffect(() => {
+        const path = upath.join("C:", "Users", "test", "Downloads", "test.txt")
+        console.log(path)
+    }, [])
 
     return <AppLayoutStack>
 

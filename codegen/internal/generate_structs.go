@@ -113,6 +113,7 @@ var typePrefixesByPackage = map[string]string{
 	"report":             "Report_",
 	"habari":             "Habari_",
 	"vendor_habari":      "Habari_",
+	"discordrpc_client":  "DiscordRPC_",
 }
 
 func getTypePrefix(packageName string) string {

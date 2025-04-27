@@ -23,6 +23,16 @@ export function useExtensionListener() {
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUpdateData.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key] })
+            })()
+        },
+    })
+
+    useWebsocketMessageListener<number>({
+        type: WSEvents.PLUGIN_UNLOADED,
+        onMessage: () => {
+            (async () => {
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key] })
             })()
         },
     })

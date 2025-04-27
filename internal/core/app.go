@@ -335,6 +335,16 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize modules that only need to be initialized once
 	app.initModulesOnce()
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		ContinuityManager:       app.ContinuityManager,
+		AutoScanner:             app.AutoScanner,
+		AutoDownloader:          app.AutoDownloader,
+		FileCacher:              app.FileCacher,
+		OnlinestreamRepository:  app.OnlinestreamRepository,
+		MediastreamRepository:   app.MediastreamRepository,
+		TorrentstreamRepository: app.TorrentstreamRepository,
+	})
+
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
 

@@ -11,6 +11,7 @@ import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { upath } from "@/lib/helpers/upath"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
@@ -20,7 +21,6 @@ import { FcFolder } from "react-icons/fc"
 import { FiSearch } from "react-icons/fi"
 import { TbFileSad } from "react-icons/tb"
 import { toast } from "sonner"
-import upath from "upath"
 
 export const __unmatchedFileManagerIsOpen = atom(false)
 

@@ -198,8 +198,8 @@ func NewGojaPlugin(
 	// 6. Bind the UI API to the loader so the plugin can register a new UI
 	//	$ui.register(callback)
 	uiObj := p.loader.NewObject()
-	uiObj.Set("register", p.ui.Register)
-	p.loader.Set("$ui", uiObj)
+	_ = uiObj.Set("register", p.ui.Register)
+	_ = p.loader.Set("$ui", uiObj)
 
 	// 7. Load the plugin source code in the VM (nothing will execute)
 	_, err = p.loader.RunString(source)
@@ -238,7 +238,7 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind await bindings
 	goja_util.BindAwait(vm)
 	// Bind console bindings
-	goja_bindings.BindConsoleWithWS(p.ext, vm, logger, p.wsEventManager)
+	_ = goja_bindings.BindConsoleWithWS(p.ext, vm, logger, p.wsEventManager)
 
 	// Bind the app context
 	plugin.GlobalAppContext.BindApp(vm, logger, p.ext)

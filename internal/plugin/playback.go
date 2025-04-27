@@ -111,7 +111,7 @@ func (p *Playback) streamUsingMediaPlayer(windowTitle string, payload string, me
 // MPV
 ////////////////////////////////////
 
-func (p *PlaybackMPV) openAndPlay(filePath string) *goja.Promise {
+func (p *PlaybackMPV) openAndPlay(filePath string) goja.Value {
 	promise, resolve, reject := p.playback.vm.NewPromise()
 
 	go func() {
@@ -127,7 +127,7 @@ func (p *PlaybackMPV) openAndPlay(filePath string) *goja.Promise {
 		})
 	}()
 
-	return promise
+	return p.playback.vm.ToValue(promise)
 }
 
 func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (func(), error) {
@@ -153,18 +153,18 @@ func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (
 	return cancelFn, nil
 }
 
-func (p *PlaybackMPV) stop() *goja.Promise {
+func (p *PlaybackMPV) stop() goja.Value {
 	promise, resolve, _ := p.playback.vm.NewPromise()
 
 	go func() {
 		p.mpv.CloseAll()
 		p.playback.scheduler.ScheduleAsync(func() error {
-			resolve(nil)
+			resolve(goja.Undefined())
 			return nil
 		})
 	}()
 
-	return promise
+	return p.playback.vm.ToValue(promise)
 }
 
 func (p *PlaybackMPV) getConnection() goja.Value {
@@ -348,13 +348,13 @@ func (p *Playback) cancel() error {
 	return playbackManager.Cancel()
 }
 
-func (p *Playback) getNextEpisode() *goja.Promise {
+func (p *Playback) getNextEpisode() goja.Value {
 	promise, resolve, reject := p.vm.NewPromise()
 
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
 		reject(p.vm.NewGoError(errors.New("playback manager not found")))
-		return promise
+		return p.vm.ToValue(promise)
 	}
 
 	go func() {
@@ -364,16 +364,16 @@ func (p *Playback) getNextEpisode() *goja.Promise {
 			return nil
 		})
 	}()
-	return promise
+	return p.vm.ToValue(promise)
 }
 
-func (p *Playback) playNextEpisode() *goja.Promise {
+func (p *Playback) playNextEpisode() goja.Value {
 	promise, resolve, reject := p.vm.NewPromise()
 
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
 		reject(p.vm.NewGoError(errors.New("playback manager not found")))
-		return promise
+		return p.vm.ToValue(promise)
 	}
 
 	go func() {
@@ -388,5 +388,5 @@ func (p *Playback) playNextEpisode() *goja.Promise {
 		})
 	}()
 
-	return promise
+	return p.vm.ToValue(promise)
 }

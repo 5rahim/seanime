@@ -57,6 +57,36 @@ declare namespace $ui {
         discord: Discord
 
         /**
+         * Continuity
+         */
+        continuity: Continuity
+
+        /**
+         * Auto Scanner
+         */
+        autoScanner: AutoScanner
+
+        /**
+         * External Player Link
+         */
+        externalPlayerLink: ExternalPlayerLink
+
+        /**
+         * Auto Downloader
+         */
+        autoDownloader: AutoDownloader
+
+        /**
+         * Filler Manager
+         */
+        fillerManager: FillerManager
+
+        /**
+         * Torrent Client
+         */
+        torrentClient: TorrentClient
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -104,11 +134,19 @@ declare namespace $ui {
         registerEventHandler(eventName: string, handler: (event: any) => void): () => void
 
         /**
+         * Registers an event handler for the plugin.
+         * @param uniqueKey - A unique key to identify the handler. This is to avoid memory leaks caused by re-rendering the same component.
+         * @param handler - The handler to register.
+         * @returns The event handler id.
+         */
+        eventHandler(uniqueKey: string, handler: (event: any) => void): string
+
+        /**
          * Registers a field reference for field components.
          * @param fieldName - The name of the field
          * @returns A field reference object
          */
-        fieldRef<T extends any = string>(): FieldRef<T>
+        fieldRef<T extends any = string>(defaultValue?: T): FieldRef<T>
 
         /**
          * Creates a new tray icon.
@@ -631,6 +669,7 @@ declare namespace $ui {
     type ComponentFunction = (props: any) => void
     type ComponentProps = {
         style?: Record<string, string>,
+        className?: string,
     }
     type FieldComponentProps<V = string> = {
         fieldRef?: FieldRef<V>,
@@ -679,35 +718,35 @@ declare namespace $ui {
      */
     type InputComponentFunction = {
         (props: { label?: string, placeholder?: string } & FieldComponentProps): void
-        (label: string, placeholder: string, props?: FieldComponentProps): void
+        (label: string, props?: { placeholder?: string } & FieldComponentProps): void
     }
     /**
      * @default size="md"
      */
     type SelectComponentFunction = {
-        (props: { label?: string, placeholder?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
-        (label: string, options: { placeholder?: string, value?: string }[], props?: FieldComponentProps): void
+        (props: { label: string, placeholder?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
+        (label: string, options: { placeholder?: string, value?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
     }
     /**
      * @default size="md"
      */
     type CheckboxComponentFunction = {
-        (props: { label?: string } & FieldComponentProps<boolean>): void
+        (props: { label: string } & FieldComponentProps<boolean>): void
         (label: string, props?: FieldComponentProps<boolean>): void
     }
     /**
      * @default size="md"
      */
     type RadioGroupComponentFunction = {
-        (props: { label?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
-        (label: string, options: { label: string, value: string }[], props?: FieldComponentProps): void
+        (props: { label: string, options: { label: string, value: string }[] } & FieldComponentProps): void
+        (label: string, options: { value?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
     }
     /**
      * @default side="right"
      * @default size="sm"
      */
     type SwitchComponentFunction = {
-        (props: { label?: string, side?: "left" | "right" } & FieldComponentProps<boolean>): void
+        (props: { label: string, side?: "left" | "right" } & FieldComponentProps<boolean>): void
         (label: string, props?: { side?: "left" | "right" } & FieldComponentProps<boolean>): void
     }
 
@@ -716,11 +755,12 @@ declare namespace $ui {
         id: string
         tagName: string
         attributes: Record<string, string>
-        // children: DOMElement[]
         textContent?: string
+        // Only available if withInnerHTML is true
         innerHTML?: string
+        // Only available if withOuterHTML is true
+        outerHTML?: string
 
-        // Properties
         /**
          * Gets the text content of the element
          * @returns A promise that resolves to the text content of the element
@@ -792,6 +832,12 @@ declare namespace $ui {
          * @returns A promise that resolves to true if the class exists
          */
         hasClass(className: string): Promise<boolean>
+
+        /**
+         * Sets the CSS text of the element
+         * @param cssText - The CSS text to set
+         */
+        setCssText(cssText: string): void
 
         /**
          * Sets the style of the element
@@ -921,6 +967,11 @@ declare namespace $ui {
         withInnerHTML?: boolean
 
         /**
+         * Whether to include the outerHTML of the element
+         */
+        withOuterHTML?: boolean
+
+        /**
          * Whether to assign plugin-element IDs to all child elements
          * This is useful when you need to interact with child elements directly
          */
@@ -975,7 +1026,7 @@ declare namespace $ui {
 
     interface Notification {
         /**
-         * Sends a notification
+         * Sends a system notification
          * @param message - The message to send
          */
         send(message: string): void
@@ -1033,23 +1084,187 @@ declare namespace $ui {
          * @returns A promise that resolves to void
          */
         emptyCache(mediaId: number): Promise<void>
+
+        /**
+         * Get the manga providers
+         * @returns A map of provider IDs to provider names
+         */
+        getProviders(): Record<string, string>
     }
 
     interface Discord {
         /**
          * Set the manga activity
+         * @param activity - The manga activity to set
          */
-        setMangaActivity(opts: $app.DiscordRPC_MangaActivity): void
+        setMangaActivity(activity: $app.DiscordRPC_MangaActivity): void
 
         /**
-         * Set the anime activity
+         * Set the anime activity with progress tracking.
+         * @param activity - The anime activity to set
          */
-        setAnimeActivity(opts: $app.DiscordRPC_AnimeActivity): void
+        setAnimeActivity(activity: $app.DiscordRPC_AnimeActivity): void
 
         /**
-         * Cancels the current activity
+         * Update the current anime activity progress.
+         * Pausing the activity will cancel the activity on discord but retain the it in memory.
+         * @param progress - The progress of the anime in seconds
+         * @param duration - The duration of the anime in seconds
+         * @param paused - Whether the anime is paused
+         */
+        updateAnimeActivity(progress: number, duration: number, paused: boolean): void
+
+        /**
+         * Set the anime activity (no progress tracking)
+         * @param activity - The anime activity to set
+         */
+        setLegacyAnimeActivity(activity: $app.DiscordRPC_LegacyAnimeActivity): void
+
+        /**
+         * Cancels the current activity by closing the discord RPC client
          */
         cancelActivity(): void
+    }
+
+    interface Continuity {
+        /**
+         * Get the watch history.
+         * The returned object is not in any particular order.
+         * @returns A record of media IDs to watch history items
+         * @throws Error if something goes wrong
+         */
+        getWatchHistory(): Record<number, $app.Continuity_WatchHistoryItem>
+
+        /**
+         * Delete a watch history item
+         * @param mediaId - The ID of the media
+         * @throws Error if something goes wrong
+         */
+        deleteWatchHistoryItem(mediaId: number): void
+
+        /**
+         * Update a watch history item
+         * @param mediaId - The ID of the media
+         * @param watchHistoryItem - The watch history item to update
+         * @throws Error if something goes wrong
+         */
+        updateWatchHistoryItem(mediaId: number, watchHistoryItem: $app.Continuity_WatchHistoryItem): void
+
+        /**
+         * Get a watch history item
+         * @param mediaId - The ID of the media
+         * @returns The watch history item
+         * @throws Error if something goes wrong
+         */
+        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem
+    }
+
+    interface AutoScanner {
+        /**
+         * Notify the auto scanner to scan the libraries if it is enabled.
+         * This is a non-blocking call that simply schedules a scan if one is not already running planned.
+         */
+        notify(): void
+    }
+
+    interface ExternalPlayerLink {
+        /**
+         * Open a URL in the external player.
+         * @param url - The URL to open
+         * @param mediaId - The ID of the media (used for the modal)
+         * @param episodeNumber - The episode number (used for the modal)
+         */
+        open(url: string, mediaId: number, episodeNumber: number): void
+    }
+
+    interface AutoDownloader {
+        /**
+         * Run the auto downloader if it is enabled.
+         * This is a non-blocking call.
+         */
+        run(): void
+    }
+
+    interface FillerManager {
+        /**
+         * Get the filler episodes for a media ID
+         * @param mediaId - The media ID
+         * @returns The filler episodes
+         */
+        getFillerEpisodes(mediaId: number): string[]
+
+        /**
+         * Set the filler episodes for a media ID
+         * @param mediaId - The media ID
+         * @param fillerEpisodes - The filler episodes
+         */
+        setFillerEpisodes(mediaId: number, fillerEpisodes: string[]): void
+
+        /**
+         * Check if an episode is a filler
+         * @param mediaId - The media ID
+         * @param episodeNumber - The episode number
+         */
+        isEpisodeFiller(mediaId: number, episodeNumber: number): boolean
+
+        /**
+         * Hydrate the filler data for an anime entry
+         * @param e - The anime entry
+         */
+        hydrateFillerData(e: $app.Anime_Entry): void
+
+        /**
+         * Hydrate the filler data for an onlinestream episode
+         * @param mId - The media ID
+         * @param episodes - The episodes
+         */
+        hydrateOnlinestreamFillerData(mId: number, episodes: $app.Onlinestream_Episode[]): void
+
+        /**
+         * Remove the filler data for a media ID
+         * @param mediaId - The media ID
+         */
+        removeFillerData(mediaId: number): void
+    }
+
+    interface TorrentClient {
+        /**
+         * Get all torrents
+         * @returns A promise that resolves to an array of torrents
+         */
+        getTorrents(): Promise<$app.TorrentClient_Torrent[]>
+
+        /**
+         * Get the active torrents
+         * @returns A promise that resolves to an array of active torrents
+         */
+        getActiveTorrents(): Promise<$app.TorrentClient_Torrent[]>
+
+        /**
+         * Pause some torrents
+         * @param hashes - The hashes of the torrents to pause
+         */
+        pauseTorrents(hashes: string[]): Promise<void>
+
+        /**
+         * Resume some torrents
+         * @param hashes - The hashes of the torrents to resume
+         */
+        resumeTorrents(hashes: string[]): Promise<void>
+
+        /**
+         * Deselect some files from a torrent
+         * @param hash - The hash of the torrent
+         * @param indices - The indices of the files to deselect
+         */
+        deselectFiles(hash: string, indices: number[]): Promise<void>
+
+        /**
+         * Get the files of a torrent
+         * @param hash - The hash of the torrent
+         * @returns A promise that resolves to an array of files
+         */
+        getFiles(hash: string): Promise<string[]>
     }
 
     type Intent =
@@ -1337,6 +1552,13 @@ declare namespace $store {
      * @returns An array of all values in the store
      */
     function values(): any[]
+
+    /**
+     * Watches a key in the store.
+     * @param key - The key to watch
+     * @param callback - The callback to call when the key changes
+     */
+    function watch<T = any>(key: string, callback: (value: T) => void): void
 }
 
 /**

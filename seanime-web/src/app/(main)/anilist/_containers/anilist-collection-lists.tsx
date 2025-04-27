@@ -30,7 +30,7 @@ import { getYear } from "date-fns"
 import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useState } from "react"
+import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
@@ -38,7 +38,6 @@ import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
 import { TbSwords } from "react-icons/tb"
-import { useMount } from "react-use"
 
 const selectedIndexAtom = atom("-")
 const watchListSearchInputAtom = atom<string>("")
@@ -64,19 +63,19 @@ export function AnilistCollectionLists() {
 
     const setParams = useSetAtom(__myListsSearch_paramsAtom)
 
-    useMount(() => {
-        setParams({
-            sorting: "SCORE_DESC",
-            genre: null,
-            status: null,
-            format: null,
-            season: null,
-            year: null,
-            isAdult: false,
-            unreadOnly: false,
-            continueWatchingOnly: false,
-        })
-    })
+    // useMount(() => {
+    //     setParams({
+    //         sorting: "SCORE_DESC",
+    //         genre: null,
+    //         status: null,
+    //         format: null,
+    //         season: null,
+    //         year: null,
+    //         isAdult: false,
+    //         unreadOnly: false,
+    //         continueWatchingOnly: false,
+    //     })
+    // })
 
     return (
         <AppLayoutStack className="space-y-6" data-anilist-collection-lists>
@@ -180,15 +179,13 @@ export function AnilistCollectionLists() {
 const SearchInput = () => {
 
     const [input, setter] = useAtom(watchListSearchInputAtom)
-    const [inputValue, setInputValue] = useState(input)
 
     return (
         <div className="w-full">
             <TextInput
                 leftIcon={<FiSearch />}
-                value={inputValue}
+                value={input}
                 onValueChange={v => {
-                    setInputValue(v)
                     setter(v)
                 }}
             />
@@ -212,6 +209,12 @@ export function SearchOptions({
     React.useEffect(() => {
         setActualParams(params)
     }, [debouncedParams])
+
+    const [input, setInput] = useAtom(watchListSearchInputAtom)
+
+    const highlightTrash = React.useMemo(() => {
+        return !(!input.length && params.sorting === "SCORE_DESC" && (params.genre === null || !params.genre.length) && params.status === null && params.format === null && params.season === null && params.year === null && params.isAdult === false)
+    }, [params, input])
 
     return (
         <AppLayoutStack className="px-4 xl:px-0" data-anilist-collection-lists-search-options-stack>
@@ -237,7 +240,7 @@ export function SearchOptions({
                 <div className="flex gap-4 items-center w-full" data-anilist-collection-lists-search-options-actions>
                     <SearchInput />
                     <IconButton
-                        icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
+                        icon={<BiTrash />} intent={highlightTrash ? "alert" : "gray-subtle"} className="flex-none" onClick={() => {
                         setParams(prev => ({
                             ...prev,
                             sorting: "SCORE_DESC",
@@ -248,7 +251,9 @@ export function SearchOptions({
                             year: null,
                             isAdult: false,
                         }))
+                        setInput("")
                     }}
+                        disabled={!highlightTrash}
                     />
                 </div>
             </div>
@@ -261,7 +266,7 @@ export function SearchOptions({
             >
                 <Combobox
                     multiple
-                    leftAddon={<TbSwords />}
+                    leftAddon={<TbSwords className={cn((params.genre !== null && !!params.genre?.length) && "text-indigo-300 font-bold text-xl")} />}
                     emptyMessage="No options found"
                     label="Genre" placeholder="All genres"
                     className="w-full"
@@ -276,7 +281,7 @@ export function SearchOptions({
                 />
                 <Select
                     label="Sorting"
-                    leftAddon={<FaSortAmountDown />}
+                    leftAddon={<FaSortAmountDown className={cn((params.sorting !== "SCORE_DESC") && "text-indigo-300 font-bold text-xl")} />}
                     className="w-full"
                     fieldClass="flex items-center"
                     inputContainerClass="w-full"
@@ -290,7 +295,8 @@ export function SearchOptions({
                     // disabled={!!params.title && params.title.length > 0}
                 />
                 {pageType === "anime" && <Select
-                    leftAddon={<MdPersonalVideo />}
+                    leftAddon={
+                        <MdPersonalVideo className={cn((params.format !== null && !!params.format?.length) && "text-indigo-300 font-bold text-xl")} />}
                     label="Format" placeholder="All formats"
                     className="w-full"
                     fieldClass="w-full"
@@ -303,7 +309,8 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                 />}
                 <Select
-                    leftAddon={<RiSignalTowerLine />}
+                    leftAddon={
+                        <RiSignalTowerLine className={cn((params.status !== null && !!params.status?.length) && "text-indigo-300 font-bold text-xl")} />}
                     label="Status" placeholder="All statuses"
                     className="w-full"
                     fieldClass="w-full"
@@ -318,7 +325,7 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                 />
                 {pageType === "anime" && <Select
-                    leftAddon={<LuLeaf />}
+                    leftAddon={<LuLeaf className={cn((params.season !== null && !!params.season?.length) && "text-indigo-300 font-bold text-xl")} />}
                     label="Season"
                     placeholder="All seasons"
                     className="w-full"
@@ -333,7 +340,7 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                 />}
                 <Select
-                    leftAddon={<LuCalendar />}
+                    leftAddon={<LuCalendar className={cn((params.year !== null && !!params.year?.length) && "text-indigo-300 font-bold text-xl")} />}
                     label="Year" placeholder="Timeless"
                     className="w-full"
                     fieldClass="w-full"

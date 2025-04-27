@@ -133,9 +133,27 @@ func (m *Manager) UpdateWatchHistoryItem(opts *UpdateWatchHistoryItemOptions) (e
 		return fmt.Errorf("continuity: Failed to save watch history item: %w", err)
 	}
 
+	_ = hook.GlobalHookManager.OnWatchHistoryItemUpdated().Trigger(&WatchHistoryItemUpdatedEvent{
+		WatchHistoryItem: i,
+	})
+
 	// If the item was added, check if we need to remove the oldest item
 	if added {
 		_ = m.trimWatchHistoryItems()
+	}
+
+	return nil
+}
+
+func (m *Manager) DeleteWatchHistoryItem(mediaId int) (err error) {
+	defer util.HandlePanicInModuleWithError("continuity/DeleteWatchHistoryItem", &err)
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	err = m.fileCacher.Delete(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId))
+	if err != nil {
+		return fmt.Errorf("continuity: Failed to delete watch history item: %w", err)
 	}
 
 	return nil
