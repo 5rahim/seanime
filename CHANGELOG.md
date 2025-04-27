@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.4
+
+- ⚡️ Plugin development improvements
+    - New Discord Rich Presence event hooks
+    - New bindings for watch history, torrent client, auto downloader, external player link, filler manager
+    - Plugins in development mode that experience a fatal error can now be reloaded multiple times
+    - Uncaught exceptions are now correctly logged in the browser devtool console
+- 🦺 Fixed macOS/iOS client-side exception caused by 'upath' #238
+- 🦺 Removed 'add to list' buttons in manga download modal media cards
+- 🦺 Manga: Fixed reader keybinding editing not working on macOS desktop
+- 🦺 Fixed AniList page filters not persisting
+- 🦺 Fixed 'Advanced Search' input not being emptied when resetting search params
+- 🦺 Extensions: Fixed caught exceptions being logged as empty objects
+- 🦺 Fixed extension market button disabled by custom background image
+- 🦺 Fixed Plugin APIs
+    - Fixed DOM manipulation methods not working
+    - Correctly remove DOM elements created by plugin when unloaded
+    - Fixed incorrectly named hooks
+    - Fixed manga bindings for promises
+    - Fixed select and radio group tray components
+    - Fixed incorrect event object field mapping (Breaking)
+- 🏗️ Frontend: Replace 'upath' dependency
+
 ## v2.8.3
 
 - ⚡️ Updated Playground 
