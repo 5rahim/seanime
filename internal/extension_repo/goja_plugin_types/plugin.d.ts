@@ -1156,7 +1156,7 @@ declare namespace $ui {
          * @returns The watch history item
          * @throws Error if something goes wrong
          */
-        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem
+        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem | undefined
     }
 
     interface AutoScanner {

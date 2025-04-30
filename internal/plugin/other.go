@@ -288,7 +288,7 @@ func (a *AppContextImpl) BindFillerManagerToContextObj(vm *goja.Runtime, obj *go
 func (a *AppContextImpl) BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
 
 	autoDownloaderObj := vm.NewObject()
-	_ = autoDownloaderObj.Set("refreshQueue", func() goja.Value {
+	_ = autoDownloaderObj.Set("run", func() goja.Value {
 		autoDownloader, ok := a.autoDownloader.Get()
 		if !ok {
 			goja_bindings.PanicThrowErrorString(vm, "autoDownloader not set")

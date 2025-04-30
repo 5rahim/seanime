@@ -136,13 +136,19 @@ func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (
 
 	go func() {
 		for event := range sub.Events() {
-			callback(event, false)
+			p.playback.scheduler.ScheduleAsync(func() error {
+				callback(event, false)
+				return nil
+			})
 		}
 	}()
 
 	go func() {
 		for range sub.Closed() {
-			callback(nil, true)
+			p.playback.scheduler.ScheduleAsync(func() error {
+				callback(nil, true)
+				return nil
+			})
 		}
 	}()
 

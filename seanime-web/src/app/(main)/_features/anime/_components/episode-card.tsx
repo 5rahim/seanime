@@ -68,6 +68,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         percentageComplete,
         minutesRemaining,
         anime,
+        episode,
         ...rest
     } = props
 
