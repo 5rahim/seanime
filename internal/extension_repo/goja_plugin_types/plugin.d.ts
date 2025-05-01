@@ -1003,6 +1003,17 @@ declare namespace $ui {
         observe(selector: string, callback: (elements: DOMElement[]) => void, opts?: DOMQueryElementOptions): [() => void, () => void]
 
         /**
+         * Observes changes to the DOM in the viewport
+         * @param selector - The selector to observe
+         * @param callback - The callback to call when the DOM changes
+         * @returns A tuple containing a function to stop observing the DOM and a function to refetch observed elements
+         */
+        observeInView(selector: string,
+            callback: (elements: DOMElement[]) => void,
+            opts?: DOMQueryElementOptions & { margin?: string },
+        ): [() => void, () => void]
+
+        /**
          * Creates a new DOM element
          * @param tagName - The tag name of the element
          * @returns A promise that resolves to a DOM element

@@ -42,6 +42,7 @@ func (d *DOMManager) BindToObj(vm *goja.Runtime, obj *goja.Object) {
 	_ = domObj.Set("query", d.jsQuery)
 	_ = domObj.Set("queryOne", d.jsQueryOne)
 	_ = domObj.Set("observe", d.jsObserve)
+	_ = domObj.Set("observeInView", d.jsObserveInView)
 	_ = domObj.Set("createElement", d.jsCreateElement)
 	_ = domObj.Set("asElement", d.jsAsElement)
 	_ = domObj.Set("onReady", d.jsOnReady)
@@ -497,12 +498,24 @@ func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId 
 		d.setElementProperty(elementId, name, value)
 	})
 
-	_ = elementObj.Set("addClass", func(className string) {
-		d.addElementClass(elementId, className)
+	_ = elementObj.Set("addClass", func(call goja.FunctionCall) {
+		classNames := make([]string, 0, len(call.Arguments))
+		for _, arg := range call.Arguments {
+			if className := arg.String(); className != "" {
+				classNames = append(classNames, className)
+			}
+		}
+		d.addElementClass(elementId, classNames)
 	})
 
-	_ = elementObj.Set("removeClass", func(className string) {
-		d.removeElementClass(elementId, className)
+	_ = elementObj.Set("removeClass", func(call goja.FunctionCall) {
+		classNames := make([]string, 0, len(call.Arguments))
+		for _, arg := range call.Arguments {
+			if className := arg.String(); className != "" {
+				classNames = append(classNames, className)
+			}
+		}
+		d.removeElementClass(elementId, classNames)
 	})
 
 	_ = elementObj.Set("hasClass", func(className string) goja.Value {
@@ -708,22 +721,22 @@ func (d *DOMManager) removeElementAttribute(elementId, name string) {
 	})
 }
 
-func (d *DOMManager) addElementClass(elementId, className string) {
+func (d *DOMManager) addElementClass(elementId string, classNames []string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "addClass",
 		Params: map[string]interface{}{
-			"className": className,
+			"classNames": classNames,
 		},
 	})
 }
 
-func (d *DOMManager) removeElementClass(elementId, className string) {
+func (d *DOMManager) removeElementClass(elementId string, classNames []string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "removeClass",
 		Params: map[string]interface{}{
-			"className": className,
+			"classNames": classNames,
 		},
 	})
 }
@@ -1479,4 +1492,119 @@ func (d *DOMManager) setElementOuterHTML(elementId, outerHTML string) {
 		Action:    "setOuterHTML",
 		Params:    map[string]interface{}{"outerHTML": outerHTML},
 	})
+}
+
+// jsObserveInView starts observing DOM elements matching a selector when they are in the viewport
+func (d *DOMManager) jsObserveInView(call goja.FunctionCall) goja.Value {
+	selector := call.Argument(0).String()
+	callback, ok := goja.AssertFunction(call.Argument(1))
+	if !ok {
+		d.ctx.handleTypeError("observeInView requires a callback function")
+	}
+
+	options := d.getQueryElementOptions(call.Argument(2))
+
+	// Get margin settings if provided
+	margin := "0px"
+	optsObj := call.Argument(2).ToObject(d.ctx.vm)
+	marginVal := optsObj.Get("margin")
+	if marginVal != nil && !goja.IsUndefined(marginVal) && !goja.IsNull(marginVal) {
+		margin = marginVal.String()
+	}
+
+	// Create observer ID
+	observerId := uuid.New().String()
+
+	// Store the observer
+	observer := &ElementObserver{
+		ID:       observerId,
+		Selector: selector,
+		Callback: callback,
+	}
+
+	d.elementObservers.Set(observerId, observer)
+
+	// Send observe request to client
+	d.ctx.SendEventToClient(ServerDOMObserveInViewEvent, &ServerDOMObserveInViewEventPayload{
+		Selector:         selector,
+		ObserverId:       observerId,
+		WithInnerHTML:    options.WithInnerHTML,
+		WithOuterHTML:    options.WithOuterHTML,
+		IdentifyChildren: options.IdentifyChildren,
+		Margin:           margin,
+	})
+
+	// Start a goroutine to handle observer updates
+	listener := d.ctx.RegisterEventListener(ClientDOMObserveResultEvent)
+
+	listener.SetCallback(func(event *ClientPluginEvent) {
+		var payload ClientDOMObserveResultEventPayload
+		if event.ParsePayloadAs(ClientDOMObserveResultEvent, &payload) && payload.ObserverId == observerId {
+			d.ctx.scheduler.ScheduleAsync(func() error {
+				observer, exists := d.elementObservers.Get(observerId)
+
+				if !exists {
+					return nil
+				}
+
+				// Convert elements to DOM element objects directly in the VM thread
+				elemObjs := make([]interface{}, 0, len(payload.Elements))
+				for _, elem := range payload.Elements {
+					if elemData, ok := elem.(map[string]interface{}); ok {
+						elemObjs = append(elemObjs, d.createDOMElementObject(elemData))
+					}
+				}
+
+				// Call the callback directly now that we have all elements
+				_, err := observer.Callback(goja.Undefined(), d.ctx.vm.ToValue(elemObjs))
+				if err != nil {
+					d.ctx.handleException(err)
+				}
+				return nil
+			})
+		}
+	})
+
+	// Listen for DOM ready events to re-observe elements after page reload
+	domReadyListener := d.ctx.RegisterEventListener(ClientDOMReadyEvent)
+
+	domReadyListener.SetCallback(func(event *ClientPluginEvent) {
+		// Re-send the observe request when the DOM is ready
+		d.ctx.SendEventToClient(ServerDOMObserveInViewEvent, &ServerDOMObserveInViewEventPayload{
+			Selector:         selector,
+			ObserverId:       observerId,
+			WithInnerHTML:    options.WithInnerHTML,
+			WithOuterHTML:    options.WithOuterHTML,
+			IdentifyChildren: options.IdentifyChildren,
+			Margin:           margin,
+		})
+	})
+
+	// Return a function to stop observing
+	cancelFn := func() {
+		d.ctx.UnregisterEventListener(listener.ID)
+		d.ctx.UnregisterEventListener(domReadyListener.ID)
+		d.elementObservers.Delete(observerId)
+
+		d.ctx.SendEventToClient(ServerDOMStopObserveEvent, &ServerDOMStopObserveEventPayload{
+			ObserverId: observerId,
+		})
+	}
+
+	refetchFn := func() {
+		d.ctx.SendEventToClient(ServerDOMObserveInViewEvent, &ServerDOMObserveInViewEventPayload{
+			Selector:         selector,
+			ObserverId:       observerId,
+			WithInnerHTML:    options.WithInnerHTML,
+			WithOuterHTML:    options.WithOuterHTML,
+			IdentifyChildren: options.IdentifyChildren,
+			Margin:           margin,
+		})
+	}
+
+	d.ctx.registerOnCleanup(func() {
+		cancelFn()
+	})
+
+	return d.ctx.vm.ToValue([]interface{}{cancelFn, refetchFn})
 }

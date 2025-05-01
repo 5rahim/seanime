@@ -19,7 +19,7 @@ import (
 //	@summary installs the latest update.
 //	@desc This will install the latest update and launch the new version.
 //	@route /api/v1/install-update [POST]
-//	@returns handler.Status
+//	@returns handlers.Status
 func (h *Handler) HandleInstallLatestUpdate(c echo.Context) error {
 	type body struct {
 		FallbackDestination string `json:"fallback_destination"`
@@ -142,7 +142,7 @@ func (h *Handler) HandleGetChangelog(c echo.Context) error {
 
 			return version.GreaterThan(afterVersion)
 		})
-	}	
+	}
 
 	// e.g. get changelog before 2.7.0
 	if before != "" {

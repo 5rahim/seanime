@@ -344,7 +344,7 @@ func (h *Handler) HandleSaveExtensionUserConfig(c echo.Context) error {
 //
 //	@summary returns the marketplace extensions.
 //	@route /api/v1/extensions/marketplace [GET]
-//	@returns []extension_repo.MarketplaceExtension
+//	@returns []extension.Extension
 func (h *Handler) HandleGetMarketplaceExtensions(c echo.Context) error {
 	encodedMarketplaceUrl := c.QueryParam("marketplace")
 	marketplaceUrl := ""

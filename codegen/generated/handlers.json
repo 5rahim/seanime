@@ -3535,7 +3535,7 @@
       "",
       "\t@summary returns the marketplace extensions.",
       "\t@route /api/v1/extensions/marketplace [GET]",
-      "\t@returns []extension_repo.MarketplaceExtension",
+      "\t@returns []extension.Extension",
       ""
     ],
     "filepath": "internal/handlers/extensions.go",
@@ -3549,9 +3549,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]extension_repo.MarketplaceExtension",
-      "returnGoType": "extension_repo.MarketplaceExtension",
-      "returnTypescriptType": "Array\u003cExtensionRepo_MarketplaceExtension\u003e"
+      "returns": "[]extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Array\u003cExtension_Extension\u003e"
     }
   },
   {
@@ -3752,8 +3752,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -5376,8 +5376,8 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -6822,7 +6822,7 @@
       "\t@summary installs the latest update.",
       "\t@desc This will install the latest update and launch the new version.",
       "\t@route /api/v1/install-update [POST]",
-      "\t@returns handler.Status",
+      "\t@returns handlers.Status",
       ""
     ],
     "filepath": "internal/handlers/releases.go",
@@ -6848,8 +6848,8 @@
           "descriptions": []
         }
       ],
-      "returns": "handler.Status",
-      "returnGoType": "handler.Status",
+      "returns": "handlers.Status",
+      "returnGoType": "handlers.Status",
       "returnTypescriptType": "Status"
     }
   },
@@ -7454,8 +7454,8 @@
       "methods": null,
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -7648,6 +7648,7 @@
           "name": "Media",
           "jsonName": "media",
           "goType": "[]__STRUCT__",
+          "inlineStructType": "[]struct{\nMediaId int `json:\"mediaId\"`\nType string `json:\"type\"`}",
           "usedStructType": "",
           "typescriptType": "Array\u003c{ mediaId: number; type: string; }\u003e",
           "required": true,
@@ -8140,6 +8141,7 @@
           "name": "SmartSelect",
           "jsonName": "smartSelect",
           "goType": "__STRUCT__",
+          "inlineStructType": "struct{\nEnabled bool `json:\"enabled\"`\nMissingEpisodeNumbers []int `json:\"missingEpisodeNumbers\"`}",
           "usedStructType": "",
           "typescriptType": "{ enabled: boolean; missingEpisodeNumbers: Array\u003cnumber\u003e; }",
           "required": true,
@@ -8736,8 +8738,8 @@
       "methods": null,
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -8757,8 +8759,8 @@
       "methods": null,
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   }

@@ -65,6 +65,7 @@ export enum PluginServerEvents {
     DOMQuery = "dom:query",
     DOMQueryOne = "dom:query-one",
     DOMObserve = "dom:observe",
+    DOMObserveInView = "dom:observe-in-view",
     DOMStopObserve = "dom:stop-observe",
     DOMCreate = "dom:create",
     DOMManipulate = "dom:manipulate",
@@ -968,6 +969,25 @@ export function usePluginListenDOMManipulateEvent(cb: (payload: Plugin_Server_DO
     return useWebsocketPluginMessageListener<Plugin_Server_DOMManipulateEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMManipulate,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMObserveInViewEventPayload = {
+    selector: string
+    observerId: string
+    withInnerHTML: boolean
+    withOuterHTML: boolean
+    identifyChildren: boolean
+    margin: string
+}
+
+export function usePluginListenDOMObserveInViewEvent(cb: (payload: Plugin_Server_DOMObserveInViewEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMObserveInViewEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMObserveInView,
         onMessage: cb,
     })
 }

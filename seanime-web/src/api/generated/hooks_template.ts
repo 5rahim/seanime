@@ -875,7 +875,7 @@
 // }
 
 // export function useGetMarketplaceExtensions() {
-//     return useServerQuery<Array<ExtensionRepo_MarketplaceExtension>>({
+//     return useServerQuery<Array<Extension_Extension>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.endpoint,
 //         method: API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.methods[0],
 //         queryKey: [API_ENDPOINTS.EXTENSIONS.GetMarketplaceExtensions.key],

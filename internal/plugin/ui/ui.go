@@ -158,62 +158,7 @@ func (u *UI) Register(callback string) error {
 	go func() {
 		for event := range u.context.wsSubscriber.Channel {
 			//u.logger.Trace().Msgf("Received event %s", event.Type)
-			if event.Type == events.PluginEvent {
-
-				if payload, ok := event.Payload.(map[string]interface{}); ok {
-					clientEvent := NewClientPluginEvent(payload)
-					// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listeners
-					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.ext.ID {
-
-						switch clientEvent.Type {
-
-						case ClientRenderTrayEvent: // Client wants to render the tray
-							u.context.trayManager.renderTrayScheduled()
-
-						case ClientListTrayIconsEvent: // Client wants to list all tray icons from all plugins
-							u.context.trayManager.sendIconToClient()
-
-						case ClientActionRenderAnimePageButtonsEvent: // Client wants to update the anime page buttons
-							u.context.actionManager.renderAnimePageButtons()
-
-						case ClientActionRenderAnimePageDropdownItemsEvent: // Client wants to update the anime page dropdown items
-							u.context.actionManager.renderAnimePageDropdownItems()
-
-						case ClientActionRenderAnimeLibraryDropdownItemsEvent: // Client wants to update the anime library dropdown items
-							u.context.actionManager.renderAnimeLibraryDropdownItems()
-
-						case ClientActionRenderMangaPageButtonsEvent: // Client wants to update the manga page buttons
-							u.context.actionManager.renderMangaPageButtons()
-
-						case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
-							u.context.actionManager.renderMediaCardContextMenuItems()
-
-						case ClientActionRenderEpisodeCardContextMenuItemsEvent: // Client wants to update the episode card context menu items
-							u.context.actionManager.renderEpisodeCardContextMenuItems()
-
-						case ClientActionRenderEpisodeGridItemMenuItemsEvent: // Client wants to update the episode grid item menu items
-							u.context.actionManager.renderEpisodeGridItemMenuItems()
-
-						case ClientRenderCommandPaletteEvent: // Client wants to render the command palette
-							u.context.commandPaletteManager.renderCommandPaletteScheduled()
-
-						case ClientListCommandPalettesEvent: // Client wants to list all command palettes
-							u.context.commandPaletteManager.sendInfoToClient()
-
-						default:
-							eventListeners, ok := u.context.eventBus.Get(clientEvent.Type)
-							if !ok {
-								continue
-							}
-							eventListeners.Range(func(key string, listener *EventListener) bool {
-								listener.Send(clientEvent)
-								return true
-							})
-						}
-					}
-
-				}
-			}
+			u.HandleWSEvent(event)
 		}
 		u.logger.Debug().Msg("plugin: Event goroutine stopped")
 	}()
@@ -249,4 +194,132 @@ func (u *UI) Register(callback string) error {
 
 	u.mu.Unlock()
 	return nil
+}
+
+// Add this new type to handle batched events from the client
+type BatchedClientEvents struct {
+	Events []map[string]interface{} `json:"events"`
+}
+
+// HandleWSEvent handles a websocket event from the client
+func (u *UI) HandleWSEvent(event *events.WebsocketClientEvent) {
+	defer util.HandlePanicInModuleThen("plugin/HandleWSEvent", func() {})
+
+	u.mu.RLock()
+	defer u.mu.RUnlock()
+
+	// Ignore if UI is destroyed
+	if u.destroyed {
+		return
+	}
+
+	if event.Type == events.PluginEvent {
+		// Extract the event payload
+		payload, ok := event.Payload.(map[string]interface{})
+		if !ok {
+			u.logger.Error().Str("payload", fmt.Sprintf("%+v", event.Payload)).Msg("plugin/ui: Failed to parse plugin event payload")
+			return
+		}
+
+		// Check if this is a batch event
+		eventType, _ := payload["type"].(string)
+		if eventType == "client:batch-events" {
+			u.handleBatchedClientEvents(event.ClientID, payload)
+			return
+		}
+
+		// Process normal event
+		clientEvent := NewClientPluginEvent(payload)
+		if clientEvent == nil {
+			u.logger.Error().Interface("payload", payload).Msg("plugin/ui: Failed to create client plugin event")
+			return
+		}
+
+		// If the event is for this plugin
+		if clientEvent.ExtensionID == u.ext.ID || clientEvent.ExtensionID == "" {
+			// Process the event based on type
+			u.dispatchClientEvent(clientEvent)
+		}
+	}
+}
+
+// dispatchClientEvent handles a client event based on its type
+func (u *UI) dispatchClientEvent(clientEvent *ClientPluginEvent) {
+	switch clientEvent.Type {
+	case ClientRenderTrayEvent: // Client wants to render the tray
+		u.context.trayManager.renderTrayScheduled()
+
+	case ClientListTrayIconsEvent: // Client wants to list all tray icons from all plugins
+		u.context.trayManager.sendIconToClient()
+
+	case ClientActionRenderAnimePageButtonsEvent: // Client wants to update the anime page buttons
+		u.context.actionManager.renderAnimePageButtons()
+
+	case ClientActionRenderAnimePageDropdownItemsEvent: // Client wants to update the anime page dropdown items
+		u.context.actionManager.renderAnimePageDropdownItems()
+
+	case ClientActionRenderAnimeLibraryDropdownItemsEvent: // Client wants to update the anime library dropdown items
+		u.context.actionManager.renderAnimeLibraryDropdownItems()
+
+	case ClientActionRenderMangaPageButtonsEvent: // Client wants to update the manga page buttons
+		u.context.actionManager.renderMangaPageButtons()
+
+	case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
+		u.context.actionManager.renderMediaCardContextMenuItems()
+
+	case ClientActionRenderEpisodeCardContextMenuItemsEvent: // Client wants to update the episode card context menu items
+		u.context.actionManager.renderEpisodeCardContextMenuItems()
+
+	case ClientActionRenderEpisodeGridItemMenuItemsEvent: // Client wants to update the episode grid item menu items
+		u.context.actionManager.renderEpisodeGridItemMenuItems()
+
+	case ClientRenderCommandPaletteEvent: // Client wants to render the command palette
+		u.context.commandPaletteManager.renderCommandPaletteScheduled()
+
+	case ClientListCommandPalettesEvent: // Client wants to list all command palettes
+		u.context.commandPaletteManager.sendInfoToClient()
+
+	default:
+		// Send to registered event listeners
+		eventListeners, ok := u.context.eventBus.Get(clientEvent.Type)
+		if !ok {
+			return
+		}
+		eventListeners.Range(func(key string, listener *EventListener) bool {
+			listener.Send(clientEvent)
+			return true
+		})
+	}
+}
+
+// handleBatchedClientEvents processes a batch of client events
+func (u *UI) handleBatchedClientEvents(clientID string, payload map[string]interface{}) {
+	if eventPayload, ok := payload["payload"].(map[string]interface{}); ok {
+		if eventsRaw, ok := eventPayload["events"].([]interface{}); ok {
+			// Process each event in the batch
+			for _, eventRaw := range eventsRaw {
+				if eventMap, ok := eventRaw.(map[string]interface{}); ok {
+					// Create a synthetic event object
+					syntheticPayload := map[string]interface{}{
+						"type":        eventMap["type"],
+						"extensionId": eventMap["extensionId"],
+						"payload":     eventMap["payload"],
+					}
+
+					// Create and dispatch the event
+					clientEvent := NewClientPluginEvent(syntheticPayload)
+					if clientEvent == nil {
+						u.logger.Error().Interface("payload", syntheticPayload).Msg("plugin/ui: Failed to create client plugin event from batch")
+						continue
+					}
+
+					// If the event is for this plugin
+					if clientEvent.ExtensionID == u.ext.ID || clientEvent.ExtensionID == "" {
+						// Process the event
+						u.dispatchClientEvent(clientEvent)
+					}
+				}
+			}
+		}
+	}
 }
