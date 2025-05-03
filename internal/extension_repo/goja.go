@@ -166,6 +166,14 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return json.Unmarshal(raw, &dst)
 	})
 
+	vm.Set("$toPointer", func(data interface{}) interface{} {
+		if data == nil {
+			return nil
+		}
+		v := data
+		return &v
+	})
+
 	vm.Set("$Context", func(call goja.ConstructorCall) *goja.Object {
 		var instance context.Context
 

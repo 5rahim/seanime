@@ -44,17 +44,6 @@ func (r *Repository) setPriorityDownloadStrategy(t *torrent.Torrent, file *torre
 		t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 	}
 
-	// // Also prioritize pieces in the middle of the file for seeking
-	// midPieceIdx := (firstPieceIdx + endPieceIdx) / 2
-	// numPiecesForMiddle := (endPieceIdx - firstPieceIdx + 1) * 2 / 100
-	// r.logger.Debug().Msgf("torrentstream: Setting priority for middle pieces %d to %d",
-	// 	midPieceIdx-numPiecesForMiddle/2, midPieceIdx+numPiecesForMiddle/2)
-	// for idx := midPieceIdx - numPiecesForMiddle/2; idx <= midPieceIdx+numPiecesForMiddle/2; idx++ {
-	// 	if idx >= 0 && int(idx) < t.NumPieces() {
-	// 		t.Piece(int(idx)).SetPriority(torrent.PiecePriorityHigh)
-	// 	}
-	// }
-
 	// Also prioritize the last few pieces
 	numPiecesForEnd := (endPieceIdx - firstPieceIdx + 1) * 1 / 100
 	r.logger.Debug().Msgf("torrentstream: Setting priority for last pieces %d to %d (total %d)",
@@ -64,20 +53,6 @@ func (r *Repository) setPriorityDownloadStrategy(t *torrent.Torrent, file *torre
 			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 		}
 	}
-
-	// // Set some additional keyframe positions to high priority based on common seek points
-	// // This helps when users seek to 25%, 50%, and 75% positions
-	// for seekPercent := 25; seekPercent <= 75; seekPercent += 25 {
-	// 	seekPieceIdx := firstPieceIdx + ((endPieceIdx - firstPieceIdx) * int64(seekPercent) / 100)
-	// 	numPiecesForSeek := (endPieceIdx - firstPieceIdx + 1) / 100 // 1% of pieces at each seek point
-	// 	r.logger.Debug().Msgf("torrentstream: Setting priority for %d%% seek point pieces %d to %d",
-	// 		seekPercent, seekPieceIdx, seekPieceIdx+numPiecesForSeek)
-	// 	for idx := seekPieceIdx; idx <= seekPieceIdx+numPiecesForSeek; idx++ {
-	// 		if idx >= 0 && int(idx) < t.NumPieces() {
-	// 			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityHigh)
-	// 		}
-	// 	}
-	// }
 }
 
 func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode string, episodeNumber int) (ret *playbackTorrent, err error) {

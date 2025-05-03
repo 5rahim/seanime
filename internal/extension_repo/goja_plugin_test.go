@@ -494,6 +494,96 @@ func TestGojaPluginJsonFieldNames(t *testing.T) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+func TestGojaPluginAnilistCustomQuery(t *testing.T) {
+	payload := `
+	function init() {
+		$ui.register((ctx) => {
+		const token = $database.anilist.getToken()
+			try {
+				const res = $anilist.customQuery({ query:` + "`" + `
+					query GetOnePiece {
+						Media(id: 21) {
+							title {
+								romaji
+								english
+								native
+								userPreferred
+							}
+							airingSchedule(perPage: 1, page: 1) {
+								nodes {
+									episode
+									airingAt
+								}
+							}
+							id
+						}
+					}
+				` + "`" + `, variables: {}}, token);
+
+				console.log("res", res)
+			} catch (e) {
+				console.error("Error fetching anime list", e);
+			}
+		});
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionAnilist,
+			extension.PluginPermissionAnilistToken,
+			extension.PluginPermissionDatabase,
+		},
+	}
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	_ = plugin
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginAnilistListAnime(t *testing.T) {
+	payload := `
+	function init() {
+
+		$ui.register((ctx) => {
+		
+		try {
+			const res = $anilist.listRecentAnime(1, 15, undefined, undefined, undefined)
+			console.log("res", res)
+		} catch (e) {
+			console.error("Error fetching anime list", e)
+		}
+
+        })
+	}
+	`
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionAnilist,
+		},
+	}
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	_ = plugin
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 func TestGojaPluginStorage(t *testing.T) {
 	payload := `
 	function init() {

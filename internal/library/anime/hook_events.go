@@ -2,6 +2,7 @@ package anime
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/hook_resolver"
 )
 
@@ -115,4 +116,25 @@ type AnimeLibraryStreamCollectionRequestedEvent struct {
 type AnimeLibraryStreamCollectionEvent struct {
 	hook_resolver.Event
 	StreamCollection *StreamCollection `json:"streamCollection"`
+}
+
+////////////////////////////////////////
+
+// AnimeEntryDownloadInfoRequestedEvent is triggered when the app requests the download info for a media entry.
+// This is triggered before [AnimeEntryDownloadInfoEvent].
+type AnimeEntryDownloadInfoRequestedEvent struct {
+	hook_resolver.Event
+	LocalFiles    []*LocalFile `json:"localFiles"`
+	AnimeMetadata *metadata.AnimeMetadata
+	Media         *anilist.BaseAnime
+	Progress      *int
+	Status        *anilist.MediaListStatus
+	// Empty download info object, will be used if the hook prevents the default behavior
+	EntryDownloadInfo *EntryDownloadInfo `json:"entryDownloadInfo"`
+}
+
+// AnimeEntryDownloadInfoEvent is triggered when the download info is being returned.
+type AnimeEntryDownloadInfoEvent struct {
+	hook_resolver.Event
+	EntryDownloadInfo *EntryDownloadInfo `json:"entryDownloadInfo"`
 }

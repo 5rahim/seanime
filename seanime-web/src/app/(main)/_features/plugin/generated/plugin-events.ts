@@ -65,10 +65,10 @@ export enum PluginServerEvents {
     DOMQuery = "dom:query",
     DOMQueryOne = "dom:query-one",
     DOMObserve = "dom:observe",
-    DOMObserveInView = "dom:observe-in-view",
     DOMStopObserve = "dom:stop-observe",
     DOMCreate = "dom:create",
     DOMManipulate = "dom:manipulate",
+    DOMObserveInView = "dom:observe-in-view",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

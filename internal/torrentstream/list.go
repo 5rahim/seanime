@@ -3,10 +3,12 @@ package torrentstream
 import (
 	"cmp"
 	"fmt"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"slices"
+
+	"github.com/samber/lo"
 )
 
 type (
@@ -21,6 +23,19 @@ type (
 //
 // Note: This is also used by the Debrid streaming view.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
+
+	reqEvent := &TorrentStreamEpisodeCollectionRequestedEvent{
+		MediaId:           mId,
+		EpisodeCollection: &EpisodeCollection{},
+	}
+	err = hook.GlobalHookManager.OnTorrentStreamEpisodeCollectionRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	if reqEvent.DefaultPrevented {
+		return reqEvent.EpisodeCollection, nil
+	}
 
 	// Get the media info, this is cached
 	// Note: animeMetadata is always defined, even if it's not found on AniDB
@@ -105,6 +120,16 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	slices.SortStableFunc(ec.Episodes, func(i, j *anime.Episode) int {
 		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
+
+	event := &TorrentStreamEpisodeCollectionEvent{
+		EpisodeCollection: ec,
+	}
+	err = hook.GlobalHookManager.OnTorrentStreamEpisodeCollection().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	ec = event.EpisodeCollection
 
 	r.setEpisodeCollection(ec)
 

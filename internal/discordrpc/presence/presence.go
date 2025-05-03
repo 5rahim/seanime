@@ -309,6 +309,13 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 		Time: endTime,
 	}
 	event.EndTimestamp = lo.ToPtr(endTime.Unix())
+
+	// Hide the end timestamp if the anime is paused
+	if a.Paused {
+		activity.Timestamps.End = nil
+		event.EndTimestamp = nil
+	}
+
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -429,7 +436,10 @@ func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) 
 			// p.logger.Debug().Msgf("discordrpc: Stopping activity for %s", p.animeActivity.Title)
 			// Stop the current activity if paused
 			// but do not erase the current activity
-			p.close()
+			// p.close()
+
+			// edit: just switch to default timestamp
+			p.SetAnimeActivity(p.animeActivity)
 		} else {
 			// p.logger.Debug().Msgf("discordrpc: Restarting activity for %s", p.animeActivity.Title)
 			// Restart the current activity if unpaused

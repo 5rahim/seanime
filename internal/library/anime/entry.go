@@ -174,18 +174,19 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 			return nil, err
 		}
 
-		event := new(AnimeEntryEvent)
-		event.Entry = &Entry{
-			MediaId:             simpleAnimeEntry.MediaId,
-			Media:               simpleAnimeEntry.Media,
-			EntryListData:       simpleAnimeEntry.EntryListData,
-			EntryLibraryData:    simpleAnimeEntry.EntryLibraryData,
-			EntryDownloadInfo:   nil,
-			Episodes:            simpleAnimeEntry.Episodes,
-			NextEpisode:         simpleAnimeEntry.NextEpisode,
-			LocalFiles:          simpleAnimeEntry.LocalFiles,
-			AnidbId:             0,
-			CurrentEpisodeCount: simpleAnimeEntry.CurrentEpisodeCount,
+		event := &AnimeEntryEvent{
+			Entry: &Entry{
+				MediaId:             simpleAnimeEntry.MediaId,
+				Media:               simpleAnimeEntry.Media,
+				EntryListData:       simpleAnimeEntry.EntryListData,
+				EntryLibraryData:    simpleAnimeEntry.EntryLibraryData,
+				EntryDownloadInfo:   nil,
+				Episodes:            simpleAnimeEntry.Episodes,
+				NextEpisode:         simpleAnimeEntry.NextEpisode,
+				LocalFiles:          simpleAnimeEntry.LocalFiles,
+				AnidbId:             0,
+				CurrentEpisodeCount: simpleAnimeEntry.CurrentEpisodeCount,
+			},
 		}
 		err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
 		if err != nil {
@@ -218,8 +219,9 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	// Create episode entities
 	entry.hydrateEntryEpisodeData(anilistEntry, animeMetadata, opts.MetadataProvider)
 
-	event := new(AnimeEntryEvent)
-	event.Entry = entry
+	event := &AnimeEntryEvent{
+		Entry: entry,
+	}
 	err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
 	if err != nil {
 		return nil, err

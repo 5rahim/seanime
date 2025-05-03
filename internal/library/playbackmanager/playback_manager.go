@@ -293,6 +293,44 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	return nil
 }
 
+// StartUntrackedStreamingUsingMediaPlayer starts a stream using the media player without any tracking.
+func (pm *PlaybackManager) StartUntrackedStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartUntrackedStreamingUsingMediaPlayer", &err)
+
+	event := &StreamPlaybackRequestedEvent{
+		WindowTitle:  windowTitle,
+		Payload:      opts.Payload,
+		Media:        nil,
+		AniDbEpisode: "",
+	}
+	err = hook.GlobalHookManager.OnStreamPlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Stream playback prevented by hook")
+		return nil
+	}
+
+	pm.Logger.Trace().Msg("playback manager: Starting the media player")
+
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	episodeNumber := 0
+
+	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, 0, windowTitle)
+	if err != nil {
+		pm.Logger.Error().Err(err).Msg("playback manager: Failed to start streaming")
+		return err
+	}
+
+	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
+
+	return nil
+}
+
 // StartStreamingUsingMediaPlayer starts streaming a video using the media player.
 // This sets PlaybackManager.currentStreamMedia and PlaybackManager.currentStreamEpisode used for progress tracking.
 // Note that PlaybackManager.currentStreamEpisodeCollection is not required to start streaming but is needed for progress tracking.

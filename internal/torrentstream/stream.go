@@ -188,6 +188,60 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	return nil
 }
 
+type StartUntrackedStreamOptions struct {
+	Magnet       string
+	FileIndex    int
+	WindowTitle  string
+	UserAgent    string
+	ClientId     string
+	PlaybackType PlaybackType
+}
+
+func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartUntrackedStream", &err)
+
+	if opts.Magnet == "" {
+		return fmt.Errorf("torrentstream: No magnet provided")
+	}
+
+	switch opts.PlaybackType {
+	case PlaybackTypeDefault:
+		//
+		// Start the stream
+		//
+		r.logger.Debug().Msg("torrentstream: Starting the media player	")
+		err = r.playbackManager.StartUntrackedStreamingUsingMediaPlayer(opts.WindowTitle, &playbackmanager.StartPlayingOptions{
+			Payload:   opts.Magnet,
+			UserAgent: opts.UserAgent,
+			ClientId:  opts.ClientId,
+		})
+		if err != nil {
+			// Failed to start the stream, we'll drop the torrents and stop the server
+			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+			_ = r.StopStream()
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+		}
+
+	case PlaybackTypeExternalPlayer:
+		// Send the external player link
+		r.wsEventManager.SendEvent(events.ExternalPlayerOpenURL, struct {
+			Url           string `json:"url"`
+			MediaId       int    `json:"mediaId"`
+			EpisodeNumber int    `json:"episodeNumber"`
+		}{
+			Url:           r.client.GetStreamingUrl(),
+			MediaId:       0,
+			EpisodeNumber: 0,
+		})
+
+		// Signal to the client that the torrent has started playing (remove loading status)
+		// We can't know for sure
+		r.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
+	}
+
+	return nil
+}
+
 func (r *Repository) StopStream() error {
 	defer func() {
 		if r := recover(); r != nil {
@@ -225,23 +279,6 @@ func (r *Repository) StopStream() error {
 
 	return nil
 }
-
-//func (r *Repository) StopStream() error {
-//	defer func() {
-//		if r := recover(); r != nil {
-//		}
-//	}()
-//	r.logger.Info().Msg("torrentstream: Stopping stream")
-//
-//	// Stop the client
-//	// This will stop the stream and close the server
-//	// This also sends the eventTorrentStopped event
-//	close(r.client.stopCh)
-//
-//	r.logger.Info().Msg("torrentstream: Stream stopped")
-//
-//	return nil
-//}
 
 func (r *Repository) DropTorrent() error {
 	r.logger.Info().Msg("torrentstream: Dropping last torrent")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"strconv"
 
 	"github.com/samber/lo"
@@ -44,6 +45,30 @@ type (
 // NewEntryDownloadInfo returns a list of episodes to download or episodes for the torrent/debrid streaming views
 // based on the options provided.
 func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo, error) {
+
+	reqEvent := &AnimeEntryDownloadInfoRequestedEvent{
+		LocalFiles:        opts.LocalFiles,
+		AnimeMetadata:     opts.AnimeMetadata,
+		Media:             opts.Media,
+		Progress:          opts.Progress,
+		Status:            opts.Status,
+		EntryDownloadInfo: &EntryDownloadInfo{},
+	}
+
+	err := hook.GlobalHookManager.OnAnimeEntryDownloadInfoRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	if reqEvent.DefaultPrevented {
+		return reqEvent.EntryDownloadInfo, nil
+	}
+
+	opts.LocalFiles = reqEvent.LocalFiles
+	opts.AnimeMetadata = reqEvent.AnimeMetadata
+	opts.Media = reqEvent.Media
+	opts.Progress = reqEvent.Progress
+	opts.Status = reqEvent.Status
 
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
 		return &EntryDownloadInfo{}, nil
@@ -214,14 +239,24 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 		rewatch = true
 	}
 
-	return &EntryDownloadInfo{
+	downloadInfo := &EntryDownloadInfo{
 		EpisodesToDownload:    episodesToDownload,
 		CanBatch:              canBatch,
 		BatchAll:              batchAll,
 		Rewatch:               rewatch,
 		HasInaccurateSchedule: hasInaccurateSchedule,
 		AbsoluteOffset:        opts.AnimeMetadata.GetOffset(),
-	}, nil
+	}
+
+	event := &AnimeEntryDownloadInfoEvent{
+		EntryDownloadInfo: downloadInfo,
+	}
+	err = hook.GlobalHookManager.OnAnimeEntryDownloadInfo().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event.EntryDownloadInfo, nil
 }
 
 type episodeSliceItem struct {
