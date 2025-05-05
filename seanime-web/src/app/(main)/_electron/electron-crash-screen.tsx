@@ -11,8 +11,8 @@ export function ElectronCrashScreenError() {
                 <Button
                     intent="primary-outline"
                     onClick={() => {
-                        if (window.electron) {
-                            window.electron.send("restart-app")
+                        if ((window as any).electron) {
+                            (window as any).electron.send("restart-app")
                         }
                     }}
                 >
@@ -21,8 +21,8 @@ export function ElectronCrashScreenError() {
                 <Button
                     intent="alert-subtle"
                     onClick={() => {
-                        if (window.electron) {
-                            window.electron.send("quit-app")
+                        if ((window as any).electron) {
+                            (window as any).electron.send("quit-app")
                         }
                     }}
                 >
