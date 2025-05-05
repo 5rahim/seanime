@@ -3,6 +3,7 @@ import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.a
 import { TauriRestartServerPrompt } from "@/app/(main)/_tauri/tauri-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { logger } from "@/lib/helpers/debug"
+import { __isTauriDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -259,7 +260,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     return (
         <>
             {openDrawers.length > 0 && <RemoveScrollBar />}
-            {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && (
+            {__isTauriDesktop__ && (
                 <TauriRestartServerPrompt />
             )}
             <WebSocketContext.Provider value={socket}>

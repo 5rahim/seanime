@@ -1,5 +1,7 @@
+import { __isDesktop__ } from "@/types/constants"
+
 export function getExternalPlayerURL(externalPlayerLink: string, url: string): string {
-    if (process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
+    if (__isDesktop__) {
         let retUrl = externalPlayerLink.replace("{url}", url)
         if (externalPlayerLink.startsWith("intent://")) {
             // e.g. "intent://localhost:43214/stream/...#Intent;package=org.videolan.vlc;scheme=http;end"

@@ -1,6 +1,7 @@
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Button } from "@/components/ui/button"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { __isDesktop__ } from "@/types/constants"
 import Image from "next/image"
 import React from "react"
 
@@ -16,7 +17,7 @@ export function LoadingOverlayWithLogo({ refetch, title }: { refetch?: () => voi
         />
         <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={title ?? "S e a n i m e"} />
 
-        {(process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !!refetch) && (
+        {(__isDesktop__ && !!refetch) && (
             <Button
                 onClick={() => window.location.reload()}
                 className="mt-4"

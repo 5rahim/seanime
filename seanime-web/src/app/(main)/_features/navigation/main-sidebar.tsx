@@ -2,6 +2,7 @@
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
+import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { useOpenSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -27,6 +28,7 @@ import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -140,7 +142,7 @@ export function MainSidebar() {
                         itemClass="relative"
 
                         items={[
-                            // ...[process.env.NEXT_PUBLIC_PLATFORM === "desktop" && {
+                            // ...[__isDesktop__ && {
                             //     iconType: AiOutlineArrowLeft,
                             //     name: "Back",
                             //     onClick: () => {
@@ -238,7 +240,7 @@ export function MainSidebar() {
                         handleExpandSidebar={() => {}}
                         handleUnexpandedSidebar={() => {}}
                     />
-                    {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="w-full flex justify-center px-4">
+                    {__isDesktop__ && <div className="w-full flex justify-center px-4">
                         <HoverCard
                             side="right"
                             sideOffset={-8}
@@ -267,8 +269,10 @@ export function MainSidebar() {
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
-                    {process.env.NEXT_PUBLIC_PLATFORM !== "desktop" ? <UpdateModal collapsed={isCollapsed} /> :
-                        <TauriUpdateModal collapsed={isCollapsed} />}
+                    {!__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
+                        __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
+                            __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
+                                null}
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}

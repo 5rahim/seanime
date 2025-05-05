@@ -19,8 +19,9 @@ _docker-compose.yml
 logs
 web/
 web-desktop/
+web-denshi/
 out/
-assets/
+./assets/
 
 test/testdata/**/*.json
 test/sample
@@ -46,6 +47,7 @@ seanime-parser/.git
 seanime-web/node_modules
 seanime-web/out
 seanime-web/out-desktop
+seanime-web/out-denshi
 seanime-web/web
 seanime-web/.next
 seanime-web/.idea

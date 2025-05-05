@@ -19,6 +19,7 @@ import {
     useThemeSettings,
 } from "@/lib/theme/hooks"
 import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
+import { __isDesktop__ } from "@/types/constants"
 import { colord } from "colord"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -517,7 +518,7 @@ export function UISettings() {
 
                                 <Field.Switch
                                     side="right"
-                                    label={process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? "Hide top navbar (Web interface)" : "Hide top navbar"}
+                                    label={__isDesktop__ ? "Hide top navbar (Web interface)" : "Hide top navbar"}
                                     name="hideTopNavbar"
                                     help="Switches to sidebar-only mode."
                                 />

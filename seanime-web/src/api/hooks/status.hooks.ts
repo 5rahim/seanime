@@ -3,6 +3,7 @@ import { DeleteLogs_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Status } from "@/api/generated/types"
 import { copyToClipboard } from "@/lib/helpers/browser"
+import { __isDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -16,7 +17,7 @@ export function useGetStatus() {
         // Fixes macOS desktop app startup issue
         retry: 6,
         // Mute error if the platform is desktop
-        muteError: process.env.NEXT_PUBLIC_PLATFORM === "desktop",
+        muteError: __isDesktop__,
     })
 }
 

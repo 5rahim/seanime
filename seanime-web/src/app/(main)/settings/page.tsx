@@ -26,6 +26,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
+import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -121,7 +122,7 @@ export default function Page() {
                                 <div className="space-y-1 my-2 px-2">
                                     <h4 className="text-center md:text-left">Settings</h4>
                                     <p className="text-[--muted] text-sm text-center md:text-left">Version: {status?.version} {status?.versionName}</p>
-                                    <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {process.env.NEXT_PUBLIC_PLATFORM === "desktop" &&
+                                    <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isDesktop__ &&
                                         <span className="text-[--muted]">(Desktop)</span>}</p>
                                 </div>
                                 <div>

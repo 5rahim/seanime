@@ -1,4 +1,5 @@
 import { cn } from "@/components/ui/core/styling"
+import { __isDesktop__ } from "@/types/constants"
 import Link, { LinkProps } from "next/link"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -16,7 +17,7 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
 
     const router = useRouter()
 
-    if (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && rest.target !== "_blank") {
+    if (__isDesktop__ && rest.target !== "_blank") {
         return (
             <a
                 className={cn(

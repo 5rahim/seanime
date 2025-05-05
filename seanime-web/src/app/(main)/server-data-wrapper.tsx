@@ -10,6 +10,7 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
+import { __isDesktop__ } from "@/types/constants"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -108,7 +109,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         return <LuffyError title="Transcoding not enabled" />
     }
 
-    if (!serverStatus?.user && host === "127.0.0.1:43211" && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") {
+    if (!serverStatus?.user && host === "127.0.0.1:43211" && !__isDesktop__) {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>

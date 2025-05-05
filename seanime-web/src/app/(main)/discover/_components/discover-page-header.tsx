@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { __isDesktop__ } from "@/types/constants"
 import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -67,8 +68,8 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
             data-discover-page-header-carousel-dots
             className={cn(
                 "absolute hidden lg:flex items-center justify-center gap-2 z-[10] pl-8",
-                ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-[4rem]",
-                process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[2rem]",
+                ts.hideTopNavbar && !__isDesktop__ && "top-[4rem]",
+                __isDesktop__ && "top-[2rem]",
                 pathname === "/" && "hidden lg:hidden",
                 className,
             )}
@@ -148,8 +149,8 @@ export function DiscoverPageHeader() {
                 ts.hideTopNavbar && "lg:h-[32rem]",
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
                 (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",
-                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "lg:h-[32rem]",
-                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "lg:h-[33rem]",
+                // (__isDesktop__ && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "lg:h-[32rem]",
+                // (__isDesktop__ && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "lg:h-[33rem]",
             )}
             {...{
                 initial: { opacity: 0 },
@@ -166,7 +167,7 @@ export function DiscoverPageHeader() {
                 className={cn(
                     "lg:h-[35rem] w-full overflow-hidden flex-none object-cover object-center absolute top-0 bg-[--background]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
-                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[-2rem]",
+                    __isDesktop__ && "top-[-2rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
                 )}
             >
@@ -280,8 +281,8 @@ export function DiscoverPageHeader() {
                             ts.hideTopNavbar && "top-[4rem]",
                             ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "top-[4rem]",
                             (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "top-[2rem]",
-                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
-                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
+                            (__isDesktop__ && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
+                            (__isDesktop__ && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
                         )}
                         data-media-id={randomTrending?.id}
                         data-media-mal-id={randomTrending?.idMal}
