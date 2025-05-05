@@ -10,7 +10,7 @@ build-denshi:
 	rm -rf ../web-denshi
 	npm run build:denshi
 	cp -r out-denshi ../web-denshi
-	rm -rf ../seanime-electron/web-denshi
-	cp -r ../web-denshi ../seanime-electron/web-denshi
+	rm -rf ../seanime-denshi/web-denshi
+	cp -r ../web-denshi ../seanime-denshi/web-denshi
 
 .PHONY: build-web build-denshi
