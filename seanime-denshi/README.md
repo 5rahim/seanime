@@ -1,35 +1,123 @@
-# Seanime Denshi
+<p align="center">
+<img src="../seanime-web/public/logo_2.png" alt="preview" width="150px"/>
+</p>
 
-Electron-based desktop client for Seanime.
+<h2 align="center"><b>Seanime Denshi</b></h2>
 
-## TODO
+<p align="center">
+Electron-based desktop client for Seanime. Embeds server and web interface. Successor to Seanime Desktop.
+</p>
 
-- [ ] Built-in video player for streaming and local media
-  - Subtitle extraction
-  - Thumbnail generation
+<p align="center">
+<img src="../docs/images/4/anime-entry-torrent-stream--sq.jpg" alt="preview" width="70%"/>
+</p>
+
+---
+
+## Prerequisites
+
+- Go 1.24+
+- Node.js 20+ and npm
+
+---
 
 ## Development
 
-### Prerequisites
+### Web Interface
 
-- Node.js 18+
-- Yarn or npm
+```shell
+# Working dir: ./seanime-web
+npm run dev:denshi
+```
+ 
+### Sidecar
 
-### Setup
+1. Build the server
 
-1. Place the appropriate Seanime server binaries in the `binaries` folder:
+	```shell
+	# Working dir: .
+ 
+	# Windows
+	go build -o seanime.exe -trimpath -ldflags="-s -w" -tags=nosystray
+ 
+	# Linux, macOS
+	go build -o seanime -trimpath -ldflags="-s -w"
+	```
+ 
+2. Move the binary to `./seanime-denshi/binaries`
+
+3. Rename the binary:
+
    - For Windows: `seanime-server-windows.exe`
    - For macOS/Intel: `seanime-server-darwin-amd64`
    - For macOS/ARM: `seanime-server-darwin-arm64`
    - For Linux/x86_64: `seanime-server-linux-amd64`
    - For Linux/ARM64: `seanime-server-linux-arm64`
 
-2. Start the development server:
-   ```
-   npm run dev
+### Electron
+
+1. Setup
+
+	```shell
+	# Working dir: ./seanime-denshi
+	npm install
+	```
+
+2. Run
+
+    `TEST_DATADIR` can be used in development mode, it should point to a dummy data directory for testing purposes.
+
+    ```shell
+    # Working dir: ./seanime-desktop
+    TEST_DATADIR="/path/to/data/dir" npm run dev
    ```
 
-### Building
+---
+
+## Build
+
+### Web Interface
+   
+```shell
+# Working dir: ./seanime-web
+npm run build
+npm run build:denshi
+```
+
+Move the output `./seanime-web/out` to `./web`
+Move the output `./seanime-web/out-denshi` to `./seanime-denshi/web-denshi`
+
+```shell
+# UNIX command
+mv ./seanime-web/out ./web
+mv ./seanime-web/out-denshi ./seanime-denshi/web-denshi
+```
+
+### Sidecar
+
+1. Build the server
+
+	```shell
+	# Working dir: .
+ 
+	# Windows
+	go build -o seanime.exe -trimpath -ldflags="-s -w" -tags=nosystray
+ 
+	# Linux, macOS
+	go build -o seanime -trimpath -ldflags="-s -w"
+	```
+ 
+2. Move the binary to `./seanime-denshi/binaries`
+
+3. Rename the binary:
+
+   - For Windows: `seanime-server-windows.exe`
+   - For macOS/Intel: `seanime-server-darwin-amd64`
+   - For macOS/ARM: `seanime-server-darwin-arm64`
+   - For Linux/x86_64: `seanime-server-linux-amd64`
+   - For Linux/ARM64: `seanime-server-linux-arm64`
+
+### Electron
 
 To build the desktop client for all platforms:
 
@@ -45,10 +133,4 @@ npm run build:win
 npm run build:linux
 ```
 
-## Structure
-
-- `src/` - Electron application code
-  - `main.js` - Main process entry point
-  - `preload.js` - Preload script for renderer processes
-- `binaries/` - Contains the Seanime server binaries
-- `assets/` - Contains application assets like icons
+Output is in `./seanime-denshi/dist/...`
