@@ -21,6 +21,26 @@ Electron-based desktop client for Seanime. Embeds server and web interface. Succ
 
 ---
 
+## Seanime Denshi vs Seanime Desktop
+
+Pros:
+- Linux support
+- Better consistency accross platforms (fewer bugs)
+- Built-in player support for torrent/debrid streaming without transcoding
+
+Cons:
+- Greater memory usage
+- Larger binary size (from ~80mb to ~300mb)
+
+## TODO
+
+- [ ] Built-in player
+   - Server: Stream subtitle extraction, thumbnail generation
+- [ ] Testing on Windows (Fix titlebar in fullscreen)
+- [ ] Fix crash screen
+- [ ] Test server reconnection
+- [ ] Test updates, auto updates
+
 ## Development
 
 ### Web Interface
