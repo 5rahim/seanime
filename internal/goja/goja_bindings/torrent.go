@@ -7,9 +7,6 @@ import (
 )
 
 func BindTorrentUtils(vm *goja.Runtime) error {
-	// TODO: Remove this once the deprecated function is removed
-	vm.Set("getMagnetLinkFromTorrentData", getMagnetLinkFromTorrentDataFunc(vm))
-
 	torrentUtils := vm.NewObject()
 	torrentUtils.Set("getMagnetLinkFromTorrentData", getMagnetLinkFromTorrentDataFunc(vm))
 	vm.Set("$torrentUtils", torrentUtils)

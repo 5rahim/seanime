@@ -43,6 +43,7 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
@@ -336,6 +337,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.initModulesOnce()
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		IsOffline:               lo.ToPtr(app.IsOffline()),
 		ContinuityManager:       app.ContinuityManager,
 		AutoScanner:             app.AutoScanner,
 		AutoDownloader:          app.AutoDownloader,

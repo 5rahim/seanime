@@ -42,6 +42,17 @@ type AsyncCmd struct {
 	vm         *goja.Runtime
 }
 
+type CmdHelper struct {
+	cmd *exec.Cmd
+
+	stdout io.ReadCloser
+	stderr io.ReadCloser
+
+	appContext *AppContextImpl
+	scheduler  *goja_util.Scheduler
+	vm         *goja.Runtime
+}
+
 // BindSystem binds the system module to the Goja runtime.
 // Permissions needed: system + allowlist
 func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
@@ -941,6 +952,14 @@ func (c *AsyncCmd) Run(callback goja.Callable) error {
 
 	return nil
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (c *CmdHelper) Run(callback goja.Callable) error {
+	return nil
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // // OnData registers a callback to be called when data is available from the command's stdout
 // func (c *AsyncCmd) OnData(callback func(data []byte)) error {

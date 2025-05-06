@@ -86,6 +86,8 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		}
 	}
 
+	vm.Set("__isOffline__", plugin.GlobalAppContext.IsOffline())
+
 	vm.Set("$toString", func(raw any, maxReaderBytes int) (string, error) {
 		switch v := raw.(type) {
 		case io.Reader:
@@ -195,12 +197,18 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return instanceValue
 	})
 
+	//
+	// Habari
+	//
 	habariObj := vm.NewObject()
 	_ = habariObj.Set("parse", func(filename string) *habari.Metadata {
 		return habari.Parse(filename)
 	})
 	vm.Set("$habari", habariObj)
 
+	//
+	// Anime Utils
+	//
 	animeUtilsObj := vm.NewObject()
 	_ = animeUtilsObj.Set("newLocalFileWrapper", func(lfs []*anime.LocalFile) *anime.LocalFileWrapper {
 		return anime.NewLocalFileWrapper(lfs)

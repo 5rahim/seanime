@@ -401,10 +401,14 @@ function createMainWindow() {
         windowOptions.titleBarStyle = 'hiddenInset';
     }
 
+    if (process.platform === 'win32') {
+        windowOptions.titleBarStyle = 'hidden';
+    }
+
     mainWindow = new BrowserWindow(windowOptions);
 
     // Hide the title bar on Windows
-    if (process.platform === 'win32') {
+    if (process.platform === 'win32' || process.platform === 'linux') {
         mainWindow.setMenuBarVisibility(false);
     }
 

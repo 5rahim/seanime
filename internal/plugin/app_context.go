@@ -28,6 +28,7 @@ import (
 )
 
 type AppContextModules struct {
+	IsOffline                       *bool
 	Database                        *db.Database
 	AnimeLibraryPaths               *[]string
 	AnilistPlatform                 platform.Platform
@@ -63,6 +64,8 @@ type AppContext interface {
 	MediaPlayerRepository() mo.Option[*mediaplayer.Repository]
 	AnilistPlatform() mo.Option[platform.Platform]
 	WSEventManager() mo.Option[events.WSEventManagerInterface]
+
+	IsOffline() bool
 
 	BindApp(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindStorage binds $storage to the Goja runtime
@@ -154,6 +157,7 @@ type AppContextImpl struct {
 	fileCacher                      mo.Option[*filecache.Cacher]
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
+	isOffline                       bool
 }
 
 func NewAppContext() AppContext {
@@ -179,9 +183,14 @@ func NewAppContext() AppContext {
 		fileCacher:                      mo.None[*filecache.Cacher](),
 		onRefreshAnilistAnimeCollection: mo.None[func()](),
 		onRefreshAnilistMangaCollection: mo.None[func()](),
+		isOffline:                       false,
 	}
 
 	return appCtx
+}
+
+func (a *AppContextImpl) IsOffline() bool {
+	return a.isOffline
 }
 
 func (a *AppContextImpl) SetLogger(logger *zerolog.Logger) {
@@ -209,6 +218,10 @@ func (a *AppContextImpl) WSEventManager() mo.Option[events.WSEventManagerInterfa
 }
 
 func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
+	if modules.IsOffline != nil {
+		a.isOffline = *modules.IsOffline
+	}
+
 	if modules.Database != nil {
 		a.database = mo.Some(modules.Database)
 	}
