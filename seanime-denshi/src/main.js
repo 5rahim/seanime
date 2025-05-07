@@ -189,7 +189,7 @@ autoUpdater.on('error', (err) => {
 function createTray() {
     let iconPath = path.join(__dirname, '../assets/icon.png');
     if (process.platform === 'darwin') {
-        iconPath = path.join(__dirname, '../assets/32x32.png');
+        iconPath = path.join(__dirname, '../assets/18x18.png');
     }
     tray = new Tray(iconPath);
 
