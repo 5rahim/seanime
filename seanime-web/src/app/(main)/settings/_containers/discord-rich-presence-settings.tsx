@@ -64,6 +64,13 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
                     label="Show AniList Profile Button"
                     help="Show a button to open your profile page on AniList."
                 />
+
+                <Field.Switch
+                    side="right"
+                    name="richPresenceUseMediaTitleStatus"
+                    label="Use Media Title Status"
+                    help="Replace 'Seanime' with the media title for the status"
+                />
             </SettingsCard>
         </>
     )

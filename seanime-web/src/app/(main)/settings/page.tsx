@@ -229,6 +229,7 @@ export default function Page() {
                                         richPresenceHideSeanimeRepositoryButton: data?.richPresenceHideSeanimeRepositoryButton ?? false,
                                         richPresenceShowAniListMediaButton: data?.richPresenceShowAniListMediaButton ?? false,
                                         richPresenceShowAniListProfileButton: data?.richPresenceShowAniListProfileButton ?? false,
+                                        richPresenceUseMediaTitleStatus: data?.richPresenceUseMediaTitleStatus ?? false,
                                     },
                                     anilist: {
                                         hideAudienceScore: data.hideAudienceScore,
@@ -293,6 +294,7 @@ export default function Page() {
                                 richPresenceHideSeanimeRepositoryButton: status?.settings?.discord?.richPresenceHideSeanimeRepositoryButton ?? false,
                                 richPresenceShowAniListMediaButton: status?.settings?.discord?.richPresenceShowAniListMediaButton ?? false,
                                 richPresenceShowAniListProfileButton: status?.settings?.discord?.richPresenceShowAniListProfileButton ?? false,
+                                richPresenceUseMediaTitleStatus: status?.settings?.discord?.richPresenceUseMediaTitleStatus ?? false,
                                 disableNotifications: status?.settings?.notifications?.disableNotifications ?? false,
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                                 disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,

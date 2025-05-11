@@ -222,6 +222,7 @@ func (p *Presence) check() (proceed bool) {
 
 var (
 	defaultActivity = discordrpc_client.Activity{
+		Name:    "Seanime",
 		Details: "",
 		State:   "",
 		Assets: &discordrpc_client.Assets{
@@ -296,6 +297,11 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 
+	// Set status using the Anime title
+	if p.settings.RichPresenceUseMediaTitleStatus {
+		activity.Name = a.Title
+	}
+
 	// Calculate the start time
 	startTime := time.Now()
 	if a.Progress > 0 {
@@ -344,6 +350,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	p.animeActivity = a
 
 	event.AnimeActivity = a
+	event.Name = activity.Name
 	event.Details = a.Title
 	event.State = state
 	event.LargeImage = a.Image
@@ -361,6 +368,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	// Update the activity
+	activity.Name = event.Name
 	activity.Details = event.Details
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage
@@ -557,6 +565,12 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
+
+	// Set status using the Manga title
+	if p.settings.RichPresenceUseMediaTitleStatus {
+		activity.Name = a.Title
+	}
+
 	now := time.Now()
 	activity.Timestamps.Start.Time = now
 	event.StartTimestamp = lo.ToPtr(now.Unix())
@@ -586,6 +600,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	event.MangaActivity = a
+	event.Name = activity.Name
 	event.Details = a.Title
 	event.State = activity.State
 	event.LargeImage = activity.Assets.LargeImage
@@ -603,6 +618,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	// Update the activity
+	activity.Name = event.Name
 	activity.Details = event.Details
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage
