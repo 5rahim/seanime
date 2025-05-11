@@ -298,7 +298,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Assets.LargeText = a.Title
 
 	// Set status using the Anime title
-	if p.settings.RichPresenceStatusTitle {
+	if p.settings.RichPresenceUseMediaTitleStatus {
 		activity.Name = a.Title
 	}
 
@@ -565,12 +565,11 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
-	activity.Type = 0 // Force playing activity for manga
 
 	// Set status using the Manga title
-	//if p.settings.RichPresenceStatusTitle {
-	//	activity.Name = a.Title
-	//}
+	if p.settings.RichPresenceUseMediaTitleStatus {
+		activity.Name = a.Title
+	}
 
 	now := time.Now()
 	activity.Timestamps.Start.Time = now

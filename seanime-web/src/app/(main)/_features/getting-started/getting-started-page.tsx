@@ -112,7 +112,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         richPresenceHideSeanimeRepositoryButton: false,
                                         richPresenceShowAniListMediaButton: false,
                                         richPresenceShowAniListProfileButton: false,
-                                        richPresenceStatusTitle: false,
+                                        richPresenceUseMediaTitleStatus: false,
                                     },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,

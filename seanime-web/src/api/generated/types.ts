@@ -2934,7 +2934,7 @@ export type Models_DiscordSettings = {
     richPresenceHideSeanimeRepositoryButton: boolean
     richPresenceShowAniListMediaButton: boolean
     richPresenceShowAniListProfileButton: boolean
-    richPresenceStatusTitle: boolean
+    richPresenceUseMediaTitleStatus: boolean
 }
 
 /**

@@ -67,9 +67,9 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
 
                 <Field.Switch
                     side="right"
-                    name="richPresenceStatusTitle"
-                    label="Use Anime Title For Status"
-                    help="Use anime title for status instead of Seanime."
+                    name="richPresenceUseMediaTitleStatus"
+                    label="Use Media Title Status"
+                    help="Replace 'Seanime' with the media title for the status"
                 />
             </SettingsCard>
         </>
