@@ -154,7 +154,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                     ref={episodeListContainerRef}
                     data-sea-media-player-layout-content-episode-list
                     className={cn(
-                        "2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0",
+                        "2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0 -mt-3",
                         theaterMode && "2xl:max-w-full",
                     )}
                 >

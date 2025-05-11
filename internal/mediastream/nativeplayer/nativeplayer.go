@@ -1,0 +1,135 @@
+package nativeplayer
+
+import (
+	"seanime/internal/events"
+	"seanime/internal/mediastream/mkvparser"
+	"seanime/internal/util/result"
+	"sync"
+
+	"github.com/samber/mo"
+)
+
+type StreamType string
+
+const (
+	StreamTypeTorrent StreamType = "torrent"
+	StreamTypeFile    StreamType = "localfile"
+	StreamTypeDebrid  StreamType = "debrid"
+)
+
+type (
+	PlaybackInfo struct {
+		StreamType  StreamType          `json:"streamType"`
+		Mimetype    string              `json:"mimetype"`
+		StreamUrl   string              `json:"streamUrl"`
+		MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"`
+
+		OptionalMkvMetadata mo.Option[*mkvparser.Metadata] `json:"-"`
+	}
+)
+
+type (
+	// NativePlayer is the built-in HTML5 video player in Seanime.
+	// There can only be one instance of this player at a time.
+	NativePlayer struct {
+		wsEventManager              events.WSEventManagerInterface
+		clientPlayerEventSubscriber *events.ClientEventSubscriber
+
+		playbackStatusMu sync.RWMutex
+		playbackStatus   *PlaybackStatus
+
+		subscribers *result.Map[string, *Subscriber]
+	}
+
+	PlaybackStatus struct {
+		Url         string
+		Paused      bool
+		CurrentTime float64
+		Duration    float64
+	}
+
+	// Subscriber listens to the player events
+	Subscriber struct {
+		eventCh chan interface{}
+	}
+
+	NewNativePlayerOptions struct {
+		WsEventManager events.WSEventManagerInterface
+	}
+)
+
+// New returns a new instance of NativePlayer.
+func New(options NewNativePlayerOptions) *NativePlayer {
+	np := &NativePlayer{
+		wsEventManager:              options.WsEventManager,
+		clientPlayerEventSubscriber: options.WsEventManager.SubscribeToClientNativePlayerEvents("nativeplayer"),
+		subscribers:                 result.NewResultMap[string, *Subscriber](),
+	}
+
+	np.listenToClientEvents()
+
+	return np
+}
+
+// sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
+func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}) {
+	p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
+		Type    string      `json:"type"`
+		Payload interface{} `json:"payload"`
+	}{
+		Type:    t,
+		Payload: payload,
+	})
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Subscribe lets other modules subscribe to the native player events
+func (p *NativePlayer) Subscribe(id string) *Subscriber {
+	subscriber := &Subscriber{
+		eventCh: make(chan interface{}, 10),
+	}
+	p.subscribers.Set(id, subscriber)
+
+	return subscriber
+}
+
+// Unsubscribe removes a subscriber from the player.
+func (p *NativePlayer) Unsubscribe(id string) {
+	p.subscribers.Delete(id)
+}
+
+func (p *NativePlayer) NotifySubscribers(event interface{}) {
+	p.subscribers.Range(func(id string, subscriber *Subscriber) bool {
+		select {
+		case subscriber.eventCh <- event:
+		default:
+			// If the channel is full, skip sending the event
+		}
+		return true
+	})
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GetPlaybackStatus returns the current playback status of the player.
+func (p *NativePlayer) GetPlaybackStatus() *PlaybackStatus {
+	p.playbackStatusMu.RLock()
+	defer p.playbackStatusMu.RUnlock()
+	return p.playbackStatus
+}
+
+func (p *NativePlayer) SetPlaybackStatus(status *PlaybackStatus) {
+	p.setPlaybackStatus(func() {
+		p.playbackStatus = status
+	})
+}
+
+// setPlaybackStatus sets the current playback status of the player
+// and notifies all subscribers of the change.
+func (p *NativePlayer) setPlaybackStatus(do func()) {
+	p.playbackStatusMu.Lock()
+	defer p.playbackStatusMu.Unlock()
+	do()
+	p.NotifySubscribers(p.playbackStatus)
+}

@@ -1,5 +1,5 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
-import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
+import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
@@ -45,7 +45,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     /**
      * Get all episodes to watch
      */
-    const { data: episodeCollection, isLoading } = useGetTorrentstreamEpisodeCollection(entry.mediaId)
+    const { data: episodeCollection, isLoading } = useGetAnimeEpisodeCollection(entry.mediaId)
 
     React.useLayoutEffect(() => {
         // Set auto-select to the server status value

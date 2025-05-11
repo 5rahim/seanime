@@ -10,6 +10,7 @@ import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
+import { NativePlayer } from "../native-player/native-player"
 import { SeaCommand } from "../sea-command/sea-command"
 
 type OfflineLayoutProps = {
@@ -61,6 +62,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
+            <NativePlayer />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

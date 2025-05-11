@@ -140,6 +140,7 @@ export default function Page() {
                                     setFilePath(episode.localFile?.path)
                                 }
                             }}
+                            description={episode?.episodeMetadata?.summary || episode?.episodeMetadata?.overview}
                             isWatched={!!animeEntry?.listData?.progress && (animeEntry.listData?.progress >= episode?.progressNumber)}
                             isFiller={episode.episodeMetadata?.isFiller}
                             isSelected={episode.localFile?.path === filePath}

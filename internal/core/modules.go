@@ -21,6 +21,8 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/mediastream/directstream"
+	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/notifier"
 	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
@@ -97,6 +99,7 @@ func (a *App) initModulesOnce() {
 		Logger:            a.Logger,
 		WSEventManager:    a.WSEventManager,
 		Platform:          a.AnilistPlatform,
+		MetadataProvider:  a.MetadataProvider,
 		Database:          a.Database,
 		DiscordPresence:   a.DiscordPresence,
 		IsOffline:         a.IsOffline(),
@@ -219,6 +222,32 @@ func (a *App) initModulesOnce() {
 		MangaRepository:       a.MangaRepository,
 	})
 
+	// +---------------------+
+	// |    Native Player    |
+	// +---------------------+
+
+	a.NativePlayer = nativeplayer.New(nativeplayer.NewNativePlayerOptions{
+		WsEventManager: a.WSEventManager,
+	})
+
+	// +---------------------+
+	// |   Direct Stream     |
+	// +---------------------+
+
+	a.DirectStreamManager = directstream.NewManager(directstream.NewManagerOptions{
+		Logger:            a.Logger,
+		WSEventManager:    a.WSEventManager,
+		ContinuityManager: a.ContinuityManager,
+		MetadataProvider:  a.MetadataProvider,
+		DiscordPresence:   a.DiscordPresence,
+		Platform:          a.AnilistPlatform,
+		RefreshAnimeCollectionFunc: func() {
+			_, _ = a.RefreshAnimeCollection()
+		},
+		IsOffline:    a.IsOffline(),
+		NativePlayer: a.NativePlayer,
+	})
+
 }
 
 // HandleNewDatabaseEntries initializes essential database collections.
@@ -324,6 +353,10 @@ func (a *App) InitOrRefreshModules() {
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
 		a.PlaybackManager.SetSettings(&playbackmanager.Settings{
+			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
+		})
+
+		a.DirectStreamManager.SetSettings(&directstream.Settings{
 			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
 		})
 
@@ -518,7 +551,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		}
 	}
 
-	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port, a.FeatureFlags.IsMainServerTorrentStreamingEnabled())
+	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port)
 	if err != nil && settings.Enabled {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
 		//_, _ = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{

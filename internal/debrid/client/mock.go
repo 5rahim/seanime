@@ -19,10 +19,11 @@ func GetMockRepository(t *testing.T, db *db.Database) *Repository {
 	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metadataProvider := metadata.GetMockProvider(t)
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager: wsEventManager,
-		Logger:         logger,
-		Platform:       platform,
-		Database:       db,
+		WSEventManager:   wsEventManager,
+		Logger:           logger,
+		Platform:         platform,
+		MetadataProvider: metadataProvider,
+		Database:         db,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},

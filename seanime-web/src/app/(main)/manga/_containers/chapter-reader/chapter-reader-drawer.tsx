@@ -271,7 +271,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 "w-full inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             )}
             hideCloseButton
-            mangaReader
+            borderToBorder
         >
 
             <div

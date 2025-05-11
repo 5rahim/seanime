@@ -146,7 +146,7 @@ export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimi
      */
     portalContainer?: HTMLElement
 
-    mangaReader?: boolean
+    borderToBorder?: boolean
 }
 
 export function Drawer(props: DrawerProps) {
@@ -177,7 +177,7 @@ export function Drawer(props: DrawerProps) {
         onPointerDownCapture,
         onInteractOutside,
         portalContainer,
-        mangaReader,
+        borderToBorder: mangaReader,
         ...rest
     } = props
 

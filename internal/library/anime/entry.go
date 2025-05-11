@@ -262,20 +262,6 @@ func (e *Entry) hydrateEntryEpisodeData(
 		}
 	}
 
-	//if hasDiscrepancy {
-	//	progressOffset = 1
-	//} else if possibleSpecialInclusion && !hasDiscrepancy {
-	//	// Check if the Episode 0 is set to "S1"
-	//	epZero, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
-	//		return lf.Metadata.Episode == 0
-	//	})
-	//	// If there is no discrepancy, but episode 0 is set to "S1", this means that the hydrator made a mistake (due to torrent name)
-	//	// We will remap "S1" to "1" and offset other AniDB episodes by 1
-	//	if ok && epZero.Metadata.AniDBEpisode == "S1" {
-	//		progressOffset = -1 // Signal that the hydrator mistakenly set AniDB episode to "S1"
-	//	}
-	//}
-
 	// +---------------------+
 	// |       Episodes      |
 	// +---------------------+

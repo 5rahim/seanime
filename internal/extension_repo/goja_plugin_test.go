@@ -760,6 +760,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	metadataProvider := metadata.GetMockProvider(t)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
 		FileCacher: filecacher,
@@ -768,10 +769,11 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	})
 
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager: wsEventManager,
-		Logger:         logger,
-		Platform:       anilistPlatform,
-		Database:       database,
+		WSEventManager:   wsEventManager,
+		Logger:           logger,
+		Platform:         anilistPlatform,
+		MetadataProvider: metadataProvider,
+		Database:         database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},

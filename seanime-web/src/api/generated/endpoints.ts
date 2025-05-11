@@ -115,6 +115,19 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/anilist/stats",
         },
     },
+    ANIME: {
+        /**
+         *  @description
+         *  Route gets list of main episodes
+         *  This returns a list of main episodes for the given AniList anime media id.
+         *  It also loads the episode list into the different modules.
+         */
+        GetAnimeEpisodeCollection: {
+            key: "ANIME-get-anime-episode-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/anime/episode-collection/{id}",
+        },
+    },
     ANIME_COLLECTION: {
         /**
          *  @description
@@ -1702,16 +1715,6 @@ export const API_ENDPOINTS = {
         },
     },
     TORRENTSTREAM: {
-        /**
-         *  @description
-         *  Route get list of episodes
-         *  This returns a list of episodes.
-         */
-        GetTorrentstreamEpisodeCollection: {
-            key: "TORRENTSTREAM-get-torrentstream-episode-collection",
-            methods: ["GET"],
-            endpoint: "/api/v1/torrentstream/episodes/{id}",
-        },
         /**
          *  @description
          *  Route get torrentstream settings.

@@ -9,38 +9,10 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
-	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
-	lop "github.com/samber/lo/parallel"
 )
-
-// HandleGetTorrentstreamEpisodeCollection
-//
-//	@summary get list of episodes
-//	@desc This returns a list of episodes.
-//	@returns torrentstream.EpisodeCollection
-//	@param id - int - true - "AniList anime media ID"
-//	@route /api/v1/torrentstream/episodes/{id} [GET]
-func (h *Handler) HandleGetTorrentstreamEpisodeCollection(c echo.Context) error {
-	mId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	ec, err := h.App.TorrentstreamRepository.NewEpisodeCollection(mId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
-		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
-	})
-
-	return h.RespondWithData(c, ec)
-}
 
 // HandleGetTorrentstreamSettings
 //

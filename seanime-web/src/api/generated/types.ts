@@ -1475,6 +1475,17 @@ export type Anime_Episode = {
 }
 
 /**
+ * - Filepath: internal/library/anime/episode_collection.go
+ * - Filename: episode_collection.go
+ * - Package: anime
+ */
+export type Anime_EpisodeCollection = {
+    hasMappingError: boolean
+    episodes?: Array<Anime_Episode>
+    metadata?: Metadata_AnimeMetadata
+}
+
+/**
  * - Filepath: internal/library/anime/episode.go
  * - Filename: episode.go
  * - Package: anime
@@ -1928,7 +1939,7 @@ export type DebridClient_FilePreview = {
  * - Filename: stream.go
  * - Package: debrid_client
  */
-export type DebridClient_StreamPlaybackType = "default" | "externalPlayerLink"
+export type DebridClient_StreamPlaybackType = "default" | "directstream" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/debrid/client/stream.go
@@ -1947,6 +1958,28 @@ export type DebridClient_StreamState = {
  * - Package: debrid_client
  */
 export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "started"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Directstream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediastream/directstream/stream.go
+ * - Filename: stream.go
+ * - Package: directstream
+ */
+export type MediaContainer = {
+    streamType: StreamType
+    streamUrl: string
+    mkvMetadata?: Metadata
+}
+
+/**
+ * - Filepath: internal/mediastream/directstream/stream.go
+ * - Filename: stream.go
+ * - Package: directstream
+ */
+export type StreamType = "torrent" | "localfile" | "debrid"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Extension
@@ -2837,6 +2870,207 @@ export type Metadata_EpisodeMetadata = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mkvparser
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ * @description
+ *  AttachmentInfo holds extracted information about an attachment.
+ */
+export type AttachmentInfo = {
+    uid: number
+    filename: string
+    mimetype: string
+    size: number
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ * @description
+ *  ChapterInfo holds extracted information about a chapter.
+ */
+export type ChapterInfo = {
+    uid: number
+    /**
+     * Start time in seconds
+     */
+    start: number
+    /**
+     * End time in seconds
+     */
+    end?: number
+    text?: string
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ */
+export type ContentCompression = {
+    /**
+     * Default 0
+     */
+    ContentCompAlgo: number
+    ContentCompSettings?: Array<string>
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ */
+export type ContentEncAESSettings = {
+    AESSettingsCipherMode: number
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ */
+export type ContentEncoding = {
+    /**
+     * Default 0
+     */
+    ContentEncodingOrder: number
+    /**
+     * Default 1
+     */
+    ContentEncodingScope: number
+    /**
+     * Default 0
+     */
+    ContentEncodingType: number
+    ContentCompression?: ContentCompression
+    ContentEncryption?: ContentEncryption
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ */
+export type ContentEncodings = {
+    ContentEncoding?: Array<ContentEncoding>
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ */
+export type ContentEncryption = {
+    /**
+     * Default 0, deprecated
+     */
+    ContentEncAlgo: number
+    /**
+     * Deprecated
+     */
+    ContentEncKeyID?: Array<string>
+    /**
+     * Deprecated
+     */
+    ContentEncAESSettings?: ContentEncAESSettings
+    /**
+     * Deprecated
+     */
+    ContentSignature?: Array<string>
+    /**
+     * Deprecated
+     */
+    ContentSigKeyID?: Array<string>
+    /**
+     * Deprecated
+     */
+    ContentSigAlgo: number
+    /**
+     * Deprecated
+     */
+    ContentSigHashAlgo: number
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ * @description
+ *  Metadata holds all extracted metadata.
+ */
+export type Metadata = {
+    title?: string
+    /**
+     * Duration in seconds
+     */
+    duration: number
+    /**
+     * Original timecode scale from Info
+     */
+    timecodeScale: number
+    muxingApp?: string
+    writingApp?: string
+    tracks?: Array<TrackInfo>
+    chapters?: Array<ChapterInfo>
+    attachments?: Array<AttachmentInfo>
+    error?: error
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ * @description
+ *  TrackInfo holds extracted information about a media track.
+ */
+export type TrackInfo = {
+    number: number
+    uid: number
+    /**
+     * "video", "audio", "subtitle", etc.
+     */
+    type: TrackType
+    codecID: string
+    name?: string
+    /**
+     * Best effort language code (IETF or 3-letter)
+     */
+    language?: string
+    default: boolean
+    forced: boolean
+    enabled: boolean
+    /**
+     * Raw CodecPrivate data, often used for subtitle headers (e.g., ASS/SSA styles)
+     */
+    codecPrivate?: string
+    pixelWidth?: number
+    pixelHeight?: number
+    samplingFrequency?: number
+    channels?: number
+    bitDepth?: number
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ * @description
+ *  TrackType represents the type of a Matroska track.
+ */
+export type TrackType = "video" |
+    "audio" |
+    "subtitle" |
+    "logo" |
+    "buttons" |
+    "complex" |
+    "unknown"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3539,16 +3773,6 @@ export type Torrentstream_BatchHistoryResponse = {
 }
 
 /**
- * - Filepath: internal/torrentstream/list.go
- * - Filename: list.go
- * - Package: torrentstream
- */
-export type Torrentstream_EpisodeCollection = {
-    episodes?: Array<Anime_Episode>
-    hasMappingError: boolean
-}
-
-/**
  * - Filepath: internal/torrentstream/previews.go
  * - Filename: previews.go
  * - Package: torrentstream
@@ -3568,29 +3792,7 @@ export type Torrentstream_FilePreview = {
  * - Filename: stream.go
  * - Package: torrentstream
  */
-export type Torrentstream_PlaybackType = "default" | "externalPlayerLink"
-
-/**
- * - Filepath: internal/torrentstream/events.go
- * - Filename: events.go
- * - Package: torrentstream
- */
-export type Torrentstream_TorrentLoadingStatus = {
-    torrentBeingChecked: string
-    state: Torrentstream_TorrentLoadingStatusState
-}
-
-/**
- * - Filepath: internal/torrentstream/events.go
- * - Filename: events.go
- * - Package: torrentstream
- */
-export type Torrentstream_TorrentLoadingStatusState = "SEARCHING_TORRENTS" |
-    "CHECKING_TORRENT" |
-    "ADDING_TORRENT" |
-    "SELECTING_FILE" |
-    "STARTING_SERVER" |
-    "SENDING_STREAM_TO_MEDIA_PLAYER"
+export type Torrentstream_PlaybackType = "default" | "directstream" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/torrentstream/client.go

@@ -224,6 +224,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
 
 	//
+	// Anime
+	//
+	v1.GET("/anime/episode-collection/:id", h.HandleGetAnimeEpisodeCollection)
+
+	//
 	// Torrent / Torrent Client
 	//
 
@@ -380,7 +385,6 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	// Torrent stream
 	//
-	v1.GET("/torrentstream/episodes/:id", h.HandleGetTorrentstreamEpisodeCollection)
 	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)
 	v1.PATCH("/torrentstream/settings", h.HandleSaveTorrentstreamSettings)
 	v1.POST("/torrentstream/start", h.HandleTorrentstreamStartStream)

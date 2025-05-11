@@ -1,5 +1,5 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
-import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
+import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -44,7 +44,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     /**
      * Get all episodes to watch
      */
-    const { data: episodeCollection, isLoading } = useGetTorrentstreamEpisodeCollection(entry.mediaId)
+    const { data: episodeCollection, isLoading } = useGetAnimeEpisodeCollection(entry.mediaId)
 
     React.useLayoutEffect(() => {
         // Set auto-select to the server status value

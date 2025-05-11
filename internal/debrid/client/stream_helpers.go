@@ -44,20 +44,6 @@ func (s *StreamManager) getMediaInfo(mediaId int) (media *anilist.CompleteAnime,
 	return
 }
 
-func (s *StreamManager) getEpisodeInfo(animeMetadata *metadata.AnimeMetadata, aniDBEpisode string) (episode *metadata.EpisodeMetadata, err error) {
-	if animeMetadata == nil {
-		return nil, fmt.Errorf("torrentstream: Anizip media is nil")
-	}
-
-	// Get the episode
-	var found bool
-	episode, found = animeMetadata.FindEpisode(aniDBEpisode)
-	if !found {
-		return nil, fmt.Errorf("torrentstream: Episode not found in the Anizip media")
-	}
-	return
-}
-
 func CanStream(streamUrl string) (bool, string) {
 	hasExtension, isArchive := IsArchive(streamUrl)
 

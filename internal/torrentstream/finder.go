@@ -10,6 +10,7 @@ import (
 	torrentanalyzer "seanime/internal/torrents/analyzer"
 	itorrent "seanime/internal/torrents/torrent"
 	"seanime/internal/util"
+	"seanime/internal/util/torrentutil"
 	"slices"
 	"time"
 
@@ -32,27 +33,7 @@ type (
 // setPriorityDownloadStrategy sets piece priorities for optimal streaming experience
 // This helps to optimize initial buffering, seeking, and end-of-file playback
 func (r *Repository) setPriorityDownloadStrategy(t *torrent.Torrent, file *torrent.File) {
-	// Calculate file's pieces
-	firstPieceIdx := file.Offset() * int64(t.NumPieces()) / t.Length()
-	endPieceIdx := (file.Offset() + file.Length()) * int64(t.NumPieces()) / t.Length()
-
-	// Prioritize more pieces at the beginning for faster initial loading (3% for beginning)
-	numPiecesForStart := (endPieceIdx - firstPieceIdx + 1) * 3 / 100
-	r.logger.Debug().Msgf("torrentstream: Setting high priority for first 3%% - pieces %d to %d (total %d)",
-		firstPieceIdx, firstPieceIdx+numPiecesForStart, numPiecesForStart)
-	for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForStart; idx++ {
-		t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
-	}
-
-	// Also prioritize the last few pieces
-	numPiecesForEnd := (endPieceIdx - firstPieceIdx + 1) * 1 / 100
-	r.logger.Debug().Msgf("torrentstream: Setting priority for last pieces %d to %d (total %d)",
-		endPieceIdx-numPiecesForEnd, endPieceIdx, numPiecesForEnd)
-	for idx := endPieceIdx - numPiecesForEnd; idx <= endPieceIdx; idx++ {
-		if idx >= 0 && int(idx) < t.NumPieces() {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
-		}
-	}
+	torrentutil.PrioritizeDownloadPieces(t, file, r.logger)
 }
 
 func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode string, episodeNumber int) (ret *playbackTorrent, err error) {
@@ -80,7 +61,7 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 		searchBatch = true
 	}
 
-	r.sendTorrentLoadingStatus(TLSStateSearchingTorrents, "")
+	r.sendStateEvent(eventLoading, TLSStateSearchingTorrents)
 
 	var data *itorrent.SearchData
 	var currentProvider string = providerId
@@ -194,7 +175,13 @@ searchLoop:
 		if tries >= 2 {
 			break
 		}
-		r.sendTorrentLoadingStatus(TLSStateAddingTorrent, searchT.Name)
+		r.sendStateEvent(eventLoading, struct {
+			State              any    `json:"state"`
+			TorrentBeingLoaded string `json:"torrentBeingLoaded"`
+		}{
+			State:              TLSStateAddingTorrent,
+			TorrentBeingLoaded: searchT.Name,
+		})
 		r.logger.Trace().Msgf("torrentstream: Getting torrent magnet")
 		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(searchT)
 		if err != nil {
@@ -211,7 +198,13 @@ searchLoop:
 			continue
 		}
 
-		r.sendTorrentLoadingStatus(TLSStateCheckingTorrent, searchT.Name)
+		r.sendStateEvent(eventLoading, struct {
+			State              any    `json:"state"`
+			TorrentBeingLoaded string `json:"torrentBeingLoaded"`
+		}{
+			State:              TLSStateCheckingTorrent,
+			TorrentBeingLoaded: searchT.Name,
+		})
 
 		// If the torrent has only one file, return it
 		if len(t.Files()) == 1 {
@@ -226,7 +219,7 @@ searchLoop:
 			}, nil
 		}
 
-		r.sendTorrentLoadingStatus(TLSStateSelectingFile, searchT.Name)
+		r.sendStateEvent(eventLoading, TLSStateSelectingFile)
 
 		// DEVNOTE: The gap between adding the torrent and file analysis causes some pieces to be downloaded
 		// We currently can't Pause/Resume torrents so :shrug:

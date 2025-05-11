@@ -390,19 +390,30 @@ func (pm *PlaybackManager) getLocalFilePlaybackState(status *mediaplayer.Playbac
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	if pm.currentLocalFileWrapperEntry.IsAbsent() || pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() {
+	currentLocalFileWrapperEntry, ok := pm.currentLocalFileWrapperEntry.Get()
+	if !ok {
+		return PlaybackState{}
+	}
+
+	currentLocalFile, ok := pm.currentLocalFile.Get()
+	if !ok {
+		return PlaybackState{}
+	}
+
+	currentMediaListEntry, ok := pm.currentMediaListEntry.Get()
+	if !ok {
 		return PlaybackState{}
 	}
 
 	// Find the following episode
-	_, canPlayNext := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
+	_, canPlayNext := currentLocalFileWrapperEntry.FindNextEpisode(currentLocalFile)
 
 	return PlaybackState{
-		EpisodeNumber:        pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
-		MediaTitle:           pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
-		MediaTotalEpisodes:   pm.currentMediaListEntry.MustGet().GetMedia().GetCurrentEpisodeCount(),
-		MediaCoverImage:      pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
-		MediaId:              pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+		EpisodeNumber:        currentLocalFileWrapperEntry.GetProgressNumber(currentLocalFile),
+		MediaTitle:           currentMediaListEntry.GetMedia().GetPreferredTitle(),
+		MediaTotalEpisodes:   currentMediaListEntry.GetMedia().GetCurrentEpisodeCount(),
+		MediaCoverImage:      currentMediaListEntry.GetMedia().GetCoverImageSafe(),
+		MediaId:              currentMediaListEntry.GetMedia().GetID(),
 		Filename:             status.Filename,
 		CompletionPercentage: status.CompletionPercentage,
 		CanPlayNext:          canPlayNext,
@@ -418,16 +429,22 @@ func (pm *PlaybackManager) getStreamPlaybackState(status *mediaplayer.PlaybackSt
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	if pm.currentStreamEpisodeCollection.IsAbsent() || pm.currentStreamEpisode.IsAbsent() || pm.currentStreamMedia.IsAbsent() {
+	currentStreamEpisode, ok := pm.currentStreamEpisode.Get()
+	if !ok {
+		return PlaybackState{}
+	}
+
+	currentStreamMedia, ok := pm.currentStreamMedia.Get()
+	if !ok {
 		return PlaybackState{}
 	}
 
 	return PlaybackState{
-		EpisodeNumber:        pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-		MediaTitle:           pm.currentStreamMedia.MustGet().GetPreferredTitle(),
-		MediaTotalEpisodes:   pm.currentStreamMedia.MustGet().GetCurrentEpisodeCount(),
-		MediaCoverImage:      pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
-		MediaId:              pm.currentStreamMedia.MustGet().GetID(),
+		EpisodeNumber:        currentStreamEpisode.GetProgressNumber(),
+		MediaTitle:           currentStreamMedia.GetPreferredTitle(),
+		MediaTotalEpisodes:   currentStreamMedia.GetCurrentEpisodeCount(),
+		MediaCoverImage:      currentStreamMedia.GetCoverImageSafe(),
+		MediaId:              currentStreamMedia.GetID(),
 		Filename:             cmp.Or(status.Filename, "Stream"),
 		CompletionPercentage: status.CompletionPercentage,
 		CanPlayNext:          false, // DEVNOTE: This is not used for streams

@@ -27,6 +27,8 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/mediastream/directstream"
+	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/local_platform"
@@ -64,6 +66,8 @@ type (
 		AutoDownloader                *autodownloader.AutoDownloader
 		ExtensionRepository           *extension_repo.Repository
 		ExtensionPlaygroundRepository *extension_playground.PlaygroundRepository
+		DirectStreamManager           *directstream.Manager
+		NativePlayer                  *nativeplayer.NativePlayer
 		MediaPlayer                   struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -314,6 +318,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
 		ContinuityManager:             nil, // Initialized in App.initModulesOnce
 		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
+		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
+		NativePlayer:                  nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules

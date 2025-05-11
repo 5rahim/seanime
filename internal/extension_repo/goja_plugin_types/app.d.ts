@@ -14,14 +14,14 @@ declare namespace $app {
     function onListMissedSequelsRequested(cb: (event: ListMissedSequelsRequestedEvent) => void): void;
 
     interface ListMissedSequelsRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         animeCollectionWithRelations?: AL_AnimeCollectionWithRelations;
         variables?: Record<string, any>;
         query: string;
         list?: Array<AL_BaseAnime>;
-
-        next(): void;
-
-        preventDefault(): void;
     }
 
     /**
@@ -31,9 +31,9 @@ declare namespace $app {
     function onListMissedSequels(cb: (event: ListMissedSequelsEvent) => void): void;
 
     interface ListMissedSequelsEvent {
-        list?: Array<AL_BaseAnime>;
-
         next(): void;
+
+        list?: Array<AL_BaseAnime>;
     }
 
 
@@ -462,7 +462,7 @@ declare namespace $app {
      * @event AnimeLibraryCollectionEvent
      * @file internal/library/anime/hook_events.go
      * @description
-     * AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+     * AnimeLibraryCollectionEvent is triggered when the user requests the library collection.
      */
     function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void): void;
 
@@ -512,14 +512,14 @@ declare namespace $app {
     function onAnimeEntryDownloadInfoRequested(cb: (event: AnimeEntryDownloadInfoRequestedEvent) => void): void;
 
     interface AnimeEntryDownloadInfoRequestedEvent {
+        next(): void;
+
         localFiles?: Array<Anime_LocalFile>;
         AnimeMetadata?: Metadata_AnimeMetadata;
         Media?: AL_BaseAnime;
         Progress?: number;
         Status?: AL_MediaListStatus;
         entryDownloadInfo?: Anime_EntryDownloadInfo;
-
-        next(): void;
     }
 
     /**
@@ -531,7 +531,40 @@ declare namespace $app {
     function onAnimeEntryDownloadInfo(cb: (event: AnimeEntryDownloadInfoEvent) => void): void;
 
     interface AnimeEntryDownloadInfoEvent {
+        next(): void;
+
         entryDownloadInfo?: Anime_EntryDownloadInfo;
+    }
+
+    /**
+     * @event AnimeEpisodeCollectionRequestedEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.
+     * Prevent default to skip the default behavior and return your own data.
+     */
+    function onAnimeEpisodeCollectionRequested(cb: (event: AnimeEpisodeCollectionRequestedEvent) => void): void;
+
+    interface AnimeEpisodeCollectionRequestedEvent {
+        next(): void;
+
+        media?: AL_BaseAnime;
+        metadata?: Metadata_AnimeMetadata;
+        episodeCollection?: Anime_EpisodeCollection;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event AnimeEpisodeCollectionEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEpisodeCollectionEvent is triggered when the episode collection is being returned.
+     */
+    function onAnimeEpisodeCollection(cb: (event: AnimeEpisodeCollectionEvent) => void): void;
+
+    interface AnimeEpisodeCollectionEvent {
+        episodeCollection?: Anime_EpisodeCollection;
 
         next(): void;
     }
@@ -551,13 +584,13 @@ declare namespace $app {
     function onAnizipMediaRequested(cb: (event: AnizipMediaRequestedEvent) => void): void;
 
     interface AnizipMediaRequestedEvent {
-        from: string;
-        id: number;
-        media?: Anizip_Media;
-
         next(): void;
 
         preventDefault(): void;
+
+        from: string;
+        id: number;
+        media?: Anizip_Media;
     }
 
     /**
@@ -569,9 +602,9 @@ declare namespace $app {
     function onAnizipMedia(cb: (event: AnizipMediaEvent) => void): void;
 
     interface AnizipMediaEvent {
-        media?: Anizip_Media;
-
         next(): void;
+
+        media?: Anizip_Media;
     }
 
 
@@ -1560,38 +1593,6 @@ declare namespace $app {
         media?: AL_BaseAnime;
         aniDbEpisode: string;
         playbackType: string;
-    }
-
-    /**
-     * @event TorrentStreamEpisodeCollectionRequestedEvent
-     * @file internal/torrentstream/hook_events.go
-     * @description
-     * TorrentStreamEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.
-     * Prevent default to skip the default behavior and return your own data.
-     */
-    function onTorrentStreamEpisodeCollectionRequested(cb: (event: TorrentStreamEpisodeCollectionRequestedEvent) => void): void;
-
-    interface TorrentStreamEpisodeCollectionRequestedEvent {
-        mediaId: number;
-        episodeCollection?: Torrentstream_EpisodeCollection;
-
-        next(): void;
-
-        preventDefault(): void;
-    }
-
-    /**
-     * @event TorrentStreamEpisodeCollectionEvent
-     * @file internal/torrentstream/hook_events.go
-     * @description
-     * TorrentStreamEpisodeCollectionEvent is triggered when the episode collection is being returned.
-     */
-    function onTorrentStreamEpisodeCollection(cb: (event: TorrentStreamEpisodeCollectionEvent) => void): void;
-
-    interface TorrentStreamEpisodeCollectionEvent {
-        episodeCollection?: Torrentstream_EpisodeCollection;
-
-        next(): void;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2815,6 +2816,15 @@ declare namespace $app {
     }
 
     /**
+     * - Filepath: internal/library/anime/episode_collection.go
+     */
+    interface Anime_EpisodeCollection {
+        hasMappingError: boolean;
+        episodes?: Array<Anime_Episode>;
+        metadata?: Metadata_AnimeMetadata;
+    }
+
+    /**
      * - Filepath: internal/library/anime/episode.go
      */
     interface Anime_EpisodeMetadata {
@@ -3403,13 +3413,5 @@ declare namespace $app {
      * - Filepath: internal/torrent_clients/torrent_client/torrent.go
      */
     export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped";
-
-    /**
-     * - Filepath: internal/torrentstream/list.go
-     */
-    interface Torrentstream_EpisodeCollection {
-        episodes?: Array<Anime_Episode>;
-        hasMappingError: boolean;
-    }
 
 }

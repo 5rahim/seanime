@@ -3,7 +3,8 @@ package events
 type WebsocketClientEventType string
 
 const (
-	PluginEvent WebsocketClientEventType = "plugin"
+	NativePlayerEventType WebsocketClientEventType = "nativeplayer"
+	PluginEvent           WebsocketClientEventType = "plugin"
 )
 
 type WebsocketClientEvent struct {
@@ -60,6 +61,8 @@ const (
 	SyncLocalQueueState = "sync-local-queue-state"
 	SyncLocalFinished   = "sync-local-finished"
 	SyncAnilistFinished = "sync-anilist-finished"
+
+	TorrentStreamState = "torrentstream-state"
 
 	DebridDownloadProgress = "debrid-download-progress"
 	DebridStreamState      = "debrid-stream-state"

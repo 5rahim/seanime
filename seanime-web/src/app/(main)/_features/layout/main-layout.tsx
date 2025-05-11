@@ -28,6 +28,7 @@ import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-d
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
 import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
+import { NativePlayer } from "../native-player/native-player"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -67,7 +68,8 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-
+            <NativePlayer />
+            
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">
                     <AppLayoutSidebar>

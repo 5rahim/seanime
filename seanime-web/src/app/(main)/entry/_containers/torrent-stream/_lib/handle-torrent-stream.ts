@@ -3,13 +3,11 @@ import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
+    __torrentstream__isLoadedAtom,
     __torrentstream__loadingStateAtom,
-    __torrentstream__stateAtom,
-    TorrentStreamState,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
-import { useAtomValue } from "jotai"
-import { atom } from "jotai/index"
+import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"
@@ -32,7 +30,7 @@ export function useHandleStartTorrentStream() {
     const { mutate, isPending } = useTorrentstreamStartStream()
 
     const setLoadingState = useSetAtom(__torrentstream__loadingStateAtom)
-    const setState = useSetAtom(__torrentstream__stateAtom)
+    const setIsLoaded = useSetAtom(__torrentstream__isLoadedAtom)
 
     const { torrentStreamingPlayback } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
@@ -64,7 +62,7 @@ export function useHandleStartTorrentStream() {
             },
             onError: () => {
                 setLoadingState(null)
-                setState(TorrentStreamState.Stopped)
+                setIsLoaded(false)
             },
         })
     }, [playbackType, clientId])
@@ -81,7 +79,7 @@ export function useHandleStartTorrentStream() {
         }, {
             onError: () => {
                 setLoadingState(null)
-                setState(TorrentStreamState.Stopped)
+                setIsLoaded(false)
             },
         })
     }, [playbackType, clientId])

@@ -69,6 +69,7 @@ func NewStreamManager(repository *Repository) *StreamManager {
 
 const (
 	PlaybackTypeDefault        StreamPlaybackType = "default"
+	PlaybackTypeDirectStream   StreamPlaybackType = "directstream"
 	PlaybackTypeExternalPlayer StreamPlaybackType = "externalPlayerLink"
 )
 

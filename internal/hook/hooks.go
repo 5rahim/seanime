@@ -47,6 +47,9 @@ type Manager interface {
 	OnAnimeEntryDownloadInfoRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeEntryDownloadInfo() *Hook[hook_resolver.Resolver]
 
+	OnAnimEpisodeCollectionRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeEpisodeCollection() *Hook[hook_resolver.Resolver]
+
 	// Anime library collection events
 	OnAnimeLibraryCollectionRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeLibraryCollection() *Hook[hook_resolver.Resolver]
@@ -114,8 +117,6 @@ type Manager interface {
 	// Torrent stream events
 	OnTorrentStreamAutoSelectTorrentsFetched() *Hook[hook_resolver.Resolver]
 	OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver]
-	OnTorrentStreamEpisodeCollectionRequested() *Hook[hook_resolver.Resolver]
-	OnTorrentStreamEpisodeCollection() *Hook[hook_resolver.Resolver]
 
 	// Continuity events
 	OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver]
@@ -170,6 +171,8 @@ type ManagerImpl struct {
 	onMissingEpisodes                 *Hook[hook_resolver.Resolver]
 	onAnimeEntryDownloadInfoRequested *Hook[hook_resolver.Resolver]
 	onAnimeEntryDownloadInfo          *Hook[hook_resolver.Resolver]
+	onAnimeEpisodeCollectionRequested *Hook[hook_resolver.Resolver]
+	onAnimeEpisodeCollection          *Hook[hook_resolver.Resolver]
 	// Anime library collection events
 	onAnimeLibraryCollectionRequested       *Hook[hook_resolver.Resolver]
 	onAnimeLibraryCollection                *Hook[hook_resolver.Resolver]
@@ -227,10 +230,8 @@ type ManagerImpl struct {
 	onDebridLocalDownloadRequested    *Hook[hook_resolver.Resolver]
 	onDebridSkipStreamCheck           *Hook[hook_resolver.Resolver]
 	// Torrent stream events
-	onTorrentStreamAutoSelectTorrentsFetched  *Hook[hook_resolver.Resolver]
-	onTorrentStreamSendStreamToMediaPlayer    *Hook[hook_resolver.Resolver]
-	onTorrentStreamEpisodeCollectionRequested *Hook[hook_resolver.Resolver]
-	onTorrentStreamEpisodeCollection          *Hook[hook_resolver.Resolver]
+	onTorrentStreamAutoSelectTorrentsFetched *Hook[hook_resolver.Resolver]
+	onTorrentStreamSendStreamToMediaPlayer   *Hook[hook_resolver.Resolver]
 	// Continuity events
 	onWatchHistoryItemRequested                 *Hook[hook_resolver.Resolver]
 	onWatchHistoryItemUpdated                   *Hook[hook_resolver.Resolver]
@@ -302,6 +303,8 @@ func (m *ManagerImpl) initHooks() {
 	m.onMissingEpisodes = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEntryDownloadInfoRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEntryDownloadInfo = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEpisodeCollectionRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEpisodeCollection = &Hook[hook_resolver.Resolver]{}
 	// Anime library collection events
 	m.onAnimeLibraryCollectionRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeLibraryCollection = &Hook[hook_resolver.Resolver]{}
@@ -361,8 +364,6 @@ func (m *ManagerImpl) initHooks() {
 	// Torrent stream events
 	m.onTorrentStreamAutoSelectTorrentsFetched = &Hook[hook_resolver.Resolver]{}
 	m.onTorrentStreamSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
-	m.onTorrentStreamEpisodeCollectionRequested = &Hook[hook_resolver.Resolver]{}
-	m.onTorrentStreamEpisodeCollection = &Hook[hook_resolver.Resolver]{}
 	// Continuity events
 	m.onWatchHistoryItemRequested = &Hook[hook_resolver.Resolver]{}
 	m.onWatchHistoryItemUpdated = &Hook[hook_resolver.Resolver]{}
@@ -583,6 +584,20 @@ func (m *ManagerImpl) OnAnimeEntryDownloadInfo() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAnimeEntryDownloadInfo
+}
+
+func (m *ManagerImpl) OnAnimEpisodeCollectionRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEpisodeCollectionRequested
+}
+
+func (m *ManagerImpl) OnAnimeEpisodeCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEpisodeCollection
 }
 
 // Anime library collection events
@@ -943,20 +958,6 @@ func (m *ManagerImpl) OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolv
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onTorrentStreamSendStreamToMediaPlayer
-}
-
-func (m *ManagerImpl) OnTorrentStreamEpisodeCollectionRequested() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onTorrentStreamEpisodeCollectionRequested
-}
-
-func (m *ManagerImpl) OnTorrentStreamEpisodeCollection() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onTorrentStreamEpisodeCollection
 }
 
 // Continuity events

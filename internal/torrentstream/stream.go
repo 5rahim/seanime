@@ -19,7 +19,8 @@ import (
 type PlaybackType string
 
 const (
-	PlaybackTypeDefault        PlaybackType = "default"
+	PlaybackTypeDefault        PlaybackType = "default" // External player
+	PlaybackTypeDirectStream   PlaybackType = "directstream"
 	PlaybackTypeExternalPlayer PlaybackType = "externalPlayerLink"
 )
 
@@ -46,12 +47,12 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 		Any("playbackType", opts.PlaybackType).
 		Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
-	r.wsEventManager.SendEvent(eventTorrentLoading, nil)
+	r.sendStateEvent(eventLoading)
 
 	//
 	// Get the media info
 	//
-	media, _, err := r.getMediaInfo(opts.MediaId)
+	media, _, err := r.GetMediaInfo(opts.MediaId)
 	if err != nil {
 		return err
 	}
@@ -67,7 +68,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	case true:
 		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
 		if err != nil {
-			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+			r.sendStateEvent(eventLoadingFailed)
 			return err
 		}
 	case false:
@@ -76,13 +77,13 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 		}
 		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
 		if err != nil {
-			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+			r.sendStateEvent(eventLoadingFailed)
 			return err
 		}
 	}
 
 	if torrentToStream == nil {
-		r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+		r.sendStateEvent(eventLoadingFailed)
 		return fmt.Errorf("torrentstream: No torrent selected")
 	}
 
@@ -92,101 +93,125 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	r.client.currentFile = mo.Some(torrentToStream.File)
 	r.client.currentTorrent = mo.Some(torrentToStream.Torrent)
 
-	r.sendTorrentLoadingStatus(TLSStateStartingServer, "")
-
-	settings, ok := r.settings.Get()
-	if ok && settings.UseSeparateServer {
-		//
-		// Start the server
-		//
-		r.serverManager.startServer()
-	}
-
-	r.sendTorrentLoadingStatus(TLSStateSendingStreamToMediaPlayer, "")
+	r.sendStateEvent(eventLoading, TLSStateSendingStreamToMediaPlayer)
 
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
 			r.AddBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
 		}
+	}()
 
-		for {
-			// This is to make sure the client is ready to stream before we start the stream
-			if r.client.readyToStream() {
-				break
-			}
-			// If for some reason the torrent is dropped, we kill the goroutine
-			if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
-				return
-			}
-			r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
-			time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
-		}
-
-		event := &TorrentStreamSendStreamToMediaPlayerEvent{
-			WindowTitle:  "",
-			StreamURL:    r.client.GetStreamingUrl(),
-			Media:        media.ToBaseAnime(),
-			AniDbEpisode: aniDbEpisode,
-			PlaybackType: string(opts.PlaybackType),
-		}
-		err = hook.GlobalHookManager.OnTorrentStreamSendStreamToMediaPlayer().Trigger(event)
-		if err != nil {
-			r.logger.Error().Err(err).Msg("torrentstream: Failed to trigger hook")
-			return
-		}
-		windowTitle := event.WindowTitle
-		streamURL := event.StreamURL
-		media := event.Media
-		aniDbEpisode := event.AniDbEpisode
-		playbackType := PlaybackType(event.PlaybackType)
-
-		if event.DefaultPrevented {
-			r.logger.Debug().Msg("torrentstream: Stream prevented by hook")
-			return
-		}
-
-		switch playbackType {
-		case PlaybackTypeDefault:
-			//
-			// Start the stream
-			//
-			r.logger.Debug().Msg("torrentstream: Starting the media player")
-			err = r.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
-				Payload:   streamURL,
-				UserAgent: opts.UserAgent,
-				ClientId:  opts.ClientId,
-			}, media, aniDbEpisode)
-			if err != nil {
-				// Failed to start the stream, we'll drop the torrents and stop the server
-				r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
-				_ = r.StopStream()
-				r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
-			}
-
-		case PlaybackTypeExternalPlayer:
-			// Send the external player link
-			r.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, struct {
-				Url           string `json:"url"`
-				MediaId       int    `json:"mediaId"`
-				EpisodeNumber int    `json:"episodeNumber"`
-			}{
-				Url:           r.client.GetStreamingUrl(),
-				MediaId:       opts.MediaId,
-				EpisodeNumber: opts.EpisodeNumber,
-			})
-
-			// Signal to the client that the torrent has started playing (remove loading status)
-			// We can't know for sure
-			r.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
+	//
+	// Start the playback
+	//
+	go func() {
+		switch opts.PlaybackType {
+		//
+		// External player
+		//
+		case PlaybackTypeDefault, PlaybackTypeExternalPlayer:
+			r.sendStreamToExternalPlayer(opts, media, aniDbEpisode)
+		//
+		// Direct stream
+		//
+		case PlaybackTypeDirectStream:
+			//r.directStreamManager.LoadTorrentStream(directstream.LoadTorrentStreamOptions{
+			//	Media:   media.ToBaseAnime(),
+			//	Torrent: r.client.currentTorrent.MustGet(),
+			//	File:    r.client.currentFile.MustGet(),
+			//})
 		}
 	}()
 
-	r.wsEventManager.SendEvent(eventTorrentLoaded, nil)
+	r.sendStateEvent(eventTorrentLoaded)
 	r.logger.Info().Msg("torrentstream: Stream started")
 
 	return nil
 }
+
+// sendStreamToExternalPlayer sends the stream to the desktop player or external player link.
+// It blocks until the some pieces have been downloaded before sending the stream for faster playback.
+func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, completeAnime *anilist.CompleteAnime, aniDbEpisode string) {
+
+	baseAnime := completeAnime.ToBaseAnime()
+
+	// Make sure the client is ready and the torrent is partially downloaded
+	for {
+		if r.client.readyToStream() {
+			break
+		}
+		// If for some reason the torrent is dropped, we kill the goroutine
+		if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
+			return
+		}
+		r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
+		time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+	}
+
+	event := &TorrentStreamSendStreamToMediaPlayerEvent{
+		WindowTitle:  "",
+		StreamURL:    r.client.GetStreamingUrl(),
+		Media:        baseAnime,
+		AniDbEpisode: aniDbEpisode,
+		PlaybackType: string(opts.PlaybackType),
+	}
+	err := hook.GlobalHookManager.OnTorrentStreamSendStreamToMediaPlayer().Trigger(event)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("torrentstream: Failed to trigger hook")
+		return
+	}
+	windowTitle := event.WindowTitle
+	streamURL := event.StreamURL
+	baseAnime = event.Media
+	aniDbEpisode = event.AniDbEpisode
+	playbackType := PlaybackType(event.PlaybackType)
+
+	if event.DefaultPrevented {
+		r.logger.Debug().Msg("torrentstream: Stream prevented by hook")
+		return
+	}
+
+	switch playbackType {
+	//
+	// Desktop player
+	//
+	case PlaybackTypeDefault:
+		r.logger.Debug().Msgf("torrentstream: Starting the media player %s", streamURL)
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
+			Payload:   streamURL,
+			UserAgent: opts.UserAgent,
+			ClientId:  opts.ClientId,
+		}, baseAnime, aniDbEpisode)
+		if err != nil {
+			// Failed to start the stream, we'll drop the torrents and stop the server
+			r.sendStateEvent(eventLoadingFailed)
+			_ = r.StopStream()
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+		}
+
+	//
+	// External player link
+	//
+	case PlaybackTypeExternalPlayer:
+		r.logger.Debug().Msgf("torrentstream: Sending stream to external player %s", streamURL)
+		r.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, struct {
+			Url           string `json:"url"`
+			MediaId       int    `json:"mediaId"`
+			EpisodeNumber int    `json:"episodeNumber"`
+		}{
+			Url:           streamURL,
+			MediaId:       opts.MediaId,
+			EpisodeNumber: opts.EpisodeNumber,
+		})
+
+		// Signal to the client that the torrent has started playing (remove loading status)
+		// We can't know for sure
+		r.sendStateEvent(eventTorrentStartedPlaying)
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type StartUntrackedStreamOptions struct {
 	Magnet       string
@@ -205,10 +230,10 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 	}
 
 	switch opts.PlaybackType {
+	//
+	// Desktop player
+	//
 	case PlaybackTypeDefault:
-		//
-		// Start the stream
-		//
 		r.logger.Debug().Msg("torrentstream: Starting the media player	")
 		err = r.playbackManager.StartUntrackedStreamingUsingMediaPlayer(opts.WindowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   opts.Magnet,
@@ -217,14 +242,17 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 		})
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
-			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+			r.sendStateEvent(eventLoadingFailed)
 			_ = r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		}
 
+	//
+	// External player link
+	//
 	case PlaybackTypeExternalPlayer:
 		// Send the external player link
-		r.wsEventManager.SendEvent(events.ExternalPlayerOpenURL, struct {
+		r.sendStateEvent(events.ExternalPlayerOpenURL, struct {
 			Url           string `json:"url"`
 			MediaId       int    `json:"mediaId"`
 			EpisodeNumber int    `json:"episodeNumber"`
@@ -236,7 +264,7 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 
 		// Signal to the client that the torrent has started playing (remove loading status)
 		// We can't know for sure
-		r.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
+		r.sendStateEvent(eventTorrentStartedPlaying)
 	}
 
 	return nil
@@ -264,15 +292,11 @@ func (r *Repository) StopStream() error {
 		}
 		r.client.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
 	}
-	r.client.currentTorrent = mo.None[*torrent.Torrent]() // Reset the current torrent
-	r.client.currentFile = mo.None[*torrent.File]()       // Reset the current file
-	r.client.currentTorrentStatus = TorrentStatus{}       // Reset the torrent status
-	settings, ok := r.client.repository.settings.Get()
-	if ok && settings.UseSeparateServer {
-		r.client.repository.serverManager.stopServer() // Stop the server
-	}
-	r.client.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
-	r.client.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
+	r.client.currentTorrent = mo.None[*torrent.Torrent]()        // Reset the current torrent
+	r.client.currentFile = mo.None[*torrent.File]()              // Reset the current file
+	r.client.currentTorrentStatus = TorrentStatus{}              // Reset the torrent status
+	r.client.repository.sendStateEvent(eventTorrentStopped, nil) // Send torrent stopped event
+	r.client.repository.mediaPlayerRepository.Stop()             // Stop the media player gracefully if it's running
 	r.client.mu.Unlock()
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
@@ -291,11 +315,6 @@ func (r *Repository) DropTorrent() error {
 		t.Drop()
 	}
 
-	// Also stop the server, since it's dropped
-	settings, ok := r.settings.Get()
-	if ok && settings.UseSeparateServer {
-		r.serverManager.stopServer()
-	}
 	r.mediaPlayerRepository.Stop()
 
 	r.logger.Info().Msg("torrentstream: Dropped last torrent")
@@ -305,7 +324,7 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
+func (r *Repository) GetMediaInfo(mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
 	// Get the media
 	var found bool
 	media, found = r.completeAnimeCache.Get(mediaId)
@@ -335,19 +354,5 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 		err = nil
 	}
 
-	return
-}
-
-func (r *Repository) getEpisodeInfo(animeMetadata *metadata.AnimeMetadata, aniDBEpisode string) (episode *metadata.EpisodeMetadata, err error) {
-	if animeMetadata == nil {
-		return nil, fmt.Errorf("torrentstream: Anizip media is nil")
-	}
-
-	// Get the episode
-	var found bool
-	episode, found = animeMetadata.FindEpisode(aniDBEpisode)
-	if !found {
-		return nil, fmt.Errorf("torrentstream: Episode not found in the Anizip media")
-	}
 	return
 }

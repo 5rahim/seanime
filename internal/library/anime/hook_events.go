@@ -98,7 +98,7 @@ type AnimeLibraryCollectionRequestedEvent struct {
 	LibraryCollection *LibraryCollection `json:"libraryCollection"`
 }
 
-// AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+// AnimeLibraryCollectionEvent is triggered when the user requests the library collection.
 type AnimeLibraryCollectionEvent struct {
 	hook_resolver.Event
 	LibraryCollection *LibraryCollection `json:"libraryCollection"`
@@ -137,4 +137,22 @@ type AnimeEntryDownloadInfoRequestedEvent struct {
 type AnimeEntryDownloadInfoEvent struct {
 	hook_resolver.Event
 	EntryDownloadInfo *EntryDownloadInfo `json:"entryDownloadInfo"`
+}
+
+/////////////////////////////////////
+
+// AnimeEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.
+// Prevent default to skip the default behavior and return your own data.
+type AnimeEpisodeCollectionRequestedEvent struct {
+	hook_resolver.Event
+	Media    *anilist.BaseAnime      `json:"media"`
+	Metadata *metadata.AnimeMetadata `json:"metadata"`
+	// Empty episode collection object, will be used if the hook prevents the default behavior
+	EpisodeCollection *EpisodeCollection `json:"episodeCollection"`
+}
+
+// AnimeEpisodeCollectionEvent is triggered when the episode collection is being returned.
+type AnimeEpisodeCollectionEvent struct {
+	hook_resolver.Event
+	EpisodeCollection *EpisodeCollection `json:"episodeCollection"`
 }

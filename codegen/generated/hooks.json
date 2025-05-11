@@ -2177,7 +2177,7 @@
         }
       ],
       "comments": [
-        " AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection."
+        " AnimeLibraryCollectionEvent is triggered when the user requests the library collection."
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"
@@ -2468,6 +2468,141 @@
       ],
       "comments": [
         " AnimeEntryDownloadInfoEvent is triggered when the download info is being returned."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anime",
+    "goStruct": {
+      "filepath": "../internal/library/anime/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "AnimeEpisodeCollectionRequestedEvent",
+      "formattedName": "Anime_AnimeEpisodeCollectionRequestedEvent",
+      "package": "anime",
+      "fields": [
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
+          "usedTypescriptType": "AL_BaseAnime",
+          "usedStructName": "anilist.BaseAnime",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Metadata",
+          "jsonName": "metadata",
+          "goType": "metadata.AnimeMetadata",
+          "typescriptType": "Metadata_AnimeMetadata",
+          "usedTypescriptType": "Metadata_AnimeMetadata",
+          "usedStructName": "metadata.AnimeMetadata",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "EpisodeCollection",
+          "jsonName": "episodeCollection",
+          "goType": "EpisodeCollection",
+          "typescriptType": "Anime_EpisodeCollection",
+          "usedTypescriptType": "Anime_EpisodeCollection",
+          "usedStructName": "anime.EpisodeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " AnimeEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.",
+        " Prevent default to skip the default behavior and return your own data."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "anime",
+    "goStruct": {
+      "filepath": "../internal/library/anime/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "AnimeEpisodeCollectionEvent",
+      "formattedName": "Anime_AnimeEpisodeCollectionEvent",
+      "package": "anime",
+      "fields": [
+        {
+          "name": "EpisodeCollection",
+          "jsonName": "episodeCollection",
+          "goType": "EpisodeCollection",
+          "typescriptType": "Anime_EpisodeCollection",
+          "usedTypescriptType": "Anime_EpisodeCollection",
+          "usedStructName": "anime.EpisodeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " AnimeEpisodeCollectionEvent is triggered when the episode collection is being returned."
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"
@@ -6162,128 +6297,6 @@
       "comments": [
         " TorrentStreamSendStreamToMediaPlayerEvent is triggered when the torrent stream is about to send a stream to the media player.",
         " Prevent default to skip the default playback and override the playback."
-      ],
-      "embeddedStructNames": [
-        "hook_resolver.Event"
-      ]
-    }
-  },
-  {
-    "package": "torrentstream",
-    "goStruct": {
-      "filepath": "../internal/torrentstream/hook_events.go",
-      "filename": "hook_events.go",
-      "name": "TorrentStreamEpisodeCollectionRequestedEvent",
-      "formattedName": "Torrentstream_TorrentStreamEpisodeCollectionRequestedEvent",
-      "package": "torrentstream",
-      "fields": [
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "typescriptType": "number",
-          "required": true,
-          "public": true,
-          "comments": []
-        },
-        {
-          "name": "EpisodeCollection",
-          "jsonName": "episodeCollection",
-          "goType": "EpisodeCollection",
-          "typescriptType": "Torrentstream_EpisodeCollection",
-          "usedTypescriptType": "Torrentstream_EpisodeCollection",
-          "usedStructName": "torrentstream.EpisodeCollection",
-          "required": false,
-          "public": true,
-          "comments": []
-        },
-        {
-          "name": "next",
-          "jsonName": "next",
-          "goType": "",
-          "typescriptType": "any",
-          "required": true,
-          "public": false,
-          "comments": []
-        },
-        {
-          "name": "preventDefault",
-          "jsonName": "preventDefault",
-          "goType": "",
-          "typescriptType": "any",
-          "required": true,
-          "public": false,
-          "comments": []
-        },
-        {
-          "name": "DefaultPrevented",
-          "jsonName": "defaultPrevented",
-          "goType": "bool",
-          "typescriptType": "boolean",
-          "required": true,
-          "public": true,
-          "comments": []
-        }
-      ],
-      "comments": [
-        " TorrentStreamEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.",
-        " Prevent default to skip the default behavior and return your own data."
-      ],
-      "embeddedStructNames": [
-        "hook_resolver.Event"
-      ]
-    }
-  },
-  {
-    "package": "torrentstream",
-    "goStruct": {
-      "filepath": "../internal/torrentstream/hook_events.go",
-      "filename": "hook_events.go",
-      "name": "TorrentStreamEpisodeCollectionEvent",
-      "formattedName": "Torrentstream_TorrentStreamEpisodeCollectionEvent",
-      "package": "torrentstream",
-      "fields": [
-        {
-          "name": "EpisodeCollection",
-          "jsonName": "episodeCollection",
-          "goType": "EpisodeCollection",
-          "typescriptType": "Torrentstream_EpisodeCollection",
-          "usedTypescriptType": "Torrentstream_EpisodeCollection",
-          "usedStructName": "torrentstream.EpisodeCollection",
-          "required": false,
-          "public": true,
-          "comments": []
-        },
-        {
-          "name": "next",
-          "jsonName": "next",
-          "goType": "",
-          "typescriptType": "any",
-          "required": true,
-          "public": false,
-          "comments": []
-        },
-        {
-          "name": "preventDefault",
-          "jsonName": "preventDefault",
-          "goType": "",
-          "typescriptType": "any",
-          "required": true,
-          "public": false,
-          "comments": []
-        },
-        {
-          "name": "DefaultPrevented",
-          "jsonName": "defaultPrevented",
-          "goType": "bool",
-          "typescriptType": "boolean",
-          "required": true,
-          "public": true,
-          "comments": []
-        }
-      ],
-      "comments": [
-        " TorrentStreamEpisodeCollectionEvent is triggered when the episode collection is being returned."
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"

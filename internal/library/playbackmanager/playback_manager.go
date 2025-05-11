@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -37,11 +38,10 @@ var playbackStatePool = sync.Pool{
 type (
 	PlaybackType string
 
-	// PlaybackManager is used as an interface between the video playback and progress tracking.
-	// It can receive progress updates and dispatch appropriate events for:
-	//  - syncing progress with AniList, MAL, etc.
-	//  - sending notifications to the client
-	//  - DEVNOTE: in the future, it could also be used to implement w2g, handle built-in player or allow multiple watchers
+	// PlaybackManager manages video playback (local and stream) and progress tracking for desktop media players.
+	// It receives and dispatch appropriate events for:
+	//  - Syncing progress with AniList, etc.
+	//  - Sending notifications to the client
 	PlaybackManager struct {
 		Logger                *zerolog.Logger
 		Database              *db.Database
@@ -54,6 +54,7 @@ type (
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
 		platform                   platform.Platform
+		metadataProvider           metadata.Provider
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.Mutex
@@ -80,10 +81,6 @@ type (
 		currentLocalFileWrapperEntry mo.Option[*anime.LocalFileWrapperEntry] // This contains the current media entry local file data
 
 		// \/ Stream playback
-		// DEVNOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
-		// we will just not track the progress in that case
-		// This is set by [SetStreamEpisodeCollection]
-		currentStreamEpisodeCollection mo.Option[*anime.EpisodeCollection]
 		// The current episode being streamed, set in [StartStreamingUsingMediaPlayer] by finding the episode in currentStreamEpisodeCollection
 		currentStreamEpisode mo.Option[*anime.Episode]
 		// The current media being streamed, set in [StartStreamingUsingMediaPlayer]
@@ -139,6 +136,7 @@ type (
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
 		Platform                   platform.Platform
+		MetadataProvider           metadata.Provider
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
@@ -153,48 +151,34 @@ type (
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	pm := &PlaybackManager{
-		Logger:                         opts.Logger,
-		Database:                       opts.Database,
-		settings:                       &Settings{},
-		discordPresence:                opts.DiscordPresence,
-		wsEventManager:                 opts.WSEventManager,
-		platform:                       opts.Platform,
-		refreshAnimeCollectionFunc:     opts.RefreshAnimeCollectionFunc,
-		mu:                             sync.Mutex{},
-		autoPlayMu:                     sync.Mutex{},
-		eventMu:                        sync.Mutex{},
-		historyMap:                     make(map[string]PlaybackState),
-		isOffline:                      opts.IsOffline,
-		nextEpisodeLocalFile:           mo.None[*anime.LocalFile](),
-		currentStreamEpisodeCollection: mo.None[*anime.EpisodeCollection](),
-		currentStreamEpisode:           mo.None[*anime.Episode](),
-		currentStreamMedia:             mo.None[*anilist.BaseAnime](),
-		animeCollection:                mo.None[*anilist.AnimeCollection](),
-		currentManualTrackingState:     mo.None[*ManualTrackingState](),
-		currentLocalFile:               mo.None[*anime.LocalFile](),
-		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
-		currentMediaListEntry:          mo.None[*anilist.AnimeListEntry](),
-		continuityManager:              opts.ContinuityManager,
-		playbackStatusSubscribers:      result.NewResultMap[string, *PlaybackStatusSubscriber](),
+		Logger:                       opts.Logger,
+		Database:                     opts.Database,
+		settings:                     &Settings{},
+		discordPresence:              opts.DiscordPresence,
+		wsEventManager:               opts.WSEventManager,
+		platform:                     opts.Platform,
+		metadataProvider:             opts.MetadataProvider,
+		refreshAnimeCollectionFunc:   opts.RefreshAnimeCollectionFunc,
+		mu:                           sync.Mutex{},
+		autoPlayMu:                   sync.Mutex{},
+		eventMu:                      sync.Mutex{},
+		historyMap:                   make(map[string]PlaybackState),
+		isOffline:                    opts.IsOffline,
+		nextEpisodeLocalFile:         mo.None[*anime.LocalFile](),
+		currentStreamEpisode:         mo.None[*anime.Episode](),
+		currentStreamMedia:           mo.None[*anilist.BaseAnime](),
+		animeCollection:              mo.None[*anilist.AnimeCollection](),
+		currentManualTrackingState:   mo.None[*ManualTrackingState](),
+		currentLocalFile:             mo.None[*anime.LocalFile](),
+		currentLocalFileWrapperEntry: mo.None[*anime.LocalFileWrapperEntry](),
+		currentMediaListEntry:        mo.None[*anilist.AnimeListEntry](),
+		continuityManager:            opts.ContinuityManager,
+		playbackStatusSubscribers:    result.NewResultMap[string, *PlaybackStatusSubscriber](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
 
 	return pm
-}
-
-func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.Episode) {
-	// DEVNOTE: This is called from the torrentstream repository instance
-
-	// Commented to fix potential deadlock
-	//pm.mu.Lock()
-	//defer pm.mu.Unlock()
-
-	pm.Logger.Trace().Msg("playback manager: Setting stream episode collection")
-
-	pm.currentStreamEpisodeCollection = mo.Some(&anime.EpisodeCollection{
-		Episodes: ec,
-	})
 }
 
 func (pm *PlaybackManager) SetAnimeCollection(ac *anilist.AnimeCollection) {
@@ -374,22 +358,21 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.currentStreamMedia = mo.Some(media)
-
 	episodeNumber := 0
 
-	// Set the current episode being streamed
-	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
-	if pm.currentStreamEpisodeCollection.IsPresent() {
-		for _, episode := range pm.currentStreamEpisodeCollection.MustGet().Episodes {
-			if episode.AniDBEpisode == aniDbEpisode {
-				episodeNumber = episode.EpisodeNumber
-				pm.currentStreamEpisode = mo.Some(episode)
-				break
-			}
-		}
+	// Find the current episode being stream
+	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
+		AnimeMetadata:    nil,
+		Media:            media,
+		MetadataProvider: pm.metadataProvider,
+		Logger:           pm.Logger,
+	})
+
+	if episode, ok := episodeCollection.FindEpisodeByAniDB(aniDbEpisode); ok {
+		episodeNumber = episode.EpisodeNumber
+		pm.currentStreamEpisode = mo.Some(episode)
 	} else {
-		//DEVNOTE: This will happen if the server is restarted and the stream page is not reloaded
-		pm.Logger.Warn().Msg("playback manager: Stream episode collection is not set, no tracking will be done. Please refresh the page and try again if this shouldn't happen")
+		pm.Logger.Warn().Str("episode", aniDbEpisode).Msg("playback manager: Failed to find episode in episode collection")
 	}
 
 	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID, windowTitle)

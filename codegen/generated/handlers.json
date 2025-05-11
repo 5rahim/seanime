@@ -587,6 +587,51 @@
     }
   },
   {
+    "name": "HandleGetAnimeEpisodeCollection",
+    "trimmedName": "GetAnimeEpisodeCollection",
+    "comments": [
+      "HandleGetAnimeEpisodeCollection",
+      "",
+      "\t@summary gets list of main episodes",
+      "\t@desc This returns a list of main episodes for the given AniList anime media id.",
+      "\t@desc It also loads the episode list into the different modules.",
+      "\t@returns anime.EpisodeCollection",
+      "\t@param id - int - true - \"AniList anime media ID\"",
+      "\t@route /api/v1/anime/episode-collection/{id} [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/anime.go",
+    "filename": "anime.go",
+    "api": {
+      "summary": "gets list of main episodes",
+      "descriptions": [
+        "This returns a list of main episodes for the given AniList anime media id.",
+        "It also loads the episode list into the different modules."
+      ],
+      "endpoint": "/api/v1/anime/episode-collection/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList anime media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "anime.EpisodeCollection",
+      "returnGoType": "anime.EpisodeCollection",
+      "returnTypescriptType": "Anime_EpisodeCollection"
+    }
+  },
+  {
     "name": "HandleGetLibraryCollection",
     "trimmedName": "GetLibraryCollection",
     "comments": [
@@ -8340,49 +8385,6 @@
       "returns": "torrent.SearchData",
       "returnGoType": "torrent.SearchData",
       "returnTypescriptType": "Torrent_SearchData"
-    }
-  },
-  {
-    "name": "HandleGetTorrentstreamEpisodeCollection",
-    "trimmedName": "GetTorrentstreamEpisodeCollection",
-    "comments": [
-      "HandleGetTorrentstreamEpisodeCollection",
-      "",
-      "\t@summary get list of episodes",
-      "\t@desc This returns a list of episodes.",
-      "\t@returns torrentstream.EpisodeCollection",
-      "\t@param id - int - true - \"AniList anime media ID\"",
-      "\t@route /api/v1/torrentstream/episodes/{id} [GET]",
-      ""
-    ],
-    "filepath": "internal/handlers/torrentstream.go",
-    "filename": "torrentstream.go",
-    "api": {
-      "summary": "get list of episodes",
-      "descriptions": [
-        "This returns a list of episodes."
-      ],
-      "endpoint": "/api/v1/torrentstream/episodes/{id}",
-      "methods": [
-        "GET"
-      ],
-      "params": [
-        {
-          "name": "id",
-          "jsonName": "id",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": [
-            "AniList anime media ID"
-          ]
-        }
-      ],
-      "bodyFields": [],
-      "returns": "torrentstream.EpisodeCollection",
-      "returnGoType": "torrentstream.EpisodeCollection",
-      "returnTypescriptType": "Torrentstream_EpisodeCollection"
     }
   },
   {
