@@ -158,6 +158,7 @@ type DiscordSettings struct {
 	RichPresenceHideSeanimeRepositoryButton bool `gorm:"column:rich_presence_hide_seanime_repository_button" json:"richPresenceHideSeanimeRepositoryButton"`
 	RichPresenceShowAniListMediaButton      bool `gorm:"column:rich_presence_show_anilist_media_button" json:"richPresenceShowAniListMediaButton"`
 	RichPresenceShowAniListProfileButton    bool `gorm:"column:rich_presence_show_anilist_profile_button" json:"richPresenceShowAniListProfileButton"`
+	RichPresenceStatusTitle                 bool `gorm:"column:rich_presence_status_title" json:"richPresenceStatusTitle"`
 }
 
 type NotificationSettings struct {
