@@ -73,7 +73,7 @@ export const settingsSchema = z.object({
     richPresenceHideSeanimeRepositoryButton: z.boolean().optional().default(false),
     richPresenceShowAniListMediaButton: z.boolean().optional().default(false),
     richPresenceShowAniListProfileButton: z.boolean().optional().default(false),
-    richPresenceUseMediaTitleStatus: z.boolean().optional().default(false),
+    richPresenceUseMediaTitleStatus: z.boolean().optional().default(true),
     disableNotifications: z.boolean().optional().default(false),
     disableAutoDownloaderNotifications: z.boolean().optional().default(false),
     disableAutoScannerNotifications: z.boolean().optional().default(false),
