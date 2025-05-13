@@ -1148,6 +1148,15 @@
           "comments": []
         },
         {
+          "name": "Name",
+          "jsonName": "name",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "Details",
           "jsonName": "details",
           "goType": "string",
@@ -1304,6 +1313,15 @@
           "usedTypescriptType": "DiscordRPC_MangaActivity",
           "usedStructName": "discordrpc_presence.MangaActivity",
           "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Name",
+          "jsonName": "name",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
           "public": true,
           "comments": []
         },

@@ -1960,28 +1960,6 @@ export type DebridClient_StreamState = {
 export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "started"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Directstream
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/mediastream/directstream/stream.go
- * - Filename: stream.go
- * - Package: directstream
- */
-export type MediaContainer = {
-    streamType: StreamType
-    streamUrl: string
-    mkvMetadata?: Metadata
-}
-
-/**
- * - Filepath: internal/mediastream/directstream/stream.go
- * - Filename: stream.go
- * - Package: directstream
- */
-export type StreamType = "torrent" | "localfile" | "debrid"
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2880,7 +2858,7 @@ export type Metadata_EpisodeMetadata = {
  * @description
  *  AttachmentInfo holds extracted information about an attachment.
  */
-export type AttachmentInfo = {
+export type MKVParser_AttachmentInfo = {
     uid: number
     filename: string
     mimetype: string
@@ -2894,7 +2872,7 @@ export type AttachmentInfo = {
  * @description
  *  ChapterInfo holds extracted information about a chapter.
  */
-export type ChapterInfo = {
+export type MKVParser_ChapterInfo = {
     uid: number
     /**
      * Start time in seconds
@@ -2912,7 +2890,7 @@ export type ChapterInfo = {
  * - Filename: structs.go
  * - Package: mkvparser
  */
-export type ContentCompression = {
+export type MKVParser_ContentCompression = {
     /**
      * Default 0
      */
@@ -2925,7 +2903,7 @@ export type ContentCompression = {
  * - Filename: structs.go
  * - Package: mkvparser
  */
-export type ContentEncAESSettings = {
+export type MKVParser_ContentEncAESSettings = {
     AESSettingsCipherMode: number
 }
 
@@ -2934,7 +2912,7 @@ export type ContentEncAESSettings = {
  * - Filename: structs.go
  * - Package: mkvparser
  */
-export type ContentEncoding = {
+export type MKVParser_ContentEncoding = {
     /**
      * Default 0
      */
@@ -2947,8 +2925,8 @@ export type ContentEncoding = {
      * Default 0
      */
     ContentEncodingType: number
-    ContentCompression?: ContentCompression
-    ContentEncryption?: ContentEncryption
+    ContentCompression?: MKVParser_ContentCompression
+    ContentEncryption?: MKVParser_ContentEncryption
 }
 
 /**
@@ -2956,8 +2934,8 @@ export type ContentEncoding = {
  * - Filename: structs.go
  * - Package: mkvparser
  */
-export type ContentEncodings = {
-    ContentEncoding?: Array<ContentEncoding>
+export type MKVParser_ContentEncodings = {
+    ContentEncoding?: Array<MKVParser_ContentEncoding>
 }
 
 /**
@@ -2965,7 +2943,7 @@ export type ContentEncodings = {
  * - Filename: structs.go
  * - Package: mkvparser
  */
-export type ContentEncryption = {
+export type MKVParser_ContentEncryption = {
     /**
      * Default 0, deprecated
      */
@@ -2977,7 +2955,7 @@ export type ContentEncryption = {
     /**
      * Deprecated
      */
-    ContentEncAESSettings?: ContentEncAESSettings
+    ContentEncAESSettings?: MKVParser_ContentEncAESSettings
     /**
      * Deprecated
      */
@@ -3003,7 +2981,7 @@ export type ContentEncryption = {
  * @description
  *  Metadata holds all extracted metadata.
  */
-export type Metadata = {
+export type MKVParser_Metadata = {
     title?: string
     /**
      * Duration in seconds
@@ -3015,10 +2993,44 @@ export type Metadata = {
     timecodeScale: number
     muxingApp?: string
     writingApp?: string
-    tracks?: Array<TrackInfo>
-    chapters?: Array<ChapterInfo>
-    attachments?: Array<AttachmentInfo>
-    error?: error
+    tracks?: Array<MKVParser_TrackInfo>
+    videoTracks?: Array<MKVParser_TrackInfo>
+    audioTracks?: Array<MKVParser_TrackInfo>
+    subtitleTracks?: Array<MKVParser_TrackInfo>
+    chapters?: Array<MKVParser_ChapterInfo>
+    attachments?: Array<MKVParser_AttachmentInfo>
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/mkvparser.go
+ * - Filename: mkvparser.go
+ * - Package: mkvparser
+ * @description
+ *  SubtitleEvent holds information for a single subtitle entry.
+ */
+export type MKVParser_SubtitleEvent = {
+    trackNumber: number
+    /**
+     * Content
+     */
+    text: string
+    /**
+     * Start time in seconds
+     */
+    startTime: number
+    /**
+     * Duration in seconds
+     */
+    duration: number
+    /**
+     * e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
+     */
+    codecID: string
+    /**
+     * For ASS/SSA styling, etc.
+     */
+    codecPrivate: string
+    extraData?: Record<string, string>
 }
 
 /**
@@ -3028,13 +3040,13 @@ export type Metadata = {
  * @description
  *  TrackInfo holds extracted information about a media track.
  */
-export type TrackInfo = {
+export type MKVParser_TrackInfo = {
     number: number
     uid: number
     /**
      * "video", "audio", "subtitle", etc.
      */
-    type: TrackType
+    type: MKVParser_TrackType
     codecID: string
     name?: string
     /**
@@ -3062,7 +3074,7 @@ export type TrackInfo = {
  * @description
  *  TrackType represents the type of a Matroska track.
  */
-export type TrackType = "video" |
+export type MKVParser_TrackType = "video" |
     "audio" |
     "subtitle" |
     "logo" |
@@ -3409,6 +3421,61 @@ export type Models_TorrentstreamSettings = {
     createdAt?: string
     updatedAt?: string
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Nativeplayer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediastream/nativeplayer/events.go
+ * - Filename: events.go
+ * - Package: nativeplayer
+ */
+export type NativePlayer_ClientEvent = "can-play" |
+    "video-started" |
+    "video-paused" |
+    "video-resumed" |
+    "video-ended" |
+    "video-seeked" |
+    "video-error" |
+    "video-time-update" |
+    "video-metadata"
+
+/**
+ * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
+ * - Filename: nativeplayer.go
+ * - Package: nativeplayer
+ */
+export type NativePlayer_PlaybackInfo = {
+    streamType: NativePlayer_StreamType
+    mimeType: string
+    streamUrl: string
+    /**
+     * nil if not ebml
+     */
+    mkvMetadata?: MKVParser_Metadata
+}
+
+/**
+ * - Filepath: internal/mediastream/nativeplayer/events.go
+ * - Filename: events.go
+ * - Package: nativeplayer
+ */
+export type NativePlayer_ServerEvent = "open-and-await" |
+    "watch" |
+    "subtitle-event" |
+    "set-tracks" |
+    "pause" |
+    "resume" |
+    "seek" |
+    "error"
+
+/**
+ * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
+ * - Filename: nativeplayer.go
+ * - Package: nativeplayer
+ */
+export type NativePlayer_StreamType = "torrent" | "localfile" | "debrid"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Onlinestream

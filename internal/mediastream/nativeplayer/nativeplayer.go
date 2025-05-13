@@ -20,11 +20,11 @@ const (
 type (
 	PlaybackInfo struct {
 		StreamType  StreamType          `json:"streamType"`
-		Mimetype    string              `json:"mimetype"`
+		MimeType    string              `json:"mimeType"`
 		StreamUrl   string              `json:"streamUrl"`
-		MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"`
+		MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"` // nil if not ebml
 
-		OptionalMkvMetadata mo.Option[*mkvparser.Metadata] `json:"-"`
+		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}
 )
 
@@ -38,6 +38,8 @@ type (
 		playbackStatusMu sync.RWMutex
 		playbackStatus   *PlaybackStatus
 
+		currentClientId string
+
 		subscribers *result.Map[string, *Subscriber]
 	}
 
@@ -50,7 +52,7 @@ type (
 
 	// Subscriber listens to the player events
 	Subscriber struct {
-		eventCh chan interface{}
+		eventCh chan VideoEvent
 	}
 
 	NewNativePlayerOptions struct {
@@ -66,20 +68,20 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 		subscribers:                 result.NewResultMap[string, *Subscriber](),
 	}
 
-	np.listenToClientEvents()
+	np.listenToPlayerEvents()
 
 	return np
 }
 
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
-func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}) {
+func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
 	p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
 		Type    string      `json:"type"`
 		Payload interface{} `json:"payload"`
 	}{
 		Type:    t,
 		Payload: payload,
-	})
+	}, noLog...)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +89,7 @@ func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload inte
 // Subscribe lets other modules subscribe to the native player events
 func (p *NativePlayer) Subscribe(id string) *Subscriber {
 	subscriber := &Subscriber{
-		eventCh: make(chan interface{}, 10),
+		eventCh: make(chan VideoEvent, 10),
 	}
 	p.subscribers.Set(id, subscriber)
 
@@ -99,7 +101,7 @@ func (p *NativePlayer) Unsubscribe(id string) {
 	p.subscribers.Delete(id)
 }
 
-func (p *NativePlayer) NotifySubscribers(event interface{}) {
+func (p *NativePlayer) NotifySubscribers(event VideoEvent) {
 	p.subscribers.Range(func(id string, subscriber *Subscriber) bool {
 		select {
 		case subscriber.eventCh <- event:
@@ -131,5 +133,8 @@ func (p *NativePlayer) setPlaybackStatus(do func()) {
 	p.playbackStatusMu.Lock()
 	defer p.playbackStatusMu.Unlock()
 	do()
-	p.NotifySubscribers(p.playbackStatus)
+	p.NotifySubscribers(&VideoStatusEvent{
+		clientId: p.currentClientId,
+		Status:   *p.playbackStatus,
+	})
 }

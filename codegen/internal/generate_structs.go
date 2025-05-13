@@ -116,6 +116,9 @@ var typePrefixesByPackage = map[string]string{
 	"habari":             "Habari_",
 	"vendor_habari":      "Habari_",
 	"discordrpc_client":  "DiscordRPC_",
+	"directstream":       "Directstream_",
+	"nativeplayer":       "NativePlayer_",
+	"mkvparser":          "MKVParser_",
 }
 
 func getTypePrefix(packageName string) string {

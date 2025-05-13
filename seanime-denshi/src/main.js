@@ -247,6 +247,23 @@ function createTray() {
  */
 async function launchSeanimeServer() {
     return new Promise((resolve, reject) => {
+        // TEST ONLY: Check for -no-binary flag
+        if (process.argv.includes('-no-binary')) {
+            logStartupEvent('SKIPPING SERVER LAUNCH', 'Detected -no-binary flag');
+            console.log('[Main] Skipping server launch due to -no-binary flag');
+            serverStarted = true; // Assume server is "started" for UI flow
+            // Resolve immediately to bypass server spawning
+            if (splashScreen && !splashScreen.isDestroyed()) {
+                splashScreen.close();
+                splashScreen = null;
+            }
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.maximize();
+                mainWindow.show();
+            }
+            return resolve();
+        }
+
         // Determine the correct binary to use based on platform and architecture
         let binaryName = '';
         if (process.platform === 'win32') {

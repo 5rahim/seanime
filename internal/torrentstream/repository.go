@@ -89,7 +89,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		db:                              opts.Database,
 	}
 	ret.client = NewClient(ret)
-	ret.handler = NewHandler(ret)
+	ret.handler = newHandler(ret)
 	return ret
 }
 

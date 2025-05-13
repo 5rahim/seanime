@@ -548,11 +548,11 @@ declare namespace $app {
     interface AnimeEpisodeCollectionRequestedEvent {
         next(): void;
 
+        preventDefault(): void;
+
         media?: AL_BaseAnime;
         metadata?: Metadata_AnimeMetadata;
         episodeCollection?: Anime_EpisodeCollection;
-
-        preventDefault(): void;
     }
 
     /**
@@ -564,9 +564,9 @@ declare namespace $app {
     function onAnimeEpisodeCollection(cb: (event: AnimeEpisodeCollectionEvent) => void): void;
 
     interface AnimeEpisodeCollectionEvent {
-        episodeCollection?: Anime_EpisodeCollection;
-
         next(): void;
+
+        episodeCollection?: Anime_EpisodeCollection;
     }
 
 
@@ -884,6 +884,7 @@ declare namespace $app {
         preventDefault(): void;
 
         animeActivity?: DiscordRPC_AnimeActivity;
+        name: string;
         details: string;
         state: string;
         startTimestamp?: number;
@@ -914,6 +915,7 @@ declare namespace $app {
         preventDefault(): void;
 
         mangaActivity?: DiscordRPC_MangaActivity;
+        name: string;
         details: string;
         state: string;
         startTimestamp?: number;

@@ -3,7 +3,7 @@ package events
 type WebsocketClientEventType string
 
 const (
-	NativePlayerEventType WebsocketClientEventType = "nativeplayer"
+	NativePlayerEventType WebsocketClientEventType = "native-player"
 	PluginEvent           WebsocketClientEventType = "plugin"
 )
 

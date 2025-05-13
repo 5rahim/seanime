@@ -3,10 +3,11 @@ package mediastream
 import (
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 const (

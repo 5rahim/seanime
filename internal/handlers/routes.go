@@ -383,6 +383,13 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
 
 	//
+	// Direct Stream
+	//
+	v1.POST("/directstream/play/localfile", h.HandleDirectstreamPlayLocalFile)
+	v1.GET("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
+	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
+
+	//
 	// Torrent stream
 	//
 	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)

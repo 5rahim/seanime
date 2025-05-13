@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/at-wat/ebml-go"
+	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
@@ -26,15 +27,25 @@ const (
 
 // SubtitleEvent holds information for a single subtitle entry.
 type SubtitleEvent struct {
-	TrackNumber  uint64  `json:"trackNumber"`
-	Text         string  `json:"text"`         // Content
-	StartTime    float64 `json:"startTime"`    // Start time in seconds
-	Duration     float64 `json:"duration"`     // Duration in seconds
-	CodecID      string  `json:"codecID"`      // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
-	CodecPrivate string  `json:"codecPrivate"` // For ASS/SSA styling, etc.
+	TrackNumber uint64  `json:"trackNumber"`
+	Text        string  `json:"text"`      // Content
+	StartTime   float64 `json:"startTime"` // Start time in seconds
+	Duration    float64 `json:"duration"`  // Duration in seconds
+	CodecID     string  `json:"codecID"`   // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
+	//CodecPrivate string  `json:"codecPrivate"` // For ASS/SSA styling, etc.
 	// ExtraData is a map of additional subtitle-specific data.
 	// For ASS/SSA, the keys are "readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"
 	ExtraData map[string]string `json:"extraData,omitempty"`
+}
+
+// GetSubtitleEventKey stringifies the subtitle event to serve as a key
+func GetSubtitleEventKey(se *SubtitleEvent) string {
+	// JSON stringify
+	marshaled, err := json.Marshal(se)
+	if err != nil {
+		return ""
+	}
+	return string(marshaled)
 }
 
 // MetadataParser parses Matroska metadata from a torrent file.
@@ -157,10 +168,13 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 
 	mp.metadataOnce.Do(func() {
 		result := &Metadata{
-			Tracks:      make([]*TrackInfo, 0),
-			Chapters:    make([]*ChapterInfo, 0),
-			Attachments: make([]*AttachmentInfo, 0),
-			Error:       mp.parseErr, // Assign error from parsing attempt
+			VideoTracks:    make([]*TrackInfo, 0),
+			AudioTracks:    make([]*TrackInfo, 0),
+			SubtitleTracks: make([]*TrackInfo, 0),
+			Tracks:         make([]*TrackInfo, 0),
+			Chapters:       make([]*ChapterInfo, 0),
+			Attachments:    make([]*AttachmentInfo, 0),
+			Error:          mp.parseErr, // Assign error from parsing attempt
 		}
 
 		if mp.parseErr != nil {
@@ -263,6 +277,15 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 				}
 
 				result.Tracks = append(result.Tracks, ti)
+
+				switch ti.Type {
+				case TrackTypeVideo:
+					result.VideoTracks = append(result.VideoTracks, ti)
+				case TrackTypeAudio:
+					result.AudioTracks = append(result.AudioTracks, ti)
+				case TrackTypeSubtitle:
+					result.SubtitleTracks = append(result.SubtitleTracks, ti)
+				}
 			}
 		}
 
@@ -504,13 +527,13 @@ func (mp *MetadataParser) StreamSubtitles(ctx context.Context, newReader ...io.R
 
 							initialText := string(payload)
 							subtitleEvent := &SubtitleEvent{
-								TrackNumber:  trackInfo.Number,
-								Text:         initialText, // Default to full payload
-								StartTime:    startTime,
-								Duration:     duration,
-								CodecID:      trackInfo.CodecID,
-								CodecPrivate: string(trackInfo.CodecPrivate),
-								ExtraData:    make(map[string]string),
+								TrackNumber: trackInfo.Number,
+								Text:        initialText, // Default to full payload
+								StartTime:   startTime,
+								Duration:    duration,
+								CodecID:     trackInfo.CodecID,
+								//CodecPrivate: string(trackInfo.CodecPrivate),
+								ExtraData: make(map[string]string),
 							}
 
 							// Special handling for ASS/SSA format

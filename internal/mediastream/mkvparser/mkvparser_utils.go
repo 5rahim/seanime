@@ -5,12 +5,16 @@ import (
 	"io"
 )
 
-func IsMkvOrWebm(r io.ReadSeeker) (string, bool) {
+// ReadIsMkvOrWebm reads the first 1KB of the stream to determine if it is a Matroska or WebM file.
+// It returns the mime type and a boolean indicating if it is a Matroska or WebM file.
+// It seeks to the beginning of the stream before and after reading.
+func ReadIsMkvOrWebm(r io.ReadSeeker) (string, bool) {
 	// Go to the beginning of the stream
 	_, err := r.Seek(0, io.SeekStart)
 	if err != nil {
 		return "", false
 	}
+	defer r.Seek(0, io.SeekStart)
 
 	return isMkvOrWebm(r)
 }
@@ -42,9 +46,9 @@ func isMkvOrWebm(r io.Reader) (string, bool) {
 	docType := string(header[idx+3 : idx+3+size])
 	switch docType {
 	case "matroska":
-		return "mkv", false
+		return "video/x-matroska", true
 	case "webm":
-		return "webm", false
+		return "video/webm", true
 	default:
 		return "", false
 	}

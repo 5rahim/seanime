@@ -31,6 +31,7 @@ const (
 	DeleteMangaDownloadedChaptersEndpoint              = "MANGA-DOWNLOAD-delete-manga-downloaded-chapters"
 	DeletePlaylistEndpoint                             = "PLAYLIST-delete-playlist"
 	DirectorySelectorEndpoint                          = "DIRECTORY-SELECTOR-directory-selector"
+	DirectstreamPlayLocalFileEndpoint                  = "DIRECTSTREAM-directstream-play-local-file"
 	DownloadIssueReportEndpoint                        = "REPORT-download-issue-report"
 	DownloadMangaChaptersEndpoint                      = "MANGA-DOWNLOAD-download-manga-chapters"
 	DownloadReleaseEndpoint                            = "DOWNLOAD-download-release"

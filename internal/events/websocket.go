@@ -14,7 +14,7 @@ import (
 
 type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
-	SendEventTo(clientId string, t string, payload interface{})
+	SendEventTo(clientId string, t string, payload interface{}, noLog ...bool)
 	SubscribeToClientEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber
 	UnsubscribeFromClientEvents(id string)
@@ -151,14 +151,16 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 }
 
 // SendEventTo sends a websocket event to the specified client.
-func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}) {
+func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	for _, conn := range m.Conns {
 		if conn.ID == clientId {
 			if t != "pong" {
-				m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+				if len(noLog) == 0 || !noLog[0] {
+					m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+				}
 			}
 			_ = conn.Conn.WriteJSON(WSEvent{
 				Type:    t,

@@ -41,6 +41,7 @@ export const enum WSEvents {
     INVALIDATE_QUERIES = "invalidate-queries",
     CONSOLE_LOG = "console-log",
     CONSOLE_WARN = "console-warn",
+    NATIVE_PLAYER = "native-player",
 }
 
 export const enum WebviewEvents {

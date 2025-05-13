@@ -533,6 +533,18 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/directory-selector",
         },
     },
+    DIRECTSTREAM: {
+        /**
+         *  @description
+         *  Route request local file stream.
+         *  This requests a local file stream and returns the media container to start the playback.
+         */
+        DirectstreamPlayLocalFile: {
+            key: "DIRECTSTREAM-directstream-play-local-file",
+            methods: ["POST"],
+            endpoint: "/api/v1/directstream/play/localfile",
+        },
+    },
     DISCORD: {
         SetDiscordMangaActivity: {
             key: "DISCORD-set-discord-manga-activity",

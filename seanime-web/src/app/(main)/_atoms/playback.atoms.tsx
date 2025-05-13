@@ -5,10 +5,21 @@ import { atomWithStorage } from "jotai/utils"
 import { FaShareFromSquare } from "react-icons/fa6"
 import { PiVideoFill } from "react-icons/pi"
 
-export const enum PlaybackDownloadedMedia {
-    Default = "default", // Built-in player
-    ExternalPlayerLink = "externalPlayerLink",
+export const enum ElectronPlaybackMethod {
+    NativePlayer = "nativePlayer", // Desktop media player or Integrated player (media streaming)
+    Classic = "classic", // Desktop media player, media streaming or external player link
 }
+
+export const __playback_electronPlaybackMethodAtom = atomWithStorage<string>("sea-playback-electron-playback-method",
+    ElectronPlaybackMethod.NativePlayer)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const enum PlaybackDownloadedMedia {
+    Default = "default", // Desktop media player or Integrated player (media streaming)
+    ExternalPlayerLink = "externalPlayerLink", // External player link
+}
+
 
 export const playbackDownloadedMediaOptions = [
     {
@@ -58,12 +69,14 @@ export function useCurrentDevicePlaybackSettings() {
 
     const [downloadedMediaPlayback, setDownloadedMediaPlayback] = useAtom(__playback_downloadedMediaAtom)
     const [torrentStreamingPlayback, setTorrentStreamingPlayback] = useAtom(__playback_torrentStreamingAtom)
-
+    const [electronPlaybackMethod, setElectronPlaybackMethod] = useAtom(__playback_electronPlaybackMethodAtom)
     return {
         downloadedMediaPlayback,
         setDownloadedMediaPlayback,
         torrentStreamingPlayback,
         setTorrentStreamingPlayback,
+        electronPlaybackMethod,
+        setElectronPlaybackMethod,
     }
 }
 

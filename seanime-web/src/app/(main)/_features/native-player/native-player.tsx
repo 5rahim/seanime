@@ -1,3 +1,5 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
+import { NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import {
     __seaMediaPlayer_autoNextAtom,
     __seaMediaPlayer_autoPlayAtom,
@@ -7,19 +9,25 @@ import {
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { submenuClass, VdsSubmenuButton } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
+import { clientIdAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { vidstackLayoutIcons } from "@/components/shared/vidstack"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { logger } from "@/lib/helpers/debug"
+import { WSEvents } from "@/lib/server/ws-events"
+import { __isDesktop__ } from "@/types/constants"
 import {
+    isHLSProvider,
     MediaCanPlayDetail,
     MediaCanPlayEvent,
     MediaDurationChangeEvent,
     MediaEndedEvent,
     MediaEnterFullscreenRequestEvent,
+    MediaErrorDetail,
+    MediaErrorEvent,
     MediaFullscreenRequestTarget,
     MediaPauseRequestEvent,
     MediaPlayer,
@@ -35,19 +43,23 @@ import {
     Menu,
 } from "@vidstack/react"
 import { DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
+import HLS from "hls.js"
 import { useAtom, useAtomValue } from "jotai"
-import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
+import { BiExpand } from "react-icons/bi"
 import { MdPlaylistPlay } from "react-icons/md"
+import { PiSpinnerDuotone } from "react-icons/pi"
 import { RxSlider } from "react-icons/rx"
-import { nativePlayer_openAtom } from "./native-player.atoms"
+import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
+import { NativePlayerDrawer } from "./native-player-drawer"
+import { nativePlayer_stateAtom } from "./native-player.atoms"
 
 const log = logger("NATIVE PLAYER")
 
-export function NativePlayer() {
-    const [open, setOpen] = useAtom(nativePlayer_openAtom)
 
+export function NativePlayer() {
+    const clientId = useAtomValue(clientIdAtom)
     //
     // Player
     //
@@ -64,23 +76,45 @@ export function NativePlayer() {
     const [volume, setVolume] = useAtom(__seaMediaPlayer_volumeAtom)
     const [muted, setMuted] = useAtom(__seaMediaPlayer_mutedAtom)
 
-    // The playback error state
-    const [playbackError, setPlaybackError] = React.useState<string | null>(null)
-    // The url of the media to be played
-    const [url, setUrl] = React.useState<string | null>(null)
-    // The loading state
-    const [loadingState, setLoadingState] = React.useState<string | null>(null)
+    // The state
+    const [state, setState] = useAtom(nativePlayer_stateAtom)
 
     //
-    // Callbacks
+    // Start
     //
+
+
+    // Clean up player when unmounting or changing streams
+    React.useEffect(() => {
+        return () => {
+            if (playerRef.current) {
+                log.info("Cleaning up player")
+                playerRef.current.destroy()
+                playerRef.current = null
+            }
+        }
+    }, [state.playbackInfo?.streamUrl])
 
     const onProviderSetup = (detail: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) => {
         log.info("Provider setup", detail, nativeEvent)
+
+        // Reset any previous HLS instance
+        if (isHLSProvider(detail) && detail.instance) {
+            log.info("Destroying previous HLS instance")
+            detail.instance.destroy()
+            detail.library = HLS
+        }
     }
 
     const onProviderChange = (detail: MediaProviderAdapter | null, nativeEvent: MediaProviderChangeEvent) => {
         log.info("Provider change", detail, nativeEvent)
+
+        // Clean up previous provider if it exists
+        if (detail && isHLSProvider(detail) && detail.instance) {
+            log.info("Destroying previous HLS provider")
+            detail.instance.destroy()
+            detail.library = HLS
+        }
     }
 
     const onTimeUpdate = (detail: MediaTimeUpdateEventDetail, e: MediaTimeUpdateEvent) => {
@@ -93,6 +127,9 @@ export function NativePlayer() {
 
     const onCanPlay = (detail: MediaCanPlayDetail, nativeEvent: MediaCanPlayEvent) => {
         log.info("Can play", detail, nativeEvent)
+
+        log.info("Audio tracks", playerRef.current?.audioTracks?.toArray())
+        log.info("Subtitle tracks", playerRef.current?.textTracks?.toArray())
     }
 
     const onEnded = (nativeEvent: MediaEndedEvent) => {
@@ -115,151 +152,204 @@ export function NativePlayer() {
         log.info("Media seek request", detail, nativeEvent)
     }
 
+    const onError = (detail: MediaErrorDetail, nativeEvent: MediaErrorEvent) => {
+        log.info("Media error", detail, nativeEvent)
+    }
+
+    //
+    // Server events
+    //
+
+    useWebsocketMessageListener({
+        type: WSEvents.NATIVE_PLAYER,
+        onMessage: ({ type, payload: _payload }: { type: NativePlayer_ServerEvent, payload: any }) => {
+            log.info("Server event", type)
+            switch (type) {
+                // 1. Open and await
+                // The server is loading the stream
+                case "open-and-await":
+                    log.info("Open and await event received")
+                    setState(draft => {
+                        draft.active = true
+                        draft.miniPlayer = false
+                        draft.loadingState = _payload
+                        draft.playbackInfo = null
+                        draft.playbackError = null
+                        return
+                    })
+
+                    break
+                // 2. Watch
+                // We receive the playback info
+                case "watch":
+                    const payload = _payload as NativePlayer_PlaybackInfo
+                    log.info("Watch event received", payload)
+                    setState(draft => {
+                        draft.playbackInfo = payload
+                        draft.loadingState = null
+                        draft.playbackError = null
+                        return
+                    })
+                    break
+            }
+        },
+    })
+
+    //
+    // Handlers
+    //
+
+    function handleTerminateStream() {
+        // Clean up player first
+        if (playerRef.current) {
+            log.info("Destroying player")
+            playerRef.current.destroy()
+            playerRef.current = null
+        }
+
+        setState(draft => {
+            draft.active = false
+            draft.miniPlayer = false
+            draft.playbackInfo = null
+            draft.playbackError = null
+        })
+        // Send terminate stream event
+    }
+
+
+
     return (
-        <Drawer
-            open={open}
-            onOpenChange={setOpen}
-            borderToBorder
-            size="full"
-            side="bottom"
-            contentClass="h-full p-0 m-0 shadow-none bg-transparent backdrop-blur-sm"
-            // hideCloseButton
-            data-native-player-drawer
-        >
-            <div className="h-full w-full" data-native-player-container>
-                {!!playbackError ? (
-                    <LuffyError title="Playback Error">
-                        <p>
-                            {playbackError}
-                        </p>
-                    </LuffyError>
-                ) : (!!url && !loadingState) ? (
-                    <MediaPlayer
-                        data-sea-media-player
-                        streamType="on-demand"
-                        playsInline
-                        ref={playerRef}
-                        autoPlay={autoPlay}
-                        crossOrigin
-                        src={url}
-                        aspectRatio="16/9"
-                        controlsDelay={discreteControls ? 500 : undefined}
-                        className={cn(discreteControls && "discrete-controls")}
-                        onProviderSetup={onProviderSetup}
-                        onProviderChange={onProviderChange}
-                        onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
-                        onDurationChange={onDurationChange}
-                        onTimeUpdate={onTimeUpdate}
-                        onCanPlay={onCanPlay}
-                        onEnded={onEnded}
-                        onMediaPauseRequest={onMediaPauseRequest}
-                        onMediaPlayRequest={onMediaPlayRequest}
-                        onMediaSeekRequest={onMediaSeekRequest}
-                        // onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
-                        //     if (isFullscreen) {
-                        //         // Store the currently focused element
-                        //         lastFocusedElementRef.current = document.activeElement as HTMLElement
-                        //     } else {
-                        //         // Restore focus
-                        //         setTimeout(() => {
-                        //             lastFocusedElementRef.current?.focus()
-                        //         }, 100)
-                        //     }
-                        // }}
-                        volume={volume}
-                        onVolumeChange={detail => setVolume(detail.volume)}
-                        muted={muted}
-                        onMediaMuteRequest={() => setMuted(true)}
-                        onMediaUnmuteRequest={() => setMuted(false)}
-                    >
-                        <MediaProvider>
-                            {/*{tracks.map((track, index) => (*/}
-                            {/*    <Track key={`track-${index}`} {...track} />*/}
-                            {/*))}*/}
-                            {/*{chapters?.length > 0 ? chapters.map((chapter, index) => (*/}
-                            {/*    <Track kind="chapters" key={`chapter-${index}`} {...chapter} />*/}
-                            {/*)) : cues.length > 0 ? cues.map((cue, index) => (*/}
-                            {/*    <Track kind="chapters" key={`cue-${index}`} {...cue} />*/}
-                            {/*)) : null}*/}
-                        </MediaProvider>
-                        {/*<div*/}
-                        {/*    data-sea-media-player-skip-intro-outro-container*/}
-                        {/*    className="absolute bottom-24 px-4 w-full justify-between flex items-center"*/}
-                        {/*>*/}
-                        {/*    <div>*/}
-                        {/*        {showSkipIntroButton && (*/}
-                        {/*            <Button intent="white" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>*/}
-                        {/*                Skip opening*/}
-                        {/*            </Button>*/}
-                        {/*        )}*/}
-                        {/*    </div>*/}
-                        {/*    <div>*/}
-                        {/*        {showSkipEndingButton && (*/}
-                        {/*            <Button intent="white" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>*/}
-                        {/*                Skip ending*/}
-                        {/*            </Button>*/}
-                        {/*        )}*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
-                        <DefaultVideoLayout
-                            icons={vidstackLayoutIcons}
-                            slots={{
-                                ...vidstackLayoutIcons,
-                                settingsMenuEndItems: <>
-                                    {/* {settingsItems} */}
-                                    <NativePlayerPlaybackSubmenu />
-                                </>,
-                                // centerControlsGroupStart: <div>
-                                //     {onGoToPreviousEpisode && (
-                                //         <IconButton
-                                //             intent="white-basic"
-                                //             size="lg"
-                                //             onClick={onGoToPreviousEpisode}
-                                //             aria-label="Previous Episode"
-                                //             icon={<LuArrowLeft className="size-12" />}
-                                //         />
-                                //     )}
-                                // </div>,
-                                // centerControlsGroupEnd: <div className="flex items-center justify-center gap-2">
-                                //     {onGoToNextEpisode && (
-                                //         <IconButton
-                                //             intent="white-basic"
-                                //             size="lg"
-                                //             onClick={onGoToNextEpisode}
-                                //             aria-label="Next Episode"
-                                //             icon={<LuArrowRight className="size-12" />}
-                                //         />
-                                //     )}
-                                // </div>
-                            }}
-                        />
-                    </MediaPlayer>
-                ) : (
-                    <div
-                        className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
-                    >
-                        <LoadingSpinner
-                            spinner={
-                                <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
-                                    <Image
-                                        src="/logo_2.png"
-                                        alt="Loading..."
-                                        priority
-                                        fill
-                                        className="animate-pulse"
-                                    />
-                                </div>
+        <>
+            <NativePlayerDrawer
+                open={state.active}
+                onOpenChange={(v) => {
+                    if (!v) {
+                        setState(draft => {
+                            if (!state.miniPlayer) {
+                                draft.miniPlayer = true
+                            } else {
+                                handleTerminateStream()
                             }
-                        />
-                        <div className="text-center text-xs lg:text-sm">
-                            {!!loadingState && <>
-                                <p>{loadingState}</p>
-                            </>}
-                        </div>
-                    </div>
+                        })
+                    }
+                }}
+                borderToBorder
+                miniPlayer={state.miniPlayer}
+                size={state.miniPlayer ? "md" : "full"}
+                side={state.miniPlayer ? "right" : "bottom"}
+                contentClass={cn(
+                    "p-0 m-0",
+                    !state.miniPlayer && "h-full",
+                    // "h-full p-0 m-0 shadow-none bg-transparent backdrop-blur-sm transition-opacity duration-300",
+                    // state.miniPlayer && "pointer-events-none",
                 )}
-            </div>
-        </Drawer>
+                allowOutsideInteraction={true}
+                overlayClass={cn(
+                    state.miniPlayer && "hidden",
+                )}
+                closeClass={cn(
+                    "z-[99]",
+                    __isDesktop__ && !state.miniPlayer && "top-8",
+                )}
+                data-native-player-drawer
+                // closeButton={
+                //     <IconButton
+                //         type="button"
+                //         intent="gray-basic"
+                //         size="sm"
+                //         className={cn(
+                //             "rounded-full text-2xl flex-none",
+                //         )}
+                //         icon={<BiX />}
+                //     />
+                // }
+            >
+                {state.miniPlayer && (
+                    <IconButton
+                        type="button"
+                        intent="gray-basic"
+                        size="sm"
+                        className={cn(
+                            "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
+                        )}
+                        icon={<BiExpand />}
+                        onClick={() => {
+                            setState(draft => {
+                                draft.miniPlayer = false
+                            })
+                        }}
+                    />
+                )}
+                <div className="h-full w-full bg-black flex items-center z-[50]" data-native-player-container data-mini-player={state.miniPlayer}>
+                    {!!state.playbackError ? (
+                        <LuffyError title="Playback Error">
+                            <p>
+                                {state.playbackError}
+                            </p>
+                        </LuffyError>
+                    ) : (!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
+                        <MediaPlayer
+                            data-sea-media-player
+                            streamType="on-demand"
+                            playsInline
+                            ref={playerRef}
+                            autoPlay={autoPlay}
+                            crossOrigin
+                            src={{
+                                src: state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl()) + "?token=" + new Date().getTime(),
+                                type: "video/webm",
+                            }}
+                            aspectRatio={undefined}
+                            controlsDelay={discreteControls ? 500 : undefined}
+                            className={cn(discreteControls && "discrete-controls")}
+                            onProviderSetup={onProviderSetup}
+                            onProviderChange={onProviderChange}
+                            onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
+                            onDurationChange={onDurationChange}
+                            onTimeUpdate={onTimeUpdate}
+                            onCanPlay={onCanPlay}
+                            onEnded={onEnded}
+                            onMediaPauseRequest={onMediaPauseRequest}
+                            onMediaPlayRequest={onMediaPlayRequest}
+                            onMediaSeekRequest={onMediaSeekRequest}
+                            onError={onError}
+                            volume={volume}
+                            onVolumeChange={detail => setVolume(detail.volume)}
+                            muted={muted}
+                            onMediaMuteRequest={() => setMuted(true)}
+                            onMediaUnmuteRequest={() => setMuted(false)}
+                            style={{
+                                border: "none",
+                                width: "100%",
+                                height: "100%",
+                            }}
+                        >
+                            <MediaProvider>
+                            </MediaProvider>
+                            <DefaultVideoLayout
+                                icons={vidstackLayoutIcons}
+                                slots={{
+                                    ...vidstackLayoutIcons,
+                                    settingsMenuEndItems: <>
+                                        <NativePlayerPlaybackSubmenu />
+                                    </>,
+                                }}
+                            />
+                        </MediaPlayer>
+                    ) : (
+                        <div
+                            className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
+                        >
+                            {/* <ParticleBackground className="absolute top-0 left-0 w-full h-full z-[0]" /> */}
+                            <LoadingSpinner
+                                title={state.loadingState || "Loading..."}
+                                spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
+                            />
+                        </div>
+                    )}
+                </div>
+            </NativePlayerDrawer>
+        </>
     )
 }
 

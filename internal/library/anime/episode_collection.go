@@ -203,6 +203,11 @@ func NewEpisodeCollectionFromLocalFiles(opts NewEpisodeCollectionFromLocalFilesO
 		return ec, nil
 	}
 
+	// Make sure to keep the local files from the media only
+	opts.LocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, i int) bool {
+		return lf.MediaId == opts.Media.GetID()
+	})
+
 	// Create a new media entry
 	entry, err := NewEntry(&NewEntryOptions{
 		MediaId:          opts.Media.GetID(),

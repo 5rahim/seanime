@@ -166,7 +166,7 @@ func assertTestResult(t *testing.T, result *Metadata) {
 	t.Logf("JSON Result: %s", string(jsonResult))
 }
 
-func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.Reader, ctx context.Context) {
+func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadCloser, ctx context.Context) {
 	if _, ok := reader.(io.ReadSeeker); !ok {
 		t.Fatalf("Reader does not support seeking, cannot test StreamSubtitles")
 	}
@@ -182,6 +182,7 @@ func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.Reader,
 	// Collect subtitles with a timeout
 	collectDone := make(chan struct{})
 	go func() {
+		defer reader.Close()
 		defer close(collectDone)
 		for {
 			select {

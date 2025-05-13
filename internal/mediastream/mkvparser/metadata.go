@@ -59,15 +59,18 @@ type AttachmentInfo struct {
 
 // Metadata holds all extracted metadata.
 type Metadata struct {
-	Title         string            `json:"title,omitempty"`
-	Duration      float64           `json:"duration"`      // Duration in seconds
-	TimecodeScale float64           `json:"timecodeScale"` // Original timecode scale from Info
-	MuxingApp     string            `json:"muxingApp,omitempty"`
-	WritingApp    string            `json:"writingApp,omitempty"`
-	Tracks        []*TrackInfo      `json:"tracks"`
-	Chapters      []*ChapterInfo    `json:"chapters"`
-	Attachments   []*AttachmentInfo `json:"attachments"`
-	Error         error             `json:"error,omitempty"`
+	Title          string            `json:"title,omitempty"`
+	Duration       float64           `json:"duration"`      // Duration in seconds
+	TimecodeScale  float64           `json:"timecodeScale"` // Original timecode scale from Info
+	MuxingApp      string            `json:"muxingApp,omitempty"`
+	WritingApp     string            `json:"writingApp,omitempty"`
+	Tracks         []*TrackInfo      `json:"tracks"`
+	VideoTracks    []*TrackInfo      `json:"videoTracks"`
+	AudioTracks    []*TrackInfo      `json:"audioTracks"`
+	SubtitleTracks []*TrackInfo      `json:"subtitleTracks"`
+	Chapters       []*ChapterInfo    `json:"chapters"`
+	Attachments    []*AttachmentInfo `json:"attachments"`
+	Error          error             `json:"-"`
 }
 
 func (m *Metadata) GetTrackByNumber(num uint64) *TrackInfo {

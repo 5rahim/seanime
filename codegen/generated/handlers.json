@@ -2389,6 +2389,55 @@
     }
   },
   {
+    "name": "HandleDirectstreamPlayLocalFile",
+    "trimmedName": "DirectstreamPlayLocalFile",
+    "comments": [
+      "HandleDirectstreamPlayLocalFile",
+      "",
+      "\t@summary request local file stream.",
+      "\t@desc This requests a local file stream and returns the media container to start the playback.",
+      "\t@returns mediastream.MediaContainer",
+      "\t@route /api/v1/directstream/play/localfile [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/directstream.go",
+    "filename": "directstream.go",
+    "api": {
+      "summary": "request local file stream.",
+      "descriptions": [
+        "This requests a local file stream and returns the media container to start the playback."
+      ],
+      "endpoint": "/api/v1/directstream/play/localfile",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "mediastream.MediaContainer",
+      "returnGoType": "mediastream.MediaContainer",
+      "returnTypescriptType": "Mediastream_MediaContainer"
+    }
+  },
+  {
     "name": "HandleSetDiscordMangaActivity",
     "trimmedName": "SetDiscordMangaActivity",
     "comments": [

@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewHandler(repository *Repository) *handler {
+func newHandler(repository *Repository) *handler {
 	return &handler{
 		repository: repository,
 	}

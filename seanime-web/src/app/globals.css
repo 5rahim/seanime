@@ -304,9 +304,34 @@ pre {
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
-  
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+}
+
+/* Mini player controls */
+[data-native-player-container][data-mini-player="true"] .vds-controls-group > *:not(.vds-play-button) {
+    display: none !important;
+}
+
+[data-native-player-container][data-mini-player="true"] .vds-controls-group > .vds-play-button {
+    transform: translateY(-5px) !important;
+}
+
+[data-native-player-container][data-mini-player="true"] .vds-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100% !important;
+}
+
+[data-native-player-container][data-mini-player="true"] .vds-controls-group {
+    position: static !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: auto !important;
+    padding: 0 !important;
 }

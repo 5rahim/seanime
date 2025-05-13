@@ -38,8 +38,9 @@ type (
 
 		// --------- Playback Context -------- //
 
-		playbackMu         sync.Mutex
-		playbackCancelFunc context.CancelFunc
+		playbackMu            sync.Mutex
+		playbackCtx           context.Context
+		playbackCtxCancelFunc context.CancelFunc
 
 		// ---------- Playback State ---------- //
 
