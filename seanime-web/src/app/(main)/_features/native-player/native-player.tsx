@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
+import { MKVParser_SubtitleEvent, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import {
     __seaMediaPlayer_autoNextAtom,
     __seaMediaPlayer_autoPlayAtom,
@@ -8,50 +8,47 @@ import {
     __seaMediaPlayer_mutedAtom,
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
-import { submenuClass, VdsSubmenuButton } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { vidstackLayoutIcons } from "@/components/shared/vidstack"
 import { IconButton } from "@/components/ui/button"
+import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Switch } from "@/components/ui/switch"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
-import {
-    isHLSProvider,
-    MediaCanPlayDetail,
-    MediaCanPlayEvent,
-    MediaDurationChangeEvent,
-    MediaEndedEvent,
-    MediaEnterFullscreenRequestEvent,
-    MediaErrorDetail,
-    MediaErrorEvent,
-    MediaFullscreenRequestTarget,
-    MediaPauseRequestEvent,
-    MediaPlayer,
-    MediaPlayerInstance,
-    MediaPlayRequestEvent,
-    MediaProvider,
-    MediaProviderAdapter,
-    MediaProviderChangeEvent,
-    MediaProviderSetupEvent,
-    MediaSeekRequestEvent,
-    MediaTimeUpdateEvent,
-    MediaTimeUpdateEventDetail,
-    Menu,
-} from "@vidstack/react"
-import { DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
-import HLS from "hls.js"
 import { useAtom, useAtomValue } from "jotai"
-import React from "react"
-import { AiFillPlayCircle } from "react-icons/ai"
+import {
+    MediaControlBar,
+    MediaController,
+    MediaErrorDialog,
+    MediaFullscreenButton,
+    MediaMuteButton,
+    MediaPipButton,
+    MediaPlayButton,
+    MediaPreviewChapterDisplay,
+    MediaPreviewThumbnail,
+    MediaPreviewTimeDisplay,
+    MediaTimeDisplay,
+    MediaTimeRange,
+    MediaVolumeRange,
+} from "media-chrome/react"
+import {
+    MediaAudioTrackMenu,
+    MediaAudioTrackMenuButton,
+    MediaCaptionsMenu,
+    MediaCaptionsMenuButton,
+    MediaPlaybackRateMenu,
+    MediaRenditionMenu,
+    MediaSettingsMenu,
+    MediaSettingsMenuButton,
+    MediaSettingsMenuItem,
+} from "media-chrome/react/menu"
+import React, { FormEvent, useEffect, useRef } from "react"
 import { BiExpand } from "react-icons/bi"
-import { MdPlaylistPlay } from "react-icons/md"
 import { PiSpinnerDuotone } from "react-icons/pi"
-import { RxSlider } from "react-icons/rx"
-import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
+import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
+import { StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
 import { nativePlayer_stateAtom } from "./native-player.atoms"
 
@@ -60,100 +57,191 @@ const log = logger("NATIVE PLAYER")
 
 export function NativePlayer() {
     const clientId = useAtomValue(clientIdAtom)
+    const { sendMessage } = useWebsocketSender()
     //
     // Player
     //
     // The player reference
-    const playerRef = React.useRef<MediaPlayerInstance | null>(null)
+    const videoRef = useRef<HTMLVideoElement | null>(null)
 
     //
     // Control settings
     //
-    const autoPlay = useAtomValue(__seaMediaPlayer_autoPlayAtom)
-    const autoNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
-    const discreteControls = useAtomValue(__seaMediaPlayer_discreteControlsAtom)
-    const autoSkipIntroOutro = useAtomValue(__seaMediaPlayer_autoSkipIntroOutroAtom)
+    const [autoPlay, setAutoPlay] = useAtom(__seaMediaPlayer_autoPlayAtom)
+    const [autoNext, setAutoNext] = useAtom(__seaMediaPlayer_autoNextAtom)
+    const [discreteControls, setDiscreteControls] = useAtom(__seaMediaPlayer_discreteControlsAtom)
+    const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__seaMediaPlayer_autoSkipIntroOutroAtom)
     const [volume, setVolume] = useAtom(__seaMediaPlayer_volumeAtom)
     const [muted, setMuted] = useAtom(__seaMediaPlayer_mutedAtom)
 
     // The state
     const [state, setState] = useAtom(nativePlayer_stateAtom)
 
+    const streamLoadedRef = useRef<string | null>(null)
+    const subtitleManagerRef = useRef<StreamSubtitleManager | null>(null)
+
     //
     // Start
     //
 
+    useUpdateEffect(() => {
+        if (!!state.playbackInfo && (!streamLoadedRef.current || state.playbackInfo.id !== streamLoadedRef.current)) {
+            if (videoRef.current) {
+                log.info("Stream loaded")
+
+                log.info("Can play", videoRef.current.canPlayType(state.playbackInfo.mkvMetadata?.mimeCodec || ""))
+
+                console.log("HEVC HVC1 main profile support", videoRef.current.canPlayType("video/mp4;codecs=\"hvc1\""))
+                console.log("HEVC main profile support", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\""))
+
+                console.log("HEVC main 10 profile support", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\""))
+
+                console.log("HEVC main still-picture profile support", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.3.E.L120.90\""))
+
+                console.log("HEVC range extensions profile support", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\""))
+
+                console.log("Dolby AC3 support", videoRef.current.canPlayType("audio/mp4; codecs=\"ac-3\""))
+                console.log("Dolby EC3 support", videoRef.current.canPlayType("audio/mp4; codecs=\"ec-3\""))
+
+
+                if (!!streamLoadedRef.current && state.playbackInfo.id !== streamLoadedRef.current) {
+                    log.info("Stream changed")
+                }
+                streamLoadedRef.current = state.playbackInfo.id
+
+                subtitleManagerRef.current = new StreamSubtitleManager({
+                    videoElement: videoRef.current,
+                    playbackInfo: state.playbackInfo,
+                    jassubOffscreenRender: false,
+                })
+
+                subtitleManagerRef.current?.loadTracks()
+            }
+        }
+
+
+        if (!state.playbackInfo && streamLoadedRef.current) {
+            log.info("Stream unloaded")
+            subtitleManagerRef.current?.terminate()
+            streamLoadedRef.current = null
+
+        }
+    }, [state.playbackInfo, videoRef.current])
 
     // Clean up player when unmounting or changing streams
-    React.useEffect(() => {
+    useEffect(() => {
+
+        if (videoRef.current && videoRef.current.audioTracks) {
+            // videoRef.current.audioTracks.onChange = (ev: Event) => {
+            //     console.log("Audio track changed", ev)
+            //     seek(-2)
+            // }
+
+            // console.log(state.playbackInfo?.mkvMetadata?.mimeCodec)
+            // log.info("Can play type", videoRef.current.canPlayType(state.playbackInfo?.mkvMetadata?.mimeCodec?.replace("video/x-matroska",
+            // "video/webm") || ""))
+
+
+        }
+
+        if (!videoRef.current) return
+
         return () => {
-            if (playerRef.current) {
+            if (videoRef.current) {
                 log.info("Cleaning up player")
-                playerRef.current.destroy()
-                playerRef.current = null
+                // videoRef.current = null
             }
         }
     }, [state.playbackInfo?.streamUrl])
 
-    const onProviderSetup = (detail: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) => {
-        log.info("Provider setup", detail, nativeEvent)
+    // Handle volume changes
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.volume = volume
+        }
+    }, [volume])
 
-        // Reset any previous HLS instance
-        if (isHLSProvider(detail) && detail.instance) {
-            log.info("Destroying previous HLS instance")
-            detail.instance.destroy()
-            detail.library = HLS
+    // Handle mute changes
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.muted = muted
+        }
+    }, [muted])
+
+    //
+    // Functions
+    //
+
+    function seekTo(time: number) {
+        if (videoRef.current) {
+            videoRef.current.currentTime = time
         }
     }
 
-    const onProviderChange = (detail: MediaProviderAdapter | null, nativeEvent: MediaProviderChangeEvent) => {
-        log.info("Provider change", detail, nativeEvent)
-
-        // Clean up previous provider if it exists
-        if (detail && isHLSProvider(detail) && detail.instance) {
-            log.info("Destroying previous HLS provider")
-            detail.instance.destroy()
-            detail.library = HLS
+    function seek(offset: number) {
+        if (videoRef.current) {
+            const newTime = videoRef.current.currentTime + offset
+            // Object.assign(videoRef.current, { currentTime: newTime })
+            videoRef.current.currentTime = newTime
         }
     }
 
-    const onTimeUpdate = (detail: MediaTimeUpdateEventDetail, e: MediaTimeUpdateEvent) => {
-        // log.info("Time update", detail, e)
+    //
+    // Event Handlers
+    //
+    const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        // log.info("Time update", e.currentTarget.currentTime)
     }
 
-    const onDurationChange = (detail: number, nativeEvent: MediaDurationChangeEvent) => {
-        log.info("Duration change", detail, nativeEvent)
+    const handleDurationChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Duration change", e.currentTarget.duration)
     }
 
-    const onCanPlay = (detail: MediaCanPlayDetail, nativeEvent: MediaCanPlayEvent) => {
-        log.info("Can play", detail, nativeEvent)
+    const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Can play")
 
-        log.info("Audio tracks", playerRef.current?.audioTracks?.toArray())
-        log.info("Subtitle tracks", playerRef.current?.textTracks?.toArray())
+        // Check for audio and subtitle tracks if needed
+        if (videoRef.current) {
+            // Using textTracks which is standard
+            log.info("Text tracks", videoRef.current.textTracks)
+            log.info("Audio tracks", videoRef.current.audioTracks)
+        }
     }
 
-    const onEnded = (nativeEvent: MediaEndedEvent) => {
-        log.info("Ended", nativeEvent)
+    const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Ended")
+
+        // Handle autoNext logic here if needed
+        if (autoNext) {
+            // Logic to play next episode
+        }
     }
 
-    const onMediaEnterFullscreenRequest = (detail: MediaFullscreenRequestTarget, nativeEvent: MediaEnterFullscreenRequestEvent) => {
-        log.info("Media enter fullscreen request", detail, nativeEvent)
+    const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Media error", e)
     }
 
-    const onMediaPauseRequest = (nativeEvent: MediaPauseRequestEvent) => {
-        log.info("Media pause request", nativeEvent)
+    const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        setVolume(e.currentTarget.volume)
     }
 
-    const onMediaPlayRequest = (nativeEvent: MediaPlayRequestEvent) => {
-        log.info("Media play request", nativeEvent)
+    const handleMuteChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        setMuted(e.currentTarget.muted)
     }
 
-    const onMediaSeekRequest = (detail: number, nativeEvent: MediaSeekRequestEvent) => {
-        log.info("Media seek request", detail, nativeEvent)
-    }
+    const handleSeeked = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        const currentTime = e.currentTarget.currentTime
+        log.info("Video seeked to", currentTime)
 
-    const onError = (detail: MediaErrorDetail, nativeEvent: MediaErrorEvent) => {
-        log.info("Media error", detail, nativeEvent)
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: "video-seeked",
+                payload: { currentTime: currentTime },
+            },
+        })
+
     }
 
     //
@@ -191,6 +279,10 @@ export function NativePlayer() {
                         return
                     })
                     break
+                case "subtitle-event":
+                    const subtitleEvent = _payload as MKVParser_SubtitleEvent
+                    subtitleManagerRef.current?.onSubtitleEvent(subtitleEvent)
+                    break
             }
         },
     })
@@ -201,22 +293,39 @@ export function NativePlayer() {
 
     function handleTerminateStream() {
         // Clean up player first
-        if (playerRef.current) {
-            log.info("Destroying player")
-            playerRef.current.destroy()
-            playerRef.current = null
+        if (videoRef.current) {
+            log.info("Cleaning up media")
+            videoRef.current.pause()
         }
 
         setState(draft => {
-            draft.active = false
             draft.miniPlayer = false
             draft.playbackInfo = null
             draft.playbackError = null
+            draft.loadingState = "Ending stream..."
+            return
         })
+
+        setTimeout(() => {
+            setState(draft => {
+                draft.active = false
+                return
+            })
+        }, 1000)
         // Send terminate stream event
     }
 
-
+    function onCaptionsChange(e: FormEvent<any>) {
+        log.info("Captions changed", e, videoRef.current?.textTracks)
+        if (videoRef.current) {
+            for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+                const track = videoRef.current.textTracks[i]
+                if (track.mode === "showing") {
+                    subtitleManagerRef.current?.selectTrack(track.label)
+                }
+            }
+        }
+    }
 
     return (
         <>
@@ -224,13 +333,14 @@ export function NativePlayer() {
                 open={state.active}
                 onOpenChange={(v) => {
                     if (!v) {
-                        setState(draft => {
-                            if (!state.miniPlayer) {
+                        if (!state.miniPlayer) {
+                            setState(draft => {
                                 draft.miniPlayer = true
-                            } else {
-                                handleTerminateStream()
-                            }
-                        })
+                                return
+                            })
+                        } else {
+                            handleTerminateStream()
+                        }
                     }
                 }}
                 borderToBorder
@@ -240,8 +350,6 @@ export function NativePlayer() {
                 contentClass={cn(
                     "p-0 m-0",
                     !state.miniPlayer && "h-full",
-                    // "h-full p-0 m-0 shadow-none bg-transparent backdrop-blur-sm transition-opacity duration-300",
-                    // state.miniPlayer && "pointer-events-none",
                 )}
                 allowOutsideInteraction={true}
                 overlayClass={cn(
@@ -252,17 +360,6 @@ export function NativePlayer() {
                     __isDesktop__ && !state.miniPlayer && "top-8",
                 )}
                 data-native-player-drawer
-                // closeButton={
-                //     <IconButton
-                //         type="button"
-                //         intent="gray-basic"
-                //         size="sm"
-                //         className={cn(
-                //             "rounded-full text-2xl flex-none",
-                //         )}
-                //         icon={<BiX />}
-                //     />
-                // }
             >
                 {state.miniPlayer && (
                     <IconButton
@@ -288,59 +385,275 @@ export function NativePlayer() {
                             </p>
                         </LuffyError>
                     ) : (!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
-                        <MediaPlayer
-                            data-sea-media-player
-                            streamType="on-demand"
-                            playsInline
-                            ref={playerRef}
-                            autoPlay={autoPlay}
-                            crossOrigin
-                            src={{
-                                src: state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl()) + "?token=" + new Date().getTime(),
-                                type: "video/webm",
-                            }}
-                            aspectRatio={undefined}
-                            controlsDelay={discreteControls ? 500 : undefined}
-                            className={cn(discreteControls && "discrete-controls")}
-                            onProviderSetup={onProviderSetup}
-                            onProviderChange={onProviderChange}
-                            onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
-                            onDurationChange={onDurationChange}
-                            onTimeUpdate={onTimeUpdate}
-                            onCanPlay={onCanPlay}
-                            onEnded={onEnded}
-                            onMediaPauseRequest={onMediaPauseRequest}
-                            onMediaPlayRequest={onMediaPlayRequest}
-                            onMediaSeekRequest={onMediaSeekRequest}
-                            onError={onError}
-                            volume={volume}
-                            onVolumeChange={detail => setVolume(detail.volume)}
-                            muted={muted}
-                            onMediaMuteRequest={() => setMuted(true)}
-                            onMediaUnmuteRequest={() => setMuted(false)}
-                            style={{
-                                border: "none",
-                                width: "100%",
-                                height: "100%",
-                            }}
+                        <MediaController
+                            className={cn(
+                                "w-full h-full",
+                                discreteControls && "discrete-controls",
+                            )}
                         >
-                            <MediaProvider>
-                            </MediaProvider>
-                            <DefaultVideoLayout
-                                icons={vidstackLayoutIcons}
-                                slots={{
-                                    ...vidstackLayoutIcons,
-                                    settingsMenuEndItems: <>
-                                        <NativePlayerPlaybackSubmenu />
-                                    </>,
+                            <video
+                                ref={videoRef}
+                                slot="media"
+                                src={state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl())}
+                                crossOrigin="anonymous"
+                                playsInline
+                                autoPlay={autoPlay}
+                                muted={muted}
+                                // onTimeUpdate={handleTimeUpdate}
+                                onDurationChange={handleDurationChange}
+                                // onCanPlay={handleCanPlay}
+                                onEnded={handleEnded}
+                                onError={handleError}
+                                onVolumeChange={handleVolumeChange}
+                                onSeeked={handleSeeked}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    border: "none",
                                 }}
-                            />
-                        </MediaPlayer>
+                            >
+                                {/* {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
+                                 <track key={track.number} kind="subtitles" srcLang={track.language || "en"} label={track.name} />
+                                 ))} */}
+                            </video>
+
+                            <MediaErrorDialog slot="dialog" />
+
+                            <div className="yt-gradient-bottom"></div>
+
+                            <MediaSettingsMenu hidden anchor="auto">
+                                <MediaSettingsMenuItem>
+                                    Playback Speed
+                                    <MediaPlaybackRateMenu rates={[0.5, 0.75, 1, 1.10, 1.25, 1.5, 1.75, 2]} slot="submenu" hidden>
+                                        <div slot="title">Playback Speed</div>
+                                    </MediaPlaybackRateMenu>
+                                </MediaSettingsMenuItem>
+                                <MediaSettingsMenuItem className="quality-settings">
+                                    Quality
+                                    <MediaRenditionMenu slot="submenu" hidden>
+                                        <div slot="title">Quality</div>
+                                    </MediaRenditionMenu>
+                                </MediaSettingsMenuItem>
+                            </MediaSettingsMenu>
+
+                            <MediaCaptionsMenu anchor="auto" hidden onChange={onCaptionsChange}>
+                                <div slot="header">Subtitles/CC</div>
+                            </MediaCaptionsMenu>
+
+                            <MediaAudioTrackMenu
+                                anchor="auto" hidden onChange={() => {
+                                log.info("Audio changed")
+                                seek(-1)
+                            }}
+                            >
+                                <div slot="header">Audio</div>
+                            </MediaAudioTrackMenu>
+
+                            <MediaTimeRange>
+                                <MediaPreviewThumbnail slot="preview" />
+                                <MediaPreviewChapterDisplay slot="preview" />
+                                <MediaPreviewTimeDisplay slot="preview" />
+                            </MediaTimeRange>
+
+                            <MediaControlBar>
+                                <MediaPlayButton
+                                    className="yt-button flex justify-center items-center"
+                                    dangerouslySetInnerHTML={{
+                                        __html: `
+<svg xmlns="http://www.w3.org/2000/svg" slot="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0">
+<path
+id="play-p1"
+        fill="currentColor"
+        d="M8 18.392V5.608L18.226 12zM6 3.804v16.392a1 1 0 0 0 1.53.848l13.113-8.196a1 1 0 0 0 0-1.696L7.53 2.956A1 1 0 0 0 6 3.804"
+      ></path>
+            <path id="pause-p1" fill="currentColor" d="M6 3h2v18H6zm10 0h2v18h-2z"></path>
+</svg>
+`,
+                                    }}
+                                >
+
+                                </MediaPlayButton>
+
+                                <MediaMuteButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `
+<span slot="high">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+</span>
+<span slot="medium">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/></svg>
+</span>
+<span slot="low">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/></svg>
+</span>
+<span slot="muted">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/></svg>
+</span>
+<span slot="off">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+</span>
+                                    `,
+                                }}
+                                >
+
+                                </MediaMuteButton>
+                                <MediaVolumeRange />
+
+                                <MediaTimeDisplay showDuration />
+
+                                <span className="control-spacer" />
+
+                                <MediaAudioTrackMenuButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `
+<svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>
+`,
+                                }}
+                                >
+
+                                </MediaAudioTrackMenuButton>
+
+                                <MediaCaptionsMenuButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `
+<svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="14" x="3" y="5" rx="2" ry="2" fill="none"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></svg>
+                                    `,
+                                }}
+                                >
+
+                                </MediaCaptionsMenuButton>
+
+                                <MediaSettingsMenuButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `    <svg
+                                    slot="icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+        >
+      <path
+      id="settings-icon"
+        fill="currentColor"
+        d="M2 12c0-.865.11-1.704.316-2.504A3 3 0 0 0 4.99 4.867a10 10 0 0 1 4.335-2.506a3 3 0 0 0 5.348 0a10 10 0 0 1 4.335 2.506a3 3 0 0 0 2.675 4.63c.206.8.316 1.638.316 2.503c0 .864-.11 1.703-.316 2.503a3 3 0 0 0-2.675 4.63a10 10 0 0 1-4.335 2.505a3 3 0 0 0-5.348 0a10 10 0 0 1-4.335-2.505a3 3 0 0 0-2.675-4.63C2.11 13.703 2 12.864 2 12m4.804 3c.63 1.091.81 2.346.564 3.524q.613.436 1.297.75A5 5 0 0 1 12 18c1.26 0 2.438.471 3.335 1.274q.684-.314 1.297-.75A5 5 0 0 1 17.196 15a5 5 0 0 1 2.77-2.25a8 8 0 0 0 0-1.5A5 5 0 0 1 17.196 9a5 5 0 0 1-.564-3.524a8 8 0 0 0-1.297-.75A5 5 0 0 1 12 6a5 5 0 0 1-3.335-1.274a8 8 0 0 0-1.297.75A5 5 0 0 1 6.804 9a5 5 0 0 1-2.77 2.25a8 8 0 0 0 0 1.5A5 5 0 0 1 6.805 15M12 15a3 3 0 1 1 0-6a3 3 0 0 1 0 6m0-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2"
+      ></path>
+    </svg>`,
+                                }}
+                                >
+
+                                </MediaSettingsMenuButton>
+
+                                <MediaPipButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `   <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      slot="icon"
+    >
+      <path
+      id="pip-icon"
+        fill="currentColor"
+        d="M21 3a1 1 0 0 1 1 1v7h-2V5H4v14h6v2H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm0 10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1zm-1 2h-6v4h6z"
+      ></path>
+            <path
+        id="pip-icon-2"
+        fill="currentColor"
+        d="M21 3a1 1 0 0 1 1 1v7h-2V5H4v14h6v2H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm0 10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1zm-1 2h-6v4h6zm-8.5-8L9.457 9.043l2.25 2.25l-1.414 1.414l-2.25-2.25L6 12.5V7z"
+      ></path>
+    </svg>`,
+                                }}
+                                >
+                                </MediaPipButton>
+
+                                <MediaFullscreenButton
+                                    className="yt-button" dangerouslySetInnerHTML={{
+                                    __html: `
+                <span slot="enter">
+                <svg slot="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize-icon lucide-maximize">
+                <g id="fs-enter-paths">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+                <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+                <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+                </g>
+                </svg>
+                </span>
+                <span slot="exit">
+                <svg slot="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minimize-icon lucide-minimize">
+                <g id="fs-exit-paths">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+
+                </g>
+                </svg>
+                </span>`
+                                }}
+                                >
+                                </MediaFullscreenButton>
+                            </MediaControlBar>
+
+                            {/* <MediaLoadingIndicator slot="centered-chrome" noAutohide></MediaLoadingIndicator>
+                             <MediaSettingsMenu hidden>
+                             <MediaSettingsMenuItem>
+                             Auto Play
+                             <Switch
+                             slot="value"
+                             label="Auto play"
+                             fieldClass="py-2 px-2"
+                             value={autoPlay}
+                             onValueChange={setAutoPlay}
+                             />
+                             </MediaSettingsMenuItem>
+                             <MediaSettingsMenuItem>
+                             Auto Next Episode
+                             <Switch
+                             slot="value"
+                             label="Auto play next episode"
+                             fieldClass="py-2 px-2"
+                             value={autoNext}
+                             onValueChange={setAutoNext}
+                             />
+                             </MediaSettingsMenuItem>
+                             <MediaSettingsMenuItem>
+                             Skip Intro/Outro
+                             <Switch
+                             slot="value"
+                             label="Skip intro/outro"
+                             fieldClass="py-2 px-2"
+                             value={autoSkipIntroOutro}
+                             onValueChange={setAutoSkipIntroOutro}
+                             />
+                             </MediaSettingsMenuItem>
+                             <MediaSettingsMenuItem>
+                             Discrete Controls
+                             <Switch
+                             slot="value"
+                             label="Discrete controls"
+                             help="Only show the controls when the mouse is over the bottom part. (Large screens only)"
+                             fieldClass="py-2 px-2"
+                             value={discreteControls}
+                             onValueChange={setDiscreteControls}
+                             fieldHelpTextClass="max-w-xs"
+                             />
+                             </MediaSettingsMenuItem>
+                             </MediaSettingsMenu>
+                             <MediaAudioTrackMenu anchor="auto" hidden>
+                             <div slot="header">Audio</div>
+                             </MediaAudioTrackMenu>
+                             <MediaControlBar>
+                             <MediaPlayButton></MediaPlayButton>
+                             <MediaMuteButton></MediaMuteButton>
+                             <MediaVolumeRange></MediaVolumeRange>
+                             <MediaTimeRange></MediaTimeRange>
+                             <MediaTimeDisplay showDuration></MediaTimeDisplay>
+                             <MediaAudioTrackMenuButton></MediaAudioTrackMenuButton>
+                             <MediaSettingsMenuButton></MediaSettingsMenuButton>
+                             <MediaPipButton></MediaPipButton>
+                             <MediaFullscreenButton></MediaFullscreenButton>
+                             </MediaControlBar> */}
+
+                        </MediaController>
                     ) : (
                         <div
                             className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
                         >
-                            {/* <ParticleBackground className="absolute top-0 left-0 w-full h-full z-[0]" /> */}
                             <LoadingSpinner
                                 title={state.loadingState || "Loading..."}
                                 spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
@@ -349,85 +662,6 @@ export function NativePlayer() {
                     )}
                 </div>
             </NativePlayerDrawer>
-        </>
-    )
-}
-
-export function NativePlayerPlaybackSubmenu() {
-
-    const [autoPlay, setAutoPlay] = useAtom(__seaMediaPlayer_autoPlayAtom)
-    const [autoNext, setAutoNext] = useAtom(__seaMediaPlayer_autoNextAtom)
-    const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__seaMediaPlayer_autoSkipIntroOutroAtom)
-    const [discreteControls, setDiscreteControls] = useAtom(__seaMediaPlayer_discreteControlsAtom)
-
-    return (
-        <>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Auto Play`}
-                    hint={autoPlay ? "On" : "Off"}
-                    disabled={false}
-                    icon={AiFillPlayCircle}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Auto play"
-                        fieldClass="py-2 px-2"
-                        value={autoPlay}
-                        onValueChange={setAutoPlay}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Auto Play Next Episode`}
-                    hint={autoNext ? "On" : "Off"}
-                    disabled={false}
-                    icon={MdPlaylistPlay}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Auto play next episode"
-                        fieldClass="py-2 px-2"
-                        value={autoNext}
-                        onValueChange={setAutoNext}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Skip Intro/Outro`}
-                    hint={autoSkipIntroOutro ? "On" : "Off"}
-                    disabled={false}
-                    icon={MdPlaylistPlay}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Skip intro/outro"
-                        fieldClass="py-2 px-2"
-                        value={autoSkipIntroOutro}
-                        onValueChange={setAutoSkipIntroOutro}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Discrete Controls`}
-                    hint={discreteControls ? "On" : "Off"}
-                    disabled={false}
-                    icon={RxSlider}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Discrete controls"
-                        help="Only show the controls when the mouse is over the bottom part. (Large screens only)"
-                        fieldClass="py-2 px-2"
-                        value={discreteControls}
-                        onValueChange={setDiscreteControls}
-                        fieldHelpTextClass="max-w-xs"
-                    />
-                </Menu.Content>
-            </Menu.Root>
         </>
     )
 }

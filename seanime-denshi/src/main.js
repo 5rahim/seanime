@@ -329,12 +329,11 @@ async function launchSeanimeServer() {
         serverProcess.stdout.on('data', (data) => {
             const dataStr = data.toString();
             const lineStr = stripAnsi ? stripAnsi(dataStr) : dataStr;
-            console.log(lineStr);
 
-            // Check if mainWindow exists and is not destroyed
-            if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.webContents.send('message', lineStr);
-            }
+            // // Check if mainWindow exists and is not destroyed
+            // if (mainWindow && !mainWindow.isDestroyed()) {
+            //     mainWindow.webContents.send('message', lineStr);
+            // }
 
             if (!serverStarted && lineStr.includes('Client connected')) {
                 console.log('[Main] Server started');
@@ -409,7 +408,19 @@ function createMainWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
+            webSecurity: false,
+            allowRunningInsecureContent: true,
+            enableBlinkFeatures: 'FontAccess, AudioVideoTracks',
+            backgroundThrottling: false,
+            additionalArguments: [
+                '--autoplay-policy=no-user-gesture-required',
+                '--disable-features=MediaEngagementBypassAutoplayPolicies',
+                '--enable-features=HardwareMediaKeyHandling',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding'
+            ]
         }
     };
 
@@ -428,6 +439,13 @@ function createMainWindow() {
     if (process.platform === 'win32' || process.platform === 'linux') {
         mainWindow.setMenuBarVisibility(false);
     }
+
+    mainWindow.on('render-process-gone', (event, details) => {
+        console.log('[Main] Render process gone', details);
+        if (crashScreen && !crashScreen.isDestroyed()) {
+            crashScreen.show();
+        }
+    });
 
     // Load the web content
     if (_development) {

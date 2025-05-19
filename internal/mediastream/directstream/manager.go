@@ -8,6 +8,7 @@ import (
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
+	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/result"
@@ -56,6 +57,8 @@ type (
 		animeCollection mo.Option[*anilist.AnimeCollection]
 		animeCache      *result.Cache[int, *anilist.BaseAnime]
 
+		parserCache *result.Cache[string, *mkvparser.MetadataParser]
+
 		//playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
 	}
 
@@ -88,6 +91,7 @@ func NewManager(options NewManagerOptions) *Manager {
 		isOffline:                  options.IsOffline,
 		currentStream:              mo.None[Stream](),
 		nativePlayer:               options.NativePlayer,
+		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
 	}
 
 	ret.nativePlayerSubscriber = ret.nativePlayer.Subscribe("directstream")

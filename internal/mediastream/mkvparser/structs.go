@@ -19,14 +19,13 @@ type EBMLHeader struct {
 
 // Segment element (top-level, focused on metadata headers)
 type Segment struct {
-	Info        []Info       `ebml:"Info"` // Typically one, but spec allows multiple
-	Tracks      *Tracks      `ebml:"Tracks,omitempty"`
-	Chapters    *Chapters    `ebml:"Chapters,omitempty"`
-	Attachments *Attachments `ebml:"Attachments,omitempty"`
-	Tags        []Tag        `ebml:"Tag,omitempty"`     // Keep Tags as they can contain metadata
-	Cluster     []Cluster    `ebml:"Cluster,omitempty"` // Added for subtitles
-	// We omit SeekHead, Cues, etc. by not defining fields for them.
-	// ebml.Unmarshal with ebml.WithIgnoreUnknown(true) will skip these IF NOT DEFINED.
+	Info        []Info       `ebml:"Info,size=unknown"`
+	Tracks      *Tracks      `ebml:"Tracks,size=unknown"`
+	Chapters    *Chapters    `ebml:"Chapters,size=unknown"`
+	Attachments *Attachments `ebml:"Attachments,size=unknown"`
+	//Cues        *Cues        `ebml:"Cues,size=unknown"`
+	Tags    []Tag     `ebml:"Tag,omitempty"`     // Keep Tags as they can contain metadata
+	Cluster []Cluster `ebml:"Cluster,omitempty"` // Added for subtitles
 }
 
 // MKVRoot represents the top-level structure of an MKV file for parsing.
@@ -335,6 +334,24 @@ type BlockGroup struct {
 	BlockDuration uint64     `ebml:"BlockDuration,omitempty"` // Duration in TimecodeScale units
 	// ReferenceBlock can be added if needed for B-frames, etc.
 	// Other elements like Slices, CodecState, etc., can be added if needed
+}
+
+// CuePoint struct
+type CuePoint struct {
+	Time      uint64             `ebml:"CueTime"`
+	Positions []CueTrackPosition `ebml:"CueTrackPositions"`
+}
+
+// CueTrackPosition struct
+type CueTrackPosition struct {
+	Track           uint64 `ebml:"CueTrack"`
+	ClusterPosition uint64 `ebml:"CueClusterPosition"`
+	BlockNumber     uint64 `ebml:"CueBlockNumber,omitempty"`
+}
+
+// Cues struct
+type Cues struct {
+	CuePoints []CuePoint `ebml:"CuePoint"`
 }
 
 // IDs for common Matroska elements (from ebml-go/matroska/ids.go and spec)

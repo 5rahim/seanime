@@ -175,7 +175,7 @@ func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadClo
 	streamCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	subtitleCh, errCh := parser.StreamSubtitles(streamCtx, reader)
+	subtitleCh, errCh := parser.ExtractSubtitles(streamCtx, reader)
 
 	var streamedSubtitles []*SubtitleEvent
 

@@ -104,7 +104,7 @@
     "js-levenshtein": "^1.1.6",
     "json2toml": "^6.1.1",
     "libphonenumber-js": "^1.12.6",
-    "media-chrome": "^4.9.1",
+    "media-chrome": "^4.10.0",
     "media-icons": "^0.10.0",
     "memory-cache": "^0.2.0",
     "mousetrap": "^1.6.5",

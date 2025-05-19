@@ -51742,6 +51742,17 @@
         "comments": []
       },
       {
+        "name": "playbackInfoErr",
+        "jsonName": "playbackInfoErr",
+        "goType": "error",
+        "typescriptType": "Directstream_error",
+        "usedTypescriptType": "Directstream_error",
+        "usedStructName": "directstream.error",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playbackInfoOnce",
         "jsonName": "playbackInfoOnce",
         "goType": "sync.Once",
@@ -51764,12 +51775,32 @@
         "comments": []
       },
       {
-        "name": "closeOnce",
-        "jsonName": "closeOnce",
+        "name": "subtitleEventCache",
+        "jsonName": "subtitleEventCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "terminateOnce",
+        "jsonName": "terminateOnce",
         "goType": "sync.Once",
         "typescriptType": "Sync_Once",
         "usedTypescriptType": "Sync_Once",
         "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "serveContentCancelFunc",
+        "jsonName": "serveContentCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
         "comments": []
@@ -52395,6 +52426,17 @@
         "comments": []
       },
       {
+        "name": "MimeCodec",
+        "jsonName": "mimeCodec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " RFC 6381 codec string"
+        ]
+      },
+      {
         "name": "Error",
         "jsonName": "",
         "goType": "error",
@@ -52468,17 +52510,6 @@
         "public": true,
         "comments": [
           " e.g., \"S_TEXT/ASS\", \"S_TEXT/UTF8\""
-        ]
-      },
-      {
-        "name": "CodecPrivate",
-        "jsonName": "codecPrivate",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " For ASS/SSA styling, etc."
         ]
       },
       {
@@ -55182,21 +55213,33 @@
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
     "filename": "events.go",
-    "name": "VideoStartedEvent",
-    "formattedName": "NativePlayer_VideoStartedEvent",
+    "name": "BaseVideoEvent",
+    "formattedName": "NativePlayer_BaseVideoEvent",
     "package": "nativeplayer",
     "fields": [
       {
-        "name": "clientId",
+        "name": "ClientId",
         "jsonName": "clientId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "VideoStartedEvent",
+    "formattedName": "NativePlayer_VideoStartedEvent",
+    "package": "nativeplayer",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55204,18 +55247,11 @@
     "name": "VideoPausedEvent",
     "formattedName": "NativePlayer_VideoPausedEvent",
     "package": "nativeplayer",
-    "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55223,18 +55259,11 @@
     "name": "VideoResumedEvent",
     "formattedName": "NativePlayer_VideoResumedEvent",
     "package": "nativeplayer",
-    "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55242,18 +55271,11 @@
     "name": "VideoEndedEvent",
     "formattedName": "NativePlayer_VideoEndedEvent",
     "package": "nativeplayer",
-    "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55261,18 +55283,11 @@
     "name": "VideoSeekedEvent",
     "formattedName": "NativePlayer_VideoSeekedEvent",
     "package": "nativeplayer",
-    "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55280,18 +55295,11 @@
     "name": "VideoTimeUpdateEvent",
     "formattedName": "NativePlayer_VideoTimeUpdateEvent",
     "package": "nativeplayer",
-    "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
@@ -55300,15 +55308,6 @@
     "formattedName": "NativePlayer_VideoStatusEvent",
     "package": "nativeplayer",
     "fields": [
-      {
-        "name": "clientId",
-        "jsonName": "clientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
       {
         "name": "Status",
         "jsonName": "status",
@@ -55321,7 +55320,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
   },
   {
     "filepath": "../internal/mediastream/nativeplayer/nativeplayer.go",
@@ -55349,6 +55351,15 @@
     "package": "nativeplayer",
     "fields": [
       {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "StreamType",
         "jsonName": "streamType",
         "goType": "StreamType",
@@ -55366,7 +55377,9 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " e.g. \"video/mp4\", \"video/webm\""
+        ]
       },
       {
         "name": "StreamUrl",
@@ -55375,7 +55388,20 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " URL of the stream"
+        ]
+      },
+      {
+        "name": "ContentLength",
+        "jsonName": "contentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of the stream in bytes"
+        ]
       },
       {
         "name": "MkvMetadata",
@@ -75596,6 +75622,36 @@
     "comments": [
       " Scheduler handles all VM operations added concurrently in a single goroutine",
       " Any goroutine that needs to execute a VM operation must schedule it because the UI VM isn't thread safe"
+    ]
+  },
+  {
+    "filepath": "../internal/util/http/http_range.go",
+    "filename": "http_range.go",
+    "name": "Range",
+    "formattedName": "Range",
+    "package": "httputil",
+    "fields": [
+      {
+        "name": "Start",
+        "jsonName": "Start",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Length",
+        "jsonName": "Length",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Range specifies the byte range to be sent to the client."
     ]
   },
   {

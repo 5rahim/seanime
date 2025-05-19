@@ -2999,6 +2999,10 @@ export type MKVParser_Metadata = {
     subtitleTracks?: Array<MKVParser_TrackInfo>
     chapters?: Array<MKVParser_ChapterInfo>
     attachments?: Array<MKVParser_AttachmentInfo>
+    /**
+     * RFC 6381 codec string
+     */
+    mimeCodec?: string
 }
 
 /**
@@ -3026,10 +3030,6 @@ export type MKVParser_SubtitleEvent = {
      * e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
      */
     codecID: string
-    /**
-     * For ASS/SSA styling, etc.
-     */
-    codecPrivate: string
     extraData?: Record<string, string>
 }
 
@@ -3447,9 +3447,20 @@ export type NativePlayer_ClientEvent = "can-play" |
  * - Package: nativeplayer
  */
 export type NativePlayer_PlaybackInfo = {
+    id: string
     streamType: NativePlayer_StreamType
+    /**
+     * e.g. "video/mp4", "video/webm"
+     */
     mimeType: string
+    /**
+     * URL of the stream
+     */
     streamUrl: string
+    /**
+     * Size of the stream in bytes
+     */
+    contentLength: number
     /**
      * nil if not ebml
      */

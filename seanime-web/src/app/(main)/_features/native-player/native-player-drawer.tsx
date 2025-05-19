@@ -6,34 +6,7 @@ import { __isDesktop__ } from "@/types/constants"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva, VariantProps } from "class-variance-authority"
-import { atom } from "jotai"
-import { useAtom } from "jotai/react"
 import * as React from "react"
-
-export const __openDrawersAtom = atom<string[]>([])
-
-function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
-    const [openDrawers, setOpenDrawers] = useAtom(__openDrawersAtom)
-
-    React.useEffect(() => {
-        const body = document.querySelector("body")
-        if (!body) return
-
-        if (open) {
-            setOpenDrawers(prev => [...prev, id])
-        } else {
-            setOpenDrawers(prev => {
-                let next = prev.filter(i => i !== id)
-                return next
-            })
-        }
-
-        return () => {
-            setOpenDrawers(prev => prev.filter(i => i !== id))
-        }
-    }, [open])
-
-}
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -53,7 +26,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             side: {
-                player: "w-full inset-x-0 top-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                player: "w-full inset-x-0 top-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
                 top: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 top-0 border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
                 bottom: "w-full lg:w-[calc(100%_-_20px)] inset-x-0 bottom-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
                 left: "inset-y-0 left-0 h-full lg:h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
@@ -179,10 +152,6 @@ export function NativePlayerDrawer(props: DrawerProps) {
         miniPlayer,
         ...rest
     } = props
-
-    const id = React.useId()
-
-    useDrawerBodyBehavior(id, open)
 
     React.useEffect(() => {
         if (open && size === "full") {
@@ -352,11 +321,11 @@ export function NativePlayerDrawer(props: DrawerProps) {
                         miniPlayer && "aspect-video w-[25%] h-auto overflow-hidden rounded-lg fixed",
                     )}
                     ref={contentRef}
-                    onOpenAutoFocus={onOpenAutoFocus}
+                    onOpenAutoFocus={e => e.preventDefault()}
                     onCloseAutoFocus={onCloseAutoFocus}
                     onEscapeKeyDown={onEscapeKeyDown}
                     onPointerDownCapture={onPointerDownCapture}
-                    onInteractOutside={onInteractOutside}
+                    onInteractOutside={e => e.preventDefault()}
                     tabIndex={-1}
                 >
                     {!title && !description ? (

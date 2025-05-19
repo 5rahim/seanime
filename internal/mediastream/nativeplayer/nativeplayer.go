@@ -19,10 +19,12 @@ const (
 
 type (
 	PlaybackInfo struct {
-		StreamType  StreamType          `json:"streamType"`
-		MimeType    string              `json:"mimeType"`
-		StreamUrl   string              `json:"streamUrl"`
-		MkvMetadata *mkvparser.Metadata `json:"mkvMetadata"` // nil if not ebml
+		ID            string              `json:"id"`
+		StreamType    StreamType          `json:"streamType"`
+		MimeType      string              `json:"mimeType"`      // e.g. "video/mp4", "video/webm"
+		StreamUrl     string              `json:"streamUrl"`     // URL of the stream
+		ContentLength int64               `json:"contentLength"` // Size of the stream in bytes
+		MkvMetadata   *mkvparser.Metadata `json:"mkvMetadata"`   // nil if not ebml
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}
@@ -63,6 +65,7 @@ type (
 // New returns a new instance of NativePlayer.
 func New(options NewNativePlayerOptions) *NativePlayer {
 	np := &NativePlayer{
+		playbackStatus:              &PlaybackStatus{},
 		wsEventManager:              options.WsEventManager,
 		clientPlayerEventSubscriber: options.WsEventManager.SubscribeToClientNativePlayerEvents("nativeplayer"),
 		subscribers:                 result.NewResultMap[string, *Subscriber](),
@@ -134,7 +137,9 @@ func (p *NativePlayer) setPlaybackStatus(do func()) {
 	defer p.playbackStatusMu.Unlock()
 	do()
 	p.NotifySubscribers(&VideoStatusEvent{
-		clientId: p.currentClientId,
-		Status:   *p.playbackStatus,
+		BaseVideoEvent: BaseVideoEvent{
+			ClientId: p.currentClientId,
+		},
+		Status: *p.playbackStatus,
 	})
 }

@@ -336,6 +336,80 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			}
 		}
 
+		// if mp.parsedSegment.Cues != nil {
+		// 	util.Spew(mp.parsedSegment.Cues)
+		// }
+
+		// Populate MimeCodecString
+		var codecStrings []string
+		seenCodecs := make(map[string]bool)
+
+		if len(result.VideoTracks) > 0 {
+			firstVideoTrack := result.VideoTracks[0]
+			var videoCodecStr string
+			switch firstVideoTrack.CodecID {
+			case "V_MPEGH/ISO/HEVC":
+				videoCodecStr = "hvc1"
+			case "V_MPEG4/ISO/AVC":
+				videoCodecStr = "avc1"
+			case "V_AV1":
+				videoCodecStr = "av01"
+			case "V_VP9":
+				videoCodecStr = "vp09"
+			case "V_VP8":
+				videoCodecStr = "vp8"
+			default:
+				if firstVideoTrack.CodecID != "" {
+					videoCodecStr = strings.ToLower(strings.ReplaceAll(firstVideoTrack.CodecID, "/", "."))
+				}
+			}
+			if videoCodecStr != "" && !seenCodecs[videoCodecStr] {
+				codecStrings = append(codecStrings, videoCodecStr)
+				seenCodecs[videoCodecStr] = true
+			}
+		}
+		for _, audioTrack := range result.AudioTracks {
+			var audioCodecStr string
+			switch audioTrack.CodecID {
+			case "A_AAC":
+				audioCodecStr = "mp4a.40.2"
+			case "A_AC3":
+				audioCodecStr = "ac-3"
+			case "A_EAC3":
+				audioCodecStr = "ec-3"
+			case "A_OPUS":
+				audioCodecStr = "opus"
+			case "A_DTS":
+				audioCodecStr = "dts"
+			case "A_FLAC":
+				audioCodecStr = "flac"
+			case "A_TRUEHD":
+				audioCodecStr = "mlp"
+			case "A_MS/ACM":
+				if strings.Contains(strings.ToLower(audioTrack.Name), "vorbis") || strings.Contains(strings.ToLower(audioTrack.CodecPrivate), "vorbis") {
+					audioCodecStr = "vorbis"
+				} else if audioTrack.CodecID != "" {
+					audioCodecStr = strings.ToLower(strings.ReplaceAll(audioTrack.CodecID, "/", "."))
+				}
+			case "A_VORBIS":
+				audioCodecStr = "vorbis"
+			default:
+				if audioTrack.CodecID != "" {
+					audioCodecStr = strings.ToLower(strings.ReplaceAll(audioTrack.CodecID, "/", "."))
+				}
+			}
+			if audioCodecStr != "" && !seenCodecs[audioCodecStr] {
+				codecStrings = append(codecStrings, audioCodecStr)
+				seenCodecs[audioCodecStr] = true
+			}
+		}
+
+		if len(codecStrings) > 0 {
+			result.MimeCodec = fmt.Sprintf("video/x-matroska; codecs=\"%s\"", strings.Join(codecStrings, ", "))
+		} else {
+			result.MimeCodec = "video/x-matroska" // Base type if no codecs identified or applicable
+		}
+
 		mp.extractedMetadata = result
 	})
 
@@ -352,7 +426,7 @@ type subtitleTrackInternalInfo struct {
 	ContentEncodings *ContentEncodings
 }
 
-// StreamSubtitles extracts subtitles from a streaming source by reading it as a continuous flow.
+// ExtractSubtitles extracts subtitles from a streaming source by reading it as a continuous flow.
 // This method doesn't require the reader to support seeking, making it suitable for HTTP streams.
 // It processes the MKV file on-the-fly and returns subtitles as they're encountered.
 //
@@ -364,13 +438,30 @@ type subtitleTrackInternalInfo struct {
 // The error channel will receive nil if processing completed normally, or an error if something failed.
 //
 // If newReader is provided, it will be used instead of mp.reader, which may have been partially consumed.
-func (mp *MetadataParser) StreamSubtitles(ctx context.Context, newReader ...io.Reader) (<-chan *SubtitleEvent, <-chan error) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader ...io.Reader) (<-chan *SubtitleEvent, <-chan error) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
 
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				mp.logger.Error().Msgf("mkv parser: Subtitle extraction goroutine panicked: %v", err)
+				ok := true
+				select {
+				case _, ok = <-errCh:
+				default:
+				}
+				if ok {
+					errCh <- fmt.Errorf("subtitle extraction goroutine panic: %v", err)
+				}
+			}
+		}()
+
+		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 100}))
+
 		defer close(subtitleCh)
 		defer close(errCh)
+		defer mp.logger.Trace().Msgf("mkv parser: Subtitle extraction goroutine finished.")
 
 		// Define local structs for streaming unmarshalling of clusters
 		type streamingSegment struct {
@@ -415,7 +506,6 @@ func (mp *MetadataParser) StreamSubtitles(ctx context.Context, newReader ...io.R
 						DefaultDuration:  track.DefaultDuration, // ns
 						ContentEncodings: track.ContentEncodings,
 					}
-					mp.logger.Debug().Uint64("trackNum", track.TrackNumber).Str("codec", track.CodecID).Msg("mkv parser: Identified subtitle track for streaming")
 				}
 			}
 		}
@@ -585,7 +675,7 @@ func (mp *MetadataParser) StreamSubtitles(ctx context.Context, newReader ...io.R
 								}
 							}
 
-							mp.logger.Debug().
+							sampler.Trace().
 								Uint64("trackNum", trackInfo.Number).
 								Float64("startTime", startTime).
 								Str("codecId", trackInfo.CodecID).

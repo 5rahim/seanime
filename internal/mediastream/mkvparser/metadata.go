@@ -70,6 +70,7 @@ type Metadata struct {
 	SubtitleTracks []*TrackInfo      `json:"subtitleTracks"`
 	Chapters       []*ChapterInfo    `json:"chapters"`
 	Attachments    []*AttachmentInfo `json:"attachments"`
+	MimeCodec      string            `json:"mimeCodec,omitempty"` // RFC 6381 codec string
 	Error          error             `json:"-"`
 }
 

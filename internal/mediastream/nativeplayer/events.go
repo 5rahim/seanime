@@ -2,7 +2,6 @@ package nativeplayer
 
 import (
 	"seanime/internal/mediastream/mkvparser"
-	"seanime/internal/util"
 
 	"github.com/goccy/go-json"
 )
@@ -91,29 +90,33 @@ type (
 	}
 
 	VideoEvent interface {
-		ClientId() string
+		GetClientId() string
+	}
+	BaseVideoEvent struct {
+		ClientId string `json:"clientId"`
 	}
 	VideoStartedEvent struct {
-		clientId string
+		BaseVideoEvent
 	}
 	VideoPausedEvent struct {
-		clientId string
+		BaseVideoEvent
 	}
 	VideoResumedEvent struct {
-		clientId string
+		BaseVideoEvent
 	}
 	VideoEndedEvent struct {
-		clientId string
+		BaseVideoEvent
 	}
 	VideoSeekedEvent struct {
-		clientId string
+		BaseVideoEvent
+		CurrentTime float64 `json:"currentTime"`
 	}
 	VideoTimeUpdateEvent struct {
-		clientId string
+		BaseVideoEvent
 	}
 	VideoStatusEvent struct {
-		clientId string
-		Status   PlaybackStatus `json:"status"`
+		BaseVideoEvent
+		Status PlaybackStatus `json:"status"`
 	}
 )
 
@@ -125,6 +128,10 @@ type (
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
 	}
+
+	videoSeekedPayload struct {
+		CurrentTime float64 `json:"currentTime"`
+	}
 )
 
 // listenToPlayerEvents listens to client events and notifies subscribers.
@@ -135,21 +142,21 @@ func (p *NativePlayer) listenToPlayerEvents() {
 			select {
 			// Listen to native player events from the client
 			case clientEvent := <-p.clientPlayerEventSubscriber.Channel:
-				playerEvent := PlayerEvent{}
+				playerEvent := &PlayerEvent{}
 				marshaled, _ := json.Marshal(clientEvent.Payload)
 				// Unmarshal the player event
-				if err := json.Unmarshal(marshaled, playerEvent); err != nil {
-					util.Spew(playerEvent) // todo remove
+				if err := json.Unmarshal(marshaled, &playerEvent); err == nil {
 					// Handle events
 					switch playerEvent.Type {
 					case PlayerEventCanPlay:
 
 					case PlayerEventVideoStarted:
-
 						p.setPlaybackStatus(func() {
 							event := &videoStartedPayload{}
 							if err := playerEvent.UnmarshalAs(&event); err != nil {
-
+								p.NotifySubscribers(&VideoStartedEvent{
+									BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								})
 							}
 						})
 					case PlayerEventVideoPaused:
@@ -165,6 +172,18 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							p.playbackStatus = &PlaybackStatus{}
 						})
 					case PlayerEventVideoSeeked:
+						payload := &videoSeekedPayload{}
+						if err := playerEvent.UnmarshalAs(&payload); err == nil {
+							p.setPlaybackStatus(func() {
+								p.playbackStatus.CurrentTime = payload.CurrentTime
+							})
+							p.NotifySubscribers(&VideoSeekedEvent{
+								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								CurrentTime:    payload.CurrentTime,
+							})
+						} else {
+							// Log error: util.Logger.Error().Err(err).Msg("nativeplayer: Failed to unmarshal video seeked payload")
+						}
 					case PlayerEventVideoError:
 					case PlayerEventVideoTimeUpdate:
 					case PlayerEventVideoMetadata:
@@ -185,30 +204,6 @@ func (e *PlayerEvent) UnmarshalAs(dest interface{}) error {
 	return json.Unmarshal(marshaled, dest)
 }
 
-func (e *VideoStartedEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoPausedEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoResumedEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoEndedEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoSeekedEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoTimeUpdateEvent) ClientId() string {
-	return e.clientId
-}
-
-func (e *VideoStatusEvent) ClientId() string {
-	return e.clientId
+func (e *BaseVideoEvent) GetClientId() string {
+	return e.ClientId
 }

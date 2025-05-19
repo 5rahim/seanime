@@ -167,12 +167,12 @@ func (r *HttpReadSeeker) Seek(offset int64, whence int) (int64, error) {
 }
 
 func (r *HttpReadSeeker) newRequest() *http.Request {
-	newreq := r.req.WithContext(r.ctx) // includes shallow copies of maps, but okay
+	newReq := r.req.WithContext(r.ctx) // includes shallow copies of maps, but okay
 	if r.req.ContentLength == 0 {
-		newreq.Body = nil // Issue 16036: nil Body for http.Transport retries
+		newReq.Body = nil // Issue 16036: nil Body for http.Transport retries
 	}
-	newreq.Header = r.req.Header.Clone()
-	return newreq
+	newReq.Header = r.req.Header.Clone()
+	return newReq
 }
 
 func (r *HttpReadSeeker) rangeRequest() error {
