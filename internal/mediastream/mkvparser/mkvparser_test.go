@@ -2,7 +2,6 @@ package mkvparser
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -23,7 +22,8 @@ import (
 var (
 	testMagnet  = util.Decode("bWFnbmV0Oj94dD11cm46YnRpaDpRRVI1TFlQSkFYWlFBVVlLSE5TTE80TzZNTlY2VUQ2QSZ0cj1odHRwJTNBJTJGJTJGbnlhYS50cmFja2VyLndmJTNBNzc3NyUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIuY29wcGVyc3VyZmVyLnRrJTNBNjk2OSUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIub3BlbnRyYWNrci5vcmclM0ExMzM3JTJGYW5ub3VuY2UmdHI9dWRwJTNBJTJGJTJGOS5yYXJiZy50byUzQTI3MTAlMkZhbm5vdW5jZSZ0cj11ZHAlM0ElMkYlMkY5LnJhcmJnLm1lJTNBMjcxMCUyRmFubm91bmNlJmRuPSU1QlN1YnNQbGVhc2UlNUQlMjBTb3Vzb3UlMjBubyUyMEZyaWVyZW4lMjAtJTIwMjglMjAlMjgxMDgwcCUyOSUyMCU1QjhCQkJDMjhDJTVELm1rdg==")
 	testHttpUrl = ""
-	testFile    = util.Decode("L1VzZXJzL3JhaGltL0RvY3VtZW50cy9jb2xsZWN0aW9uL0RhbmRhZGFuL1tTdWJzUGxlYXNlXSBEYW5kYWRhbiAtIDAzICgxMDgwcCkgWzU2OUJBQTlDXS5ta3Y=")
+	testFile    = util.Decode("L1VzZXJzL3JhaGltL0RvY3VtZW50cy9jb2xsZWN0aW9uL1NvdXNvdSBubyBGcmllcmVuL0ZyaWVyZW4uQmV5b25kLkpvdXJuZXlzLkVuZC5TMDFFMDEuMTA4MHAuQ1IuV0VCLURMLkFBQzIuMC5IaW4tVGFtLUVuZy1KcG4tR2VyLVNwYS1TcGEtRnJhLVBvci5ILjI2NC5NU3Vicy1Ub29uc0h1Yi5ta3Y=")
+	testFile2   = util.Decode("L1VzZXJzL3JhaGltL0RvY3VtZW50cy9jb2xsZWN0aW9uL0RhbmRhZGFuL1tTdWJzUGxlYXNlXSBEYW5kYWRhbiAtIDA0ICgxMDgwcCkgWzNEMkNDN0NGXS5ta3Y=")
 	// Timeout for torrent operations
 	torrentInfoTimeout = 60 * time.Second
 	// Timeout for metadata parsing test
@@ -106,6 +106,9 @@ func getTestTorrentFile(t *testing.T, magnet string, tempDir string) (*torrent.C
 }
 
 func assertTestResult(t *testing.T, result *Metadata) {
+
+	//util.Spew(result)
+
 	// Check for parsing errors (ebml.ErrReadStopped is OK here)
 	if result.Error != nil && !errors.Is(result.Error, ebml.ErrReadStopped) {
 		// If the error is context timeout/canceled, it's less severe but still worth noting
@@ -140,49 +143,63 @@ func assertTestResult(t *testing.T, result *Metadata) {
 	foundVideo := false
 	foundAudio := false
 	for i, track := range result.Tracks {
-		t.Logf("  Track %d: Type=%s, Codec=%s, Lang=%s, Name='%s', Default=%v, Forced=%v, Enabled=%v",
+		t.Logf("  Track %d:\n    Type=%s, Codec=%s, Lang=%s, Name='%s', Default=%v, Forced=%v, Enabled=%v",
 			i, track.Type, track.CodecID, track.Language, track.Name, track.Default, track.Forced, track.Enabled)
-		if track.Type == "video" {
+		if track.Video != nil {
 			foundVideo = true
-			assert.True(t, track.PixelWidth > 0, "Video track should have PixelWidth > 0")
-			assert.True(t, track.PixelHeight > 0, "Video track should have PixelHeight > 0")
-			t.Logf("    Video Details: %dx%d", track.PixelWidth, track.PixelHeight)
+			assert.True(t, track.Video.PixelWidth > 0, "Video track should have PixelWidth > 0")
+			assert.True(t, track.Video.PixelHeight > 0, "Video track should have PixelHeight > 0")
+			t.Logf("    Video Details: %dx%d", track.Video.PixelWidth, track.Video.PixelHeight)
 		}
-		if track.Type == "audio" {
+		if track.Audio != nil {
 			foundAudio = true
-			assert.True(t, track.SamplingFrequency > 0, "Audio track should have SamplingFrequency > 0")
-			assert.True(t, track.Channels > 0, "Audio track should have Channels > 0")
-			t.Logf("    Audio Details: Freq=%.1f, Channels=%d, BitDepth=%d", track.SamplingFrequency, track.Channels, track.BitDepth)
+			assert.True(t, track.Audio.SamplingFrequency > 0, "Audio track should have SamplingFrequency > 0")
+			assert.True(t, track.Audio.Channels > 0, "Audio track should have Channels > 0")
+			t.Logf("    Audio Details: Freq=%.1f, Channels=%d, BitDepth=%d", track.Audio.SamplingFrequency, track.Audio.Channels, track.Audio.BitDepth)
 		}
+		t.Log()
 	}
 	assert.True(t, foundVideo, "Expected to find at least one video track")
 	assert.True(t, foundAudio, "Expected to find at least one audio track")
 
-	// Print the JSON representation of the result
-	jsonResult, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		t.Fatalf("Failed to marshal result to JSON: %v", err)
+	t.Logf("Found %d total chapters:", len(result.Chapters))
+	for _, chapter := range result.Chapters {
+		t.Logf("  Chapter %d: StartTime=%.2f, EndTime=%.2f, Name='%s'",
+			chapter.UID, chapter.Start, chapter.End, chapter.Text)
 	}
-	t.Logf("JSON Result: %s", string(jsonResult))
+
+	t.Logf("Found %d total attachments:", len(result.Attachments))
+	for _, att := range result.Attachments {
+		t.Logf("  Attachment %d: Name='%s', MimeType='%s', Size=%d bytes",
+			att.UID, att.Filename, att.Mimetype, att.Size)
+	}
+
+	// Print the JSON representation of the result
+	//jsonResult, err := json.MarshalIndent(result, "", "  ")
+	//if err != nil {
+	//	t.Fatalf("Failed to marshal result to JSON: %v", err)
+	//}
+	//t.Logf("JSON Result: %s", string(jsonResult))
 }
 
-func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadCloser, ctx context.Context) {
-	if _, ok := reader.(io.ReadSeeker); !ok {
-		t.Fatalf("Reader does not support seeking, cannot test StreamSubtitles")
-	}
-
+func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadSeeker, offset int64, ctx context.Context) {
 	// Stream for 30 seconds
 	streamCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	subtitleCh, errCh := parser.ExtractSubtitles(streamCtx, reader)
+	subtitleCh, errCh := parser.ExtractSubtitles(streamCtx, reader, offset)
 
 	var streamedSubtitles []*SubtitleEvent
 
 	// Collect subtitles with a timeout
 	collectDone := make(chan struct{})
 	go func() {
-		defer reader.Close()
+		defer func() {
+			// Close the reader if it implements io.Closer
+			if closer, ok := reader.(io.Closer); ok {
+				_ = closer.Close()
+			}
+		}()
 		defer close(collectDone)
 		for {
 			select {
@@ -282,7 +299,7 @@ func TestMetadataParser_Torrent(t *testing.T) {
 
 	assertTestResult(t, metadata)
 
-	testStreamSubtitles(t, parser, file.NewReader(), ctx)
+	testStreamSubtitles(t, parser, file.NewReader(), 78123456, ctx)
 }
 
 // TestMetadataParser_HTTPStream tests parsing from an HTTP stream
@@ -317,7 +334,7 @@ func TestMetadataParser_HTTPStream(t *testing.T) {
 	_, err = rs.Seek(0, io.SeekStart)
 	require.NoError(t, err)
 
-	testStreamSubtitles(t, parser, rs, ctx)
+	testStreamSubtitles(t, parser, rs, 1230000000, ctx)
 }
 
 func TestMetadataParser_File(t *testing.T) {
@@ -335,8 +352,8 @@ func TestMetadataParser_File(t *testing.T) {
 
 	parser := NewMetadataParser(file, logger)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second) // 30-second timeout for parsing
-	defer cancel()
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second) // 30-second timeout for parsing
+	//defer cancel()
 
 	metadata := parser.GetMetadata(ctx)
 
@@ -345,5 +362,5 @@ func TestMetadataParser_File(t *testing.T) {
 	_, err = file.Seek(0, io.SeekStart)
 	require.NoError(t, err)
 
-	testStreamSubtitles(t, parser, file, ctx)
+	testStreamSubtitles(t, parser, file, 1230000000, ctx)
 }

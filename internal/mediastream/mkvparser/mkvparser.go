@@ -7,40 +7,40 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/at-wat/ebml-go"
 	"github.com/goccy/go-json"
+	"github.com/remko/go-mkvparse"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
 
 const (
-	// MaxScanBytes defines the maximum number of bytes to scan from the beginning of the file
-	// to find metadata. This is to avoid reading too much data for large files or slow torrents.
-	maxScanBytes = 50 * 1024 * 1024 // 50MB
+	maxScanBytes = 35 * 1024 * 1024 // 35MB
 	// Default timecode scale (1ms)
 	defaultTimecodeScale = 1_000_000
+
+	defaultClusterSearchChunkSize = 8192             // 8KB
+	defaultClusterSearchDepth     = 10 * 1024 * 1024 // 1MB
 )
+
+var matroskaClusterID = []byte{0x1F, 0x43, 0xB6, 0x75}
 
 // SubtitleEvent holds information for a single subtitle entry.
 type SubtitleEvent struct {
-	TrackNumber uint64  `json:"trackNumber"`
-	Text        string  `json:"text"`      // Content
-	StartTime   float64 `json:"startTime"` // Start time in seconds
-	Duration    float64 `json:"duration"`  // Duration in seconds
-	CodecID     string  `json:"codecID"`   // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
-	//CodecPrivate string  `json:"codecPrivate"` // For ASS/SSA styling, etc.
-	// ExtraData is a map of additional subtitle-specific data.
-	// For ASS/SSA, the keys are "readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"
-	ExtraData map[string]string `json:"extraData,omitempty"`
+	TrackNumber uint64            `json:"trackNumber"`
+	Text        string            `json:"text"`      // Content
+	StartTime   float64           `json:"startTime"` // Start time in seconds
+	Duration    float64           `json:"duration"`  // Duration in seconds
+	CodecID     string            `json:"codecID"`   // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
+	ExtraData   map[string]string `json:"extraData,omitempty"`
 }
 
 // GetSubtitleEventKey stringifies the subtitle event to serve as a key
 func GetSubtitleEventKey(se *SubtitleEvent) string {
-	// JSON stringify
 	marshaled, err := json.Marshal(se)
 	if err != nil {
 		return ""
@@ -48,27 +48,38 @@ func GetSubtitleEventKey(se *SubtitleEvent) string {
 	return string(marshaled)
 }
 
-// MetadataParser parses Matroska metadata from a torrent file.
-// It reads only the initial part of the file to extract metadata efficiently.
+// MetadataParser parses Matroska metadata from a file.
 type MetadataParser struct {
-	reader        io.Reader // Changed from *torrent.File
-	logger        *zerolog.Logger
-	realLogger    *zerolog.Logger
-	parsedSegment *Segment
-	parseErr      error
-	parseOnce     sync.Once
+	reader       io.ReadSeeker
+	logger       *zerolog.Logger
+	realLogger   *zerolog.Logger
+	parseErr     error
+	parseOnce    sync.Once
+	metadataOnce sync.Once
 
-	metadataOnce      sync.Once
+	// Internal state for parsing
+	timecodeScale uint64
+	currentTrack  *TrackInfo
+	tracks        []*TrackInfo
+	info          *Info
+	chapters      []*ChapterInfo
+	attachments   []*AttachmentInfo
+
+	// Result
 	extractedMetadata *Metadata
 }
 
 // NewMetadataParser creates a new MetadataParser.
-func NewMetadataParser(reader io.Reader, logger *zerolog.Logger) *MetadataParser {
+func NewMetadataParser(reader io.ReadSeeker, logger *zerolog.Logger) *MetadataParser {
 	return &MetadataParser{
-		reader:     reader,
-		logger:     logger,
-		realLogger: logger,
-
+		reader:            reader,
+		logger:            logger,
+		realLogger:        logger,
+		timecodeScale:     defaultTimecodeScale,
+		tracks:            make([]*TrackInfo, 0),
+		chapters:          make([]*ChapterInfo, 0),
+		attachments:       make([]*AttachmentInfo, 0),
+		info:              &Info{},
 		extractedMetadata: nil,
 	}
 }
@@ -101,68 +112,368 @@ func convertTrackType(trackType uint64) TrackType {
 	}
 }
 
-// getLanguageCode returns the IETF language code if available, otherwise the older 3-letter code,
-// defaulting to "eng" if neither is present or valid.
-func getLanguageCode(track *TrackEntry) string {
-	if track.LanguageIETF != "" && track.LanguageIETF != "und" {
+func getLanguageCode(track *TrackInfo) string {
+	if track.LanguageIETF != "" {
 		return track.LanguageIETF
 	}
 	if track.Language != "" && track.Language != "und" {
 		return track.Language
 	}
-	// If both are missing or 'und', default to 'eng' as per spec default for Language tag
 	return "eng"
 }
 
-// parseMetadataOnce performs the actual parsing of the torrent file stream.
-// It unmarshals into a MKVRoot struct, using WithIgnoreUnknown(true) to skip elements
-// not defined in the structs up to maxScanBytes.
+// parseMetadataOnce performs the actual parsing of the file stream.
 func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 	mp.parseOnce.Do(func() {
-		mp.logger.Debug().Msg("mkv parser: Starting metadata parsing")
+		mp.logger.Debug().Msg("mkvparser: Starting metadata parsing")
 		startTime := time.Now()
 
-		// Read up to maxScanBytes
-		limitedReader := io.LimitReader(mp.reader, maxScanBytes)
-
-		done := make(chan error, 1)
-		var root MKVRoot // Unmarshal into the top-level structure
-
-		go func() {
-			// Blocks until the stream is fully read or an error occurs.
-			// Use WithIgnoreUnknown to skip elements not defined (like Cluster, Cues).
-			done <- ebml.Unmarshal(limitedReader, &root, ebml.WithIgnoreUnknown(true))
-		}()
-
-		select {
-		case err := <-done:
-			if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
-				mp.logger.Error().Err(err).Msg("mkv parser: EBML unmarshalling error")
-				mp.parseErr = fmt.Errorf("ebml unmarshalling failed: %w", err)
-			} else if err != nil {
-				mp.logger.Debug().Err(err).Msg("mkv parser: EBML unmarshalling finished with EOF/unexpected EOF (expected outcome).")
-				mp.parseErr = nil
-			} else {
-				mp.logger.Debug().Msg("mkv parser: EBML unmarshalling completed fully within scan limit.")
-				mp.parseErr = nil
-			}
-		case <-ctx.Done():
-			mp.logger.Warn().Msg("mkv parser: EBML unmarshalling cancelled or timed out via context")
-			mp.parseErr = fmt.Errorf("ebml unmarshalling context cancelled/timed out: %w", ctx.Err())
+		// Create a handler for parsing
+		handler := &metadataHandler{
+			mp:     mp,
+			ctx:    ctx,
+			logger: mp.logger,
 		}
 
-		// Assign the parsed segment even if errors occurred (EOF/context timeout might allow partial data)
-		mp.parsedSegment = &root.Segment
+		_, _ = mp.reader.Seek(0, io.SeekStart)
+
+		limitedReader, err := util.NewLimitedReadSeeker(mp.reader, maxScanBytes)
+		if err != nil {
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to create limited reader")
+			mp.parseErr = fmt.Errorf("mkvparser: Failed to create limited reader: %w", err)
+			return
+		}
+
+		// Parse the MKV file
+		err = mkvparse.ParseSections(limitedReader, handler,
+			mkvparse.InfoElement,
+			mkvparse.AttachmentsElement,
+			mkvparse.TracksElement,
+			mkvparse.SegmentElement,
+			mkvparse.ChaptersElement,
+		)
+		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
+			mp.logger.Error().Err(err).Msg("mkvparser: MKV parsing error")
+			mp.parseErr = fmt.Errorf("mkv parsing failed: %w", err)
+		} else if err != nil {
+			mp.logger.Debug().Err(err).Msg("mkvparser: MKV parsing finished with EOF/unexpected EOF (expected outcome).")
+			mp.parseErr = nil
+		} else {
+			mp.logger.Debug().Msg("mkvparser: MKV parsing completed fully within scan limit.")
+			mp.parseErr = nil
+		}
 
 		logMsg := mp.logger.Info().Dur("parseDuration", time.Since(startTime))
 		if mp.parseErr != nil {
 			logMsg.Err(mp.parseErr)
 		}
-		logMsg.Msg("mkv parser: Metadata parsing attempt finished")
+		logMsg.Msg("mkvparser: Metadata parsing attempt finished")
 	})
 }
 
-// GetMetadata extracts all relevant metadata from the torrent file.
+// Handler for parsing metadata
+type metadataHandler struct {
+	mkvparse.DefaultHandler
+	mp     *MetadataParser
+	ctx    context.Context
+	logger *zerolog.Logger
+
+	// Track parsing state
+	inTrackEntry bool
+	currentTrack *TrackInfo
+	inVideo      bool
+	inAudio      bool
+
+	// Chapter parsing state
+	inEditionEntry   bool
+	inChapterAtom    bool
+	currentChapter   *ChapterInfo
+	inChapterDisplay bool
+	currentLanguages []string // Temporary storage for chapter languages
+	currentIETF      []string // Temporary storage for chapter IETF languages
+
+	// Attachment parsing state
+	isAttachment      bool
+	currentAttachment *AttachmentInfo
+}
+
+func (h *metadataHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
+	switch id {
+	case mkvparse.SegmentElement:
+		return true, nil // Parse Segment and its children
+	case mkvparse.TracksElement:
+		return true, nil // Parse Track metadata
+	case mkvparse.TrackEntryElement:
+		h.inTrackEntry = true
+		h.currentTrack = &TrackInfo{
+			Default: false,
+			Enabled: true,
+		}
+		return true, nil
+	case mkvparse.VideoElement:
+		h.inVideo = true
+		if h.currentTrack != nil && h.currentTrack.Video == nil {
+			h.currentTrack.Video = &VideoTrack{}
+		}
+		return true, nil
+	case mkvparse.AudioElement:
+		h.inAudio = true
+		if h.currentTrack != nil && h.currentTrack.Audio == nil {
+			h.currentTrack.Audio = &AudioTrack{}
+		}
+		return true, nil
+	case mkvparse.InfoElement:
+		if h.mp.info == nil {
+			h.mp.info = &Info{}
+		}
+		return true, nil
+	case mkvparse.ChaptersElement:
+		return true, nil
+	case mkvparse.EditionEntryElement:
+		h.inEditionEntry = true
+		return true, nil
+	case mkvparse.ChapterAtomElement:
+		h.inChapterAtom = true
+		h.currentChapter = &ChapterInfo{}
+		return true, nil
+	case mkvparse.ChapterDisplayElement:
+		h.inChapterDisplay = true
+		h.currentLanguages = make([]string, 0)
+		h.currentIETF = make([]string, 0)
+		return true, nil
+	case mkvparse.AttachmentsElement:
+		return true, nil
+	case mkvparse.AttachedFileElement:
+		h.isAttachment = true
+		h.currentAttachment = &AttachmentInfo{}
+		return true, nil
+	case mkvparse.ContentEncodingsElement:
+		if h.currentTrack != nil && h.currentTrack.contentEncodings == nil {
+			h.currentTrack.contentEncodings = &ContentEncodings{
+				ContentEncoding: make([]ContentEncoding, 0),
+			}
+		} else if h.isAttachment && h.currentAttachment != nil {
+			// Handle content encoding for attachments
+			h.currentAttachment.IsCompressed = true
+		}
+		return true, nil
+	}
+	return false, nil
+}
+
+func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.TrackEntryElement:
+		if h.currentTrack != nil {
+			h.mp.tracks = append(h.mp.tracks, h.currentTrack)
+		}
+		h.inTrackEntry = false
+		h.currentTrack = nil
+	case mkvparse.VideoElement:
+		h.inVideo = false
+	case mkvparse.AudioElement:
+		h.inAudio = false
+	case mkvparse.EditionEntryElement:
+		h.inEditionEntry = false
+	case mkvparse.ChapterAtomElement:
+		if h.currentChapter != nil && h.inEditionEntry {
+			h.mp.chapters = append(h.mp.chapters, h.currentChapter)
+		}
+		h.inChapterAtom = false
+		h.currentChapter = nil
+	case mkvparse.ChapterDisplayElement:
+		if h.currentChapter != nil {
+			h.currentChapter.Languages = h.currentLanguages
+			h.currentChapter.LanguagesIETF = h.currentIETF
+		}
+		h.inChapterDisplay = false
+		h.currentLanguages = nil
+		h.currentIETF = nil
+	case mkvparse.AttachedFileElement:
+		if h.currentAttachment != nil {
+			// Handle compressed attachments if needed
+			if h.currentAttachment.Data != nil && h.currentAttachment.IsCompressed {
+				zlibReader, err := zlib.NewReader(bytes.NewReader(h.currentAttachment.Data))
+				if err != nil {
+					h.logger.Error().Err(err).Str("filename", h.currentAttachment.Filename).Msg("mkvparser: Failed to create zlib reader for attachment")
+				} else {
+					decompressedData, err := io.ReadAll(zlibReader)
+					_ = zlibReader.Close()
+					if err != nil {
+						h.logger.Error().Err(err).Str("filename", h.currentAttachment.Filename).Msg("mkvparser: Failed to decompress attachment")
+					} else {
+						h.currentAttachment.Data = decompressedData
+						h.currentAttachment.Size = len(decompressedData)
+					}
+				}
+			}
+			h.mp.attachments = append(h.mp.attachments, h.currentAttachment)
+		}
+		h.isAttachment = false
+		h.currentAttachment = nil
+	}
+	return nil
+}
+
+func (h *metadataHandler) HandleString(id mkvparse.ElementID, value string, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.CodecIDElement:
+		if h.currentTrack != nil {
+			h.currentTrack.CodecID = value
+		}
+	case mkvparse.LanguageElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Language = value
+		} else if h.inChapterDisplay {
+			h.currentLanguages = append(h.currentLanguages, value)
+		}
+	case mkvparse.LanguageIETFElement:
+		if h.currentTrack != nil {
+			h.currentTrack.LanguageIETF = value
+		} else if h.inChapterDisplay {
+			h.currentIETF = append(h.currentIETF, value)
+		}
+	case mkvparse.NameElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Name = value
+		}
+	case mkvparse.TitleElement:
+		if h.mp.info != nil {
+			h.mp.info.Title = value
+		}
+	case mkvparse.MuxingAppElement:
+		if h.mp.info != nil {
+			h.mp.info.MuxingApp = value
+		}
+	case mkvparse.WritingAppElement:
+		if h.mp.info != nil {
+			h.mp.info.WritingApp = value
+		}
+	case mkvparse.ChapStringElement:
+		if h.inChapterDisplay && h.currentChapter != nil {
+			h.currentChapter.Text = value
+		}
+	case mkvparse.FileDescriptionElement:
+		if h.isAttachment && h.currentAttachment != nil {
+			h.currentAttachment.Description = value
+		}
+	case mkvparse.FileNameElement:
+		if h.isAttachment && h.currentAttachment != nil {
+			h.currentAttachment.Filename = value
+		}
+	case mkvparse.FileMimeTypeElement:
+		if h.isAttachment && h.currentAttachment != nil {
+			h.currentAttachment.Mimetype = value
+		}
+	}
+	return nil
+}
+
+func (h *metadataHandler) HandleInteger(id mkvparse.ElementID, value int64, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.TimecodeScaleElement:
+		h.mp.timecodeScale = uint64(value)
+		if h.mp.info != nil {
+			h.mp.info.TimecodeScale = uint64(value)
+		}
+	case mkvparse.TrackNumberElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Number = value
+		}
+	case mkvparse.TrackUIDElement:
+		if h.currentTrack != nil {
+			h.currentTrack.UID = value
+		}
+	case mkvparse.TrackTypeElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Type = convertTrackType(uint64(value))
+		}
+	case mkvparse.DefaultDurationElement:
+		if h.currentTrack != nil {
+			h.currentTrack.defaultDuration = uint64(value)
+		}
+	// case mkvparse.DurationElement:
+	// 	if h.currentTrack != nil {
+	// 		h.currentTrack.Duration = uint64(value)
+	// 	}
+	case mkvparse.FlagDefaultElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Default = value == 1
+		}
+	case mkvparse.FlagForcedElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Forced = value == 1
+		}
+	case mkvparse.FlagEnabledElement:
+		if h.currentTrack != nil {
+			h.currentTrack.Enabled = value == 1
+		}
+	case mkvparse.PixelWidthElement:
+		if h.currentTrack != nil && h.currentTrack.Video != nil {
+			h.currentTrack.Video.PixelWidth = uint64(value)
+		}
+	case mkvparse.PixelHeightElement:
+		if h.currentTrack != nil && h.currentTrack.Video != nil {
+			h.currentTrack.Video.PixelHeight = uint64(value)
+		}
+	case mkvparse.ChannelsElement:
+		if h.currentTrack != nil && h.currentTrack.Audio != nil {
+			h.currentTrack.Audio.Channels = uint64(value)
+		}
+	case mkvparse.BitDepthElement:
+		if h.currentTrack != nil && h.currentTrack.Audio != nil {
+			h.currentTrack.Audio.BitDepth = uint64(value)
+		}
+	case mkvparse.ChapterTimeStartElement:
+		if h.inChapterAtom && h.currentChapter != nil {
+			h.currentChapter.Start = float64(value) * float64(h.mp.timecodeScale) / 1e9
+		}
+	case mkvparse.ChapterTimeEndElement:
+		if h.inChapterAtom && h.currentChapter != nil {
+			h.currentChapter.End = float64(value) * float64(h.mp.timecodeScale) / 1e9
+		}
+	case mkvparse.ChapterUIDElement:
+		if h.inChapterAtom && h.currentChapter != nil {
+			h.currentChapter.UID = uint64(value)
+		}
+	case mkvparse.FileUIDElement:
+		if h.isAttachment && h.currentAttachment != nil {
+			h.currentAttachment.UID = uint64(value)
+		}
+	}
+	return nil
+}
+
+func (h *metadataHandler) HandleFloat(id mkvparse.ElementID, value float64, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.DurationElement:
+		if h.mp.info != nil {
+			h.mp.info.Duration = value
+		}
+	case mkvparse.SamplingFrequencyElement:
+		if h.currentTrack != nil && h.currentTrack.Audio != nil {
+			h.currentTrack.Audio.SamplingFrequency = value
+		}
+	}
+	return nil
+}
+
+func (h *metadataHandler) HandleBinary(id mkvparse.ElementID, value []byte, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.CodecPrivateElement:
+		if h.currentTrack != nil {
+			h.currentTrack.CodecPrivate = string(value)
+		}
+	case mkvparse.FileDataElement:
+		if h.isAttachment && h.currentAttachment != nil {
+			h.currentAttachment.Data = value
+			h.currentAttachment.Size = len(value)
+		}
+	}
+	return nil
+}
+
+// GetMetadata extracts all relevant metadata from the file.
 func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 	mp.parseMetadataOnce(ctx)
 
@@ -171,176 +482,54 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			VideoTracks:    make([]*TrackInfo, 0),
 			AudioTracks:    make([]*TrackInfo, 0),
 			SubtitleTracks: make([]*TrackInfo, 0),
-			Tracks:         make([]*TrackInfo, 0),
-			Chapters:       make([]*ChapterInfo, 0),
-			Attachments:    make([]*AttachmentInfo, 0),
-			Error:          mp.parseErr, // Assign error from parsing attempt
+			Tracks:         mp.tracks,
+			Chapters:       mp.chapters,
+			Attachments:    mp.attachments,
+			Error:          mp.parseErr,
 		}
 
 		if mp.parseErr != nil {
-			// Allow proceeding if error was due to context cancellation/deadline and some segment was parsed
-			// This might happen if header was parsed but full scan for GetMetadata (which is limited) was cut short
-			proceedWithPartial := (errors.Is(mp.parseErr, context.Canceled) || errors.Is(mp.parseErr, context.DeadlineExceeded)) && mp.parsedSegment != nil
-			if !proceedWithPartial {
+			if !(errors.Is(mp.parseErr, context.Canceled) || errors.Is(mp.parseErr, context.DeadlineExceeded)) {
 				mp.extractedMetadata = result
 				return
 			}
 		}
 
-		if mp.parsedSegment == nil {
-			if result.Error == nil { // Assign a generic error if parsedSegment is nil and no specific error was recorded
-				result.Error = fmt.Errorf("metadata segment is nil after parsing attempt")
-			}
-			// Cannot proceed without a segment
-			mp.extractedMetadata = result
-			return
-		}
-
-		if len(mp.parsedSegment.Info) == 0 {
-			if result.Error == nil {
-				mp.logger.Warn().Msg("mkv parser: No Info element found in parsed segment. Metadata extraction might be incomplete.")
-				result.Error = fmt.Errorf("no Info element found in parsed segment")
-			} else {
-				mp.logger.Warn().Err(result.Error).Msg("mkv parser: No Info element found in parsed segment (parsing attempt may have been interrupted).")
-			}
-			mp.extractedMetadata = result
-			return
-		}
-
-		info := mp.parsedSegment.Info[0] // Use the first Info element
-		timecodeScale := uint64(defaultTimecodeScale)
-
-		result.Title = info.Title
-		result.MuxingApp = info.MuxingApp
-		result.WritingApp = info.WritingApp
-		if info.TimecodeScale > 0 {
-			timecodeScale = info.TimecodeScale
-		}
-		result.TimecodeScale = float64(timecodeScale)
-		if info.Duration > 0 {
-			result.Duration = (info.Duration * float64(timecodeScale)) / 1e9 // nanoseconds to seconds
-		} else if result.Error == nil {
-			mp.logger.Warn().Msg("mkv parser: Duration is zero or missing in Matroska Info element.")
-		}
-
-		if mp.parsedSegment.Tracks != nil {
-			for _, track := range mp.parsedSegment.Tracks.TrackEntry {
-				ti := &TrackInfo{
-					Number:           track.TrackNumber,
-					UID:              track.TrackUID,
-					Type:             convertTrackType(track.TrackType),
-					CodecID:          track.CodecID,
-					Name:             track.Name,
-					Language:         getLanguageCode(&track),
-					Default:          track.FlagDefault == 1, // Default is 1 if FlagDefault is not present, but here we check if it's explicitly set to 1
-					Forced:           track.FlagForced == 1,
-					Enabled:          track.FlagEnabled == 1, // Default is 1
-					defaultDuration:  track.DefaultDuration,  // Store in ns
-					contentEncodings: track.ContentEncodings, // Store for GetSubtitles
-				}
-				// Matroska spec: FlagEnabled defaults to 1. TrackEntry.FlagEnabled is uint64.
-				// If FlagEnabled is not present in the file, it will be 0 by Go's default.
-				// The EBML library doesn't automatically apply default values for missing elements.
-				// However, for GetMetadata, we usually report what's in the file.
-				// A track is enabled if the element is present and not 0, or if the element is absent (defaults to 1).
-				// For simplicity here, if track.FlagEnabled is 0, it means it was either absent or explicitly set to 0.
-				// If strict spec adherence for defaulting is needed, this logic might need adjustment based on element presence.
-				// Currently, it assumes if 0, it's explicitly disabled or absent (and we interpret absent as effectively enabled by default per spec, but our struct has 0).
-				// Let's assume if FlagEnabled is 0, it was explicitly set to 0 or absent. For enabled status, usually 1 means enabled.
-				// The problem is FlagEnabled element defaults to 1. If it's NOT in the file, our struct field will be 0.
-				// So, a track is enabled if track.FlagEnabled is 1 OR if the element was not present (which we can't easily tell here without more complex EBML parsing).
-				// For now, let's stick to: if track.FlagEnabled is 1, it's true. This might misrepresent tracks where FlagEnabled is missing.
-				// Re-evaluating: TrackEntry.FlagEnabled should reflect the spec default if not present.
-				// The `ebml-go` library will leave it as the zero value (0) if not present.
-				// Spec: FlagEnabled: "A flag to indicate if the track is usable. Default: 1"
-				// So, if track.FlagEnabled is 0, it means it was explicitly set to 0. Otherwise, it's 1 (present and 1, or absent).
-				// This is tricky. Let's assume the current FlagEnabled == 1 is okay for now as it reflects explicit flags.
-
-				if len(track.CodecPrivate) > 0 {
-					ti.CodecPrivate = string(track.CodecPrivate)
-				}
-
-				if track.Video != nil {
-					ti.PixelWidth = track.Video.PixelWidth
-					ti.PixelHeight = track.Video.PixelHeight
-				}
-				if track.Audio != nil {
-					ti.SamplingFrequency = track.Audio.SamplingFrequency
-					ti.Channels = track.Audio.Channels
-					ti.BitDepth = track.Audio.BitDepth
-					if ti.SamplingFrequency == 0 {
-						ti.SamplingFrequency = 8000.0
-					}
-					if ti.Channels == 0 {
-						ti.Channels = 1
-					}
-				}
-
-				result.Tracks = append(result.Tracks, ti)
-
-				switch ti.Type {
-				case TrackTypeVideo:
-					result.VideoTracks = append(result.VideoTracks, ti)
-				case TrackTypeAudio:
-					result.AudioTracks = append(result.AudioTracks, ti)
-				case TrackTypeSubtitle:
-					result.SubtitleTracks = append(result.SubtitleTracks, ti)
-				}
+		if mp.info != nil {
+			result.Title = mp.info.Title
+			result.MuxingApp = mp.info.MuxingApp
+			result.WritingApp = mp.info.WritingApp
+			result.TimecodeScale = float64(mp.timecodeScale)
+			if mp.info.Duration > 0 {
+				result.Duration = (mp.info.Duration * float64(mp.timecodeScale)) / 1e9
 			}
 		}
 
-		if mp.parsedSegment.Chapters != nil {
-			for _, edition := range mp.parsedSegment.Chapters.EditionEntry {
-				for _, atom := range edition.ChapterAtom {
-					ci := &ChapterInfo{
-						UID: atom.ChapterUID,
-						// ChapterTimeStart is in nanoseconds
-						Start: float64(atom.ChapterTimeStart) / 1e9,
-					}
-					if atom.ChapterTimeEnd > 0 {
-						ci.End = float64(atom.ChapterTimeEnd) / 1e9
-					}
-					if len(atom.ChapterDisplay) > 0 {
-						// Prefer IETF language if available, otherwise first language, then first string
-						displayText := atom.ChapterDisplay[0].ChapString
-						bestDisplay := lo.Filter(atom.ChapterDisplay, func(d ChapterDisplay, _ int) bool {
-							return len(d.ChapLanguageIETF) > 0 && d.ChapLanguageIETF[0] != ""
-						})
-						if len(bestDisplay) > 0 {
-							displayText = bestDisplay[0].ChapString
-						} else {
-							bestDisplay = lo.Filter(atom.ChapterDisplay, func(d ChapterDisplay, _ int) bool {
-								return len(d.ChapLanguage) > 0 && d.ChapLanguage[0] != "" && d.ChapLanguage[0] != "und"
-							})
-							if len(bestDisplay) > 0 {
-								displayText = bestDisplay[0].ChapString
-							}
-						}
-						ci.Text = displayText
-					}
-					result.Chapters = append(result.Chapters, ci)
-				}
+		mp.logger.Debug().
+			Int("tracks", len(mp.tracks)).
+			Int("chapters", len(mp.chapters)).
+			Int("attachments", len(mp.attachments)).
+			Msg("mkvparser: Metadata parsing complete")
+
+		if len(mp.chapters) == 0 {
+			mp.logger.Debug().Msg("mkvparser: No chapters found")
+		}
+		if len(mp.attachments) == 0 {
+			mp.logger.Debug().Msg("mkvparser: No attachments found")
+		}
+
+		for _, track := range mp.tracks {
+			switch track.Type {
+			case TrackTypeVideo:
+				result.VideoTracks = append(result.VideoTracks, track)
+			case TrackTypeAudio:
+				result.AudioTracks = append(result.AudioTracks, track)
+			case TrackTypeSubtitle:
+				result.SubtitleTracks = append(result.SubtitleTracks, track)
 			}
 		}
 
-		if mp.parsedSegment.Attachments != nil {
-			for _, attachedFile := range mp.parsedSegment.Attachments.AttachedFile {
-				ai := &AttachmentInfo{
-					UID:      attachedFile.FileUID,
-					Filename: attachedFile.FileName,
-					Mimetype: attachedFile.FileMimeType,
-					Size:     len(attachedFile.FileData),
-					Data:     attachedFile.FileData, // This can be large
-				}
-				result.Attachments = append(result.Attachments, ai)
-			}
-		}
-
-		// if mp.parsedSegment.Cues != nil {
-		// 	util.Spew(mp.parsedSegment.Cues)
-		// }
-
-		// Populate MimeCodecString
+		// Generate MimeCodec string
 		var codecStrings []string
 		seenCodecs := make(map[string]bool)
 
@@ -368,6 +557,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 				seenCodecs[videoCodecStr] = true
 			}
 		}
+
 		for _, audioTrack := range result.AudioTracks {
 			var audioCodecStr string
 			switch audioTrack.CodecID {
@@ -386,7 +576,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			case "A_TRUEHD":
 				audioCodecStr = "mlp"
 			case "A_MS/ACM":
-				if strings.Contains(strings.ToLower(audioTrack.Name), "vorbis") || strings.Contains(strings.ToLower(audioTrack.CodecPrivate), "vorbis") {
+				if strings.Contains(strings.ToLower(audioTrack.Name), "vorbis") {
 					audioCodecStr = "vorbis"
 				} else if audioTrack.CodecID != "" {
 					audioCodecStr = strings.ToLower(strings.ReplaceAll(audioTrack.CodecID, "/", "."))
@@ -407,7 +597,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		if len(codecStrings) > 0 {
 			result.MimeCodec = fmt.Sprintf("video/x-matroska; codecs=\"%s\"", strings.Join(codecStrings, ", "))
 		} else {
-			result.MimeCodec = "video/x-matroska" // Base type if no codecs identified or applicable
+			result.MimeCodec = "video/x-matroska"
 		}
 
 		mp.extractedMetadata = result
@@ -416,36 +606,45 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 	return mp.extractedMetadata
 }
 
-// internal struct to hold necessary info for subtitle processing for a track
-type subtitleTrackInternalInfo struct {
-	Number           uint64
-	UID              uint64
-	CodecID          string
-	CodecPrivate     []byte
-	DefaultDuration  uint64 // in ns
-	ContentEncodings *ContentEncodings
-}
-
 // ExtractSubtitles extracts subtitles from a streaming source by reading it as a continuous flow.
-// This method doesn't require the reader to support seeking, making it suitable for HTTP streams.
-// It processes the MKV file on-the-fly and returns subtitles as they're encountered.
+// If an offset is provided, it will seek to the cluster near the offset and start parsing from there.
 //
 // The function returns a channel of SubtitleEvent which will be closed when:
 // - The context is canceled
 // - The entire stream is processed
 // - An unrecoverable error occurs (which is also returned in the error channel)
-//
-// The error channel will receive nil if processing completed normally, or an error if something failed.
-//
-// If newReader is provided, it will be used instead of mp.reader, which may have been partially consumed.
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader ...io.Reader) (<-chan *SubtitleEvent, <-chan error) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeeker, offset int64) (<-chan *SubtitleEvent, <-chan error) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
+
+	if offset > 0 {
+		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
+
+		clusterSeekOffset, err := findNextClusterOffset(newReader, offset)
+		if err != nil {
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
+			errCh <- err
+			close(subtitleCh)
+			close(errCh)
+			return subtitleCh, errCh
+		}
+
+		mp.logger.Debug().Int64("clusterSeekOffset", clusterSeekOffset).Msg("mkvparser: Found cluster near offset")
+
+		_, err = newReader.Seek(clusterSeekOffset, io.SeekStart)
+		if err != nil {
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to cluster offset")
+			errCh <- err
+			close(subtitleCh)
+			close(errCh)
+			return subtitleCh, errCh
+		}
+	}
 
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				mp.logger.Error().Msgf("mkv parser: Subtitle extraction goroutine panicked: %v", err)
+				mp.logger.Error().Msgf("mkvparser: Subtitle extraction goroutine panicked: %v", err)
 				ok := true
 				select {
 				case _, ok = <-errCh:
@@ -457,284 +656,354 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader ...io.
 			}
 		}()
 
-		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 100}))
+		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 1}))
 
 		defer close(subtitleCh)
 		defer close(errCh)
-		defer mp.logger.Trace().Msgf("mkv parser: Subtitle extraction goroutine finished.")
+		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
-		// Define local structs for streaming unmarshalling of clusters
-		type streamingSegment struct {
-			Cluster chan *Cluster `ebml:"Cluster,omitempty"`
-			// We might need Info here if we want the most up-to-date TimecodeScale
-			// from the full stream scan, rather than just the header.
-			// However, parseMetadataOnce already gives us a good one from the header.
-			Info []Info `ebml:"Info,omitempty"`
-		}
-		type streamingMKVRoot struct {
-			Header  EBMLHeader       `ebml:"EBML"` // EBML Header
-			Segment streamingSegment `ebml:"Segment,size=unknown"`
-		}
-
-		// First, ensure metadata is parsed to get the initial header and track information
+		// First, ensure metadata is parsed to get track information
 		mp.parseMetadataOnce(ctx)
 
 		if mp.parseErr != nil && !errors.Is(mp.parseErr, io.EOF) && !strings.Contains(mp.parseErr.Error(), "unexpected EOF") {
-			// A critical error during header parsing that wasn't just EOF due to limit
-			mp.logger.Error().Err(mp.parseErr).Msg("mkv parser: StreamSubtitles cannot proceed due to initial metadata parsing error")
+			mp.logger.Error().Err(mp.parseErr).Msg("mkvparser: ExtractSubtitles cannot proceed due to initial metadata parsing error")
 			errCh <- fmt.Errorf("initial metadata parse failed: %w", mp.parseErr)
 			return
 		}
-		// If mp.parseErr is EOF/unexpected EOF, it's fine for header parsing, we likely got what we needed.
 
-		if mp.parsedSegment == nil || mp.parsedSegment.Tracks == nil {
-			mp.logger.Error().Msg("mkv parser: StreamSubtitles cannot proceed, no tracks found in initial metadata")
-			errCh <- errors.New("no track information available from initial parse")
+		// Create a map of subtitle tracks for quick lookup
+		subtitleTracks := make(map[uint64]*TrackInfo)
+		for _, track := range mp.tracks {
+			if track.Type == TrackTypeSubtitle {
+				subtitleTracks[uint64(track.Number)] = track
+			}
+		}
+
+		if len(subtitleTracks) == 0 {
+			mp.logger.Info().Msg("mkvparser: No subtitle tracks found for streaming")
+			errCh <- nil
 			return
 		}
 
-		// Identify subtitle tracks and build map for quick lookup from the initial header parse
-		subTrackInfos := make(map[uint64]*subtitleTrackInternalInfo)
-		if mp.parsedSegment.Tracks != nil {
-			for _, track := range mp.parsedSegment.Tracks.TrackEntry {
-				if convertTrackType(track.TrackType) == TrackTypeSubtitle {
-					subTrackInfos[track.TrackNumber] = &subtitleTrackInternalInfo{
-						Number:           track.TrackNumber,
-						UID:              track.TrackUID,
-						CodecID:          track.CodecID,
-						CodecPrivate:     track.CodecPrivate,
-						DefaultDuration:  track.DefaultDuration, // ns
-						ContentEncodings: track.ContentEncodings,
-					}
-				}
-			}
+		// Create a handler for subtitle extraction
+		handler := &subtitleHandler{
+			mp:             mp,
+			ctx:            ctx,
+			logger:         mp.logger,
+			sampler:        sampler,
+			subtitleCh:     subtitleCh,
+			subtitleTracks: subtitleTracks,
+			timecodeScale:  mp.timecodeScale,
+			clusterTime:    0,
 		}
 
-		if len(subTrackInfos) == 0 {
-			mp.logger.Info().Msg("mkv parser: No subtitle tracks found for streaming")
-			errCh <- nil // No error, just no subtitles
-			return
-		}
-
-		// Get timecode scale from the initial header parse. This might be refined if the full stream has a different one.
-		var timecodeScaleVal uint64 = defaultTimecodeScale
-		if len(mp.parsedSegment.Info) > 0 && mp.parsedSegment.Info[0].TimecodeScale > 0 {
-			timecodeScaleVal = mp.parsedSegment.Info[0].TimecodeScale
-			mp.logger.Debug().Uint64("timecodeScale", timecodeScaleVal).Msg("mkv parser: Using TimecodeScale from header for streaming")
-		}
-		timecodeScaleFactor := float64(timecodeScaleVal) / 1e9 // to seconds
-
-		// Determine which reader to use
-		var reader io.Reader
-		if len(newReader) > 0 && newReader[0] != nil {
-			reader = newReader[0]
-			mp.logger.Debug().Msg("mkv parser: Using provided fresh reader for subtitle streaming")
+		// Parse the MKV file for subtitles
+		err := mkvparse.Parse(newReader, handler)
+		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
+			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
+			errCh <- err
 		} else {
-			reader = mp.reader
-			if _, ok := reader.(io.ReadSeeker); ok {
-				// Note: Do not seek to beginning, as we may want to stream from the current position
-			} else {
-				mp.logger.Warn().Msg("mkv parser: Main reader doesn't support seeking, subtitle stream may be incomplete.")
-			}
-		}
-
-		// Initialize streaming root and the channel for clusters
-		streamingRoot := streamingMKVRoot{}
-		// A small buffer can help prevent the Unmarshal from blocking if the consumer is slightly slower.
-		streamingRoot.Segment.Cluster = make(chan *Cluster, 5)
-
-		streamCtx, cancelStream := context.WithCancel(ctx)
-		defer cancelStream()
-
-		var wg sync.WaitGroup
-		wg.Add(1) // For the cluster processing goroutine
-
-		go func() { // Goroutine to process clusters from the channel
-			defer wg.Done()
-			defer mp.logger.Debug().Msg("mkv parser: Cluster processing goroutine finished.")
-
-			// This variable can be updated if a new Info tag is encountered during streaming
-			currentStreamTimecodeScaleFactor := timecodeScaleFactor
-
-			for {
-				select {
-				case <-streamCtx.Done():
-					mp.logger.Info().Msg("mkv parser: Cluster processing cancelled via context.")
-					return
-				case cluster, ok := <-streamingRoot.Segment.Cluster:
-					if !ok {
-						mp.logger.Debug().Msg("mkv parser: Cluster channel closed, ending processing.")
-						return // Channel closed
-					}
-					if cluster == nil {
-						mp.logger.Warn().Msg("mkv parser: Received nil cluster, skipping.")
-						continue
-					}
-
-					//mp.logger.Debug().Uint64("clusterTimecode", cluster.Timecode).Int("numSimpleBlocks", len(cluster.SimpleBlock)).Int("numBlockGroups", len(cluster.BlockGroup)).Msg("mkv parser: Processing new cluster from channel")
-					clusterTimecode := cluster.Timecode
-
-					// Logic to process blocks within a cluster
-					processBlock := func(block ebml.Block, blockGroupDuration uint64) {
-						trackInfo, isSubTrack := subTrackInfos[block.TrackNumber]
-						if !isSubTrack {
-							return // Not a subtitle track we care about
-						}
-
-						for _, frameData := range block.Data {
-							payload := frameData
-							if trackInfo.ContentEncodings != nil {
-								for _, encoding := range trackInfo.ContentEncodings.ContentEncoding {
-									if encoding.ContentCompression != nil &&
-										encoding.ContentCompression.ContentCompAlgo == 0 { // 0 is zlib
-										zlibReader, err := zlib.NewReader(bytes.NewReader(payload))
-										if err != nil {
-											mp.logger.Error().Err(err).Uint64("trackNum", trackInfo.Number).Msg("mkv parser: Failed to create zlib reader for subtitle frame")
-											continue
-										}
-										decompressedPayload, err := io.ReadAll(zlibReader)
-										_ = zlibReader.Close()
-										if err != nil {
-											mp.logger.Error().Err(err).Uint64("trackNum", trackInfo.Number).Msg("mkv parser: Failed to decompress zlib subtitle frame")
-											continue
-										}
-										payload = decompressedPayload
-										break
-									}
-								}
-							}
-
-							// Calculate startTime and duration here, as they depend on block and cluster timecodes
-							startTime := (float64(clusterTimecode) + float64(block.Timecode)) * currentStreamTimecodeScaleFactor
-							var duration float64
-							if blockGroupDuration > 0 {
-								duration = float64(blockGroupDuration) * currentStreamTimecodeScaleFactor
-							} else if trackInfo.DefaultDuration > 0 {
-								duration = float64(trackInfo.DefaultDuration) / 1e9 // DefaultDuration is in ns
-							} else {
-								duration = 0
-							}
-
-							initialText := string(payload)
-							subtitleEvent := &SubtitleEvent{
-								TrackNumber: trackInfo.Number,
-								Text:        initialText, // Default to full payload
-								StartTime:   startTime,
-								Duration:    duration,
-								CodecID:     trackInfo.CodecID,
-								//CodecPrivate: string(trackInfo.CodecPrivate),
-								ExtraData: make(map[string]string),
-							}
-
-							// Special handling for ASS/SSA format
-							if trackInfo.CodecID == "S_TEXT/ASS" || trackInfo.CodecID == "S_TEXT/SSA" {
-								values := strings.Split(initialText, ",")
-
-								// ASS/SSA format has fields in this order:
-								// ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-								// For SSA, the format is slightly different with no Layer field
-
-								if len(values) > 0 {
-									subtitleEvent.ExtraData["readorder"] = values[0]
-								}
-
-								// Handle Layer field differently for ASS vs SSA
-								if trackInfo.CodecID != "S_TEXT/SSA" {
-									if len(values) > 1 {
-										subtitleEvent.ExtraData["layer"] = values[1]
-									}
-								}
-
-								// For both formats, map the remaining fields
-								valueOffset := 0 // No offset needed for standard field mapping
-
-								if len(values) > 2+valueOffset {
-									subtitleEvent.ExtraData["style"] = values[2+valueOffset]
-								}
-								if len(values) > 3+valueOffset {
-									subtitleEvent.ExtraData["name"] = values[3+valueOffset]
-								}
-								if len(values) > 4+valueOffset {
-									subtitleEvent.ExtraData["marginl"] = values[4+valueOffset]
-								}
-								if len(values) > 5+valueOffset {
-									subtitleEvent.ExtraData["marginr"] = values[5+valueOffset]
-								}
-								if len(values) > 6+valueOffset {
-									subtitleEvent.ExtraData["marginv"] = values[6+valueOffset]
-								}
-								if len(values) > 7+valueOffset {
-									subtitleEvent.ExtraData["effect"] = values[7+valueOffset]
-								}
-
-								// Extract the actual subtitle text
-								if len(values) > 8+valueOffset {
-									subtitleEvent.Text = strings.Join(values[8+valueOffset:], ",")
-								} else {
-									subtitleEvent.Text = ""
-								}
-							}
-
-							sampler.Trace().
-								Uint64("trackNum", trackInfo.Number).
-								Float64("startTime", startTime).
-								Str("codecId", trackInfo.CodecID).
-								Str("text", subtitleEvent.Text).
-								Msg("mkv parser: Subtitle event")
-
-							select {
-							case subtitleCh <- subtitleEvent:
-							case <-streamCtx.Done():
-								mp.logger.Info().Msg("mkv parser: Subtitle sending cancelled by context.")
-								return
-							}
-						}
-					}
-
-					for _, simpleBlock := range cluster.SimpleBlock {
-						processBlock(simpleBlock, 0) // SimpleBlock has no BlockDuration
-					}
-					for _, blockGroup := range cluster.BlockGroup {
-						processBlock(blockGroup.Block, blockGroup.BlockDuration)
-					}
-				}
-			}
-		}()
-
-		mp.logger.Debug().Msg("mkv parser: Starting EBML unmarshal for streaming clusters")
-		unmarshalStartTime := time.Now()
-		// This will block until the stream is fully read or an error occurs.
-		// Clusters are sent to streamingRoot.Segment.Cluster channel.
-		unmarshalErr := ebml.Unmarshal(reader, &streamingRoot, ebml.WithIgnoreUnknown(true))
-		mp.logger.Info().Dur("unmarshalDuration", time.Since(unmarshalStartTime)).Err(unmarshalErr).Msg("mkv parser: EBML unmarshal for streaming finished.")
-
-		// After Unmarshal finishes (or errors), close the cluster channel to signal the processing goroutine.
-		close(streamingRoot.Segment.Cluster)
-		mp.logger.Debug().Msg("mkv parser: Closed cluster channel.")
-
-		// Wait for the cluster processing goroutine to finish all items in the channel.
-		wg.Wait()
-		mp.logger.Debug().Msg("mkv parser: Cluster processing goroutine completed after unmarshal.")
-
-		// Check for new Info tag during stream processing if it was defined in streamingSegment
-		if len(streamingRoot.Segment.Info) > 0 && streamingRoot.Segment.Info[0].TimecodeScale > 0 {
-			if streamingRoot.Segment.Info[0].TimecodeScale != timecodeScaleVal {
-				mp.logger.Info().
-					Uint64("headerScale", timecodeScaleVal).
-					Uint64("streamScale", streamingRoot.Segment.Info[0].TimecodeScale).
-					Msg("mkv parser: TimecodeScale from full stream differs from header. Events used header scale.")
-				// Potentially, one could re-process or adjust, but for streaming, events are already sent.
-			}
-		}
-
-		if unmarshalErr != nil && !errors.Is(unmarshalErr, io.EOF) && !strings.Contains(unmarshalErr.Error(), "unexpected EOF") {
-			mp.logger.Error().Err(unmarshalErr).Msg("mkv parser: Unrecoverable error during subtitle stream unmarshalling")
-			errCh <- unmarshalErr
-		} else {
-			mp.logger.Info().Msg("mkv parser: Subtitle streaming completed successfully or with expected EOF.")
+			mp.logger.Info().Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
 			errCh <- nil
 		}
 	}()
 
 	return subtitleCh, errCh
+}
+
+// Handler for subtitle extraction
+type subtitleHandler struct {
+	mkvparse.DefaultHandler
+	mp                   *MetadataParser
+	ctx                  context.Context
+	logger               *zerolog.Logger
+	sampler              *zerolog.Logger
+	subtitleCh           chan<- *SubtitleEvent
+	subtitleTracks       map[uint64]*TrackInfo
+	timecodeScale        uint64
+	clusterTime          uint64
+	currentBlockDuration uint64 // Add this field to store the current block duration
+}
+
+func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
+	switch id {
+	case mkvparse.SegmentElement:
+		return true, nil
+	case mkvparse.ClusterElement:
+		return true, nil
+	case mkvparse.BlockGroupElement:
+		return true, nil
+	}
+	return false, nil
+}
+
+func (h *subtitleHandler) HandleInteger(id mkvparse.ElementID, value int64, info mkvparse.ElementInfo) error {
+	if id == mkvparse.TimecodeElement {
+		h.clusterTime = uint64(value)
+	} else if id == mkvparse.BlockDurationElement {
+		h.currentBlockDuration = uint64(value)
+	}
+	return nil
+}
+
+func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.SimpleBlockElement, mkvparse.BlockElement:
+		if len(value) < 4 {
+			return nil
+		}
+
+		trackNum := uint64(value[0] & 0x7F)
+		track, isSubtitle := h.subtitleTracks[trackNum]
+		if !isSubtitle {
+			return nil
+		}
+
+		blockTimecode := int16(value[1])<<8 | int16(value[2])
+		absoluteTimeScaled := h.clusterTime + uint64(blockTimecode)
+		timestampNs := absoluteTimeScaled * h.timecodeScale
+		seconds := float64(timestampNs) / 1e9
+
+		// Calculate duration in seconds
+		var duration float64
+		if h.currentBlockDuration > 0 {
+			duration = float64(h.currentBlockDuration*h.timecodeScale) / 1e9
+		} else if track.defaultDuration > 0 {
+			duration = float64(track.defaultDuration) / 1e9
+		}
+
+		subtitleData := value[4:]
+
+		// Handle content encoding (compression)
+		if track.contentEncodings != nil {
+			for _, encoding := range track.contentEncodings.ContentEncoding {
+				if encoding.ContentCompression != nil && encoding.ContentCompression.ContentCompAlgo == 0 {
+					zlibReader, err := zlib.NewReader(bytes.NewReader(subtitleData))
+					if err != nil {
+						h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to create zlib reader for subtitle frame")
+						continue
+					}
+					decompressedData, err := io.ReadAll(zlibReader)
+					_ = zlibReader.Close()
+					if err != nil {
+						h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to decompress zlib subtitle frame")
+						continue
+					}
+					subtitleData = decompressedData
+					break
+				}
+			}
+		}
+
+		initialText := string(subtitleData)
+		subtitleEvent := &SubtitleEvent{
+			TrackNumber: trackNum,
+			Text:        initialText,
+			StartTime:   seconds,
+			Duration:    duration,
+			CodecID:     track.CodecID,
+			ExtraData:   make(map[string]string),
+		}
+
+		// Special handling for ASS/SSA format
+		if track.CodecID == "S_TEXT/ASS" || track.CodecID == "S_TEXT/SSA" {
+			values := strings.Split(initialText, ",")
+			if len(values) < 9 {
+				//h.logger.Warn().
+				//	Str("text", initialText).
+				//	Int("fields", len(values)).
+				//	Msg("mkvparser: Invalid ASS/SSA subtitle format, not enough fields")
+				return nil
+			}
+
+			// Format: ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+			startIndex := 1
+			if track.CodecID == "S_TEXT/SSA" {
+				startIndex = 2 // Skip both ReadOrder and Layer for SSA
+			}
+
+			subtitleEvent.ExtraData["readorder"] = values[0]
+			if track.CodecID == "S_TEXT/ASS" {
+				subtitleEvent.ExtraData["layer"] = values[1]
+			}
+
+			subtitleEvent.ExtraData["style"] = values[startIndex+1]
+			subtitleEvent.ExtraData["name"] = values[startIndex+2]
+			subtitleEvent.ExtraData["marginl"] = values[startIndex+3]
+			subtitleEvent.ExtraData["marginr"] = values[startIndex+4]
+			subtitleEvent.ExtraData["marginv"] = values[startIndex+5]
+			subtitleEvent.ExtraData["effect"] = values[startIndex+6]
+
+			text := strings.Join(values[startIndex+7:], ",")
+			// Remove leading comma if present
+			text = strings.TrimPrefix(text, ",")
+			subtitleEvent.Text = strings.TrimSpace(text)
+		}
+
+		h.sampler.Trace().
+			Uint64("trackNum", trackNum).
+			Float64("startTime", seconds).
+			Float64("duration", duration).
+			Str("codecId", track.CodecID).
+			Str("text", subtitleEvent.Text).
+			Interface("data", subtitleEvent.ExtraData).
+			Msg("mkvparser: Subtitle event")
+
+		select {
+		case h.subtitleCh <- subtitleEvent:
+		case <-h.ctx.Done():
+			h.logger.Info().Msg("mkvparser: Subtitle sending cancelled by context.")
+			return h.ctx.Err()
+		}
+
+		// Reset the block duration for the next block
+		h.currentBlockDuration = 0
+	}
+	return nil
+}
+
+// findNextClusterOffset searches for the Matroska Cluster ID in the ReadSeeker rs,
+// starting from seekOffset. It returns the absolute file offset of the found Cluster ID,
+// or an error. If found, the ReadSeeker's position is set to the start of the Cluster ID.
+func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
+
+	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
+	// however it's not ideal so we'll offset the offset by 2MB to avoid missing a cluster
+	toRemove := int64(2 * 1024 * 1024) // 2MB
+	if seekOffset > toRemove {
+		seekOffset -= toRemove
+	} else {
+		seekOffset = 0
+	}
+
+	// Seek to the starting position
+	absPosOfNextRead, err := rs.Seek(seekOffset, io.SeekStart)
+	if err != nil {
+		return -1, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
+	}
+
+	mainBuf := make([]byte, defaultClusterSearchChunkSize)
+	searchBuf := make([]byte, (len(matroskaClusterID)-1)+defaultClusterSearchChunkSize)
+
+	lenOverlapCarried := 0 // Length of overlap data copied into searchBuf's start from previous iteration
+
+	for {
+		n, readErr := rs.Read(mainBuf)
+
+		if n == 0 && readErr == io.EOF {
+			return -1, fmt.Errorf("cluster ID not found, EOF reached before reading new data")
+		}
+		if readErr != nil && readErr != io.EOF {
+			return -1, fmt.Errorf("error reading file: %w", readErr)
+		}
+
+		copy(searchBuf[lenOverlapCarried:], mainBuf[:n])
+		currentSearchWindow := searchBuf[:lenOverlapCarried+n]
+
+		idx := bytes.Index(currentSearchWindow, matroskaClusterID)
+		if idx != -1 {
+			foundAtAbsoluteOffset := (absPosOfNextRead - int64(lenOverlapCarried)) + int64(idx)
+
+			_, seekErr := rs.Seek(foundAtAbsoluteOffset, io.SeekStart)
+			if seekErr != nil {
+				return -1, fmt.Errorf("failed to seek to found cluster position %d: %w", foundAtAbsoluteOffset, seekErr)
+			}
+			return foundAtAbsoluteOffset, nil
+		}
+
+		if readErr == io.EOF {
+			return -1, fmt.Errorf("cluster ID not found, EOF after final search of remaining data")
+		}
+
+		if len(currentSearchWindow) >= len(matroskaClusterID)-1 {
+			lenOverlapCarried = len(matroskaClusterID) - 1
+			copy(searchBuf[:lenOverlapCarried], currentSearchWindow[len(currentSearchWindow)-lenOverlapCarried:])
+		} else {
+			lenOverlapCarried = len(currentSearchWindow)
+			copy(searchBuf[:lenOverlapCarried], currentSearchWindow)
+		}
+
+		absPosOfNextRead += int64(n)
+	}
+}
+
+// findPrecedingOrCurrentClusterOffset searches for the Matroska Cluster ID in the ReadSeeker rs,
+// looking for a cluster that starts at or before targetFileOffset. It searches backwards from targetFileOffset.
+// It returns the absolute file offset of the found Cluster ID, or an error.
+// If found, the ReadSeeker's position is set to the start of the Cluster ID.
+func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int64) (int64, error) {
+	mainBuf := make([]byte, defaultClusterSearchChunkSize)
+	searchBuf := make([]byte, (len(matroskaClusterID)-1)+defaultClusterSearchChunkSize)
+
+	// Start from targetFileOffset and work backwards
+	currentReadEndPos := targetFileOffset + int64(len(matroskaClusterID))
+	lenOverlapCarried := 0
+
+	for {
+		// Calculate read position and size
+		readStartPos := currentReadEndPos - defaultClusterSearchChunkSize
+		if readStartPos < 0 {
+			readStartPos = 0
+		}
+		bytesToRead := currentReadEndPos - readStartPos
+
+		// Check if we have enough data to potentially find a cluster
+		if bytesToRead < int64(len(matroskaClusterID)) {
+			return -1, fmt.Errorf("cluster ID not found at or before offset %d", targetFileOffset)
+		}
+
+		// Seek and read
+		_, err := rs.Seek(readStartPos, io.SeekStart)
+		if err != nil {
+			return -1, fmt.Errorf("seek to %d failed: %w", readStartPos, err)
+		}
+
+		n, readErr := rs.Read(mainBuf[:bytesToRead])
+		if readErr != nil && readErr != io.EOF {
+			return -1, fmt.Errorf("error reading file: %w", readErr)
+		}
+		if n == 0 {
+			return -1, fmt.Errorf("no data read at offset %d", readStartPos)
+		}
+
+		// Copy data to search buffer
+		copy(searchBuf[lenOverlapCarried:], mainBuf[:n])
+		currentSearchWindow := searchBuf[:lenOverlapCarried+n]
+
+		// Search for cluster ID in current window
+		for i := len(currentSearchWindow) - len(matroskaClusterID); i >= 0; i-- {
+			if bytes.Equal(currentSearchWindow[i:i+len(matroskaClusterID)], matroskaClusterID) {
+				foundOffset := readStartPos + int64(i)
+				if foundOffset <= targetFileOffset {
+					_, seekErr := rs.Seek(foundOffset, io.SeekStart)
+					if seekErr != nil {
+						return -1, fmt.Errorf("failed to seek to found cluster at %d: %w", foundOffset, seekErr)
+					}
+					return foundOffset, nil
+				}
+			}
+		}
+
+		// Check search depth limit
+		if (targetFileOffset - readStartPos) >= defaultClusterSearchDepth {
+			return -1, fmt.Errorf("cluster ID not found within search depth %dMB", defaultClusterSearchDepth/1024/1024)
+		}
+
+		// If we've reached the start of the file, we're done
+		if readStartPos == 0 {
+			return -1, fmt.Errorf("cluster ID not found, reached start of file")
+		}
+
+		// Prepare for next iteration
+		// Keep overlap from start of current window for next search
+		if len(currentSearchWindow) >= len(matroskaClusterID)-1 {
+			lenOverlapCarried = len(matroskaClusterID) - 1
+			copy(searchBuf[:lenOverlapCarried], currentSearchWindow[:lenOverlapCarried])
+		} else {
+			lenOverlapCarried = len(currentSearchWindow)
+			copy(searchBuf[:lenOverlapCarried], currentSearchWindow)
+		}
+
+		currentReadEndPos = readStartPos + int64(lenOverlapCarried)
+	}
 }

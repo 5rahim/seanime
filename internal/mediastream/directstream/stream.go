@@ -211,9 +211,11 @@ type BaseStream struct {
 	playbackInfoOnce         sync.Once
 	subtitleStreamCancelFunc context.CancelFunc
 	subtitleEventCache       *result.Map[string, *mkvparser.SubtitleEvent]
-	subtitleHeads            *result.Map[int64, *subtitleHead]
-	terminateOnce            sync.Once
-	serveContentCancelFunc   context.CancelFunc
+	// subtitleHeads contains all the subtitle streams that are currently active
+	// it is used to interrupt a subtitle stream if a new one overlaps
+	subtitleHeads          *result.Map[int64, *subtitleHead]
+	terminateOnce          sync.Once
+	serveContentCancelFunc context.CancelFunc
 
 	manager *Manager
 }
@@ -410,15 +412,6 @@ func (s *LocalFileStream) ServeSubtitles(start int64) {
 		return
 	}
 
-	// Offset the reader
-	n, err := subReader.Seek(start, io.SeekStart)
-	if err != nil {
-		s.logger.Error().Err(err).Msg("directstream(file): Failed to seek to start")
-		return
-	}
-
-	s.logger.Debug().Msgf("directstream(file): Seeked %d bytes to start", n)
-
 	if start > 0 {
 		s.subtitleHeads.Range(func(key int64, value *subtitleHead) bool {
 			// if the doNotExceed value of this head is less than the start, set it to the start
@@ -433,11 +426,11 @@ func (s *LocalFileStream) ServeSubtitles(start int64) {
 	s.subtitleHeads.Set(start, &subtitleHead{
 		doNotExceed: s.playbackInfo.ContentLength,
 	})
-	defer s.subtitleHeads.Delete(start)
 
 	go func(ctx context.Context, cancel context.CancelFunc) {
 		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
+		defer s.subtitleHeads.Delete(start)
 
 		for {
 			select {
@@ -470,7 +463,7 @@ func (s *LocalFileStream) ServeSubtitles(start int64) {
 		// If the reader position is greater than the content length, set the doNotExceed value to the content length
 	}(ctx, cancel)
 
-	s.manager.streamSubtitles(ctx, s, parser, subReader, cancel)
+	s.manager.streamSubtitles(ctx, s, parser, subReader, start, cancel)
 }
 
 // func (s *LocalFileStream) RequestSubtitlesFrom(currentTime float64) {
@@ -724,7 +717,7 @@ func (s *TorrentStream) ServeSubtitles(start int64) {
 	ctx, cancel := context.WithCancel(s.manager.playbackCtx)
 	s.subtitleStreamCancelFunc = cancel
 
-	s.manager.streamSubtitles(ctx, s, parser, s.file.NewReader(), nil)
+	s.manager.streamSubtitles(ctx, s, parser, s.file.NewReader(), 0, nil)
 }
 
 // func (s *TorrentStream) RequestSubtitlesFrom(currentTime float64) {
@@ -884,10 +877,8 @@ func loadContentType(path string, reader ...io.ReadSeeker) string {
 
 // streamSubtitles starts the subtitle stream.
 // It will stream the subtitles from all tracks to the client. The client should load the subtitles in an array.
-//
-// It should be given a pre-offset reader each time. The reader will be closed when the stream is done if it implements io.Closer.
-func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, offsetReader io.ReadSeeker, cancelFunc context.CancelFunc) {
-	subtitleCh, errCh := parser.ExtractSubtitles(ctx, offsetReader)
+func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, newReader io.ReadSeeker, offset int64, cancelFunc context.CancelFunc) {
+	subtitleCh, errCh := parser.ExtractSubtitles(ctx, newReader, offset)
 
 	go func() {
 		defer func(reader io.ReadSeeker) {
@@ -896,7 +887,7 @@ func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mk
 				_ = closer.Close()
 			}
 			m.Logger.Trace().Msg("directstream(file): Closing subtitle stream goroutine")
-		}(offsetReader)
+		}(newReader)
 		defer func() {
 			if cancelFunc != nil {
 				cancelFunc()

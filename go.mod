@@ -58,6 +58,8 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
+require github.com/remko/go-mkvparse v0.14.0
+
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect

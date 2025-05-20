@@ -20,191 +20,251 @@ If you want to use a specific http.Client for additional range requests :
 */
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
+	"sync"
 )
 
-const shortSeekBytes = 1024
-
-// A HttpReadSeeker reads from a http.Response.Body. It can Seek
-// by doing range requests.
+// HttpReadSeeker implements io.ReadSeeker for HTTP responses
+// It allows seeking within an HTTP response by using HTTP Range requests
 type HttpReadSeeker struct {
-	c   *http.Client
-	req *http.Request
-	res *http.Response
-	ctx context.Context
-	r   io.ReadCloser
-	pos int64
-
-	Requests int
+	url        string         // The URL of the resource
+	client     *http.Client   // HTTP client to use for requests
+	resp       *http.Response // Current response
+	offset     int64          // Current offset in the resource
+	size       int64          // Size of the resource, -1 if unknown
+	readBuf    []byte         // Buffer for reading
+	readOffset int            // Current offset in readBuf
+	mu         sync.Mutex     // Mutex for thread safety
 }
 
-var _ io.ReadCloser = (*HttpReadSeeker)(nil)
-var _ io.Seeker = (*HttpReadSeeker)(nil)
-
-var (
-	// ErrNoContentLength is returned by Seek when the initial http response did not include a Content-Length header
-	ErrNoContentLength = errors.New("Content-Length was not set")
-	// ErrRangeRequestsNotSupported is returned by Seek and Read
-	// when the remote server does not allow range requests (Accept-Ranges was not set)
-	ErrRangeRequestsNotSupported = errors.New("range requests are not supported by the remote server")
-	// ErrInvalidRange is returned by Read when trying to read past the end of the file
-	ErrInvalidRange = errors.New("invalid range")
-	// ErrContentHasChanged is returned by Read when the content has changed since the first request
-	ErrContentHasChanged = errors.New("content has changed since first request")
-)
-
-// NewHttpReadSeeker returns a HttpReadSeeker, using the http.Response and, optionaly, the http.Client
-// that needs to be used for future range requests. If no http.Client is given, http.DefaultClient will
-// be used.
-//
-// res.Request will be reused for range requests, headers may be added/removed
-func NewHttpReadSeeker(res *http.Response, client ...*http.Client) *HttpReadSeeker {
-	r := &HttpReadSeeker{
-		req: res.Request,
-		ctx: res.Request.Context(),
-		res: res,
-		r:   res.Body,
+// NewHttpReadSeeker creates a new HttpReadSeeker from an http.Response
+func NewHttpReadSeeker(resp *http.Response) *HttpReadSeeker {
+	url := ""
+	if resp.Request != nil {
+		url = resp.Request.URL.String()
 	}
-	if len(client) > 0 {
-		r.c = client[0]
-	} else {
-		r.c = http.DefaultClient
-	}
-	return r
-}
 
-// Clone clones the reader to enable parallel downloads of ranges.
-// The new HttpReadSeeker will have its own independent request object,
-// sharing the original response metadata and HTTP client.
-// The context from the original seeker is also carried over.
-func (r *HttpReadSeeker) Clone() *HttpReadSeeker {
-	clonedReq := r.req.Clone(r.ctx)
+	size := int64(-1)
+	if resp.ContentLength > 0 {
+		size = resp.ContentLength
+	}
+
 	return &HttpReadSeeker{
-		c:   r.c,
-		req: clonedReq,
-		res: r.res,
-		ctx: r.ctx, // Carry over the context
-		r:   nil,   // Cloned seeker starts with no active reader stream
-		// pos and Requests will be zero-initialized, which is the existing behavior.
+		url:        url,
+		client:     http.DefaultClient,
+		resp:       resp,
+		offset:     0,
+		size:       size,
+		readBuf:    nil,
+		readOffset: 0,
 	}
 }
 
-// Read reads from the response body. It does a range request if Seek was called before.
-//
-// May return ErrRangeRequestsNotSupported, ErrInvalidRange or ErrContentHasChanged
-func (r *HttpReadSeeker) Read(p []byte) (n int, err error) {
-	if r.r == nil {
-		err = r.rangeRequest()
+// Read implements io.Reader
+func (hrs *HttpReadSeeker) Read(p []byte) (n int, err error) {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
+
+	// If we have buffered data, read from it first
+	if hrs.readBuf != nil && hrs.readOffset < len(hrs.readBuf) {
+		n = copy(p, hrs.readBuf[hrs.readOffset:])
+		hrs.readOffset += n
+		hrs.offset += int64(n)
+
+		// Clear buffer if we've read it all
+		if hrs.readOffset >= len(hrs.readBuf) {
+			hrs.readBuf = nil
+			hrs.readOffset = 0
+		}
+
+		return n, nil
 	}
-	if r.r != nil {
-		n, err = r.r.Read(p)
-		r.pos += int64(n)
+
+	// If we don't have a response or it's been closed, get a new one
+	if hrs.resp == nil {
+		if err := hrs.makeRangeRequest(); err != nil {
+			return 0, err
+		}
 	}
-	return
+
+	// Read from the response body
+	n, err = hrs.resp.Body.Read(p)
+	hrs.offset += int64(n)
+
+	return n, err
 }
 
-// ReadAt reads from the response body starting at offset off.
-//
-// May return ErrRangeRequestsNotSupported, ErrInvalidRange or ErrContentHasChanged
-func (r *HttpReadSeeker) ReadAt(p []byte, off int64) (n int, err error) {
-	var nn int
+// Seek implements io.Seeker
+func (hrs *HttpReadSeeker) Seek(offset int64, whence int) (int64, error) {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
 
-	r.Seek(off, 0)
+	var newOffset int64
 
-	for n < len(p) && err == nil {
-		nn, err = r.Read(p[n:])
-		n += nn
+	switch whence {
+	case io.SeekStart:
+		newOffset = offset
+	case io.SeekCurrent:
+		newOffset = hrs.offset + offset
+	case io.SeekEnd:
+		if hrs.size < 0 {
+			// If we don't know the size, we need to determine it
+			if err := hrs.determineSize(); err != nil {
+				return hrs.offset, err
+			}
+		}
+		newOffset = hrs.size + offset
+	default:
+		return hrs.offset, fmt.Errorf("httprs: invalid whence %d", whence)
 	}
-	return
+
+	if newOffset < 0 {
+		return hrs.offset, fmt.Errorf("httprs: negative position")
+	}
+
+	// If we're just moving the offset without reading, we can skip the request
+	// We'll make a new request when Read is called
+	if hrs.resp != nil {
+		hrs.resp.Body.Close()
+		hrs.resp = nil
+	}
+
+	hrs.offset = newOffset
+	hrs.readBuf = nil
+	hrs.readOffset = 0
+
+	return hrs.offset, nil
 }
 
-// Close closes the response body
-func (r *HttpReadSeeker) Close() error {
-	if r.r != nil {
-		return r.r.Close()
+// Close closes the underlying response body
+func (hrs *HttpReadSeeker) Close() error {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
+
+	if hrs.resp != nil {
+		err := hrs.resp.Body.Close()
+		hrs.resp = nil
+		return err
 	}
+
 	return nil
 }
 
-// Seek moves the reader position to a new offset.
-//
-// It does not send http requests, allowing for multiple seeks without overhead.
-// The http request will be sent by the next Read call.
-//
-// May return ErrNoContentLength or ErrRangeRequestsNotSupported
-func (r *HttpReadSeeker) Seek(offset int64, whence int) (int64, error) {
-	var err error
-	switch whence {
-	case io.SeekStart:
-	case io.SeekCurrent:
-		offset += r.pos
-	case io.SeekEnd:
-		if r.res.ContentLength <= 0 {
-			return 0, ErrNoContentLength
-		}
-		offset = r.res.ContentLength + offset
-	}
-	if r.r != nil {
-		// Try to read, which is cheaper than doing a request
-		if r.pos < offset && offset-r.pos <= shortSeekBytes {
-			_, err := io.CopyN(io.Discard, r, offset-r.pos)
-			if err != nil {
-				return 0, err
-			}
-		}
-
-		if r.pos != offset {
-			err = r.r.Close()
-			r.r = nil
-		}
-	}
-	r.pos = offset
-	return r.pos, err
-}
-
-func (r *HttpReadSeeker) newRequest() *http.Request {
-	newReq := r.req.WithContext(r.ctx) // includes shallow copies of maps, but okay
-	if r.req.ContentLength == 0 {
-		newReq.Body = nil // Issue 16036: nil Body for http.Transport retries
-	}
-	newReq.Header = r.req.Header.Clone()
-	return newReq
-}
-
-func (r *HttpReadSeeker) rangeRequest() error {
-	r.req = r.newRequest()
-	r.req.Header.Set("Range", fmt.Sprintf("bytes=%d-", r.pos))
-	etag, last := r.res.Header.Get("ETag"), r.res.Header.Get("Last-Modified")
-	switch {
-	case last != "":
-		r.req.Header.Set("If-Range", last)
-	case etag != "":
-		r.req.Header.Set("If-Range", etag)
-	}
-
-	r.Requests++
-
-	res, err := r.c.Do(r.req)
+// makeRangeRequest makes a new HTTP request with the Range header
+func (hrs *HttpReadSeeker) makeRangeRequest() error {
+	req, err := http.NewRequest("GET", hrs.url, nil)
 	if err != nil {
 		return err
 	}
-	switch res.StatusCode {
-	case http.StatusRequestedRangeNotSatisfiable:
-		return ErrInvalidRange
-	case http.StatusOK:
-		// some servers return 200 OK for bytes=0-
-		if r.pos > 0 ||
-			(etag != "" && etag != res.Header.Get("ETag")) {
-			return ErrContentHasChanged
-		}
-		fallthrough
-	case http.StatusPartialContent:
-		r.r = res.Body
-		return nil
+
+	// Set Range header from current offset
+	req.Header.Set("Range", fmt.Sprintf("bytes=%d-", hrs.offset))
+
+	// Make the request
+	resp, err := hrs.client.Do(req)
+	if err != nil {
+		return err
 	}
-	return ErrRangeRequestsNotSupported
+
+	// Check if the server supports range requests
+	if resp.StatusCode != http.StatusPartialContent && hrs.offset > 0 {
+		resp.Body.Close()
+		return fmt.Errorf("httprs: server does not support range requests")
+	}
+
+	// Update our response and offset
+	if hrs.resp != nil {
+		hrs.resp.Body.Close()
+	}
+	hrs.resp = resp
+
+	// Update the size if we get it from Content-Range
+	if contentRange := resp.Header.Get("Content-Range"); contentRange != "" {
+		// Format: bytes <start>-<end>/<size>
+		parts := strings.Split(contentRange, "/")
+		if len(parts) > 1 && parts[1] != "*" {
+			if size, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
+				hrs.size = size
+			}
+		}
+	} else if resp.ContentLength > 0 {
+		// If we don't have a Content-Range header but we do have Content-Length,
+		// then the size is the current offset plus the content length
+		hrs.size = hrs.offset + resp.ContentLength
+	}
+
+	return nil
+}
+
+// determineSize makes a HEAD request to determine the size of the resource
+func (hrs *HttpReadSeeker) determineSize() error {
+	req, err := http.NewRequest("HEAD", hrs.url, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := hrs.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.ContentLength > 0 {
+		hrs.size = resp.ContentLength
+	} else {
+		// If we still don't know the size, return an error
+		return fmt.Errorf("httprs: unable to determine resource size")
+	}
+
+	return nil
+}
+
+// ReadAt implements io.ReaderAt
+func (hrs *HttpReadSeeker) ReadAt(p []byte, off int64) (n int, err error) {
+	// Save current offset
+	currentOffset := hrs.offset
+
+	// Seek to the requested offset
+	if _, err := hrs.Seek(off, io.SeekStart); err != nil {
+		return 0, err
+	}
+
+	// Read the data
+	n, err = hrs.Read(p)
+
+	// Restore the original offset
+	if _, seekErr := hrs.Seek(currentOffset, io.SeekStart); seekErr != nil {
+		// If we can't restore the offset, return that error instead
+		if err == nil {
+			err = seekErr
+		}
+	}
+
+	return n, err
+}
+
+// Size returns the size of the resource, or -1 if unknown
+func (hrs *HttpReadSeeker) Size() int64 {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
+
+	if hrs.size < 0 {
+		// Try to determine the size
+		_ = hrs.determineSize()
+	}
+
+	return hrs.size
+}
+
+// WithClient returns a new HttpReadSeeker with the specified client
+func (hrs *HttpReadSeeker) WithClient(client *http.Client) *HttpReadSeeker {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
+
+	hrs.client = client
+	return hrs
 }

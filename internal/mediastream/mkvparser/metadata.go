@@ -15,26 +15,22 @@ const (
 
 // TrackInfo holds extracted information about a media track.
 type TrackInfo struct {
-	Number       uint64    `json:"number"`
-	UID          uint64    `json:"uid"`
+	Number       int64     `json:"number"`
+	UID          int64     `json:"uid"`
 	Type         TrackType `json:"type"` // "video", "audio", "subtitle", etc.
 	CodecID      string    `json:"codecID"`
 	Name         string    `json:"name,omitempty"`
-	Language     string    `json:"language,omitempty"` // Best effort language code (IETF or 3-letter)
+	Language     string    `json:"language,omitempty"`     // Best effort language code
+	LanguageIETF string    `json:"languageIETF,omitempty"` // IETF language code
 	Default      bool      `json:"default"`
 	Forced       bool      `json:"forced"`
 	Enabled      bool      `json:"enabled"`
 	CodecPrivate string    `json:"codecPrivate,omitempty"` // Raw CodecPrivate data, often used for subtitle headers (e.g., ASS/SSA styles)
 
 	// Video specific
-	PixelWidth  uint64 `json:"pixelWidth,omitempty"`
-	PixelHeight uint64 `json:"pixelHeight,omitempty"`
-
+	Video *VideoTrack `json:"video,omitempty"`
 	// Audio specific
-	SamplingFrequency float64 `json:"samplingFrequency,omitempty"`
-	Channels          uint64  `json:"channels,omitempty"`
-	BitDepth          uint64  `json:"bitDepth,omitempty"`
-
+	Audio *AudioTrack `json:"audio,omitempty"`
 	// Internal fields
 	contentEncodings *ContentEncodings `json:"-"`
 	defaultDuration  uint64            `json:"-"` // in ns
@@ -42,19 +38,23 @@ type TrackInfo struct {
 
 // ChapterInfo holds extracted information about a chapter.
 type ChapterInfo struct {
-	UID   uint64  `json:"uid"`
-	Start float64 `json:"start"`         // Start time in seconds
-	End   float64 `json:"end,omitempty"` // End time in seconds
-	Text  string  `json:"text,omitempty"`
+	UID           uint64   `json:"uid"`
+	Start         float64  `json:"start"`         // Start time in seconds
+	End           float64  `json:"end,omitempty"` // End time in seconds
+	Text          string   `json:"text,omitempty"`
+	Languages     []string `json:"languages,omitempty"`     // Legacy 3-letter language codes
+	LanguagesIETF []string `json:"languagesIETF,omitempty"` // IETF language tags
 }
 
 // AttachmentInfo holds extracted information about an attachment.
 type AttachmentInfo struct {
-	UID      uint64 `json:"uid"`
-	Filename string `json:"filename"`
-	Mimetype string `json:"mimetype"`
-	Size     int    `json:"size"`
-	Data     []byte `json:"-"` // Data loaded into memory
+	UID          uint64 `json:"uid"`
+	Filename     string `json:"filename"`
+	Mimetype     string `json:"mimetype"`
+	Size         int    `json:"size"`
+	Description  string `json:"description,omitempty"`
+	Data         []byte `json:"-"` // Data loaded into memory
+	IsCompressed bool   `json:"-"` // Whether the data is compressed
 }
 
 // Metadata holds all extracted metadata.
@@ -74,40 +74,13 @@ type Metadata struct {
 	Error          error             `json:"-"`
 }
 
-func (m *Metadata) GetTrackByNumber(num uint64) *TrackInfo {
+func (m *Metadata) GetTrackByNumber(num int64) *TrackInfo {
 	for _, track := range m.Tracks {
 		if track.Number == num {
 			return track
 		}
 	}
 	return nil
-}
-
-func (m *Metadata) GetSubtitleTracks() (ret []*TrackInfo) {
-	for _, track := range m.Tracks {
-		if track.Type == TrackTypeSubtitle {
-			ret = append(ret, track)
-		}
-	}
-	return
-}
-
-func (m *Metadata) GetAudioTracks() (ret []*TrackInfo) {
-	for _, track := range m.Tracks {
-		if track.Type == TrackTypeAudio {
-			ret = append(ret, track)
-		}
-	}
-	return
-}
-
-func (m *Metadata) GetVideoTracks() (ret []*TrackInfo) {
-	for _, track := range m.Tracks {
-		if track.Type == TrackTypeVideo {
-			ret = append(ret, track)
-		}
-	}
-	return
 }
 
 func (m *Metadata) GetAttachmentByName(name string) (*AttachmentInfo, bool) {
