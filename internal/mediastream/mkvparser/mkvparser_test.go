@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent"
-	"github.com/at-wat/ebml-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -109,8 +108,7 @@ func assertTestResult(t *testing.T, result *Metadata) {
 
 	//util.Spew(result)
 
-	// Check for parsing errors (ebml.ErrReadStopped is OK here)
-	if result.Error != nil && !errors.Is(result.Error, ebml.ErrReadStopped) {
+	if result.Error != nil {
 		// If the error is context timeout/canceled, it's less severe but still worth noting
 		if errors.Is(result.Error, context.DeadlineExceeded) || errors.Is(result.Error, context.Canceled) {
 			t.Logf("Warning: GetMetadata context deadline exceeded or canceled: %v", result.Error)

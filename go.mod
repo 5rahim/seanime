@@ -12,7 +12,6 @@ require (
 	github.com/adrg/strutil v0.3.1
 	github.com/anacrolix/log v0.16.0
 	github.com/anacrolix/torrent v1.58.1
-	github.com/at-wat/ebml-go v0.17.1
 	github.com/bmatcuk/doublestar/v4 v4.8.1
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/cli/browser v1.3.0
