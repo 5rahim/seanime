@@ -3,6 +3,7 @@ package directstream
 import (
 	"errors"
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo/v4"
 )
@@ -25,6 +26,8 @@ func (m *Manager) ServeEchoAttachments(c echo.Context) error {
 	}
 
 	filename := c.Param("*")
+
+	filename, _ = url.PathUnescape(filename)
 
 	// Get the attachment
 	attachment, ok := stream.GetAttachmentByName(filename)

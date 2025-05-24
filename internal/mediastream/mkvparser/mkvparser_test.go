@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"seanime/internal/util"
 	httputil "seanime/internal/util/http"
+	"seanime/internal/util/torrentutil"
 	"strings"
 	"testing"
 	"time"
@@ -180,7 +181,7 @@ func assertTestResult(t *testing.T, result *Metadata) {
 	//t.Logf("JSON Result: %s", string(jsonResult))
 }
 
-func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadSeeker, offset int64, ctx context.Context) {
+func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadSeekCloser, offset int64, ctx context.Context) {
 	// Stream for 30 seconds
 	streamCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
@@ -297,7 +298,7 @@ func TestMetadataParser_Torrent(t *testing.T) {
 
 	assertTestResult(t, metadata)
 
-	testStreamSubtitles(t, parser, file.NewReader(), 78123456, ctx)
+	testStreamSubtitles(t, parser, torrentutil.NewReadSeeker(tor, file, logger), 78123456, ctx)
 }
 
 // TestMetadataParser_HTTPStream tests parsing from an HTTP stream

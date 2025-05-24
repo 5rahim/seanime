@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -57,7 +56,7 @@ type Stream interface {
 	// Terminate ends the stream.
 	// Once this is called, the stream should not be used anymore.
 	Terminate()
-	//
+	// GetSubtitleEventCache accesses the subtitle event cache.
 	GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent]
 }
 
@@ -123,9 +122,6 @@ func (m *Manager) loadStream(stream Stream) {
 	//	parser.SetLoggerEnabled(false)
 	//}
 
-	// Start the subtitle stream
-	stream.ServeSubtitles(0)
-
 	m.Logger.Debug().Msgf("directstream: Signaling native player that stream is ready")
 	m.nativePlayer.Watch(stream.ClientId(), playbackInfo)
 
@@ -149,6 +145,13 @@ func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
 					continue
 				}
 
+				cs, ok := m.currentStream.Get()
+				if !ok {
+					continue
+				}
+
+				_ = cs
+
 				fmt.Printf("event, %T\n", event)
 
 				switch event := event.(type) {
@@ -163,10 +166,10 @@ func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
 				case *nativeplayer.VideoSeekedEvent:
 					m.Logger.Debug().Msgf("directstream: Stream event: VideoSeeked, CurrentTime: %f", event.CurrentTime)
 					// Make sure this event is for the current stream
-					if cs, ok := m.currentStream.Get(); ok && event.GetClientId() == cs.ClientId() {
-						// Request subtitles from the new time
-						// cs.RequestSubtitlesFrom(event.CurrentTime)
-					}
+				case *nativeplayer.VideoLoadedMetadataEvent:
+					m.Logger.Debug().Msgf("directstream: Stream event: VideoLoadedMetadata")
+					// Make sure this event is for the current stream
+					cs.ServeSubtitles(0)
 				}
 			}
 		}
@@ -194,10 +197,6 @@ func (m *Manager) unloadStream() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type subtitleHead struct {
-	doNotExceed int64 // in bytes
-}
-
 type BaseStream struct {
 	logger                   *zerolog.Logger
 	clientId                 string
@@ -211,11 +210,8 @@ type BaseStream struct {
 	playbackInfoOnce         sync.Once
 	subtitleStreamCancelFunc context.CancelFunc
 	subtitleEventCache       *result.Map[string, *mkvparser.SubtitleEvent]
-	// subtitleHeads contains all the subtitle streams that are currently active
-	// it is used to interrupt a subtitle stream if a new one overlaps
-	subtitleHeads          *result.Map[int64, *subtitleHead]
-	terminateOnce          sync.Once
-	serveContentCancelFunc context.CancelFunc
+	terminateOnce            sync.Once
+	serveContentCancelFunc   context.CancelFunc
 
 	manager *Manager
 }
@@ -271,7 +267,7 @@ type LocalFileStream struct {
 	localFile *anime.LocalFile
 }
 
-func (s *LocalFileStream) newReader() (io.ReadSeeker, error) {
+func (s *LocalFileStream) newReader() (io.ReadSeekCloser, error) {
 	r, err := os.OpenFile(s.localFile.Path, os.O_RDONLY, 0)
 	if err != nil {
 		return nil, err
@@ -399,112 +395,16 @@ func (s *LocalFileStream) ServeSubtitles(start int64) {
 
 	// s.subtitleStreamCancelFunc = cancel
 
-	// Open the file
-	fr, err := s.newReader()
+	// Get a new reader
+	subReader, err := s.newReader()
 	if err != nil {
 		s.logger.Error().Err(err).Msg("directstream(file): Failed to open local file")
+		cancel()
 		return
 	}
-
-	subReader, ok := fr.(io.ReadSeeker)
-	if !ok {
-		s.logger.Error().Msg("directstream(file): File is not seekable")
-		return
-	}
-
-	if start > 0 {
-		s.subtitleHeads.Range(func(key int64, value *subtitleHead) bool {
-			// if the doNotExceed value of this head is less than the start, set it to the start
-			// this will interrupt the subtitle stream to avoid overlap
-			if value.doNotExceed > start {
-				value.doNotExceed = start
-			}
-			return true
-		})
-	}
-
-	s.subtitleHeads.Set(start, &subtitleHead{
-		doNotExceed: s.playbackInfo.ContentLength,
-	})
-
-	go func(ctx context.Context, cancel context.CancelFunc) {
-		ticker := time.NewTicker(1 * time.Second)
-		defer ticker.Stop()
-		defer s.subtitleHeads.Delete(start)
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				// Get reader position
-				pos, err := subReader.Seek(0, io.SeekCurrent)
-				if err != nil {
-					s.logger.Error().Err(err).Msg("directstream(file): Failed to get reader position")
-					return
-				}
-
-				// Cancel the subtitle stream if the reader position is greater than the doNotExceed value of any head
-				head, ok := s.subtitleHeads.Get(start)
-				if !ok {
-					continue
-				}
-
-				if pos >= head.doNotExceed {
-					s.logger.Debug().Int64("pos", pos).Int64("doNotExceed", head.doNotExceed).Msg("directstream(file): Reader position is greater than doNotExceed value, cancelling subtitle stream")
-					if cancel != nil {
-						cancel()
-					}
-					return
-				}
-			}
-		}
-
-		// If the reader position is greater than the content length, set the doNotExceed value to the content length
-	}(ctx, cancel)
 
 	s.manager.streamSubtitles(ctx, s, parser, subReader, start, cancel)
 }
-
-// func (s *LocalFileStream) RequestSubtitlesFrom(currentTime float64) {
-// 	s.logger.Debug().Float64("currentTime", currentTime).Msg("directstream(file): Requesting subtitles from")
-// 	// Cancel the previous subtitle stream
-// 	if s.subtitleStreamCancelFunc != nil {
-// 		s.subtitleStreamCancelFunc()
-// 	}
-
-// 	container, err := s.LoadPlaybackInfo()
-// 	if err != nil {
-// 		s.logger.Error().Err(err).Msg("directstream(file): Failed to load playback info for subtitle request")
-// 		return
-// 	}
-
-// 	parser, ok := container.MkvMetadataParser.Get()
-// 	if !ok {
-// 		s.logger.Warn().Msg("directstream(file): No mkv metadata parser available for subtitle request")
-// 		return
-// 	}
-
-// 	ctx, cancel := context.WithCancel(s.manager.playbackCtx)
-// 	s.subtitleStreamCancelFunc = cancel
-
-// 	fr, err := s.newReader()
-// 	if err != nil {
-// 		s.logger.Error().Err(err).Msg("directstream(file): Failed to open local file for subtitle request")
-// 		return
-// 	}
-
-// 	reader, ok := fr.(io.ReadSeeker)
-// 	if !ok {
-// 		s.logger.Error().Msg("directstream(file): File is not seekable for subtitle request")
-// 		if closer, ok := fr.(io.Closer); ok {
-// 			_ = closer.Close()
-// 		}
-// 		return
-// 	}
-
-// 	s.manager.streamSubtitles(ctx, s, parser, reader, currentTime, false)
-// }
 
 func (s *LocalFileStream) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -613,7 +513,6 @@ func (m *Manager) PlayLocalFile(opts PlayLocalFileOptions) error {
 			episode:            episode,
 			episodeCollection:  episodeCollection,
 			subtitleEventCache: result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			subtitleHeads:      result.NewResultMap[int64, *subtitleHead](),
 		},
 	}
 
@@ -720,31 +619,6 @@ func (s *TorrentStream) ServeSubtitles(start int64) {
 	s.manager.streamSubtitles(ctx, s, parser, s.file.NewReader(), 0, nil)
 }
 
-// func (s *TorrentStream) RequestSubtitlesFrom(currentTime float64) {
-// 	s.logger.Debug().Float64("currentTime", currentTime).Msg("directstream(torrent): Requesting subtitles from")
-// 	// Cancel the previous subtitle stream
-// 	if s.subtitleStreamCancelFunc != nil {
-// 		s.subtitleStreamCancelFunc()
-// 	}
-
-// 	container, err := s.LoadPlaybackInfo()
-// 	if err != nil {
-// 		s.logger.Error().Err(err).Msg("directstream(torrent): Failed to load playback info for subtitle request")
-// 		return
-// 	}
-
-// 	parser, ok := container.MkvMetadataParser.Get()
-// 	if !ok {
-// 		s.logger.Warn().Msg("directstream(torrent): No mkv metadata parser available for subtitle request")
-// 		return
-// 	}
-
-// 	ctx, cancel := context.WithCancel(s.manager.playbackCtx)
-// 	s.subtitleStreamCancelFunc = cancel
-
-// 	s.manager.streamSubtitles(ctx, s, parser, s.file.NewReader(), currentTime, false)
-// }
-
 func (s *TorrentStream) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Trace().Str("range", r.Header.Get("Range")).Msg("directstream(torrent): Stream endpoint hit")
@@ -828,7 +702,6 @@ func (m *Manager) PlayTorrentStream(opts PlayTorrentStreamOptions) error {
 			episode:            episode,
 			episodeCollection:  episodeCollection,
 			subtitleEventCache: result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			subtitleHeads:      result.NewResultMap[int64, *subtitleHead](),
 		},
 	}
 
@@ -844,7 +717,7 @@ func (m *Manager) PlayTorrentStream(opts PlayTorrentStreamOptions) error {
 // loadContentType loads the content type of the file.
 // If the content type cannot be determined from the file extension,
 // the first reader will be used to determine the content type.
-func loadContentType(path string, reader ...io.ReadSeeker) string {
+func loadContentType(path string, reader ...io.ReadSeekCloser) string {
 	ext := filepath.Ext(path)
 
 	switch ext {
@@ -877,15 +750,12 @@ func loadContentType(path string, reader ...io.ReadSeeker) string {
 
 // streamSubtitles starts the subtitle stream.
 // It will stream the subtitles from all tracks to the client. The client should load the subtitles in an array.
-func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, newReader io.ReadSeeker, offset int64, cancelFunc context.CancelFunc) {
+func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, newReader io.ReadSeekCloser, offset int64, cancelFunc context.CancelFunc) {
 	subtitleCh, errCh := parser.ExtractSubtitles(ctx, newReader, offset)
 
 	go func() {
-		defer func(reader io.ReadSeeker) {
-			// Close the reader if it implements io.Closer
-			if closer, ok := reader.(io.Closer); ok {
-				_ = closer.Close()
-			}
+		defer func(reader io.ReadSeekCloser) {
+			_ = reader.Close()
 			m.Logger.Trace().Msg("directstream(file): Closing subtitle stream goroutine")
 		}(newReader)
 		defer func() {
@@ -945,34 +815,4 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 	m.wsEventManager.SendEvent(events.ErrorToast, err.Error())
 	stream.Terminate()
 	m.unloadStream()
-}
-
-func getAttachmentByName(ctx context.Context, stream Stream, filename string) (*mkvparser.AttachmentInfo, bool) {
-	filename, _ = url.PathUnescape(filename)
-
-	container, err := stream.LoadPlaybackInfo()
-	if err != nil {
-		return nil, false
-	}
-
-	parser, ok := container.MkvMetadataParser.Get()
-	if !ok {
-		return nil, false
-	}
-
-	attachment, ok := parser.GetMetadata(ctx).GetAttachmentByName(filename)
-	if !ok {
-		return nil, false
-	}
-
-	return attachment, true
-}
-
-func isEbmlExtension(filename string) bool {
-	ext := filepath.Ext(filename)
-	return ext == ".mkv" || ext == ".m4v" || ext == ".mp4"
-}
-
-func isEbmlContent(mimeType string) bool {
-	return mimeType == "video/x-matroska" || mimeType == "video/webm"
 }

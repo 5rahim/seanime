@@ -57,7 +57,12 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/remko/go-mkvparse v0.14.0
+require (
+	github.com/neilotoole/streamcache v0.3.5
+	github.com/remko/go-mkvparse v0.14.0
+)
+
+require github.com/neilotoole/fifomu v0.1.2 // indirect
 
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect

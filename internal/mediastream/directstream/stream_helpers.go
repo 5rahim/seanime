@@ -8,6 +8,8 @@ import (
 	"net/http"
 	httputil "seanime/internal/util/http"
 	"time"
+
+	"github.com/neilotoole/streamcache"
 )
 
 func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileStream) {
@@ -23,15 +25,7 @@ func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileS
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	defer func() {
-		if closer, ok := reader.(io.Closer); ok {
-			err = closer.Close()
-			if err != nil {
-				fmt.Println("directstream > Error closing reader:", err)
-			}
-		}
-	}()
+	defer reader.Close()
 
 	playbackInfo, err := lfStream.LoadPlaybackInfo()
 	if err != nil {
@@ -65,12 +59,13 @@ func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileS
 	// If we have a range, stream subtitles
 	// if len(ranges) > 0 {
 	// 	lfStream.ServeSubtitles(ranges[0].Start)
+	// 	lfStream.logger.Trace().Msgf("directstream > Serving subtitles for range %s", ranges[0].ContentRange(size))
 	// }
 
 	serveContentRange(w, r, ct, reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ranges)
 }
 
-func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeeker, name string, size int64, contentType string, ranges []httputil.Range) {
+func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Connection", "keep-alive") // Explicitly use keep-alive
@@ -156,4 +151,35 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 	}
 
 	return written, nil
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type StreamCacheReadSeekCloser struct {
+	stream         *streamcache.Stream
+	streamReader   *streamcache.Reader
+	originalReader io.ReadSeekCloser
+}
+
+var _ io.ReadSeekCloser = (*StreamCacheReadSeekCloser)(nil)
+
+func NewStreamCacheReadSeekCloser(ctx context.Context, reader io.ReadSeekCloser) StreamCacheReadSeekCloser {
+	stream := streamcache.New(reader)
+	return StreamCacheReadSeekCloser{
+		stream:         stream,
+		streamReader:   stream.NewReader(ctx),
+		originalReader: reader,
+	}
+}
+
+func (s StreamCacheReadSeekCloser) Read(p []byte) (n int, err error) {
+	return s.streamReader.Read(p)
+}
+
+func (s StreamCacheReadSeekCloser) Seek(offset int64, whence int) (int64, error) {
+	return s.originalReader.Seek(offset, whence)
+}
+
+func (s StreamCacheReadSeekCloser) Close() error {
+	return s.originalReader.Close()
 }

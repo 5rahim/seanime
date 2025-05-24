@@ -70,15 +70,16 @@ func (p *NativePlayer) Error(clientId string, err error) {
 type ClientEvent string
 
 const (
-	PlayerEventCanPlay         ClientEvent = "can-play"
-	PlayerEventVideoStarted    ClientEvent = "video-started"
-	PlayerEventVideoPaused     ClientEvent = "video-paused"
-	PlayerEventVideoResumed    ClientEvent = "video-resumed"
-	PlayerEventVideoEnded      ClientEvent = "video-ended"
-	PlayerEventVideoSeeked     ClientEvent = "video-seeked"
-	PlayerEventVideoError      ClientEvent = "video-error"
-	PlayerEventVideoTimeUpdate ClientEvent = "video-time-update"
-	PlayerEventVideoMetadata   ClientEvent = "video-metadata"
+	PlayerEventCanPlay             ClientEvent = "can-play"
+	PlayerEventVideoStarted        ClientEvent = "video-started"
+	PlayerEventVideoPaused         ClientEvent = "video-paused"
+	PlayerEventVideoResumed        ClientEvent = "video-resumed"
+	PlayerEventVideoEnded          ClientEvent = "video-ended"
+	PlayerEventVideoSeeked         ClientEvent = "video-seeked"
+	PlayerEventVideoError          ClientEvent = "video-error"
+	PlayerEventVideoTimeUpdate     ClientEvent = "video-time-update"
+	PlayerEventVideoMetadata       ClientEvent = "video-metadata"
+	PlayerEventVideoLoadedMetadata ClientEvent = "loaded-metadata"
 )
 
 type (
@@ -117,6 +118,9 @@ type (
 	VideoStatusEvent struct {
 		BaseVideoEvent
 		Status PlaybackStatus `json:"status"`
+	}
+	VideoLoadedMetadataEvent struct {
+		BaseVideoEvent
 	}
 )
 
@@ -187,6 +191,10 @@ func (p *NativePlayer) listenToPlayerEvents() {
 					case PlayerEventVideoError:
 					case PlayerEventVideoTimeUpdate:
 					case PlayerEventVideoMetadata:
+					case PlayerEventVideoLoadedMetadata:
+						p.NotifySubscribers(&VideoLoadedMetadataEvent{
+							BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+						})
 					}
 				}
 			}

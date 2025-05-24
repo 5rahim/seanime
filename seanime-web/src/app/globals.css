@@ -372,7 +372,7 @@ media-controller[mediaisfullscreen] {
     --media-range-track-height: 4px;
 }
 
-.yt-button {
+.native-player-button {
     position: relative;
     display: flex;
     justify-content: center;
@@ -385,20 +385,29 @@ media-controller[mediaisfullscreen] {
     flex-shrink: 0;
 }
 
-[breakpointmd] .yt-button {
+[data-native-player-container][data-mini-player="true"] .native-player-button {
+    width: 24px;
+    margin: 0 2px;
+}
+
+[breakpointmd] .native-player-button {
     width: 48px;
 }
 
-[mediaisfullscreen] .yt-button {
+[mediaisfullscreen] .native-player-button {
     width: 54px;
 }
 
-.yt-button svg {
+.native-player-button svg {
     /* height: 100%;
     width: 100%; */
-    @apply size-7;
+    @apply !size-7;
     fill: var(--media-primary-color, #fff);
     fill-rule: evenodd;
+}
+
+[data-native-player-container][data-mini-player="true"] .native-player-button svg {
+    @apply !size-5;
 }
 
 .svg-shadow {
@@ -786,3 +795,19 @@ media-settings-menu div[slot="title"] {
     bottom: 70px;
 }
 
+/* Force JASSUB subtitles to always be visible regardless of media-chrome control state */
+.discrete-controls .JASSUB,
+media-controller .JASSUB,
+[data-media-player] .JASSUB {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+    /* z-index: 1000 !important; */
+}
+
+/* Ensure JASSUB remains visible even when controls are hidden */
+.discrete-controls[data-media-player][data-playing][data-controls] .JASSUB,
+.discrete-controls[data-media-player][data-buffering][data-controls] .JASSUB {
+    opacity: 1 !important;
+    visibility: visible !important;
+}

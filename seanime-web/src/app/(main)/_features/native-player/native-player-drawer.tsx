@@ -21,7 +21,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
         "UI-Drawer__content",
         "fixed z-50 w-full",
         "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
-        "focus:outline-none focus-visible:outline-none",
+        "focus:outline-none focus-visible:outline-none outline-none",
         __isDesktop__ && "select-none",
     ], {
         variants: {
@@ -161,17 +161,61 @@ export function NativePlayerDrawer(props: DrawerProps) {
         }
     }, [open, size])
 
+    const isMiniPlayerRef = React.useRef(miniPlayer)
+
+    React.useEffect(() => {
+        setTimeout(() => {
+            isMiniPlayerRef.current = miniPlayer
+        }, 500)
+    }, [miniPlayer])
+
     // Dragging
     const contentRef = React.useRef<HTMLDivElement>(null)
+
+    // Calculate initial position immediately based on known dimensions
+    const getInitialPosition = React.useCallback(() => {
+        // Use the known CSS dimensions from the className
+        const width = window.innerWidth >= 1024 ? 400 : 300 // lg:w-[400px] w-[300px]
+        const height = width * (9 / 16) // aspect-video
+
+        const rightBoundary = window.innerWidth - width - PADDING
+        const bottomBoundary = window.innerHeight - height - PADDING
+
+        return { x: rightBoundary, y: bottomBoundary }
+    }, [])
 
     // Dragging functionality
     const [position, setPosition] = React.useState({ x: 0, y: 0 })
     const [isDragging, setIsDragging] = React.useState(false)
+    const [isHidden, setIsHidden] = React.useState(false)
     const dragStartPos = React.useRef({ x: 0, y: 0 })
     const elementStartPos = React.useRef({ x: 0, y: 0 })
     const PADDING = 20 // Define padding constant
-    // TODO
-    const AUTO_HIDE_THRESHOLD = 0.4 // Hide when 40% is overflowing
+    const AUTO_HIDE_THRESHOLD = 0.5 // Hide when 50% is overflowing
+
+    // Calculate boundaries helper function
+    const calculateBoundaries = React.useCallback(() => {
+        if (!contentRef.current) return null
+
+        const width = contentRef.current.offsetWidth || 0
+        const height = contentRef.current.offsetHeight || 0
+
+        return {
+            leftBoundary: 80 + PADDING,
+            rightBoundary: window.innerWidth - width - PADDING,
+            topBoundary: PADDING,
+            bottomBoundary: window.innerHeight - height - PADDING,
+            width,
+            height,
+        }
+    }, [])
+
+    React.useLayoutEffect(() => {
+        if (miniPlayer) {
+            setPosition(getInitialPosition())
+            setIsHidden(false)
+        }
+    }, [miniPlayer, getInitialPosition])
 
     // Handle dragging only when in mini player mode
     React.useEffect(() => {
@@ -193,15 +237,26 @@ export function NativePlayerDrawer(props: DrawerProps) {
             const newX = elementStartPos.current.x + deltaX
             const newY = elementStartPos.current.y + deltaY
 
-            // Calculate boundaries with 80px offset on the left for sidebar and PADDING
-            const leftBoundary = 80 + PADDING
-            const rightBoundary = window.innerWidth - (contentRef.current.offsetWidth || 0) - PADDING
-            const topBoundary = PADDING
-            const bottomBoundary = window.innerHeight - (contentRef.current.offsetHeight || 0) - PADDING
+            const boundaries = calculateBoundaries()
+            if (!boundaries) return
 
-            // Apply boundaries
-            const boundedX = Math.max(leftBoundary, Math.min(newX, rightBoundary))
-            const boundedY = Math.max(topBoundary, Math.min(newY, bottomBoundary))
+            // Check for auto-hide (when dragged to the right edge)
+            const hideThresholdX = window.innerWidth - (boundaries.width * AUTO_HIDE_THRESHOLD)
+            if (newX >= hideThresholdX) {
+                if (!isHidden) {
+                    setIsHidden(true)
+                }
+                setPosition({ x: window.innerWidth - boundaries.width * 0.15, y: newY }) // Show just a sliver
+                return
+            } else {
+                if (isHidden) {
+                    setIsHidden(false)
+                }
+            }
+
+            // Apply boundaries for normal dragging
+            const boundedX = Math.max(boundaries.leftBoundary, Math.min(newX, boundaries.rightBoundary * 1.25))
+            const boundedY = Math.max(boundaries.topBoundary, Math.min(newY, boundaries.bottomBoundary))
 
             setPosition({ x: boundedX, y: boundedY })
         }
@@ -209,23 +264,31 @@ export function NativePlayerDrawer(props: DrawerProps) {
         const handleMouseUp = () => {
             setIsDragging(false)
 
+            // If hidden, snap to hidden position or reveal based on drag behavior
+            if (isHidden) {
+                const boundaries = calculateBoundaries()
+                if (!boundaries) return
+
+                // If dragged back far enough to the left, show it again
+                if (position.x < window.innerWidth - boundaries.width * 0.5) {
+                    setIsHidden(false)
+                    setPosition({ x: boundaries.rightBoundary, y: position.y })
+                } else {
+                    // Keep it hidden at the edge
+                    setPosition({ x: window.innerWidth - boundaries.width * 0.1, y: position.y })
+                }
+                return
+            }
+
             // Snap to the nearest corner when dragging stops
-            if (!contentRef.current) return
-
-            const width = contentRef.current.offsetWidth || 0
-            const height = contentRef.current.offsetHeight || 0
-
-            // Define the four corners with left sidebar offset and PADDING
-            const leftBoundary = 80 + PADDING
-            const rightBoundary = window.innerWidth - width - PADDING
-            const topBoundary = PADDING
-            const bottomBoundary = window.innerHeight - height - PADDING
+            const boundaries = calculateBoundaries()
+            if (!boundaries) return
 
             const corners = [
-                { x: leftBoundary, y: topBoundary }, // Top-left
-                { x: rightBoundary, y: topBoundary }, // Top-right
-                { x: leftBoundary, y: bottomBoundary }, // Bottom-left
-                { x: rightBoundary, y: bottomBoundary }, // Bottom-right
+                { x: boundaries.leftBoundary, y: boundaries.topBoundary }, // Top-left
+                { x: boundaries.rightBoundary, y: boundaries.topBoundary }, // Top-right
+                { x: boundaries.leftBoundary, y: boundaries.bottomBoundary }, // Bottom-left
+                { x: boundaries.rightBoundary, y: boundaries.bottomBoundary }, // Bottom-right
             ]
 
             // Find the nearest corner
@@ -259,37 +322,65 @@ export function NativePlayerDrawer(props: DrawerProps) {
             window.removeEventListener("mousemove", handleMouseMove)
             window.removeEventListener("mouseup", handleMouseUp)
         }
-    }, [miniPlayer, isDragging, position])
+    }, [miniPlayer, isDragging, position, calculateBoundaries, isHidden])
 
-    // Set initial position to bottom-right when mini player is enabled
+    // Handle window resize to maintain proper positioning
     React.useEffect(() => {
-        if (miniPlayer && contentRef.current) {
+        if (!miniPlayer) return
 
-            contentRef.current.style.transition = "none"
-            const width = contentRef.current.offsetWidth || 0
-            const height = contentRef.current.offsetHeight || 0
+        const handleResize = () => {
+            const boundaries = calculateBoundaries()
+            if (!boundaries) return
 
-            const rightBoundary = window.innerWidth - width - PADDING
-            const bottomBoundary = window.innerHeight - height - PADDING
+            // Adjust position if it's now outside boundaries
+            setPosition(prevPosition => {
+                let newX = prevPosition.x
+                let newY = prevPosition.y
 
-            setPosition({ x: rightBoundary, y: bottomBoundary })
+                // If hidden, maintain hidden state but adjust position
+                if (isHidden) {
+                    newX = window.innerWidth - boundaries.width * 0.1
+                } else {
+                    // Ensure position is within new boundaries
+                    newX = Math.max(boundaries.leftBoundary, Math.min(prevPosition.x, boundaries.rightBoundary))
+                    newY = Math.max(boundaries.topBoundary, Math.min(prevPosition.y, boundaries.bottomBoundary))
+                }
+
+                return { x: newX, y: newY }
+            })
         }
-    }, [miniPlayer])
+
+        window.addEventListener("resize", handleResize)
+        return () => window.removeEventListener("resize", handleResize)
+    }, [miniPlayer, calculateBoundaries, isHidden])
+
+
 
     // Apply position styles when in mini player mode
     React.useEffect(() => {
         if (!contentRef.current || !miniPlayer) return
 
+        // Use current position or calculate initial position if not set
+        const currentPosition = (position.x === 0 && position.y === 0) ? getInitialPosition() : position
+
         contentRef.current.style.position = "fixed"
-        contentRef.current.style.left = `${position.x}px`
-        contentRef.current.style.top = `${position.y}px`
-        contentRef.current.style.transform = "none"
+        contentRef.current.style.left = `${currentPosition.x}px`
+        contentRef.current.style.top = `${currentPosition.y}px`
         contentRef.current.style.cursor = "move"
-        // Add transition for smooth snapping, remove it during dragging
-        if (!isDragging) {
-            contentRef.current.style.transition = "left 0.3s ease-out, top 0.3s ease-out"
-        } else {
-            contentRef.current.style.transition = "none"
+        contentRef.current.style.zIndex = isHidden ? "40" : "50" // Lower z-index when hidden
+
+        // Handle opacity and scale for hiding/showing
+        contentRef.current.style.opacity = isHidden ? "0.7" : "1"
+        contentRef.current.style.transform = isHidden ? "scale(0.95)" : "scale(1)"
+
+        // Add transition for smooth snapping and hiding/showing, remove it during dragging
+        if (isMiniPlayerRef.current) {
+            if (!isDragging) {
+                contentRef.current.style.transition = "left 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out, transform 0.2s ease-out"
+            } else {
+                contentRef.current.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out" // Keep opacity and scale transition during
+                                                                                                       // drag
+            }
         }
 
         return () => {
@@ -299,10 +390,12 @@ export function NativePlayerDrawer(props: DrawerProps) {
                 contentRef.current.style.top = ""
                 contentRef.current.style.transform = ""
                 contentRef.current.style.cursor = ""
-                contentRef.current.style.transition = "" // Clear transition
+                contentRef.current.style.transition = ""
+                contentRef.current.style.zIndex = ""
+                contentRef.current.style.opacity = ""
             }
         }
-    }, [miniPlayer, position, isDragging])
+    }, [miniPlayer, position, isDragging, isHidden, getInitialPosition])
 
     return (
         <DialogPrimitive.Root modal={!allowOutsideInteraction} open={open} {...rest}>
@@ -317,8 +410,9 @@ export function NativePlayerDrawer(props: DrawerProps) {
                     className={cn(
                         DrawerAnatomy.content({ size, side: "player" }),
                         contentClass,
-                        "w-full h-full",
-                        miniPlayer && "aspect-video w-[25%] h-auto overflow-hidden rounded-lg fixed",
+                        "w-full h-full transition-all duration-300 overflow-hidden fixed",
+                        miniPlayer && "aspect-video w-[300px] lg:w-[400px] h-auto rounded-lg shadow-xl",
+                        isHidden && "ring-2 ring-brand-300",
                     )}
                     ref={contentRef}
                     onOpenAutoFocus={e => e.preventDefault()}

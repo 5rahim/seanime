@@ -13,6 +13,13 @@ const (
 	TrackTypeUnknown  TrackType = "unknown"
 )
 
+type AttachmentType string
+
+const (
+	AttachmentTypeFont     AttachmentType = "font"
+	AttachmentTypeSubtitle AttachmentType = "subtitle"
+)
+
 // TrackInfo holds extracted information about a media track.
 type TrackInfo struct {
 	Number       int64     `json:"number"`
@@ -48,13 +55,14 @@ type ChapterInfo struct {
 
 // AttachmentInfo holds extracted information about an attachment.
 type AttachmentInfo struct {
-	UID          uint64 `json:"uid"`
-	Filename     string `json:"filename"`
-	Mimetype     string `json:"mimetype"`
-	Size         int    `json:"size"`
-	Description  string `json:"description,omitempty"`
-	Data         []byte `json:"-"` // Data loaded into memory
-	IsCompressed bool   `json:"-"` // Whether the data is compressed
+	UID          uint64         `json:"uid"`
+	Filename     string         `json:"filename"`
+	Mimetype     string         `json:"mimetype"`
+	Size         int            `json:"size"`
+	Description  string         `json:"description,omitempty"`
+	Type         AttachmentType `json:"type,omitempty"`
+	Data         []byte         `json:"-"` // Data loaded into memory
+	IsCompressed bool           `json:"-"` // Whether the data is compressed
 }
 
 // Metadata holds all extracted metadata.

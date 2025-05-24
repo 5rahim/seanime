@@ -2863,6 +2863,28 @@ export type MKVParser_AttachmentInfo = {
     filename: string
     mimetype: string
     size: number
+    description?: string
+    type?: MKVParser_AttachmentType
+}
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filename: metadata.go
+ * - Package: mkvparser
+ */
+export type MKVParser_AttachmentType = "font" | "subtitle"
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ * @description
+ *  AudioTrack contains audio-specific track data
+ */
+export type MKVParser_AudioTrack = {
+    SamplingFrequency: number
+    Channels: number
+    BitDepth: number
 }
 
 /**
@@ -2883,17 +2905,24 @@ export type MKVParser_ChapterInfo = {
      */
     end?: number
     text?: string
+    /**
+     * Legacy 3-letter language codes
+     */
+    languages?: Array<string>
+    /**
+     * IETF language tags
+     */
+    languagesIETF?: Array<string>
 }
 
 /**
  * - Filepath: internal/mediastream/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
+ * @description
+ *  ContentCompression describes how the track data is compressed
  */
 export type MKVParser_ContentCompression = {
-    /**
-     * Default 0
-     */
     ContentCompAlgo: number
     ContentCompSettings?: Array<string>
 }
@@ -2902,76 +2931,25 @@ export type MKVParser_ContentCompression = {
  * - Filepath: internal/mediastream/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
- */
-export type MKVParser_ContentEncAESSettings = {
-    AESSettingsCipherMode: number
-}
-
-/**
- * - Filepath: internal/mediastream/mkvparser/structs.go
- * - Filename: structs.go
- * - Package: mkvparser
+ * @description
+ *  ContentEncoding describes a single encoding applied to the track data
  */
 export type MKVParser_ContentEncoding = {
-    /**
-     * Default 0
-     */
     ContentEncodingOrder: number
-    /**
-     * Default 1
-     */
     ContentEncodingScope: number
-    /**
-     * Default 0
-     */
     ContentEncodingType: number
     ContentCompression?: MKVParser_ContentCompression
-    ContentEncryption?: MKVParser_ContentEncryption
 }
 
 /**
  * - Filepath: internal/mediastream/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
+ * @description
+ *  ContentEncodings contains information about how the track data is encoded
  */
 export type MKVParser_ContentEncodings = {
     ContentEncoding?: Array<MKVParser_ContentEncoding>
-}
-
-/**
- * - Filepath: internal/mediastream/mkvparser/structs.go
- * - Filename: structs.go
- * - Package: mkvparser
- */
-export type MKVParser_ContentEncryption = {
-    /**
-     * Default 0, deprecated
-     */
-    ContentEncAlgo: number
-    /**
-     * Deprecated
-     */
-    ContentEncKeyID?: Array<string>
-    /**
-     * Deprecated
-     */
-    ContentEncAESSettings?: MKVParser_ContentEncAESSettings
-    /**
-     * Deprecated
-     */
-    ContentSignature?: Array<string>
-    /**
-     * Deprecated
-     */
-    ContentSigKeyID?: Array<string>
-    /**
-     * Deprecated
-     */
-    ContentSigAlgo: number
-    /**
-     * Deprecated
-     */
-    ContentSigHashAlgo: number
 }
 
 /**
@@ -3050,9 +3028,13 @@ export type MKVParser_TrackInfo = {
     codecID: string
     name?: string
     /**
-     * Best effort language code (IETF or 3-letter)
+     * Best effort language code
      */
     language?: string
+    /**
+     * IETF language code
+     */
+    languageIETF?: string
     default: boolean
     forced: boolean
     enabled: boolean
@@ -3060,11 +3042,8 @@ export type MKVParser_TrackInfo = {
      * Raw CodecPrivate data, often used for subtitle headers (e.g., ASS/SSA styles)
      */
     codecPrivate?: string
-    pixelWidth?: number
-    pixelHeight?: number
-    samplingFrequency?: number
-    channels?: number
-    bitDepth?: number
+    video?: MKVParser_VideoTrack
+    audio?: MKVParser_AudioTrack
 }
 
 /**
@@ -3081,6 +3060,18 @@ export type MKVParser_TrackType = "video" |
     "buttons" |
     "complex" |
     "unknown"
+
+/**
+ * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filename: structs.go
+ * - Package: mkvparser
+ * @description
+ *  VideoTrack contains video-specific track data
+ */
+export type MKVParser_VideoTrack = {
+    PixelWidth: number
+    PixelHeight: number
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models
@@ -3439,7 +3430,8 @@ export type NativePlayer_ClientEvent = "can-play" |
     "video-seeked" |
     "video-error" |
     "video-time-update" |
-    "video-metadata"
+    "video-metadata" |
+    "loaded-metadata"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go

@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"path/filepath"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"strings"
 	"sync"
 	"time"
@@ -37,6 +39,8 @@ type SubtitleEvent struct {
 	Duration    float64           `json:"duration"`  // Duration in seconds
 	CodecID     string            `json:"codecID"`   // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
 	ExtraData   map[string]string `json:"extraData,omitempty"`
+
+	readerPos int64 `json:"-"` // Position in the stream
 }
 
 // GetSubtitleEventKey stringifies the subtitle event to serve as a key
@@ -67,20 +71,24 @@ type MetadataParser struct {
 
 	// Result
 	extractedMetadata *Metadata
+
+	// subtitleStreamTails stores the start offsets of each subtitle stream
+	subtitleStreamTails *result.Map[int64, bool]
 }
 
 // NewMetadataParser creates a new MetadataParser.
 func NewMetadataParser(reader io.ReadSeeker, logger *zerolog.Logger) *MetadataParser {
 	return &MetadataParser{
-		reader:            reader,
-		logger:            logger,
-		realLogger:        logger,
-		timecodeScale:     defaultTimecodeScale,
-		tracks:            make([]*TrackInfo, 0),
-		chapters:          make([]*ChapterInfo, 0),
-		attachments:       make([]*AttachmentInfo, 0),
-		info:              &Info{},
-		extractedMetadata: nil,
+		reader:              reader,
+		logger:              logger,
+		realLogger:          logger,
+		timecodeScale:       defaultTimecodeScale,
+		tracks:              make([]*TrackInfo, 0),
+		chapters:            make([]*ChapterInfo, 0),
+		attachments:         make([]*AttachmentInfo, 0),
+		info:                &Info{},
+		extractedMetadata:   nil,
+		subtitleStreamTails: result.NewResultMap[int64, bool](),
 	}
 }
 
@@ -307,6 +315,12 @@ func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.E
 					}
 				}
 			}
+			fileExt := strings.ToLower(filepath.Ext(h.currentAttachment.Filename))
+			if fileExt == ".ttf" || fileExt == ".woff2" || fileExt == ".woff" || fileExt == ".otf" {
+				h.currentAttachment.Type = AttachmentTypeFont
+			} else if fileExt == ".ass" || fileExt == ".ssa" || fileExt == ".srt" || fileExt == ".vtt" {
+				h.currentAttachment.Type = AttachmentTypeSubtitle
+			}
 			h.mp.attachments = append(h.mp.attachments, h.currentAttachment)
 		}
 		h.isAttachment = false
@@ -463,6 +477,7 @@ func (h *metadataHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 	case mkvparse.CodecPrivateElement:
 		if h.currentTrack != nil {
 			h.currentTrack.CodecPrivate = string(value)
+			h.currentTrack.CodecPrivate = strings.ReplaceAll(h.currentTrack.CodecPrivate, "\r\n", "\n")
 		}
 	case mkvparse.FileDataElement:
 		if h.isAttachment && h.currentAttachment != nil {
@@ -613,9 +628,30 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 // - The context is canceled
 // - The entire stream is processed
 // - An unrecoverable error occurs (which is also returned in the error channel)
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeeker, offset int64) (<-chan *SubtitleEvent, <-chan error) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64) (<-chan *SubtitleEvent, <-chan error) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
+
+	var closeOnce sync.Once
+	closeChannels := func(err error) {
+		closeOnce.Do(func() {
+			select {
+			case errCh <- err:
+			default: // Channel might be full or closed, ignore
+			}
+			close(subtitleCh)
+			close(errCh)
+		})
+	}
+
+	// Create a cancellable context for coordination between goroutines
+	extractCtx, cancel := context.WithCancel(ctx)
+
+	// Add the stream offset to the table
+	_, exists := mp.subtitleStreamTails.Get(offset)
+	if !exists {
+		mp.subtitleStreamTails.Set(offset, false) // false -> not complete
+	}
 
 	if offset > 0 {
 		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
@@ -623,9 +659,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		clusterSeekOffset, err := findNextClusterOffset(newReader, offset)
 		if err != nil {
 			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
-			errCh <- err
-			close(subtitleCh)
-			close(errCh)
+			cancel()
+			closeChannels(err)
 			return subtitleCh, errCh
 		}
 
@@ -634,40 +669,30 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		_, err = newReader.Seek(clusterSeekOffset, io.SeekStart)
 		if err != nil {
 			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to cluster offset")
-			errCh <- err
-			close(subtitleCh)
-			close(errCh)
+			cancel()
+			closeChannels(err)
 			return subtitleCh, errCh
 		}
 	}
 
 	go func() {
 		defer func() {
-			if err := recover(); err != nil {
-				mp.logger.Error().Msgf("mkvparser: Subtitle extraction goroutine panicked: %v", err)
-				ok := true
-				select {
-				case _, ok = <-errCh:
-				default:
-				}
-				if ok {
-					errCh <- fmt.Errorf("subtitle extraction goroutine panic: %v", err)
-				}
+			if r := recover(); r != nil {
+				mp.logger.Error().Msgf("mkvparser: Subtitle extraction goroutine panicked: %v", r)
+				closeChannels(fmt.Errorf("subtitle extraction goroutine panic: %v", r))
 			}
 		}()
-
-		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 1}))
-
-		defer close(subtitleCh)
-		defer close(errCh)
+		defer cancel() // Ensure context is cancelled when main goroutine exits
 		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
+		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 10}))
+
 		// First, ensure metadata is parsed to get track information
-		mp.parseMetadataOnce(ctx)
+		mp.parseMetadataOnce(extractCtx)
 
 		if mp.parseErr != nil && !errors.Is(mp.parseErr, io.EOF) && !strings.Contains(mp.parseErr.Error(), "unexpected EOF") {
 			mp.logger.Error().Err(mp.parseErr).Msg("mkvparser: ExtractSubtitles cannot proceed due to initial metadata parsing error")
-			errCh <- fmt.Errorf("initial metadata parse failed: %w", mp.parseErr)
+			closeChannels(fmt.Errorf("initial metadata parse failed: %w", mp.parseErr))
 			return
 		}
 
@@ -681,30 +706,67 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 		if len(subtitleTracks) == 0 {
 			mp.logger.Info().Msg("mkvparser: No subtitle tracks found for streaming")
-			errCh <- nil
+			closeChannels(nil)
 			return
 		}
 
 		// Create a handler for subtitle extraction
 		handler := &subtitleHandler{
 			mp:             mp,
-			ctx:            ctx,
+			ctx:            extractCtx, // use extraction context instead of original context
 			logger:         mp.logger,
 			sampler:        sampler,
 			subtitleCh:     subtitleCh,
 			subtitleTracks: subtitleTracks,
 			timecodeScale:  mp.timecodeScale,
 			clusterTime:    0,
+			reader:         newReader,
 		}
+
+		// Start monitoring goroutine
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					mp.logger.Error().Msgf("mkvparser: Subtitle monitoring goroutine panicked: %v", r)
+				}
+			}()
+
+			tick := time.NewTicker(1 * time.Second)
+			defer tick.Stop()
+			for {
+				select {
+				case <-extractCtx.Done():
+					return
+				case <-tick.C:
+					shouldStop := false
+					handler.headPosMu.RLock()
+					mp.subtitleStreamTails.Range(func(tail int64, value bool) bool {
+						// e.g. this stream's start offset is 1000, subtitleStreamTails contains {1000, 2500, 4000}
+						// the stream should stop if the head position is >= 2500 or >= 4000
+						if offset != tail && handler.headPos >= tail {
+							shouldStop = true
+							return false
+						}
+						return true
+					})
+					handler.headPosMu.RUnlock()
+					if shouldStop {
+						mp.logger.Debug().Msg("mkvparser: Subtitle stream interrupted")
+						closeChannels(nil)
+						return
+					}
+				}
+			}
+		}()
 
 		// Parse the MKV file for subtitles
 		err := mkvparse.Parse(newReader, handler)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
 			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
-			errCh <- err
+			closeChannels(err)
 		} else {
 			mp.logger.Info().Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
-			errCh <- nil
+			closeChannels(nil)
 		}
 	}()
 
@@ -722,7 +784,10 @@ type subtitleHandler struct {
 	subtitleTracks       map[uint64]*TrackInfo
 	timecodeScale        uint64
 	clusterTime          uint64
-	currentBlockDuration uint64 // Add this field to store the current block duration
+	currentBlockDuration uint64
+	reader               io.ReadSeekCloser
+	headPosMu            sync.RWMutex
+	headPos              int64
 }
 
 func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
@@ -759,17 +824,24 @@ func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 			return nil
 		}
 
+		pos, err := h.reader.Seek(0, io.SeekCurrent)
+		if err == nil {
+			h.headPosMu.Lock()
+			h.headPos = pos
+			h.headPosMu.Unlock()
+		}
+
 		blockTimecode := int16(value[1])<<8 | int16(value[2])
 		absoluteTimeScaled := h.clusterTime + uint64(blockTimecode)
 		timestampNs := absoluteTimeScaled * h.timecodeScale
-		seconds := float64(timestampNs) / 1e9
+		milliseconds := float64(timestampNs) / 1e6
 
-		// Calculate duration in seconds
+		// Calculate duration in milliseconds
 		var duration float64
 		if h.currentBlockDuration > 0 {
-			duration = float64(h.currentBlockDuration*h.timecodeScale) / 1e9
+			duration = float64(h.currentBlockDuration*h.timecodeScale) / 1e6 // ms
 		} else if track.defaultDuration > 0 {
-			duration = float64(track.defaultDuration) / 1e9
+			duration = float64(track.defaultDuration) / 1e6 // ms
 		}
 
 		subtitleData := value[4:]
@@ -799,7 +871,7 @@ func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 		subtitleEvent := &SubtitleEvent{
 			TrackNumber: trackNum,
 			Text:        initialText,
-			StartTime:   seconds,
+			StartTime:   milliseconds,
 			Duration:    duration,
 			CodecID:     track.CodecID,
 			ExtraData:   make(map[string]string),
@@ -842,17 +914,19 @@ func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 
 		h.sampler.Trace().
 			Uint64("trackNum", trackNum).
-			Float64("startTime", seconds).
+			Float64("startTime", milliseconds).
 			Float64("duration", duration).
 			Str("codecId", track.CodecID).
 			Str("text", subtitleEvent.Text).
 			Interface("data", subtitleEvent.ExtraData).
 			Msg("mkvparser: Subtitle event")
 
+		// Check context before sending to avoid sending on closed channel
 		select {
 		case h.subtitleCh <- subtitleEvent:
+			// Successfully sent
 		case <-h.ctx.Done():
-			h.logger.Info().Msg("mkvparser: Subtitle sending cancelled by context.")
+			h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
 			return h.ctx.Err()
 		}
 

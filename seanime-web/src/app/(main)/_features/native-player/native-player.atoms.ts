@@ -1,7 +1,8 @@
 import { NativePlayer_PlaybackInfo } from "@/api/generated/types"
 import { atomWithImmer } from "jotai-immer"
+import { atomWithStorage } from "jotai/utils"
 
-type State = {
+export type NativePlayerState = {
     active: boolean
     miniPlayer: boolean
     playbackInfo: NativePlayer_PlaybackInfo | null
@@ -9,7 +10,7 @@ type State = {
     loadingState: string | null
 }
 
-export const nativePlayer_initialState: State = {
+export const nativePlayer_initialState: NativePlayerState = {
     active: false,
     miniPlayer: false,
     playbackInfo: null,
@@ -17,4 +18,21 @@ export const nativePlayer_initialState: State = {
     loadingState: null,
 }
 
-export const nativePlayer_stateAtom = atomWithImmer<State>(nativePlayer_initialState)
+export const nativePlayer_stateAtom = atomWithImmer<NativePlayerState>(nativePlayer_initialState)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type NativePlayerSettings = {
+    preferredSubtitleLanguage: string
+    preferredAudioLanguage: string
+}
+
+export const nativePlayer_initialSettings: NativePlayerSettings = {
+    preferredSubtitleLanguage: "eng",
+    preferredAudioLanguage: "jpn",
+}
+
+export const nativePlayer_settingsAtom = atomWithStorage<NativePlayerSettings>("sea-native-player-settings",
+    nativePlayer_initialSettings,
+    undefined,
+    { getOnInit: true })

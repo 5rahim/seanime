@@ -51513,6 +51513,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "parserCache",
+        "jsonName": "parserCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -51992,6 +52001,49 @@
     "comments": []
   },
   {
+    "filepath": "../internal/mediastream/directstream/stream_helpers.go",
+    "filename": "stream_helpers.go",
+    "name": "StreamCacheReadSeekCloser",
+    "formattedName": "Directstream_StreamCacheReadSeekCloser",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "stream",
+        "jsonName": "stream",
+        "goType": "streamcache.Stream",
+        "typescriptType": "Stream",
+        "usedTypescriptType": "Stream",
+        "usedStructName": "streamcache.Stream",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamReader",
+        "jsonName": "streamReader",
+        "goType": "streamcache.Reader",
+        "typescriptType": "Reader",
+        "usedTypescriptType": "Reader",
+        "usedStructName": "streamcache.Reader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "originalReader",
+        "jsonName": "originalReader",
+        "goType": "io.ReadSeekCloser",
+        "typescriptType": "ReadSeekCloser",
+        "usedTypescriptType": "ReadSeekCloser",
+        "usedStructName": "io.ReadSeekCloser",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediastream/mkvparser/metadata.go",
     "filename": "metadata.go",
     "name": "TrackType",
@@ -52018,6 +52070,23 @@
   {
     "filepath": "../internal/mediastream/mkvparser/metadata.go",
     "filename": "metadata.go",
+    "name": "AttachmentType",
+    "formattedName": "MKVParser_AttachmentType",
+    "package": "mkvparser",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"font\"",
+        "\"subtitle\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/mkvparser/metadata.go",
+    "filename": "metadata.go",
     "name": "TrackInfo",
     "formattedName": "MKVParser_TrackInfo",
     "package": "mkvparser",
@@ -52025,7 +52094,7 @@
       {
         "name": "Number",
         "jsonName": "number",
-        "goType": "uint64",
+        "goType": "int64",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -52034,7 +52103,7 @@
       {
         "name": "UID",
         "jsonName": "uid",
-        "goType": "uint64",
+        "goType": "int64",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -52079,7 +52148,18 @@
         "required": false,
         "public": true,
         "comments": [
-          " Best effort language code (IETF or 3-letter)"
+          " Best effort language code"
+        ]
+      },
+      {
+        "name": "LanguageIETF",
+        "jsonName": "languageIETF",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " IETF language code"
         ]
       },
       {
@@ -52121,46 +52201,23 @@
         ]
       },
       {
-        "name": "PixelWidth",
-        "jsonName": "pixelWidth",
-        "goType": "uint64",
-        "typescriptType": "number",
+        "name": "Video",
+        "jsonName": "video",
+        "goType": "VideoTrack",
+        "typescriptType": "MKVParser_VideoTrack",
+        "usedTypescriptType": "MKVParser_VideoTrack",
+        "usedStructName": "mkvparser.VideoTrack",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "PixelHeight",
-        "jsonName": "pixelHeight",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SamplingFrequency",
-        "jsonName": "samplingFrequency",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Channels",
-        "jsonName": "channels",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BitDepth",
-        "jsonName": "bitDepth",
-        "goType": "uint64",
-        "typescriptType": "number",
+        "name": "Audio",
+        "jsonName": "audio",
+        "goType": "AudioTrack",
+        "typescriptType": "MKVParser_AudioTrack",
+        "usedTypescriptType": "MKVParser_AudioTrack",
+        "usedStructName": "mkvparser.AudioTrack",
         "required": false,
         "public": true,
         "comments": []
@@ -52238,6 +52295,28 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Languages",
+        "jsonName": "languages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Legacy 3-letter language codes"
+        ]
+      },
+      {
+        "name": "LanguagesIETF",
+        "jsonName": "languagesIETF",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " IETF language tags"
+        ]
       }
     ],
     "comments": [
@@ -52288,6 +52367,26 @@
         "comments": []
       },
       {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "AttachmentType",
+        "typescriptType": "MKVParser_AttachmentType",
+        "usedTypescriptType": "MKVParser_AttachmentType",
+        "usedStructName": "mkvparser.AttachmentType",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Data",
         "jsonName": "",
         "goType": "string",
@@ -52296,6 +52395,17 @@
         "public": true,
         "comments": [
           " Data loaded into memory"
+        ]
+      },
+      {
+        "name": "IsCompressed",
+        "jsonName": "",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether the data is compressed"
         ]
       }
     ],
@@ -52520,6 +52630,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "readerPos",
+        "jsonName": "",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Position in the stream"
+        ]
       }
     ],
     "comments": [
@@ -52536,15 +52657,13 @@
       {
         "name": "reader",
         "jsonName": "reader",
-        "goType": "io.Reader",
-        "typescriptType": "Reader",
-        "usedTypescriptType": "Reader",
-        "usedStructName": "io.Reader",
+        "goType": "io.ReadSeeker",
+        "typescriptType": "ReadSeeker",
+        "usedTypescriptType": "ReadSeeker",
+        "usedStructName": "io.ReadSeeker",
         "required": false,
         "public": false,
-        "comments": [
-          " Changed from *torrent.File"
-        ]
+        "comments": []
       },
       {
         "name": "logger",
@@ -52564,17 +52683,6 @@
         "typescriptType": "Logger",
         "usedTypescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "parsedSegment",
-        "jsonName": "parsedSegment",
-        "goType": "Segment",
-        "typescriptType": "MKVParser_Segment",
-        "usedTypescriptType": "MKVParser_Segment",
-        "usedStructName": "mkvparser.Segment",
         "required": false,
         "public": false,
         "comments": []
@@ -52613,6 +52721,70 @@
         "comments": []
       },
       {
+        "name": "timecodeScale",
+        "jsonName": "timecodeScale",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTrack",
+        "jsonName": "currentTrack",
+        "goType": "TrackInfo",
+        "typescriptType": "MKVParser_TrackInfo",
+        "usedTypescriptType": "MKVParser_TrackInfo",
+        "usedStructName": "mkvparser.TrackInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tracks",
+        "jsonName": "tracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cMKVParser_TrackInfo\u003e",
+        "usedTypescriptType": "MKVParser_TrackInfo",
+        "usedStructName": "mkvparser.TrackInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "info",
+        "jsonName": "info",
+        "goType": "Info",
+        "typescriptType": "MKVParser_Info",
+        "usedTypescriptType": "MKVParser_Info",
+        "usedStructName": "mkvparser.Info",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapters",
+        "jsonName": "chapters",
+        "goType": "[]ChapterInfo",
+        "typescriptType": "Array\u003cMKVParser_ChapterInfo\u003e",
+        "usedTypescriptType": "MKVParser_ChapterInfo",
+        "usedStructName": "mkvparser.ChapterInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "attachments",
+        "jsonName": "attachments",
+        "goType": "[]AttachmentInfo",
+        "typescriptType": "Array\u003cMKVParser_AttachmentInfo\u003e",
+        "usedTypescriptType": "MKVParser_AttachmentInfo",
+        "usedStructName": "mkvparser.AttachmentInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "extractedMetadata",
         "jsonName": "extractedMetadata",
         "goType": "Metadata",
@@ -52622,208 +52794,19 @@
         "required": false,
         "public": false,
         "comments": []
-      }
-    ],
-    "comments": [
-      " MetadataParser parses Matroska metadata from a torrent file.",
-      " It reads only the initial part of the file to extract metadata efficiently."
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "EBMLHeader",
-    "formattedName": "MKVParser_EBMLHeader",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "EBMLVersion",
-        "jsonName": "EBMLVersion",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "EBMLReadVersion",
-        "jsonName": "EBMLReadVersion",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EBMLMaxIDLength",
-        "jsonName": "EBMLMaxIDLength",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EBMLMaxSizeLength",
-        "jsonName": "EBMLMaxSizeLength",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DocType",
-        "jsonName": "DocType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DocTypeVersion",
-        "jsonName": "DocTypeVersion",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DocTypeReadVersion",
-        "jsonName": "DocTypeReadVersion",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
+        "name": "subtitleStreamTails",
+        "jsonName": "subtitleStreamTails",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
     "comments": [
-      " EBML Header (simplified)"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Segment",
-    "formattedName": "MKVParser_Segment",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "Info",
-        "jsonName": "Info",
-        "goType": "[]Info",
-        "typescriptType": "Array\u003cMKVParser_Info\u003e",
-        "usedTypescriptType": "MKVParser_Info",
-        "usedStructName": "mkvparser.Info",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Typically one, but spec allows multiple"
-        ]
-      },
-      {
-        "name": "Tracks",
-        "jsonName": "Tracks",
-        "goType": "Tracks",
-        "typescriptType": "MKVParser_Tracks",
-        "usedTypescriptType": "MKVParser_Tracks",
-        "usedStructName": "mkvparser.Tracks",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Chapters",
-        "jsonName": "Chapters",
-        "goType": "Chapters",
-        "typescriptType": "MKVParser_Chapters",
-        "usedTypescriptType": "MKVParser_Chapters",
-        "usedStructName": "mkvparser.Chapters",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Attachments",
-        "jsonName": "Attachments",
-        "goType": "Attachments",
-        "typescriptType": "MKVParser_Attachments",
-        "usedTypescriptType": "MKVParser_Attachments",
-        "usedStructName": "mkvparser.Attachments",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Tags",
-        "jsonName": "Tags",
-        "goType": "[]Tag",
-        "typescriptType": "Array\u003cMKVParser_Tag\u003e",
-        "usedTypescriptType": "MKVParser_Tag",
-        "usedStructName": "mkvparser.Tag",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Keep Tags as they can contain metadata"
-        ]
-      },
-      {
-        "name": "Cluster",
-        "jsonName": "Cluster",
-        "goType": "[]Cluster",
-        "typescriptType": "Array\u003cMKVParser_Cluster\u003e",
-        "usedTypescriptType": "MKVParser_Cluster",
-        "usedStructName": "mkvparser.Cluster",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Added for subtitles"
-        ]
-      }
-    ],
-    "comments": [
-      " Segment element (top-level, focused on metadata headers)"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "MKVRoot",
-    "formattedName": "MKVParser_MKVRoot",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "Header",
-        "jsonName": "Header",
-        "goType": "EBMLHeader",
-        "typescriptType": "MKVParser_EBMLHeader",
-        "usedTypescriptType": "MKVParser_EBMLHeader",
-        "usedStructName": "mkvparser.EBMLHeader",
-        "required": true,
-        "public": true,
-        "comments": [
-          " The EBML Header element"
-        ]
-      },
-      {
-        "name": "Segment",
-        "jsonName": "Segment",
-        "goType": "Segment",
-        "typescriptType": "MKVParser_Segment",
-        "usedTypescriptType": "MKVParser_Segment",
-        "usedStructName": "mkvparser.Segment",
-        "required": true,
-        "public": true,
-        "comments": [
-          " The main Segment element"
-        ]
-      }
-    ],
-    "comments": [
-      " MKVRoot represents the top-level structure of an MKV file for parsing."
+      " MetadataParser parses Matroska metadata from a file."
     ]
   },
   {
@@ -52833,110 +52816,6 @@
     "formattedName": "MKVParser_Info",
     "package": "mkvparser",
     "fields": [
-      {
-        "name": "SegmentUID",
-        "jsonName": "SegmentUID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SegmentFilename",
-        "jsonName": "SegmentFilename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrevUID",
-        "jsonName": "PrevUID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrevFilename",
-        "jsonName": "PrevFilename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextUID",
-        "jsonName": "NextUID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextFilename",
-        "jsonName": "NextFilename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SegmentFamily",
-        "jsonName": "SegmentFamily",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterTranslate",
-        "jsonName": "ChapterTranslate",
-        "goType": "[]ChapterTranslate",
-        "typescriptType": "Array\u003cMKVParser_ChapterTranslate\u003e",
-        "usedTypescriptType": "MKVParser_ChapterTranslate",
-        "usedStructName": "mkvparser.ChapterTranslate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimecodeScale",
-        "jsonName": "TimecodeScale",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default is 1,000,000 ns, handled in logic if missing"
-        ]
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DateUTC",
-        "jsonName": "DateUTC",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "Title",
         "jsonName": "Title",
@@ -52965,254 +52844,36 @@
         "comments": []
       },
       {
-        "name": "TrackTimecodeScale",
-        "jsonName": "TrackTimecodeScale",
+        "name": "TimecodeScale",
+        "jsonName": "TimecodeScale",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
         "goType": "float64",
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Corrected tag name. Default 1.0"
-        ]
+        "comments": []
       },
       {
-        "name": "MaxBlockAdditionID",
-        "jsonName": "MaxBlockAdditionID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "Name",
-        "jsonName": "Name",
-        "goType": "string",
+        "name": "DateUTC",
+        "jsonName": "DateUTC",
+        "goType": "time.Time",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "Language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 'eng'"
-        ]
-      },
-      {
-        "name": "LanguageIETF",
-        "jsonName": "LanguageIETF",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecID",
-        "jsonName": "CodecID",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecPrivate",
-        "jsonName": "CodecPrivate",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecName",
-        "jsonName": "CodecName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AttachmentLink",
-        "jsonName": "AttachmentLink",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecDecodeAll",
-        "jsonName": "CodecDecodeAll",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1"
-        ]
-      },
-      {
-        "name": "TrackOverlay",
-        "jsonName": "TrackOverlay",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecDelay",
-        "jsonName": "CodecDelay",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Nanoseconds"
-        ]
-      },
-      {
-        "name": "SeekPreRoll",
-        "jsonName": "SeekPreRoll",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Nanoseconds, Default 0"
-        ]
-      },
-      {
-        "name": "TrackTranslate",
-        "jsonName": "TrackTranslate",
-        "goType": "[]TrackTranslate",
-        "typescriptType": "Array\u003cMKVParser_TrackTranslate\u003e",
-        "usedTypescriptType": "MKVParser_TrackTranslate",
-        "usedStructName": "mkvparser.TrackTranslate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Video",
-        "jsonName": "Video",
-        "goType": "VideoTrack",
-        "typescriptType": "MKVParser_VideoTrack",
-        "usedTypescriptType": "MKVParser_VideoTrack",
-        "usedStructName": "mkvparser.VideoTrack",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Audio",
-        "jsonName": "Audio",
-        "goType": "AudioTrack",
-        "typescriptType": "MKVParser_AudioTrack",
-        "usedTypescriptType": "MKVParser_AudioTrack",
-        "usedStructName": "mkvparser.AudioTrack",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackOperation",
-        "jsonName": "TrackOperation",
-        "goType": "TrackOperation",
-        "typescriptType": "MKVParser_TrackOperation",
-        "usedTypescriptType": "MKVParser_TrackOperation",
-        "usedStructName": "mkvparser.TrackOperation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentEncodings",
-        "jsonName": "ContentEncodings",
-        "goType": "ContentEncodings",
-        "typescriptType": "MKVParser_ContentEncodings",
-        "usedTypescriptType": "MKVParser_ContentEncodings",
-        "usedStructName": "mkvparser.ContentEncodings",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Added for subtitle decompression"
-        ]
-      }
-    ],
-    "comments": [
-      " Info element and its children"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ChapterTranslate",
-    "formattedName": "MKVParser_ChapterTranslate",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ChapterTranslateEditionUID",
-        "jsonName": "ChapterTranslateEditionUID",
-        "goType": "[]uint64",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterTranslateCodec",
-        "jsonName": "ChapterTranslateCodec",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterTranslateID",
-        "jsonName": "ChapterTranslateID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Tracks",
-    "formattedName": "MKVParser_Tracks",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackEntry",
-        "jsonName": "TrackEntry",
-        "goType": "[]TrackEntry",
-        "typescriptType": "Array\u003cMKVParser_TrackEntry\u003e",
-        "usedTypescriptType": "MKVParser_TrackEntry",
-        "usedStructName": "mkvparser.TrackEntry",
+        "usedStructName": "time.Time",
         "required": false,
         "public": true,
         "comments": []
       }
     ],
     "comments": [
-      " Tracks element and its children"
+      " Info element and its children"
     ]
   },
   {
@@ -53256,9 +52917,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 1 handled in logic"
-        ]
+        "comments": []
       },
       {
         "name": "FlagDefault",
@@ -53267,46 +52926,11 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 1 handled in logic"
-        ]
+        "comments": []
       },
       {
         "name": "FlagForced",
         "jsonName": "FlagForced",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0 handled in logic"
-        ]
-      },
-      {
-        "name": "FlagLacing",
-        "jsonName": "FlagLacing",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1, deprecated"
-        ]
-      },
-      {
-        "name": "MinCache",
-        "jsonName": "MinCache",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "MaxCache",
-        "jsonName": "MaxCache",
         "goType": "uint64",
         "typescriptType": "number",
         "required": true,
@@ -53320,42 +52944,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " nanoseconds"
-        ]
-      },
-      {
-        "name": "DefaultDecodedFieldDuration",
-        "jsonName": "DefaultDecodedFieldDuration",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " nanoseconds"
-        ]
-      },
-      {
-        "name": "TrackTimecodeScale",
-        "jsonName": "TrackTimecodeScale",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1.0"
-        ]
-      },
-      {
-        "name": "MaxBlockAdditionID",
-        "jsonName": "MaxBlockAdditionID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
+        "comments": []
       },
       {
         "name": "Name",
@@ -53373,9 +52962,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 'eng'"
-        ]
+        "comments": []
       },
       {
         "name": "LanguageIETF",
@@ -53405,77 +52992,6 @@
         "comments": []
       },
       {
-        "name": "CodecName",
-        "jsonName": "CodecName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AttachmentLink",
-        "jsonName": "AttachmentLink",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecDecodeAll",
-        "jsonName": "CodecDecodeAll",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1"
-        ]
-      },
-      {
-        "name": "TrackOverlay",
-        "jsonName": "TrackOverlay",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CodecDelay",
-        "jsonName": "CodecDelay",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Nanoseconds"
-        ]
-      },
-      {
-        "name": "SeekPreRoll",
-        "jsonName": "SeekPreRoll",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Nanoseconds, Default 0"
-        ]
-      },
-      {
-        "name": "TrackTranslate",
-        "jsonName": "TrackTranslate",
-        "goType": "[]TrackTranslate",
-        "typescriptType": "Array\u003cMKVParser_TrackTranslate\u003e",
-        "usedTypescriptType": "MKVParser_TrackTranslate",
-        "usedStructName": "mkvparser.TrackTranslate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Video",
         "jsonName": "Video",
         "goType": "VideoTrack",
@@ -53498,17 +53014,6 @@
         "comments": []
       },
       {
-        "name": "TrackOperation",
-        "jsonName": "TrackOperation",
-        "goType": "TrackOperation",
-        "typescriptType": "MKVParser_TrackOperation",
-        "usedTypescriptType": "MKVParser_TrackOperation",
-        "usedStructName": "mkvparser.TrackOperation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "ContentEncodings",
         "jsonName": "ContentEncodings",
         "goType": "ContentEncodings",
@@ -53517,12 +53022,12 @@
         "usedStructName": "mkvparser.ContentEncodings",
         "required": false,
         "public": true,
-        "comments": [
-          " Added for subtitle decompression"
-        ]
+        "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " TrackEntry represents a track in the MKV file"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -53531,39 +53036,6 @@
     "formattedName": "MKVParser_VideoTrack",
     "package": "mkvparser",
     "fields": [
-      {
-        "name": "FlagInterlaced",
-        "jsonName": "FlagInterlaced",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "StereoMode",
-        "jsonName": "StereoMode",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated: Use StereoMode in BlockAdditions"
-        ]
-      },
-      {
-        "name": "AlphaMode",
-        "jsonName": "AlphaMode",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
       {
         "name": "PixelWidth",
         "jsonName": "PixelWidth",
@@ -53581,445 +53053,11 @@
         "required": true,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "PixelCropBottom",
-        "jsonName": "PixelCropBottom",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "PixelCropTop",
-        "jsonName": "PixelCropTop",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "PixelCropLeft",
-        "jsonName": "PixelCropLeft",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "PixelCropRight",
-        "jsonName": "PixelCropRight",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "DisplayWidth",
-        "jsonName": "DisplayWidth",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " In pixels"
-        ]
-      },
-      {
-        "name": "DisplayHeight",
-        "jsonName": "DisplayHeight",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " In pixels"
-        ]
-      },
-      {
-        "name": "DisplayUnit",
-        "jsonName": "DisplayUnit",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "AspectRatioType",
-        "jsonName": "AspectRatioType",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "ColourSpace",
-        "jsonName": "ColourSpace",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "Colour",
-        "jsonName": "Colour",
-        "goType": "Color",
-        "typescriptType": "MKVParser_Color",
-        "usedTypescriptType": "MKVParser_Color",
-        "usedStructName": "mkvparser.Color",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Projection",
-        "jsonName": "Projection",
-        "goType": "Projection",
-        "typescriptType": "MKVParser_Projection",
-        "usedTypescriptType": "MKVParser_Projection",
-        "usedStructName": "mkvparser.Projection",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Color",
-    "formattedName": "MKVParser_Color",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "MatrixCoefficients",
-        "jsonName": "MatrixCoefficients",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "BitsPerChannel",
-        "jsonName": "BitsPerChannel",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ChromaSubsamplingHorz",
-        "jsonName": "ChromaSubsamplingHorz",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChromaSubsamplingVert",
-        "jsonName": "ChromaSubsamplingVert",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CbSubsamplingHorz",
-        "jsonName": "CbSubsamplingHorz",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CbSubsamplingVert",
-        "jsonName": "CbSubsamplingVert",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChromaSitingHorz",
-        "jsonName": "ChromaSitingHorz",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ChromaSitingVert",
-        "jsonName": "ChromaSitingVert",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "Range",
-        "jsonName": "Range",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "TransferCharacteristics",
-        "jsonName": "TransferCharacteristics",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "Primaries",
-        "jsonName": "Primaries",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "MaxCLL",
-        "jsonName": "MaxCLL",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MaxFALL",
-        "jsonName": "MaxFALL",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MasteringMetadata",
-        "jsonName": "MasteringMetadata",
-        "goType": "MasteringMetadata",
-        "typescriptType": "MKVParser_MasteringMetadata",
-        "usedTypescriptType": "MKVParser_MasteringMetadata",
-        "usedStructName": "mkvparser.MasteringMetadata",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "MasteringMetadata",
-    "formattedName": "MKVParser_MasteringMetadata",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "PrimaryRChromaticityX",
-        "jsonName": "PrimaryRChromaticityX",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrimaryRChromaticityY",
-        "jsonName": "PrimaryRChromaticityY",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrimaryGChromaticityX",
-        "jsonName": "PrimaryGChromaticityX",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrimaryGChromaticityY",
-        "jsonName": "PrimaryGChromaticityY",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrimaryBChromaticityX",
-        "jsonName": "PrimaryBChromaticityX",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PrimaryBChromaticityY",
-        "jsonName": "PrimaryBChromaticityY",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WhitePointChromaticityX",
-        "jsonName": "WhitePointChromaticityX",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WhitePointChromaticityY",
-        "jsonName": "WhitePointChromaticityY",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LuminanceMax",
-        "jsonName": "LuminanceMax",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LuminanceMin",
-        "jsonName": "LuminanceMin",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Projection",
-    "formattedName": "MKVParser_Projection",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ProjectionType",
-        "jsonName": "ProjectionType",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "ProjectionPrivate",
-        "jsonName": "ProjectionPrivate",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ProjectionPoseYaw",
-        "jsonName": "ProjectionPoseYaw",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0.0"
-        ]
-      },
-      {
-        "name": "ProjectionPosePitch",
-        "jsonName": "ProjectionPosePitch",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0.0"
-        ]
-      },
-      {
-        "name": "ProjectionPoseRoll",
-        "jsonName": "ProjectionPoseRoll",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0.0"
-        ]
-      }
-    ],
-    "comments": []
+    "comments": [
+      " VideoTrack contains video-specific track data"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54035,17 +53073,6 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 8000.0"
-        ]
-      },
-      {
-        "name": "OutputSamplingFrequency",
-        "jsonName": "OutputSamplingFrequency",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
         "comments": []
       },
       {
@@ -54055,9 +53082,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 1"
-        ]
+        "comments": []
       },
       {
         "name": "BitDepth",
@@ -54069,144 +53094,9 @@
         "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "TrackTranslate",
-    "formattedName": "MKVParser_TrackTranslate",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackTranslateEditionUID",
-        "jsonName": "TrackTranslateEditionUID",
-        "goType": "[]uint64",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackTranslateCodec",
-        "jsonName": "TrackTranslateCodec",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackTranslateTrackID",
-        "jsonName": "TrackTranslateTrackID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "TrackOperation",
-    "formattedName": "MKVParser_TrackOperation",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackCombinePlanes",
-        "jsonName": "TrackCombinePlanes",
-        "goType": "TrackCombinePlanes",
-        "typescriptType": "MKVParser_TrackCombinePlanes",
-        "usedTypescriptType": "MKVParser_TrackCombinePlanes",
-        "usedStructName": "mkvparser.TrackCombinePlanes",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackJoinBlocks",
-        "jsonName": "TrackJoinBlocks",
-        "goType": "TrackJoinBlocks",
-        "typescriptType": "MKVParser_TrackJoinBlocks",
-        "usedTypescriptType": "MKVParser_TrackJoinBlocks",
-        "usedStructName": "mkvparser.TrackJoinBlocks",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "TrackCombinePlanes",
-    "formattedName": "MKVParser_TrackCombinePlanes",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackPlane",
-        "jsonName": "TrackPlane",
-        "goType": "[]TrackPlane",
-        "typescriptType": "Array\u003cMKVParser_TrackPlane\u003e",
-        "usedTypescriptType": "MKVParser_TrackPlane",
-        "usedStructName": "mkvparser.TrackPlane",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "TrackPlane",
-    "formattedName": "MKVParser_TrackPlane",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackPlaneUID",
-        "jsonName": "TrackPlaneUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackPlaneType",
-        "jsonName": "TrackPlaneType",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "TrackJoinBlocks",
-    "formattedName": "MKVParser_TrackJoinBlocks",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TrackJoinUID",
-        "jsonName": "TrackJoinUID",
-        "goType": "[]uint64",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "comments": [
+      " AudioTrack contains audio-specific track data"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54227,7 +53117,9 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " ContentEncodings contains information about how the track data is encoded"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54243,9 +53135,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 0"
-        ]
+        "comments": []
       },
       {
         "name": "ContentEncodingScope",
@@ -54254,9 +53144,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 1"
-        ]
+        "comments": []
       },
       {
         "name": "ContentEncodingType",
@@ -54265,9 +53153,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 0"
-        ]
+        "comments": []
       },
       {
         "name": "ContentCompression",
@@ -54279,20 +53165,11 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "ContentEncryption",
-        "jsonName": "ContentEncryption",
-        "goType": "ContentEncryption",
-        "typescriptType": "MKVParser_ContentEncryption",
-        "usedTypescriptType": "MKVParser_ContentEncryption",
-        "usedStructName": "mkvparser.ContentEncryption",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " ContentEncoding describes a single encoding applied to the track data"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54308,9 +53185,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Default 0"
-        ]
+        "comments": []
       },
       {
         "name": "ContentCompSettings",
@@ -54322,201 +53197,9 @@
         "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ContentEncryption",
-    "formattedName": "MKVParser_ContentEncryption",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ContentEncAlgo",
-        "jsonName": "ContentEncAlgo",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0, deprecated"
-        ]
-      },
-      {
-        "name": "ContentEncKeyID",
-        "jsonName": "ContentEncKeyID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ContentEncAESSettings",
-        "jsonName": "ContentEncAESSettings",
-        "goType": "ContentEncAESSettings",
-        "typescriptType": "MKVParser_ContentEncAESSettings",
-        "usedTypescriptType": "MKVParser_ContentEncAESSettings",
-        "usedStructName": "mkvparser.ContentEncAESSettings",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ContentSignature",
-        "jsonName": "ContentSignature",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ContentSigKeyID",
-        "jsonName": "ContentSigKeyID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ContentSigAlgo",
-        "jsonName": "ContentSigAlgo",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      },
-      {
-        "name": "ContentSigHashAlgo",
-        "jsonName": "ContentSigHashAlgo",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Deprecated"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ContentEncAESSettings",
-    "formattedName": "MKVParser_ContentEncAESSettings",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "AESSettingsCipherMode",
-        "jsonName": "AESSettingsCipherMode",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Chapters",
-    "formattedName": "MKVParser_Chapters",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "EditionEntry",
-        "jsonName": "EditionEntry",
-        "goType": "[]EditionEntry",
-        "typescriptType": "Array\u003cMKVParser_EditionEntry\u003e",
-        "usedTypescriptType": "MKVParser_EditionEntry",
-        "usedStructName": "mkvparser.EditionEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
     "comments": [
-      " Chapters element and its children"
+      " ContentCompression describes how the track data is compressed"
     ]
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "EditionEntry",
-    "formattedName": "MKVParser_EditionEntry",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "EditionUID",
-        "jsonName": "EditionUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EditionFlagHidden",
-        "jsonName": "EditionFlagHidden",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "EditionFlagDefault",
-        "jsonName": "EditionFlagDefault",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "EditionFlagOrdered",
-        "jsonName": "EditionFlagOrdered",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "ChapterAtom",
-        "jsonName": "ChapterAtom",
-        "goType": "[]ChapterAtom",
-        "typescriptType": "Array\u003cMKVParser_ChapterAtom\u003e",
-        "usedTypescriptType": "MKVParser_ChapterAtom",
-        "usedStructName": "mkvparser.ChapterAtom",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54530,15 +53213,6 @@
         "jsonName": "ChapterUID",
         "goType": "uint64",
         "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterStringUID",
-        "jsonName": "ChapterStringUID",
-        "goType": "string",
-        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -54562,66 +53236,6 @@
         "comments": []
       },
       {
-        "name": "ChapterFlagHidden",
-        "jsonName": "ChapterFlagHidden",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 0"
-        ]
-      },
-      {
-        "name": "ChapterFlagEnabled",
-        "jsonName": "ChapterFlagEnabled",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1"
-        ]
-      },
-      {
-        "name": "ChapterSegmentUID",
-        "jsonName": "ChapterSegmentUID",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterSegmentEditionUID",
-        "jsonName": "ChapterSegmentEditionUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterPhysicalEquiv",
-        "jsonName": "ChapterPhysicalEquiv",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterTrack",
-        "jsonName": "ChapterTrack",
-        "goType": "ChapterTrack",
-        "typescriptType": "MKVParser_ChapterTrack",
-        "usedTypescriptType": "MKVParser_ChapterTrack",
-        "usedStructName": "mkvparser.ChapterTrack",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "ChapterDisplay",
         "jsonName": "ChapterDisplay",
         "goType": "[]ChapterDisplay",
@@ -54631,41 +53245,11 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "ChapProcess",
-        "jsonName": "ChapProcess",
-        "goType": "[]ChapProcess",
-        "typescriptType": "Array\u003cMKVParser_ChapProcess\u003e",
-        "usedTypescriptType": "MKVParser_ChapProcess",
-        "usedStructName": "mkvparser.ChapProcess",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ChapterTrack",
-    "formattedName": "MKVParser_ChapterTrack",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ChapterTrackUID",
-        "jsonName": "ChapterTrackUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Corrected name and type"
-        ]
-      }
-    ],
-    "comments": []
+    "comments": [
+      " ChapterAtom represents a single chapter point"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -54690,9 +53274,7 @@
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
-        "comments": [
-          " Default 'eng'"
-        ]
+        "comments": []
       },
       {
         "name": "ChapLanguageIETF",
@@ -54702,107 +53284,10 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "ChapCountry",
-        "jsonName": "ChapCountry",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ChapProcess",
-    "formattedName": "MKVParser_ChapProcess",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ChapProcessCodecID",
-        "jsonName": "ChapProcessCodecID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapProcessPrivate",
-        "jsonName": "ChapProcessPrivate",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapProcessCommand",
-        "jsonName": "ChapProcessCommand",
-        "goType": "[]ChapProcessCommand",
-        "typescriptType": "Array\u003cMKVParser_ChapProcessCommand\u003e",
-        "usedTypescriptType": "MKVParser_ChapProcessCommand",
-        "usedStructName": "mkvparser.ChapProcessCommand",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "ChapProcessCommand",
-    "formattedName": "MKVParser_ChapProcessCommand",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "ChapProcessTime",
-        "jsonName": "ChapProcessTime",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapProcessData",
-        "jsonName": "ChapProcessData",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "Attachments",
-    "formattedName": "MKVParser_Attachments",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "AttachedFile",
-        "jsonName": "AttachedFile",
-        "goType": "[]AttachedFile",
-        "typescriptType": "Array\u003cMKVParser_AttachedFile\u003e",
-        "usedTypescriptType": "MKVParser_AttachedFile",
-        "usedStructName": "mkvparser.AttachedFile",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": [
-      " Attachments element and its children"
+      " ChapterDisplay contains displayable chapter information"
     ]
   },
   {
@@ -54858,99 +53343,70 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " AttachedFile represents a file attached to the MKV container"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
     "filename": "structs.go",
-    "name": "Tag",
-    "formattedName": "MKVParser_Tag",
+    "name": "Block",
+    "formattedName": "MKVParser_Block",
     "package": "mkvparser",
     "fields": [
       {
-        "name": "Targets",
-        "jsonName": "Targets",
-        "goType": "Targets",
-        "typescriptType": "MKVParser_Targets",
-        "usedTypescriptType": "MKVParser_Targets",
-        "usedStructName": "mkvparser.Targets",
-        "required": false,
+        "name": "TrackNumber",
+        "jsonName": "TrackNumber",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "SimpleTag",
-        "jsonName": "SimpleTag",
-        "goType": "[]SimpleTag",
-        "typescriptType": "Array\u003cMKVParser_SimpleTag\u003e",
-        "usedTypescriptType": "MKVParser_SimpleTag",
-        "usedStructName": "mkvparser.SimpleTag",
+        "name": "Timecode",
+        "jsonName": "Timecode",
+        "goType": "int16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cArray\u003cstring\u003e\u003e",
         "required": false,
         "public": true,
         "comments": []
       }
     ],
     "comments": [
-      " Tags and Tag elements"
+      " Block represents a data block in the MKV file"
     ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
     "filename": "structs.go",
-    "name": "Targets",
-    "formattedName": "MKVParser_Targets",
+    "name": "BlockGroup",
+    "formattedName": "MKVParser_BlockGroup",
     "package": "mkvparser",
     "fields": [
       {
-        "name": "TargetTypeValue",
-        "jsonName": "TargetTypeValue",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 50"
-        ]
-      },
-      {
-        "name": "TargetType",
-        "jsonName": "TargetType",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Block",
+        "jsonName": "Block",
+        "goType": "Block",
+        "typescriptType": "MKVParser_Block",
+        "usedTypescriptType": "MKVParser_Block",
+        "usedStructName": "mkvparser.Block",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "TagTrackUID",
-        "jsonName": "TagTrackUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagEditionUID",
-        "jsonName": "TagEditionUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagChapterUID",
-        "jsonName": "TagChapterUID",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagAttachmentUID",
-        "jsonName": "TagAttachmentUID",
+        "name": "BlockDuration",
+        "jsonName": "BlockDuration",
         "goType": "uint64",
         "typescriptType": "number",
         "required": true,
@@ -54958,88 +53414,9 @@
         "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/mkvparser/structs.go",
-    "filename": "structs.go",
-    "name": "SimpleTag",
-    "formattedName": "MKVParser_SimpleTag",
-    "package": "mkvparser",
-    "fields": [
-      {
-        "name": "TagName",
-        "jsonName": "TagName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagLanguage",
-        "jsonName": "TagLanguage",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 'und'"
-        ]
-      },
-      {
-        "name": "TagLanguageIETF",
-        "jsonName": "TagLanguageIETF",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagDefault",
-        "jsonName": "TagDefault",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default 1"
-        ]
-      },
-      {
-        "name": "TagString",
-        "jsonName": "TagString",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagBinary",
-        "jsonName": "TagBinary",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SimpleTag",
-        "jsonName": "SimpleTag",
-        "goType": "[]SimpleTag",
-        "typescriptType": "Array\u003cMKVParser_SimpleTag\u003e",
-        "usedTypescriptType": "MKVParser_SimpleTag",
-        "usedStructName": "mkvparser.SimpleTag",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Nested tags"
-        ]
-      }
-    ],
-    "comments": []
+    "comments": [
+      " BlockGroup represents a group of blocks with additional information"
+    ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
@@ -55055,22 +53432,18 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Cluster's absolute timecode in TimecodeScale units"
-        ]
+        "comments": []
       },
       {
         "name": "SimpleBlock",
         "jsonName": "SimpleBlock",
-        "goType": "[]ebml.Block",
-        "typescriptType": "Array\u003cBlock\u003e",
-        "usedTypescriptType": "Block",
-        "usedStructName": "ebml.Block",
+        "goType": "[]Block",
+        "typescriptType": "Array\u003cMKVParser_Block\u003e",
+        "usedTypescriptType": "MKVParser_Block",
+        "usedStructName": "mkvparser.Block",
         "required": false,
         "public": true,
-        "comments": [
-          " Use ebml.Block for SimpleBlock parsing"
-        ]
+        "comments": []
       },
       {
         "name": "BlockGroup",
@@ -55085,43 +53458,30 @@
       }
     ],
     "comments": [
-      " Cluster element and its children"
+      " Cluster represents a cluster of blocks in the MKV file"
     ]
   },
   {
     "filepath": "../internal/mediastream/mkvparser/structs.go",
     "filename": "structs.go",
-    "name": "BlockGroup",
-    "formattedName": "MKVParser_BlockGroup",
+    "name": "Tracks",
+    "formattedName": "MKVParser_Tracks",
     "package": "mkvparser",
     "fields": [
       {
-        "name": "Block",
-        "jsonName": "Block",
-        "goType": "ebml.Block",
-        "typescriptType": "Block",
-        "usedTypescriptType": "Block",
-        "usedStructName": "ebml.Block",
+        "name": "TrackEntry",
+        "jsonName": "TrackEntry",
+        "goType": "[]TrackEntry",
+        "typescriptType": "Array\u003cMKVParser_TrackEntry\u003e",
+        "usedTypescriptType": "MKVParser_TrackEntry",
+        "usedStructName": "mkvparser.TrackEntry",
         "required": false,
         "public": true,
-        "comments": [
-          " Parsed Block data"
-        ]
-      },
-      {
-        "name": "BlockDuration",
-        "jsonName": "BlockDuration",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Duration in TimecodeScale units"
-        ]
+        "comments": []
       }
     ],
     "comments": [
-      " BlockGroup element"
+      " Tracks element and its children"
     ]
   },
   {
@@ -55166,7 +53526,8 @@
         "\"video-seeked\"",
         "\"video-error\"",
         "\"video-time-update\"",
-        "\"video-metadata\""
+        "\"video-metadata\"",
+        "\"loaded-metadata\""
       ]
     },
     "comments": []
@@ -55283,7 +53644,17 @@
     "name": "VideoSeekedEvent",
     "formattedName": "NativePlayer_VideoSeekedEvent",
     "package": "nativeplayer",
-    "fields": [],
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -55320,6 +53691,18 @@
         "comments": []
       }
     ],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "VideoLoadedMetadataEvent",
+    "formattedName": "NativePlayer_VideoLoadedMetadataEvent",
+    "package": "nativeplayer",
+    "fields": [],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -75114,6 +73497,56 @@
     "comments": []
   },
   {
+    "filepath": "../internal/util/cachedreadseeker.go",
+    "filename": "cachedreadseeker.go",
+    "name": "CachedReadSeeker",
+    "formattedName": "Util_CachedReadSeeker",
+    "package": "util",
+    "fields": [
+      {
+        "name": "src",
+        "jsonName": "src",
+        "goType": "io.ReadSeekCloser",
+        "typescriptType": "ReadSeekCloser",
+        "usedTypescriptType": "ReadSeekCloser",
+        "usedStructName": "io.ReadSeekCloser",
+        "required": false,
+        "public": false,
+        "comments": [
+          " underlying source"
+        ]
+      },
+      {
+        "name": "cache",
+        "jsonName": "cache",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": [
+          " bytes read so far"
+        ]
+      },
+      {
+        "name": "pos",
+        "jsonName": "pos",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " current read position"
+        ]
+      }
+    ],
+    "comments": [
+      " CachedReadSeeker wraps an io.ReadSeekCloser and caches bytes as they are read.",
+      " It implements io.ReadSeeker, allowing seeking within the already-cached",
+      " range without hitting the underlying reader again.",
+      " Additional reads beyond the cache will append to the cache automatically."
+    ]
+  },
+  {
     "filepath": "../internal/util/comparison/matching.go",
     "filename": "matching.go",
     "name": "LevenshteinResult",
@@ -75662,82 +74095,103 @@
     "package": "httputil",
     "fields": [
       {
-        "name": "c",
-        "jsonName": "c",
+        "name": "url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The URL of the resource"
+        ]
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
         "goType": "http.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
         "usedStructName": "http.Client",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " HTTP client to use for requests"
+        ]
       },
       {
-        "name": "req",
-        "jsonName": "req",
-        "goType": "http.Request",
-        "typescriptType": "Request",
-        "usedTypescriptType": "Request",
-        "usedStructName": "http.Request",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "res",
-        "jsonName": "res",
+        "name": "resp",
+        "jsonName": "resp",
         "goType": "http.Response",
         "typescriptType": "Response",
         "usedTypescriptType": "Response",
         "usedStructName": "http.Response",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Current response"
+        ]
       },
       {
-        "name": "ctx",
-        "jsonName": "ctx",
-        "goType": "context.Context",
-        "typescriptType": "Context",
-        "usedTypescriptType": "Context",
-        "usedStructName": "context.Context",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "r",
-        "jsonName": "r",
-        "goType": "io.ReadCloser",
-        "typescriptType": "ReadCloser",
-        "usedTypescriptType": "ReadCloser",
-        "usedStructName": "io.ReadCloser",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "pos",
-        "jsonName": "pos",
+        "name": "offset",
+        "jsonName": "offset",
         "goType": "int64",
         "typescriptType": "number",
         "required": true,
         "public": false,
-        "comments": []
+        "comments": [
+          " Current offset in the resource"
+        ]
       },
       {
-        "name": "Requests",
-        "jsonName": "Requests",
+        "name": "size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Size of the resource, -1 if unknown"
+        ]
+      },
+      {
+        "name": "readBuf",
+        "jsonName": "readBuf",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Buffer for reading"
+        ]
+      },
+      {
+        "name": "readOffset",
+        "jsonName": "readOffset",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
-        "public": true,
-        "comments": []
+        "public": false,
+        "comments": [
+          " Current offset in readBuf"
+        ]
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedTypescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for thread safety"
+        ]
       }
     ],
     "comments": [
-      " A HttpReadSeeker reads from a http.Response.Body. It can Seek",
-      " by doing range requests."
+      " HttpReadSeeker implements io.ReadSeeker for HTTP responses",
+      " It allows seeking within an HTTP response by using HTTP Range requests"
     ]
   },
   {
@@ -75909,6 +74363,65 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/limited_read_seeker.go",
+    "filename": "limited_read_seeker.go",
+    "name": "LimitedReadSeeker",
+    "formattedName": "Util_LimitedReadSeeker",
+    "package": "util",
+    "fields": [
+      {
+        "name": "rs",
+        "jsonName": "rs",
+        "goType": "io.ReadSeeker",
+        "typescriptType": "ReadSeeker",
+        "usedTypescriptType": "ReadSeeker",
+        "usedStructName": "io.ReadSeeker",
+        "required": false,
+        "public": false,
+        "comments": [
+          " The underlying ReadSeeker"
+        ]
+      },
+      {
+        "name": "offset",
+        "jsonName": "offset",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Current read position relative to start"
+        ]
+      },
+      {
+        "name": "limit",
+        "jsonName": "limit",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Maximum number of bytes that can be read"
+        ]
+      },
+      {
+        "name": "basePos",
+        "jsonName": "basePos",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Original position in the underlying ReadSeeker"
+        ]
+      }
+    ],
+    "comments": [
+      " LimitedReadSeeker wraps an io.ReadSeeker and limits the number of bytes",
+      " that can be read from it."
+    ]
   },
   {
     "filepath": "../internal/util/limiter/limiter.go",
@@ -76190,6 +74703,63 @@
     ],
     "comments": [
       " Options the option to set custom headers"
+    ]
+  },
+  {
+    "filepath": "../internal/util/torrentutil/torrentutil.go",
+    "filename": "torrentutil.go",
+    "name": "ReadSeeker",
+    "formattedName": "ReadSeeker",
+    "package": "torrentutil",
+    "fields": [
+      {
+        "name": "torrent",
+        "jsonName": "torrent",
+        "goType": "torrent.Torrent",
+        "typescriptType": "Torrent_Torrent",
+        "usedTypescriptType": "Torrent_Torrent",
+        "usedStructName": "torrent.Torrent",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "file",
+        "jsonName": "file",
+        "goType": "torrent.File",
+        "typescriptType": "Torrent_File",
+        "usedTypescriptType": "Torrent_File",
+        "usedStructName": "torrent.File",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "torrent.Reader",
+        "typescriptType": "Torrent_Reader",
+        "usedTypescriptType": "Torrent_Reader",
+        "usedStructName": "torrent.Reader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ReadSeeker implements io.ReadSeekCloser for a torrent file being streamed.",
+      " It allows dynamic prioritization of pieces when seeking, optimized for streaming."
     ]
   },
   {
