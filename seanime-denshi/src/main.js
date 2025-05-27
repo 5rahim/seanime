@@ -10,6 +10,71 @@ import('strip-ansi').then(module => {
 const {autoUpdater} = require('electron-updater');
 const log = require('electron-log');
 
+function setupChromiumFlags() {
+    // Bypass CSP and security
+    app.commandLine.appendSwitch('bypasscsp-schemes');
+    app.commandLine.appendSwitch('no-sandbox');
+    app.commandLine.appendSwitch('no-zygote');
+
+    // Performance and caching
+    app.commandLine.appendSwitch('disk-cache-size', '400000000');
+    app.commandLine.appendSwitch('force-effective-connection-type', '4g');
+    app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
+    // Disable features that can interfere with playback
+    app.commandLine.appendSwitch('disable-features', [
+        'MediaEngagementBypassAutoplayPolicies',
+        'Vulkan',
+        'WidgetLayering',
+        'PreloadMediaEngagementData',
+        'RecordMediaEngagementScores',
+        'ColorProviderRedirection',
+        'WebContentsForceDarkMode',
+        'ForcedColors'
+    ].join(','));
+
+    // Color management and rendering optimizations
+    app.commandLine.appendSwitch('force-color-profile', 'srgb');
+    app.commandLine.appendSwitch('disable-color-correct-rendering');
+    app.commandLine.appendSwitch('disable-web-contents-color-extraction');
+    app.commandLine.appendSwitch('disable-color-management');
+    app.commandLine.appendSwitch('force-color-profile-interpretation', 'all-images');
+    app.commandLine.appendSwitch('force-raster-color-profile', 'srgb');
+
+    // Hardware acceleration and GPU optimizations
+    app.commandLine.appendSwitch('force-high-performance-gpu');
+    app.commandLine.appendSwitch('enable-gpu-rasterization');
+    app.commandLine.appendSwitch('enable-zero-copy');
+    app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,single-on-top,underlay');
+    app.commandLine.appendSwitch('ignore-gpu-blocklist');
+    app.commandLine.appendSwitch('enable-gpu-memory-buffer-video-frames');
+    app.commandLine.appendSwitch('enable-native-gpu-memory-buffers');
+
+    // Video-specific optimizations
+    app.commandLine.appendSwitch('disable-accelerated-video-decode', 'false');
+    app.commandLine.appendSwitch('enable-accelerated-video-decode');
+    app.commandLine.appendSwitch('disable-software-rasterizer');
+
+    // Enable advanced features
+    app.commandLine.appendSwitch('enable-features', [
+        'HardwareMediaKeyHandling',
+        'PlatformEncryptedDolbyVision',
+        'CanvasOopRasterization',
+        'ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes',
+        'UseSkiaRenderer',
+        'WebAssemblyLazyCompilation',
+        'RawDraw',
+        'MediaFoundationH264Encoding'
+    ].join(','));
+
+    // Background processing optimizations
+    app.commandLine.appendSwitch('disable-background-timer-throttling');
+    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
+    app.commandLine.appendSwitch('disable-lcd-text');
+    app.commandLine.appendSwitch('disable-background-media-suspend');
+}
+
 const _development = process.env.NODE_ENV === 'development';
 // const _development = false;
 
@@ -412,15 +477,7 @@ function createMainWindow() {
             webSecurity: false,
             allowRunningInsecureContent: true,
             enableBlinkFeatures: 'FontAccess, AudioVideoTracks',
-            backgroundThrottling: false,
-            additionalArguments: [
-                '--autoplay-policy=no-user-gesture-required',
-                '--disable-features=MediaEngagementBypassAutoplayPolicies',
-                '--enable-features=HardwareMediaKeyHandling',
-                '--disable-background-timer-throttling',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding'
-            ]
+            backgroundThrottling: false
         }
     };
 
@@ -563,6 +620,9 @@ function cleanupAndExit() {
 // Initialize the app
 app.whenReady().then(async () => {
     logStartupEvent('App ready');
+
+    // Set up Chromium flags for better video playback
+    setupChromiumFlags();
 
     // Log environment information
     logEnvironmentInfo();

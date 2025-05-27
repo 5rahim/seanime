@@ -9,7 +9,6 @@ import (
 	"io"
 	"path/filepath"
 	"seanime/internal/util"
-	"seanime/internal/util/result"
 	"strings"
 	"sync"
 	"time"
@@ -30,6 +29,9 @@ const (
 )
 
 var matroskaClusterID = []byte{0x1F, 0x43, 0xB6, 0x75}
+
+var subtitleExtensions = map[string]struct{}{".ass": {}, ".ssa": {}, ".srt": {}, ".vtt": {}, ".sub": {}, ".txt": {}}
+var fontExtensions = map[string]struct{}{".ttf": {}, ".ttc": {}, ".woff": {}, ".woff2": {}, ".bdf": {}, ".otf": {}, ".cff": {}, ".otc": {}, ".pfa": {}, ".pfb": {}, ".pcf": {}, ".pfr": {}, ".fnt": {}, ".eot": {}}
 
 // SubtitleEvent holds information for a single subtitle entry.
 type SubtitleEvent struct {
@@ -71,24 +73,20 @@ type MetadataParser struct {
 
 	// Result
 	extractedMetadata *Metadata
-
-	// subtitleStreamTails stores the start offsets of each subtitle stream
-	subtitleStreamTails *result.Map[int64, bool]
 }
 
 // NewMetadataParser creates a new MetadataParser.
 func NewMetadataParser(reader io.ReadSeeker, logger *zerolog.Logger) *MetadataParser {
 	return &MetadataParser{
-		reader:              reader,
-		logger:              logger,
-		realLogger:          logger,
-		timecodeScale:       defaultTimecodeScale,
-		tracks:              make([]*TrackInfo, 0),
-		chapters:            make([]*ChapterInfo, 0),
-		attachments:         make([]*AttachmentInfo, 0),
-		info:                &Info{},
-		extractedMetadata:   nil,
-		subtitleStreamTails: result.NewResultMap[int64, bool](),
+		reader:            reader,
+		logger:            logger,
+		realLogger:        logger,
+		timecodeScale:     defaultTimecodeScale,
+		tracks:            make([]*TrackInfo, 0),
+		chapters:          make([]*ChapterInfo, 0),
+		attachments:       make([]*AttachmentInfo, 0),
+		info:              &Info{},
+		extractedMetadata: nil,
 	}
 }
 
@@ -316,10 +314,12 @@ func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.E
 				}
 			}
 			fileExt := strings.ToLower(filepath.Ext(h.currentAttachment.Filename))
-			if fileExt == ".ttf" || fileExt == ".woff2" || fileExt == ".woff" || fileExt == ".otf" {
+			if _, ok := fontExtensions[fileExt]; ok {
 				h.currentAttachment.Type = AttachmentTypeFont
-			} else if fileExt == ".ass" || fileExt == ".ssa" || fileExt == ".srt" || fileExt == ".vtt" {
+			} else if _, ok := subtitleExtensions[fileExt]; ok {
 				h.currentAttachment.Type = AttachmentTypeSubtitle
+			} else {
+				h.currentAttachment.Type = AttachmentTypeOther
 			}
 			h.mp.attachments = append(h.mp.attachments, h.currentAttachment)
 		}
@@ -644,14 +644,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		})
 	}
 
-	// Create a cancellable context for coordination between goroutines
+	// coordination between extraction goroutines
 	extractCtx, cancel := context.WithCancel(ctx)
-
-	// Add the stream offset to the table
-	_, exists := mp.subtitleStreamTails.Get(offset)
-	if !exists {
-		mp.subtitleStreamTails.Set(offset, false) // false -> not complete
-	}
 
 	if offset > 0 {
 		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
@@ -710,54 +704,18 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			return
 		}
 
-		// Create a handler for subtitle extraction
 		handler := &subtitleHandler{
-			mp:             mp,
-			ctx:            extractCtx, // use extraction context instead of original context
-			logger:         mp.logger,
-			sampler:        sampler,
-			subtitleCh:     subtitleCh,
-			subtitleTracks: subtitleTracks,
-			timecodeScale:  mp.timecodeScale,
-			clusterTime:    0,
-			reader:         newReader,
+			mp:                 mp,
+			ctx:                extractCtx, // use extraction context instead of original context
+			logger:             mp.logger,
+			sampler:            sampler,
+			subtitleCh:         subtitleCh,
+			subtitleTracks:     subtitleTracks,
+			timecodeScale:      mp.timecodeScale,
+			clusterTime:        0,
+			reader:             newReader,
+			lastSubtitleEvents: make(map[uint64]*SubtitleEvent),
 		}
-
-		// Start monitoring goroutine
-		go func() {
-			defer func() {
-				if r := recover(); r != nil {
-					mp.logger.Error().Msgf("mkvparser: Subtitle monitoring goroutine panicked: %v", r)
-				}
-			}()
-
-			tick := time.NewTicker(1 * time.Second)
-			defer tick.Stop()
-			for {
-				select {
-				case <-extractCtx.Done():
-					return
-				case <-tick.C:
-					shouldStop := false
-					handler.headPosMu.RLock()
-					mp.subtitleStreamTails.Range(func(tail int64, value bool) bool {
-						// e.g. this stream's start offset is 1000, subtitleStreamTails contains {1000, 2500, 4000}
-						// the stream should stop if the head position is >= 2500 or >= 4000
-						if offset != tail && handler.headPos >= tail {
-							shouldStop = true
-							return false
-						}
-						return true
-					})
-					handler.headPosMu.RUnlock()
-					if shouldStop {
-						mp.logger.Debug().Msg("mkvparser: Subtitle stream interrupted")
-						closeChannels(nil)
-						return
-					}
-				}
-			}
-		}()
 
 		// Parse the MKV file for subtitles
 		err := mkvparse.Parse(newReader, handler)
@@ -786,8 +744,21 @@ type subtitleHandler struct {
 	clusterTime          uint64
 	currentBlockDuration uint64
 	reader               io.ReadSeekCloser
-	headPosMu            sync.RWMutex
-	headPos              int64
+	lastSubtitleEvents   map[uint64]*SubtitleEvent // Track last subtitle event per track for duration calculation
+
+	// BlockGroup handling
+	inBlockGroup bool
+	pendingBlock *pendingSubtitleBlock
+}
+
+// pendingSubtitleBlock holds block data until we have complete information
+type pendingSubtitleBlock struct {
+	trackNum    uint64
+	timecode    int16
+	data        []byte
+	duration    uint64
+	hasBlock    bool
+	hasDuration bool
 }
 
 func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
@@ -797,18 +768,210 @@ func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse
 	case mkvparse.ClusterElement:
 		return true, nil
 	case mkvparse.BlockGroupElement:
+		h.inBlockGroup = true
+		h.pendingBlock = &pendingSubtitleBlock{}
 		return true, nil
 	}
 	return false, nil
+}
+
+func (h *subtitleHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
+	switch id {
+	case mkvparse.BlockGroupElement:
+		// Process the pending block if we have complete information
+		if h.pendingBlock != nil && h.pendingBlock.hasBlock {
+			// If we have duration from BlockDurationElement, use it; otherwise use track default
+			if h.pendingBlock.hasDuration {
+				h.processPendingBlock(h.pendingBlock.duration)
+			} else {
+				h.processPendingBlock(0) // Will fall back to track defaultDuration
+			}
+		}
+		h.inBlockGroup = false
+		h.pendingBlock = nil
+		h.currentBlockDuration = 0
+	}
+	return nil
 }
 
 func (h *subtitleHandler) HandleInteger(id mkvparse.ElementID, value int64, info mkvparse.ElementInfo) error {
 	if id == mkvparse.TimecodeElement {
 		h.clusterTime = uint64(value)
 	} else if id == mkvparse.BlockDurationElement {
-		h.currentBlockDuration = uint64(value)
+		if h.inBlockGroup && h.pendingBlock != nil {
+			h.pendingBlock.duration = uint64(value)
+			h.pendingBlock.hasDuration = true
+		} else {
+			h.currentBlockDuration = uint64(value)
+		}
 	}
 	return nil
+}
+
+func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
+	if h.pendingBlock == nil || !h.pendingBlock.hasBlock {
+		return
+	}
+
+	track, isSubtitle := h.subtitleTracks[h.pendingBlock.trackNum]
+	if !isSubtitle {
+		return
+	}
+
+	absoluteTimeScaled := h.clusterTime + uint64(h.pendingBlock.timecode)
+	timestampNs := absoluteTimeScaled * h.timecodeScale
+	milliseconds := float64(timestampNs) / 1e6
+
+	// Calculate duration in milliseconds
+	var duration float64
+	if blockDuration > 0 {
+		duration = float64(blockDuration*h.timecodeScale) / 1e6 // ms
+	} else if track.defaultDuration > 0 {
+		duration = float64(track.defaultDuration) / 1e6 // ms
+	}
+
+	h.processSubtitleData(h.pendingBlock.trackNum, track, h.pendingBlock.data, milliseconds, duration)
+}
+
+func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64) {
+	// Handle content encoding (compression)
+	if track.contentEncodings != nil {
+		for _, encoding := range track.contentEncodings.ContentEncoding {
+			if encoding.ContentCompression != nil && encoding.ContentCompression.ContentCompAlgo == 0 {
+				zlibReader, err := zlib.NewReader(bytes.NewReader(subtitleData))
+				if err != nil {
+					h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to create zlib reader for subtitle frame")
+					continue
+				}
+				decompressedData, err := io.ReadAll(zlibReader)
+				_ = zlibReader.Close()
+				if err != nil {
+					h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to decompress zlib subtitle frame")
+					continue
+				}
+				subtitleData = decompressedData
+				break
+			}
+		}
+	}
+
+	initialText := string(subtitleData)
+	subtitleEvent := &SubtitleEvent{
+		TrackNumber: trackNum,
+		Text:        initialText,
+		StartTime:   milliseconds,
+		Duration:    duration,
+		CodecID:     track.CodecID,
+		ExtraData:   make(map[string]string),
+	}
+
+	// Handling for ASS/SSA format
+	if track.CodecID == "S_TEXT/ASS" || track.CodecID == "S_TEXT/SSA" {
+		values := strings.Split(initialText, ",")
+		if len(values) < 9 {
+			//h.logger.Warn().
+			//	Str("text", initialText).
+			//	Int("fields", len(values)).
+			//	Msg("mkvparser: Invalid ASS/SSA subtitle format, not enough fields")
+			return
+		}
+
+		// Based on matroska-metadata library implementation:
+		// SSA_KEYS = ['readOrder', 'layer', 'style', 'name', 'marginL', 'marginR', 'marginV', 'effect', 'text']
+		// For ASS: ignore readOrder (start from index 1), extract indices 1-7, text from index 8
+		// For SSA: ignore readOrder and layer (start from index 2), extract indices 2-7, text from index 8
+
+		startIndex := 1
+		if track.CodecID == "S_TEXT/SSA" {
+			startIndex = 2
+		}
+
+		// Map values to ExtraData based on SSA_KEYS array
+		ssaKeys := []string{"readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"}
+
+		for i := startIndex; i < 8 && i < len(values); i++ {
+			if i < len(ssaKeys) {
+				subtitleEvent.ExtraData[ssaKeys[i]] = values[i]
+			}
+		}
+
+		// Text is everything from index 8 onwards
+		if len(values) > 8 {
+			text := strings.Join(values[8:], ",")
+			subtitleEvent.Text = strings.TrimSpace(text)
+		}
+	} else if track.CodecID == "S_TEXT/UTF8" {
+		// Convert UTF8 to ASS format
+		subtitleEvent.Text = UTF8ToASS(initialText)
+
+		subtitleEvent.CodecID = "S_TEXT/ASS"
+		subtitleEvent.ExtraData = make(map[string]string)
+		subtitleEvent.ExtraData["readorder"] = "0"
+		subtitleEvent.ExtraData["layer"] = "0"
+		subtitleEvent.ExtraData["style"] = "Default"
+		subtitleEvent.ExtraData["name"] = "Default"
+		subtitleEvent.ExtraData["marginl"] = "0"
+		subtitleEvent.ExtraData["marginr"] = "0"
+	}
+
+	// Update the subtitle event duration after potential ASS/SSA calculation
+	subtitleEvent.Duration = duration
+
+	// Handle previous subtitle event duration according to Matroska spec:
+	// If a subtitle has no duration, it should be displayed until the next subtitle is encountered
+	if lastEvent, exists := h.lastSubtitleEvents[trackNum]; exists {
+		// If the previous event had no duration, calculate it based on the time difference
+		if lastEvent.Duration == 0 {
+			calculatedDuration := milliseconds - lastEvent.StartTime
+			if calculatedDuration > 0 {
+				// Create a copy of the last event with updated duration
+				updatedLastEvent := *lastEvent
+				updatedLastEvent.Duration = calculatedDuration
+
+				h.sampler.Trace().
+					Uint64("trackNum", trackNum).
+					Float64("previousStartTime", lastEvent.StartTime).
+					Float64("calculatedDuration", calculatedDuration).
+					Str("previousText", lastEvent.Text).
+					Msg("mkvparser: Updated previous subtitle event duration")
+
+				// Send the updated previous event with calculated duration
+				select {
+				case h.subtitleCh <- &updatedLastEvent:
+					// Successfully sent updated previous event
+				case <-h.ctx.Done():
+					h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
+					return
+				}
+			}
+		}
+	}
+
+	// Store current event as the last event for this track
+	// Create a copy to avoid potential issues with pointer references
+	eventCopy := *subtitleEvent
+	h.lastSubtitleEvents[trackNum] = &eventCopy
+
+	h.sampler.Trace().
+		Uint64("trackNum", trackNum).
+		Float64("startTime", milliseconds).
+		Float64("duration", duration).
+		Str("codecId", track.CodecID).
+		Str("text", subtitleEvent.Text).
+		Interface("data", subtitleEvent.ExtraData).
+		Msg("mkvparser: Subtitle event")
+
+	// Only send the current subtitle event if it has a duration > 0
+	// Events without duration will be held and sent when their duration is calculated by the next event
+	if duration > 0 {
+		select {
+		case h.subtitleCh <- subtitleEvent:
+			// Successfully sent
+		case <-h.ctx.Done():
+			h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
+			return
+		}
+	}
 }
 
 func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info mkvparse.ElementInfo) error {
@@ -824,114 +987,35 @@ func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 			return nil
 		}
 
-		pos, err := h.reader.Seek(0, io.SeekCurrent)
-		if err == nil {
-			h.headPosMu.Lock()
-			h.headPos = pos
-			h.headPosMu.Unlock()
-		}
-
 		blockTimecode := int16(value[1])<<8 | int16(value[2])
-		absoluteTimeScaled := h.clusterTime + uint64(blockTimecode)
-		timestampNs := absoluteTimeScaled * h.timecodeScale
-		milliseconds := float64(timestampNs) / 1e6
-
-		// Calculate duration in milliseconds
-		var duration float64
-		if h.currentBlockDuration > 0 {
-			duration = float64(h.currentBlockDuration*h.timecodeScale) / 1e6 // ms
-		} else if track.defaultDuration > 0 {
-			duration = float64(track.defaultDuration) / 1e6 // ms
-		}
-
 		subtitleData := value[4:]
 
-		// Handle content encoding (compression)
-		if track.contentEncodings != nil {
-			for _, encoding := range track.contentEncodings.ContentEncoding {
-				if encoding.ContentCompression != nil && encoding.ContentCompression.ContentCompAlgo == 0 {
-					zlibReader, err := zlib.NewReader(bytes.NewReader(subtitleData))
-					if err != nil {
-						h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to create zlib reader for subtitle frame")
-						continue
-					}
-					decompressedData, err := io.ReadAll(zlibReader)
-					_ = zlibReader.Close()
-					if err != nil {
-						h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to decompress zlib subtitle frame")
-						continue
-					}
-					subtitleData = decompressedData
-					break
-				}
-			}
-		}
+		if h.inBlockGroup && h.pendingBlock != nil {
+			// Store block data for later processing when BlockGroup ends
+			h.pendingBlock.trackNum = trackNum
+			h.pendingBlock.timecode = blockTimecode
+			h.pendingBlock.data = make([]byte, len(subtitleData))
+			copy(h.pendingBlock.data, subtitleData)
+			h.pendingBlock.hasBlock = true
+		} else {
+			// Process immediately for SimpleBlock or standalone Block
+			absoluteTimeScaled := h.clusterTime + uint64(blockTimecode)
+			timestampNs := absoluteTimeScaled * h.timecodeScale
+			milliseconds := float64(timestampNs) / 1e6
 
-		initialText := string(subtitleData)
-		subtitleEvent := &SubtitleEvent{
-			TrackNumber: trackNum,
-			Text:        initialText,
-			StartTime:   milliseconds,
-			Duration:    duration,
-			CodecID:     track.CodecID,
-			ExtraData:   make(map[string]string),
-		}
-
-		// Special handling for ASS/SSA format
-		if track.CodecID == "S_TEXT/ASS" || track.CodecID == "S_TEXT/SSA" {
-			values := strings.Split(initialText, ",")
-			if len(values) < 9 {
-				//h.logger.Warn().
-				//	Str("text", initialText).
-				//	Int("fields", len(values)).
-				//	Msg("mkvparser: Invalid ASS/SSA subtitle format, not enough fields")
-				return nil
+			// Calculate duration in milliseconds
+			var duration float64
+			if h.currentBlockDuration > 0 {
+				duration = float64(h.currentBlockDuration*h.timecodeScale) / 1e6 // ms
+			} else if track.defaultDuration > 0 {
+				duration = float64(track.defaultDuration) / 1e6 // ms
 			}
 
-			// Format: ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-			startIndex := 1
-			if track.CodecID == "S_TEXT/SSA" {
-				startIndex = 2 // Skip both ReadOrder and Layer for SSA
-			}
+			h.processSubtitleData(trackNum, track, subtitleData, milliseconds, duration)
 
-			subtitleEvent.ExtraData["readorder"] = values[0]
-			if track.CodecID == "S_TEXT/ASS" {
-				subtitleEvent.ExtraData["layer"] = values[1]
-			}
-
-			subtitleEvent.ExtraData["style"] = values[startIndex+1]
-			subtitleEvent.ExtraData["name"] = values[startIndex+2]
-			subtitleEvent.ExtraData["marginl"] = values[startIndex+3]
-			subtitleEvent.ExtraData["marginr"] = values[startIndex+4]
-			subtitleEvent.ExtraData["marginv"] = values[startIndex+5]
-			subtitleEvent.ExtraData["effect"] = values[startIndex+6]
-
-			text := strings.Join(values[startIndex+7:], ",")
-			// Remove leading comma if present
-			text = strings.TrimPrefix(text, ",")
-			subtitleEvent.Text = strings.TrimSpace(text)
+			// Reset the block duration for the next block
+			h.currentBlockDuration = 0
 		}
-
-		h.sampler.Trace().
-			Uint64("trackNum", trackNum).
-			Float64("startTime", milliseconds).
-			Float64("duration", duration).
-			Str("codecId", track.CodecID).
-			Str("text", subtitleEvent.Text).
-			Interface("data", subtitleEvent.ExtraData).
-			Msg("mkvparser: Subtitle event")
-
-		// Check context before sending to avoid sending on closed channel
-		select {
-		case h.subtitleCh <- subtitleEvent:
-			// Successfully sent
-		case <-h.ctx.Done():
-			h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
-			return h.ctx.Err()
-		}
-
-		// Reset the block duration for the next block
-		h.currentBlockDuration = 0
 	}
 	return nil
 }
@@ -943,7 +1027,7 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
 	// however it's not ideal so we'll offset the offset by 2MB to avoid missing a cluster
-	toRemove := int64(2 * 1024 * 1024) // 2MB
+	toRemove := int64(4 * 1024 * 1024) // 4MB
 	if seekOffset > toRemove {
 		seekOffset -= toRemove
 	} else {

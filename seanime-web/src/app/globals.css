@@ -811,3 +811,15 @@ media-controller .JASSUB,
     opacity: 1 !important;
     visibility: visible !important;
 }
+
+video {
+    color-interpolation: sRGB;
+    color-interpolation-filters: sRGB;
+    transform: translateZ(0);
+    will-change: transform;
+    color-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}

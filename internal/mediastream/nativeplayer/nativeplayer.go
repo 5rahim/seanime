@@ -1,6 +1,7 @@
 package nativeplayer
 
 import (
+	"context"
 	"seanime/internal/events"
 	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/util/result"
@@ -39,6 +40,8 @@ type (
 
 		playbackStatusMu sync.RWMutex
 		playbackStatus   *PlaybackStatus
+
+		seekedEventCancelFunc context.CancelFunc
 
 		currentClientId string
 

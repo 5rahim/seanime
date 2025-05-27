@@ -290,12 +290,11 @@ export function NativePlayer() {
     useWebsocketMessageListener({
         type: WSEvents.NATIVE_PLAYER,
         onMessage: ({ type, payload }: { type: NativePlayer_ServerEvent, payload: unknown }) => {
-            log.info("Server event", type)
             switch (type) {
                 // 1. Open and await
                 // The server is loading the stream
                 case "open-and-await":
-                    log.info("Open and await event received")
+                    log.info("Open and await event received", { payload })
                     setState(draft => {
                         draft.active = true
                         draft.miniPlayer = false
@@ -309,7 +308,7 @@ export function NativePlayer() {
                 // 2. Watch
                 // We received the playback info
                 case "watch":
-                    log.info("Watch event received", payload)
+                    log.info("Watch event received", { payload })
                     setState(draft => {
                         draft.playbackInfo = payload as NativePlayer_PlaybackInfo
                         draft.loadingState = null
@@ -357,11 +356,16 @@ export function NativePlayer() {
     function onCaptionsChange(e: FormEvent<any>) {
         log.info("Captions changed", e, videoRef.current?.textTracks)
         if (videoRef.current) {
+            let trackFound = false
             for (let i = 0; i < videoRef.current.textTracks.length; i++) {
                 const track = videoRef.current.textTracks[i]
                 if (track.mode === "showing") {
                     subtitleManagerRef.current?.selectTrackByLabel(track.label)
+                    trackFound = true
                 }
+            }
+            if (!trackFound) {
+                subtitleManagerRef.current?.setNoTrack()
             }
         }
     }
@@ -491,6 +495,11 @@ export function NativePlayer() {
                                     width: "100%",
                                     height: "100%",
                                     border: "none",
+                                    // Enhanced color settings for MPV-like rendering
+                                    filter: settings.videoEnhancement.enabled
+                                        ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
+                                        : "none",
+                                    imageRendering: "auto",
                                 }}
                                 tabIndex={-1}
                                 className="outline-none"

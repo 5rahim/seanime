@@ -1,11 +1,17 @@
 import { useDirectstreamPlayLocalFile } from "@/api/hooks/directstream.hooks"
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
-import { PlaybackDownloadedMedia, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
+import {
+    ElectronPlaybackMethod,
+    PlaybackDownloadedMedia,
+    useCurrentDevicePlaybackSettings,
+    useExternalPlayerLink,
+} from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -37,10 +43,10 @@ export function useHandlePlayMedia() {
         //
         // Electron native player
         //
-        // if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
-        //     directstreamPlayLocalFile({ path, clientId: clientId ?? "" })
-        //     return
-        // }
+        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+            directstreamPlayLocalFile({ path, clientId: clientId ?? "" })
+            return
+        }
 
         // If external player link is set, open the media file in the external player
         if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {

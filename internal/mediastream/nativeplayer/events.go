@@ -1,7 +1,10 @@
 package nativeplayer
 
 import (
+	"context"
+	"fmt"
 	"seanime/internal/mediastream/mkvparser"
+	"time"
 
 	"github.com/goccy/go-json"
 )
@@ -181,10 +184,32 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							p.setPlaybackStatus(func() {
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 							})
-							p.NotifySubscribers(&VideoSeekedEvent{
-								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
-								CurrentTime:    payload.CurrentTime,
-							})
+							if p.seekedEventCancelFunc != nil {
+								p.seekedEventCancelFunc()
+							}
+							var ctx context.Context
+							ctx, p.seekedEventCancelFunc = context.WithCancel(context.Background())
+							// Debounce the event
+							go func() {
+								defer func() {
+									if r := recover(); r != nil {
+										fmt.Println("Recovered from panic in seeked event debounce")
+									}
+									if p.seekedEventCancelFunc != nil {
+										p.seekedEventCancelFunc()
+										p.seekedEventCancelFunc = nil
+									}
+								}()
+								select {
+								case <-ctx.Done():
+								case <-time.After(time.Millisecond * 150):
+									p.NotifySubscribers(&VideoSeekedEvent{
+										BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+										CurrentTime:    payload.CurrentTime,
+									})
+									return
+								}
+							}()
 						} else {
 							// Log error: util.Logger.Error().Err(err).Msg("nativeplayer: Failed to unmarshal video seeked payload")
 						}

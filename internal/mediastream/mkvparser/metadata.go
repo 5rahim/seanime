@@ -18,6 +18,7 @@ type AttachmentType string
 const (
 	AttachmentTypeFont     AttachmentType = "font"
 	AttachmentTypeSubtitle AttachmentType = "subtitle"
+	AttachmentTypeOther    AttachmentType = "other"
 )
 
 // TrackInfo holds extracted information about a media track.

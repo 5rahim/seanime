@@ -25,11 +25,24 @@ export const nativePlayer_stateAtom = atomWithImmer<NativePlayerState>(nativePla
 export type NativePlayerSettings = {
     preferredSubtitleLanguage: string
     preferredAudioLanguage: string
+    // Video enhancement settings
+    videoEnhancement: {
+        enabled: boolean
+        contrast: number      // 0.8 - 1.2 (1.0 = default)
+        saturation: number    // 0.8 - 1.3 (1.0 = default)
+        brightness: number    // 0.9 - 1.1 (1.0 = default)
+    }
 }
 
 export const nativePlayer_initialSettings: NativePlayerSettings = {
     preferredSubtitleLanguage: "eng",
     preferredAudioLanguage: "jpn",
+    videoEnhancement: {
+        enabled: true,
+        contrast: 1.05,
+        saturation: 1.1,
+        brightness: 1.02,
+    },
 }
 
 export const nativePlayer_settingsAtom = atomWithStorage<NativePlayerSettings>("sea-native-player-settings",
