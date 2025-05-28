@@ -44,15 +44,16 @@ import {
     MediaSettingsMenuButton,
     MediaSettingsMenuItem,
 } from "media-chrome/react/menu"
-import React, { FormEvent, useCallback, useEffect, useRef } from "react"
+import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { BiExpand } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
+import { StreamPreviewCaptureIntervalSeconds, StreamPreviewManager } from "./native-player-preview"
 import { nativePlayer_settingsAtom, nativePlayer_stateAtom } from "./native-player.atoms"
-import { detectSubtitleType, isSubtitleFile } from "./native-player.utils"
+import { detectSubtitleType, isSubtitleFile, nativeplayer_createChapterCues, nativeplayer_createChapterVTT } from "./native-player.utils"
 
 const enum VideoPlayerEvents {
     LOADED_METADATA = "loaded-metadata",
@@ -79,6 +80,7 @@ export function NativePlayer() {
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const videoCompletedRef = useRef(false)
     const playerContainerRef = useRef<HTMLDivElement | null>(null)
+    const timeRangeRef = useRef<any>(null)
 
     //
     // Control settings
@@ -94,10 +96,39 @@ export function NativePlayer() {
 
     // The state
     const [state, setState] = useAtom(nativePlayer_stateAtom)
+    const [duration, setDuration] = useState(0)
 
     const streamLoadedRef = useRef<string | null>(null)
     const subtitleManagerRef = useRef<StreamSubtitleManager | null>(null)
     const audioManagerRef = useRef<StreamAudioManager | null>(null)
+    const previewManagerRef = useRef<StreamPreviewManager | null>(null)
+
+    // Handle thumbnail preview updates
+    const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(undefined)
+
+    // Debug thumbnail changes
+    useEffect(() => {
+        log.info("Preview thumbnail changed:", previewThumbnail ? "has thumbnail" : "no thumbnail")
+    }, [previewThumbnail])
+
+    // Create chapter track
+    const [chapterTrackUrl, setChapterTrackUrl] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (state.playbackInfo?.mkvMetadata?.chapters && duration > 0) {
+            // Create VTT content for chapters
+            const chapters = state.playbackInfo.mkvMetadata.chapters
+            const vttContent = nativeplayer_createChapterVTT(chapters, duration)
+
+            const blob = new Blob([vttContent], { type: "text/vtt" })
+            const url = URL.createObjectURL(blob)
+            setChapterTrackUrl(url)
+
+            return () => {
+                URL.revokeObjectURL(url)
+            }
+        }
+    }, [state.playbackInfo?.mkvMetadata?.chapters, duration])
 
     //
     // Start
@@ -131,6 +162,9 @@ export function NativePlayer() {
         if (!state.playbackInfo && streamLoadedRef.current) {
             log.info("Stream unloaded")
             subtitleManagerRef.current?.terminate()
+            previewManagerRef.current?.cleanup()
+            previewManagerRef.current = null
+            setPreviewThumbnail(undefined)
             streamLoadedRef.current = null
 
         }
@@ -202,14 +236,7 @@ export function NativePlayer() {
     }
 
     const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Can play")
-
-        // Check for audio and subtitle tracks if needed
-        if (videoRef.current) {
-            // Using textTracks which is standard
-            log.info("Text tracks", videoRef.current.textTracks)
-            log.info("Audio tracks", videoRef.current.audioTracks)
-        }
+        setDuration(videoRef.current?.duration ?? 0)
     }
 
     const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -297,6 +324,16 @@ export function NativePlayer() {
             })
         }
 
+        // Initialize thumbnailer
+        if (state.playbackInfo?.streamUrl) {
+            const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
+            log.info("Initializing thumbnailer with URL:", streamUrl)
+            previewManagerRef.current = new StreamPreviewManager(videoRef.current, streamUrl)
+            log.info("Thumbnailer initialized successfully")
+        } else {
+            log.info("No stream URL available for thumbnailer")
+        }
+
         sendMessage({
             type: WSEvents.NATIVE_PLAYER,
             payload: {
@@ -350,7 +387,7 @@ export function NativePlayer() {
 
         if (actualFiles.length > 0) {
             // Process actual files
-            actualFiles.forEach(async f => {
+            for (const f of actualFiles) {
                 if (f && isSubtitleFile(f.name)) {
                     const content = await f.text()
                     // console.log("Uploading subtitle file", f.name, content)
@@ -363,7 +400,7 @@ export function NativePlayer() {
                         },
                     })
                 }
-            })
+            }
         } else {
             // If no actual files, try to process text content
             // Only process plain text, ignore RTF and HTML
@@ -521,6 +558,66 @@ export function NativePlayer() {
         seek(-1)
     }
 
+    const handleTimeRangePreview = useCallback(async (event: MouseEvent) => {
+        if (!previewManagerRef.current || !duration) {
+            return
+        }
+
+        const timeRange = timeRangeRef.current
+        if (!timeRange) return
+
+        // Calculate preview time based on mouse position
+        const rect = timeRange.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const percentage = Math.max(0, Math.min(1, x / rect.width))
+        const previewTime = percentage * duration
+
+        if (previewTime >= 0 && previewTime <= duration) {
+            const thumbnailIndex = Math.floor(previewTime / StreamPreviewCaptureIntervalSeconds)
+
+            try {
+                const thumbnail = await previewManagerRef.current.retrievePreviewForSegment(thumbnailIndex)
+                if (thumbnail) {
+                    // Set the thumbnail directly on the MediaTimeRange using the media UI attribute
+                    timeRange.setAttribute("mediapreviewimage", thumbnail)
+                    setPreviewThumbnail(thumbnail)
+                }
+            }
+            catch (error) {
+                log.error("Failed to get thumbnail", error)
+            }
+        }
+    }, [duration])
+
+    // Add event listener for preview events
+    useEffect(() => {
+        const timeRange = timeRangeRef.current
+        if (!timeRange) {
+            log.info("TimeRange ref not available")
+            return
+        }
+
+        const handleMouseLeave = () => {
+            // Clear thumbnail when not hovering
+            timeRange.removeAttribute("mediapreviewimage")
+            setPreviewThumbnail(undefined)
+        }
+
+        timeRange.addEventListener("mouseleave", handleMouseLeave)
+        timeRange.addEventListener("mousemove", handleTimeRangePreview)
+
+        return () => {
+            timeRange.removeEventListener("mouseleave", handleMouseLeave)
+            timeRange.removeEventListener("mousemove", handleTimeRangePreview)
+        }
+    }, [handleTimeRangePreview])
+
+    const chapterCues = useMemo(() => {
+        const cues = nativeplayer_createChapterCues(state.playbackInfo?.mkvMetadata?.chapters, duration)
+        log.info("Chapter cues", cues)
+        return cues
+    }, [state.playbackInfo?.mkvMetadata?.chapters, duration])
+
     return (
         <>
             <NativePlayerDrawer
@@ -621,14 +718,14 @@ export function NativePlayer() {
                                 playsInline
                                 autoPlay={autoPlay}
                                 muted={muted}
-                                // onTimeUpdate={handleTimeUpdate}
+                                onTimeUpdate={handleTimeUpdate}
                                 onDurationChange={handleDurationChange}
-                                // onCanPlay={handleCanPlay}
                                 onEnded={handleEnded}
                                 onError={handleError}
                                 onVolumeChange={handleVolumeChange}
                                 onSeeked={handleSeeked}
                                 onLoadedMetadata={handleLoadedMetadata}
+                                onCanPlay={handleCanPlay}
                                 onPause={handlePause}
                                 onPlay={handlePlay}
                                 style={{
@@ -653,6 +750,14 @@ export function NativePlayer() {
                                         label={track.name}
                                     />
                                 ))}
+                                {chapterTrackUrl && (
+                                    <track
+                                        kind="chapters"
+                                        src={chapterTrackUrl}
+                                        default
+                                        label="Chapters"
+                                    />
+                                )}
                             </video>
 
                             <MediaErrorDialog slot="dialog" />
@@ -684,8 +789,15 @@ export function NativePlayer() {
                                 <div slot="header">Audio</div>
                             </MediaAudioTrackMenu>
 
-                            <MediaTimeRange>
-                                <MediaPreviewThumbnail slot="preview" />
+                            <MediaTimeRange
+                                ref={timeRangeRef}
+                                mediaChaptersCues={chapterCues}
+                            >
+                                <MediaPreviewThumbnail
+                                    slot="preview"
+                                    mediaPreviewImage={previewThumbnail}
+                                    mediaPreviewCoords={previewThumbnail ? [0, 0, 200, 100] : undefined}
+                                />
                                 <MediaPreviewChapterDisplay slot="preview" />
                                 <MediaPreviewTimeDisplay slot="preview" />
                             </MediaTimeRange>

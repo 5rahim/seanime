@@ -524,6 +524,10 @@ media-settings-menu-item,
     display: none;
 } */
 
+.audio-settings[submenusize='1'] {
+    display: none;
+}
+
 media-time-range {
     position: absolute;
     bottom: 36px;
@@ -537,11 +541,62 @@ media-time-range {
     --media-range-thumb-background: var(--media-accent-color, #f00);
     --media-range-thumb-transition: transform 0.1s linear;
     --media-range-thumb-transform: scale(0) translate(0%, 0%);
+    --media-chapters-cue-color: rgba(255, 255, 255, 0.8);
+    --media-chapters-cue-hover-color: rgba(255, 255, 255, 1);
+    --media-chapters-cue-width: 2px;
+    --media-chapters-cue-height: 100%;
+    --media-range-segments-gap: 3px;
+}
+
+.preview-rail > * {
+    --_box-width: 100px !important;
 }
 
 media-time-range:hover {
     --media-range-track-height: 5px;
     --media-range-thumb-transform: scale(1) translate(0%, 0%);
+    --media-chapters-cue-color: rgba(255, 255, 255, 1);
+    --media-chapters-cue-width: 3px;
+}
+
+/* Chapter markers styling */
+media-time-range::part(chapters-cue) {
+    background-color: var(--media-chapters-cue-color);
+    width: var(--media-chapters-cue-width);
+    height: var(--media-chapters-cue-height);
+    border-radius: 1px;
+    transition: all 0.2s ease-in-out;
+    opacity: 0.7;
+}
+
+media-time-range:hover::part(chapters-cue) {
+    opacity: 1;
+    transform: scaleY(1.5);
+}
+
+/* Enhanced chapter marker visibility */
+media-time-range .chapters-cue,
+media-time-range [slot="chapters-cue"] {
+    background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.9) 100%);
+    width: 2px;
+    height: 100%;
+    border-radius: 1px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+media-time-range:hover .chapters-cue,
+media-time-range:hover [slot="chapters-cue"] {
+    width: 3px;
+    transform: scaleY(1.8);
+    background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 1) 100%);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
 [breakpointmd] media-time-range {
@@ -551,18 +606,49 @@ media-time-range:hover {
 [mediaisfullscreen] media-time-range {
     bottom: 52.5px;
     height: 8px;
+    --media-chapters-cue-width: 3px;
 }
 
 [mediaisfullscreen] media-time-range:hover {
     --media-range-track-height: 8px;
+    --media-chapters-cue-width: 4px;
 }
 
-media-preview-thumbnail {
-    margin-bottom: 5px;
+[mediaisfullscreen] media-time-range .chapters-cue,
+[mediaisfullscreen] media-time-range [slot="chapters-cue"] {
+    width: 3px;
+}
+
+[mediaisfullscreen] media-time-range:hover .chapters-cue,
+[mediaisfullscreen] media-time-range:hover [slot="chapters-cue"] {
+    width: 4px;
+    transform: scaleY(2);
 }
 
 media-preview-chapter-display {
     padding-block: 0;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    font-weight: 500;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.95);
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[mediaisfullscreen] media-preview-chapter-display {
+    font-size: 16px;
+    padding: 6px 12px;
+    max-width: 300px;
+}
+
+media-preview-thumbnail {
+    margin-bottom: 5px;
 }
 
 media-preview-time-display {
@@ -803,6 +889,29 @@ media-controller .JASSUB,
     visibility: visible !important;
     pointer-events: none !important;
     /* z-index: 1000 !important; */
+}
+
+
+media-preview-thumbnail {
+    /* width: 200px !important;
+    height: 100px !important;
+    object-fit: cover !important; */
+    border-radius: 4px;
+}
+
+media-preview-chapter-display {
+    display: block !important;
+    margin-bottom: 5px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    border: none !important;
+    color: white;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 /* Ensure JASSUB remains visible even when controls are hidden */
