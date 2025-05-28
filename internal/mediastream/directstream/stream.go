@@ -1,7 +1,9 @@
 package directstream
 
 import (
+	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -63,6 +65,8 @@ type Stream interface {
 	Terminate()
 	// GetSubtitleEventCache accesses the subtitle event cache.
 	GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent]
+	// OnSubtitleFileUploaded is called when a subtitle file is uploaded.
+	OnSubtitleFileUploaded(filename string, content string)
 }
 
 func (m *Manager) getStreamHandler() http.Handler {
@@ -158,8 +162,6 @@ func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
 				_ = cs
 
 				switch event := event.(type) {
-				case *nativeplayer.VideoStartedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
 				case *nativeplayer.VideoPausedEvent:
 					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
 				case *nativeplayer.VideoResumedEvent:
@@ -176,6 +178,12 @@ func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
 					m.Logger.Debug().Msgf("directstream: Stream event: VideoLoadedMetadata")
 					// Start subtitle extraction from the beginning
 					cs.ServeSubtitlesFromTime(0.0)
+				case *nativeplayer.VideoErrorEvent:
+					m.Logger.Debug().Msgf("directstream: Stream event: VideoError, Error: %s", event.Error)
+					cs.StreamError(fmt.Errorf(event.Error))
+				case *nativeplayer.SubtitleFileUploadedEvent:
+					m.Logger.Debug().Msgf("directstream: Stream event: SubtitleFileUploaded, Filename: %s", event.Filename)
+					cs.OnSubtitleFileUploaded(event.Filename, event.Content)
 				}
 			}
 		}
@@ -217,6 +225,7 @@ type BaseStream struct {
 	subtitleEventCache     *result.Map[string, *mkvparser.SubtitleEvent]
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
+	filename               string // Name of the file being streamed, if applicable
 
 	// Subtitle stream management
 	subtitleStreamsMu     sync.RWMutex
@@ -378,6 +387,96 @@ func (s *BaseStream) cancelPreviousSubtitleStreams(newStartOffset int64) {
 			Int64("newOffset", newStartOffset).
 			Msg("directstream: Subtitle stream cleanup completed")
 	}
+}
+
+// OnSubtitleFileUploaded adds a subtitle track, converts it to ASS if needed.
+func (s *BaseStream) OnSubtitleFileUploaded(filename string, content string) {
+	parser, ok := s.playbackInfo.MkvMetadataParser.Get()
+	if !ok {
+		s.logger.Error().Msg("directstream:A Failed to load playback info")
+		return
+	}
+
+	ext := util.FileExt(filename)
+
+	newContent := content
+	if ext != ".ass" && ext != ".ssa" {
+		var err error
+		var from int
+		switch ext {
+		case ".srt":
+			from = mkvparser.SubtitleTypeSRT
+		case ".vtt":
+			from = mkvparser.SubtitleTypeWEBVTT
+		case ".ttml":
+			from = mkvparser.SubtitleTypeTTML
+		case ".stl":
+			from = mkvparser.SubtitleTypeSTL
+		case ".txt":
+			from = mkvparser.SubtitleTypeUnknown
+		default:
+			err = errors.New("unsupported subtitle format")
+		}
+		s.logger.Debug().
+			Str("filename", filename).
+			Str("ext", ext).
+			Int("detected", from).
+			Msg("directstream: Converting uploaded subtitle file")
+		newContent, err = mkvparser.ConvertToASS(content, from)
+		if err != nil {
+			s.manager.wsEventManager.SendEventTo(s.clientId, events.ErrorToast, "Failed to convert subtitle file: "+err.Error())
+			return
+		}
+	}
+
+	metadata := parser.GetMetadata(context.Background())
+	num := int64(len(metadata.Tracks)) + 1
+	subtitleNum := int64(len(metadata.SubtitleTracks))
+
+	// e.g. filename = "title.eng.srt" -> name = "title.eng"
+	name := strings.TrimSuffix(filename, ext)
+	// e.g. "title.eng" -> ".eng" or "title.eng"
+	name = strings.Replace(name, strings.Replace(s.filename, util.FileExt(s.filename), "", -1), "", 1) // remove the filename from the subtitle name
+	name = strings.TrimSpace(name)
+
+	// e.g. name = "title.eng" -> probableLangExt = ".eng"
+	probableLangExt := util.FileExt(name)
+
+	// if probableLangExt is not empty, use it as the language
+	lang := cmp.Or(strings.TrimPrefix(probableLangExt, "."), name)
+	// cleanup lang
+	lang = strings.ReplaceAll(lang, "-", " ")
+	lang = strings.ReplaceAll(lang, "_", " ")
+	lang = strings.ReplaceAll(lang, ".", " ")
+	lang = strings.ReplaceAll(lang, ",", " ")
+	lang = cmp.Or(lang, fmt.Sprintf("Added track %d", num+1))
+
+	if name == "PLACEHOLDER" {
+		name = fmt.Sprintf("External (#%d)", subtitleNum+1)
+		lang = "und"
+	}
+
+	track := &mkvparser.TrackInfo{
+		Number:       num,
+		UID:          num + 900,
+		Type:         mkvparser.TrackTypeSubtitle,
+		CodecID:      "S_TEXT/ASS",
+		Name:         name,
+		Language:     lang,
+		LanguageIETF: lang,
+		Default:      false,
+		Forced:       false,
+		Enabled:      true,
+		CodecPrivate: newContent,
+	}
+
+	metadata.Tracks = append(metadata.Tracks, track)
+	metadata.SubtitleTracks = append(metadata.SubtitleTracks, track)
+
+	s.logger.Debug().
+		Msg("directstream: Sending subtitle file to the client")
+
+	s.manager.nativePlayer.AddSubtitleTrack(s.clientId, track)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -667,6 +766,7 @@ func (m *Manager) PlayLocalFile(opts PlayLocalFileOptions) error {
 			manager:            m,
 			logger:             m.Logger,
 			clientId:           opts.ClientId,
+			filename:           filepath.Base(lf.Path),
 			media:              media,
 			episode:            episode,
 			episodeCollection:  episodeCollection,
@@ -736,6 +836,9 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 				s.playbackInfoErr = fmt.Errorf("failed to get metadata: %w", metadata.Error)
 				return
 			}
+
+			// Add subtitle tracks from subtitle files in the torrent
+			s.AppendSubtitleFile(s.torrent, s.file, metadata)
 
 			playbackInfo.MkvMetadata = metadata
 			playbackInfo.MkvMetadataParser = mo.Some(parser)
@@ -887,6 +990,7 @@ func (m *Manager) PlayTorrentStream(opts PlayTorrentStreamOptions) error {
 			logger:             m.Logger,
 			clientId:           opts.ClientId,
 			media:              opts.Media,
+			filename:           filepath.Base(opts.File.DisplayPath()),
 			episode:            episode,
 			episodeCollection:  episodeCollection,
 			subtitleEventCache: result.NewResultMap[string, *mkvparser.SubtitleEvent](),

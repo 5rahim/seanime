@@ -1,6 +1,5 @@
 import "@total-typescript/ts-reset"
 
-// audioTracks
 declare global {
     interface AudioTrack {
         id: string;
@@ -22,7 +21,6 @@ declare global {
     }
 
     interface HTMLMediaElement {
-        /** Not standardized, supported in some browsers (e.g., Chrome) */
         readonly audioTracks: AudioTrackList | undefined;
     }
 }

@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { MKVParser_SubtitleEvent, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
+import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import {
     __seaMediaPlayer_autoNextAtom,
     __seaMediaPlayer_autoPlayAtom,
@@ -44,7 +44,7 @@ import {
     MediaSettingsMenuButton,
     MediaSettingsMenuItem,
 } from "media-chrome/react/menu"
-import React, { FormEvent, useEffect, useRef } from "react"
+import React, { FormEvent, useCallback, useEffect, useRef } from "react"
 import { BiExpand } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
@@ -52,10 +52,19 @@ import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/ha
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
 import { nativePlayer_settingsAtom, nativePlayer_stateAtom } from "./native-player.atoms"
+import { detectSubtitleType, isSubtitleFile } from "./native-player.utils"
 
 const enum VideoPlayerEvents {
     LOADED_METADATA = "loaded-metadata",
-    SEEKED = "video-seeked",
+    VIDEO_SEEKED = "video-seeked",
+    SUBTITLE_FILE_UPLOADED = "subtitle-file-uploaded",
+    VIDEO_PAUSED = "video-paused",
+    VIDEO_RESUMED = "video-resumed",
+    VIDEO_ENDED = "video-ended",
+    VIDEO_ERROR = "video-error",
+    VIDEO_CAN_PLAY = "video-can-play",
+    VIDEO_STARTED = "video-started",
+    VIDEO_COMPLETED = "video-completed",
 }
 
 const log = logger("NATIVE PLAYER")
@@ -68,6 +77,8 @@ export function NativePlayer() {
     //
     // The player reference
     const videoRef = useRef<HTMLVideoElement | null>(null)
+    const videoCompletedRef = useRef(false)
+    const playerContainerRef = useRef<HTMLDivElement | null>(null)
 
     //
     // Control settings
@@ -127,20 +138,6 @@ export function NativePlayer() {
 
     // Clean up player when unmounting or changing streams
     useEffect(() => {
-
-        if (videoRef.current && videoRef.current.audioTracks) {
-            // videoRef.current.audioTracks.onChange = (ev: Event) => {
-            //     console.log("Audio track changed", ev)
-            //     seek(-2)
-            // }
-
-            // console.log(state.playbackInfo?.mkvMetadata?.mimeCodec)
-            // log.info("Can play type", videoRef.current.canPlayType(state.playbackInfo?.mkvMetadata?.mimeCodec?.replace("video/x-matroska",
-            // "video/webm") || ""))
-
-
-        }
-
         if (!videoRef.current) return
 
         return () => {
@@ -178,7 +175,6 @@ export function NativePlayer() {
     function seek(offset: number) {
         if (videoRef.current) {
             const newTime = videoRef.current.currentTime + offset
-            // Object.assign(videoRef.current, { currentTime: newTime })
             videoRef.current.currentTime = newTime
         }
     }
@@ -188,6 +184,17 @@ export function NativePlayer() {
     //
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         // log.info("Time update", e.currentTarget.currentTime)
+        const percent = e.currentTarget.currentTime / e.currentTarget.duration
+        if (!!e.currentTarget.duration && !videoCompletedRef.current && percent >= 0.8) {
+            videoCompletedRef.current = true
+            sendMessage({
+                type: WSEvents.NATIVE_PLAYER,
+                payload: {
+                    clientId: clientId,
+                    type: VideoPlayerEvents.VIDEO_COMPLETED,
+                },
+            })
+        }
     }
 
     const handleDurationChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -208,14 +215,29 @@ export function NativePlayer() {
     const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Ended")
 
-        // Handle autoNext logic here if needed
-        if (autoNext) {
-            // Logic to play next episode
-        }
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: VideoPlayerEvents.VIDEO_ENDED,
+                payload: {
+                    autoNext: autoNext,
+                },
+            },
+        })
+
     }
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Media error", e)
+        log.info("Media error", e.currentTarget.error)
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: VideoPlayerEvents.VIDEO_ERROR,
+                payload: { error: e.currentTarget.error?.message || "Unknown error" },
+            },
+        })
     }
 
     const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -234,7 +256,7 @@ export function NativePlayer() {
             type: WSEvents.NATIVE_PLAYER,
             payload: {
                 clientId: clientId,
-                type: VideoPlayerEvents.SEEKED,
+                type: VideoPlayerEvents.VIDEO_SEEKED,
                 payload: { currentTime: currentTime },
             },
         })
@@ -245,6 +267,8 @@ export function NativePlayer() {
         log.info("Loaded metadata", e.currentTarget.duration)
         log.info("Audio tracks", videoRef.current?.audioTracks)
         log.info("Text tracks", videoRef.current?.textTracks)
+
+        videoCompletedRef.current = false
 
         if (!state.playbackInfo || !videoRef.current) return // shouldn't happen
 
@@ -282,6 +306,116 @@ export function NativePlayer() {
             },
         })
     }
+
+    const handlePause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Pause")
+
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: VideoPlayerEvents.VIDEO_PAUSED,
+                payload: {},
+            },
+        })
+    }
+
+    const handlePlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        log.info("Play/Resume")
+
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: VideoPlayerEvents.VIDEO_RESUMED,
+                payload: {},
+            },
+        })
+    }
+
+    type UploadEvent = {
+        dataTransfer?: DataTransfer
+        clipboardData?: DataTransfer
+    }
+    const handleUpload = useCallback(async (e: UploadEvent & Event) => {
+        e.preventDefault() // stop the default behavior
+        log.info("Upload", e)
+        const items = [...(e.dataTransfer ?? e.clipboardData)?.items ?? []]
+
+        // First, try to get actual files
+        const actualFiles = items
+            .filter(item => item.kind === "file")
+            .map(item => item.getAsFile())
+            .filter(file => file !== null)
+
+        if (actualFiles.length > 0) {
+            // Process actual files
+            actualFiles.forEach(async f => {
+                if (f && isSubtitleFile(f.name)) {
+                    const content = await f.text()
+                    // console.log("Uploading subtitle file", f.name, content)
+                    sendMessage({
+                        type: WSEvents.NATIVE_PLAYER,
+                        payload: {
+                            clientId: clientId,
+                            type: VideoPlayerEvents.SUBTITLE_FILE_UPLOADED,
+                            payload: { filename: f.name, content },
+                        },
+                    })
+                }
+            })
+        } else {
+            // If no actual files, try to process text content
+            // Only process plain text, ignore RTF and HTML
+            const textItems = items.filter(item =>
+                item.kind === "string" &&
+                item.type === "text/plain",
+            )
+
+            if (textItems.length > 0) {
+                // Only take the first plain text item to avoid duplicates
+                const textItem = textItems[0]
+                textItem.getAsString(str => {
+                    log.info("Uploading subtitle content from clipboard")
+                    const type = detectSubtitleType(str)
+                    if (type === "unknown") {
+                        log.info("Unknown subtitle type, skipping")
+                        return
+                    }
+                    const filename = `PLACEHOLDER.${type}`
+                    sendMessage({
+                        type: WSEvents.NATIVE_PLAYER,
+                        payload: {
+                            clientId: clientId,
+                            type: VideoPlayerEvents.SUBTITLE_FILE_UPLOADED,
+                            payload: { filename, content: str },
+                        },
+                    })
+                })
+            }
+        }
+    }, [clientId, sendMessage])
+
+    function suppressEvent(e: Event) {
+        e.preventDefault()
+    }
+
+    useEffect(() => {
+        const playerContainer = playerContainerRef.current
+        if (!playerContainer || !state.active) return
+
+        playerContainer.addEventListener("paste", handleUpload)
+        playerContainer.addEventListener("drop", handleUpload)
+        playerContainer.addEventListener("dragover", suppressEvent)
+        playerContainer.addEventListener("dragenter", suppressEvent)
+
+        return () => {
+            playerContainer.removeEventListener("paste", handleUpload)
+            playerContainer.removeEventListener("drop", handleUpload)
+            playerContainer.removeEventListener("dragover", suppressEvent)
+            playerContainer.removeEventListener("dragenter", suppressEvent)
+        }
+    }, [handleUpload, state.active])
 
     //
     // Server events
@@ -321,6 +455,9 @@ export function NativePlayer() {
                 case "subtitle-event":
                     subtitleManagerRef.current?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
+                case "add-subtitle-track":
+                    subtitleManagerRef.current?.onTrackAdded(payload as MKVParser_TrackInfo)
+                    break
             }
         },
     })
@@ -354,13 +491,13 @@ export function NativePlayer() {
     }
 
     function onCaptionsChange(e: FormEvent<any>) {
-        log.info("Captions changed", e, videoRef.current?.textTracks)
+        log.info("Subtitles changed", e, videoRef.current?.textTracks)
         if (videoRef.current) {
             let trackFound = false
             for (let i = 0; i < videoRef.current.textTracks.length; i++) {
                 const track = videoRef.current.textTracks[i]
                 if (track.mode === "showing") {
-                    subtitleManagerRef.current?.selectTrackByLabel(track.label)
+                    subtitleManagerRef.current?.selectTrack(Number(track.id))
                     trackFound = true
                 }
             }
@@ -376,7 +513,7 @@ export function NativePlayer() {
             for (let i = 0; i < videoRef.current.audioTracks.length; i++) {
                 const track = videoRef.current.audioTracks[i]
                 if (track.enabled) {
-                    audioManagerRef.current?.selectTrackByLabel(track.label)
+                    audioManagerRef.current?.selectTrack(Number(track.id))
                     break
                 }
             }
@@ -466,6 +603,7 @@ export function NativePlayer() {
                     data-native-player-container
                     data-mini-player={state.miniPlayer}
                     tabIndex={-1}
+                    ref={playerContainerRef}
                 >
                     {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
                         <MediaController
@@ -491,6 +629,8 @@ export function NativePlayer() {
                                 onVolumeChange={handleVolumeChange}
                                 onSeeked={handleSeeked}
                                 onLoadedMetadata={handleLoadedMetadata}
+                                onPause={handlePause}
+                                onPlay={handlePlay}
                                 style={{
                                     width: "100%",
                                     height: "100%",
@@ -505,7 +645,13 @@ export function NativePlayer() {
                                 className="outline-none"
                             >
                                 {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
-                                    <track key={track.number} kind="subtitles" srcLang={track.language || "eng"} label={track.name} />
+                                    <track
+                                        id={track.number.toString()}
+                                        key={track.number}
+                                        kind="subtitles"
+                                        srcLang={track.language || "eng"}
+                                        label={track.name}
+                                    />
                                 ))}
                             </video>
 

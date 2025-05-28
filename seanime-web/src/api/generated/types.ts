@@ -2872,7 +2872,7 @@ export type MKVParser_AttachmentInfo = {
  * - Filename: metadata.go
  * - Package: mkvparser
  */
-export type MKVParser_AttachmentType = "font" | "subtitle"
+export type MKVParser_AttachmentType = "font" | "subtitle" | "other"
 
 /**
  * - Filepath: internal/mediastream/mkvparser/structs.go
@@ -3422,16 +3422,14 @@ export type Models_TorrentstreamSettings = {
  * - Filename: events.go
  * - Package: nativeplayer
  */
-export type NativePlayer_ClientEvent = "can-play" |
-    "video-started" |
-    "video-paused" |
+export type NativePlayer_ClientEvent = "video-paused" |
     "video-resumed" |
+    "video-completed" |
     "video-ended" |
     "video-seeked" |
     "video-error" |
-    "video-time-update" |
-    "video-metadata" |
-    "loaded-metadata"
+    "loaded-metadata" |
+    "subtitle-file-uploaded"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
@@ -3471,7 +3469,8 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "pause" |
     "resume" |
     "seek" |
-    "error"
+    "error" |
+    "add-subtitle-track"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go

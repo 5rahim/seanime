@@ -2,6 +2,7 @@ package mkvparser
 
 import (
 	"bytes"
+	"cmp"
 	"compress/zlib"
 	"context"
 	"errors"
@@ -30,7 +31,7 @@ const (
 
 var matroskaClusterID = []byte{0x1F, 0x43, 0xB6, 0x75}
 
-var subtitleExtensions = map[string]struct{}{".ass": {}, ".ssa": {}, ".srt": {}, ".vtt": {}, ".sub": {}, ".txt": {}}
+var subtitleExtensions = map[string]struct{}{".ass": {}, ".ssa": {}, ".srt": {}, ".vtt": {}, ".txt": {}}
 var fontExtensions = map[string]struct{}{".ttf": {}, ".ttc": {}, ".woff": {}, ".woff2": {}, ".bdf": {}, ".otf": {}, ".cff": {}, ".otc": {}, ".pfa": {}, ".pfb": {}, ".pcf": {}, ".pfr": {}, ".fnt": {}, ".eot": {}}
 
 // SubtitleEvent holds information for a single subtitle entry.
@@ -126,6 +127,18 @@ func getLanguageCode(track *TrackInfo) string {
 		return track.Language
 	}
 	return "eng"
+}
+
+func getSubtitleTrackType(codecID string) string {
+	switch codecID {
+	case "S_TEXT/ASS":
+		return "ASS/SSA"
+	case "S_TEXT/SSA":
+		return "ASS/SSA"
+	case "S_TEXT/UTF8":
+		return "TEXT"
+	}
+	return "unknown"
 }
 
 // parseMetadataOnce performs the actual parsing of the file stream.
@@ -406,10 +419,6 @@ func (h *metadataHandler) HandleInteger(id mkvparse.ElementID, value int64, info
 		if h.currentTrack != nil {
 			h.currentTrack.defaultDuration = uint64(value)
 		}
-	// case mkvparse.DurationElement:
-	// 	if h.currentTrack != nil {
-	// 		h.currentTrack.Duration = uint64(value)
-	// 	}
 	case mkvparse.FlagDefaultElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Default = value == 1
@@ -540,7 +549,20 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			case TrackTypeAudio:
 				result.AudioTracks = append(result.AudioTracks, track)
 			case TrackTypeSubtitle:
+				// Fix missing fields
+				track.Name = cmp.Or(track.Name, strings.ToUpper(track.Language), strings.ToUpper(track.LanguageIETF))
+				track.Language = getLanguageCode(track)
 				result.SubtitleTracks = append(result.SubtitleTracks, track)
+			}
+		}
+
+		// Group subtitle tracks by duplicate name
+		groups := lo.GroupBy(result.SubtitleTracks, func(t *TrackInfo) string {
+			return t.Name
+		})
+		for _, group := range groups {
+			for _, track := range group {
+				track.Name = fmt.Sprintf("%s (%s)", track.Name, getSubtitleTrackType(track.CodecID))
 			}
 		}
 
@@ -902,7 +924,7 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 		}
 	} else if track.CodecID == "S_TEXT/UTF8" {
 		// Convert UTF8 to ASS format
-		subtitleEvent.Text = UTF8ToASS(initialText)
+		subtitleEvent.Text = UTF8ToASSText(initialText)
 
 		subtitleEvent.CodecID = "S_TEXT/ASS"
 		subtitleEvent.ExtraData = make(map[string]string)
@@ -1027,7 +1049,7 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
 	// however it's not ideal so we'll offset the offset by 2MB to avoid missing a cluster
-	toRemove := int64(4 * 1024 * 1024) // 4MB
+	toRemove := int64(2 * 1024 * 1024) // 2MB
 	if seekOffset > toRemove {
 		seekOffset -= toRemove
 	} else {

@@ -256,3 +256,11 @@ func RandomStringWithAlphabet(length int, alphabet string) string {
 
 	return string(b)
 }
+
+func FileExt(str string) string {
+	lastDotIndex := strings.LastIndex(str, ".")
+	if lastDotIndex == -1 {
+		return ""
+	}
+	return str[lastDotIndex:]
+}

@@ -51773,17 +51773,6 @@
         "comments": []
       },
       {
-        "name": "subtitleStreamCancelFunc",
-        "jsonName": "subtitleStreamCancelFunc",
-        "goType": "context.CancelFunc",
-        "typescriptType": "CancelFunc",
-        "usedTypescriptType": "CancelFunc",
-        "usedStructName": "context.CancelFunc",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "subtitleEventCache",
         "jsonName": "subtitleEventCache",
         "goType": "",
@@ -51813,6 +51802,41 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Name of the file being streamed, if applicable"
+        ]
+      },
+      {
+        "name": "subtitleStreamsMu",
+        "jsonName": "subtitleStreamsMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedTypescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "activeSubtitleStreams",
+        "jsonName": "activeSubtitleStreams",
+        "goType": "map[string]context.CancelFunc",
+        "typescriptType": "Record\u003cstring, CancelFunc\u003e",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " key: stream identifier, value: cancel function"
+        ]
       },
       {
         "name": "manager",
@@ -52079,7 +52103,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"font\"",
-        "\"subtitle\""
+        "\"subtitle\"",
+        "\"other\""
       ]
     },
     "comments": []
@@ -52794,15 +52819,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "subtitleStreamTails",
-        "jsonName": "subtitleStreamTails",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
     "comments": [
@@ -53502,7 +53518,8 @@
         "\"pause\"",
         "\"resume\"",
         "\"seek\"",
-        "\"error\""
+        "\"error\"",
+        "\"add-subtitle-track\""
       ]
     },
     "comments": []
@@ -53518,16 +53535,14 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"can-play\"",
-        "\"video-started\"",
         "\"video-paused\"",
         "\"video-resumed\"",
+        "\"video-completed\"",
         "\"video-ended\"",
         "\"video-seeked\"",
         "\"video-error\"",
-        "\"video-time-update\"",
-        "\"video-metadata\"",
-        "\"loaded-metadata\""
+        "\"loaded-metadata\"",
+        "\"subtitle-file-uploaded\""
       ]
     },
     "comments": []
@@ -53593,18 +53608,6 @@
   {
     "filepath": "../internal/mediastream/nativeplayer/events.go",
     "filename": "events.go",
-    "name": "VideoStartedEvent",
-    "formattedName": "NativePlayer_VideoStartedEvent",
-    "package": "nativeplayer",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "nativeplayer.BaseVideoEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/nativeplayer/events.go",
-    "filename": "events.go",
     "name": "VideoPausedEvent",
     "formattedName": "NativePlayer_VideoPausedEvent",
     "package": "nativeplayer",
@@ -53632,7 +53635,39 @@
     "name": "VideoEndedEvent",
     "formattedName": "NativePlayer_VideoEndedEvent",
     "package": "nativeplayer",
-    "fields": [],
+    "fields": [
+      {
+        "name": "AutoNext",
+        "jsonName": "autoNext",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "VideoErrorEvent",
+    "formattedName": "NativePlayer_VideoErrorEvent",
+    "package": "nativeplayer",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53655,18 +53690,6 @@
         "comments": []
       }
     ],
-    "comments": [],
-    "embeddedStructNames": [
-      "nativeplayer.BaseVideoEvent"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/nativeplayer/events.go",
-    "filename": "events.go",
-    "name": "VideoTimeUpdateEvent",
-    "formattedName": "NativePlayer_VideoTimeUpdateEvent",
-    "package": "nativeplayer",
-    "fields": [],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53703,6 +53726,37 @@
     "formattedName": "NativePlayer_VideoLoadedMetadataEvent",
     "package": "nativeplayer",
     "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "SubtitleFileUploadedEvent",
+    "formattedName": "NativePlayer_SubtitleFileUploadedEvent",
+    "package": "nativeplayer",
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53858,6 +53912,17 @@
         "typescriptType": "NativePlayer_PlaybackStatus",
         "usedTypescriptType": "NativePlayer_PlaybackStatus",
         "usedStructName": "nativeplayer.PlaybackStatus",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "seekedEventCancelFunc",
+        "jsonName": "seekedEventCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
         "comments": []

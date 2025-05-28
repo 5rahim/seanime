@@ -4,6 +4,7 @@ go 1.24.3
 
 require (
 	fyne.io/systray v1.11.0
+	github.com/5rahim/go-astisub v0.2.1
 	github.com/5rahim/habari v0.1.6
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/Microsoft/go-winio v0.6.2
@@ -37,8 +38,10 @@ require (
 	github.com/mileusna/useragent v1.3.5
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/ncruces/go-dns v1.2.7
+	github.com/neilotoole/streamcache v0.3.5
 	github.com/nwaples/rardecode/v2 v2.0.1
 	github.com/pkg/errors v0.9.1
+	github.com/remko/go-mkvparse v0.14.0
 	github.com/rs/zerolog v1.33.0
 	github.com/samber/lo v1.47.0
 	github.com/samber/mo v1.13.0
@@ -56,13 +59,6 @@ require (
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.25.12
 )
-
-require (
-	github.com/neilotoole/streamcache v0.3.5
-	github.com/remko/go-mkvparse v0.14.0
-)
-
-require github.com/neilotoole/fifomu v0.1.2 // indirect
 
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
@@ -87,6 +83,8 @@ require (
 	github.com/antchfx/htmlquery v1.3.2 // indirect
 	github.com/antchfx/xmlquery v1.4.1 // indirect
 	github.com/antchfx/xpath v1.3.1 // indirect
+	github.com/asticode/go-astikit v0.20.0 // indirect
+	github.com/asticode/go-astits v1.8.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/benbjohnson/immutable v0.3.0 // indirect
@@ -136,6 +134,7 @@ require (
 	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
+	github.com/neilotoole/fifomu v0.1.2 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pion/datachannel v1.5.9 // indirect

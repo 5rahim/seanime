@@ -55,63 +55,59 @@ func isMkvOrWebm(r io.Reader) (string, bool) {
 	}
 }
 
-func UTF8ToASS(text string) string {
+// UTF8ToASSText
+//
+// note: needs testing
+func UTF8ToASSText(text string) string {
 	// Convert HTML entities to actual characters
-	text = strings.ReplaceAll(text, "&lt;", "<")
-	text = strings.ReplaceAll(text, "&gt;", ">")
-	text = strings.ReplaceAll(text, "&amp;", "&")
-	text = strings.ReplaceAll(text, "&nbsp;", "\\h")
-	text = strings.ReplaceAll(text, "&quot;", "\"")
-	text = strings.ReplaceAll(text, "&#39;", "'")
-	text = strings.ReplaceAll(text, "&apos;", "'")
-	text = strings.ReplaceAll(text, "&laquo;", "«")
-	text = strings.ReplaceAll(text, "&raquo;", "»")
-	text = strings.ReplaceAll(text, "&ndash;", "-")
-	text = strings.ReplaceAll(text, "&mdash;", "—")
-	text = strings.ReplaceAll(text, "&hellip;", "…")
+	type tags struct {
+		values  []string
+		replace string
+	}
+	t := []tags{
+		{values: []string{"&lt;"}, replace: "<"},
+		{values: []string{"&gt;"}, replace: ">"},
+		{values: []string{"&amp;"}, replace: "&"},
+		{values: []string{"&nbsp;"}, replace: "\\h"},
+		{values: []string{"&quot;"}, replace: "\""},
+		{values: []string{"&#39;"}, replace: "'"},
+		{values: []string{"&apos;"}, replace: "'"},
+		{values: []string{"&laquo;"}, replace: "«"},
+		{values: []string{"&raquo;"}, replace: "»"},
+		{values: []string{"&ndash;"}, replace: "-"},
+		{values: []string{"&mdash;"}, replace: "—"},
+		{values: []string{"&hellip;"}, replace: "…"},
+		{values: []string{"&copy;"}, replace: "©"},
+		{values: []string{"&reg;"}, replace: "®"},
+		{values: []string{"&trade;"}, replace: "™"},
+		{values: []string{"&euro;"}, replace: "€"},
+		{values: []string{"&pound;"}, replace: "£"},
+		{values: []string{"&yen;"}, replace: "¥"},
+		{values: []string{"&dollar;"}, replace: "$"},
+		{values: []string{"&cent;"}, replace: "¢"},
+		//
+		{values: []string{"\r\n", "\n", "\r", "<br>", "<br/>", "<br />", "<BR>", "<BR/>", "<BR />"}, replace: "\\N"},
+		{values: []string{"<b>", "<B>", "<strong>"}, replace: "{\\b1}"},
+		{values: []string{"</b>", "</B>", "</strong>"}, replace: "{\\b0}"},
+		{values: []string{"<i>", "<I>", "<em>"}, replace: "{\\i1}"},
+		{values: []string{"</i>", "</I>", "</em>"}, replace: "{\\i0}"},
+		{values: []string{"<u>", "<U>"}, replace: "{\\u1}"},
+		{values: []string{"</u>", "</U>"}, replace: "{\\u0}"},
+		{values: []string{"<s>", "<S>", "<strike>", "<del>"}, replace: "{\\s1}"},
+		{values: []string{"</s>", "</S>", "</strike>", "</del>"}, replace: "{\\s0}"},
+		{values: []string{"<center>", "<CENTER>"}, replace: "{\\an8}"},
+		{values: []string{"</center>", "</CENTER>"}, replace: ""},
+		{values: []string{"<ruby>", "<rt>"}, replace: "{\\ruby1}"},
+		{values: []string{"</ruby>", "</rt>"}, replace: "{\\ruby0}"},
+		{values: []string{"<p>", "<P>", "<div>", "<DIV>"}, replace: ""},
+		{values: []string{"</p>", "</P>", "</div>", "</DIV>"}, replace: "\\N"},
+	}
 
-	// Convert line breaks
-	text = strings.ReplaceAll(text, "\r\n", "\\N")
-	text = strings.ReplaceAll(text, "\n", "\\N")
-	text = strings.ReplaceAll(text, "\r", "\\N")
-	text = strings.ReplaceAll(text, "<br>", "\\N")
-	text = strings.ReplaceAll(text, "<br/>", "\\N")
-	text = strings.ReplaceAll(text, "<br />", "\\N")
-	text = strings.ReplaceAll(text, "<BR>", "\\N")
-	text = strings.ReplaceAll(text, "<BR/>", "\\N")
-	text = strings.ReplaceAll(text, "<BR />", "\\N")
-
-	// Convert basic HTML tags to ASS tags
-	text = strings.ReplaceAll(text, "<b>", "{\\b1}")
-	text = strings.ReplaceAll(text, "</b>", "{\\b0}")
-	text = strings.ReplaceAll(text, "<B>", "{\\b1}")
-	text = strings.ReplaceAll(text, "</B>", "{\\b0}")
-	text = strings.ReplaceAll(text, "<strong>", "{\\b1}")
-	text = strings.ReplaceAll(text, "</strong>", "{\\b0}")
-
-	// Italic tags
-	text = strings.ReplaceAll(text, "<i>", "{\\i1}")
-	text = strings.ReplaceAll(text, "</i>", "{\\i0}")
-	text = strings.ReplaceAll(text, "<I>", "{\\i1}")
-	text = strings.ReplaceAll(text, "</I>", "{\\i0}")
-	text = strings.ReplaceAll(text, "<em>", "{\\i1}")
-	text = strings.ReplaceAll(text, "</em>", "{\\i0}")
-
-	// Underline tags
-	text = strings.ReplaceAll(text, "<u>", "{\\u1}")
-	text = strings.ReplaceAll(text, "</u>", "{\\u0}")
-	text = strings.ReplaceAll(text, "<U>", "{\\u1}")
-	text = strings.ReplaceAll(text, "</U>", "{\\u0}")
-
-	// Strikethrough tags
-	text = strings.ReplaceAll(text, "<s>", "{\\s1}")
-	text = strings.ReplaceAll(text, "</s>", "{\\s0}")
-	text = strings.ReplaceAll(text, "<S>", "{\\s1}")
-	text = strings.ReplaceAll(text, "</S>", "{\\s0}")
-	text = strings.ReplaceAll(text, "<strike>", "{\\s1}")
-	text = strings.ReplaceAll(text, "</strike>", "{\\s0}")
-	text = strings.ReplaceAll(text, "<del>", "{\\s1}")
-	text = strings.ReplaceAll(text, "</del>", "{\\s0}")
+	for _, tag := range t {
+		for _, value := range tag.values {
+			text = strings.ReplaceAll(text, value, tag.replace)
+		}
+	}
 
 	// Font tags with color and size
 	if strings.Contains(text, "<font") || strings.Contains(text, "<FONT") {
@@ -182,28 +178,6 @@ func UTF8ToASS(text string) string {
 			}
 		}
 	}
-
-	// Handle alignment tags
-	text = strings.ReplaceAll(text, "<center>", "{\\an8}")
-	text = strings.ReplaceAll(text, "</center>", "")
-	text = strings.ReplaceAll(text, "<CENTER>", "{\\an8}")
-	text = strings.ReplaceAll(text, "</CENTER>", "")
-
-	// Handle ruby/furigana text
-	text = strings.ReplaceAll(text, "<ruby>", "{\\ruby1}")
-	text = strings.ReplaceAll(text, "</ruby>", "{\\ruby0}")
-	text = strings.ReplaceAll(text, "<rt>", "{\\rt}")
-	text = strings.ReplaceAll(text, "</rt>", "{\\rt0}")
-
-	// Clean up any
-	text = strings.ReplaceAll(text, "<p>", "")
-	text = strings.ReplaceAll(text, "</p>", "\\N")
-	text = strings.ReplaceAll(text, "<P>", "")
-	text = strings.ReplaceAll(text, "</P>", "\\N")
-	text = strings.ReplaceAll(text, "<div>", "")
-	text = strings.ReplaceAll(text, "</div>", "\\N")
-	text = strings.ReplaceAll(text, "<DIV>", "")
-	text = strings.ReplaceAll(text, "</DIV>", "\\N")
 
 	return text
 }
