@@ -53,7 +53,12 @@ import { PiSpinnerDuotone } from "react-icons/pi"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
-import { NativePlayerKeybindingController, NativePlayerKeybindingsModal, nativePlayerKeybindingsModalAtom } from "./native-player-keybindings"
+import {
+    FlashNotificationDisplay,
+    NativePlayerKeybindingController,
+    NativePlayerKeybindingsModal,
+    nativePlayerKeybindingsModalAtom,
+} from "./native-player-keybindings"
 import { StreamPreviewCaptureIntervalSeconds, StreamPreviewManager } from "./native-player-preview"
 import { nativePlayer_settingsAtom, nativePlayer_stateAtom, nativePlayerKeybindingsAtom } from "./native-player.atoms"
 import { detectSubtitleType, isSubtitleFile, nativeplayer_createChapterCues, nativeplayer_createChapterVTT } from "./native-player.utils"
@@ -711,8 +716,11 @@ export function NativePlayer() {
                                         volume,
                                         muted,
                                         subtitleManagerRef,
+                                        audioManagerRef,
                                     }}
                                 />
+
+                                <FlashNotificationDisplay />
 
                                 {!state.miniPlayer && <IconButton
                                     icon={<FiMinimize2 className="text-2xl" />}

@@ -4,12 +4,56 @@ import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom } from "jotai"
+import { atomWithImmer } from "jotai-immer"
 import { useMediaSelector, useMediaStore } from "media-chrome/dist/react/media-store.js"
-import React, { useCallback, useEffect, useState } from "react"
-import { StreamSubtitleManager } from "./handle-native-player"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { defaultKeybindings, nativePlayer_stateAtom, NativePlayerKeybindings, nativePlayerKeybindingsAtom } from "./native-player.atoms"
 
 export const nativePlayerKeybindingsModalAtom = atom(false)
+
+// Flash notification system
+type FlashNotification = {
+    id: string
+    message: string
+    timestamp: number
+}
+
+const flashNotificationAtom = atomWithImmer<FlashNotification | null>(null)
+
+export function FlashNotificationDisplay() {
+    const [notification] = useAtom(flashNotificationAtom)
+
+    if (!notification) return null
+
+    return (
+        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+            <div className="text-white px-4 py-2 !text-xl font-bold" style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}>
+                {notification.message}
+            </div>
+        </div>
+    )
+}
+
+export function useFlashNotification() {
+    const [, setNotification] = useAtom(flashNotificationAtom)
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+    const showFlash = useCallback((message: string) => {
+        const id = Date.now().toString()
+        setNotification({ id, message, timestamp: Date.now() })
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setNotification(null)
+            timeoutRef.current = null
+        }, 1000)
+    }, [])
+
+    return { showFlash }
+}
 
 export function NativePlayerKeybindingsModal() {
     const [open, setOpen] = useAtom(nativePlayerKeybindingsModalAtom)
@@ -242,6 +286,11 @@ export function NativePlayerKeybindingsModal() {
                             description="Toggle mute"
                             actionKey="mute"
                         />
+                        <KeybindingRow
+                            action="Cycle Audio"
+                            description="Cycle through audio tracks"
+                            actionKey="cycleAudio"
+                        />
                     </div>
                 </div>
             </div>
@@ -274,7 +323,7 @@ export function NativePlayerKeybindingsModal() {
 
 export function NativePlayerKeybindingController(props: {
     videoRef: React.RefObject<HTMLVideoElement>,
-    chapterCues: { startTime: number, endTime: number }[],
+    chapterCues: { startTime: number, endTime: number, text?: string }[],
     seekTo: (time: number) => void,
     seek: (time: number) => void,
     setVolume: (volume: number) => void,
@@ -282,13 +331,15 @@ export function NativePlayerKeybindingController(props: {
     volume: number,
     muted: boolean,
     subtitleManagerRef: React.RefObject<StreamSubtitleManager>,
+    audioManagerRef: React.RefObject<StreamAudioManager>,
 }) {
-    const { videoRef, chapterCues, seekTo, seek, setVolume, setMuted, volume, muted, subtitleManagerRef } = props
+    const { videoRef, chapterCues, seekTo, seek, setVolume, setMuted, volume, muted, subtitleManagerRef, audioManagerRef } = props
     const [keybindings] = useAtom(nativePlayerKeybindingsAtom)
     const [state] = useAtom(nativePlayer_stateAtom)
     const mediaStore = useMediaStore()
     const fullscreen = useMediaSelector(state => state.mediaIsFullscreen)
     const pip = useMediaSelector(state => state.mediaIsPip)
+    const { showFlash } = useFlashNotification()
 
     //
     // Keyboard shortcuts
@@ -348,6 +399,9 @@ export function NativePlayerKeybindingController(props: {
         } else if (e.code === keybindings.cycleSubtitles.key) {
             e.preventDefault()
             handleCycleSubtitles()
+        } else if (e.code === keybindings.cycleAudio.key) {
+            e.preventDefault()
+            handleCycleAudio()
         } else if (e.code === keybindings.nextEpisode.key) {
             e.preventDefault()
             handleNextEpisode()
@@ -362,14 +416,16 @@ export function NativePlayerKeybindingController(props: {
             handleTogglePictureInPicture()
         } else if (e.code === keybindings.increaseSpeed.key) {
             e.preventDefault()
-            const newRate = Math.min(4, video.playbackRate + keybindings.increaseSpeed.value)
+            const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
             video.playbackRate = newRate
+            showFlash(`Speed: ${newRate.toFixed(2)}x`)
         } else if (e.code === keybindings.decreaseSpeed.key) {
             e.preventDefault()
-            const newRate = Math.max(0.25, video.playbackRate - keybindings.decreaseSpeed.value)
+            const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
+            showFlash(`Speed: ${newRate.toFixed(2)}x`)
         }
-    }, [keybindings, volume, muted, seek, state.active, state.playbackInfo, fullscreen, pip])
+    }, [keybindings, volume, muted, seek, state.active, state.playbackInfo, fullscreen, pip, showFlash])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {
@@ -384,14 +440,18 @@ export function NativePlayerKeybindingController(props: {
         const nextChapter = sortedChapters.find(chapter => chapter.startTime > currentTime + 1)
         if (nextChapter) {
             seekTo(nextChapter.startTime)
+            // Try to get chapter name from video track cues
+            const chapterName = nextChapter.text
+            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}`)
         } else {
             // If no next chapter, go to the end
             const lastChapter = sortedChapters[sortedChapters.length - 1]
             if (lastChapter && lastChapter.endTime) {
                 seekTo(lastChapter.endTime)
+                showFlash("End of chapters")
             }
         }
-    }, [chapterCues])
+    }, [chapterCues, seekTo, showFlash])
 
     const handlePreviousChapter = useCallback(() => {
         if (!videoRef.current || !chapterCues) return
@@ -411,20 +471,30 @@ export function NativePlayerKeybindingController(props: {
             // Go to previous chapter
             const previousChapter = sortedChapters[currentChapterIndex - 1]
             seekTo(previousChapter.startTime)
+            const chapterName = previousChapter.text
+            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}`)
         } else if (currentChapterIndex === 0) {
             // Already in first chapter, go to the beginning
             seekTo(0)
+            const firstChapter = sortedChapters[0]
+            const chapterName = firstChapter.text
+            showFlash(chapterName ? `Chapter: ${chapterName}` : "Chapter 1")
         } else {
             // If we can't determine current chapter, just go to the beginning
             seekTo(0)
+            showFlash("Beginning")
         }
-    }, [chapterCues])
+    }, [chapterCues, seekTo, showFlash])
+
 
     const handleCycleSubtitles = useCallback(() => {
         if (!videoRef.current) return
 
-        const textTracks = videoRef.current.textTracks
-        if (textTracks.length === 0) return
+        const textTracks = Array.from(videoRef.current.textTracks).filter(track => track.kind === "subtitles")
+        if (textTracks.length === 0) {
+            showFlash("No subtitle tracks")
+            return
+        }
 
         // Find currently showing track
         let currentTrackIndex = -1
@@ -447,10 +517,47 @@ export function NativePlayerKeybindingController(props: {
         if (nextIndex < textTracks.length) {
             textTracks[nextIndex].mode = "showing"
             subtitleManagerRef.current?.selectTrack(Number(textTracks[nextIndex].id))
+            const trackName = textTracks[nextIndex].label || `Track ${nextIndex + 1}`
+            showFlash(`Subtitles: ${trackName}`)
         } else {
             // If we've cycled through all, disable subtitles
             subtitleManagerRef.current?.setNoTrack()
+            showFlash("Subtitles: Off")
         }
+    }, [])
+
+    const handleCycleAudio = useCallback(() => {
+        if (!videoRef.current) return
+
+        const audioTracks = videoRef.current.audioTracks
+        if (!audioTracks || audioTracks.length <= 1) {
+            showFlash("No additional audio tracks")
+            return
+        }
+
+        // Find currently enabled track
+        let currentTrackIndex = -1
+        for (let i = 0; i < audioTracks.length; i++) {
+            if (audioTracks[i].enabled) {
+                currentTrackIndex = i
+                break
+            }
+        }
+
+        // Cycle to next track
+        const nextIndex = (currentTrackIndex + 1) % audioTracks.length
+
+        // Disable all tracks first
+        for (let i = 0; i < audioTracks.length; i++) {
+            audioTracks[i].enabled = false
+        }
+
+        // Enable next track
+        audioTracks[nextIndex].enabled = true
+        audioManagerRef.current?.selectTrack(nextIndex)
+
+        const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
+        showFlash(`Audio: ${trackName}`)
     }, [])
 
     const log = logger("NativePlayerKeybindings")

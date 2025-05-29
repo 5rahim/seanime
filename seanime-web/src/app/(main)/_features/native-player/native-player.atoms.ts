@@ -63,6 +63,7 @@ export interface NativePlayerKeybindings {
     volumeDown: { key: string; value: number }
     mute: { key: string }
     cycleSubtitles: { key: string }
+    cycleAudio: { key: string }
     nextEpisode: { key: string }
     previousEpisode: { key: string }
     fullscreen: { key: string }
@@ -82,12 +83,13 @@ export const defaultKeybindings: NativePlayerKeybindings = {
     volumeDown: { key: "ArrowDown", value: 5 },
     mute: { key: "KeyM" },
     cycleSubtitles: { key: "KeyJ" },
+    cycleAudio: { key: "KeyK" },
     nextEpisode: { key: "KeyN" },
     previousEpisode: { key: "KeyB" },
     fullscreen: { key: "KeyF" },
     pictureInPicture: { key: "KeyP" },
-    increaseSpeed: { key: "BracketLeft", value: 0.25 },
-    decreaseSpeed: { key: "BracketRight", value: 0.25 },
+    increaseSpeed: { key: "BracketRight", value: 0.1 },
+    decreaseSpeed: { key: "BracketLeft", value: 0.1 },
 }
 
 export const nativePlayerKeybindingsAtom = atomWithStorage("sea-native-player-keybindings", defaultKeybindings)
