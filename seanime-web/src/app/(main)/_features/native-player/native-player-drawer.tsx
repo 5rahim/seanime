@@ -223,6 +223,11 @@ export function NativePlayerDrawer(props: DrawerProps) {
 
         const handleMouseDown = (e: MouseEvent) => {
             if (!contentRef.current) return
+            if ((e.target as HTMLElement).tagName === "MEDIA-TIME-RANGE" ||
+                (e.target as HTMLElement).tagName === "MEDIA-VOLUME-RANGE" ||
+                (e.target as HTMLElement).tagName === "MEDIA-PLAYBACK-RATE-RANGE") {
+                return
+            }
             setIsDragging(true)
             dragStartPos.current = { x: e.clientX, y: e.clientY }
             elementStartPos.current = { x: position.x, y: position.y }

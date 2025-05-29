@@ -34,6 +34,7 @@ import {
     MediaTimeRange,
     MediaVolumeRange,
 } from "media-chrome/react"
+import { MediaProvider } from "media-chrome/react/media-store"
 import {
     MediaAudioTrackMenu,
     MediaAudioTrackMenuButton,
@@ -46,14 +47,15 @@ import {
     MediaSettingsMenuItem,
 } from "media-chrome/react/menu"
 import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { BiExpand } from "react-icons/bi"
+import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
+import { NativePlayerKeybindingController, NativePlayerKeybindingsModal, nativePlayerKeybindingsModalAtom } from "./native-player-keybindings"
 import { StreamPreviewCaptureIntervalSeconds, StreamPreviewManager } from "./native-player-preview"
-import { nativePlayer_settingsAtom, nativePlayer_stateAtom } from "./native-player.atoms"
+import { nativePlayer_settingsAtom, nativePlayer_stateAtom, nativePlayerKeybindingsAtom } from "./native-player.atoms"
 import { detectSubtitleType, isSubtitleFile, nativeplayer_createChapterCues, nativeplayer_createChapterVTT } from "./native-player.utils"
 
 const enum VideoPlayerEvents {
@@ -99,6 +101,9 @@ export function NativePlayer() {
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [duration, setDuration] = useState(0)
 
+    // Keybindings
+    const keybindings = useAtomValue(nativePlayerKeybindingsAtom)
+
     const streamLoadedRef = useRef<string | null>(null)
     const subtitleManagerRef = useRef<StreamSubtitleManager | null>(null)
     const audioManagerRef = useRef<StreamAudioManager | null>(null)
@@ -106,11 +111,6 @@ export function NativePlayer() {
 
     // Handle thumbnail preview updates
     const [previewThumbnail, setPreviewThumbnail] = useState<string | undefined>(undefined)
-
-    // Debug thumbnail changes
-    useEffect(() => {
-        log.info("Preview thumbnail changed:", previewThumbnail ? "has thumbnail" : "no thumbnail")
-    }, [previewThumbnail])
 
     // Create chapter track
     const [chapterTrackUrl, setChapterTrackUrl] = useState<string | null>(null)
@@ -197,6 +197,15 @@ export function NativePlayer() {
         }
     }, [muted])
 
+    useEffect(() => {
+        if (state.active && videoRef.current && state.playbackInfo) {
+            // Small delay to ensure the video element is fully rendered
+            setTimeout(() => {
+                videoRef.current?.focus()
+            }, 100)
+        }
+    }, [state.active, state.playbackInfo])
+
     //
     // Functions
     //
@@ -270,9 +279,6 @@ export function NativePlayer() {
 
     const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         setVolume(e.currentTarget.volume)
-    }
-
-    const handleMuteChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         setMuted(e.currentTarget.muted)
     }
 
@@ -579,7 +585,6 @@ export function NativePlayer() {
             try {
                 const thumbnail = await previewManagerRef.current.retrievePreviewForSegment(thumbnailIndex)
                 if (thumbnail) {
-                    // Set the thumbnail directly on the MediaTimeRange using the media UI attribute
                     timeRange.setAttribute("mediapreviewimage", thumbnail)
                     setPreviewThumbnail(thumbnail)
                 }
@@ -599,7 +604,6 @@ export function NativePlayer() {
         }
 
         const handleMouseLeave = () => {
-            // Clear thumbnail when not hovering
             timeRange.removeAttribute("mediapreviewimage")
             setPreviewThumbnail(undefined)
         }
@@ -619,8 +623,12 @@ export function NativePlayer() {
         return cues
     }, [state.playbackInfo?.mkvMetadata?.chapters, duration])
 
+    const [keybindingsModalOpen, setKeybindingsModalOpen] = useAtom(nativePlayerKeybindingsModalAtom)
+
     return (
         <>
+            <NativePlayerKeybindingsModal />
+
             <NativePlayerDrawer
                 open={state.active}
                 onOpenChange={(v) => {
@@ -632,7 +640,6 @@ export function NativePlayer() {
                         if (!state.miniPlayer) {
                             setState(draft => {
                                 draft.miniPlayer = true
-                                return
                             })
                         } else {
                             handleTerminateStream()
@@ -657,7 +664,6 @@ export function NativePlayer() {
                     state.miniPlayer && "left-4",
                 )}
                 hideCloseButton
-                closeButton={!state.miniPlayer ? undefined : undefined}
                 data-native-player-drawer
             >
 
@@ -676,6 +682,7 @@ export function NativePlayer() {
                     </div>
                 )}
 
+
                 <div
                     className="h-full w-full bg-black flex items-center z-[50]"
                     data-native-player-container
@@ -684,210 +691,248 @@ export function NativePlayer() {
                     ref={playerContainerRef}
                 >
                     {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
-                        <MediaController
-                            className={cn(
-                                "w-full h-full",
-                                discreteControls && "discrete-controls",
-                            )}
-                            tabIndex={-1}
-                        >
+                        <MediaProvider>
+                            <MediaController
+                                className={cn(
+                                    "w-full h-full",
+                                    discreteControls && "discrete-controls",
+                                )}
+                                tabIndex={-1}
+                            >
 
-                            {!state.miniPlayer && <IconButton
-                                icon={<FiMinimize2 className="text-2xl" />}
-                                intent="gray-basic"
-                                className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen"
-                                onClick={() => {
-                                    setState(draft => {
-                                        draft.miniPlayer = true
-                                    })
-                                }}
-                            />}
+                                <NativePlayerKeybindingController
+                                    {...{
+                                        videoRef,
+                                        chapterCues,
+                                        seekTo,
+                                        seek,
+                                        setVolume,
+                                        setMuted,
+                                        volume,
+                                        muted,
+                                        subtitleManagerRef,
+                                    }}
+                                />
 
-                            {state.miniPlayer && (
-                                <IconButton
-                                    type="button"
+                                {!state.miniPlayer && <IconButton
+                                    icon={<FiMinimize2 className="text-2xl" />}
                                     intent="gray-basic"
-                                    size="sm"
-                                    className={cn(
-                                        "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
-                                        state.miniPlayer && "text-xl",
-                                    )}
-                                    icon={<BiExpand />}
+                                    className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen"
                                     onClick={() => {
                                         setState(draft => {
-                                            draft.miniPlayer = false
+                                            draft.miniPlayer = true
                                         })
                                     }}
-                                />
-                            )}
+                                />}
 
-                            <video
-                                ref={videoRef}
-                                slot="media"
-                                src={state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl())}
-                                crossOrigin="anonymous"
-                                playsInline
-                                autoPlay={autoPlay}
-                                muted={muted}
-                                onTimeUpdate={handleTimeUpdate}
-                                onDurationChange={handleDurationChange}
-                                onEnded={handleEnded}
-                                onError={handleError}
-                                onVolumeChange={handleVolumeChange}
-                                onSeeked={handleSeeked}
-                                onLoadedMetadata={handleLoadedMetadata}
-                                onCanPlay={handleCanPlay}
-                                onPause={handlePause}
-                                onPlay={handlePlay}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    border: "none",
-                                    filter: settings.videoEnhancement.enabled
-                                        ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
-                                        : "none",
-                                    imageRendering: "auto",
-                                }}
-                                tabIndex={-1}
-                                className="outline-none"
-                            >
-                                {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
-                                    <track
-                                        id={track.number.toString()}
-                                        key={track.number}
-                                        kind="subtitles"
-                                        srcLang={track.language || "eng"}
-                                        label={track.name}
+                                {state.miniPlayer && <>
+                                    <IconButton
+                                        type="button"
+                                        intent="gray-basic"
+                                        size="sm"
+                                        className={cn(
+                                            "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
+                                            state.miniPlayer && "text-xl",
+                                        )}
+                                        icon={<BiExpand />}
+                                        onClick={() => {
+                                            setState(draft => {
+                                                draft.miniPlayer = false
+                                            })
+                                        }}
                                     />
-                                ))}
-                                {chapterTrackUrl && (
-                                    <track
-                                        kind="chapters"
-                                        src={chapterTrackUrl}
-                                        default
-                                        label="Chapters"
+                                    <IconButton
+                                        type="button"
+                                        intent="alert-subtle"
+                                        size="xs"
+                                        className={cn(
+                                            "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
+                                            state.miniPlayer && "text-xl",
+                                        )}
+                                        icon={<BiX />}
+                                        onClick={() => {
+                                            handleTerminateStream()
+                                        }}
                                     />
-                                )}
-                            </video>
+                                </>}
 
-                            <MediaErrorDialog slot="dialog" />
-
-                            <div className="native-player-gradient-bottom"></div>
-
-                            {!state.miniPlayer && <div
-                                className={cn(
-                                    "top-8 absolute py-4 px-5",
-                                    // state.miniPlayer && "hidden",
-                                )} slot="top-chrome"
-                            >
-                                <div className="">
-                                    <p className="text-white font-bold text-lg">
-                                        {state.playbackInfo?.episode?.displayTitle}
-                                    </p>
-                                    <p className="text-white/50 text-lg font-normal">
-                                        {state.playbackInfo?.episode?.episodeTitle}
-                                    </p>
-                                </div>
-                            </div>}
-
-                            <MediaSettingsMenu hidden anchor="auto">
-                                <MediaSettingsMenuItem>
-                                    Playback Speed
-                                    <MediaPlaybackRateMenu rates={[0.5, 0.75, 1, 1.10, 1.25, 1.5, 1.75, 2]} slot="submenu" hidden>
-                                        <div slot="title">Playback Speed</div>
-                                    </MediaPlaybackRateMenu>
-                                </MediaSettingsMenuItem>
-                                <MediaSettingsMenuItem className="quality-settings">
-                                    Quality
-                                    <MediaRenditionMenu slot="submenu" hidden>
-                                        <div slot="title">Quality</div>
-                                    </MediaRenditionMenu>
-                                </MediaSettingsMenuItem>
-                            </MediaSettingsMenu>
-
-                            <MediaCaptionsMenu anchor="auto" hidden onChange={onCaptionsChange}>
-                                <div slot="header">Subtitles/CC</div>
-                            </MediaCaptionsMenu>
-
-                            <MediaAudioTrackMenu
-                                anchor="auto" hidden onChange={onAudioChange}
-                            >
-                                <div slot="header">Audio</div>
-                            </MediaAudioTrackMenu>
-
-                            <MediaTimeRange
-                                ref={timeRangeRef}
-                                mediaChaptersCues={chapterCues}
-                            >
-                                <MediaPreviewThumbnail
-                                    slot="preview"
-                                    mediaPreviewImage={previewThumbnail}
-                                    mediaPreviewCoords={previewThumbnail ? [0, 0, 200, 100] : undefined}
-                                />
-                                <MediaPreviewChapterDisplay slot="preview" />
-                                <MediaPreviewTimeDisplay slot="preview" />
-                            </MediaTimeRange>
-
-                            <MediaControlBar>
-                                <MediaPlayButton
-                                    className="native-player-button flex justify-center items-center"
-                                    data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Play,
+                                <video
+                                    ref={videoRef}
+                                    slot="media"
+                                    src={state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl())}
+                                    crossOrigin="anonymous"
+                                    playsInline
+                                    autoPlay={autoPlay}
+                                    muted={muted}
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onDurationChange={handleDurationChange}
+                                    onEnded={handleEnded}
+                                    onError={handleError}
+                                    onVolumeChange={handleVolumeChange}
+                                    onSeeked={handleSeeked}
+                                    onLoadedMetadata={handleLoadedMetadata}
+                                    onCanPlay={handleCanPlay}
+                                    onPause={handlePause}
+                                    onPlay={handlePlay}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        border: "none",
+                                        filter: settings.videoEnhancement.enabled
+                                            ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
+                                            : "none",
+                                        imageRendering: "auto",
                                     }}
-                                />
+                                    tabIndex={0}
+                                    className="outline-none"
+                                >
+                                    {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
+                                        <track
+                                            id={track.number.toString()}
+                                            key={track.number}
+                                            kind="subtitles"
+                                            srcLang={track.language || "eng"}
+                                            label={track.name}
+                                        />
+                                    ))}
+                                    {chapterTrackUrl && (
+                                        <track
+                                            kind="chapters"
+                                            src={chapterTrackUrl}
+                                            default
+                                            label="Chapters"
+                                        />
+                                    )}
+                                </video>
 
-                                <MediaMuteButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Mute,
+                                <MediaErrorDialog slot="dialog" />
+
+                                <div className="native-player-gradient-bottom"></div>
+
+                                {!state.miniPlayer && <div
+                                    className={cn(
+                                        "top-8 absolute py-4 px-5",
+                                        // state.miniPlayer && "hidden",
+                                    )}
+                                >
+                                    <div className="">
+                                        <p className="text-white font-bold text-lg">
+                                            {state.playbackInfo?.episode?.displayTitle}
+                                        </p>
+                                        <p className="text-white/50 text-base !font-normal">
+                                            {state.playbackInfo?.episode?.episodeTitle}
+                                        </p>
+                                    </div>
+                                </div>}
+
+                                <MediaSettingsMenu hidden anchor="auto">
+                                    <MediaSettingsMenuItem>
+                                        Playback Speed
+                                        <MediaPlaybackRateMenu rates={[0.5, 0.75, 1, 1.10, 1.25, 1.5, 1.75, 2]} slot="submenu" hidden>
+                                            <div slot="title">Playback Speed</div>
+                                        </MediaPlaybackRateMenu>
+                                    </MediaSettingsMenuItem>
+                                    <MediaSettingsMenuItem className="quality-settings">
+                                        Quality
+                                        <MediaRenditionMenu slot="submenu" hidden>
+                                            <div slot="title">Quality</div>
+                                        </MediaRenditionMenu>
+                                    </MediaSettingsMenuItem>
+                                    <MediaSettingsMenuItem
+                                        className="keyboard-shortcuts-settings" onClick={e => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        setKeybindingsModalOpen(true)
                                     }}
-                                />
+                                    >
+                                        Keyboard Shortcuts
+                                    </MediaSettingsMenuItem>
+                                </MediaSettingsMenu>
 
-                                <MediaVolumeRange />
+                                <MediaCaptionsMenu anchor="auto" hidden onChange={onCaptionsChange}>
+                                    <div slot="header">Subtitles/CC</div>
+                                </MediaCaptionsMenu>
 
-                                <MediaTimeDisplay showDuration />
+                                <MediaAudioTrackMenu
+                                    anchor="auto" hidden onChange={onAudioChange}
+                                >
+                                    <div slot="header">Audio</div>
+                                </MediaAudioTrackMenu>
 
-                                <span className="control-spacer" />
+                                <MediaTimeRange
+                                    ref={timeRangeRef}
+                                    mediaChaptersCues={chapterCues}
+                                >
+                                    <MediaPreviewThumbnail
+                                        slot="preview"
+                                        mediaPreviewImage={previewThumbnail}
+                                        mediaPreviewCoords={previewThumbnail ? [0, 0, 200, 100] : undefined}
+                                    />
+                                    <MediaPreviewChapterDisplay slot="preview" />
+                                    <MediaPreviewTimeDisplay slot="preview" />
+                                </MediaTimeRange>
 
-                                <MediaAudioTrackMenuButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.AudioTrack,
-                                    }}
-                                />
+                                <MediaControlBar>
+                                    <MediaPlayButton
+                                        className="native-player-button flex justify-center items-center"
+                                        data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Play,
+                                        }}
+                                    />
 
-                                <MediaCaptionsMenuButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Captions,
-                                    }}
-                                />
+                                    <MediaMuteButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Mute,
+                                        }}
+                                    />
 
-                                <MediaSettingsMenuButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Settings,
-                                    }}
-                                />
+                                    <MediaVolumeRange />
 
-                                <MediaPipButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Pip,
-                                    }}
-                                />
+                                    <MediaTimeDisplay showDuration />
 
-                                <MediaFullscreenButton
-                                    className="native-player-button" data-mini-player={state.miniPlayer}
-                                    dangerouslySetInnerHTML={{
-                                        __html: NativePlayerIcons.Fullscreen,
-                                    }}
-                                />
+                                    <span className="control-spacer" />
 
-                            </MediaControlBar>
+                                    <MediaAudioTrackMenuButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.AudioTrack,
+                                        }}
+                                    />
 
-                        </MediaController>
+                                    <MediaCaptionsMenuButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Captions,
+                                        }}
+                                    />
+
+                                    <MediaSettingsMenuButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Settings,
+                                        }}
+                                    />
+
+                                    <MediaPipButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Pip,
+                                        }}
+                                    />
+
+                                    <MediaFullscreenButton
+                                        className="native-player-button" data-mini-player={state.miniPlayer}
+                                        dangerouslySetInnerHTML={{
+                                            __html: NativePlayerIcons.Fullscreen,
+                                        }}
+                                    />
+
+                                </MediaControlBar>
+
+                            </MediaController>
+                        </MediaProvider>
                     ) : (
                         <div
                             className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"

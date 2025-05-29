@@ -49,3 +49,45 @@ export const nativePlayer_settingsAtom = atomWithStorage<NativePlayerSettings>("
     nativePlayer_initialSettings,
     undefined,
     { getOnInit: true })
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export interface NativePlayerKeybindings {
+    seekForward: { key: string; value: number }
+    seekBackward: { key: string; value: number }
+    seekForwardFine: { key: string; value: number }
+    seekBackwardFine: { key: string; value: number }
+    nextChapter: { key: string }
+    previousChapter: { key: string }
+    volumeUp: { key: string; value: number }
+    volumeDown: { key: string; value: number }
+    mute: { key: string }
+    cycleSubtitles: { key: string }
+    nextEpisode: { key: string }
+    previousEpisode: { key: string }
+    fullscreen: { key: string }
+    pictureInPicture: { key: string }
+    increaseSpeed: { key: string; value: number }
+    decreaseSpeed: { key: string; value: number }
+}
+
+export const defaultKeybindings: NativePlayerKeybindings = {
+    seekForward: { key: "KeyD", value: 30 },
+    seekBackward: { key: "KeyA", value: 30 },
+    seekForwardFine: { key: "ArrowRight", value: 2 },
+    seekBackwardFine: { key: "ArrowLeft", value: 2 },
+    nextChapter: { key: "KeyE" },
+    previousChapter: { key: "KeyQ" },
+    volumeUp: { key: "ArrowUp", value: 5 },
+    volumeDown: { key: "ArrowDown", value: 5 },
+    mute: { key: "KeyM" },
+    cycleSubtitles: { key: "KeyJ" },
+    nextEpisode: { key: "KeyN" },
+    previousEpisode: { key: "KeyB" },
+    fullscreen: { key: "KeyF" },
+    pictureInPicture: { key: "KeyP" },
+    increaseSpeed: { key: "BracketLeft", value: 0.25 },
+    decreaseSpeed: { key: "BracketRight", value: 0.25 },
+}
+
+export const nativePlayerKeybindingsAtom = atomWithStorage("sea-native-player-keybindings", defaultKeybindings)
