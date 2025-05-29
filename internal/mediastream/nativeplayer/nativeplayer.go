@@ -2,7 +2,9 @@ package nativeplayer
 
 import (
 	"context"
+	"seanime/internal/api/anilist"
 	"seanime/internal/events"
+	"seanime/internal/library/anime"
 	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/util/result"
 	"sync"
@@ -22,10 +24,12 @@ type (
 	PlaybackInfo struct {
 		ID            string              `json:"id"`
 		StreamType    StreamType          `json:"streamType"`
-		MimeType      string              `json:"mimeType"`      // e.g. "video/mp4", "video/webm"
-		StreamUrl     string              `json:"streamUrl"`     // URL of the stream
-		ContentLength int64               `json:"contentLength"` // Size of the stream in bytes
-		MkvMetadata   *mkvparser.Metadata `json:"mkvMetadata"`   // nil if not ebml
+		MimeType      string              `json:"mimeType"`              // e.g. "video/mp4", "video/webm"
+		StreamUrl     string              `json:"streamUrl"`             // URL of the stream
+		ContentLength int64               `json:"contentLength"`         // Size of the stream in bytes
+		MkvMetadata   *mkvparser.Metadata `json:"mkvMetadata,omitempty"` // nil if not ebml
+		Episode       *anime.Episode      `json:"episode"`
+		Media         *anilist.BaseAnime  `json:"media"`
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}

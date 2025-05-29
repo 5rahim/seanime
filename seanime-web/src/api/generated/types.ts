@@ -3455,6 +3455,7 @@ export type NativePlayer_PlaybackInfo = {
      * nil if not ebml
      */
     mkvMetadata?: MKVParser_Metadata
+    episode?: Anime_Episode
 }
 
 /**

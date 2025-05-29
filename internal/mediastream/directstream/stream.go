@@ -560,6 +560,8 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, er
 			ContentLength:     size,
 			MkvMetadata:       nil,
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),
+			Episode:           s.episode,
+			Media:             s.media,
 		}
 
 		// If the content type is an EBML content type, we can create a metadata parser
@@ -824,6 +826,8 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 			StreamUrl:         "{{SERVER_URL}}/api/v1/directstream/stream?id=" + id,
 			MkvMetadata:       nil,
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),
+			Episode:           s.episode,
+			Media:             s.media,
 		}
 
 		// If the content type is an EBML content type, we can create a metadata parser

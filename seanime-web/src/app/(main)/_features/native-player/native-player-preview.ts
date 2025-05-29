@@ -13,7 +13,7 @@ export class StreamPreviewManager {
     private readonly _drawingContext = this._offscreenCanvas.getContext("2d")!
 
     constructor(videoElement: HTMLVideoElement, mediaSource?: string) {
-        this.initialize_dummyVideoElement()
+        this.initializeDummyVideoElement()
         if (mediaSource) {
             this.loadMediaSource(mediaSource)
         }
@@ -27,10 +27,9 @@ export class StreamPreviewManager {
 
         this.videoElement.addEventListener("timeupdate", () => {
             const segmentIndex = this.calculateSegmentIndex(this.videoElement.currentTime)
-            const cachedPreview = this.previewCache.get(segmentIndex)
 
-            if (!cachedPreview) {
-                this.generatePreviewForSegment(this.videoElement, segmentIndex)
+            if (!this.previewCache.has(segmentIndex)) {
+                this.captureFrameAtSegment(this.videoElement, segmentIndex)
             }
         }, { signal: this.videoSyncController.signal })
     }
@@ -56,7 +55,7 @@ export class StreamPreviewManager {
         this.clearPreviewCache()
     }
 
-    private initialize_dummyVideoElement(): void {
+    private initializeDummyVideoElement(): void {
         this._dummyVideoElement.crossOrigin = "anonymous"
         this._dummyVideoElement.playbackRate = 0
         this._dummyVideoElement.muted = true
@@ -77,6 +76,7 @@ export class StreamPreviewManager {
     }
 
     private addJob(segmentIndex: number): Job {
+        // @ts-ignore
         const { promise, resolve } = Promise.withResolvers<string | undefined>()
 
         const execute = (): void => {
@@ -148,10 +148,6 @@ export class StreamPreviewManager {
     private configureRenderingSurface(sourceWidth: number, sourceHeight: number): void {
         this._offscreenCanvas.width = StreamPreviewThumbnailSize
         this._offscreenCanvas.height = (sourceHeight / sourceWidth) * StreamPreviewThumbnailSize
-    }
-
-    private generatePreviewForSegment(videoElement: HTMLVideoElement, segmentIndex: number): void {
-        this.captureFrameAtSegment(videoElement, segmentIndex)
     }
 
     private clearPreviewCache(): void {

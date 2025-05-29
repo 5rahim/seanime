@@ -28,9 +28,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 `
 
 export class StreamSubtitleManager {
-    private videoElement: HTMLVideoElement
+    private readonly videoElement: HTMLVideoElement
+    private readonly jassubOffscreenRender: boolean
     private libassRenderer: JASSUB | null = null
-    private jassubOffscreenRender: boolean
     private settings: NativePlayerSettings
 
     private tracks: Record<string, {

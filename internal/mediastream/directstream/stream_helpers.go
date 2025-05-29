@@ -2,7 +2,6 @@ package directstream
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -24,15 +23,6 @@ func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileS
 		return
 	}
 	defer reader.Close()
-
-	playbackInfo, err := lfStream.LoadPlaybackInfo()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	size := playbackInfo.ContentLength
-	w.Header().Set("Content-Length", fmt.Sprint(size))
 
 	http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
 }

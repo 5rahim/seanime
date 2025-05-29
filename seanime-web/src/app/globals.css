@@ -402,7 +402,7 @@ media-controller[mediaisfullscreen] {
     /* height: 100%;
     width: 100%; */
     @apply !size-7;
-    fill: var(--media-primary-color, #fff);
+    /*fill: var(--media-primary-color, #fff);*/
     fill-rule: evenodd;
 }
 
@@ -417,7 +417,7 @@ media-controller[mediaisfullscreen] {
     fill: none;
 }
 
-.yt-gradient-bottom {
+.native-player-gradient-bottom {
     padding-top: 37px;
     position: absolute;
     width: 100%;
@@ -856,12 +856,20 @@ media-pip-button:not([mediaispip]) #pip-icon {
 }
 
 media-fullscreen-button svg {
-    transition: transform opacity 0.1s cubic-bezier(0.4, 0, 1, 1);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 1, 1);
     transform: scale(1);
 }
 
 media-fullscreen-button:hover svg {
+    transform: scale(1.2);
+}
+
+[mediaisfullscreen] media-fullscreen-button:hover svg {
     transform: scale(0.8);
+}
+
+[mediaisfullscreen] .native-player-hide-on-fullscreen {
+    display: none;
 }
 
 media-settings-menu div[slot="title"] {
@@ -902,12 +910,15 @@ media-preview-thumbnail {
 media-preview-chapter-display {
     display: block !important;
     margin-bottom: 5px;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.8);
+    padding: 0px !important;
+    background: transparent !important;
     border-radius: 4px;
     border: none !important;
-    color: white;
-    font-size: 13px;
+    text-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(0px) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -132,9 +132,9 @@ func getLanguageCode(track *TrackInfo) string {
 func getSubtitleTrackType(codecID string) string {
 	switch codecID {
 	case "S_TEXT/ASS":
-		return "ASS/SSA"
+		return "SSA"
 	case "S_TEXT/SSA":
-		return "ASS/SSA"
+		return "SSA"
 	case "S_TEXT/UTF8":
 		return "TEXT"
 	}
@@ -562,7 +562,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		})
 		for _, group := range groups {
 			for _, track := range group {
-				track.Name = fmt.Sprintf("%s (%s)", track.Name, getSubtitleTrackType(track.CodecID))
+				track.Name = fmt.Sprintf("%s [%s]", track.Name, getSubtitleTrackType(track.CodecID))
 			}
 		}
 
