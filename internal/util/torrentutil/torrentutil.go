@@ -145,8 +145,8 @@ func (pm *priorityManager) updatePriorities() {
 
 	for _, reader := range pm.readers {
 		position := reader.position
-		// Remove 2MB from the position
-		position -= 2 * 1024 * 1024
+		// Remove 1MB from the position (for subtitle cluster)
+		position -= 1 * 1024 * 1024
 		if position < 0 {
 			position = 0
 		}

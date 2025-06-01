@@ -858,6 +858,7 @@ export function NativePlayer() {
                                 </>}
 
                                 <video
+                                    key={state.playbackInfo?.streamUrl}
                                     ref={videoRef}
                                     slot="media"
                                     src={state.playbackInfo?.streamUrl?.replace("{{SERVER_URL}}", getServerBaseUrl())}

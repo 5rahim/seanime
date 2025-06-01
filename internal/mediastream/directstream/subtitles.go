@@ -39,6 +39,7 @@ func (s *SubtitleStream) Stop(completed bool) {
 
 // StartSubtitleStream starts a subtitle stream for the given stream at the given offset.
 func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64) {
+	s.logger.Trace().Int64("offset", offset).Msg("directstream: Starting new subtitle stream")
 	subtitleStream := &SubtitleStream{
 		stream: stream,
 		logger: s.logger,
@@ -62,6 +63,7 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 	})
 
 	if !shouldContinue {
+		s.logger.Debug().Int64("offset", offset).Msg("directstream: Skipping subtitle stream, range already fulfilled")
 		return
 	}
 
@@ -70,7 +72,6 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 
 	subtitleStreamId := uuid.New().String()
 	s.activeSubtitleStreams.Set(subtitleStreamId, subtitleStream)
-	s.logger.Debug().Int64("offset", offset).Msg("directstream: Starting new subtitle stream")
 
 	subtitleCh, errCh, startedCh := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset)
 
@@ -87,7 +88,7 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 	var lastSubtitleEvent *mkvparser.SubtitleEvent
 	lastSubtitleEventRWMutex := sync.RWMutex{}
 
-	// Check each second if we need to end this stream
+	// Check every second if we need to end this stream
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
 		defer ticker.Stop()
@@ -188,12 +189,11 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 		// Wait for cluster to be found first
 		<-startedCh
 
-		subtitleTimeout := 3 * time.Second // Reasonable timeout for subtitle parsing
 		select {
 		case <-firstEventSentCh:
 			s.logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event received, continuing")
-		case <-time.After(subtitleTimeout):
-			s.logger.Debug().Int64("offset", offset).Dur("timeout", subtitleTimeout).Msg("directstream: Subtitle timeout reached, continuing without waiting")
+		case <-time.After(3 * time.Second):
+			s.logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle timeout reached (3s), continuing without waiting")
 		case <-ctx.Done():
 			s.logger.Debug().Int64("offset", offset).Msg("directstream: Context cancelled while waiting for first subtitle")
 			return

@@ -96,6 +96,8 @@ func NewManager(options NewManagerOptions) *Manager {
 
 	ret.nativePlayerSubscriber = ret.nativePlayer.Subscribe("directstream")
 
+	ret.listenToNativePlayerEvents()
+
 	return ret
 }
 

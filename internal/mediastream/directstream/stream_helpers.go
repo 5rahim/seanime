@@ -209,7 +209,8 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 		fmt.Printf("directstream > Served content range: %s\n", ra.ContentRange(size))
 	}()
 
-	copyWithFlush(ctx, w, reader, ra.Length)
+	http.ServeContent(w, r, name, time.Now(), reader)
+	// copyWithContext(ctx, w, reader, ra.Length)
 }
 
 func copyWithFlush(ctx context.Context, w http.ResponseWriter, rdr io.Reader, totalBytes int64) {

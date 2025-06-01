@@ -1060,7 +1060,7 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
 	// however it's not ideal so we'll offset the offset by 2MB to avoid missing a cluster
-	toRemove := int64(2 * 1024 * 1024) // 2MB
+	toRemove := int64(1 * 1024 * 1024) // 1MB
 	if seekOffset > toRemove {
 		seekOffset -= toRemove
 	} else {

@@ -94,8 +94,6 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
         },
     })
 
-    console.log("nativePlayerState", loadingState, isLoaded, status, mediaPlayerStartedPlaying)
-
     if (isNativePlayerComponent) {
         return (
             <>

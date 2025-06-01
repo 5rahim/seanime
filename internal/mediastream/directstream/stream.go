@@ -76,12 +76,12 @@ func (m *Manager) prepareNewStream(clientId string, step string) {
 		m.playbackCtxCancelFunc = nil
 	}
 
-	// // Clear the current stream if it exists
-	// if stream, ok := m.currentStream.Get(); ok {
-	// 	m.Logger.Debug().Msgf("directstream: Terminating previous stream before preparing new stream")
-	// 	stream.Terminate()
-	// 	m.currentStream = mo.None[Stream]()
-	// }
+	// Clear the current stream if it exists
+	if stream, ok := m.currentStream.Get(); ok {
+		m.Logger.Debug().Msgf("directstream: Terminating previous stream before preparing new stream")
+		stream.Terminate()
+		m.currentStream = mo.None[Stream]()
+	}
 
 	m.Logger.Debug().Msgf("directstream: Signaling native player that a new stream is starting")
 	// Signal the native player that a new stream is starting
@@ -130,12 +130,9 @@ func (m *Manager) loadStream(stream Stream) {
 
 	m.Logger.Debug().Msgf("directstream: Signaling native player that stream is ready")
 	m.nativePlayer.Watch(stream.ClientId(), playbackInfo)
-
-	// Start the stream loop
-	m.streamLoop(ctx, stream)
 }
 
-func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
+func (m *Manager) listenToNativePlayerEvents() {
 	go func() {
 		defer func() {
 			m.Logger.Trace().Msg("directstream: Stream loop goroutine exited")
@@ -143,19 +140,15 @@ func (m *Manager) streamLoop(ctx context.Context, stream Stream) {
 
 		for {
 			select {
-			case <-ctx.Done():
-				m.Logger.Debug().Msg("directstream: Stream loop cancelled")
-				return
 			case event := <-m.nativePlayerSubscriber.Events():
-				if event.GetClientId() != "" && event.GetClientId() != stream.ClientId() {
-					continue
-				}
-
 				cs, ok := m.currentStream.Get()
 				if !ok {
 					continue
 				}
 
+				if event.GetClientId() != "" && event.GetClientId() != cs.ClientId() {
+					continue
+				}
 				switch event := event.(type) {
 				case *nativeplayer.VideoPausedEvent:
 					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
@@ -307,10 +300,9 @@ func loadContentType(path string, reader ...io.ReadSeekCloser) string {
 	switch ext {
 	case ".mp4":
 		return "video/mp4"
-	// case ".mkv":
-	// return "video/x-matroska"
-	// Note: .mkv will be treated as a webm file for playback purposes
-	case ".webm", ".mkv":
+	case ".mkv":
+		return "video/x-matroska"
+	case ".webm":
 		return "video/webm"
 	case ".avi":
 		return "video/x-msvideo"
