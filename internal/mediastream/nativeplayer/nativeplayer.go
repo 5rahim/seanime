@@ -9,6 +9,7 @@ import (
 	"seanime/internal/util/result"
 	"sync"
 
+	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 )
 
@@ -47,12 +48,13 @@ type (
 
 		seekedEventCancelFunc context.CancelFunc
 
-		currentClientId string
-
 		subscribers *result.Map[string, *Subscriber]
+
+		logger *zerolog.Logger
 	}
 
 	PlaybackStatus struct {
+		ClientId    string
 		Url         string
 		Paused      bool
 		CurrentTime float64
@@ -66,6 +68,7 @@ type (
 
 	NewNativePlayerOptions struct {
 		WsEventManager events.WSEventManagerInterface
+		Logger         *zerolog.Logger
 	}
 )
 
@@ -76,6 +79,7 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 		wsEventManager:              options.WsEventManager,
 		clientPlayerEventSubscriber: options.WsEventManager.SubscribeToClientNativePlayerEvents("nativeplayer"),
 		subscribers:                 result.NewResultMap[string, *Subscriber](),
+		logger:                      options.Logger,
 	}
 
 	np.listenToPlayerEvents()
@@ -92,6 +96,16 @@ func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload inte
 		Type:    t,
 		Payload: payload,
 	}, noLog...)
+}
+
+func (p *NativePlayer) sendPlayerEvent(t string, payload interface{}) {
+	p.wsEventManager.SendEvent(string(events.NativePlayerEventType), struct {
+		Type    string      `json:"type"`
+		Payload interface{} `json:"payload"`
+	}{
+		Type:    t,
+		Payload: payload,
+	})
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +159,7 @@ func (p *NativePlayer) setPlaybackStatus(do func()) {
 	do()
 	p.NotifySubscribers(&VideoStatusEvent{
 		BaseVideoEvent: BaseVideoEvent{
-			ClientId: p.currentClientId,
+			ClientId: p.playbackStatus.ClientId,
 		},
 		Status: *p.playbackStatus,
 	})

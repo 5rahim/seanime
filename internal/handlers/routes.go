@@ -387,6 +387,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	v1.POST("/directstream/play/localfile", h.HandleDirectstreamPlayLocalFile)
 	v1.GET("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
+	v1.HEAD("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
 	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
 
 	//
@@ -489,6 +490,11 @@ func (h *Handler) RespondWithError(c echo.Context, err error) error {
 
 func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// Skip directstream route
+		if strings.Contains(c.Request().URL.Path, "/directstream/stream") {
+			return next(c)
+		}
+
 		if c.Request().Method == http.MethodHead {
 			// Set the method to GET temporarily to reuse the handler
 			c.Request().Method = http.MethodGet

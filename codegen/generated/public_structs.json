@@ -51945,6 +51945,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "streamReadyCh",
+        "jsonName": "streamReadyCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed by the initiator when the stream is ready"
+        ]
       }
     ],
     "comments": [
@@ -53519,7 +53530,8 @@
         "\"resume\"",
         "\"seek\"",
         "\"error\"",
-        "\"add-subtitle-track\""
+        "\"add-subtitle-track\"",
+        "\"terminate\""
       ]
     },
     "comments": []
@@ -53542,7 +53554,8 @@
         "\"video-seeked\"",
         "\"video-error\"",
         "\"loaded-metadata\"",
-        "\"subtitle-file-uploaded\""
+        "\"subtitle-file-uploaded\"",
+        "\"video-terminated\""
       ]
     },
     "comments": []
@@ -53611,7 +53624,26 @@
     "name": "VideoPausedEvent",
     "formattedName": "NativePlayer_VideoPausedEvent",
     "package": "nativeplayer",
-    "fields": [],
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53623,7 +53655,26 @@
     "name": "VideoResumedEvent",
     "formattedName": "NativePlayer_VideoResumedEvent",
     "package": "nativeplayer",
-    "fields": [],
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53688,6 +53739,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -53725,7 +53785,26 @@
     "name": "VideoLoadedMetadataEvent",
     "formattedName": "NativePlayer_VideoLoadedMetadataEvent",
     "package": "nativeplayer",
-    "fields": [],
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53757,6 +53836,18 @@
         "comments": []
       }
     ],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "VideoTerminatedEvent",
+    "formattedName": "NativePlayer_VideoTerminatedEvent",
+    "package": "nativeplayer",
+    "fields": [],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -53860,6 +53951,17 @@
         "typescriptType": "Anime_Episode",
         "usedTypescriptType": "Anime_Episode",
         "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
         "required": false,
         "public": true,
         "comments": []
@@ -71989,6 +72091,39 @@
         "comments": []
       },
       {
+        "name": "nativePlayerSubscriber",
+        "jsonName": "nativePlayerSubscriber",
+        "goType": "nativeplayer.Subscriber",
+        "typescriptType": "NativePlayer_Subscriber",
+        "usedTypescriptType": "NativePlayer_Subscriber",
+        "usedStructName": "nativeplayer.Subscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "directStreamManager",
+        "jsonName": "directStreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nativePlayer",
+        "jsonName": "nativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "logger",
         "jsonName": "logger",
         "goType": "zerolog.Logger",
@@ -72169,6 +72304,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "NativePlayer",
+        "jsonName": "NativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -72185,8 +72331,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"default\"",
-        "\"directstream\"",
-        "\"externalPlayerLink\""
+        "\"externalPlayerLink\"",
+        "\"nativeplayer\""
       ]
     },
     "comments": []

@@ -8,6 +8,7 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediastream/directstream"
 	"seanime/internal/util"
 	"strconv"
 	"time"
@@ -19,9 +20,9 @@ import (
 type PlaybackType string
 
 const (
-	PlaybackTypeDefault        PlaybackType = "default" // External player
-	PlaybackTypeDirectStream   PlaybackType = "directstream"
-	PlaybackTypeExternalPlayer PlaybackType = "externalPlayerLink"
+	PlaybackTypeExternal           PlaybackType = "default" // External player
+	PlaybackTypeExternalPlayerLink PlaybackType = "externalPlayerLink"
+	PlaybackTypeNativePlayer       PlaybackType = "nativeplayer"
 )
 
 type StartStreamOptions struct {
@@ -48,6 +49,10 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 		Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
 	r.sendStateEvent(eventLoading)
+
+	if opts.PlaybackType == PlaybackTypeNativePlayer {
+		r.directStreamManager.PrepareNewStream(opts.ClientId, "Loading info...")
+	}
 
 	//
 	// Get the media info
@@ -110,17 +115,36 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 		//
 		// External player
 		//
-		case PlaybackTypeDefault, PlaybackTypeExternalPlayer:
+		case PlaybackTypeExternal, PlaybackTypeExternalPlayerLink:
 			r.sendStreamToExternalPlayer(opts, media, aniDbEpisode)
 		//
 		// Direct stream
 		//
-		case PlaybackTypeDirectStream:
-			//r.directStreamManager.LoadTorrentStream(directstream.LoadTorrentStreamOptions{
-			//	Media:   media.ToBaseAnime(),
-			//	Torrent: r.client.currentTorrent.MustGet(),
-			//	File:    r.client.currentFile.MustGet(),
-			//})
+		case PlaybackTypeNativePlayer:
+			readyCh, err := r.directStreamManager.PlayTorrentStream(directstream.PlayTorrentStreamOptions{
+				ClientId:      opts.ClientId,
+				EpisodeNumber: opts.EpisodeNumber,
+				AnidbEpisode:  opts.AniDBEpisode,
+				Media:         media.ToBaseAnime(),
+				Torrent:       r.client.currentTorrent.MustGet(),
+				File:          r.client.currentFile.MustGet(),
+			})
+			if err != nil {
+				return
+			}
+			// Make sure the client is ready and the torrent is partially downloaded
+			for {
+				if r.client.readyToStream() {
+					break
+				}
+				// If for some reason the torrent is dropped, we kill the goroutine
+				if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
+					return
+				}
+				r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
+				time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+			}
+			close(readyCh)
 		}
 	}()
 
@@ -176,7 +200,7 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 	//
 	// Desktop player
 	//
-	case PlaybackTypeDefault:
+	case PlaybackTypeExternal:
 		r.logger.Debug().Msgf("torrentstream: Starting the media player %s", streamURL)
 		err = r.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   streamURL,
@@ -193,7 +217,7 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 	//
 	// External player link
 	//
-	case PlaybackTypeExternalPlayer:
+	case PlaybackTypeExternalPlayerLink:
 		r.logger.Debug().Msgf("torrentstream: Sending stream to external player %s", streamURL)
 		r.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, struct {
 			Url           string `json:"url"`
@@ -233,7 +257,7 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 	//
 	// Desktop player
 	//
-	case PlaybackTypeDefault:
+	case PlaybackTypeExternal:
 		r.logger.Debug().Msg("torrentstream: Starting the media player	")
 		err = r.playbackManager.StartUntrackedStreamingUsingMediaPlayer(opts.WindowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   opts.Magnet,
@@ -250,7 +274,7 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 	//
 	// External player link
 	//
-	case PlaybackTypeExternalPlayer:
+	case PlaybackTypeExternalPlayerLink:
 		// Send the external player link
 		r.sendStateEvent(events.ExternalPlayerOpenURL, struct {
 			Url           string `json:"url"`
@@ -298,6 +322,10 @@ func (r *Repository) StopStream() error {
 	r.client.repository.sendStateEvent(eventTorrentStopped, nil) // Send torrent stopped event
 	r.client.repository.mediaPlayerRepository.Stop()             // Stop the media player gracefully if it's running
 	r.client.mu.Unlock()
+
+	go func() {
+		r.nativePlayer.Stop()
+	}()
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
 

@@ -17,7 +17,7 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('no-zygote');
 
     // Performance and caching
-    app.commandLine.appendSwitch('disk-cache-size', '400000000');
+    app.commandLine.appendSwitch('disk-cache-size', '450000000');
     app.commandLine.appendSwitch('force-effective-connection-type', '4g');
     app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
@@ -71,8 +71,10 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('disable-background-timer-throttling');
     app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-lcd-text');
     app.commandLine.appendSwitch('disable-background-media-suspend');
+
+    app.commandLine.appendSwitch('double-buffer-compositing');
+    app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
 }
 
 const _development = process.env.NODE_ENV === 'development';

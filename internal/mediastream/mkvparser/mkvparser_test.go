@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent"
+	"github.com/remko/go-mkvparse"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -186,7 +187,7 @@ func testStreamSubtitles(t *testing.T, parser *MetadataParser, reader io.ReadSee
 	streamCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	subtitleCh, errCh := parser.ExtractSubtitles(streamCtx, reader, offset)
+	subtitleCh, errCh, _ := parser.ExtractSubtitles(streamCtx, reader, offset)
 
 	var streamedSubtitles []*SubtitleEvent
 
@@ -362,4 +363,31 @@ func TestMetadataParser_File(t *testing.T) {
 	require.NoError(t, err)
 
 	testStreamSubtitles(t, parser, file, 1230000000, ctx)
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type cueTableHandler struct {
+	mkvparse.DefaultHandler
+}
+
+func (h *cueTableHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
+	return false, nil
+}
+
+func (h *cueTableHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
+	return nil
+}
+
+func TestExtractCueTableAtEnd(t *testing.T) {
+	if testFile == "" {
+		t.Skip("Skipping file test")
+	}
+
+	file, err := os.Open(testFile)
+	if err != nil {
+		t.Fatalf("Could not open file: %v", err)
+	}
+	defer file.Close()
+
 }

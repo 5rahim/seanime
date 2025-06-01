@@ -2,6 +2,7 @@ package torrentstream
 
 import (
 	"context"
+	"seanime/internal/mediastream/nativeplayer"
 )
 
 type (
@@ -14,6 +15,7 @@ type (
 )
 
 func (r *Repository) listenToMediaPlayerEvents() {
+	r.mediaPlayerRepositorySubscriber = r.mediaPlayerRepository.Subscribe("torrentstream")
 	r.mediaPlayerRepositorySubscriber = r.mediaPlayerRepository.Subscribe("torrentstream")
 
 	if r.playback.mediaPlayerCtxCancelFunc != nil {
@@ -49,10 +51,6 @@ func (r *Repository) listenToMediaPlayerEvents() {
 						r.logger.Debug().Msg("torrentstream: Media player stopped event received")
 						// Stop the stream
 						_ = r.StopStream()
-						// Stop the server
-						//r.serverManager.stopServer()
-						//// Signal to client.go that the media player has stopped
-						//close(r.client.stopCh)
 					}()
 				}
 			case status := <-r.mediaPlayerRepositorySubscriber.StreamingPlaybackStatusCh:
@@ -66,4 +64,53 @@ func (r *Repository) listenToMediaPlayerEvents() {
 			}
 		}
 	}(ctx)
+}
+
+func (r *Repository) listenToNativePlayerEvents() {
+	r.nativePlayerSubscriber = r.nativePlayer.Subscribe("torrentstream")
+
+	go func() {
+		for {
+			select {
+			case event, ok := <-r.nativePlayerSubscriber.Events():
+				if !ok { // shouldn't happen
+					r.logger.Debug().Msg("torrentstream: Native player subscriber channel closed")
+					return
+				}
+
+				switch event := event.(type) {
+				case *nativeplayer.VideoLoadedMetadataEvent:
+					go func() {
+						if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
+							// If the stored video duration is 0 but the media player status shows a duration that is not 0
+							// we know that the video has been loaded and is playing
+							if r.playback.currentVideoDuration == 0 && event.Duration > 0 {
+								// The media player has started playing the video
+								r.logger.Debug().Msg("torrentstream: Media player started playing the video, sending event")
+								r.sendStateEvent(eventTorrentStartedPlaying)
+								// Update the stored video duration
+								r.playback.currentVideoDuration = int(event.Duration)
+							}
+						}
+					}()
+				case *nativeplayer.VideoTerminatedEvent:
+					r.logger.Debug().Msg("torrentstream: Native player terminated event received")
+					r.playback.currentVideoDuration = 0
+					// Only handle the event if we actually have a current torrent to avoid unnecessary cleanup
+					if r.client.currentTorrent.IsPresent() {
+						go func() {
+							defer func() {
+								if rec := recover(); rec != nil {
+									r.logger.Error().Msg("torrentstream: Recovered from panic in VideoTerminatedEvent handler")
+								}
+							}()
+							r.logger.Debug().Msg("torrentstream: Stopping stream due to native player termination")
+							// Stop the stream
+							_ = r.StopStream()
+						}()
+					}
+				}
+			}
+		}
+	}()
 }

@@ -29,6 +29,7 @@ type TorrentStreamState struct {
 
 func (r *Repository) sendStateEvent(event string, data ...interface{}) {
 	var dataToSend interface{}
+
 	if len(data) > 0 {
 		dataToSend = data[0]
 	}

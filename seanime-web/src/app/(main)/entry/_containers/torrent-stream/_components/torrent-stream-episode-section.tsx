@@ -1,4 +1,4 @@
-import { Anime_Entry, Anime_Episode, Torrentstream_EpisodeCollection } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode, Anime_EpisodeCollection } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -13,7 +13,7 @@ import React, { useMemo } from "react"
 
 type TorrentStreamEpisodeSectionProps = {
     entry: Anime_Entry
-    episodeCollection: Torrentstream_EpisodeCollection | undefined
+    episodeCollection: Anime_EpisodeCollection | undefined
     onEpisodeClick: (episode: Anime_Episode) => void
     onPlayNextEpisodeOnMount: (episode: Anime_Episode) => void
     bottomSection?: React.ReactNode

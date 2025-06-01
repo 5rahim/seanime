@@ -24,6 +24,7 @@ import {
     MediaController,
     MediaErrorDialog,
     MediaFullscreenButton,
+    MediaLoadingIndicator,
     MediaMuteButton,
     MediaPipButton,
     MediaPlayButton,
@@ -51,6 +52,7 @@ import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
+import { TorrentStreamOverlay } from "../../entry/_containers/torrent-stream/torrent-stream-overlay"
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
 import {
@@ -74,6 +76,7 @@ const enum VideoPlayerEvents {
     VIDEO_CAN_PLAY = "video-can-play",
     VIDEO_STARTED = "video-started",
     VIDEO_COMPLETED = "video-completed",
+    VIDEO_TERMINATED = "video-terminated",
 }
 
 const log = logger("NATIVE PLAYER")
@@ -296,11 +299,27 @@ export function NativePlayer() {
             payload: {
                 clientId: clientId,
                 type: VideoPlayerEvents.VIDEO_SEEKED,
-                payload: { currentTime: currentTime },
+                payload: { currentTime: currentTime, duration: e.currentTarget.duration },
             },
         })
-
     }
+
+    function onSeeked(e: Event) {
+        log.info("Video seeked", e)
+    }
+
+    // Listen to seek events
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.addEventListener("seeked", onSeeked)
+        }
+
+        return () => {
+            if (videoRef.current) {
+                videoRef.current.removeEventListener("seeked", onSeeked)
+            }
+        }
+    }, [videoRef.current])
 
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Loaded metadata", e.currentTarget.duration)
@@ -337,21 +356,24 @@ export function NativePlayer() {
         }
 
         // Initialize thumbnailer
-        if (state.playbackInfo?.streamUrl) {
-            const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
-            log.info("Initializing thumbnailer with URL:", streamUrl)
-            previewManagerRef.current = new StreamPreviewManager(videoRef.current, streamUrl)
-            log.info("Thumbnailer initialized successfully")
-        } else {
-            log.info("No stream URL available for thumbnailer")
-        }
+        // if (state.playbackInfo?.streamUrl) {
+        //     const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
+        //     log.info("Initializing thumbnailer with URL:", streamUrl)
+        //     previewManagerRef.current = new StreamPreviewManager(videoRef.current, streamUrl)
+        //     log.info("Thumbnailer initialized successfully")
+        // } else {
+        //     log.info("No stream URL available for thumbnailer")
+        // }
 
         sendMessage({
             type: WSEvents.NATIVE_PLAYER,
             payload: {
                 clientId: clientId,
                 type: VideoPlayerEvents.LOADED_METADATA,
-                payload: {},
+                payload: {
+                    currentTime: e.currentTarget.currentTime,
+                    duration: e.currentTarget.duration,
+                },
             },
         })
     }
@@ -364,7 +386,10 @@ export function NativePlayer() {
             payload: {
                 clientId: clientId,
                 type: VideoPlayerEvents.VIDEO_PAUSED,
-                payload: {},
+                payload: {
+                    currentTime: e.currentTarget.currentTime,
+                    duration: e.currentTarget.duration,
+                },
             },
         })
     }
@@ -377,7 +402,10 @@ export function NativePlayer() {
             payload: {
                 clientId: clientId,
                 type: VideoPlayerEvents.VIDEO_RESUMED,
-                payload: {},
+                payload: {
+                    currentTime: e.currentTarget.currentTime,
+                    duration: e.currentTarget.duration,
+                },
             },
         })
     }
@@ -507,6 +535,10 @@ export function NativePlayer() {
                 case "add-subtitle-track":
                     subtitleManagerRef.current?.onTrackAdded(payload as MKVParser_TrackInfo)
                     break
+                case "terminate":
+                    log.info("Terminate event received")
+                    handleTerminateStream()
+                    break
             }
         },
     })
@@ -535,8 +567,15 @@ export function NativePlayer() {
                 draft.active = false
                 return
             })
-        }, 1000)
-        // Send terminate stream event
+        }, 700)
+
+        sendMessage({
+            type: WSEvents.NATIVE_PLAYER,
+            payload: {
+                clientId: clientId,
+                type: VideoPlayerEvents.VIDEO_TERMINATED,
+            },
+        })
     }
 
     function onCaptionsChange(e: FormEvent<any>) {
@@ -663,14 +702,16 @@ export function NativePlayer() {
                 overlayClass={cn(
                     state.miniPlayer && "hidden",
                 )}
+                hideCloseButton
                 closeClass={cn(
                     "z-[99]",
                     __isDesktop__ && !state.miniPlayer && "top-8",
                     state.miniPlayer && "left-4",
                 )}
-                hideCloseButton
                 data-native-player-drawer
             >
+
+                {!(!!state.playbackInfo?.streamUrl && !state.loadingState) && <TorrentStreamOverlay isNativePlayerComponent />}
 
                 {(state?.playbackError) && (
                     <div className="h-full w-full bg-black/80 flex items-center justify-center z-[50] absolute p-4">
@@ -686,6 +727,49 @@ export function NativePlayer() {
                         </div>
                     </div>
                 )}
+
+                {!!state.loadingState && <>
+                    {!state.miniPlayer && <IconButton
+                        icon={<FiMinimize2 className="text-2xl" />}
+                        intent="gray-basic"
+                        className="rounded-full absolute top-8 right-4"
+                        onClick={() => {
+                            setState(draft => {
+                                draft.miniPlayer = true
+                            })
+                        }}
+                    />}
+                    {state.miniPlayer && <>
+                        <IconButton
+                            type="button"
+                            intent="gray-basic"
+                            size="sm"
+                            className={cn(
+                                "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto",
+                                state.miniPlayer && "text-xl",
+                            )}
+                            icon={<BiExpand />}
+                            onClick={() => {
+                                setState(draft => {
+                                    draft.miniPlayer = false
+                                })
+                            }}
+                        />
+                        <IconButton
+                            type="button"
+                            intent="alert-subtle"
+                            size="xs"
+                            className={cn(
+                                "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
+                                state.miniPlayer && "text-xl",
+                            )}
+                            icon={<BiX />}
+                            onClick={() => {
+                                handleTerminateStream()
+                            }}
+                        />
+                    </>}
+                </>}
 
 
                 <div
@@ -721,6 +805,15 @@ export function NativePlayer() {
                                 />
 
                                 <FlashNotificationDisplay />
+
+                                <TorrentStreamOverlay isNativePlayerComponent />
+
+                                {/* Buffer Loading Indicator */}
+                                <MediaLoadingIndicator
+                                    slot="centered-chrome"
+                                    loadingDelay={300}
+                                    className="native-player-loading-indicator"
+                                />
 
                                 {!state.miniPlayer && <IconButton
                                     icon={<FiMinimize2 className="text-2xl" />}
@@ -772,6 +865,7 @@ export function NativePlayer() {
                                     playsInline
                                     autoPlay={autoPlay}
                                     muted={muted}
+                                    preload="auto"
                                     onTimeUpdate={handleTimeUpdate}
                                     onDurationChange={handleDurationChange}
                                     onEnded={handleEnded}
@@ -836,7 +930,7 @@ export function NativePlayer() {
                                 <MediaSettingsMenu hidden anchor="auto">
                                     <MediaSettingsMenuItem>
                                         Playback Speed
-                                        <MediaPlaybackRateMenu rates={[0.5, 0.75, 1, 1.10, 1.25, 1.5, 1.75, 2]} slot="submenu" hidden>
+                                        <MediaPlaybackRateMenu rates={[0.5, 1, 1.2, 1.5, 2]} slot="submenu" hidden>
                                             <div slot="title">Playback Speed</div>
                                         </MediaPlaybackRateMenu>
                                     </MediaSettingsMenuItem>
@@ -870,6 +964,7 @@ export function NativePlayer() {
                                 <MediaTimeRange
                                     ref={timeRangeRef}
                                     mediaChaptersCues={chapterCues}
+                                    mediaCurrentTime={1000}
                                 >
                                     <MediaPreviewThumbnail
                                         slot="preview"

@@ -1,12 +1,18 @@
 import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
-import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
+import {
+    ElectronPlaybackMethod,
+    PlaybackTorrentStreaming,
+    useCurrentDevicePlaybackSettings,
+    useExternalPlayerLink,
+} from "@/app/(main)/_atoms/playback.atoms"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
     __torrentstream__isLoadedAtom,
     __torrentstream__loadingStateAtom,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -31,20 +37,19 @@ export function useHandleStartTorrentStream() {
 
     const setLoadingState = useSetAtom(__torrentstream__loadingStateAtom)
     const setIsLoaded = useSetAtom(__torrentstream__isLoadedAtom)
-
-    const { torrentStreamingPlayback } = useCurrentDevicePlaybackSettings()
+    const { torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
     const clientId = useAtomValue(clientIdAtom)
 
     const playbackType = React.useMemo<Torrentstream_PlaybackType>(() => {
-        if (!externalPlayerLink?.length) {
-            return "default"
+        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+            return "nativeplayer"
         }
-        if (torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
+        if (!!externalPlayerLink?.length && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
             return "externalPlayerLink"
         }
         return "default"
-    }, [torrentStreamingPlayback, externalPlayerLink])
+    }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
 
     const handleManualTorrentStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
         mutate({

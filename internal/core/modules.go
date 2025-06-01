@@ -201,33 +201,12 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
-	// |   Torrent Stream    |
-	// +---------------------+
-
-	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
-		Logger:             a.Logger,
-		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
-		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
-		MetadataProvider:   a.MetadataProvider,
-		TorrentRepository:  a.TorrentRepository,
-		Platform:           a.AnilistPlatform,
-		PlaybackManager:    a.PlaybackManager,
-		WSEventManager:     a.WSEventManager,
-		Database:           a.Database,
-	})
-
-	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		MediaPlayerRepository: a.MediaPlayerRepository,
-		PlaybackManager:       a.PlaybackManager,
-		MangaRepository:       a.MangaRepository,
-	})
-
-	// +---------------------+
 	// |    Native Player    |
 	// +---------------------+
 
 	a.NativePlayer = nativeplayer.New(nativeplayer.NewNativePlayerOptions{
 		WsEventManager: a.WSEventManager,
+		Logger:         a.Logger,
 	})
 
 	// +---------------------+
@@ -246,6 +225,30 @@ func (a *App) initModulesOnce() {
 		},
 		IsOffline:    a.IsOffline(),
 		NativePlayer: a.NativePlayer,
+	})
+
+	// +---------------------+
+	// |   Torrent Stream    |
+	// +---------------------+
+
+	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
+		Logger:              a.Logger,
+		BaseAnimeCache:      anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache:  anilist.NewCompleteAnimeCache(),
+		MetadataProvider:    a.MetadataProvider,
+		TorrentRepository:   a.TorrentRepository,
+		Platform:            a.AnilistPlatform,
+		PlaybackManager:     a.PlaybackManager,
+		WSEventManager:      a.WSEventManager,
+		Database:            a.Database,
+		DirectStreamManager: a.DirectStreamManager,
+		NativePlayer:        a.NativePlayer,
+	})
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		MediaPlayerRepository: a.MediaPlayerRepository,
+		PlaybackManager:       a.PlaybackManager,
+		MangaRepository:       a.MangaRepository,
 	})
 
 }

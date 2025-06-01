@@ -3,6 +3,8 @@ package torrentutil
 import (
 	"fmt"
 	"io"
+	"sync"
+	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/rs/zerolog"
@@ -13,33 +15,312 @@ import (
 // +-----------------------+
 
 const (
-	piecesForNow        = int64(10)
-	piecesForHighBefore = int64(5)
-	piecesForNext       = int64(100)
-	piecesForReadahead  = int64(100)
+	piecesForNow        = int64(5)
+	piecesForHighBefore = int64(2)
+	piecesForNext       = int64(30)
+	piecesForReadahead  = int64(30)
 )
 
-// ReadSeeker implements io.ReadSeekCloser for a torrent file being streamed.
-// It allows dynamic prioritization of pieces when seeking, optimized for streaming.
-type ReadSeeker struct {
+// readerInfo tracks information about an active reader
+type readerInfo struct {
+	id         string
+	position   int64
+	lastAccess time.Time
+}
+
+// priorityManager manages piece priorities for multiple readers on the same file
+type priorityManager struct {
+	mu      sync.RWMutex
+	readers map[string]*readerInfo
 	torrent *torrent.Torrent
 	file    *torrent.File
-	reader  torrent.Reader
 	logger  *zerolog.Logger
+}
+
+// global map to track priority managers per torrent+file combination
+var (
+	priorityManagers   = make(map[string]*priorityManager)
+	priorityManagersMu sync.RWMutex
+)
+
+// getPriorityManager gets or creates a priority manager for a torrent+file combination
+func getPriorityManager(t *torrent.Torrent, file *torrent.File, logger *zerolog.Logger) *priorityManager {
+	key := fmt.Sprintf("%s:%s", t.InfoHash().String(), file.Path())
+
+	priorityManagersMu.Lock()
+	defer priorityManagersMu.Unlock()
+
+	if pm, exists := priorityManagers[key]; exists {
+		return pm
+	}
+
+	pm := &priorityManager{
+		readers: make(map[string]*readerInfo),
+		torrent: t,
+		file:    file,
+		logger:  logger,
+	}
+	priorityManagers[key] = pm
+
+	// Start cleanup goroutine for the first manager
+	if len(priorityManagers) == 1 {
+		go pm.cleanupStaleReaders()
+	}
+
+	return pm
+}
+
+// registerReader registers a new reader with the priority manager
+func (pm *priorityManager) registerReader(readerID string, position int64) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	pm.readers[readerID] = &readerInfo{
+		id:         readerID,
+		position:   position,
+		lastAccess: time.Now(),
+	}
+
+	pm.updatePriorities()
+}
+
+// updateReaderPosition updates a reader's position and recalculates priorities
+func (pm *priorityManager) updateReaderPosition(readerID string, position int64) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	if reader, exists := pm.readers[readerID]; exists {
+		reader.position = position
+		reader.lastAccess = time.Now()
+		pm.updatePriorities()
+	}
+}
+
+// unregisterReader removes a reader from tracking
+func (pm *priorityManager) unregisterReader(readerID string) {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	delete(pm.readers, readerID)
+
+	// If no more readers, clean up and recalculate priorities
+	if len(pm.readers) == 0 {
+		pm.resetAllPriorities()
+	} else {
+		pm.updatePriorities()
+	}
+}
+
+// updatePriorities recalculates piece priorities based on all active readers
+func (pm *priorityManager) updatePriorities() {
+	if pm.torrent == nil || pm.file == nil || pm.torrent.Info() == nil {
+		return
+	}
+
+	t := pm.torrent
+	file := pm.file
+	pieceLength := t.Info().PieceLength
+
+	if pieceLength == 0 {
+		if pm.logger != nil {
+			pm.logger.Warn().Msg("torrentutil: piece length is zero, cannot prioritize")
+		}
+		return
+	}
+
+	numTorrentPieces := int64(t.NumPieces())
+	if numTorrentPieces == 0 {
+		if pm.logger != nil {
+			pm.logger.Warn().Msg("torrentutil: torrent has zero pieces, cannot prioritize")
+		}
+		return
+	}
+
+	// Calculate file piece range
+	fileFirstPieceIdx := file.Offset() / pieceLength
+	fileLastPieceIdx := (file.Offset() + file.Length() - 1) / pieceLength
+
+	// Collect all needed piece ranges from all active readers
+	neededPieces := make(map[int64]torrent.PiecePriority)
+
+	for _, reader := range pm.readers {
+		position := reader.position
+		// Remove 2MB from the position
+		position -= 2 * 1024 * 1024
+		if position < 0 {
+			position = 0
+		}
+		if position < 0 {
+			position = 0
+		}
+
+		currentGlobalSeekPieceIdx := (file.Offset() + position) / pieceLength
+
+		// Pieces needed NOW (immediate)
+		for i := int64(0); i < piecesForNow; i++ {
+			idx := currentGlobalSeekPieceIdx + i
+			if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
+				if current, exists := neededPieces[idx]; !exists || current < torrent.PiecePriorityNow {
+					neededPieces[idx] = torrent.PiecePriorityNow
+				}
+			}
+		}
+
+		// Pieces needed HIGH (before current position for rewinds)
+		for i := int64(1); i <= piecesForHighBefore; i++ {
+			idx := currentGlobalSeekPieceIdx - i
+			if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx >= 0 {
+				if current, exists := neededPieces[idx]; !exists || current < torrent.PiecePriorityHigh {
+					neededPieces[idx] = torrent.PiecePriorityHigh
+				}
+			}
+		}
+
+		// Pieces needed NEXT (immediate readahead)
+		nextStartIdx := currentGlobalSeekPieceIdx + piecesForNow
+		for i := int64(0); i < piecesForNext; i++ {
+			idx := nextStartIdx + i
+			if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
+				if current, exists := neededPieces[idx]; !exists || current < torrent.PiecePriorityNext {
+					neededPieces[idx] = torrent.PiecePriorityNext
+				}
+			}
+		}
+
+		// Pieces needed for READAHEAD (further readahead)
+		readaheadStartIdx := nextStartIdx + piecesForNext
+		for i := int64(0); i < piecesForReadahead; i++ {
+			idx := readaheadStartIdx + i
+			if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
+				if current, exists := neededPieces[idx]; !exists || current < torrent.PiecePriorityReadahead {
+					neededPieces[idx] = torrent.PiecePriorityReadahead
+				}
+			}
+		}
+	}
+
+	// Reset pieces that are no longer needed by any reader
+	for idx := fileFirstPieceIdx; idx <= fileLastPieceIdx; idx++ {
+		if idx < 0 || idx >= numTorrentPieces {
+			continue
+		}
+
+		piece := t.Piece(int(idx))
+		currentPriority := piece.State().Priority
+
+		if neededPriority, needed := neededPieces[idx]; needed {
+			// Set to the highest priority needed by any reader
+			if currentPriority != neededPriority {
+				piece.SetPriority(neededPriority)
+			}
+		} else {
+			// Only reset to normal if not completely unwanted and not already at highest priority
+			if currentPriority != torrent.PiecePriorityNone && currentPriority != torrent.PiecePriorityNow {
+				piece.SetPriority(torrent.PiecePriorityNormal)
+			}
+		}
+	}
+
+	if pm.logger != nil {
+		pm.logger.Debug().Msgf("torrentutil: Updated priorities for %d readers, %d pieces prioritized", len(pm.readers), len(neededPieces))
+	}
+}
+
+// resetAllPriorities resets all file pieces to normal priority
+func (pm *priorityManager) resetAllPriorities() {
+	if pm.torrent == nil || pm.file == nil || pm.torrent.Info() == nil {
+		return
+	}
+
+	t := pm.torrent
+	file := pm.file
+	pieceLength := t.Info().PieceLength
+
+	if pieceLength == 0 {
+		return
+	}
+
+	numTorrentPieces := int64(t.NumPieces())
+	fileFirstPieceIdx := file.Offset() / pieceLength
+	fileLastPieceIdx := (file.Offset() + file.Length() - 1) / pieceLength
+
+	for idx := fileFirstPieceIdx; idx <= fileLastPieceIdx; idx++ {
+		if idx >= 0 && idx < numTorrentPieces {
+			piece := t.Piece(int(idx))
+			if piece.State().Priority != torrent.PiecePriorityNone {
+				piece.SetPriority(torrent.PiecePriorityNormal)
+			}
+		}
+	}
+}
+
+// cleanupStaleReaders periodically removes readers that haven't been accessed recently
+func (pm *priorityManager) cleanupStaleReaders() {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		pm.mu.Lock()
+		cutoff := time.Now().Add(-2 * time.Minute)
+
+		for id, reader := range pm.readers {
+			if reader.lastAccess.Before(cutoff) {
+				delete(pm.readers, id)
+				if pm.logger != nil {
+					pm.logger.Debug().Msgf("torrentutil: Cleaned up stale reader %s", id)
+				}
+			}
+		}
+
+		// Update priorities after cleanup
+		if len(pm.readers) > 0 {
+			pm.updatePriorities()
+		}
+
+		pm.mu.Unlock()
+	}
+}
+
+// ReadSeeker implements io.ReadSeekCloser for a torrent file being streamed.
+// It allows dynamic prioritization of pieces when seeking, optimized for streaming
+// and supports multiple concurrent readers on the same file.
+type ReadSeeker struct {
+	id              string
+	torrent         *torrent.Torrent
+	file            *torrent.File
+	reader          torrent.Reader
+	priorityManager *priorityManager
+	logger          *zerolog.Logger
 }
 
 var _ io.ReadSeekCloser = &ReadSeeker{}
 
 func NewReadSeeker(t *torrent.Torrent, file *torrent.File, logger ...*zerolog.Logger) io.ReadSeekCloser {
 	tr := file.NewReader()
-	rs := &ReadSeeker{
-		torrent: t,
-		file:    file,
-		reader:  tr,
-	}
+	tr.SetResponsive()
+	// Read ahead 5MB for better streaming performance
+	// DEVNOTE: Not sure if dynamic prioritization overwrites this but whatever
+	tr.SetReadahead(5 * 1024 * 1024)
+
+	var loggerPtr *zerolog.Logger
 	if len(logger) > 0 {
-		rs.logger = logger[0]
+		loggerPtr = logger[0]
 	}
+
+	pm := getPriorityManager(t, file, loggerPtr)
+
+	rs := &ReadSeeker{
+		id:              fmt.Sprintf("reader_%d_%d", time.Now().UnixNano(), len(pm.readers)),
+		torrent:         t,
+		file:            file,
+		reader:          tr,
+		priorityManager: pm,
+		logger:          loggerPtr,
+	}
+
+	// Register this reader with the priority manager
+	pm.registerReader(rs.id, 0)
+
 	return rs
 }
 
@@ -56,129 +337,18 @@ func (rs *ReadSeeker) Seek(offset int64, whence int) (int64, error) {
 		return newOffset, err
 	}
 
-	rs.prioritizeForOffset(newOffset)
+	// Update this reader's position in the priority manager
+	rs.priorityManager.updateReaderPosition(rs.id, newOffset)
 
 	return newOffset, nil
 }
 
-// prioritizeForOffset adjusts piece priorities around a given offset within the file,
-// making it more aggressive for streaming.
-func (rs *ReadSeeker) prioritizeForOffset(seekOffsetInFile int64) {
-	if rs.torrent == nil || rs.file == nil || rs.torrent.Info() == nil {
-		return
-	}
-
-	t := rs.torrent
-	file := rs.file
-
-	pieceLength := t.Info().PieceLength
-	if pieceLength == 0 { // Avoid division by zero if piece length is unknown or zero
-		if rs.logger != nil {
-			rs.logger.Warn().Msg("torrentutil: ReadSeeker piece length is zero, cannot prioritize")
-		}
-		return
-	}
-
-	numTorrentPieces := int64(t.NumPieces())
-	if numTorrentPieces == 0 {
-		if rs.logger != nil {
-			rs.logger.Warn().Msg("torrentutil: ReadSeeker torrent has zero pieces, cannot prioritize")
-		}
-		return
-	}
-
-	// Calculate the global torrent piece indices for the start and end of the current file.
-	fileFirstPieceIdx := file.Offset() / pieceLength
-	fileLastPieceIdx := (file.Offset() + file.Length() - 1) / pieceLength
-
-	// Calculate the global torrent piece index for the current seek position.
-	currentGlobalSeekPieceIdx := (file.Offset() + seekOffsetInFile) / pieceLength
-
-	if rs.logger != nil {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker adjusting priorities. Seek in file to offset %d (global piece %d). File spans global pieces %d-%d.",
-			seekOffsetInFile, currentGlobalSeekPieceIdx, fileFirstPieceIdx, fileLastPieceIdx)
-	}
-
-	// Reset priorities for pieces within the file but far from the new immediate interest zone.
-	resetFarBehindThreshold := currentGlobalSeekPieceIdx - piecesForHighBefore - 30
-	resetFarAheadThreshold := currentGlobalSeekPieceIdx + piecesForNow + piecesForNext + piecesForReadahead + 30
-
-	for idx := fileFirstPieceIdx; idx <= fileLastPieceIdx; idx++ {
-		if idx < 0 || idx >= numTorrentPieces {
-			continue
-		}
-		isFarBehind := idx < resetFarBehindThreshold
-		isFarAhead := idx > resetFarAheadThreshold
-
-		if isFarBehind || isFarAhead {
-			// Only set to normal if not already None (completely unwanted)
-			if t.Piece(int(idx)).State().Priority != torrent.PiecePriorityNone {
-				t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNormal)
-			}
-		}
-	}
-	if rs.logger != nil {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker reset distant pieces (far_behind_threshold: %d, far_ahead_threshold: %d)", resetFarBehindThreshold, resetFarAheadThreshold)
-	}
-
-	// Prioritize pieces immediately needed
-	prioritizedNowCount := 0
-	for i := int64(0); i < piecesForNow; i++ {
-		idx := currentGlobalSeekPieceIdx + i
-		if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
-			prioritizedNowCount++
-		}
-	}
-	if rs.logger != nil && prioritizedNowCount > 0 {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker set %d pieces to NOW around global piece %d", prioritizedNowCount, currentGlobalSeekPieceIdx)
-	}
-
-	// Prioritize "High" before the current piece for small rewinds
-	prioritizedHighBeforeCount := 0
-	for i := int64(1); i <= piecesForHighBefore; i++ {
-		idx := currentGlobalSeekPieceIdx - i
-		if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx >= 0 {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityHigh)
-			prioritizedHighBeforeCount++
-		}
-	}
-	if rs.logger != nil && prioritizedHighBeforeCount > 0 {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker set %d pieces to HIGH BEFORE global piece %d", prioritizedHighBeforeCount, currentGlobalSeekPieceIdx)
-	}
-
-	// Prioritize next pieces for immediate readahead
-	prioritizedNextCount := 0
-	nextStartIdx := currentGlobalSeekPieceIdx + piecesForNow
-	for i := int64(0); i < piecesForNext; i++ {
-		idx := nextStartIdx + i
-		if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNext)
-			prioritizedNextCount++
-		}
-	}
-	if rs.logger != nil && prioritizedNextCount > 0 {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker set %d pieces to NEXT from global piece %d", prioritizedNextCount, nextStartIdx)
-	}
-
-	// Prioritize readahead pieces for further readahead
-	prioritizedReadaheadCount := 0
-	readaheadStartIdx := nextStartIdx + piecesForNext
-	for i := int64(0); i < piecesForReadahead; i++ {
-		idx := readaheadStartIdx + i
-		if idx >= fileFirstPieceIdx && idx <= fileLastPieceIdx && idx < numTorrentPieces {
-			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityReadahead)
-			prioritizedReadaheadCount++
-		}
-	}
-	if rs.logger != nil && prioritizedReadaheadCount > 0 {
-		rs.logger.Debug().Msgf("torrentutil: ReadSeeker set %d pieces to REAHEAD from global piece %d", prioritizedReadaheadCount, readaheadStartIdx)
-	}
-}
-
-// Close closes the underlying torrent file reader.
+// Close closes the underlying torrent file reader and unregisters from priority manager.
 // This makes ReadSeeker implement io.ReadSeekCloser.
 func (rs *ReadSeeker) Close() error {
+	// Unregister from priority manager
+	rs.priorityManager.unregisterReader(rs.id)
+
 	if rs.reader != nil {
 		return rs.reader.Close()
 	}

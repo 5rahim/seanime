@@ -15,6 +15,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediastream/directstream"
+	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
@@ -43,6 +44,9 @@ type (
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
+		nativePlayerSubscriber          *nativeplayer.Subscriber
+		directStreamManager             *directstream.Manager
+		nativePlayer                    *nativeplayer.NativePlayer
 		logger                          *zerolog.Logger
 		db                              *db.Database
 
@@ -66,6 +70,7 @@ type (
 		WSEventManager      events.WSEventManagerInterface
 		Database            *db.Database
 		DirectStreamManager *directstream.Manager
+		NativePlayer        *nativeplayer.NativePlayer
 	}
 )
 
@@ -87,6 +92,8 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		mediaPlayerRepositorySubscriber: nil,
 		logger:                          opts.Logger,
 		db:                              opts.Database,
+		directStreamManager:             opts.DirectStreamManager,
+		nativePlayer:                    opts.NativePlayer,
 	}
 	ret.client = NewClient(ret)
 	ret.handler = newHandler(ret)
@@ -156,6 +163,9 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	if err != nil {
 		return err
 	}
+
+	// Start listening to native player events
+	r.listenToNativePlayerEvents()
 
 	r.logger.Info().Msg("torrentstream: Module initialized")
 	return nil

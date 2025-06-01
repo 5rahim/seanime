@@ -43,7 +43,7 @@ type SubtitleEvent struct {
 	CodecID     string            `json:"codecID"`   // e.g., "S_TEXT/ASS", "S_TEXT/UTF8"
 	ExtraData   map[string]string `json:"extraData,omitempty"`
 
-	readerPos int64 `json:"-"` // Position in the stream
+	HeadPos int64 `json:"-"` // Position in the stream
 }
 
 // GetSubtitleEventKey stringifies the subtitle event to serve as a key
@@ -650,9 +650,10 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 // - The context is canceled
 // - The entire stream is processed
 // - An unrecoverable error occurs (which is also returned in the error channel)
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64) (<-chan *SubtitleEvent, <-chan error) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
+	startedCh := make(chan struct{})
 
 	var closeOnce sync.Once
 	closeChannels := func(err error) {
@@ -677,8 +678,10 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
 			cancel()
 			closeChannels(err)
-			return subtitleCh, errCh
+			return subtitleCh, errCh, startedCh
 		}
+
+		close(startedCh)
 
 		mp.logger.Debug().Int64("clusterSeekOffset", clusterSeekOffset).Msg("mkvparser: Found cluster near offset")
 
@@ -687,8 +690,10 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to cluster offset")
 			cancel()
 			closeChannels(err)
-			return subtitleCh, errCh
+			return subtitleCh, errCh, startedCh
 		}
+	} else {
+		close(startedCh)
 	}
 
 	go func() {
@@ -701,7 +706,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		defer cancel() // Ensure context is cancelled when main goroutine exits
 		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
-		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 10}))
+		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 40}))
 
 		// First, ensure metadata is parsed to get track information
 		mp.parseMetadataOnce(extractCtx)
@@ -737,6 +742,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			clusterTime:        0,
 			reader:             newReader,
 			lastSubtitleEvents: make(map[uint64]*SubtitleEvent),
+			startedCh:          startedCh,
 		}
 
 		// Parse the MKV file for subtitles
@@ -750,7 +756,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		}
 	}()
 
-	return subtitleCh, errCh
+	return subtitleCh, errCh, startedCh
 }
 
 // Handler for subtitle extraction
@@ -767,7 +773,7 @@ type subtitleHandler struct {
 	currentBlockDuration uint64
 	reader               io.ReadSeekCloser
 	lastSubtitleEvents   map[uint64]*SubtitleEvent // Track last subtitle event per track for duration calculation
-
+	startedCh            chan struct{}
 	// BlockGroup handling
 	inBlockGroup bool
 	pendingBlock *pendingSubtitleBlock
@@ -781,6 +787,7 @@ type pendingSubtitleBlock struct {
 	duration    uint64
 	hasBlock    bool
 	hasDuration bool
+	headPos     int64
 }
 
 func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
@@ -791,7 +798,10 @@ func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse
 		return true, nil
 	case mkvparse.BlockGroupElement:
 		h.inBlockGroup = true
-		h.pendingBlock = &pendingSubtitleBlock{}
+		headPos, _ := h.reader.Seek(0, io.SeekCurrent)
+		h.pendingBlock = &pendingSubtitleBlock{
+			headPos: headPos,
+		}
 		return true, nil
 	}
 	return false, nil
@@ -852,10 +862,10 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 		duration = float64(track.defaultDuration) / 1e6 // ms
 	}
 
-	h.processSubtitleData(h.pendingBlock.trackNum, track, h.pendingBlock.data, milliseconds, duration)
+	h.processSubtitleData(h.pendingBlock.trackNum, track, h.pendingBlock.data, milliseconds, duration, h.pendingBlock.headPos)
 }
 
-func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64) {
+func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64, headPos int64) {
 	// Handle content encoding (compression)
 	if track.contentEncodings != nil {
 		for _, encoding := range track.contentEncodings.ContentEncoding {
@@ -885,6 +895,7 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 		Duration:    duration,
 		CodecID:     track.CodecID,
 		ExtraData:   make(map[string]string),
+		HeadPos:     headPos,
 	}
 
 	// Handling for ASS/SSA format
@@ -962,7 +973,7 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 				case h.subtitleCh <- &updatedLastEvent:
 					// Successfully sent updated previous event
 				case <-h.ctx.Done():
-					h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
+					// h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
 					return
 				}
 			}
@@ -990,7 +1001,7 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 		case h.subtitleCh <- subtitleEvent:
 			// Successfully sent
 		case <-h.ctx.Done():
-			h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
+			// h.logger.Debug().Msg("mkvparser: Subtitle sending cancelled by context.")
 			return
 		}
 	}
@@ -1033,7 +1044,7 @@ func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info
 				duration = float64(track.defaultDuration) / 1e6 // ms
 			}
 
-			h.processSubtitleData(trackNum, track, subtitleData, milliseconds, duration)
+			h.processSubtitleData(trackNum, track, subtitleData, milliseconds, duration, h.pendingBlock.headPos)
 
 			// Reset the block duration for the next block
 			h.currentBlockDuration = 0

@@ -559,44 +559,51 @@ media-time-range:hover {
     --media-chapters-cue-width: 3px;
 }
 
-/* Chapter markers styling */
-media-time-range::part(chapters-cue) {
+/* Chapter cues styling as backup for :part() support */
+media-time-range .chapters-cue,
+media-time-range [data-chapters-cue] {
+    position: absolute;
     background-color: var(--media-chapters-cue-color);
     width: var(--media-chapters-cue-width);
     height: var(--media-chapters-cue-height);
     border-radius: 1px;
     transition: all 0.2s ease-in-out;
     opacity: 0.7;
-}
-
-media-time-range:hover::part(chapters-cue) {
-    opacity: 1;
-    transform: scaleY(1.5);
-}
-
-/* Enhanced chapter marker visibility */
-media-time-range .chapters-cue,
-media-time-range [slot="chapters-cue"] {
-    background: linear-gradient(to bottom,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.7) 50%,
-    rgba(255, 255, 255, 0.9) 100%);
-    width: 2px;
-    height: 100%;
-    border-radius: 1px;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
 }
 
 media-time-range:hover .chapters-cue,
-media-time-range:hover [slot="chapters-cue"] {
-    width: 3px;
-    transform: scaleY(1.8);
-    background: linear-gradient(to bottom,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.9) 50%,
-    rgba(255, 255, 255, 1) 100%);
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+media-time-range:hover [data-chapters-cue] {
+    background-color: var(--media-chapters-cue-hover-color);
+    width: var(--media-chapters-cue-width);
+    opacity: 1;
+}
+
+/* Native Player Loading Indicator */
+.native-player-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 60;
+    --media-loading-indicator-opacity: 0;
+    --media-loading-indicator-transition-delay: 300ms;
+    transition: opacity 0.2s ease-in-out var(--media-loading-indicator-transition-delay);
+    pointer-events: none;
+}
+
+.native-player-loading-indicator[medialoading]:not([mediapaused]) {
+    --media-loading-indicator-opacity: 1;
+}
+
+.native-player-loading-indicator svg {
+    @apply size-12;
+    fill: rgba(255, 255, 255, 0.9);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+[data-native-player-container][data-mini-player="true"] .native-player-loading-indicator svg {
+    @apply size-8;
 }
 
 [breakpointmd] media-time-range {

@@ -3429,7 +3429,8 @@ export type NativePlayer_ClientEvent = "video-paused" |
     "video-seeked" |
     "video-error" |
     "loaded-metadata" |
-    "subtitle-file-uploaded"
+    "subtitle-file-uploaded" |
+    "video-terminated"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
@@ -3456,6 +3457,7 @@ export type NativePlayer_PlaybackInfo = {
      */
     mkvMetadata?: MKVParser_Metadata
     episode?: Anime_Episode
+    media?: AL_BaseAnime
 }
 
 /**
@@ -3471,7 +3473,8 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "resume" |
     "seek" |
     "error" |
-    "add-subtitle-track"
+    "add-subtitle-track" |
+    "terminate"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
@@ -3862,7 +3865,7 @@ export type Torrentstream_FilePreview = {
  * - Filename: stream.go
  * - Package: torrentstream
  */
-export type Torrentstream_PlaybackType = "default" | "directstream" | "externalPlayerLink"
+export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer"
 
 /**
  * - Filepath: internal/torrentstream/client.go
