@@ -473,6 +473,10 @@ func (a *App) InitOrRefreshModules() {
 		})
 	}
 
+	if settings.Manga != nil {
+		a.MangaRepository.SetSettings(settings)
+	}
+
 	runtime.GC()
 
 	a.Logger.Info().Msg("app: Refreshed modules")

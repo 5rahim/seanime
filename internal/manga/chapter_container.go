@@ -10,6 +10,7 @@ import (
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/hook"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"seanime/internal/util/result"
@@ -52,6 +53,20 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 	provider := opts.Provider
 	mediaId := opts.MediaId
 	titles := opts.Titles
+
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+	if !ok {
+		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
+		return nil, errors.New("manga: Provider not found")
+	}
+
+	// DEVNOTE: Local chapters can be cached
+	localProvider, isLocalProvider := providerExtension.GetProvider().(*manga_providers.Local)
+
+	// Set the source directory for local provider
+	if isLocalProvider && r.settings.Manga.LocalSourceDirectory != "" {
+		localProvider.SetSourceDirectory(r.settings.Manga.LocalSourceDirectory)
+	}
 
 	r.logger.Trace().
 		Str("provider", provider).
@@ -116,12 +131,6 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 
 	// Delete the map cache
 	mangaLatestChapterNumberMap.Delete(ChapterCountMapCacheKey)
-
-	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
-	if !ok {
-		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
-		return nil, errors.New("manga: Provider not found")
-	}
 
 	var mangaId string
 

@@ -2478,6 +2478,7 @@ export type HibikeManga_ChapterDetails = {
     language?: string
     rating?: number
     updatedAt?: string
+    localIsPDF?: boolean
 }
 
 /**
@@ -3226,6 +3227,7 @@ export type Models_ListSyncSettings = {
 export type Models_MangaSettings = {
     defaultMangaProvider: string
     mangaAutoUpdateProgress: boolean
+    mangaLocalSourceDirectory: string
 }
 
 /**

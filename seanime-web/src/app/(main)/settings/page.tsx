@@ -193,6 +193,7 @@ export default function Page() {
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
                                         mangaAutoUpdateProgress: data.mangaAutoUpdateProgress ?? false,
+                                        mangaLocalSourceDirectory: data.mangaLocalSourceDirectory || "",
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -307,6 +308,7 @@ export default function Page() {
                                 autoSyncOfflineLocalData: status?.settings?.library?.autoSyncOfflineLocalData ?? false,
                                 scannerMatchingThreshold: status?.settings?.library?.scannerMatchingThreshold ?? 0.5,
                                 scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
+                                mangaLocalSourceDirectory: status?.settings?.manga?.mangaLocalSourceDirectory || "",
                             }}
                             stackClass="space-y-0 relative"
                         >

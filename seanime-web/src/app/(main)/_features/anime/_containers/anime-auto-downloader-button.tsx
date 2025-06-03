@@ -35,7 +35,6 @@ export function AnimeAutoDownloaderButton(props: AnimeAutoDownloaderButtonProps)
         isLoading
         || !serverStatus?.settings?.autoDownloader?.enabled
         || !entry.listData
-        || !(entry.media?.status == "RELEASING" || entry.media?.status == "NOT_YET_RELEASED")
     ) return null
 
     const isTracked = !!rules?.length

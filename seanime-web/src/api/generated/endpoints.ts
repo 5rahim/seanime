@@ -1022,6 +1022,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/manga/remove-mapping",
         },
+        GetLocalMangaPage: {
+            key: "MANGA-get-local-manga-page",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/local-page/{path}",
+        },
     },
     MANGA_DOWNLOAD: {
         DownloadMangaChapters: {

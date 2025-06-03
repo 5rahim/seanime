@@ -1,10 +1,16 @@
 package handlers
 
 import (
+	"errors"
+	"net/http"
+	"net/url"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 	"seanime/internal/manga"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util/result"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -551,4 +557,39 @@ func (h *Handler) HandleRemoveMangaMapping(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetLocalMangaPage
+//
+//	@summary returns a local manga page.
+//	@route /api/v1/manga/local-page/{path} [GET]
+//	@returns manga.PageContainer
+func (h *Handler) HandleGetLocalMangaPage(c echo.Context) error {
+
+	path := c.Param("path")
+	path, err := url.PathUnescape(path)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	path = strings.TrimPrefix(path, manga_providers.LocalServePath)
+
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](h.App.ExtensionRepository.GetExtensionBank(), manga_providers.LocalProvider)
+	if !ok {
+		return h.RespondWithError(c, errors.New("manga: Local provider not found"))
+	}
+
+	localProvider, ok := providerExtension.GetProvider().(*manga_providers.Local)
+	if !ok {
+		return h.RespondWithError(c, errors.New("manga: Local provider not found"))
+	}
+
+	reader, err := localProvider.ReadPage(path)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return c.Stream(http.StatusOK, "image/jpeg", reader)
 }

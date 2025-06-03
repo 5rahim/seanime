@@ -5100,6 +5100,33 @@
     }
   },
   {
+    "name": "HandleGetLocalMangaPage",
+    "trimmedName": "GetLocalMangaPage",
+    "comments": [
+      "HandleGetLocalMangaPage",
+      "",
+      "\t@summary returns a local manga page.",
+      "\t@route /api/v1/manga/local-page/{path} [GET]",
+      "\t@returns manga.PageContainer",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns a local manga page.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/local-page/{path}",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "manga.PageContainer",
+      "returnGoType": "manga.PageContainer",
+      "returnTypescriptType": "Manga_PageContainer"
+    }
+  },
+  {
     "name": "HandleDownloadMangaChapters",
     "trimmedName": "DownloadMangaChapters",
     "comments": [

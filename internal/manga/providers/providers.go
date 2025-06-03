@@ -9,6 +9,7 @@ const (
 	MangapillProvider   string = "mangapill"
 	ManganatoProvider   string = "manganato"
 	MangafireProvider   string = "mangafire"
+	LocalProvider       string = "local-manga"
 )
 
 var (

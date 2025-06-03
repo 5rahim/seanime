@@ -3194,6 +3194,7 @@ declare namespace $app {
         language?: string;
         rating?: number;
         updatedAt?: string;
+        localIsPDF?: boolean;
     }
 
     /**

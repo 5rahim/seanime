@@ -53,6 +53,12 @@ export function MangaSettings(props: MangaSettingsProps) {
                     help="Select the default provider for manga series."
                     options={options}
                 />
+
+                <Field.DirectorySelector
+                    name="mangaLocalSourceDirectory"
+                    label="Local Source Directory"
+                    help="The directory where your manga is stored. This is only used for local manga provider."
+                />
             </SettingsCard>
 
             <SettingsSubmitButton isPending={isPending} />

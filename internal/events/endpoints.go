@@ -70,6 +70,7 @@ const (
 	GetLatestUpdateEndpoint                            = "RELEASES-get-latest-update"
 	GetLibraryCollectionEndpoint                       = "ANIME-COLLECTION-get-library-collection"
 	GetLocalFilesEndpoint                              = "LOCALFILES-get-local-files"
+	GetLocalMangaPageEndpoint                          = "MANGA-get-local-manga-page"
 	GetLogFilenamesEndpoint                            = "STATUS-get-log-filenames"
 	GetMangaCollectionEndpoint                         = "MANGA-get-manga-collection"
 	GetMangaDownloadDataEndpoint                       = "MANGA-DOWNLOAD-get-manga-download-data"

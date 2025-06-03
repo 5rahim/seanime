@@ -110,8 +110,9 @@ func (o LibraryPaths) Value() (driver.Value, error) {
 }
 
 type MangaSettings struct {
-	DefaultProvider    string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
-	AutoUpdateProgress bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
+	DefaultProvider      string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
+	AutoUpdateProgress   bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
+	LocalSourceDirectory string `gorm:"column:manga_local_source_directory" json:"mangaLocalSourceDirectory"`
 }
 
 type MediaPlayerSettings struct {

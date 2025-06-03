@@ -92,6 +92,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     manga: {
                                         defaultMangaProvider: "",
                                         mangaAutoUpdateProgress: false,
+                                        mangaLocalSourceDirectory: "",
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

@@ -212,7 +212,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager:    hookManager,
 	})
 	// Load extensions in background
-	go LoadExtensions(extensionRepository, logger)
+	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize metadata provider for media information
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{

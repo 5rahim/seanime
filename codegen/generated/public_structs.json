@@ -27032,9 +27032,9 @@
         "name": "Manga",
         "jsonName": "Manga",
         "goType": "INTERNAL_Config_Manga",
-        "inlineStructType": "struct{\nDownloadDir string}",
+        "inlineStructType": "struct{\nDownloadDir string\nLocalDir string}",
         "typescriptType": "INTERNAL_Config_Manga",
-        "usedTypescriptType": "{ DownloadDir: string; }",
+        "usedTypescriptType": "{ DownloadDir: string; LocalDir: string; }",
         "usedStructName": "core.Config_Manga",
         "required": true,
         "public": true,
@@ -27280,6 +27280,15 @@
       {
         "name": "DownloadDir",
         "jsonName": "DownloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalDir",
+        "jsonName": "LocalDir",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -28117,6 +28126,15 @@
         "jsonName": "mangaAutoUpdateProgress",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalSourceDirectory",
+        "jsonName": "mangaLocalSourceDirectory",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -34390,6 +34408,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LocalIsPDF",
+        "jsonName": "localIsPDF",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -34433,6 +34460,15 @@
         "jsonName": "headers",
         "goType": "map[string]string",
         "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Buf",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -48617,6 +48653,339 @@
     "comments": []
   },
   {
+    "filepath": "../internal/manga/providers/local.go",
+    "filename": "local.go",
+    "name": "Local",
+    "formattedName": "Manga_Local",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "dir",
+        "jsonName": "dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Directory to scan for manga"
+        ]
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedTypescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentChapterPath",
+        "jsonName": "currentChapterPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentZipCloser",
+        "jsonName": "currentZipCloser",
+        "goType": "io.Closer",
+        "typescriptType": "Closer",
+        "usedTypescriptType": "Closer",
+        "usedStructName": "io.Closer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentPages",
+        "jsonName": "currentPages",
+        "goType": "map[string]loadedPage",
+        "typescriptType": "Record\u003cstring, Manga_loadedPage\u003e",
+        "usedTypescriptType": "Manga_loadedPage",
+        "usedStructName": "manga_providers.loadedPage",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "ScannedChapterFile",
+    "formattedName": "Manga_ScannedChapterFile",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "Chapter",
+        "jsonName": "Chapter",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " can be a single chapter or a range of chapters"
+        ]
+      },
+      {
+        "name": "MangaTitle",
+        "jsonName": "MangaTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " typically comes before the chapter number"
+        ]
+      },
+      {
+        "name": "ChapterTitle",
+        "jsonName": "ChapterTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " typically comes after the chapter number"
+        ]
+      },
+      {
+        "name": "Volume",
+        "jsonName": "Volume",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " typically comes after the chapter number"
+        ]
+      },
+      {
+        "name": "IsPDF",
+        "jsonName": "IsPDF",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "TokenType",
+    "formattedName": "Manga_TokenType",
+    "package": "manga_providers",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": [
+      " Token types for our lexer"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "Token",
+    "formattedName": "Manga_Token",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "TokenType",
+        "typescriptType": "Manga_TokenType",
+        "usedTypescriptType": "Manga_TokenType",
+        "usedStructName": "manga_providers.TokenType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "Value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsChapter",
+        "jsonName": "IsChapter",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsVolume",
+        "jsonName": "IsVolume",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Token represents a parsed token from the filename"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "Lexer",
+    "formattedName": "Manga_Lexer",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "input",
+        "jsonName": "input",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "position",
+        "jsonName": "position",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tokens",
+        "jsonName": "tokens",
+        "goType": "[]Token",
+        "typescriptType": "Array\u003cManga_Token\u003e",
+        "usedTypescriptType": "Manga_Token",
+        "usedStructName": "manga_providers.Token",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentToken",
+        "jsonName": "currentToken",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Lexer handles the tokenization of the filename"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "Parser",
+    "formattedName": "Manga_Parser",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "tokens",
+        "jsonName": "tokens",
+        "goType": "[]Token",
+        "typescriptType": "Array\u003cManga_Token\u003e",
+        "usedTypescriptType": "Manga_Token",
+        "usedStructName": "manga_providers.Token",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "result",
+        "jsonName": "result",
+        "goType": "ScannedChapterFile",
+        "typescriptType": "Manga_ScannedChapterFile",
+        "usedTypescriptType": "Manga_ScannedChapterFile",
+        "usedStructName": "manga_providers.ScannedChapterFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Parser handles the semantic analysis of tokens"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/providers/local_parser.go",
+    "filename": "local_parser.go",
+    "name": "ScannedPageFile",
+    "formattedName": "Manga_ScannedPageFile",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "Number",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ext",
+        "jsonName": "Ext",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/manga/providers/mangadex.go",
     "filename": "mangadex.go",
     "name": "Mangadex",
@@ -51318,6 +51687,71 @@
     ]
   },
   {
+    "filepath": "../internal/mediastream/directstream/localfile.go",
+    "filename": "localfile.go",
+    "name": "LocalFileStream",
+    "formattedName": "Directstream_LocalFileStream",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "localFile",
+        "jsonName": "localFile",
+        "goType": "anime.LocalFile",
+        "typescriptType": "Anime_LocalFile",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " LocalFileStream is a stream that is a local file."
+    ],
+    "embeddedStructNames": [
+      "directstream.BaseStream"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/directstream/localfile.go",
+    "filename": "localfile.go",
+    "name": "PlayLocalFileOptions",
+    "formattedName": "Directstream_PlayLocalFileOptions",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediastream/directstream/manager.go",
     "filename": "manager.go",
     "name": "Manager",
@@ -51815,28 +52249,13 @@
         ]
       },
       {
-        "name": "subtitleStreamsMu",
-        "jsonName": "subtitleStreamsMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
-        "usedStructName": "sync.RWMutex",
+        "name": "activeSubtitleStreams",
+        "jsonName": "activeSubtitleStreams",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "activeSubtitleStreams",
-        "jsonName": "activeSubtitleStreams",
-        "goType": "map[string]context.CancelFunc",
-        "typescriptType": "Record\u003cstring, CancelFunc\u003e",
-        "usedTypescriptType": "CancelFunc",
-        "usedStructName": "context.CancelFunc",
-        "required": false,
-        "public": false,
-        "comments": [
-          " key: stream identifier, value: cancel function"
-        ]
       },
       {
         "name": "manager",
@@ -51853,73 +52272,145 @@
     "comments": []
   },
   {
-    "filepath": "../internal/mediastream/directstream/stream.go",
-    "filename": "stream.go",
-    "name": "LocalFileStream",
-    "formattedName": "Directstream_LocalFileStream",
+    "filepath": "../internal/mediastream/directstream/stream_helpers.go",
+    "filename": "stream_helpers.go",
+    "name": "StreamCacheReadSeekCloser",
+    "formattedName": "Directstream_StreamCacheReadSeekCloser",
     "package": "directstream",
     "fields": [
       {
-        "name": "localFile",
-        "jsonName": "localFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
+        "name": "stream",
+        "jsonName": "stream",
+        "goType": "streamcache.Stream",
+        "typescriptType": "Stream",
+        "usedTypescriptType": "Stream",
+        "usedStructName": "streamcache.Stream",
         "required": false,
         "public": false,
         "comments": []
-      }
-    ],
-    "comments": [
-      " LocalFileStream is a stream that is a local file."
-    ],
-    "embeddedStructNames": [
-      "directstream.BaseStream"
-    ]
-  },
-  {
-    "filepath": "../internal/mediastream/directstream/stream.go",
-    "filename": "stream.go",
-    "name": "PlayLocalFileOptions",
-    "formattedName": "Directstream_PlayLocalFileOptions",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "ClientId",
-        "jsonName": "ClientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "Path",
-        "jsonName": "Path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "LocalFiles",
-        "goType": "[]anime.LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
+        "name": "streamReader",
+        "jsonName": "streamReader",
+        "goType": "streamcache.Reader",
+        "typescriptType": "Reader",
+        "usedTypescriptType": "Reader",
+        "usedStructName": "streamcache.Reader",
         "required": false,
-        "public": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "originalReader",
+        "jsonName": "originalReader",
+        "goType": "io.ReadSeekCloser",
+        "typescriptType": "ReadSeekCloser",
+        "usedTypescriptType": "ReadSeekCloser",
+        "usedStructName": "io.ReadSeekCloser",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "../internal/mediastream/directstream/stream.go",
-    "filename": "stream.go",
+    "filepath": "../internal/mediastream/directstream/subtitles.go",
+    "filename": "subtitles.go",
+    "name": "SubtitleStream",
+    "formattedName": "Directstream_SubtitleStream",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "stream",
+        "jsonName": "stream",
+        "goType": "Stream",
+        "typescriptType": "Directstream_Stream",
+        "usedTypescriptType": "Directstream_Stream",
+        "usedStructName": "directstream.Stream",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "parser",
+        "jsonName": "parser",
+        "goType": "mkvparser.MetadataParser",
+        "typescriptType": "MKVParser_MetadataParser",
+        "usedTypescriptType": "MKVParser_MetadataParser",
+        "usedStructName": "mkvparser.MetadataParser",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "io.ReadSeekCloser",
+        "typescriptType": "ReadSeekCloser",
+        "usedTypescriptType": "ReadSeekCloser",
+        "usedStructName": "io.ReadSeekCloser",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "offset",
+        "jsonName": "offset",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completed",
+        "jsonName": "completed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " ran until the EOF"
+        ]
+      },
+      {
+        "name": "cleanupFunc",
+        "jsonName": "cleanupFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "stopOnce",
+        "jsonName": "stopOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Sync_Once",
+        "usedTypescriptType": "Sync_Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/directstream/torrentstream.go",
+    "filename": "torrentstream.go",
     "name": "TorrentStream",
     "formattedName": "Directstream_TorrentStream",
     "package": "directstream",
@@ -51966,8 +52457,8 @@
     ]
   },
   {
-    "filepath": "../internal/mediastream/directstream/stream.go",
-    "filename": "stream.go",
+    "filepath": "../internal/mediastream/directstream/torrentstream.go",
+    "filename": "torrentstream.go",
     "name": "PlayTorrentStreamOptions",
     "formattedName": "Directstream_PlayTorrentStreamOptions",
     "package": "directstream",
@@ -52030,49 +52521,6 @@
         "usedStructName": "torrent.File",
         "required": false,
         "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/directstream/stream_helpers.go",
-    "filename": "stream_helpers.go",
-    "name": "StreamCacheReadSeekCloser",
-    "formattedName": "Directstream_StreamCacheReadSeekCloser",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "stream",
-        "jsonName": "stream",
-        "goType": "streamcache.Stream",
-        "typescriptType": "Stream",
-        "usedTypescriptType": "Stream",
-        "usedStructName": "streamcache.Stream",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "streamReader",
-        "jsonName": "streamReader",
-        "goType": "streamcache.Reader",
-        "typescriptType": "Reader",
-        "usedTypescriptType": "Reader",
-        "usedStructName": "streamcache.Reader",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "originalReader",
-        "jsonName": "originalReader",
-        "goType": "io.ReadSeekCloser",
-        "typescriptType": "ReadSeekCloser",
-        "usedTypescriptType": "ReadSeekCloser",
-        "usedStructName": "io.ReadSeekCloser",
-        "required": false,
-        "public": false,
         "comments": []
       }
     ],
@@ -52668,12 +53116,12 @@
         "comments": []
       },
       {
-        "name": "readerPos",
+        "name": "HeadPos",
         "jsonName": "",
         "goType": "int64",
         "typescriptType": "number",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": [
           " Position in the stream"
         ]
@@ -54041,19 +54489,21 @@
         "comments": []
       },
       {
-        "name": "currentClientId",
-        "jsonName": "currentClientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "subscribers",
         "jsonName": "subscribers",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
         "comments": []
@@ -54068,6 +54518,15 @@
     "formattedName": "NativePlayer_PlaybackStatus",
     "package": "nativeplayer",
     "fields": [
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "Url",
         "jsonName": "Url",
@@ -54140,6 +54599,17 @@
         "typescriptType": "Events_WSEventManagerInterface",
         "usedTypescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
         "public": true,
         "comments": []
@@ -74935,6 +75405,15 @@
     "package": "torrentutil",
     "fields": [
       {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "torrent",
         "jsonName": "torrent",
         "goType": "torrent.Torrent",
@@ -74968,6 +75447,17 @@
         "comments": []
       },
       {
+        "name": "priorityManager",
+        "jsonName": "priorityManager",
+        "goType": "priorityManager",
+        "typescriptType": "priorityManager",
+        "usedTypescriptType": "priorityManager",
+        "usedStructName": "torrentutil.priorityManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "logger",
         "jsonName": "logger",
         "goType": "zerolog.Logger",
@@ -74981,7 +75471,8 @@
     ],
     "comments": [
       " ReadSeeker implements io.ReadSeekCloser for a torrent file being streamed.",
-      " It allows dynamic prioritization of pieces when seeking, optimized for streaming."
+      " It allows dynamic prioritization of pieces when seeking, optimized for streaming",
+      " and supports multiple concurrent readers on the same file."
     ]
   },
   {

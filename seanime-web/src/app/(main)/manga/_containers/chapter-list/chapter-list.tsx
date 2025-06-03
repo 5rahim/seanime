@@ -102,6 +102,7 @@ export function ChapterList(props: ChapterListProps) {
     const {
         isChapterQueued,
         isChapterDownloaded,
+        isChapterLocal,
     } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
 
     const { inject, remove } = useSeaCommandInject()
@@ -168,7 +169,7 @@ export function ChapterList(props: ChapterListProps) {
             cell: ({ row }) => {
                 return (
                     <div className="flex justify-end gap-2 items-center w-full">
-                        {(!isChapterDownloaded(row.original) && !isChapterQueued(row.original)) && <IconButton
+                        {(!isChapterLocal(row.original) && !isChapterDownloaded(row.original) && !isChapterQueued(row.original)) && <IconButton
                             intent="gray-basic"
                             size="sm"
                             disabled={isSendingDownloadRequest}
@@ -427,13 +428,13 @@ export function ChapterList(props: ChapterListProps) {
                                             fieldClass="w-fit"
                                             {...primaryPillCheckboxClasses}
                                         />
-                                        <Checkbox
+                                        {selectedProvider !== "local-manga" && <Checkbox
                                             label={<span className="flex gap-2 items-center"><IoLibrary /> Show downloaded</span>}
                                             value={showDownloadedChapters}
                                             onValueChange={v => setShowDownloadedChapters(v as boolean)}
                                             fieldClass="w-fit"
                                             {...primaryPillCheckboxClasses}
-                                        />
+                                        />}
                                     </div>
 
                                     <ChapterListBulkActions

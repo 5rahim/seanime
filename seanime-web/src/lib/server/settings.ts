@@ -61,6 +61,7 @@ export const settingsSchema = z.object({
     includeOnlineStreamingInLibrary: z.boolean().optional().default(false),
     disableAnimeCardTrailers: z.boolean().optional().default(false),
     enableManga: z.boolean().optional().default(true),
+    mangaLocalSourceDirectory: z.string().optional().default(""),
     enableRichPresence: z.boolean().optional().default(false),
     enableAnimeRichPresence: z.boolean().optional().default(false),
     enableMangaRichPresence: z.boolean().optional().default(false),

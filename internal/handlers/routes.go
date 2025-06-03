@@ -345,6 +345,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.POST("/get-mapping", h.HandleGetMangaMapping)
 	v1Manga.POST("/remove-mapping", h.HandleRemoveMangaMapping)
 
+	v1Manga.GET("/local-page/:path", h.HandleGetLocalMangaPage)
+
 	//
 	// File Cache
 	//

@@ -23,6 +23,7 @@ require (
 	github.com/evanw/esbuild v0.24.2
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
+	github.com/gen2brain/go-fitz v1.24.14
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
 	github.com/goccy/go-json v0.10.4
@@ -33,6 +34,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/grafov/m3u8 v0.12.1
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
+	github.com/imroc/req/v3 v3.52.2
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/mileusna/useragent v1.3.5
@@ -58,6 +60,26 @@ require (
 	golang.org/x/time v0.8.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.25.12
+)
+
+require (
+	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/ebitengine/purego v0.8.0 // indirect
+	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/icholy/digest v1.1.0 // indirect
+	github.com/jupiterrider/ffi v0.2.0 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
+	github.com/quic-go/qpack v0.5.1 // indirect
+	github.com/quic-go/quic-go v0.51.0 // indirect
+	github.com/refraction-networking/utls v1.6.7 // indirect
+	go.uber.org/automaxprocs v1.6.0 // indirect
+	go.uber.org/mock v0.5.1 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/tools v0.32.0 // indirect
 )
 
 require (
@@ -98,7 +120,7 @@ require (
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
 	github.com/go-llsqlite/crawshaw v0.5.2-0.20240425034140-f30eb7704568 // indirect
-	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
@@ -106,7 +128,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
+	github.com/google/pprof v0.0.0-20250423184734-337e5dd93bb4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hekmon/cunits/v2 v2.1.0 // indirect
@@ -185,7 +207,7 @@ require (
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

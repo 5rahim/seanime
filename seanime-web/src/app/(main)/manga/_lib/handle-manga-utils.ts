@@ -28,6 +28,10 @@ export function isChapterAfter(a: string, b: string): boolean {
 export function useMangaReaderUtils() {
 
     const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
+        if (url.startsWith("{{manga-local-assets}}")) {
+            return `${getServerBaseUrl()}/api/v1/manga/local-page/${encodeURIComponent(url)}`
+        }
+
         if (!isDownloaded) {
             if (headers && Object.keys(headers).length > 0) {
                 return `${getServerBaseUrl()}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
@@ -45,6 +49,11 @@ export function useMangaReaderUtils() {
 }
 
 export function useMangaDownloadDataUtils(data: Manga_MediaDownloadData | undefined, loading: boolean) {
+
+    const isChapterLocal = React.useCallback((chapter: HibikeManga_ChapterDetails | undefined) => {
+        if (!chapter) return false
+        return chapter.provider === "local-manga"
+    }, [])
 
     const isChapterDownloaded = React.useCallback((chapter: HibikeManga_ChapterDetails | undefined) => {
         if (!data || !chapter) return false
@@ -65,6 +74,7 @@ export function useMangaDownloadDataUtils(data: Manga_MediaDownloadData | undefi
         isChapterQueued,
         getProviderNumberOfDownloadedChapters,
         showActionButtons: !loading,
+        isChapterLocal,
     }
 
 }

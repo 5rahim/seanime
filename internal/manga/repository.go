@@ -8,6 +8,7 @@ import (
 	_ "image/png"  // Register PNG format
 	"net/http"
 	"seanime/internal/database/db"
+	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util/filecache"
@@ -41,6 +42,8 @@ type (
 		mu                    sync.Mutex
 		downloadDir           string
 		db                    *db.Database
+
+		settings *models.Settings
 	}
 
 	NewRepositoryOptions struct {
@@ -66,6 +69,12 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		db:                    opts.Database,
 	}
 	return r
+}
+
+func (r *Repository) SetSettings(settings *models.Settings) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.settings = settings
 }
 
 func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
