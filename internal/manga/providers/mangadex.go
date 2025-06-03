@@ -2,10 +2,7 @@ package manga_providers
 
 import (
 	"cmp"
-	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog"
-	"net/http"
 	"net/url"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
@@ -13,6 +10,9 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/imroc/req/v3"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -20,7 +20,7 @@ type (
 		Url       string
 		BaseUrl   string
 		UserAgent string
-		Client    *http.Client
+		Client    *req.Client
 		logger    *zerolog.Logger
 	}
 
@@ -68,14 +68,16 @@ type (
 // DEVNOTE: Each chapter ID is a unique string provided by Mangadex
 
 func NewMangadex(logger *zerolog.Logger) *Mangadex {
-	c := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-	c.Transport = util.AddCloudFlareByPass(c.Transport)
+	client := req.C().
+		SetUserAgent(util.GetRandomUserAgent()).
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateChrome()
+
 	return &Mangadex{
 		Url:       "https://api.mangadex.org",
 		BaseUrl:   "https://mangadex.org",
-		Client:    c,
+		Client:    client,
 		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
@@ -96,31 +98,24 @@ func (md *Mangadex) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Searc
 	for i := range 1 {
 		uri := fmt.Sprintf("%s/manga?title=%s&limit=25&offset=%d&order[relevance]=desc&contentRating[]=safe&contentRating[]=suggestive&includes[]=cover_art", md.Url, url.QueryEscape(opts.Query), 25*i)
 
-		req, err := http.NewRequest("GET", uri, nil)
-		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: Failed to create request")
-			return nil, fmt.Errorf("failed to create request: %w", err)
-		}
-
-		req.Header.Set("User-Agent", md.UserAgent)
-		req.Header.Set("Referer", "https://google.com")
-
-		resp, err := md.Client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-
 		var data struct {
 			Data []*MangadexManga `json:"data"`
 		}
 
-		err = json.NewDecoder(resp.Body).Decode(&data)
+		resp, err := md.Client.R().
+			SetHeader("Referer", "https://google.com").
+			SetSuccessResult(&data).
+			Get(uri)
+
 		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
-			_ = resp.Body.Close()
-			return nil, fmt.Errorf("failed to decode response: %w", err)
+			md.logger.Error().Err(err).Msg("mangadex: Failed to send request")
+			return nil, err
 		}
-		_ = resp.Body.Close()
+
+		if !resp.IsSuccessState() {
+			md.logger.Error().Str("status", resp.Status).Msg("mangadex: Request failed")
+			return nil, fmt.Errorf("failed to decode response: status %s", resp.Status)
+		}
 
 		retManga = append(retManga, data.Data...)
 	}
@@ -184,6 +179,7 @@ func (md *Mangadex) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Searc
 
 	return ret, nil
 }
+
 func (md *Mangadex) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) {
 	ret := make([]*hibikemanga.ChapterDetails, 0)
 
@@ -192,24 +188,25 @@ func (md *Mangadex) FindChapters(id string) ([]*hibikemanga.ChapterDetails, erro
 	for page := 0; page <= 1; page++ {
 		uri := fmt.Sprintf("%s/manga/%s/feed?limit=500&translatedLanguage%%5B%%5D=en&includes[]=scanlation_group&includes[]=user&order[volume]=desc&order[chapter]=desc&offset=%d&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic", md.Url, id, 500*page)
 
-		resp, err := http.Get(uri)
-		if err != nil {
-			return nil, err
-		}
-
 		var data struct {
 			Result string                  `json:"result"`
 			Errors []MangadexErrorResponse `json:"errors"`
 			Data   []MangadexChapterData   `json:"data"`
 		}
 
-		err = json.NewDecoder(resp.Body).Decode(&data)
+		resp, err := md.Client.R().
+			SetSuccessResult(&data).
+			Get(uri)
+
 		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
-			resp.Body.Close()
-			return nil, fmt.Errorf("failed to decode response: %w", err)
+			md.logger.Error().Err(err).Msg("mangadex: Failed to send request")
+			return nil, err
 		}
-		resp.Body.Close()
+
+		if !resp.IsSuccessState() {
+			md.logger.Error().Str("status", resp.Status).Msg("mangadex: Request failed")
+			return nil, fmt.Errorf("failed to decode response: status %s", resp.Status)
+		}
 
 		if data.Result == "error" {
 			md.logger.Error().Str("error", data.Errors[0].Title).Str("detail", data.Errors[0].Detail).Msg("mangadex: Could not find chapters")
@@ -267,29 +264,14 @@ func (md *Mangadex) FindChapters(id string) ([]*hibikemanga.ChapterDetails, erro
 	md.logger.Info().Int("count", len(ret)).Msg("mangadex: Found chapters")
 
 	return ret, nil
-
 }
+
 func (md *Mangadex) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error) {
 	ret := make([]*hibikemanga.ChapterPage, 0)
 
 	md.logger.Debug().Str("chapterId", id).Msg("mangadex: Finding chapter pages")
 
 	uri := fmt.Sprintf("%s/at-home/server/%s", md.Url, id)
-
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		md.logger.Error().Err(err).Msg("mangadex: Failed to create request")
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
-
-	resp, err := md.Client.Do(req)
-	if err != nil {
-		md.logger.Error().Err(err).Msg("mangadex: Failed to get chapter pages")
-		return nil, err
-	}
-	defer resp.Body.Close()
 
 	var data struct {
 		BaseUrl string `json:"baseUrl"`
@@ -299,10 +281,19 @@ func (md *Mangadex) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, err
 		}
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&data)
+	resp, err := md.Client.R().
+		SetHeader("User-Agent", util.GetRandomUserAgent()).
+		SetSuccessResult(&data).
+		Get(uri)
+
 	if err != nil {
-		md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		md.logger.Error().Err(err).Msg("mangadex: Failed to get chapter pages")
+		return nil, err
+	}
+
+	if !resp.IsSuccessState() {
+		md.logger.Error().Str("status", resp.Status).Msg("mangadex: Request failed")
+		return nil, fmt.Errorf("failed to decode response: status %s", resp.Status)
 	}
 
 	for i, page := range data.Chapter.Data {

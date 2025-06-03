@@ -105,7 +105,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 </Tooltip>}
             </>}
 
-            <IsomorphicPopover
+            {!!listData && <IsomorphicPopover
                 open={open}
                 onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}
@@ -311,7 +311,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     </div>
                 </Form>}
 
-            </IsomorphicPopover>
+            </IsomorphicPopover>}
         </>
     )
 

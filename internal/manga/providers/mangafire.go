@@ -2,9 +2,6 @@ package manga_providers
 
 import (
 	"fmt"
-	"github.com/gocolly/colly"
-	"github.com/rs/zerolog"
-	"net/http"
 	"net/url"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
@@ -12,6 +9,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gocolly/colly"
+	"github.com/imroc/req/v3"
+	"github.com/rs/zerolog"
 )
 
 // DEVNOTE: Shelved due to WAF captcha
@@ -19,20 +20,22 @@ import (
 type (
 	Mangafire struct {
 		Url       string
-		Client    *http.Client
+		Client    *req.Client
 		UserAgent string
 		logger    *zerolog.Logger
 	}
 )
 
 func NewMangafire(logger *zerolog.Logger) *Mangafire {
-	c := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-	c.Transport = util.AddCloudFlareByPass(c.Transport)
+	client := req.C().
+		SetUserAgent(util.GetRandomUserAgent()).
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateChrome()
+
 	return &Mangafire{
 		Url:       "https://mangafire.to",
-		Client:    c,
+		Client:    client,
 		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}

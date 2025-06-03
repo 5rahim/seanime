@@ -62,7 +62,6 @@ type (
 func NewComicK(logger *zerolog.Logger) *ComicK {
 	client := req.C().
 		SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36").
-		// SetUserAgent(util.GetRandomUserAgent()).
 		SetTimeout(60 * time.Second).
 		EnableInsecureSkipVerify().
 		ImpersonateSafari()
