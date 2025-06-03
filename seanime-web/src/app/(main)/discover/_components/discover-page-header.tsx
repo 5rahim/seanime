@@ -70,6 +70,8 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
                 "absolute hidden lg:flex items-center justify-center gap-2 z-[10] pl-8",
                 ts.hideTopNavbar && !__isDesktop__ && "top-[4rem]",
                 __isDesktop__ && "top-[2rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && !__isDesktop__ && "top-[4.2rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && __isDesktop__ && "top-[0.6rem]",
                 pathname === "/" && "hidden lg:hidden",
                 className,
             )}

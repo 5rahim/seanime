@@ -219,9 +219,11 @@ export function filterListEntries<T extends AL_MangaCollection_MediaListCollecti
 
     // Sort by title
     if (getParamValue(params.sorting) === "TITLE")
-        arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+        // arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+        arr.sort((a, b) => a?.media?.title?.userPreferred?.localeCompare(b?.media?.title?.userPreferred!) || 0)
     if (getParamValue(params.sorting) === "TITLE_DESC")
-        arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+        // arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+        arr.sort((a, b) => b?.media?.title?.userPreferred?.localeCompare(a?.media?.title?.userPreferred!) || 0).reverse()
 
     // Sort by release date
     if (getParamValue(params.sorting) === "RELEASE_DATE" || getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
@@ -304,9 +306,11 @@ export function filterCollectionEntries<T extends Anime_LibraryCollectionEntry[]
 
     // Sort by title
     if (getParamValue(params.sorting) === "TITLE")
-        arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+        // arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+        arr.sort((a, b) => a?.media?.title?.userPreferred?.localeCompare(b?.media?.title?.userPreferred!) || 0)
     if (getParamValue(params.sorting) === "TITLE_DESC")
-        arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+        // arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+        arr.sort((a, b) => b?.media?.title?.userPreferred?.localeCompare(a?.media?.title?.userPreferred!) || 0).reverse()
 
     // Sort by release date
     if (getParamValue(params.sorting) === "RELEASE_DATE" || getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
