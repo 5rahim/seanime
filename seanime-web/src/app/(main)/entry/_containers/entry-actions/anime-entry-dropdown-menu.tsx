@@ -43,8 +43,6 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
     const setAnimeEntryUnmatchFilesModalOpen = useSetAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
     const setDownloadFilesModalOpen = useSetAtom(__animeEntryDownloadFilesModalIsOpenAtom)
 
-    if (entry?.media?.status === "NOT_YET_RELEASED") return null
-
     return (
         <>
             <DropdownMenu

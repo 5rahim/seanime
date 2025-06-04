@@ -11,6 +11,7 @@ import {
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
+import SquareBg from "@/components/shared/square-bg"
 import { IconButton } from "@/components/ui/button"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
@@ -669,6 +670,54 @@ export function NativePlayer() {
 
     const [keybindingsModalOpen, setKeybindingsModalOpen] = useAtom(nativePlayerKeybindingsModalAtom)
 
+    const Buttons = () => {
+        return (
+            <>
+                {!state.miniPlayer && <IconButton
+                    icon={<FiMinimize2 className="text-2xl" />}
+                    intent="gray-basic"
+                    className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen"
+                    onClick={() => {
+                        setState(draft => {
+                            draft.miniPlayer = true
+                        })
+                    }}
+                />}
+
+                {state.miniPlayer && <>
+                    <IconButton
+                        type="button"
+                        intent="gray-basic"
+                        size="sm"
+                        className={cn(
+                            "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
+                            state.miniPlayer && "text-xl",
+                        )}
+                        icon={<BiExpand />}
+                        onClick={() => {
+                            setState(draft => {
+                                draft.miniPlayer = false
+                            })
+                        }}
+                    />
+                    <IconButton
+                        type="button"
+                        intent="alert-subtle"
+                        size="xs"
+                        className={cn(
+                            "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
+                            state.miniPlayer && "text-xl",
+                        )}
+                        icon={<BiX />}
+                        onClick={() => {
+                            handleTerminateStream()
+                        }}
+                    />
+                </>}
+            </>
+        )
+    }
+
     return (
         <>
             <NativePlayerKeybindingsModal />
@@ -728,48 +777,6 @@ export function NativePlayer() {
                     </div>
                 )}
 
-                {!!state.loadingState && <>
-                    {!state.miniPlayer && <IconButton
-                        icon={<FiMinimize2 className="text-2xl" />}
-                        intent="gray-basic"
-                        className="rounded-full absolute top-8 right-4"
-                        onClick={() => {
-                            setState(draft => {
-                                draft.miniPlayer = true
-                            })
-                        }}
-                    />}
-                    {state.miniPlayer && <>
-                        <IconButton
-                            type="button"
-                            intent="gray-basic"
-                            size="sm"
-                            className={cn(
-                                "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto",
-                                state.miniPlayer && "text-xl",
-                            )}
-                            icon={<BiExpand />}
-                            onClick={() => {
-                                setState(draft => {
-                                    draft.miniPlayer = false
-                                })
-                            }}
-                        />
-                        <IconButton
-                            type="button"
-                            intent="alert-subtle"
-                            size="xs"
-                            className={cn(
-                                "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
-                                state.miniPlayer && "text-xl",
-                            )}
-                            icon={<BiX />}
-                            onClick={() => {
-                                handleTerminateStream()
-                            }}
-                        />
-                    </>}
-                </>}
 
 
                 <div
@@ -815,47 +822,7 @@ export function NativePlayer() {
                                     className="native-player-loading-indicator"
                                 />
 
-                                {!state.miniPlayer && <IconButton
-                                    icon={<FiMinimize2 className="text-2xl" />}
-                                    intent="gray-basic"
-                                    className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen"
-                                    onClick={() => {
-                                        setState(draft => {
-                                            draft.miniPlayer = true
-                                        })
-                                    }}
-                                />}
-
-                                {state.miniPlayer && <>
-                                    <IconButton
-                                        type="button"
-                                        intent="gray-basic"
-                                        size="sm"
-                                        className={cn(
-                                            "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
-                                            state.miniPlayer && "text-xl",
-                                        )}
-                                        icon={<BiExpand />}
-                                        onClick={() => {
-                                            setState(draft => {
-                                                draft.miniPlayer = false
-                                            })
-                                        }}
-                                    />
-                                    <IconButton
-                                        type="button"
-                                        intent="alert-subtle"
-                                        size="xs"
-                                        className={cn(
-                                            "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto native-player-hide-on-fullscreen",
-                                            state.miniPlayer && "text-xl",
-                                        )}
-                                        icon={<BiX />}
-                                        onClick={() => {
-                                            handleTerminateStream()
-                                        }}
-                                    />
-                                </>}
+                                <Buttons />
 
                                 <video
                                     key={state.playbackInfo?.streamUrl}
@@ -1041,9 +1008,14 @@ export function NativePlayer() {
                         <div
                             className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
                         >
+
+                            <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />
+                            <Buttons />
+
                             <LoadingSpinner
                                 title={state.loadingState || "Loading..."}
                                 spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
+                                containerClass="z-[1]"
                             />
                         </div>
                     )}

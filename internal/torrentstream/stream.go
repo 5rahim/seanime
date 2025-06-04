@@ -51,7 +51,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	r.sendStateEvent(eventLoading)
 
 	if opts.PlaybackType == PlaybackTypeNativePlayer {
-		r.directStreamManager.PrepareNewStream(opts.ClientId, "Loading info...")
+		r.directStreamManager.PrepareNewStream(opts.ClientId, "Selecting torrent...")
 	}
 
 	//
@@ -130,8 +130,15 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 				File:          r.client.currentFile.MustGet(),
 			})
 			if err != nil {
+				r.logger.Error().Err(err).Msg("torrentstream: Failed to prepare new stream")
+				r.sendStateEvent(eventLoadingFailed)
 				return
 			}
+
+			if opts.PlaybackType == PlaybackTypeNativePlayer {
+				r.directStreamManager.PrepareNewStream(opts.ClientId, "Downloading metadata...")
+			}
+
 			// Make sure the client is ready and the torrent is partially downloaded
 			for {
 				if r.client.readyToStream() {

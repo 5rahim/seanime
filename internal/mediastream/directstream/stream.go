@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/mediastream/nativeplayer"
@@ -325,7 +324,6 @@ func loadContentType(path string, reader ...io.ReadSeekCloser) string {
 }
 
 func (m *Manager) preStreamError(stream Stream, err error) {
-	m.wsEventManager.SendEvent(events.ErrorToast, err.Error())
 	stream.Terminate()
 	m.unloadStream()
 }

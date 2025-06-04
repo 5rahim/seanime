@@ -3,10 +3,11 @@ package updater
 import (
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
 	"io"
 	"runtime"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 var (
@@ -198,13 +199,14 @@ func (u *Updater) fetchLatestReleaseFromDocs() (*Release, error) {
 		return nil, err
 	}
 
+	// DEVNOTE: Removed in case the next version is not a GitHub release
 	// Additional security check
 	// Make sure the download url is from the GitHub release
-	for _, asset := range res.Release.Assets {
-		if !strings.HasPrefix(asset.BrowserDownloadUrl, "https://github.com") {
-			return nil, errors.New("invalid download url")
-		}
-	}
+	// for _, asset := range res.Release.Assets {
+	// 	if !strings.HasPrefix(asset.BrowserDownloadUrl, "https://github.com") {
+	// 		return nil, errors.New("invalid download url")
+	// 	}
+	// }
 
 	res.Release.Version = strings.TrimPrefix(res.Release.TagName, "v")
 
