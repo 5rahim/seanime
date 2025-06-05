@@ -10,6 +10,7 @@ import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/se
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { AnilistSettings } from "@/app/(main)/settings/_containers/anilist-settings"
 import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
@@ -379,25 +380,7 @@ export default function Page() {
 
                                     <TabsContent value="anilist" className="space-y-4">
 
-                                        <h3>AniList</h3>
-
-                                        <SettingsCard>
-                                            <Field.Switch
-                                                side="right"
-                                                name="hideAudienceScore"
-                                                label="Hide audience score"
-                                                help="If enabled, the audience score will be hidden until you decide to view it."
-                                            />
-
-                                            <Field.Switch
-                                                side="right"
-                                                name="disableAnimeCardTrailers"
-                                                label="Disable anime card trailers"
-                                                help=""
-                                            />
-                                        </SettingsCard>
-
-                                        <SettingsSubmitButton isPending={isPending} />
+                                        <AnilistSettings isPending={isPending} />
 
                                     </TabsContent>
 

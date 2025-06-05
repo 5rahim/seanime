@@ -1,4 +1,4 @@
-package sync_util
+package local
 
 import "fmt"
 

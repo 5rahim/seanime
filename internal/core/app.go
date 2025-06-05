@@ -21,6 +21,7 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/library/scanner"
+	"seanime/internal/local"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
@@ -31,15 +32,16 @@ import (
 	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
-	"seanime/internal/platforms/local_platform"
+	"seanime/internal/platforms/offline_platform"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/platforms/simulated_platform"
 	"seanime/internal/plugin"
 	"seanime/internal/report"
-	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/updater"
+	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"sync"
@@ -59,8 +61,8 @@ type (
 		Watcher                       *scanner.Watcher
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
-		LocalPlatform                 platform.Platform
-		SyncManager                   sync2.Manager
+		OfflinePlatform               platform.Platform
+		LocalManager                  local.Manager
 		FillerManager                 *fillermanager.FillerManager
 		WSEventManager                *events.WSEventManager
 		AutoDownloader                *autodownloader.AutoDownloader
@@ -95,7 +97,7 @@ type (
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
-		} // Struct for other settings sent to client
+		} // Struct for other settings sent to clientN
 		SelfUpdater        *updater.SelfUpdater
 		ReportRepository   *report.Repository
 		TotalLibrarySize   uint64 // Initialized in modules.go
@@ -105,7 +107,7 @@ type (
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection
 		rawMangaCollection *anilist.MangaCollection // (retains custom lists)
-		account            *models.Account
+		user               *user.User
 		previousVersion    string
 		moduleMu           sync.Mutex
 		HookManager        hook.Manager
@@ -183,7 +185,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Get Anilist token from database if available
 	anilistToken := database.GetAnilistToken()
 
-	// Initialize Anilist API client
+	// Initialize Anilist API client with the token
+	// If the token is empty, the client will not be authenticated
 	anilistCW := anilist.NewAnilistClient(anilistToken)
 
 	// Initialize WebSocket event manager for real-time communication
@@ -245,7 +248,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Initialize sync manager for offline/online synchronization
-	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
+	localManager, err := local.NewManager(&local.NewManagerOptions{
 		LocalDir:         cfg.Offline.Dir,
 		AssetDir:         cfg.Offline.AssetDir,
 		Logger:           logger,
@@ -262,19 +265,28 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Use local metadata provider if in offline mode
 	if cfg.Server.Offline {
-		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
+		activeMetadataProvider = localManager.GetOfflineMetadataProvider()
 	}
 
-	// Initialize local platform for offline operation
-	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
+	// Initialize local platform for offline operations
+	offlinePlatform, err := offline_platform.NewOfflinePlatform(localManager, anilistCW, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
+	}
+
+	// Initialize simulated platform for unauthenticated operations
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize simulated platform")
 	}
 
 	// Change active platform if offline mode is enabled
 	activePlatform := anilistPlatform
 	if cfg.Server.Offline {
-		activePlatform = localPlatform
+		activePlatform = offlinePlatform
+	} else if !anilistCW.IsAuthenticated() {
+		logger.Warn().Msg("app: Anilist client is not authenticated, using simulated platform")
+		activePlatform = simulatedPlatform
 	}
 
 	// Initialize online streaming repository
@@ -295,8 +307,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:                      database,
 		AnilistClient:                 anilistCW,
 		AnilistPlatform:               activePlatform,
-		LocalPlatform:                 localPlatform,
-		SyncManager:                   syncManager,
+		OfflinePlatform:               offlinePlatform,
+		LocalManager:                  localManager,
 		WSEventManager:                wsEventManager,
 		Logger:                        logger,
 		Version:                       constants.Version,

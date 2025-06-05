@@ -9,7 +9,7 @@ import (
 	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/database/models"
-	"seanime/internal/library/anime"
+	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
@@ -27,7 +27,7 @@ type Status struct {
 	ClientPlatform        string                        `json:"clientPlatform"`
 	ClientUserAgent       string                        `json:"clientUserAgent"`
 	DataDir               string                        `json:"dataDir"`
-	User                  *anime.User                   `json:"user"`
+	User                  *user.User                    `json:"user"`
 	Settings              *models.Settings              `json:"settings"`
 	Version               string                        `json:"version"`
 	VersionName           string                        `json:"versionName"`
@@ -49,16 +49,20 @@ var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
 // It uses the RouteCtx to get the App instance containing the Database instance.
 func (h *Handler) NewStatus(c echo.Context) *Status {
 	var dbAcc *models.Account
-	var user *anime.User
+	var currentUser *user.User
 	var settings *models.Settings
 	var theme *models.Theme
 	//var mal *models.Mal
 
+	// Get the user from the database (if logged in)
 	if dbAcc, _ = h.App.Database.GetAccount(); dbAcc != nil {
-		user, _ = anime.NewUser(dbAcc)
-		if user != nil {
-			user.Token = "HIDDEN"
+		currentUser, _ = user.NewUser(dbAcc)
+		if currentUser != nil {
+			currentUser.Token = "HIDDEN"
 		}
+	} else {
+		// If the user is not logged in, create a simulated user
+		currentUser = user.NewSimulatedUser()
 	}
 
 	if settings, _ = h.App.Database.GetSettings(); settings != nil {
@@ -81,7 +85,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		ClientPlatform:        clientInfo.Platform,
 		DataDir:               h.App.Config.Data.AppDataDir,
 		ClientUserAgent:       c.Request().UserAgent(),
-		User:                  user,
+		User:                  currentUser,
 		Settings:              settings,
 		Version:               h.App.Version,
 		VersionName:           constants.VersionName,

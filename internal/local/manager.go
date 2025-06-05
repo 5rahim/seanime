@@ -1,4 +1,4 @@
-package sync
+package local
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	ErrAlreadyTracked = fmt.Errorf("sync: Media already tracked")
+	ErrAlreadyTracked = fmt.Errorf("local manager: Media already tracked")
 )
 
 const (
@@ -28,35 +28,59 @@ const (
 )
 
 type Manager interface {
+	// SetAnimeCollection updates the online anime collection in the manager.
 	SetAnimeCollection(ac *anilist.AnimeCollection)
+	// SetMangaCollection updates the online manga collection in the manager.
 	SetMangaCollection(mc *anilist.MangaCollection)
+	// GetLocalAnimeCollection returns the local anime collection stored in the local database.
 	GetLocalAnimeCollection() mo.Option[*anilist.AnimeCollection]
+	// GetLocalMangaCollection returns the local manga collection stored in the local database.
 	GetLocalMangaCollection() mo.Option[*anilist.MangaCollection]
-	SaveLocalAnimeCollection(ac *anilist.AnimeCollection)
-	SaveLocalMangaCollection(mc *anilist.MangaCollection)
-	GetLocalMetadataProvider() metadata.Provider
-	GetQueue() *Syncer
-	// AddAnime adds an anime to track.
+	// UpdateLocalAnimeCollection updates the local anime collection using the online data.
+	UpdateLocalAnimeCollection(ac *anilist.AnimeCollection)
+	// UpdateLocalMangaCollection updates the local manga collection using the online data.
+	UpdateLocalMangaCollection(mc *anilist.MangaCollection)
+	// GetOfflineMetadataProvider returns the offline metadata provider.
+	GetOfflineMetadataProvider() metadata.Provider
+	// GetSyncer returns the syncer (used to synchronize the anime and manga snapshots in the local database).
+	GetSyncer() *Syncer
+	// TrackAnime adds an anime to track for offline use.
 	// It checks that the anime is currently in the user's anime collection.
-	AddAnime(mId int) error
-	// RemoveAnime removes the anime from tracking.
-	RemoveAnime(mId int) error
-	// AddManga adds a manga to track.
+	TrackAnime(mId int) error
+	// UntrackAnime removes the anime from tracking.
+	UntrackAnime(mId int) error
+	// TrackManga adds a manga to track for offline use.
 	// It checks that the manga is currently in the user's manga collection.
-	AddManga(mId int) error
-	// RemoveManga removes a manga from tracking.
-	RemoveManga(mId int) error
+	TrackManga(mId int) error
+	// UntrackManga removes a manga from tracking.
+	UntrackManga(mId int) error
+	// IsMediaTracked checks if the media is tracked in the local database.
 	IsMediaTracked(aId int, kind string) bool
+	// GetTrackedMediaItems returns all tracked media items.
 	GetTrackedMediaItems() []*TrackedMediaItem
 	// SynchronizeLocal syncs all currently tracked media.
 	// Compares the local database with the user's anime and manga collections and updates the local database accordingly.
 	SynchronizeLocal() error
 	// SynchronizeAnilist syncs the user's AniList data with data stored in the local database.
 	SynchronizeAnilist() error
+	// SetRefreshAnilistCollectionsFunc sets the function to call to refresh the online AniList collections.
 	SetRefreshAnilistCollectionsFunc(func())
+	// HasLocalChanges checks if there are any local changes that need to be uploaded or ignored.
 	HasLocalChanges() bool
+	// SetHasLocalChanges sets the flag to determine if there are local changes that need to be uploaded or ignored.
 	SetHasLocalChanges(bool)
+	// GetLocalStorageSize returns the size of the local storage in bytes.
 	GetLocalStorageSize() int64
+	// GetSimulatedAnimeCollection returns the simulated anime collection for unauthenticated users.
+	GetSimulatedAnimeCollection() mo.Option[*anilist.AnimeCollection]
+	// GetSimulatedMangaCollection returns the simulated manga collection for unauthenticated users.
+	GetSimulatedMangaCollection() mo.Option[*anilist.MangaCollection]
+	// SaveSimulatedAnimeCollection sets the simulated anime collection for unauthenticated users.
+	SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection)
+	// SaveSimulatedMangaCollection sets the simulated manga collection for unauthenticated users.
+	SaveSimulatedMangaCollection(mc *anilist.MangaCollection)
+	// SynchronizeSimulatedCollectionToAnilist synchronizes the simulated anime and manga collections to the user's AniList account.
+	SynchronizeSimulatedCollectionToAnilist() error
 }
 
 type (
@@ -67,12 +91,12 @@ type (
 		localAssetsDir string
 		isOffline      bool
 
-		logger                *zerolog.Logger
-		metadataProvider      metadata.Provider
-		mangaRepository       *manga.Repository
-		wsEventManager        events.WSEventManagerInterface
-		localMetadataProvider metadata.Provider
-		anilistPlatform       platform.Platform
+		logger                  *zerolog.Logger
+		metadataProvider        metadata.Provider
+		mangaRepository         *manga.Repository
+		wsEventManager          events.WSEventManagerInterface
+		offlineMetadataProvider metadata.Provider
+		anilistPlatform         platform.Platform
 
 		syncer *Syncer
 
@@ -143,7 +167,7 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 	}
 
 	ret.syncer = NewQueue(ret)
-	ret.localMetadataProvider = NewLocalMetadataProvider(ret)
+	ret.offlineMetadataProvider = NewOfflineMetadataProvider(ret)
 
 	// Load the local collections
 	ret.loadLocalAnimeCollection()
@@ -158,12 +182,12 @@ func (m *ManagerImpl) SetRefreshAnilistCollectionsFunc(f func()) {
 	m.RefreshAnilistCollectionsFunc = f
 }
 
-func (m *ManagerImpl) GetQueue() *Syncer {
+func (m *ManagerImpl) GetSyncer() *Syncer {
 	return m.syncer
 }
 
-func (m *ManagerImpl) GetLocalMetadataProvider() metadata.Provider {
-	return m.localMetadataProvider
+func (m *ManagerImpl) GetOfflineMetadataProvider() metadata.Provider {
+	return m.offlineMetadataProvider
 }
 
 func (m *ManagerImpl) HasLocalChanges() bool {
@@ -222,22 +246,22 @@ func (m *ManagerImpl) GetLocalMangaCollection() mo.Option[*anilist.MangaCollecti
 	return m.localMangaCollection
 }
 
-func (m *ManagerImpl) SaveLocalAnimeCollection(ac *anilist.AnimeCollection) {
+func (m *ManagerImpl) UpdateLocalAnimeCollection(ac *anilist.AnimeCollection) {
 	_ = m.localDb.SaveAnimeCollection(ac)
 	m.loadLocalAnimeCollection()
 }
 
-func (m *ManagerImpl) SaveLocalMangaCollection(mc *anilist.MangaCollection) {
+func (m *ManagerImpl) UpdateLocalMangaCollection(mc *anilist.MangaCollection) {
 	_ = m.localDb.SaveMangaCollection(mc)
 	m.loadLocalMangaCollection()
 }
 
-// AddAnime adds an anime to track.
+// TrackAnime adds an anime to track.
 // It checks that the anime is currently in the user's anime collection.
 // The anime should have local files, or else ManagerImpl.Synchronize will remove it from tracking.
-func (m *ManagerImpl) AddAnime(mId int) error {
+func (m *ManagerImpl) TrackAnime(mId int) error {
 
-	m.logger.Trace().Msgf("sync: Adding anime %d to local database", mId)
+	m.logger.Trace().Msgf("local manager: Adding anime %d to local database", mId)
 
 	s := &TrackedMedia{
 		MediaId: mId,
@@ -246,12 +270,12 @@ func (m *ManagerImpl) AddAnime(mId int) error {
 
 	// Check if the anime is in the user's anime collection
 	if m.animeCollection.IsAbsent() {
-		m.logger.Error().Msg("sync: Anime collection not set")
+		m.logger.Error().Msg("local manager: Anime collection not set")
 		return fmt.Errorf("anime collection not set")
 	}
 
 	if _, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(mId); !found {
-		m.logger.Error().Msgf("sync: Anime %d not found in user's anime collection", mId)
+		m.logger.Error().Msgf("local manager: Anime %d not found in user's anime collection", mId)
 		return fmt.Errorf("anime is not in AniList collection")
 	}
 
@@ -261,19 +285,19 @@ func (m *ManagerImpl) AddAnime(mId int) error {
 
 	err := m.localDb.gormdb.Create(s).Error
 	if err != nil {
-		m.logger.Error().Msgf("sync: Failed to add anime %d to local database: %w", mId, err)
+		m.logger.Error().Msgf("local manager: Failed to add anime %d to local database: %w", mId, err)
 		return fmt.Errorf("failed to add anime %d to local database: %w", mId, err)
 	}
 
 	return nil
 }
 
-func (m *ManagerImpl) RemoveAnime(mId int) error {
+func (m *ManagerImpl) UntrackAnime(mId int) error {
 
-	m.logger.Trace().Msgf("sync: Removing anime %d from local database", mId)
+	m.logger.Trace().Msgf("local manager: Removing anime %d from local database", mId)
 
 	if _, found := m.localDb.GetTrackedMedia(mId, AnimeType); !found {
-		m.logger.Error().Msgf("sync: Anime %d not in local database", mId)
+		m.logger.Error().Msgf("local manager: Anime %d not in local database", mId)
 		return fmt.Errorf("anime is not in local database")
 	}
 
@@ -282,19 +306,19 @@ func (m *ManagerImpl) RemoveAnime(mId int) error {
 		return err
 	}
 
-	m.GetQueue().refreshCollections()
+	m.GetSyncer().refreshCollections()
 
 	return nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-// AddManga adds a manga to track.
+// TrackManga adds a manga to track.
 // It checks that the manga is currently in the user's manga collection.
 // The manga should have downloaded chapter containers, or else ManagerImpl.Synchronize will remove it from tracking.
-func (m *ManagerImpl) AddManga(mId int) error {
+func (m *ManagerImpl) TrackManga(mId int) error {
 
-	m.logger.Trace().Msgf("sync: Adding manga %d to local database", mId)
+	m.logger.Trace().Msgf("local manager: Adding manga %d to local database", mId)
 
 	s := &TrackedMedia{
 		MediaId: mId,
@@ -303,12 +327,12 @@ func (m *ManagerImpl) AddManga(mId int) error {
 
 	// Check if the manga is in the user's manga collection
 	if m.mangaCollection.IsAbsent() {
-		m.logger.Error().Msg("sync: Manga collection not set")
+		m.logger.Error().Msg("local manager: Manga collection not set")
 		return fmt.Errorf("manga collection not set")
 	}
 
 	if _, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(mId); !found {
-		m.logger.Error().Msgf("sync: Manga %d not found in user's manga collection", mId)
+		m.logger.Error().Msgf("local manager: Manga %d not found in user's manga collection", mId)
 		return fmt.Errorf("manga is not in AniList collection")
 	}
 
@@ -318,19 +342,19 @@ func (m *ManagerImpl) AddManga(mId int) error {
 
 	err := m.localDb.gormdb.Create(s).Error
 	if err != nil {
-		m.logger.Error().Msgf("sync: Failed to add manga %d to local database: %w", mId, err)
+		m.logger.Error().Msgf("local manager: Failed to add manga %d to local database: %w", mId, err)
 		return fmt.Errorf("failed to add manga %d to local database: %w", mId, err)
 	}
 
 	return nil
 }
 
-func (m *ManagerImpl) RemoveManga(mId int) error {
+func (m *ManagerImpl) UntrackManga(mId int) error {
 
-	m.logger.Trace().Msgf("sync: Removing manga %d from local database", mId)
+	m.logger.Trace().Msgf("local manager: Removing manga %d from local database", mId)
 
 	if _, found := m.localDb.GetTrackedMedia(mId, MangaType); !found {
-		m.logger.Error().Msgf("sync: Manga %d not in local database", mId)
+		m.logger.Error().Msgf("local manager: Manga %d not in local database", mId)
 		return fmt.Errorf("manga is not in local database")
 	}
 
@@ -339,7 +363,7 @@ func (m *ManagerImpl) RemoveManga(mId int) error {
 		return err
 	}
 
-	m.GetQueue().refreshCollections()
+	m.GetSyncer().refreshCollections()
 
 	return nil
 }
@@ -434,21 +458,21 @@ func (m *ManagerImpl) SynchronizeLocal() error {
 
 	lfs, _, err := db_bridge.GetLocalFiles(m.db)
 	if err != nil {
-		return fmt.Errorf("sync: Couldn't start syncing, failed to get local files: %w", err)
+		return fmt.Errorf("local manager: Couldn't start syncing, failed to get local files: %w", err)
 	}
 
 	// Check if the anime and manga collections are set
 	if m.animeCollection.IsAbsent() {
-		return fmt.Errorf("sync: Couldn't start syncing, anime collection not set")
+		return fmt.Errorf("local manager: Couldn't start syncing, anime collection not set")
 	}
 
 	if m.mangaCollection.IsAbsent() {
-		return fmt.Errorf("sync: Couldn't start syncing, manga collection not set")
+		return fmt.Errorf("local manager: Couldn't start syncing, manga collection not set")
 	}
 
 	mangaChapterContainers, err := m.mangaRepository.GetDownloadedChapterContainers(m.mangaCollection.MustGet())
 	if err != nil {
-		return fmt.Errorf("sync: Couldn't start syncing, failed to get downloaded chapter containers: %w", err)
+		return fmt.Errorf("local manager: Couldn't start syncing, failed to get downloaded chapter containers: %w", err)
 	}
 
 	return m.synchronize(lfs, mangaChapterContainers)
@@ -456,18 +480,18 @@ func (m *ManagerImpl) SynchronizeLocal() error {
 
 func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers []*manga.ChapterContainer) error {
 
-	m.logger.Trace().Msg("sync: Synchronizing local database with user's anime and manga collections")
+	m.logger.Trace().Msg("local manager: Synchronizing local database with user's anime and manga collections")
 
 	m.localFiles = lfs
 	m.downloadedChapterContainers = mangaChapterContainers
 
 	// Check if the anime and manga collections are set
 	if m.animeCollection.IsAbsent() {
-		return fmt.Errorf("sync: Anime collection not set")
+		return fmt.Errorf("local manager: Anime collection not set")
 	}
 
 	if m.mangaCollection.IsAbsent() {
-		return fmt.Errorf("sync: Manga collection not set")
+		return fmt.Errorf("local manager: Manga collection not set")
 	}
 
 	trackedAnimeMap, trackedMangaMap := m.loadTrackedMedia()
@@ -478,7 +502,7 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 		if _, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(item.MediaId); !found {
 			err := m.removeAnime(item.MediaId)
 			if err != nil {
-				return fmt.Errorf("sync: Failed to remove anime %d from local database: %w", item.MediaId, err)
+				return fmt.Errorf("local manager: Failed to remove anime %d from local database: %w", item.MediaId, err)
 			}
 		}
 	}
@@ -487,7 +511,7 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 		if _, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(item.MediaId); !found {
 			err := m.removeManga(item.MediaId)
 			if err != nil {
-				return fmt.Errorf("sync: Failed to remove manga %d from local database: %w", item.MediaId, err)
+				return fmt.Errorf("local manager: Failed to remove manga %d from local database: %w", item.MediaId, err)
 			}
 		}
 	}
@@ -516,11 +540,11 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 
 func (m *ManagerImpl) SynchronizeAnilist() error {
 	if m.animeCollection.IsAbsent() {
-		return fmt.Errorf("sync: Anime collection not set")
+		return fmt.Errorf("local manager: Anime collection not set")
 	}
 
 	if m.mangaCollection.IsAbsent() {
-		return fmt.Errorf("sync: Manga collection not set")
+		return fmt.Errorf("local manager: Manga collection not set")
 	}
 
 	m.loadLocalAnimeCollection()
@@ -674,18 +698,18 @@ func (m *ManagerImpl) loadTrackedMedia() (trackedAnimeMap map[int]*TrackedMedia,
 		trackedMangaMap[m.MediaId] = m
 	}
 
-	m.GetQueue().trackedMangaMap = trackedMangaMap
-	m.GetQueue().trackedAnimeMap = trackedAnimeMap
+	m.GetSyncer().trackedMangaMap = trackedMangaMap
+	m.GetSyncer().trackedAnimeMap = trackedAnimeMap
 
 	return trackedAnimeMap, trackedMangaMap
 }
 
 func (m *ManagerImpl) removeAnime(aId int) error {
-	m.logger.Trace().Msgf("sync: Removing anime %d from local database", aId)
+	m.logger.Trace().Msgf("local manager: Removing anime %d from local database", aId)
 	// Remove the tracked anime
 	err := m.localDb.RemoveTrackedMedia(aId, AnimeType)
 	if err != nil {
-		return fmt.Errorf("sync: Failed to remove anime %d from local database: %w", aId, err)
+		return fmt.Errorf("local manager: Failed to remove anime %d from local database: %w", aId, err)
 	}
 	// Remove the anime snapshot
 	_ = m.localDb.RemoveAnimeSnapshot(aId)
@@ -695,11 +719,11 @@ func (m *ManagerImpl) removeAnime(aId int) error {
 }
 
 func (m *ManagerImpl) removeManga(mId int) error {
-	m.logger.Trace().Msgf("sync: Removing manga %d from local database", mId)
+	m.logger.Trace().Msgf("local manager: Removing manga %d from local database", mId)
 	// Remove the tracked manga
 	err := m.localDb.RemoveTrackedMedia(mId, MangaType)
 	if err != nil {
-		return fmt.Errorf("sync: Failed to remove manga %d from local database: %w", mId, err)
+		return fmt.Errorf("local manager: Failed to remove manga %d from local database: %w", mId, err)
 	}
 	// Remove the manga snapshot
 	_ = m.localDb.RemoveMangaSnapshot(mId)
@@ -712,11 +736,11 @@ func (m *ManagerImpl) removeManga(mId int) error {
 //   - The images are stored in the local assets' directory.
 //   - e.g. datadir/local/assets/{mediaId}/*
 func (m *ManagerImpl) removeMediaImages(mediaId int) error {
-	m.logger.Trace().Msgf("sync: Removing images for media %d", mediaId)
+	m.logger.Trace().Msgf("local manager: Removing images for media %d", mediaId)
 	path := filepath.Join(m.localAssetsDir, fmt.Sprintf("%d", mediaId))
 	_ = os.RemoveAll(path)
 	//if err != nil {
-	//	return fmt.Errorf("sync: Failed to remove images for media %d: %w", mediaId, err)
+	//	return fmt.Errorf("local manager: Failed to remove images for media %d: %w", mediaId, err)
 	//}
 	return nil
 }
@@ -743,4 +767,168 @@ func (m *ManagerImpl) GetLocalStorageSize() int64 {
 	localStorageSizeCache = size
 
 	return size
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *ManagerImpl) GetSimulatedAnimeCollection() mo.Option[*anilist.AnimeCollection] {
+	ac, ok := m.localDb.GetSimulatedAnimeCollection()
+	if !ok {
+		return mo.None[*anilist.AnimeCollection]()
+	}
+	return mo.Some(ac)
+}
+
+func (m *ManagerImpl) GetSimulatedMangaCollection() mo.Option[*anilist.MangaCollection] {
+	mc, ok := m.localDb.GetSimulatedMangaCollection()
+	if !ok {
+		return mo.None[*anilist.MangaCollection]()
+	}
+	return mo.Some(mc)
+}
+
+func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) {
+	_ = m.localDb.SaveSimulatedAnimeCollection(ac)
+}
+
+func (m *ManagerImpl) SaveSimulatedMangaCollection(mc *anilist.MangaCollection) {
+	_ = m.localDb.SaveSimulatedMangaCollection(mc)
+}
+
+func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {
+	if localAnimeCollection, ok := m.localDb.GetSimulatedAnimeCollection(); ok {
+		for _, list := range localAnimeCollection.MediaListCollection.Lists {
+			if list.GetStatus() == nil || list.GetEntries() == nil {
+				continue
+			}
+			for _, entry := range list.GetEntries() {
+				if entry.GetStatus() == nil {
+					continue
+				}
+
+				// Get the entry from AniList
+				var originalEntry *anilist.AnimeListEntry
+				if e, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(entry.GetMedia().GetID()); found {
+					originalEntry = e
+				}
+				if originalEntry == nil {
+					continue
+				}
+
+				key1 := GetAnimeListDataKey(entry)
+				key2 := GetAnimeListDataKey(originalEntry)
+
+				// If the entry is the same, skip
+				if key1 == key2 {
+					continue
+				}
+
+				var startDate *anilist.FuzzyDateInput
+				if entry.GetStartedAt() != nil {
+					startDate = &anilist.FuzzyDateInput{
+						Year:  entry.GetStartedAt().GetYear(),
+						Month: entry.GetStartedAt().GetMonth(),
+						Day:   entry.GetStartedAt().GetDay(),
+					}
+				}
+
+				var endDate *anilist.FuzzyDateInput
+				if entry.GetCompletedAt() != nil {
+					endDate = &anilist.FuzzyDateInput{
+						Year:  entry.GetCompletedAt().GetYear(),
+						Month: entry.GetCompletedAt().GetMonth(),
+						Day:   entry.GetCompletedAt().GetDay(),
+					}
+				}
+
+				var score *int
+				if entry.GetScore() != nil {
+					score = lo.ToPtr(int(*entry.GetScore()))
+				} else {
+					score = lo.ToPtr(0)
+				}
+
+				_ = m.anilistPlatform.UpdateEntry(
+					entry.GetMedia().GetID(),
+					entry.GetStatus(),
+					score,
+					entry.GetProgress(),
+					startDate,
+					endDate,
+				)
+			}
+		}
+	}
+
+	if localMangaCollection, ok := m.localDb.GetSimulatedMangaCollection(); ok {
+		for _, list := range localMangaCollection.MediaListCollection.Lists {
+			if list.GetStatus() == nil || list.GetEntries() == nil {
+				continue
+			}
+			for _, entry := range list.GetEntries() {
+				if entry.GetStatus() == nil {
+					continue
+				}
+
+				// Get the entry from AniList
+				var originalEntry *anilist.MangaListEntry
+				if e, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(entry.GetMedia().GetID()); found {
+					originalEntry = e
+				}
+				if originalEntry == nil {
+					continue
+				}
+
+				key1 := GetMangaListDataKey(entry)
+				key2 := GetMangaListDataKey(originalEntry)
+
+				// If the entry is the same, skip
+				if key1 == key2 {
+					continue
+				}
+
+				var startDate *anilist.FuzzyDateInput
+				if entry.GetStartedAt() != nil {
+					startDate = &anilist.FuzzyDateInput{
+						Year:  entry.GetStartedAt().GetYear(),
+						Month: entry.GetStartedAt().GetMonth(),
+						Day:   entry.GetStartedAt().GetDay(),
+					}
+				}
+
+				var endDate *anilist.FuzzyDateInput
+				if entry.GetCompletedAt() != nil {
+					endDate = &anilist.FuzzyDateInput{
+						Year:  entry.GetCompletedAt().GetYear(),
+						Month: entry.GetCompletedAt().GetMonth(),
+						Day:   entry.GetCompletedAt().GetDay(),
+					}
+				}
+
+				var score *int
+				if entry.GetScore() != nil {
+					score = lo.ToPtr(int(*entry.GetScore()))
+				} else {
+					score = lo.ToPtr(0)
+				}
+
+				_ = m.anilistPlatform.UpdateEntry(
+					entry.GetMedia().GetID(),
+					entry.GetStatus(),
+					score,
+					entry.GetProgress(),
+					startDate,
+					endDate,
+				)
+			}
+		}
+	}
+
+	m.RefreshAnilistCollectionsFunc()
+
+	m.wsEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
+	m.wsEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
+
+	return nil
 }

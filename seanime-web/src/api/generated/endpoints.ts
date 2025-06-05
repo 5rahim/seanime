@@ -766,6 +766,73 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/filecache/mediastream/videofiles",
         },
     },
+    LOCAL: {
+        LocalGetTrackedMediaItems: {
+            key: "LOCAL-local-get-tracked-media-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/track",
+        },
+        LocalAddTrackedMedia: {
+            key: "LOCAL-local-add-tracked-media",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/track",
+        },
+        /**
+         *  @description
+         *  Route remove media from being tracked for offline sync.
+         *  This will remove anime from being tracked for offline sync and delete any associated data.
+         */
+        LocalRemoveTrackedMedia: {
+            key: "LOCAL-local-remove-tracked-media",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/local/track",
+        },
+        LocalGetIsMediaTracked: {
+            key: "LOCAL-local-get-is-media-tracked",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/track/{id}/{type}",
+        },
+        LocalSyncData: {
+            key: "LOCAL-local-sync-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/local",
+        },
+        /**
+         *  @description
+         *  Route gets the current sync queue state.
+         *  This will return the list of media that are currently queued for syncing.
+         */
+        LocalGetSyncQueueState: {
+            key: "LOCAL-local-get-sync-queue-state",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/queue",
+        },
+        LocalSyncAnilistData: {
+            key: "LOCAL-local-sync-anilist-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/anilist",
+        },
+        LocalSetHasLocalChanges: {
+            key: "LOCAL-local-set-has-local-changes",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/updated",
+        },
+        LocalGetHasLocalChanges: {
+            key: "LOCAL-local-get-has-local-changes",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/updated",
+        },
+        LocalGetLocalStorageSize: {
+            key: "LOCAL-local-get-local-storage-size",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/storage/size",
+        },
+        LocalSyncSimulatedDataToAnilist: {
+            key: "LOCAL-local-sync-simulated-data-to-anilist",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/sync-simulated-to-anilist",
+        },
+    },
     LOCALFILES: {
         /**
          *  @description
@@ -1592,68 +1659,6 @@ export const API_ENDPOINTS = {
             key: "STATUS-get-latest-log-content",
             methods: ["GET"],
             endpoint: "/api/v1/logs/latest",
-        },
-    },
-    SYNC: {
-        SyncGetTrackedMediaItems: {
-            key: "SYNC-sync-get-tracked-media-items",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/track",
-        },
-        SyncAddMedia: {
-            key: "SYNC-sync-add-media",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/track",
-        },
-        /**
-         *  @description
-         *  Route remove media from being tracked for offline sync.
-         *  This will remove anime from being tracked for offline sync and delete any associated data.
-         */
-        SyncRemoveMedia: {
-            key: "SYNC-sync-remove-media",
-            methods: ["DELETE"],
-            endpoint: "/api/v1/sync/track",
-        },
-        SyncGetIsMediaTracked: {
-            key: "SYNC-sync-get-is-media-tracked",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/track/{id}/{type}",
-        },
-        SyncLocalData: {
-            key: "SYNC-sync-local-data",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/local",
-        },
-        /**
-         *  @description
-         *  Route gets the current sync queue state.
-         *  This will return the list of media that are currently queued for syncing.
-         */
-        SyncGetQueueState: {
-            key: "SYNC-sync-get-queue-state",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/queue",
-        },
-        SyncAnilistData: {
-            key: "SYNC-sync-anilist-data",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/anilist",
-        },
-        SyncSetHasLocalChanges: {
-            key: "SYNC-sync-set-has-local-changes",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/updated",
-        },
-        SyncGetHasLocalChanges: {
-            key: "SYNC-sync-get-has-local-changes",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/updated",
-        },
-        SyncGetLocalStorageSize: {
-            key: "SYNC-sync-get-local-storage-size",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/storage/size",
         },
     },
     THEME: {

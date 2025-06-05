@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Sync_QueueState } from "@/api/generated/types"
+import { Local_QueueState } from "@/api/generated/types"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { logger } from "@/lib/helpers/debug"
@@ -13,12 +13,12 @@ export function useSyncListener() {
     useWebsocketMessageListener({
         type: WSEvents.SYNC_LOCAL_FINISHED,
         onMessage: _ => {
-            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LOCAL.LocalGetTrackedMediaItems.key] })
         },
     })
 
-    const [queueState, setQueueState] = React.useState<Sync_QueueState | null>(null)
-    useWebsocketMessageListener<Sync_QueueState>({
+    const [queueState, setQueueState] = React.useState<Local_QueueState | null>(null)
+    useWebsocketMessageListener<Local_QueueState>({
         type: WSEvents.SYNC_LOCAL_QUEUE_STATE,
         onMessage: data => {
             logger("SYNC").info("Queue state", queueState)

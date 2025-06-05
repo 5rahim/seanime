@@ -17,15 +17,15 @@ import (
 
 type (
 	AnilistPlatform struct {
-		logger               *zerolog.Logger
-		username             mo.Option[string]
-		anilistClient        anilist.AnilistClient
-		animeCollection      mo.Option[*anilist.AnimeCollection]
-		rawAnimeCollection   mo.Option[*anilist.AnimeCollection]
-		mangaCollection      mo.Option[*anilist.MangaCollection]
-		rawMangaCollection   mo.Option[*anilist.MangaCollection]
-		isOffline            bool
-		localPlatformEnabled bool
+		logger                 *zerolog.Logger
+		username               mo.Option[string]
+		anilistClient          anilist.AnilistClient
+		animeCollection        mo.Option[*anilist.AnimeCollection]
+		rawAnimeCollection     mo.Option[*anilist.AnimeCollection]
+		mangaCollection        mo.Option[*anilist.MangaCollection]
+		rawMangaCollection     mo.Option[*anilist.MangaCollection]
+		isOffline              bool
+		offlinePlatformEnabled bool
 	}
 )
 
@@ -638,4 +638,18 @@ func (ap *AnilistPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetail
 
 func (ap *AnilistPlatform) GetAnilistClient() anilist.AnilistClient {
 	return ap.anilistClient
+}
+
+func (ap *AnilistPlatform) GetViewerStats() (*anilist.ViewerStats, error) {
+	if ap.username.IsAbsent() {
+		return nil, errors.New("anilist: Username is not set")
+	}
+
+	ap.logger.Trace().Msg("anilist platform: Fetching viewer stats")
+	ret, err := ap.anilistClient.ViewerStats(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }

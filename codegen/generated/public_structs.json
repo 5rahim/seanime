@@ -27,6 +27,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "token",
+        "jsonName": "token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The token used for authentication with the AniList API"
+        ]
       }
     ],
     "comments": []
@@ -26149,8 +26160,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -26383,8 +26394,8 @@
         "comments": []
       },
       {
-        "name": "LocalPlatform",
-        "jsonName": "LocalPlatform",
+        "name": "OfflinePlatform",
+        "jsonName": "OfflinePlatform",
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedTypescriptType": "Platform",
@@ -26394,12 +26405,12 @@
         "comments": []
       },
       {
-        "name": "SyncManager",
-        "jsonName": "SyncManager",
-        "goType": "sync2.Manager",
-        "typescriptType": "Manager",
-        "usedTypescriptType": "Manager",
-        "usedStructName": "sync2.Manager",
+        "name": "LocalManager",
+        "jsonName": "LocalManager",
+        "goType": "local.Manager",
+        "typescriptType": "Local_Manager",
+        "usedTypescriptType": "Local_Manager",
+        "usedStructName": "local.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -26696,7 +26707,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Struct for other settings sent to client"
+          " Struct for other settings sent to clientN"
         ]
       },
       {
@@ -26799,12 +26810,12 @@
         ]
       },
       {
-        "name": "account",
-        "jsonName": "account",
-        "goType": "models.Account",
-        "typescriptType": "Models_Account",
-        "usedTypescriptType": "Models_Account",
-        "usedStructName": "models.Account",
+        "name": "user",
+        "jsonName": "user",
+        "goType": "user.User",
+        "typescriptType": "User",
+        "usedTypescriptType": "User",
+        "usedStructName": "user.User",
         "required": false,
         "public": false,
         "comments": []
@@ -26822,8 +26833,8 @@
         "name": "moduleMu",
         "jsonName": "moduleMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -33017,8 +33028,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -33388,8 +33399,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -33399,8 +33410,8 @@
         "name": "eventMu",
         "jsonName": "eventMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -33447,8 +33458,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -33629,8 +33640,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -36448,8 +36459,8 @@
         "name": "updateDataMu",
         "jsonName": "updateDataMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -37197,8 +37208,8 @@
         "name": "sp",
         "jsonName": "sp",
         "goType": "sync.Pool",
-        "typescriptType": "Sync_Pool",
-        "usedTypescriptType": "Sync_Pool",
+        "typescriptType": "Pool",
+        "usedTypescriptType": "Pool",
         "usedStructName": "sync.Pool",
         "required": false,
         "public": false,
@@ -37824,10 +37835,10 @@
       {
         "name": "User",
         "jsonName": "user",
-        "goType": "anime.User",
-        "typescriptType": "Anime_User",
-        "usedTypescriptType": "Anime_User",
-        "usedStructName": "anime.User",
+        "goType": "user.User",
+        "typescriptType": "User",
+        "usedTypescriptType": "User",
+        "usedStructName": "user.User",
         "required": false,
         "public": true,
         "comments": []
@@ -38032,8 +38043,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -42061,36 +42072,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/user.go",
-    "filename": "user.go",
-    "name": "User",
-    "formattedName": "Anime_User",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "Viewer",
-        "jsonName": "viewer",
-        "goType": "anilist.GetViewer_Viewer",
-        "typescriptType": "AL_GetViewer_Viewer",
-        "usedTypescriptType": "AL_GetViewer_Viewer",
-        "usedStructName": "anilist.GetViewer_Viewer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Token",
-        "jsonName": "token",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/library/autodownloader/autodownloader.go",
     "filename": "autodownloader.go",
     "name": "AutoDownloader",
@@ -42234,8 +42215,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -42653,8 +42634,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -43492,8 +43473,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -43503,8 +43484,8 @@
         "name": "eventMu",
         "jsonName": "eventMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -43560,8 +43541,8 @@
         "name": "autoPlayMu",
         "jsonName": "autoPlayMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -43675,8 +43656,8 @@
         "name": "manualTrackingWg",
         "jsonName": "manualTrackingWg",
         "goType": "sync.WaitGroup",
-        "typescriptType": "Sync_WaitGroup",
-        "usedTypescriptType": "Sync_WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedTypescriptType": "WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -45910,6 +45891,1297 @@
     "comments": []
   },
   {
+    "filepath": "../internal/local/database.go",
+    "filename": "database.go",
+    "name": "Database",
+    "formattedName": "Local_Database",
+    "package": "local",
+    "fields": [
+      {
+        "name": "gormdb",
+        "jsonName": "gormdb",
+        "goType": "gorm.DB",
+        "typescriptType": "DB",
+        "usedTypescriptType": "DB",
+        "usedStructName": "gorm.DB",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "BaseModel",
+    "formattedName": "Local_BaseModel",
+    "package": "local",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "Settings",
+    "formattedName": "Local_Settings",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Updated",
+        "jsonName": "updated",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "LocalCollection",
+    "formattedName": "Local_LocalCollection",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Marshalled struct"
+        ]
+      }
+    ],
+    "comments": [
+      " LocalCollection is an anilist collection that is stored locally for offline use.",
+      " It is meant to be kept in sync with the real AniList collection when online."
+    ],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "TrackedMedia",
+    "formattedName": "Local_TrackedMedia",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      }
+    ],
+    "comments": [
+      " TrackedMedia tracks media that should be stored locally."
+    ],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "AnimeSnapshot",
+    "formattedName": "Local_AnimeSnapshot",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "LocalAnimeMetadata",
+        "typescriptType": "Local_LocalAnimeMetadata",
+        "usedTypescriptType": "Local_LocalAnimeMetadata",
+        "usedStructName": "local.LocalAnimeMetadata",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeImagePaths",
+        "jsonName": "episodeImagePaths",
+        "goType": "StringMap",
+        "typescriptType": "Local_StringMap",
+        "usedTypescriptType": "Local_StringMap",
+        "usedStructName": "local.StringMap",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "MangaSnapshot",
+    "formattedName": "Local_MangaSnapshot",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterContainers",
+        "jsonName": "chapterContainers",
+        "goType": "LocalMangaChapterContainers",
+        "typescriptType": "Local_LocalMangaChapterContainers",
+        "usedTypescriptType": "Local_LocalMangaChapterContainers",
+        "usedStructName": "local.LocalMangaChapterContainers",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "SimulatedCollection",
+    "formattedName": "Local_SimulatedCollection",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Marshalled struct"
+        ]
+      }
+    ],
+    "comments": [
+      " SimulatedCollection is used for users without an account."
+    ],
+    "embeddedStructNames": [
+      "local.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "StringMap",
+    "formattedName": "Local_StringMap",
+    "package": "local",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[string]string",
+      "typescriptType": "Record\u003cstring, string\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/local/database_models.go",
+    "filename": "database_models.go",
+    "name": "LocalMangaChapterContainers",
+    "formattedName": "Local_LocalMangaChapterContainers",
+    "package": "local",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]manga.ChapterContainer",
+      "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+      "declaredValues": null,
+      "usedStructName": "manga.ChapterContainer"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "Diff",
+    "formattedName": "Local_Diff",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "DiffType",
+    "formattedName": "Local_DiffType",
+    "package": "local",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "GetAnimeDiffOptions",
+    "formattedName": "Local_GetAnimeDiffOptions",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedAnime",
+        "jsonName": "TrackedAnime",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Local_TrackedMedia\u003e",
+        "usedTypescriptType": "Local_TrackedMedia",
+        "usedStructName": "local.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]AnimeSnapshot",
+        "typescriptType": "Record\u003cnumber, Local_AnimeSnapshot\u003e",
+        "usedTypescriptType": "Local_AnimeSnapshot",
+        "usedStructName": "local.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "AnimeDiffResult",
+    "formattedName": "Local_AnimeDiffResult",
+    "package": "local",
+    "fields": [
+      {
+        "name": "AnimeEntry",
+        "jsonName": "AnimeEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedTypescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeSnapshot",
+        "jsonName": "AnimeSnapshot",
+        "goType": "AnimeSnapshot",
+        "typescriptType": "Local_AnimeSnapshot",
+        "usedTypescriptType": "Local_AnimeSnapshot",
+        "usedStructName": "local.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "Local_DiffType",
+        "usedTypescriptType": "Local_DiffType",
+        "usedStructName": "local.DiffType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "GetMangaDiffOptions",
+    "formattedName": "Local_GetMangaDiffOptions",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadedChapterContainers",
+        "jsonName": "DownloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedTypescriptType": "Manga_ChapterContainer",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedManga",
+        "jsonName": "TrackedManga",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Local_TrackedMedia\u003e",
+        "usedTypescriptType": "Local_TrackedMedia",
+        "usedStructName": "local.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]MangaSnapshot",
+        "typescriptType": "Record\u003cnumber, Local_MangaSnapshot\u003e",
+        "usedTypescriptType": "Local_MangaSnapshot",
+        "usedStructName": "local.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/diff.go",
+    "filename": "diff.go",
+    "name": "MangaDiffResult",
+    "formattedName": "Local_MangaDiffResult",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MangaEntry",
+        "jsonName": "MangaEntry",
+        "goType": "anilist.MangaListEntry",
+        "typescriptType": "AL_MangaListEntry",
+        "usedTypescriptType": "AL_MangaListEntry",
+        "usedStructName": "anilist.MangaListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaSnapshot",
+        "jsonName": "MangaSnapshot",
+        "goType": "MangaSnapshot",
+        "typescriptType": "Local_MangaSnapshot",
+        "usedTypescriptType": "Local_MangaSnapshot",
+        "usedStructName": "local.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "Local_DiffType",
+        "usedTypescriptType": "Local_DiffType",
+        "usedStructName": "local.DiffType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/manager.go",
+    "filename": "manager.go",
+    "name": "ManagerImpl",
+    "formattedName": "Local_ManagerImpl",
+    "package": "local",
+    "fields": [
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDb",
+        "jsonName": "localDb",
+        "goType": "Database",
+        "typescriptType": "Local_Database",
+        "usedTypescriptType": "Local_Database",
+        "usedStructName": "local.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDir",
+        "jsonName": "localDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAssetsDir",
+        "jsonName": "localAssetsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaRepository",
+        "jsonName": "mangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedTypescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "offlineMetadataProvider",
+        "jsonName": "offlineMetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistPlatform",
+        "jsonName": "anilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "syncer",
+        "jsonName": "syncer",
+        "goType": "Syncer",
+        "typescriptType": "Local_Syncer",
+        "usedTypescriptType": "Local_Syncer",
+        "usedStructName": "local.Syncer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAnimeCollection",
+        "jsonName": "localAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localMangaCollection",
+        "jsonName": "localMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadedChapterContainers",
+        "jsonName": "downloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedTypescriptType": "Manga_ChapterContainer",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "RefreshAnilistCollectionsFunc",
+        "jsonName": "RefreshAnilistCollectionsFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/manager.go",
+    "filename": "manager.go",
+    "name": "TrackedMediaItem",
+    "formattedName": "Local_TrackedMediaItem",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntry",
+        "jsonName": "animeEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedTypescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaEntry",
+        "jsonName": "mangaEntry",
+        "goType": "anilist.MangaListEntry",
+        "typescriptType": "AL_MangaListEntry",
+        "usedTypescriptType": "AL_MangaListEntry",
+        "usedStructName": "anilist.MangaListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/manager.go",
+    "filename": "manager.go",
+    "name": "NewManagerOptions",
+    "formattedName": "Local_NewManagerOptions",
+    "package": "local",
+    "fields": [
+      {
+        "name": "LocalDir",
+        "jsonName": "LocalDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AssetDir",
+        "jsonName": "AssetDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaRepository",
+        "jsonName": "MangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedTypescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistPlatform",
+        "jsonName": "AnilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/metadata.go",
+    "filename": "metadata.go",
+    "name": "OfflineMetadataProvider",
+    "formattedName": "Local_OfflineMetadataProvider",
+    "package": "local",
+    "fields": [
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "ManagerImpl",
+        "typescriptType": "Local_ManagerImpl",
+        "usedTypescriptType": "Local_ManagerImpl",
+        "usedStructName": "local.ManagerImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeSnapshots",
+        "jsonName": "animeSnapshots",
+        "goType": "map[int]AnimeSnapshot",
+        "typescriptType": "Record\u003cnumber, Local_AnimeSnapshot\u003e",
+        "usedTypescriptType": "Local_AnimeSnapshot",
+        "usedStructName": "local.AnimeSnapshot",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeMetadataCache",
+        "jsonName": "animeMetadataCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " OfflineMetadataProvider replaces the metadata provider only when offline"
+    ]
+  },
+  {
+    "filepath": "../internal/local/metadata.go",
+    "filename": "metadata.go",
+    "name": "OfflineAnimeMetadataWrapper",
+    "formattedName": "Local_OfflineAnimeMetadataWrapper",
+    "package": "local",
+    "fields": [
+      {
+        "name": "anime",
+        "jsonName": "anime",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadata",
+        "jsonName": "metadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedTypescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/sync.go",
+    "filename": "sync.go",
+    "name": "Syncer",
+    "formattedName": "Local_Syncer",
+    "package": "local",
+    "fields": [
+      {
+        "name": "animeJobQueue",
+        "jsonName": "animeJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaJobQueue",
+        "jsonName": "mangaJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedAnimeQueue",
+        "jsonName": "failedAnimeQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedMangaQueue",
+        "jsonName": "failedMangaQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedAnimeMap",
+        "jsonName": "trackedAnimeMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Local_TrackedMedia\u003e",
+        "usedTypescriptType": "Local_TrackedMedia",
+        "usedStructName": "local.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedMangaMap",
+        "jsonName": "trackedMangaMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Local_TrackedMedia\u003e",
+        "usedTypescriptType": "Local_TrackedMedia",
+        "usedStructName": "local.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "ManagerImpl",
+        "typescriptType": "Local_ManagerImpl",
+        "usedTypescriptType": "Local_ManagerImpl",
+        "usedStructName": "local.ManagerImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "shouldUpdateLocalCollections",
+        "jsonName": "shouldUpdateLocalCollections",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "doneUpdatingLocalCollections",
+        "jsonName": "doneUpdatingLocalCollections",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "queueState",
+        "jsonName": "queueState",
+        "goType": "QueueState",
+        "typescriptType": "Local_QueueState",
+        "usedTypescriptType": "Local_QueueState",
+        "usedStructName": "local.QueueState",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "queueStateMu",
+        "jsonName": "queueStateMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/sync.go",
+    "filename": "sync.go",
+    "name": "QueueState",
+    "formattedName": "Local_QueueState",
+    "package": "local",
+    "fields": [
+      {
+        "name": "AnimeTasks",
+        "jsonName": "animeTasks",
+        "goType": "map[int]QueueMediaTask",
+        "typescriptType": "Record\u003cnumber, Local_QueueMediaTask\u003e",
+        "usedTypescriptType": "Local_QueueMediaTask",
+        "usedStructName": "local.QueueMediaTask",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaTasks",
+        "jsonName": "mangaTasks",
+        "goType": "map[int]QueueMediaTask",
+        "typescriptType": "Record\u003cnumber, Local_QueueMediaTask\u003e",
+        "usedTypescriptType": "Local_QueueMediaTask",
+        "usedStructName": "local.QueueMediaTask",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/sync.go",
+    "filename": "sync.go",
+    "name": "QueueMediaTask",
+    "formattedName": "Local_QueueMediaTask",
+    "package": "local",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/sync.go",
+    "filename": "sync.go",
+    "name": "AnimeTask",
+    "formattedName": "Local_AnimeTask",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "AnimeDiffResult",
+        "typescriptType": "Local_AnimeDiffResult",
+        "usedTypescriptType": "Local_AnimeDiffResult",
+        "usedStructName": "local.AnimeDiffResult",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/local/sync.go",
+    "filename": "sync.go",
+    "name": "MangaTask",
+    "formattedName": "Local_MangaTask",
+    "package": "local",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "MangaDiffResult",
+        "typescriptType": "Local_MangaDiffResult",
+        "usedTypescriptType": "Local_MangaDiffResult",
+        "usedStructName": "local.MangaDiffResult",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/manga/chapter_container.go",
     "filename": "chapter_container.go",
     "name": "ChapterContainer",
@@ -46411,8 +47683,8 @@
         "name": "mediaMapMu",
         "jsonName": "mediaMapMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -46753,8 +48025,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -46764,8 +48036,8 @@
         "name": "downloadMu",
         "jsonName": "downloadMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -47059,8 +48331,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -47759,10 +49031,10 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
         "public": true,
         "comments": []
@@ -48685,8 +49957,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -49022,10 +50294,10 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
         "public": true,
         "comments": []
@@ -49328,10 +50600,10 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
         "public": true,
         "comments": []
@@ -49501,10 +50773,10 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
         "public": true,
         "comments": []
@@ -49560,10 +50832,10 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
         "public": true,
         "comments": []
@@ -49655,8 +50927,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -49678,6 +50950,17 @@
         "typescriptType": "DB_Database",
         "usedTypescriptType": "DB_Database",
         "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
         "required": false,
         "public": false,
         "comments": []
@@ -49965,8 +51248,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -50589,8 +51872,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -50600,8 +51883,8 @@
         "name": "playbackMu",
         "jsonName": "playbackMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -50789,8 +52072,8 @@
         "name": "lock",
         "jsonName": "lock",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -51861,8 +53144,8 @@
         "name": "playbackMu",
         "jsonName": "playbackMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -52133,8 +53416,8 @@
         "name": "contentTypeOnce",
         "jsonName": "contentTypeOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -52199,8 +53482,8 @@
         "name": "playbackInfoOnce",
         "jsonName": "playbackInfoOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -52219,8 +53502,8 @@
         "name": "terminateOnce",
         "jsonName": "terminateOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -52398,8 +53681,8 @@
         "name": "stopOnce",
         "jsonName": "stopOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -53186,8 +54469,8 @@
         "name": "parseOnce",
         "jsonName": "parseOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -53197,8 +54480,8 @@
         "name": "metadataOnce",
         "jsonName": "metadataOnce",
         "goType": "sync.Once",
-        "typescriptType": "Sync_Once",
-        "usedTypescriptType": "Sync_Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
@@ -54459,8 +55742,8 @@
         "name": "playbackStatusMu",
         "jsonName": "playbackStatusMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -55019,8 +56302,8 @@
         "name": "reqMu",
         "jsonName": "reqMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -55188,8 +56471,8 @@
         "name": "ready",
         "jsonName": "ready",
         "goType": "sync.WaitGroup",
-        "typescriptType": "Sync_WaitGroup",
-        "usedTypescriptType": "Sync_WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedTypescriptType": "WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -55404,8 +56687,8 @@
         "name": "mutex",
         "jsonName": "mutex",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -55415,8 +56698,8 @@
         "name": "ready",
         "jsonName": "ready",
         "goType": "sync.WaitGroup",
-        "typescriptType": "Sync_WaitGroup",
-        "usedTypescriptType": "Sync_WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedTypescriptType": "WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -55591,8 +56874,8 @@
         "name": "segmentsLock",
         "jsonName": "segmentsLock",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -55602,8 +56885,8 @@
         "name": "headsLock",
         "jsonName": "headsLock",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -56629,8 +57912,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -57457,8 +58740,8 @@
         "comments": []
       },
       {
-        "name": "localPlatformEnabled",
-        "jsonName": "localPlatformEnabled",
+        "name": "offlinePlatformEnabled",
+        "jsonName": "offlinePlatformEnabled",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -58011,11 +59294,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform.go",
-    "filename": "local_platform.go",
-    "name": "LocalPlatform",
-    "formattedName": "LocalPlatform",
-    "package": "local_platform",
+    "filepath": "../internal/platforms/offline_platform/offline_platform.go",
+    "filename": "offline_platform.go",
+    "name": "OfflinePlatform",
+    "formattedName": "OfflinePlatform",
+    "package": "offline_platform",
     "fields": [
       {
         "name": "logger",
@@ -58029,12 +59312,12 @@
         "comments": []
       },
       {
-        "name": "syncManager",
-        "jsonName": "syncManager",
-        "goType": "sync.Manager",
-        "typescriptType": "Sync_Manager",
-        "usedTypescriptType": "Sync_Manager",
-        "usedStructName": "sync.Manager",
+        "name": "localManager",
+        "jsonName": "localManager",
+        "goType": "local.Manager",
+        "typescriptType": "Local_Manager",
+        "usedTypescriptType": "Local_Manager",
+        "usedStructName": "local.Manager",
         "required": false,
         "public": false,
         "comments": []
@@ -58052,8 +59335,134 @@
       }
     ],
     "comments": [
-      " LocalPlatform used when offline.",
+      " OfflinePlatform used when offline.",
       " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/simulated_platform/helpers.go",
+    "filename": "helpers.go",
+    "name": "CollectionWrapper",
+    "formattedName": "CollectionWrapper",
+    "package": "simulated_platform",
+    "fields": [
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "SimulatedPlatform",
+        "typescriptType": "SimulatedPlatform",
+        "usedTypescriptType": "SimulatedPlatform",
+        "usedStructName": "simulated_platform.SimulatedPlatform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isAnime",
+        "jsonName": "isAnime",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CollectionWrapper provides an ambivalent interface for anime and manga collections"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/simulated_platform/simulated_platform.go",
+    "filename": "simulated_platform.go",
+    "name": "SimulatedPlatform",
+    "formattedName": "SimulatedPlatform",
+    "package": "simulated_platform",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localManager",
+        "jsonName": "localManager",
+        "goType": "local.Manager",
+        "typescriptType": "Local_Manager",
+        "usedTypescriptType": "Local_Manager",
+        "usedStructName": "local.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "anilist.AnilistClient",
+        "typescriptType": "AL_AnilistClient",
+        "usedTypescriptType": "AL_AnilistClient",
+        "usedStructName": "anilist.AnilistClient",
+        "required": false,
+        "public": false,
+        "comments": [
+          " should only receive an unauthenticated client"
+        ]
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedTypescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "collectionMu",
+        "jsonName": "collectionMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " used to protect access to collections"
+        ]
+      }
+    ],
+    "comments": [
+      " SimulatedPlatform used when the user is not authenticated to AniList.",
+      " It acts as a dummy account using simulated collections stored locally."
     ]
   },
   {
@@ -58683,8 +60092,8 @@
         "name": "mux",
         "jsonName": "mux",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -59520,8 +60929,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -59805,8 +61214,8 @@
         "name": "wg",
         "jsonName": "wg",
         "goType": "sync.WaitGroup",
-        "typescriptType": "Sync_WaitGroup",
-        "usedTypescriptType": "Sync_WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedTypescriptType": "WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -59827,8 +61236,8 @@
         "name": "currentJobLock",
         "jsonName": "currentJobLock",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -60150,8 +61559,8 @@
         "name": "updateMutex",
         "jsonName": "updateMutex",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -60545,8 +61954,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -60687,8 +62096,8 @@
         "name": "updateBatchMu",
         "jsonName": "updateBatchMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -60724,8 +62133,8 @@
         "name": "eventBatchMu",
         "jsonName": "eventBatchMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -60782,8 +62191,8 @@
         "name": "uiUpdateMu",
         "jsonName": "uiUpdateMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -61045,8 +62454,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -63085,8 +64494,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -63157,8 +64566,8 @@
         "name": "updateMutex",
         "jsonName": "updateMutex",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -63350,8 +64759,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -64156,1255 +65565,6 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/database.go",
-    "filename": "database.go",
-    "name": "Database",
-    "formattedName": "Sync_Database",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "gormdb",
-        "jsonName": "gormdb",
-        "goType": "gorm.DB",
-        "typescriptType": "DB",
-        "usedTypescriptType": "DB",
-        "usedStructName": "gorm.DB",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "BaseModel",
-    "formattedName": "Sync_BaseModel",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "uint",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CreatedAt",
-        "jsonName": "createdAt",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UpdatedAt",
-        "jsonName": "updatedAt",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "Settings",
-    "formattedName": "Sync_Settings",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Updated",
-        "jsonName": "updated",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "sync.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "LocalCollection",
-    "formattedName": "Sync_LocalCollection",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " \"anime\" or \"manga\""
-        ]
-      },
-      {
-        "name": "Value",
-        "jsonName": "value",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Marshalled struct"
-        ]
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "sync.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "TrackedMedia",
-    "formattedName": "Sync_TrackedMedia",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " \"anime\" or \"manga\""
-        ]
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "sync.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "AnimeSnapshot",
-    "formattedName": "Sync_AnimeSnapshot",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeMetadata",
-        "jsonName": "animeMetadata",
-        "goType": "LocalAnimeMetadata",
-        "typescriptType": "Sync_LocalAnimeMetadata",
-        "usedTypescriptType": "Sync_LocalAnimeMetadata",
-        "usedStructName": "sync.LocalAnimeMetadata",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImagePath",
-        "jsonName": "bannerImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImagePath",
-        "jsonName": "coverImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeImagePaths",
-        "jsonName": "episodeImagePaths",
-        "goType": "StringMap",
-        "typescriptType": "Sync_StringMap",
-        "usedTypescriptType": "Sync_StringMap",
-        "usedStructName": "sync.StringMap",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ReferenceKey",
-        "jsonName": "referenceKey",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "sync.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "MangaSnapshot",
-    "formattedName": "Sync_MangaSnapshot",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterContainers",
-        "jsonName": "chapterContainers",
-        "goType": "LocalMangaChapterContainers",
-        "typescriptType": "Sync_LocalMangaChapterContainers",
-        "usedTypescriptType": "Sync_LocalMangaChapterContainers",
-        "usedStructName": "sync.LocalMangaChapterContainers",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImagePath",
-        "jsonName": "bannerImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImagePath",
-        "jsonName": "coverImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ReferenceKey",
-        "jsonName": "referenceKey",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "sync.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "StringMap",
-    "formattedName": "Sync_StringMap",
-    "package": "sync",
-    "fields": [],
-    "aliasOf": {
-      "goType": "map[string]string",
-      "typescriptType": "Record\u003cstring, string\u003e",
-      "declaredValues": null
-    },
-    "comments": null
-  },
-  {
-    "filepath": "../internal/sync/database_models.go",
-    "filename": "database_models.go",
-    "name": "LocalMangaChapterContainers",
-    "formattedName": "Sync_LocalMangaChapterContainers",
-    "package": "sync",
-    "fields": [],
-    "aliasOf": {
-      "goType": "[]manga.ChapterContainer",
-      "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
-      "declaredValues": null,
-      "usedStructName": "manga.ChapterContainer"
-    },
-    "comments": null
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "Diff",
-    "formattedName": "Sync_Diff",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "DiffType",
-    "formattedName": "Sync_DiffType",
-    "package": "sync",
-    "fields": [],
-    "aliasOf": {
-      "goType": "int",
-      "typescriptType": "number",
-      "declaredValues": []
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "GetAnimeDiffOptions",
-    "formattedName": "Sync_GetAnimeDiffOptions",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Collection",
-        "jsonName": "Collection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedTypescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalCollection",
-        "jsonName": "LocalCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "LocalFiles",
-        "goType": "[]anime.LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackedAnime",
-        "jsonName": "TrackedAnime",
-        "goType": "map[int]TrackedMedia",
-        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
-        "usedTypescriptType": "Sync_TrackedMedia",
-        "usedStructName": "sync.TrackedMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Snapshots",
-        "jsonName": "Snapshots",
-        "goType": "map[int]AnimeSnapshot",
-        "typescriptType": "Record\u003cnumber, Sync_AnimeSnapshot\u003e",
-        "usedTypescriptType": "Sync_AnimeSnapshot",
-        "usedStructName": "sync.AnimeSnapshot",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "AnimeDiffResult",
-    "formattedName": "Sync_AnimeDiffResult",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "AnimeEntry",
-        "jsonName": "AnimeEntry",
-        "goType": "anilist.AnimeListEntry",
-        "typescriptType": "AL_AnimeListEntry",
-        "usedTypescriptType": "AL_AnimeListEntry",
-        "usedStructName": "anilist.AnimeListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeSnapshot",
-        "jsonName": "AnimeSnapshot",
-        "goType": "AnimeSnapshot",
-        "typescriptType": "Sync_AnimeSnapshot",
-        "usedTypescriptType": "Sync_AnimeSnapshot",
-        "usedStructName": "sync.AnimeSnapshot",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DiffType",
-        "jsonName": "DiffType",
-        "goType": "DiffType",
-        "typescriptType": "Sync_DiffType",
-        "usedTypescriptType": "Sync_DiffType",
-        "usedStructName": "sync.DiffType",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "GetMangaDiffOptions",
-    "formattedName": "Sync_GetMangaDiffOptions",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Collection",
-        "jsonName": "Collection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedTypescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalCollection",
-        "jsonName": "LocalCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadedChapterContainers",
-        "jsonName": "DownloadedChapterContainers",
-        "goType": "[]manga.ChapterContainer",
-        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
-        "usedTypescriptType": "Manga_ChapterContainer",
-        "usedStructName": "manga.ChapterContainer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackedManga",
-        "jsonName": "TrackedManga",
-        "goType": "map[int]TrackedMedia",
-        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
-        "usedTypescriptType": "Sync_TrackedMedia",
-        "usedStructName": "sync.TrackedMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Snapshots",
-        "jsonName": "Snapshots",
-        "goType": "map[int]MangaSnapshot",
-        "typescriptType": "Record\u003cnumber, Sync_MangaSnapshot\u003e",
-        "usedTypescriptType": "Sync_MangaSnapshot",
-        "usedStructName": "sync.MangaSnapshot",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/diff.go",
-    "filename": "diff.go",
-    "name": "MangaDiffResult",
-    "formattedName": "Sync_MangaDiffResult",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MangaEntry",
-        "jsonName": "MangaEntry",
-        "goType": "anilist.MangaListEntry",
-        "typescriptType": "AL_MangaListEntry",
-        "usedTypescriptType": "AL_MangaListEntry",
-        "usedStructName": "anilist.MangaListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaSnapshot",
-        "jsonName": "MangaSnapshot",
-        "goType": "MangaSnapshot",
-        "typescriptType": "Sync_MangaSnapshot",
-        "usedTypescriptType": "Sync_MangaSnapshot",
-        "usedStructName": "sync.MangaSnapshot",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DiffType",
-        "jsonName": "DiffType",
-        "goType": "DiffType",
-        "typescriptType": "Sync_DiffType",
-        "usedTypescriptType": "Sync_DiffType",
-        "usedStructName": "sync.DiffType",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/manager.go",
-    "filename": "manager.go",
-    "name": "ManagerImpl",
-    "formattedName": "Sync_ManagerImpl",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "db",
-        "jsonName": "db",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedTypescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localDb",
-        "jsonName": "localDb",
-        "goType": "Database",
-        "typescriptType": "Sync_Database",
-        "usedTypescriptType": "Sync_Database",
-        "usedStructName": "sync.Database",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localDir",
-        "jsonName": "localDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localAssetsDir",
-        "jsonName": "localAssetsDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "isOffline",
-        "jsonName": "isOffline",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "metadataProvider",
-        "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaRepository",
-        "jsonName": "mangaRepository",
-        "goType": "manga.Repository",
-        "typescriptType": "Manga_Repository",
-        "usedTypescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "wsEventManager",
-        "jsonName": "wsEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedTypescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localMetadataProvider",
-        "jsonName": "localMetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "anilistPlatform",
-        "jsonName": "anilistPlatform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedTypescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "syncer",
-        "jsonName": "syncer",
-        "goType": "Syncer",
-        "typescriptType": "Sync_Syncer",
-        "usedTypescriptType": "Sync_Syncer",
-        "usedStructName": "sync.Syncer",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localAnimeCollection",
-        "jsonName": "localAnimeCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localMangaCollection",
-        "jsonName": "localMangaCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeCollection",
-        "jsonName": "animeCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaCollection",
-        "jsonName": "mangaCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "downloadedChapterContainers",
-        "jsonName": "downloadedChapterContainers",
-        "goType": "[]manga.ChapterContainer",
-        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
-        "usedTypescriptType": "Manga_ChapterContainer",
-        "usedStructName": "manga.ChapterContainer",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localFiles",
-        "jsonName": "localFiles",
-        "goType": "[]anime.LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "RefreshAnilistCollectionsFunc",
-        "jsonName": "RefreshAnilistCollectionsFunc",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/manager.go",
-    "filename": "manager.go",
-    "name": "TrackedMediaItem",
-    "formattedName": "Sync_TrackedMediaItem",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntry",
-        "jsonName": "animeEntry",
-        "goType": "anilist.AnimeListEntry",
-        "typescriptType": "AL_AnimeListEntry",
-        "usedTypescriptType": "AL_AnimeListEntry",
-        "usedStructName": "anilist.AnimeListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaEntry",
-        "jsonName": "mangaEntry",
-        "goType": "anilist.MangaListEntry",
-        "typescriptType": "AL_MangaListEntry",
-        "usedTypescriptType": "AL_MangaListEntry",
-        "usedStructName": "anilist.MangaListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/manager.go",
-    "filename": "manager.go",
-    "name": "NewManagerOptions",
-    "formattedName": "Sync_NewManagerOptions",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "LocalDir",
-        "jsonName": "LocalDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AssetDir",
-        "jsonName": "AssetDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataProvider",
-        "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaRepository",
-        "jsonName": "MangaRepository",
-        "goType": "manga.Repository",
-        "typescriptType": "Manga_Repository",
-        "usedTypescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Database",
-        "jsonName": "Database",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedTypescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WSEventManager",
-        "jsonName": "WSEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedTypescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnilistPlatform",
-        "jsonName": "AnilistPlatform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedTypescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsOffline",
-        "jsonName": "IsOffline",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/metadata.go",
-    "filename": "metadata.go",
-    "name": "LocalMetadataProvider",
-    "formattedName": "Sync_LocalMetadataProvider",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "manager",
-        "jsonName": "manager",
-        "goType": "ManagerImpl",
-        "typescriptType": "Sync_ManagerImpl",
-        "usedTypescriptType": "Sync_ManagerImpl",
-        "usedStructName": "sync.ManagerImpl",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeSnapshots",
-        "jsonName": "animeSnapshots",
-        "goType": "map[int]AnimeSnapshot",
-        "typescriptType": "Record\u003cnumber, Sync_AnimeSnapshot\u003e",
-        "usedTypescriptType": "Sync_AnimeSnapshot",
-        "usedStructName": "sync.AnimeSnapshot",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeMetadataCache",
-        "jsonName": "animeMetadataCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " LocalMetadataProvider replaces the metadata provider only when offline"
-    ]
-  },
-  {
-    "filepath": "../internal/sync/metadata.go",
-    "filename": "metadata.go",
-    "name": "LocalAnimeMetadataWrapper",
-    "formattedName": "Sync_LocalAnimeMetadataWrapper",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "anime",
-        "jsonName": "anime",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedTypescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "metadata",
-        "jsonName": "metadata",
-        "goType": "metadata.AnimeMetadata",
-        "typescriptType": "Metadata_AnimeMetadata",
-        "usedTypescriptType": "Metadata_AnimeMetadata",
-        "usedStructName": "metadata.AnimeMetadata",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/sync.go",
-    "filename": "sync.go",
-    "name": "Syncer",
-    "formattedName": "Sync_Syncer",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "animeJobQueue",
-        "jsonName": "animeJobQueue",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaJobQueue",
-        "jsonName": "mangaJobQueue",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "failedAnimeQueue",
-        "jsonName": "failedAnimeQueue",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "failedMangaQueue",
-        "jsonName": "failedMangaQueue",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "trackedAnimeMap",
-        "jsonName": "trackedAnimeMap",
-        "goType": "map[int]TrackedMedia",
-        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
-        "usedTypescriptType": "Sync_TrackedMedia",
-        "usedStructName": "sync.TrackedMedia",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "trackedMangaMap",
-        "jsonName": "trackedMangaMap",
-        "goType": "map[int]TrackedMedia",
-        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
-        "usedTypescriptType": "Sync_TrackedMedia",
-        "usedStructName": "sync.TrackedMedia",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "manager",
-        "jsonName": "manager",
-        "goType": "ManagerImpl",
-        "typescriptType": "Sync_ManagerImpl",
-        "usedTypescriptType": "Sync_ManagerImpl",
-        "usedStructName": "sync.ManagerImpl",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "shouldUpdateLocalCollections",
-        "jsonName": "shouldUpdateLocalCollections",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "doneUpdatingLocalCollections",
-        "jsonName": "doneUpdatingLocalCollections",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "queueState",
-        "jsonName": "queueState",
-        "goType": "QueueState",
-        "typescriptType": "Sync_QueueState",
-        "usedTypescriptType": "Sync_QueueState",
-        "usedStructName": "sync.QueueState",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "queueStateMu",
-        "jsonName": "queueStateMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/sync.go",
-    "filename": "sync.go",
-    "name": "QueueState",
-    "formattedName": "Sync_QueueState",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "AnimeTasks",
-        "jsonName": "animeTasks",
-        "goType": "map[int]QueueMediaTask",
-        "typescriptType": "Record\u003cnumber, Sync_QueueMediaTask\u003e",
-        "usedTypescriptType": "Sync_QueueMediaTask",
-        "usedStructName": "sync.QueueMediaTask",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaTasks",
-        "jsonName": "mangaTasks",
-        "goType": "map[int]QueueMediaTask",
-        "typescriptType": "Record\u003cnumber, Sync_QueueMediaTask\u003e",
-        "usedTypescriptType": "Sync_QueueMediaTask",
-        "usedStructName": "sync.QueueMediaTask",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/sync.go",
-    "filename": "sync.go",
-    "name": "QueueMediaTask",
-    "formattedName": "Sync_QueueMediaTask",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/sync.go",
-    "filename": "sync.go",
-    "name": "AnimeTask",
-    "formattedName": "Sync_AnimeTask",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Diff",
-        "jsonName": "Diff",
-        "goType": "AnimeDiffResult",
-        "typescriptType": "Sync_AnimeDiffResult",
-        "usedTypescriptType": "Sync_AnimeDiffResult",
-        "usedStructName": "sync.AnimeDiffResult",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/sync/sync.go",
-    "filename": "sync.go",
-    "name": "MangaTask",
-    "formattedName": "Sync_MangaTask",
-    "package": "sync",
-    "fields": [
-      {
-        "name": "Diff",
-        "jsonName": "Diff",
-        "goType": "MangaDiffResult",
-        "typescriptType": "Sync_MangaDiffResult",
-        "usedTypescriptType": "Sync_MangaDiffResult",
-        "usedStructName": "sync.MangaDiffResult",
-        "required": false,
         "public": true,
         "comments": []
       }
@@ -71482,8 +71642,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -71858,8 +72018,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74189,6 +74349,45 @@
     "comments": []
   },
   {
+    "filepath": "../internal/user/user.go",
+    "filename": "user.go",
+    "name": "User",
+    "formattedName": "User",
+    "package": "user",
+    "fields": [
+      {
+        "name": "Viewer",
+        "jsonName": "viewer",
+        "goType": "anilist.GetViewer_Viewer",
+        "typescriptType": "AL_GetViewer_Viewer",
+        "usedTypescriptType": "AL_GetViewer_Viewer",
+        "usedStructName": "anilist.GetViewer_Viewer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Token",
+        "jsonName": "token",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsSimulated",
+        "jsonName": "isSimulated",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/util/cachedreadseeker.go",
     "filename": "cachedreadseeker.go",
     "name": "CachedReadSeeker",
@@ -74453,8 +74652,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74505,8 +74704,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74610,8 +74809,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74705,8 +74904,8 @@
         "name": "wg",
         "jsonName": "wg",
         "goType": "sync.WaitGroup",
-        "typescriptType": "Sync_WaitGroup",
-        "usedTypescriptType": "Sync_WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedTypescriptType": "WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -74727,8 +74926,8 @@
         "name": "currentJobLock",
         "jsonName": "currentJobLock",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74871,8 +75070,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74937,8 +75136,8 @@
         "name": "actionMu",
         "jsonName": "actionMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -74948,8 +75147,8 @@
         "name": "registryMu",
         "jsonName": "registryMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -75009,8 +75208,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -75165,8 +75364,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Sync_Mutex",
-        "usedTypescriptType": "Sync_Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -75186,8 +75385,8 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedTypescriptType": "Sync_RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,

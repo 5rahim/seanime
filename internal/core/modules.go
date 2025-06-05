@@ -30,6 +30,7 @@ import (
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
+	"seanime/internal/user"
 
 	"github.com/cli/browser"
 	"github.com/rs/zerolog"
@@ -40,7 +41,7 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	a.SyncManager.SetRefreshAnilistCollectionsFunc(func() {
+	a.LocalManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()
 		_, _ = a.RefreshMangaCollection()
 	})
@@ -615,22 +616,24 @@ func (a *App) InitOrRefreshDebridSettings() {
 func (a *App) InitOrRefreshAnilistData() {
 	a.Logger.Debug().Msg("app: Fetching Anilist data")
 
+	var currUser *user.User
 	acc, err := a.Database.GetAccount()
-	if err != nil {
+	if err != nil || acc.Username == "" {
 		a.ServerReady = true
-		return
+		currUser = user.NewSimulatedUser() // Create a simulated user if no account is found
+	} else {
+		currUser, err = user.NewUser(acc)
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to create user from account")
+			return
+		}
 	}
 
-	if acc.Token == "" || acc.Username == "" {
-		a.ServerReady = true
-		return
-	}
+	a.user = currUser
 
 	// Set username to Anilist platform
-	a.AnilistPlatform.SetUsername(acc.Username)
+	a.AnilistPlatform.SetUsername(currUser.Viewer.Name)
 
-	// Set account
-	a.account = acc
 	a.Logger.Info().Msg("app: Authenticated to AniList")
 
 	go func() {
@@ -650,7 +653,7 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	go func(username string) {
 		a.DiscordPresence.SetUsername(username)
-	}(a.account.Username)
+	}(currUser.Viewer.Name)
 
 	a.Logger.Info().Msg("app: Fetched Anilist data")
 }

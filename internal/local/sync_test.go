@@ -1,4 +1,4 @@
-package sync
+package local
 
 import (
 	"errors"
@@ -44,19 +44,19 @@ func TestSync2(t *testing.T) {
 
 	manager, animeCollection, _ := testSetupManager(t)
 
-	err := manager.AddAnime(130003) // Bocchi the rock
+	err := manager.TrackAnime(130003) // Bocchi the rock
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddAnime(10800) // Chihayafuru
+	err = manager.TrackAnime(10800) // Chihayafuru
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddAnime(171457) // Make Heroine ga Oosugiru!
+	err = manager.TrackAnime(171457) // Make Heroine ga Oosugiru!
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddManga(101517) // JJK
+	err = manager.TrackManga(101517) // JJK
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
@@ -65,7 +65,7 @@ func TestSync2(t *testing.T) {
 	require.NoError(t, err)
 
 	select {
-	case <-manager.GetQueue().doneUpdatingLocalCollections:
+	case <-manager.GetSyncer().doneUpdatingLocalCollections:
 		util.Spew(manager.GetLocalAnimeCollection().MustGet())
 		util.Spew(manager.GetLocalMangaCollection().MustGet())
 		break
@@ -86,7 +86,7 @@ func TestSync2(t *testing.T) {
 	require.NoError(t, err)
 
 	select {
-	case <-manager.GetQueue().doneUpdatingLocalCollections:
+	case <-manager.GetSyncer().doneUpdatingLocalCollections:
 		util.Spew(manager.GetLocalAnimeCollection().MustGet())
 		util.Spew(manager.GetLocalMangaCollection().MustGet())
 		break
@@ -103,19 +103,19 @@ func TestSync(t *testing.T) {
 
 	manager, _, _ := testSetupManager(t)
 
-	err := manager.AddAnime(130003) // Bocchi the rock
+	err := manager.TrackAnime(130003) // Bocchi the rock
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddAnime(10800) // Chihayafuru
+	err = manager.TrackAnime(10800) // Chihayafuru
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddAnime(171457) // Make Heroine ga Oosugiru!
+	err = manager.TrackAnime(171457) // Make Heroine ga Oosugiru!
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
-	err = manager.AddManga(101517) // JJK
+	err = manager.TrackManga(101517) // JJK
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
@@ -124,7 +124,7 @@ func TestSync(t *testing.T) {
 	require.NoError(t, err)
 
 	select {
-	case <-manager.GetQueue().doneUpdatingLocalCollections:
+	case <-manager.GetSyncer().doneUpdatingLocalCollections:
 		util.Spew(manager.GetLocalAnimeCollection().MustGet())
 		util.Spew(manager.GetLocalMangaCollection().MustGet())
 		break

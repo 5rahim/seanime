@@ -442,17 +442,18 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	// Sync
 	//
-	v1Sync := v1.Group("/sync")
-	v1Sync.GET("/track", h.HandleSyncGetTrackedMediaItems)
-	v1Sync.POST("/track", h.HandleSyncAddMedia)
-	v1Sync.DELETE("/track", h.HandleSyncRemoveMedia)
-	v1Sync.GET("/track/:id/:type", h.HandleSyncGetIsMediaTracked)
-	v1Sync.POST("/local", h.HandleSyncLocalData)
-	v1Sync.GET("/queue", h.HandleSyncGetQueueState)
-	v1Sync.POST("/anilist", h.HandleSyncAnilistData)
-	v1Sync.POST("/updated", h.HandleSyncSetHasLocalChanges)
-	v1Sync.GET("/updated", h.HandleSyncGetHasLocalChanges)
-	v1Sync.GET("/storage/size", h.HandleSyncGetLocalStorageSize)
+	v1Local := v1.Group("/local")
+	v1Local.GET("/track", h.HandleLocalGetTrackedMediaItems)
+	v1Local.POST("/track", h.HandleLocalAddTrackedMedia)
+	v1Local.DELETE("/track", h.HandleLocalRemoveTrackedMedia)
+	v1Local.GET("/track/:id/:type", h.HandleLocalGetIsMediaTracked)
+	v1Local.POST("/local", h.HandleLocalSyncData)
+	v1Local.GET("/queue", h.HandleLocalGetSyncQueueState)
+	v1Local.POST("/anilist", h.HandleLocalSyncAnilistData)
+	v1Local.POST("/updated", h.HandleLocalSetHasLocalChanges)
+	v1Local.GET("/updated", h.HandleLocalGetHasLocalChanges)
+	v1Local.GET("/storage/size", h.HandleLocalGetLocalStorageSize)
+	v1Local.POST("/sync-simulated-to-anilist", h.HandleLocalSyncSimulatedDataToAnilist)
 
 	//
 	// Debrid

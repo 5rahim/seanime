@@ -405,7 +405,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 		p.CountryOfOrigin,
 		&isAdult,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)

@@ -7,9 +7,10 @@ import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_fea
 import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
 import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
@@ -17,6 +18,7 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { memo } from "react"
 import { BiDotsVertical } from "react-icons/bi"
@@ -43,6 +45,8 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
 
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
 
+    const hasManga = collection?.lists?.some(list => list.entries?.length)
+
     return (
         <>
             <PageWrapper
@@ -51,20 +55,28 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                 data-manga-library-view-container
             >
                 <div className="w-full flex justify-end">
-                    {/*<Tooltip*/}
-                    {/*    side="right"*/}
-                    {/*    trigger={<DisclosureTrigger>*/}
-                    {/*        <IconButton*/}
-                    {/*            icon={<PiBooksDuotone />}*/}
-                    {/*            intent="white-outline"*/}
-                    {/*            rounded*/}
-                    {/*        />*/}
-                    {/*    </DisclosureTrigger>}*/}
-                    {/*>Genres</Tooltip>*/}
                 </div>
 
-
                 <AnimatePresence mode="wait" initial={false}>
+
+                    {!hasManga && <LuffyError
+                        title="No manga found"
+                    >
+                        <div className="space-y-2">
+                            <p>
+                                No manga has been added to your library yet.
+                            </p>
+
+                            <p>
+                                <Link href="/discover?type=manga">
+                                    <Button intent="white-outline" rounded>
+                                        Browse manga
+                                    </Button>
+                                </Link>
+                            </p>
+                        </div>
+                    </LuffyError>}
+
                     {!params.genre?.length ?
                         <CollectionLists key="lists" collectionList={collection} genres={genres} storedProviders={storedProviders} />
                         : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} genres={genres} />

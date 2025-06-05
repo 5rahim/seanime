@@ -1,16 +1,16 @@
-package sync
+package local
 
 import (
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
-	sync_util "seanime/internal/sync/util"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
+
+	"github.com/samber/lo"
 )
 
 // DEVNOTE: The synchronization process is split into 3 parts:
@@ -150,7 +150,7 @@ func (q *Syncer) checkAndUpdateLocalCollections() {
 			// Update the local collections
 			err := q.synchronizeCollections()
 			if err != nil {
-				q.manager.logger.Error().Err(err).Msg("sync: Failed to synchronize collections")
+				q.manager.logger.Error().Err(err).Msg("local manager: Failed to synchronize collections")
 			}
 			q.SendQueueStateToClient()
 			q.manager.wsEventManager.SendEvent(events.SyncLocalFinished, nil)
@@ -186,7 +186,7 @@ func (q *Syncer) synchronizeCollections() (err error) {
 	// DEVNOTE: "_" prefix = original/remote collection
 	// We shouldn't modify the remote collection, so making sure we get new pointers
 
-	q.manager.logger.Trace().Msg("sync: Synchronizing local collections")
+	q.manager.logger.Trace().Msg("local manager: Synchronizing local collections")
 
 	_animeCollection := q.manager.animeCollection.MustGet()
 	_mangaCollection := q.manager.mangaCollection.MustGet()
@@ -276,12 +276,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedAnime := BaseAnimeDeepCopy(_animeEntry.GetMedia())
-					editedAnime.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedAnime.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedAnime.CoverImage = &anilist.BaseAnime_CoverImage{
-						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
@@ -351,12 +351,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedManga := BaseMangaDeepCopy(_mangaEntry.GetMedia())
-					editedManga.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedManga.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedManga.CoverImage = &anilist.BaseManga_CoverImage{
-						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt
@@ -411,7 +411,7 @@ func (q *Syncer) synchronizeCollections() (err error) {
 	q.manager.loadLocalAnimeCollection()
 	q.manager.loadLocalMangaCollection()
 
-	q.manager.logger.Debug().Msg("sync: Synchronized local collections")
+	q.manager.logger.Debug().Msg("local manager: Synchronized local collections")
 
 	return nil
 }
@@ -419,12 +419,10 @@ func (q *Syncer) synchronizeCollections() (err error) {
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
 func (q *Syncer) sendAnimeToFailedQueue(entry *anilist.AnimeListEntry) {
-	// TODO: Maybe send an event to the client
 	q.failedAnimeQueue.Set(entry.Media.ID, entry)
 }
 
 func (q *Syncer) sendMangaToFailedQueue(entry *anilist.MangaListEntry) {
-
 	q.failedMangaQueue.Set(entry.Media.ID, entry)
 }
 
@@ -432,10 +430,10 @@ func (q *Syncer) sendMangaToFailedQueue(entry *anilist.MangaListEntry) {
 
 func (q *Syncer) refreshCollections() {
 
-	q.manager.logger.Trace().Msg("sync: Refreshing collections")
+	q.manager.logger.Trace().Msg("local manager: Refreshing collections")
 
 	if len(q.animeJobQueue) > 0 || len(q.mangaJobQueue) > 0 {
-		q.manager.logger.Trace().Msg("sync: Skipping refreshCollections, job queues are not empty")
+		q.manager.logger.Trace().Msg("local manager: Skipping refreshCollections, job queues are not empty")
 		return
 	}
 
@@ -456,20 +454,20 @@ func (q *Syncer) runDiffs(
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
-	q.manager.logger.Trace().Msg("sync: Running diffs")
+	q.manager.logger.Trace().Msg("local manager: Running diffs")
 
 	if q.manager.animeCollection.IsAbsent() {
-		q.manager.logger.Error().Msg("sync: Cannot get diffs, anime collection is absent")
+		q.manager.logger.Error().Msg("local manager: Cannot get diffs, anime collection is absent")
 		return
 	}
 
 	if q.manager.mangaCollection.IsAbsent() {
-		q.manager.logger.Error().Msg("sync: Cannot get diffs, manga collection is absent")
+		q.manager.logger.Error().Msg("local manager: Cannot get diffs, manga collection is absent")
 		return
 	}
 
 	if len(q.animeJobQueue) > 0 || len(q.mangaJobQueue) > 0 {
-		q.manager.logger.Trace().Msg("sync: Skipping diffs, job queues are not empty")
+		q.manager.logger.Trace().Msg("local manager: Skipping diffs, job queues are not empty")
 		return
 	}
 
@@ -491,7 +489,7 @@ func (q *Syncer) runDiffs(
 			Snapshots:       trackedAnimeSnapshotMap,
 		})
 		wg.Done()
-		//q.manager.logger.Trace().Msg("sync: Finished getting anime diffs")
+		//q.manager.logger.Trace().Msg("local manager: Finished getting anime diffs")
 	}()
 
 	var mangaDiffs map[int]*MangaDiffResult
@@ -505,14 +503,14 @@ func (q *Syncer) runDiffs(
 			Snapshots:                   trackedMangaSnapshotMap,
 		})
 		wg.Done()
-		//q.manager.logger.Trace().Msg("sync: Finished getting manga diffs")
+		//q.manager.logger.Trace().Msg("local manager: Finished getting manga diffs")
 	}()
 
 	wg.Wait()
 
 	// Add the diffs to be synced asynchronously
 	go func() {
-		q.manager.logger.Trace().Int("animeJobs", len(animeDiffs)).Int("mangaJobs", len(mangaDiffs)).Msg("sync: Adding diffs to the job queues")
+		q.manager.logger.Trace().Int("animeJobs", len(animeDiffs)).Int("mangaJobs", len(mangaDiffs)).Msg("local manager: Adding diffs to the job queues")
 
 		for _, i := range animeDiffs {
 			q.animeJobQueue <- AnimeTask{Diff: i}
@@ -522,13 +520,13 @@ func (q *Syncer) runDiffs(
 		}
 
 		if len(animeDiffs) == 0 && len(mangaDiffs) == 0 {
-			q.manager.logger.Trace().Msg("sync: No diffs found")
+			q.manager.logger.Trace().Msg("local manager: No diffs found")
 			//q.refreshCollections()
 		}
 	}()
 
 	// Done
-	q.manager.logger.Trace().Msg("sync: Done running diffs")
+	q.manager.logger.Trace().Msg("local manager: Done running diffs")
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -546,7 +544,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		return
 	}
 
-	q.manager.logger.Trace().Msgf("sync: Starting synchronization of anime %d, diff type: %+v", entry.Media.ID, diff.DiffType)
+	q.manager.logger.Trace().Msgf("local manager: Starting synchronization of anime %d, diff type: %+v", entry.Media.ID, diff.DiffType)
 
 	lfs := lo.Filter(q.manager.localFiles, func(f *anime.LocalFile, _ int) bool {
 		return f.MediaId == entry.Media.ID
@@ -554,7 +552,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 
 	// If the anime (which is tracked) has no local files, remove it entirely from the local database
 	if len(lfs) == 0 {
-		q.manager.logger.Warn().Msgf("sync: No local files found for anime %d, removing from the local database", entry.Media.ID)
+		q.manager.logger.Warn().Msgf("local manager: No local files found for anime %d, removing from the local database", entry.Media.ID)
 		_ = q.manager.removeAnime(entry.Media.ID)
 		return
 	}
@@ -567,7 +565,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		animeMetadata, err = q.manager.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 		if err != nil {
 			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to get metadata for anime %d", entry.Media.ID)
+			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to get metadata for anime %d", entry.Media.ID)
 			return
 		}
 
@@ -577,7 +575,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	//
 	// The snapshot is missing
 	//
-	if diff.DiffType == DiffTypeMissing {
+	if diff.DiffType == DiffTypeMissing && animeMetadata != nil {
 		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata, metadataWrapper, lfs)
 		if !ok {
 			q.sendAnimeToFailedQueue(entry)
@@ -598,7 +596,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		err := q.manager.localDb.SaveAnimeSnapshot(snapshot)
 		if err != nil {
 			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
+			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -607,7 +605,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	// The snapshot metadata is outdated (local files have changed)
 	// Update the anime metadata & download the new episode images if needed
 	//
-	if diff.DiffType == DiffTypeMetadata && diff.AnimeSnapshot != nil {
+	if diff.DiffType == DiffTypeMetadata && diff.AnimeSnapshot != nil && animeMetadata != nil {
 
 		snapshot := *diff.AnimeSnapshot
 		snapshot.AnimeMetadata = LocalAnimeMetadata(*animeMetadata)
@@ -650,7 +648,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		err := q.manager.localDb.SaveAnimeSnapshot(&snapshot)
 		if err != nil {
 			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
+			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -672,7 +670,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 		return
 	}
 
-	q.manager.logger.Trace().Msgf("sync: Starting synchronization of manga %d, diff type: %+v", entry.GetMedia().GetID(), diff.DiffType)
+	q.manager.logger.Trace().Msgf("local manager: Starting synchronization of manga %d, diff type: %+v", entry.GetMedia().GetID(), diff.DiffType)
 
 	if q.manager.mangaCollection.IsAbsent() {
 		return
@@ -683,7 +681,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 	// Get the manga
 	listEntry, ok := q.manager.mangaCollection.MustGet().GetListEntryFromMangaId(entry.GetMedia().GetID())
 	if !ok {
-		q.manager.logger.Error().Msgf("sync: Failed to get manga")
+		q.manager.logger.Error().Msgf("local manager: Failed to get manga")
 		return
 	}
 
@@ -725,7 +723,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 		err := q.manager.localDb.SaveMangaSnapshot(snapshot)
 		if err != nil {
 			q.sendMangaToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
+			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -741,7 +739,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 		err := q.manager.localDb.SaveMangaSnapshot(&snapshot)
 		if err != nil {
 			q.sendMangaToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
+			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
 		}
 		return
 	}

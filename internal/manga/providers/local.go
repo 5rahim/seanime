@@ -159,7 +159,7 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 		}
 
 		if len(scannedEntry.Chapter) != 1 {
-			// Handle one-shots
+			// Handle one-shots (no chapter number and only one entry)
 			if len(scannedEntry.Chapter) == 0 && len(entries) == 1 {
 				chapterTitle := "Chapter 1"
 				if scannedEntry.ChapterTitle != "" {
@@ -171,6 +171,22 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 					URL:        "",
 					Title:      chapterTitle,
 					Chapter:    "1",
+					Index:      0, // placeholder, will be set later
+					LocalIsPDF: scannedEntry.IsPDF,
+				})
+			} else if len(scannedEntry.Chapter) == 2 {
+				// Handle combined chapters (e.g. "Chapter 1-2")
+				chapterTitle := "Chapter " + cleanChapter(scannedEntry.Chapter[0]) + "-" + cleanChapter(scannedEntry.Chapter[1])
+				if scannedEntry.ChapterTitle != "" {
+					chapterTitle += " - " + scannedEntry.ChapterTitle
+				}
+				res = append(res, &hibikemanga.ChapterDetails{
+					Provider: LocalProvider,
+					ID:       filepath.ToSlash(filepath.Join(mangaID, entry.Name())), // ID is the filepath, e.g. "/series/chapter_1.cbz"
+					URL:      "",
+					Title:    chapterTitle,
+					// Use the last chapter number as the chapter for progress tracking
+					Chapter:    cleanChapter(scannedEntry.Chapter[1]),
 					Index:      0, // placeholder, will be set later
 					LocalIsPDF: scannedEntry.IsPDF,
 				})

@@ -1,6 +1,7 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
+import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
@@ -19,20 +20,21 @@ import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
-import { useDisclosure } from "@/hooks/use-disclosure"
 import { openTab } from "@/lib/helpers/browser"
-import { ANILIST_OAUTH_URL } from "@/lib/server/config"
+import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
-import { useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -80,7 +82,7 @@ export function MainSidebar() {
 
     const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
 
-    const loginModal = useDisclosure(false)
+    const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
 
     const handleExpandSidebar = () => {
         if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
@@ -112,6 +114,8 @@ export function MainSidebar() {
     const { syncIsActive } = useSyncIsActive()
 
     const { data: updateData } = useGetExtensionUpdateData()
+
+    const [loggingIn, setLoggingIn] = React.useState(false)
 
     return (
         <>
@@ -358,31 +362,69 @@ export function MainSidebar() {
                                     { "hidden": ctx.isBelowBreakpoint },
                                 )}
                             >
-                                <Avatar size="sm" className="cursor-pointer" src={user?.avatar?.medium || ""} />
-                                {expandedSidebar && <p className="truncate">{user?.name}</p>}
+                                <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
+                                {expandedSidebar && <p className="truncate">{user?.viewer?.name}</p>}
                             </div>}
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}
                         >
-                            <DropdownMenuItem onClick={confirmSignOut.open}>
+                            {!user.isSimulated ? <DropdownMenuItem onClick={confirmSignOut.open}>
                                 <BiLogOut /> Sign out
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> : <DropdownMenuItem onClick={() => setLoginModal(true)}>
+                                <BiLogIn /> Log in with AniList
+                            </DropdownMenuItem>}
                         </DropdownMenu>
                     </div>}
                 </div>
             </AppSidebar>
 
             <Modal
-                title="Login"
-                open={loginModal.isOpen}
-                onOpenChange={loginModal.close}
+                title="Log in with AniList"
+                description="Using an AniList account is recommended."
+                open={loginModal && user?.isSimulated}
+                onOpenChange={(v) => setLoginModal(v)}
+                overlayClass="bg-opacity-95 bg-gray-950"
+                contentClass="border"
             >
                 <div className="mt-5 text-center space-y-4">
-                    <Button
-                        onClick={() => {
-                            openTab(ANILIST_OAUTH_URL)
-                        }} intent="primary-outline"
-                    >Login with AniList</Button>
+
+                    <Link
+                        href={ANILIST_PIN_URL}
+                        target="_blank"
+                    >
+                        <Button
+                            leftIcon={<svg
+                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
+                                viewBox="0 0 24 24" role="img"
+                            >
+                                <path
+                                    d="M6.361 2.943 0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166zm2.324 5.948 1.688 5.018H7.144z"
+                                />
+                            </svg>}
+                            intent="white"
+                            size="md"
+                        >Get AniList token</Button>
+                    </Link>
+
+                    <Form
+                        schema={defineSchema(({ z }) => z.object({
+                            token: z.string().min(1, "Token is required"),
+                        }))}
+                        onSubmit={data => {
+                            setLoggingIn(true)
+                            router.push("/auth/callback#access_token=" + data.token.trim())
+                            setLoginModal(false)
+                            setLoggingIn(false)
+                        }}
+                    >
+                        <Field.Textarea
+                            name="token"
+                            label="Enter the token"
+                            fieldClass="px-4"
+                        />
+                        <Field.Submit showLoadingOverlayOnSuccess loading={loggingIn}>Continue</Field.Submit>
+                    </Form>
+
                 </div>
             </Modal>
 

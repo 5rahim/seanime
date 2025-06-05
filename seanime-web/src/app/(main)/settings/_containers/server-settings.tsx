@@ -125,7 +125,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             </SettingsCard>
 
-            <SettingsCard title="Offline">
+            <SettingsCard title="Offline" description="Only available when authenticated with AniList.">
 
                 <Field.Switch
                     side="right"

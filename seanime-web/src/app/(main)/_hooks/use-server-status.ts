@@ -14,7 +14,7 @@ export function useSetServerStatus() {
 
 export function useCurrentUser() {
     const serverStatus = useServerStatus()
-    return React.useMemo(() => serverStatus?.user?.viewer, [serverStatus?.user?.viewer])
+    return React.useMemo(() => serverStatus?.user, [serverStatus?.user])
 }
 
 export function useHasTorrentProvider() {

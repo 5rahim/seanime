@@ -812,6 +812,62 @@ export type RemoveFileCacheBucket_Variables = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// local
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/local.go
+ * - Filename: local.go
+ * - Endpoint: /api/v1/local/track
+ * @description
+ * Route adds one or multiple media to be tracked for offline sync.
+ */
+export type LocalAddTrackedMedia_Variables = {
+    media: Array<{ mediaId: number; type: string; }>
+}
+
+/**
+ * - Filepath: internal/handlers/local.go
+ * - Filename: local.go
+ * - Endpoint: /api/v1/local/track
+ * @description
+ * Route remove media from being tracked for offline sync.
+ */
+export type LocalRemoveTrackedMedia_Variables = {
+    mediaId: number
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/local.go
+ * - Filename: local.go
+ * - Endpoint: /api/v1/local/track/{id}/{type}
+ * @description
+ * Route checks if media is being tracked for offline sync.
+ */
+export type LocalGetIsMediaTracked_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+    /**
+     *  Type of media (anime/manga)
+     */
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/local.go
+ * - Filename: local.go
+ * - Endpoint: /api/v1/local/updated
+ * @description
+ * Route sets the flag to determine if there are local changes that need to be synced with AniList.
+ */
+export type LocalSetHasLocalChanges_Variables = {
+    updated: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // localfiles
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1548,62 +1604,6 @@ export type SaveAutoDownloaderSettings_Variables = {
  */
 export type DeleteLogs_Variables = {
     filenames: Array<string>
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// sync
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/handlers/sync.go
- * - Filename: sync.go
- * - Endpoint: /api/v1/sync/track
- * @description
- * Route adds one or multiple media to be tracked for offline sync.
- */
-export type SyncAddMedia_Variables = {
-    media: Array<{ mediaId: number; type: string; }>
-}
-
-/**
- * - Filepath: internal/handlers/sync.go
- * - Filename: sync.go
- * - Endpoint: /api/v1/sync/track
- * @description
- * Route remove media from being tracked for offline sync.
- */
-export type SyncRemoveMedia_Variables = {
-    mediaId: number
-    type: string
-}
-
-/**
- * - Filepath: internal/handlers/sync.go
- * - Filename: sync.go
- * - Endpoint: /api/v1/sync/track/{id}/{type}
- * @description
- * Route checks if media is being tracked for offline sync.
- */
-export type SyncGetIsMediaTracked_Variables = {
-    /**
-     *  AniList anime media ID
-     */
-    id: number
-    /**
-     *  Type of media (anime/manga)
-     */
-    type: string
-}
-
-/**
- * - Filepath: internal/handlers/sync.go
- * - Filename: sync.go
- * - Endpoint: /api/v1/sync/updated
- * @description
- * Route sets the flag to determine if there are local changes that need to be synced with AniList.
- */
-export type SyncSetHasLocalChanges_Variables = {
-    updated: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

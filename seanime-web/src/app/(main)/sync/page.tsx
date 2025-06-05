@@ -1,13 +1,13 @@
 "use client"
-import { Sync_QueueState } from "@/api/generated/types"
+import { Local_QueueState } from "@/api/generated/types"
 import {
-    useSyncAnilistData,
-    useSyncGetHasLocalChanges,
-    useSyncGetLocalStorageSize,
-    useSyncGetTrackedMediaItems,
-    useSyncLocalData,
-    useSyncSetHasLocalChanges,
-} from "@/api/hooks/sync.hooks"
+    useLocalGetHasLocalChanges,
+    useLocalGetLocalStorageSize,
+    useLocalGetTrackedMediaItems,
+    useLocalSetHasLocalChanges,
+    useLocalSyncAnilistData,
+    useLocalSyncData,
+} from "@/api/hooks/local.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -36,16 +36,16 @@ export default function Page() {
 
     const [syncModalOpen, setSyncModalOpen] = React.useState(false)
 
-    const { data: trackedMediaItems, isLoading } = useSyncGetTrackedMediaItems()
+    const { data: trackedMediaItems, isLoading } = useLocalGetTrackedMediaItems()
 
-    const { mutate: syncLocal, isPending: isSyncingLocal } = useSyncLocalData()
+    const { mutate: syncLocal, isPending: isSyncingLocal } = useLocalSyncData()
 
-    const { mutate: syncAnilist, isPending: isSyncingAnilist } = useSyncAnilistData()
+    const { mutate: syncAnilist, isPending: isSyncingAnilist } = useLocalSyncAnilistData()
 
-    const { data: hasLocalChanges } = useSyncGetHasLocalChanges()
-    const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useSyncSetHasLocalChanges()
+    const { data: hasLocalChanges } = useLocalGetHasLocalChanges()
+    const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useLocalSetHasLocalChanges()
 
-    const { data: localStorageSize } = useSyncGetLocalStorageSize()
+    const { data: localStorageSize } = useLocalGetLocalStorageSize()
 
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
@@ -55,8 +55,8 @@ export default function Page() {
         return trackedMediaItems?.filter(n => n.type === "manga" && !!n.mangaEntry?.media) ?? []
     }, [trackedMediaItems])
 
-    const [queueState, setQueueState] = React.useState<Sync_QueueState | null>(null)
-    useWebsocketMessageListener<Sync_QueueState>({
+    const [queueState, setQueueState] = React.useState<Local_QueueState | null>(null)
+    useWebsocketMessageListener<Local_QueueState>({
         type: WSEvents.SYNC_LOCAL_QUEUE_STATE,
         onMessage: data => {
             setQueueState(data)
@@ -92,6 +92,13 @@ export default function Page() {
 
     if (isLoading) return <LoadingSpinner />
 
+    if (serverStatus?.user?.isSimulated) {
+        return <LuffyError
+            title="Not authenticated"
+        >
+            This feature is only available for authenticated users.
+        </LuffyError>
+    }
 
     return (
         <PageWrapper

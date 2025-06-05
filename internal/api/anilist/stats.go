@@ -37,15 +37,10 @@ type (
 	}
 )
 
-func GetStats(ctx context.Context, client AnilistClient) (ret *Stats, err error) {
+func GetStats(ctx context.Context, stats *ViewerStats) (ret *Stats, err error) {
 	defer util.HandlePanicInModuleWithError("api/anilist/GetStats", &err)
 
-	resp, err := client.ViewerStats(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	allStats := resp.GetViewer().GetStatistics()
+	allStats := stats.GetViewer().GetStatistics()
 
 	ret = &Stats{
 		AnimeStats: &AnimeStats{

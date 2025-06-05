@@ -109,7 +109,7 @@ var typePrefixesByPackage = map[string]string{
 	"hibikemediaplayer":  "HibikeMediaPlayer_",
 	"hibikeextension":    "HibikeExtension_",
 	"continuity":         "Continuity_",
-	"sync":               "Sync_",
+	"local":              "Local_",
 	"debrid":             "Debrid_",
 	"debrid_client":      "DebridClient_",
 	"report":             "Report_",

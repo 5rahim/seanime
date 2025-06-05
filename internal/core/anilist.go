@@ -1,37 +1,33 @@
 package core
 
 import (
-	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/database/models"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/user"
 )
 
-func (a *App) GetAccount() (*models.Account, error) {
-
-	if a.account == nil {
-		return nil, nil
+// GetUser returns the currently logged-in user or a simulated one.
+func (a *App) GetUser() *user.User {
+	if a.user == nil {
+		return user.NewSimulatedUser()
 	}
-
-	if a.account.Username == "" {
-		return nil, errors.New("no username was found")
-	}
-
-	if a.account.Token == "" {
-		return nil, errors.New("no token was found")
-	}
-
-	return a.account, nil
+	return a.user
 }
 
-func (a *App) GetAccountToken() string {
-	if a.account == nil {
+func (a *App) GetUserAnilistToken() string {
+	if a.user == nil || a.user.Token == user.SimulatedUserToken {
 		return ""
 	}
 
-	return a.account.Token
+	return a.user.Token
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// UpdatePlatform changes the current platform to the provided one.
+func (a *App) UpdatePlatform(platform platform.Platform) {
+	a.AnilistPlatform = platform
+}
 
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
@@ -65,8 +61,8 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to AutoDownloader
 	a.AutoDownloader.SetAnimeCollection(ret)
 
-	// Save the collection to SyncManager
-	a.SyncManager.SetAnimeCollection(ret)
+	// Save the collection to LocalManager
+	a.LocalManager.SetAnimeCollection(ret)
 
 	// Save the collection to DirectStreamManager
 	a.DirectStreamManager.SetAnimeCollection(ret)
@@ -94,7 +90,7 @@ func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 		return nil, err
 	}
 
-	a.SyncManager.SetMangaCollection(mc)
+	a.LocalManager.SetMangaCollection(mc)
 
 	return mc, nil
 }

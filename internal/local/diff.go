@@ -1,16 +1,17 @@
-package sync
+package local
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
 	"slices"
 	"strings"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 // DEVNOTE: Here we compare the media data from the current up-to-date collections with the local data.
@@ -78,7 +79,7 @@ func (d *Diff) GetAnimeDiffs(opts GetAnimeDiffOptions) map[int]*AnimeDiffResult 
 			}
 
 			if localCollection.IsAbsent() {
-				d.Logger.Trace().Msgf("sync: Diff > Anime %d, local collection is missing", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Anime %d, local collection is missing", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &AnimeDiffResult{
 					AnimeEntry: _entry,
 					DiffType:   DiffTypeMissing,
@@ -89,7 +90,7 @@ func (d *Diff) GetAnimeDiffs(opts GetAnimeDiffOptions) map[int]*AnimeDiffResult 
 			// Check if the anime has a snapshot
 			snapshot, hasSnapshot := snapshotMap[_entry.GetMedia().GetID()]
 			if !hasSnapshot {
-				d.Logger.Trace().Msgf("sync: Diff > Anime %d is missing a snapshot", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Anime %d is missing a snapshot", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &AnimeDiffResult{
 					AnimeEntry: _entry,
 					DiffType:   DiffTypeMissing,
@@ -106,7 +107,7 @@ func (d *Diff) GetAnimeDiffs(opts GetAnimeDiffOptions) map[int]*AnimeDiffResult 
 
 			// Check if the reference key is different
 			if snapshotMap[_entry.GetMedia().GetID()].ReferenceKey != _referenceKey {
-				d.Logger.Trace().Str("localReferenceKey", snapshotMap[_entry.GetMedia().GetID()].ReferenceKey).Str("currentReferenceKey", _referenceKey).Msgf("sync: Diff > Anime %d has an outdated snapshot", _entry.GetMedia().GetID())
+				d.Logger.Trace().Str("localReferenceKey", snapshotMap[_entry.GetMedia().GetID()].ReferenceKey).Str("currentReferenceKey", _referenceKey).Msgf("local manager: Diff > Anime %d has an outdated snapshot", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &AnimeDiffResult{
 					AnimeEntry:    _entry,
 					AnimeSnapshot: snapshot,
@@ -117,7 +118,7 @@ func (d *Diff) GetAnimeDiffs(opts GetAnimeDiffOptions) map[int]*AnimeDiffResult 
 
 			localEntry, found := localCollection.MustGet().GetListEntryFromAnimeId(_entry.GetMedia().GetID())
 			if !found {
-				d.Logger.Trace().Msgf("sync: Diff > Anime %d is missing from the local collection", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Anime %d is missing from the local collection", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &AnimeDiffResult{
 					AnimeEntry:    _entry,
 					AnimeSnapshot: snapshot,
@@ -131,7 +132,7 @@ func (d *Diff) GetAnimeDiffs(opts GetAnimeDiffOptions) map[int]*AnimeDiffResult 
 			localListDataKey := GetAnimeListDataKey(localEntry)
 
 			if _listDataKey != localListDataKey {
-				d.Logger.Trace().Str("localListDataKey", localListDataKey).Str("currentListDataKey", _listDataKey).Msgf("sync: Diff > Anime %d has changed list data", _entry.GetMedia().GetID())
+				d.Logger.Trace().Str("localListDataKey", localListDataKey).Str("currentListDataKey", _listDataKey).Msgf("local manager: Diff > Anime %d has changed list data", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &AnimeDiffResult{
 					AnimeEntry:    _entry,
 					AnimeSnapshot: snapshot,
@@ -188,7 +189,7 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 			}
 
 			if localCollection.IsAbsent() {
-				d.Logger.Trace().Msgf("sync: Diff > Manga %d, local collection is missing", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Manga %d, local collection is missing", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &MangaDiffResult{
 					MangaEntry: _entry,
 					DiffType:   DiffTypeMissing,
@@ -199,7 +200,7 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 			// Check if the manga has a snapshot
 			snapshot, hasSnapshot := snapshotMap[_entry.GetMedia().GetID()]
 			if !hasSnapshot {
-				d.Logger.Trace().Msgf("sync: Diff > Manga %d is missing a snapshot", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Manga %d is missing a snapshot", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &MangaDiffResult{
 					MangaEntry: _entry,
 					DiffType:   DiffTypeMissing,
@@ -212,7 +213,7 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 
 			// Check if the reference key is different
 			if snapshotMap[_entry.GetMedia().GetID()].ReferenceKey != _referenceKey {
-				d.Logger.Trace().Str("localReferenceKey", snapshotMap[_entry.GetMedia().GetID()].ReferenceKey).Str("currentReferenceKey", _referenceKey).Msgf("sync: Diff > Manga %d has an outdated snapshot", _entry.GetMedia().GetID())
+				d.Logger.Trace().Str("localReferenceKey", snapshotMap[_entry.GetMedia().GetID()].ReferenceKey).Str("currentReferenceKey", _referenceKey).Msgf("local manager: Diff > Manga %d has an outdated snapshot", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &MangaDiffResult{
 					MangaEntry:    _entry,
 					MangaSnapshot: snapshot,
@@ -223,7 +224,7 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 
 			localEntry, found := localCollection.MustGet().GetListEntryFromMangaId(_entry.GetMedia().GetID())
 			if !found {
-				d.Logger.Trace().Msgf("sync: Diff > Manga %d is missing from the local collection", _entry.GetMedia().GetID())
+				d.Logger.Trace().Msgf("local manager: Diff > Manga %d is missing from the local collection", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &MangaDiffResult{
 					MangaEntry:    _entry,
 					MangaSnapshot: snapshot,
@@ -237,7 +238,7 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 			localListDataKey := GetMangaListDataKey(localEntry)
 
 			if _listDataKey != localListDataKey {
-				d.Logger.Trace().Str("localListDataKey", localListDataKey).Str("currentListDataKey", _listDataKey).Msgf("sync: Diff > Manga %d has changed list data", _entry.GetMedia().GetID())
+				d.Logger.Trace().Str("localListDataKey", localListDataKey).Str("currentListDataKey", _listDataKey).Msgf("local manager: Diff > Manga %d has changed list data", _entry.GetMedia().GetID())
 				changedMap[_entry.GetMedia().GetID()] = &MangaDiffResult{
 					MangaEntry:    _entry,
 					MangaSnapshot: snapshot,

@@ -5,18 +5,26 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Yamashou/gqlgenc/clientv2"
-	"github.com/Yamashou/gqlgenc/graphqljson"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"seanime/internal/util"
 	"strconv"
 	"time"
+
+	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/Yamashou/gqlgenc/graphqljson"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+)
+
+var (
+	// ErrNotAuthenticated is returned when trying to access an Anilist API endpoint that requires authentication,
+	// but the client is not authenticated.
+	ErrNotAuthenticated = errors.New("not authenticated")
 )
 
 type AnilistClient interface {
+	IsAuthenticated() bool
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error)
 	BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error)
@@ -45,6 +53,7 @@ type (
 	AnilistClientImpl struct {
 		Client *Client
 		logger *zerolog.Logger
+		token  string // The token used for authentication with the AniList API
 	}
 )
 
@@ -52,6 +61,7 @@ type (
 // The token is used for authorization when making requests to the AniList API.
 func NewAnilistClient(token string) *AnilistClientImpl {
 	ac := &AnilistClientImpl{
+		token: token,
 		Client: &Client{
 			Client: clientv2.NewClient(http.DefaultClient, "https://graphql.anilist.co", nil,
 				func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
@@ -71,35 +81,96 @@ func NewAnilistClient(token string) *AnilistClientImpl {
 	return ac
 }
 
+func (ac *AnilistClientImpl) IsAuthenticated() bool {
+	if ac.Client == nil || ac.Client.Client == nil {
+		return false
+	}
+	if len(ac.token) == 0 {
+		return false
+	}
+	// If the token is not empty, we are authenticated
+	return true
+}
+
+////////////////////////////////
+// Authenticated
+////////////////////////////////
+
 func (ac *AnilistClientImpl) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry")
 	return ac.Client.UpdateMediaListEntry(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, interceptors...)
 }
 
 func (ac *AnilistClientImpl) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry progress")
 	return ac.Client.UpdateMediaListEntryProgress(ctx, mediaID, progress, status, interceptors...)
 }
 
 func (ac *AnilistClientImpl) UpdateMediaListEntryRepeat(ctx context.Context, mediaID *int, repeat *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryRepeat, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry repeat")
 	return ac.Client.UpdateMediaListEntryRepeat(ctx, mediaID, repeat, interceptors...)
 }
 
 func (ac *AnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
 	return ac.Client.DeleteEntry(ctx, mediaListEntryID, interceptors...)
 }
 
 func (ac *AnilistClientImpl) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Msg("anilist: Fetching anime collection")
 	return ac.Client.AnimeCollection(ctx, userName, interceptors...)
 }
 
 func (ac *AnilistClientImpl) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
 	ac.logger.Debug().Msg("anilist: Fetching anime collection with relations")
 	return ac.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }
+
+func (ac *AnilistClientImpl) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
+	ac.logger.Debug().Msg("anilist: Fetching viewer")
+	return ac.Client.GetViewer(ctx, interceptors...)
+}
+
+func (ac *AnilistClientImpl) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
+	ac.logger.Debug().Msg("anilist: Fetching manga collection")
+	return ac.Client.MangaCollection(ctx, userName, interceptors...)
+}
+
+func (ac *AnilistClientImpl) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
+	if !ac.IsAuthenticated() {
+		return nil, ErrNotAuthenticated
+	}
+	ac.logger.Debug().Msg("anilist: Fetching stats")
+	return ac.Client.ViewerStats(ctx, interceptors...)
+}
+
+////////////////////////////////
+// Not authenticated
+////////////////////////////////
 
 func (ac *AnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
 	return ac.Client.BaseAnimeByMalID(ctx, id, interceptors...)
@@ -130,16 +201,6 @@ func (ac *AnilistClientImpl) ListRecentAnime(ctx context.Context, page *int, per
 	return ac.Client.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, notYetAired, interceptors...)
 }
 
-func (ac *AnilistClientImpl) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
-	ac.logger.Debug().Msg("anilist: Fetching viewer")
-	return ac.Client.GetViewer(ctx, interceptors...)
-}
-
-func (ac *AnilistClientImpl) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
-	ac.logger.Debug().Msg("anilist: Fetching manga collection")
-	return ac.Client.MangaCollection(ctx, userName, interceptors...)
-}
-
 func (ac *AnilistClientImpl) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
 	ac.logger.Debug().Msg("anilist: Searching manga")
 	return ac.Client.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
@@ -163,11 +224,6 @@ func (ac *AnilistClientImpl) ListManga(ctx context.Context, page *int, search *s
 func (ac *AnilistClientImpl) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
 	ac.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
 	return ac.Client.StudioDetails(ctx, id, interceptors...)
-}
-
-func (ac *AnilistClientImpl) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
-	ac.logger.Debug().Msg("anilist: Fetching stats")
-	return ac.Client.ViewerStats(ctx, interceptors...)
 }
 
 func (ac *AnilistClientImpl) SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error) {

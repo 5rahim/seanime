@@ -2,13 +2,14 @@ package anilist
 
 import (
 	"context"
-	"github.com/Yamashou/gqlgenc/clientv2"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"log"
 	"os"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
+
+	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
 )
 
 // This file contains helper functions for testing the anilist package
@@ -30,6 +31,10 @@ func NewMockAnilistClient() *MockAnilistClientImpl {
 		realAnilistClient: NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt),
 		logger:            util.NewLogger(),
 	}
+}
+
+func (ac *MockAnilistClientImpl) IsAuthenticated() bool {
+	return ac.realAnilistClient.IsAuthenticated()
 }
 
 func (ac *MockAnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {

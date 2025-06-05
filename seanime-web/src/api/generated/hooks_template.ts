@@ -956,6 +956,121 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// local
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useLocalGetTrackedMediaItems() {
+//     return useServerQuery<Array<Local_TrackedMediaItem>>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalGetTrackedMediaItems.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalGetTrackedMediaItems.methods[0],
+//         queryKey: [API_ENDPOINTS.LOCAL.LocalGetTrackedMediaItems.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useLocalAddTrackedMedia() {
+//     return useServerMutation<boolean, LocalAddTrackedMedia_Variables>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalAddTrackedMedia.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalAddTrackedMedia.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalAddTrackedMedia.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLocalRemoveTrackedMedia() {
+//     return useServerMutation<boolean, LocalRemoveTrackedMedia_Variables>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalRemoveTrackedMedia.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalRemoveTrackedMedia.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalRemoveTrackedMedia.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLocalGetIsMediaTracked(id: number, type: string) {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalGetIsMediaTracked.endpoint.replace("{id}", String(id)).replace("{type}", String(type)),
+//         method: API_ENDPOINTS.LOCAL.LocalGetIsMediaTracked.methods[0],
+//         queryKey: [API_ENDPOINTS.LOCAL.LocalGetIsMediaTracked.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useLocalSyncData() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalSyncData.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalSyncData.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLocalGetSyncQueueState() {
+//     return useServerQuery<Local_QueueState>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalGetSyncQueueState.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalGetSyncQueueState.methods[0],
+//         queryKey: [API_ENDPOINTS.LOCAL.LocalGetSyncQueueState.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useLocalSyncAnilistData() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalSyncAnilistData.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalSyncAnilistData.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncAnilistData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLocalSetHasLocalChanges() {
+//     return useServerMutation<boolean, LocalSetHasLocalChanges_Variables>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalSetHasLocalChanges.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalSetHasLocalChanges.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalSetHasLocalChanges.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLocalGetHasLocalChanges() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalGetHasLocalChanges.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalGetHasLocalChanges.methods[0],
+//         queryKey: [API_ENDPOINTS.LOCAL.LocalGetHasLocalChanges.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useLocalGetLocalStorageSize() {
+//     return useServerQuery<string>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalGetLocalStorageSize.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalGetLocalStorageSize.methods[0],
+//         queryKey: [API_ENDPOINTS.LOCAL.LocalGetLocalStorageSize.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useLocalSyncSimulatedDataToAnilist() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.endpoint,
+//         method: API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // localfiles
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1930,110 +2045,6 @@
 //         endpoint: API_ENDPOINTS.STATUS.GetLatestLogContent.endpoint,
 //         method: API_ENDPOINTS.STATUS.GetLatestLogContent.methods[0],
 //         queryKey: [API_ENDPOINTS.STATUS.GetLatestLogContent.key],
-//         enabled: true,
-//     })
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// sync
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// export function useSyncGetTrackedMediaItems() {
-//     return useServerQuery<Array<Sync_TrackedMediaItem>>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.methods[0],
-//         queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useSyncAddMedia() {
-//     return useServerMutation<boolean, SyncAddMedia_Variables>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncAddMedia.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncAddMedia.methods[0],
-//         mutationKey: [API_ENDPOINTS.SYNC.SyncAddMedia.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSyncRemoveMedia() {
-//     return useServerMutation<boolean, SyncRemoveMedia_Variables>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncRemoveMedia.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncRemoveMedia.methods[0],
-//         mutationKey: [API_ENDPOINTS.SYNC.SyncRemoveMedia.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSyncGetIsMediaTracked(id: number, type: string) {
-//     return useServerQuery<boolean>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.endpoint.replace("{id}", String(id)).replace("{type}", String(type)),
-//         method: API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.methods[0],
-//         queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useSyncLocalData() {
-//     return useServerMutation<boolean>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncLocalData.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncLocalData.methods[0],
-//         mutationKey: [API_ENDPOINTS.SYNC.SyncLocalData.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSyncGetQueueState() {
-//     return useServerQuery<Sync_QueueState>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncGetQueueState.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncGetQueueState.methods[0],
-//         queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useSyncAnilistData() {
-//     return useServerMutation<boolean>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncAnilistData.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncAnilistData.methods[0],
-//         mutationKey: [API_ENDPOINTS.SYNC.SyncAnilistData.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSyncSetHasLocalChanges() {
-//     return useServerMutation<boolean, SyncSetHasLocalChanges_Variables>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.methods[0],
-//         mutationKey: [API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSyncGetHasLocalChanges() {
-//     return useServerQuery<boolean>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.methods[0],
-//         queryKey: [API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useSyncGetLocalStorageSize() {
-//     return useServerQuery<string>({
-//         endpoint: API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.endpoint,
-//         method: API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.methods[0],
-//         queryKey: [API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.key],
 //         enabled: true,
 //     })
 // }

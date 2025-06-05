@@ -1,12 +1,13 @@
-package local_platform
+package offline_platform
 
 import (
 	"errors"
+	"seanime/internal/api/anilist"
+	"seanime/internal/local"
+	"seanime/internal/platforms/platform"
+
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"seanime/internal/api/anilist"
-	"seanime/internal/platforms/platform"
-	"seanime/internal/sync"
 )
 
 var (
@@ -18,19 +19,19 @@ var (
 	ErrActionNotSupported = errors.New("action not supported")
 )
 
-// LocalPlatform used when offline.
+// OfflinePlatform used when offline.
 // It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op.
-type LocalPlatform struct {
-	logger      *zerolog.Logger
-	syncManager sync.Manager
-	client      anilist.AnilistClient
+type OfflinePlatform struct {
+	logger       *zerolog.Logger
+	localManager local.Manager
+	client       anilist.AnilistClient
 }
 
-func NewLocalPlatform(syncManager sync.Manager, client anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
-	ap := &LocalPlatform{
-		logger:      logger,
-		syncManager: syncManager,
-		client:      client,
+func NewOfflinePlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
+	ap := &OfflinePlatform{
+		logger:       logger,
+		localManager: localManager,
+		client:       client,
 	}
 
 	return ap, nil
@@ -38,11 +39,11 @@ func NewLocalPlatform(syncManager sync.Manager, client anilist.AnilistClient, lo
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (lp *LocalPlatform) SetUsername(username string) {
+func (lp *OfflinePlatform) SetUsername(username string) {
 	// no-op
 }
 
-func (lp *LocalPlatform) SetAnilistClient(client anilist.AnilistClient) {
+func (lp *OfflinePlatform) SetAnilistClient(client anilist.AnilistClient) {
 	// no-op
 }
 
@@ -122,9 +123,9 @@ func rearrangeMangaCollectionLists(mangaCollection *anilist.MangaCollection) {
 
 // UpdateEntry updates the entry for the given media ID.
 // It doesn't add the entry if it doesn't exist.
-func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+func (lp *OfflinePlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.localManager.GetLocalAnimeCollection().MustGet()
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
@@ -157,16 +158,16 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 
 					// Save the collection
 					rearrangeAnimeCollectionLists(animeCollection)
-					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalAnimeCollection(animeCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
 		}
 	}
 
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.localManager.GetLocalMangaCollection().MustGet()
 
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
@@ -199,8 +200,8 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 
 					// Save the collection
 					rearrangeMangaCollectionLists(mangaCollection)
-					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalMangaCollection(mangaCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -210,9 +211,9 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 	return ErrMediaNotFound
 }
 
-func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+func (lp *OfflinePlatform) UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.localManager.GetLocalAnimeCollection().MustGet()
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
@@ -226,16 +227,16 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 
 					// Save the collection
 					rearrangeAnimeCollectionLists(animeCollection)
-					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalAnimeCollection(animeCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
 		}
 	}
 
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.localManager.GetLocalMangaCollection().MustGet()
 
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
@@ -249,8 +250,8 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 
 					// Save the collection
 					rearrangeMangaCollectionLists(mangaCollection)
-					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalMangaCollection(mangaCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -260,9 +261,9 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 	return ErrMediaNotFound
 }
 
-func (lp *LocalPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+func (lp *OfflinePlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.localManager.GetLocalAnimeCollection().MustGet()
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
@@ -273,16 +274,16 @@ func (lp *LocalPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 
 					// Save the collection
 					rearrangeAnimeCollectionLists(animeCollection)
-					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalAnimeCollection(animeCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
 		}
 	}
 
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.localManager.GetLocalMangaCollection().MustGet()
 
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
@@ -293,8 +294,8 @@ func (lp *LocalPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 
 					// Save the collection
 					rearrangeMangaCollectionLists(mangaCollection)
-					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
-					lp.syncManager.SetHasLocalChanges(true)
+					lp.localManager.UpdateLocalMangaCollection(mangaCollection)
+					lp.localManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -305,13 +306,13 @@ func (lp *LocalPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 }
 
 // DeleteEntry isn't supported for the local platform, always returns an error.
-func (lp *LocalPlatform) DeleteEntry(mediaID int) error {
+func (lp *OfflinePlatform) DeleteEntry(mediaID int) error {
 	return ErrActionNotSupported
 }
 
-func (lp *LocalPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+func (lp *OfflinePlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.localManager.GetLocalAnimeCollection().MustGet()
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
@@ -326,9 +327,9 @@ func (lp *LocalPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	return nil, ErrMediaNotFound
 }
 
-func (lp *LocalPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+func (lp *OfflinePlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.localManager.GetLocalAnimeCollection().MustGet()
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
@@ -344,18 +345,18 @@ func (lp *LocalPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) 
 }
 
 // GetAnimeDetails isn't supported for the local platform, always returns an empty struct.
-func (lp *LocalPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
+func (lp *OfflinePlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	return &anilist.AnimeDetailsById_Media{}, nil
 }
 
 // GetAnimeWithRelations isn't supported for the local platform, always returns an error.
-func (lp *LocalPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
+func (lp *OfflinePlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
 	return nil, ErrActionNotSupported
 }
 
-func (lp *LocalPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+func (lp *OfflinePlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.localManager.GetLocalMangaCollection().MustGet()
 
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
@@ -371,29 +372,29 @@ func (lp *LocalPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 }
 
 // GetMangaDetails isn't supported for the local platform, always returns an empty struct.
-func (lp *LocalPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
+func (lp *OfflinePlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	return &anilist.MangaDetailsById_Media{}, nil
 }
 
-func (lp *LocalPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		return lp.syncManager.GetLocalAnimeCollection().MustGet(), nil
+func (lp *OfflinePlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		return lp.localManager.GetLocalAnimeCollection().MustGet(), nil
 	} else {
 		return nil, ErrNoLocalAnimeCollection
 	}
 }
 
-func (lp *LocalPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
-		return lp.syncManager.GetLocalAnimeCollection().MustGet(), nil
+func (lp *OfflinePlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+	if lp.localManager.GetLocalAnimeCollection().IsPresent() {
+		return lp.localManager.GetLocalAnimeCollection().MustGet(), nil
 	} else {
 		return nil, ErrNoLocalAnimeCollection
 	}
 }
 
 // RefreshAnimeCollection is a no-op, always returns the local anime collection.
-func (lp *LocalPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
-	animeCollection, ok := lp.syncManager.GetLocalAnimeCollection().Get()
+func (lp *OfflinePlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+	animeCollection, ok := lp.localManager.GetLocalAnimeCollection().Get()
 	if !ok {
 		return nil, ErrNoLocalAnimeCollection
 	}
@@ -401,28 +402,28 @@ func (lp *LocalPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, err
 	return animeCollection, nil
 }
 
-func (lp *LocalPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
+func (lp *OfflinePlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
 	return nil, ErrActionNotSupported
 }
 
-func (lp *LocalPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		return lp.syncManager.GetLocalMangaCollection().MustGet(), nil
+func (lp *OfflinePlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		return lp.localManager.GetLocalMangaCollection().MustGet(), nil
 	} else {
 		return nil, ErrorNoLocalMangaCollection
 	}
 }
 
-func (lp *LocalPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
-		return lp.syncManager.GetLocalMangaCollection().MustGet(), nil
+func (lp *OfflinePlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+	if lp.localManager.GetLocalMangaCollection().IsPresent() {
+		return lp.localManager.GetLocalMangaCollection().MustGet(), nil
 	} else {
 		return nil, ErrorNoLocalMangaCollection
 	}
 }
 
-func (lp *LocalPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
-	mangaCollection, ok := lp.syncManager.GetLocalMangaCollection().Get()
+func (lp *OfflinePlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+	mangaCollection, ok := lp.localManager.GetLocalMangaCollection().Get()
 	if !ok {
 		return nil, ErrorNoLocalMangaCollection
 	}
@@ -431,15 +432,19 @@ func (lp *LocalPlatform) RefreshMangaCollection() (*anilist.MangaCollection, err
 }
 
 // AddMediaToCollection isn't supported for the local platform, always returns an error.
-func (lp *LocalPlatform) AddMediaToCollection(mIds []int) error {
+func (lp *OfflinePlatform) AddMediaToCollection(mIds []int) error {
 	return ErrActionNotSupported
 }
 
 // GetStudioDetails isn't supported for the local platform, always returns an empty struct
-func (lp *LocalPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
+func (lp *OfflinePlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
 	return &anilist.StudioDetails{}, nil
 }
 
-func (lp *LocalPlatform) GetAnilistClient() anilist.AnilistClient {
+func (lp *OfflinePlatform) GetAnilistClient() anilist.AnilistClient {
 	return lp.client
+}
+
+func (lp *OfflinePlatform) GetViewerStats() (*anilist.ViewerStats, error) {
+	return nil, ErrActionNotSupported
 }

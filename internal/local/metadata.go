@@ -1,29 +1,29 @@
-package sync
+package local
 
 import (
-	"github.com/pkg/errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/tvdb"
-	sync_util "seanime/internal/sync/util"
 	"seanime/internal/util/result"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
-// LocalMetadataProvider replaces the metadata provider only when offline
-type LocalMetadataProvider struct {
+// OfflineMetadataProvider replaces the metadata provider only when offline
+type OfflineMetadataProvider struct {
 	manager            *ManagerImpl
 	animeSnapshots     map[int]*AnimeSnapshot
 	animeMetadataCache *result.Cache[string, *metadata.AnimeMetadata]
 }
 
-type LocalAnimeMetadataWrapper struct {
+type OfflineAnimeMetadataWrapper struct {
 	anime    *anilist.BaseAnime
 	metadata *metadata.AnimeMetadata
 }
 
-func NewLocalMetadataProvider(manager *ManagerImpl) metadata.Provider {
-	ret := &LocalMetadataProvider{
+func NewOfflineMetadataProvider(manager *ManagerImpl) metadata.Provider {
+	ret := &OfflineMetadataProvider{
 		manager:            manager,
 		animeSnapshots:     make(map[int]*AnimeSnapshot),
 		animeMetadataCache: result.NewCache[string, *metadata.AnimeMetadata](),
@@ -36,7 +36,7 @@ func NewLocalMetadataProvider(manager *ManagerImpl) metadata.Provider {
 	return ret
 }
 
-func (mp *LocalMetadataProvider) loadAnimeSnapshots() {
+func (mp *OfflineMetadataProvider) loadAnimeSnapshots() {
 	animeSnapshots, ok := mp.manager.localDb.GetAnimeSnapshots()
 	if !ok {
 		return
@@ -47,7 +47,7 @@ func (mp *LocalMetadataProvider) loadAnimeSnapshots() {
 	}
 }
 
-func (mp *LocalMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mId int) (*metadata.AnimeMetadata, error) {
+func (mp *OfflineMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mId int) (*metadata.AnimeMetadata, error) {
 	if platform != metadata.AnilistPlatform {
 		return nil, errors.New("unsupported platform")
 	}
@@ -56,7 +56,7 @@ func (mp *LocalMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mI
 		localAnimeMetadata := snapshot.AnimeMetadata
 		for _, episode := range localAnimeMetadata.Episodes {
 			if imgUrl, ok := snapshot.EpisodeImagePaths[episode.Episode]; ok {
-				episode.Image = *sync_util.FormatAssetUrl(mId, imgUrl)
+				episode.Image = *FormatAssetUrl(mId, imgUrl)
 			}
 		}
 
@@ -72,12 +72,12 @@ func (mp *LocalMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mI
 	return nil, errors.New("anime metadata not found")
 }
 
-func (mp *LocalMetadataProvider) GetCache() *result.Cache[string, *metadata.AnimeMetadata] {
+func (mp *OfflineMetadataProvider) GetCache() *result.Cache[string, *metadata.AnimeMetadata] {
 	return mp.animeMetadataCache
 }
 
-func (mp *LocalMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) metadata.AnimeMetadataWrapper {
-	return &LocalAnimeMetadataWrapper{
+func (mp *OfflineMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) metadata.AnimeMetadataWrapper {
+	return &OfflineAnimeMetadataWrapper{
 		anime:    anime,
 		metadata: metadata,
 	}
@@ -85,7 +85,7 @@ func (mp *LocalMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAnim
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (mw *LocalAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (ret metadata.EpisodeMetadata) {
+func (mw *OfflineAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (ret metadata.EpisodeMetadata) {
 	episodeMetadata, found := mw.metadata.FindEpisode(strconv.Itoa(episodeNumber))
 	if found {
 		ret = *episodeMetadata
@@ -93,14 +93,14 @@ func (mw *LocalAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (ret 
 	return
 }
 
-func (mw *LocalAnimeMetadataWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
+func (mw *OfflineAnimeMetadataWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
 	return nil
 }
 
-func (mw *LocalAnimeMetadataWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
+func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
 	return make([]*tvdb.Episode, 0), nil
 }
 
-func (mw *LocalAnimeMetadataWrapper) GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool) {
+func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool) {
 	return nil, false
 }

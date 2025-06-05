@@ -1,15 +1,16 @@
-package sync
+package local
 
 import (
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
+
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
 )
 
 // BaseAnimeDeepCopy creates a deep copy of the given base anime struct.
@@ -88,7 +89,7 @@ func MediaListStatusPointerValue(a *anilist.MediaListStatus) anilist.MediaListSt
 func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId int, episodeImageUrls map[string]string) (map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeEpisodeImages", func() {})
 
-	logger.Trace().Msgf("sync: Downloading episode images for anime %d", mId)
+	logger.Trace().Msgf("local manager: Downloading episode images for anime %d", mId)
 
 	// e.g. /path/to/datadir/local/assets/123
 	mediaAssetPath := filepath.Join(assetsDir, fmt.Sprintf("%d", mId))
@@ -104,13 +105,13 @@ func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId in
 
 	err := imageDownloader.DownloadImages(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to download images for anime %d", mId)
+		logger.Error().Err(err).Msgf("local manager: Failed to download images for anime %d", mId)
 		return nil, false
 	}
 
 	images, err := imageDownloader.GetImageFilenamesByUrls(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to get image filenames for anime %d", mId)
+		logger.Error().Err(err).Msgf("local manager: Failed to get image filenames for anime %d", mId)
 		return nil, false
 	}
 
@@ -139,7 +140,7 @@ func DownloadAnimeImages(
 ) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})
 
-	logger.Trace().Msgf("sync: Downloading images for anime %d", entry.Media.ID)
+	logger.Trace().Msgf("local manager: Downloading images for anime %d", entry.Media.ID)
 	// e.g. /datadir/local/assets/123
 	mediaAssetPath := filepath.Join(assetsDir, fmt.Sprintf("%d", entry.Media.ID))
 	imageDownloader := image_downloader.NewImageDownloader(mediaAssetPath, logger)
@@ -177,13 +178,13 @@ func DownloadAnimeImages(
 
 	err := imageDownloader.DownloadImages(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to download images for anime %d", entry.Media.ID)
+		logger.Error().Err(err).Msgf("local manager: Failed to download images for anime %d", entry.Media.ID)
 		return "", "", nil, false
 	}
 
 	images, err := imageDownloader.GetImageFilenamesByUrls(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to get image filenames for anime %d", entry.Media.ID)
+		logger.Error().Err(err).Msgf("local manager: Failed to get image filenames for anime %d", entry.Media.ID)
 		return "", "", nil, false
 	}
 
@@ -197,7 +198,7 @@ func DownloadAnimeImages(
 		episodeImagePaths[episodeNum] = images[episodeImage]
 	}
 
-	logger.Debug().Msgf("sync: Stored images for anime %d, %+v, %+v, episode images: %+v", entry.Media.ID, bannerImage, coverImage, len(episodeImagePaths))
+	logger.Debug().Msgf("local manager: Stored images for anime %d, %+v, %+v, episode images: %+v", entry.Media.ID, bannerImage, coverImage, len(episodeImagePaths))
 
 	return bannerImage, coverImage, episodeImagePaths, true
 }
@@ -210,7 +211,7 @@ func DownloadAnimeImages(
 //	DownloadMangaImages(logger, "path/to/datadir/local/assets", entry)
 //	-> "banner.jpg", "cover.jpg"
 func DownloadMangaImages(logger *zerolog.Logger, assetsDir string, entry *anilist.MangaListEntry) (string, string, bool) {
-	logger.Trace().Msgf("sync: Downloading images for manga %d", entry.Media.ID)
+	logger.Trace().Msgf("local manager: Downloading images for manga %d", entry.Media.ID)
 
 	// e.g. /datadir/local/assets/123
 	mediaAssetPath := filepath.Join(assetsDir, fmt.Sprintf("%d", entry.Media.ID))
@@ -223,20 +224,20 @@ func DownloadMangaImages(logger *zerolog.Logger, assetsDir string, entry *anilis
 
 	err := imageDownloader.DownloadImages(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to download images for anime %d", entry.Media.ID)
+		logger.Error().Err(err).Msgf("local manager: Failed to download images for anime %d", entry.Media.ID)
 		return "", "", false
 	}
 
 	images, err := imageDownloader.GetImageFilenamesByUrls(imgUrls)
 	if err != nil {
-		logger.Error().Err(err).Msgf("sync: Failed to get image filenames for anime %d", entry.Media.ID)
+		logger.Error().Err(err).Msgf("local manager: Failed to get image filenames for anime %d", entry.Media.ID)
 		return "", "", false
 	}
 
 	bannerImage := images[ogBannerImage]
 	coverImage := images[ogCoverImage]
 
-	logger.Debug().Msgf("sync: Stored images for manga %d, %+v, %+v", entry.Media.ID, bannerImage, coverImage)
+	logger.Debug().Msgf("local manager: Stored images for manga %d, %+v, %+v", entry.Media.ID, bannerImage, coverImage)
 
 	return bannerImage, coverImage, true
 }

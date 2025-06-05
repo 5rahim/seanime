@@ -1,4 +1,4 @@
-package sync
+package local
 
 import (
 	"path/filepath"

@@ -2,8 +2,9 @@ package db
 
 import (
 	"errors"
-	"gorm.io/gorm/clause"
 	"seanime/internal/database/models"
+
+	"gorm.io/gorm/clause"
 )
 
 var accountCache *models.Account
@@ -19,7 +20,11 @@ func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) 
 		return nil, err
 	}
 
-	accountCache = acc
+	if acc.Username != "" {
+		accountCache = acc
+	} else {
+		accountCache = nil
+	}
 
 	return acc, nil
 }
@@ -36,7 +41,7 @@ func (db *Database) GetAccount() (*models.Account, error) {
 		return nil, err
 	}
 	if acc.Username == "" || acc.Token == "" || acc.Viewer == nil {
-		return nil, errors.New("account does not exist")
+		return nil, errors.New("account not found")
 	}
 
 	accountCache = &acc

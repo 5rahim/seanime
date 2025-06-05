@@ -1,15 +1,16 @@
-package sync
+package local
 
 import (
 	"fmt"
-	"github.com/glebarez/sqlite"
-	"github.com/rs/zerolog"
-	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/glebarez/sqlite"
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -64,6 +65,7 @@ func migrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&Settings{},
 		&LocalCollection{},
+		&SimulatedCollection{},
 		&AnimeSnapshot{},
 		&MangaSnapshot{},
 		&TrackedMedia{},

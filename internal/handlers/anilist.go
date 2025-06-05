@@ -325,7 +325,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.Format,
 		&isAdult,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -382,7 +382,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 		p.NotYetAired,
 		p.Sort,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -421,7 +421,7 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 	ret, err := anilist.ListMissedSequels(
 		animeCollection,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -448,9 +448,14 @@ func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 		return h.RespondWithData(c, cached)
 	}
 
+	stats, err := h.App.AnilistPlatform.GetViewerStats()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	ret, err := anilist.GetStats(
 		c.Request().Context(),
-		h.App.AnilistClient,
+		stats,
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)

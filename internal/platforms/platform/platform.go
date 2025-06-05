@@ -27,4 +27,5 @@ type Platform interface {
 	GetAnilistClient() anilist.AnilistClient
 	RefreshAnimeCollection() (*anilist.AnimeCollection, error)
 	RefreshMangaCollection() (*anilist.MangaCollection, error)
+	GetViewerStats() (*anilist.ViewerStats, error)
 }

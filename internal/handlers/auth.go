@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/database/models"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/simulated_platform"
 	"seanime/internal/util"
 	"time"
 
@@ -68,6 +70,10 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 
 	h.App.Logger.Info().Msg("app: Authenticated to AniList")
 
+	// Update the platform
+	anilistPlatform := anilist_platform.NewAnilistPlatform(h.App.AnilistClient, h.App.Logger)
+	h.App.UpdatePlatform(anilistPlatform)
+
 	// Create a new status
 	status := h.NewStatus(c)
 
@@ -96,7 +102,17 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 //	@returns handlers.Status
 func (h *Handler) HandleLogout(c echo.Context) error {
 
-	_, err := h.App.Database.UpsertAccount(&models.Account{
+	// Update the anilist client
+	h.App.UpdateAnilistClientToken("")
+
+	// Update the platform
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(h.App.LocalManager, h.App.AnilistClient, h.App.Logger)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	h.App.UpdatePlatform(simulatedPlatform)
+
+	_, err = h.App.Database.UpsertAccount(&models.Account{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
