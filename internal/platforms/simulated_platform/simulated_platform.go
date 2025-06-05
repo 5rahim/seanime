@@ -2,6 +2,7 @@ package simulated_platform
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/local"
@@ -357,15 +358,29 @@ func (sp *SimulatedPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection,
 	return sp.getOrCreateAnimeCollection()
 }
 
+// GetAnimeCollectionWithRelations returns the anime collection (without relations)
 func (sp *SimulatedPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
 	sp.logger.Trace().Msg("simulated platform: Getting anime collection with relations")
 
-	// For simulated platform, we return empty collection with relations
-	return &anilist.AnimeCollectionWithRelations{
-		MediaListCollection: &anilist.AnimeCollectionWithRelations_MediaListCollection{
-			Lists: []*anilist.AnimeCollectionWithRelations_MediaListCollection_Lists{},
-		},
-	}, nil
+	// Use JSON to convert the collection structs
+	collection, err := sp.getOrCreateAnimeCollection()
+	if err != nil {
+		return nil, err
+	}
+
+	collectionWithRelations := &anilist.AnimeCollectionWithRelations{}
+
+	marshaled, err := json.Marshal(collection)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(marshaled, collectionWithRelations)
+	if err != nil {
+		return nil, err
+	}
+
+	// For simulated platform, the anime collection will not have relations
+	return collectionWithRelations, nil
 }
 
 func (sp *SimulatedPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {

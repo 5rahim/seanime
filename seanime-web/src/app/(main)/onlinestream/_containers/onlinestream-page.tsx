@@ -108,11 +108,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const episodeTitle = episodes?.find(e => e.number === currentEpisodeNumber)?.title
 
     function goToNextEpisode() {
-        if (currentEpisodeNumber < maxEp) {
-            // check if the episode exists
-            if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
-                handleChangeEpisodeNumber(currentEpisodeNumber + 1)
-            }
+        // check if the episode exists
+        if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
+            handleChangeEpisodeNumber(currentEpisodeNumber + 1)
         }
     }
 
