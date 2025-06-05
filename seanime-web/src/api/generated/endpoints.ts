@@ -767,6 +767,16 @@ export const API_ENDPOINTS = {
         },
     },
     LOCAL: {
+        /**
+         *  @description
+         *  Route sets the offline mode.
+         *  Returns true if the offline mode is active, false otherwise.
+         */
+        SetOfflineMode: {
+            key: "LOCAL-set-offline-mode",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/offline",
+        },
         LocalGetTrackedMediaItems: {
             key: "LOCAL-local-get-tracked-media-items",
             methods: ["GET"],

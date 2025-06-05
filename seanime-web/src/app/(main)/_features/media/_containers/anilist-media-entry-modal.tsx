@@ -36,15 +36,20 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     completedAt: presets.datePicker.nullish(),
 }))
 
-function IsomorphicPopover(props: PopoverProps & ModalProps) {
-    const { title, ...rest } = props
+function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseAnime | AL_BaseManga }) {
+    const { title, children, media, ...rest } = props
     const { width } = useWindowSize()
 
     if (width && width > 1024) {
         return <Popover
             {...rest}
-            className="max-w-5xl !w-full"
-        />
+            className="max-w-5xl !w-full overflow-hidden"
+        >
+            <p className="mb-4 font-semibold text-center px-6 line-clamp-1">
+                {media?.title?.userPreferred}
+            </p>
+            {children}
+        </Popover>
     }
 
     return <Modal
@@ -52,7 +57,9 @@ function IsomorphicPopover(props: PopoverProps & ModalProps) {
         title={title}
         titleClass="text-xl"
         contentClass="max-w-3xl overflow-hidden"
-    />
+    >
+        {children}
+    </Modal>
 }
 
 
@@ -122,6 +129,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         />}
                     </>}
                 </span>}
+                media={media}
             >
 
                 {media?.bannerImage && <div
@@ -136,7 +144,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         quality={80}
                         priority
                         sizes="20rem"
-                        className="object-cover object-center opacity-15 z-[1]"
+                        className="object-cover object-center opacity-5 z-[1]"
                     />
                     <div
                         data-anilist-media-entry-modal-banner-image-bottom-gradient
@@ -176,9 +184,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         })
                     }}
                     className={cn(
-                        {
-                            "mt-8": !!media?.bannerImage,
-                        },
+                        // {
+                        //     "mt-8": !!media?.bannerImage,
+                        // },
                     )}
                     onError={console.log}
                     defaultValues={{

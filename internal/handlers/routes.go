@@ -23,7 +23,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization", "X-Seanime-Password"},
 		AllowCredentials: true,
 	}))
 
@@ -108,6 +108,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	e.GET("/events", h.webSocketEventHandler)
 
 	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
+
+	v1.Use(h.OptionalAuthMiddleware)
 
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
@@ -455,6 +457,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Local.GET("/storage/size", h.HandleLocalGetLocalStorageSize)
 	v1Local.POST("/sync-simulated-to-anilist", h.HandleLocalSyncSimulatedDataToAnilist)
 
+	v1Local.POST("/offline", h.HandleSetOfflineMode)
+
 	//
 	// Debrid
 	//
@@ -489,6 +493,14 @@ func (h *Handler) RespondWithData(c echo.Context, data interface{}) error {
 
 func (h *Handler) RespondWithError(c echo.Context, err error) error {
 	return c.JSON(500, NewErrorResponse(err))
+}
+
+func optionalAuthMiddleware(app *core.App) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			return next(c)
+		}
+	}
 }
 
 func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

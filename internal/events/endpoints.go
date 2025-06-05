@@ -173,6 +173,7 @@ const (
 	SetDiscordAnimeActivityWithProgressEndpoint        = "DISCORD-set-discord-anime-activity-with-progress"
 	SetDiscordLegacyAnimeActivityEndpoint              = "DISCORD-set-discord-legacy-anime-activity"
 	SetDiscordMangaActivityEndpoint                    = "DISCORD-set-discord-manga-activity"
+	SetOfflineModeEndpoint                             = "LOCAL-set-offline-mode"
 	SetPluginSettingsPinnedTraysEndpoint               = "EXTENSIONS-set-plugin-settings-pinned-trays"
 	StartDefaultMediaPlayerEndpoint                    = "MEDIAPLAYER-start-default-media-player"
 	StartMangaDownloadQueueEndpoint                    = "MANGA-DOWNLOAD-start-manga-download-queue"

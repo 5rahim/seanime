@@ -41,6 +41,7 @@ type Status struct {
 	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
 	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 	ServerReady           bool                          `json:"serverReady"`
+	ServerHasPassword     bool                          `json:"serverHasPassword"`
 }
 
 var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
@@ -79,7 +80,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 
 	theme, _ = h.App.Database.GetTheme()
 
-	return &Status{
+	status := &Status{
 		OS:                    runtime.GOOS,
 		ClientDevice:          clientInfo.Device,
 		ClientPlatform:        clientInfo.Platform,
@@ -99,7 +100,23 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		IsDesktopSidecar:      h.App.IsDesktopSidecar,
 		FeatureFlags:          h.App.FeatureFlags,
 		ServerReady:           h.App.ServerReady,
+		ServerHasPassword:     h.App.Config.Server.Password != "",
 	}
+
+	if c.Get("unauthenticated") != nil && c.Get("unauthenticated").(bool) {
+		// If the user is unauthenticated, return a status with no user data
+		status.OS = ""
+		status.DataDir = ""
+		status.User = user.NewSimulatedUser()
+		status.ThemeSettings = nil
+		status.MediastreamSettings = nil
+		status.TorrentstreamSettings = nil
+		status.Settings = &models.Settings{}
+		status.DebridSettings = nil
+		status.FeatureFlags = core.FeatureFlags{}
+	}
+
+	return status
 }
 
 // HandleGetStatus

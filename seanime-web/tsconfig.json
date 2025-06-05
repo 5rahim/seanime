@@ -34,6 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
+    "out-denshi/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

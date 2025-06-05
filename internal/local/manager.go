@@ -81,6 +81,8 @@ type Manager interface {
 	SaveSimulatedMangaCollection(mc *anilist.MangaCollection)
 	// SynchronizeSimulatedCollectionToAnilist synchronizes the simulated anime and manga collections to the user's AniList account.
 	SynchronizeSimulatedCollectionToAnilist() error
+
+	SetOffline(bool)
 }
 
 type (
@@ -188,6 +190,10 @@ func (m *ManagerImpl) GetSyncer() *Syncer {
 
 func (m *ManagerImpl) GetOfflineMetadataProvider() metadata.Provider {
 	return m.offlineMetadataProvider
+}
+
+func (m *ManagerImpl) SetOffline(enabled bool) {
+	m.isOffline = enabled
 }
 
 func (m *ManagerImpl) HasLocalChanges() bool {

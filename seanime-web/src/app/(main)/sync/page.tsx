@@ -7,6 +7,7 @@ import {
     useLocalSetHasLocalChanges,
     useLocalSyncAnilistData,
     useLocalSyncData,
+    useSetOfflineMode,
 } from "@/api/hooks/local.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
@@ -25,7 +26,7 @@ import { Separator } from "@/components/ui/separator"
 import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
 import { WSEvents } from "@/lib/server/ws-events"
 import React from "react"
-import { LuCloudDownload, LuCloudUpload, LuFolderSync } from "react-icons/lu"
+import { LuCloud, LuCloudDownload, LuCloudOff, LuCloudUpload, LuFolderSync } from "react-icons/lu"
 import { VscSyncIgnored } from "react-icons/vsc"
 import { toast } from "sonner"
 
@@ -43,9 +44,12 @@ export default function Page() {
     const { mutate: syncAnilist, isPending: isSyncingAnilist } = useLocalSyncAnilistData()
 
     const { data: hasLocalChanges } = useLocalGetHasLocalChanges()
+
     const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useLocalSetHasLocalChanges()
 
     const { data: localStorageSize } = useLocalGetLocalStorageSize()
+
+    const { mutate: setOfflineMode, isPending: isSettingOfflineMode } = useSetOfflineMode()
 
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
@@ -104,6 +108,22 @@ export default function Page() {
         <PageWrapper
             className="p-4 sm:p-8 pt-4 relative space-y-8"
         >
+
+            <Button
+                intent={"white-outline"}
+                rounded
+                className=""
+                leftIcon={serverStatus?.isOffline ? <LuCloudOff className="text-2xl" /> : <LuCloud className="text-2xl" />}
+                loading={isSettingOfflineMode}
+                onClick={() => {
+                    setOfflineMode({
+                        enabled: !serverStatus?.isOffline,
+                    })
+                }}
+            >
+                {serverStatus?.isOffline ? "Disable offline mode" : "Enable offline mode"}
+            </Button>
+
             <div className="flex gap-2">
                 <div>
                     <h2 className="text-center lg:text-left">Synced media</h2>
@@ -281,3 +301,5 @@ function SyncingBadge() {
         </Badge>
     )
 }
+
+

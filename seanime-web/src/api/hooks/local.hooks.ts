@@ -3,7 +3,12 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Local_QueueState, Local_TrackedMediaItem } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { LocalAddTrackedMedia_Variables, LocalRemoveTrackedMedia_Variables, LocalSetHasLocalChanges_Variables } from "../generated/endpoint.types"
+import {
+    LocalAddTrackedMedia_Variables,
+    LocalRemoveTrackedMedia_Variables,
+    LocalSetHasLocalChanges_Variables,
+    SetOfflineMode_Variables,
+} from "../generated/endpoint.types"
 
 export function useLocalGetTrackedMediaItems() {
     return useServerQuery<Array<Local_TrackedMediaItem>>({
@@ -136,18 +141,25 @@ export function useLocalSyncSimulatedDataToAnilist() {
         method: API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.methods[0],
         mutationKey: [API_ENDPOINTS.LOCAL.LocalSyncSimulatedDataToAnilist.key],
         onSuccess: async () => {
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LOCAL.LocalGetTrackedMediaItems.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes] })
-            // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LOCAL.LocalGetLocalStorageSize] })
+            ({ queryKey: [API_ENDPOINTS.LOCAL.LocalGetLocalStorageSize] })
             toast.success("Updated Anilist data")
+        },
+    })
+}
+
+export function useSetOfflineMode() {
+    return useServerMutation<boolean, SetOfflineMode_Variables>({
+        endpoint: API_ENDPOINTS.LOCAL.SetOfflineMode.endpoint,
+        method: API_ENDPOINTS.LOCAL.SetOfflineMode.methods[0],
+        mutationKey: [API_ENDPOINTS.LOCAL.SetOfflineMode.key],
+        onSuccess: async (data) => {
+            if (data) {
+                toast.success("Offline mode enabled")
+                window.location.href = "/offline"
+            } else {
+                toast.success("Offline mode disabled")
+                window.location.href = "/"
+            }
         },
     })
 }

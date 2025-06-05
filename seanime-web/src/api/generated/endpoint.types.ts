@@ -818,6 +818,17 @@ export type RemoveFileCacheBucket_Variables = {
 /**
  * - Filepath: internal/handlers/local.go
  * - Filename: local.go
+ * - Endpoint: /api/v1/local/offline
+ * @description
+ * Route sets the offline mode.
+ */
+export type SetOfflineMode_Variables = {
+    enabled: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/local.go
+ * - Filename: local.go
  * - Endpoint: /api/v1/local/track
  * @description
  * Route adds one or multiple media to be tracked for offline sync.

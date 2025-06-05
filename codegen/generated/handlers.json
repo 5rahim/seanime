@@ -3781,6 +3781,46 @@
     }
   },
   {
+    "name": "HandleSetOfflineMode",
+    "trimmedName": "SetOfflineMode",
+    "comments": [
+      "HandleSetOfflineMode",
+      "",
+      "\t@summary sets the offline mode.",
+      "\t@desc Returns true if the offline mode is active, false otherwise.",
+      "\t@route /api/v1/local/offline [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/local.go",
+    "filename": "local.go",
+    "api": {
+      "summary": "sets the offline mode.",
+      "descriptions": [
+        "Returns true if the offline mode is active, false otherwise."
+      ],
+      "endpoint": "/api/v1/local/offline",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Enabled",
+          "jsonName": "enabled",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleLocalGetTrackedMediaItems",
     "trimmedName": "LocalGetTrackedMediaItems",
     "comments": [

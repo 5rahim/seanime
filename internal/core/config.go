@@ -22,6 +22,7 @@ type Config struct {
 		UseBinaryPath bool // Makes $SEANIME_WORKING_DIR point to the binary's directory
 		Systray       bool
 		DoHUrl        string
+		Password      string
 	}
 	Database struct {
 		Name string
