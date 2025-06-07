@@ -145,12 +145,11 @@ func (a *App) initModulesOnce() {
 		WSEventManager:          a.WSEventManager,
 		MetadataProvider:        a.MetadataProvider,
 		DebridClientRepository:  a.DebridClientRepository,
+		IsOffline:               a.IsOffline(),
 	})
 
-	if !a.IsOffline() {
-		// This is run in a goroutine
-		a.AutoDownloader.Start()
-	}
+	// This is run in a goroutine
+	a.AutoDownloader.Start()
 
 	// +---------------------+
 	// |   Auto Scanner      |
@@ -180,12 +179,10 @@ func (a *App) initModulesOnce() {
 		WSEventManager: a.WSEventManager,
 		DownloadDir:    a.Config.Manga.DownloadDir,
 		Repository:     a.MangaRepository,
+		IsOffline:      a.IsOffline(),
 	})
 
-	if !a.IsOffline() {
-		// This is run in a goroutine
-		a.MangaDownloader.Start()
-	}
+	a.MangaDownloader.Start()
 
 	// +---------------------+
 	// |    Media Stream     |
@@ -362,6 +359,7 @@ func (a *App) InitOrRefreshModules() {
 
 		a.DirectStreamManager.SetSettings(&directstream.Settings{
 			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
+			AutoUpdateProgress:  a.Settings.GetLibrary().AutoUpdateProgress,
 		})
 
 		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)

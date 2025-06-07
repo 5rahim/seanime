@@ -69,14 +69,13 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	// Find the best torrent / Select the torrent
 	//
 	var torrentToStream *playbackTorrent
-	switch opts.AutoSelect {
-	case true:
+	if opts.AutoSelect {
 		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
 		if err != nil {
 			r.sendStateEvent(eventLoadingFailed)
 			return err
 		}
-	case false:
+	} else {
 		if opts.Torrent == nil {
 			return fmt.Errorf("torrentstream: No torrent provided")
 		}

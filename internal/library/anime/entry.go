@@ -202,14 +202,7 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	// Instantiate EntryListData
 	// If the media exist in the user's anime list, add the details
 	if found {
-		entry.EntryListData = &EntryListData{
-			Progress:    anilistEntry.GetProgressSafe(),
-			Score:       anilistEntry.GetScoreSafe(),
-			Status:      anilistEntry.Status,
-			Repeat:      anilistEntry.GetRepeatSafe(),
-			StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
-			CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
-		}
+		entry.EntryListData = NewEntryListData(anilistEntry)
 	}
 
 	// +---------------------+
@@ -308,6 +301,17 @@ func (e *Entry) hydrateEntryEpisodeData(
 		e.NextEpisode = nextEp
 	}
 
+}
+
+func NewEntryListData(anilistEntry *anilist.AnimeListEntry) *EntryListData {
+	return &EntryListData{
+		Progress:    anilistEntry.GetProgressSafe(),
+		Score:       anilistEntry.GetScoreSafe(),
+		Status:      anilistEntry.Status,
+		Repeat:      anilistEntry.GetRepeatSafe(),
+		StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
+		CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -57,7 +57,7 @@ export function getEpisodeMinutesRemaining(history: Nullish<Continuity_WatchHist
     return Math.round((item.duration - item.currentTime) / 60)
 }
 
-export function useHandleContinuityWithMediaPlayer(playerRef: React.RefObject<MediaPlayerInstance>,
+export function useHandleContinuityWithMediaPlayer(playerRef: React.RefObject<MediaPlayerInstance | HTMLVideoElement>,
     episodeNumber: Nullish<number>,
     mediaId: Nullish<number | string>,
 ) {

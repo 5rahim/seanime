@@ -96,7 +96,7 @@ type (
 		// \/ Playlist
 		playlistHub *playlistHub // The playlist hub
 
-		isOffline       bool
+		isOffline       *bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
 
 		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
@@ -140,7 +140,7 @@ type (
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
-		IsOffline                  bool
+		IsOffline                  *bool
 		ContinuityManager          *continuity.Manager
 	}
 
@@ -338,7 +338,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.playlistHub.reset()
-	if pm.isOffline {
+	if *pm.isOffline {
 		return errors.New("cannot stream when offline")
 	}
 

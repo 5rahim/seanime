@@ -2,6 +2,7 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { openTab } from "@/lib/helpers/browser"
+import { __isElectronDesktop__ } from "@/types/constants"
 import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
@@ -67,7 +68,8 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             data-is-selected={isSelected}
             data-link={link}
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/torrent-preview-item overflow-hidden",
+                "border p-3 pr-12 rounded-lg relative transition group/torrent-preview-item overflow-hidden",
+                !__isElectronDesktop__ && "lg:hover:scale-[1.01]",
                 "max-w-full bg-[--background]",
                 {
                     "border-brand-200": isSelected,

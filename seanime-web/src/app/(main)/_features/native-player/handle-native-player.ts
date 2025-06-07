@@ -151,7 +151,7 @@ export class StreamSubtitleManager {
     onSubtitleEvent(event: MKVParser_SubtitleEvent) {
         // Record the event
         const { isNew, assEvent } = this._recordSubtitleEvent(event)
-        subtitleLog.info("Subtitle event received", event.trackNumber, this.currentTrackNumber)
+        // subtitleLog.info("Subtitle event received", event.trackNumber, this.currentTrackNumber)
 
         if (!assEvent) return
 

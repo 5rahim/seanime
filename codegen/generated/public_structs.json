@@ -53473,6 +53473,17 @@
         "comments": []
       },
       {
+        "name": "listEntryData",
+        "jsonName": "listEntryData",
+        "goType": "anime.EntryListData",
+        "typescriptType": "Anime_EntryListData",
+        "usedTypescriptType": "Anime_EntryListData",
+        "usedStructName": "anime.EntryListData",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "episodeCollection",
         "jsonName": "episodeCollection",
         "goType": "anime.EpisodeCollection",
@@ -55700,6 +55711,19 @@
         "public": true,
         "comments": [
           " nil if not ebml"
+        ]
+      },
+      {
+        "name": "EntryListData",
+        "jsonName": "entryListData",
+        "goType": "anime.EntryListData",
+        "typescriptType": "Anime_EntryListData",
+        "usedTypescriptType": "Anime_EntryListData",
+        "usedStructName": "anime.EntryListData",
+        "required": false,
+        "public": true,
+        "comments": [
+          " nil if not in list"
         ]
       },
       {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
@@ -136,6 +137,8 @@ func getSubtitleTrackType(codecID string) string {
 		return "SSA"
 	case "S_TEXT/UTF8":
 		return "TEXT"
+	case "S_HDMV/PGS":
+		return "PGS"
 	}
 	return "unknown"
 }
@@ -696,16 +699,13 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 	}
 
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				mp.logger.Error().Msgf("mkvparser: Subtitle extraction goroutine panicked: %v", r)
-				closeChannels(fmt.Errorf("subtitle extraction goroutine panic: %v", r))
-			}
-		}()
+		defer util.HandlePanicInModuleThen("mkvparser/ExtractSubtitles", func() {
+			closeChannels(fmt.Errorf("subtitle extraction goroutine panic"))
+		})
 		defer cancel() // Ensure context is cancelled when main goroutine exits
 		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
-		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 40}))
+		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 500}))
 
 		// First, ensure metadata is parsed to get track information
 		mp.parseMetadataOnce(extractCtx)
@@ -744,7 +744,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			startedCh:          startedCh,
 		}
 
-		// Parse the MKV file for subtitles
+		// Parse the stream for subtitles
 		err := gomkv.Parse(newReader, handler)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
 			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
@@ -849,6 +849,11 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 		return
 	}
 
+	// PGS subtitles are not supported
+	if track.CodecID == "S_HDMV/PGS" || getSubtitleTrackType(track.CodecID) == "unknown" {
+		return
+	}
+
 	absoluteTimeScaled := h.clusterTime + uint64(h.pendingBlock.timecode)
 	timestampNs := absoluteTimeScaled * h.timecodeScale
 	milliseconds := float64(timestampNs) / 1e6
@@ -908,7 +913,6 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 			return
 		}
 
-		// Based on matroska-metadata library implementation:
 		// SSA_KEYS = ['readOrder', 'layer', 'style', 'name', 'marginL', 'marginR', 'marginV', 'effect', 'text']
 		// For ASS: ignore readOrder (start from index 1), extract indices 1-7, text from index 8
 		// For SSA: ignore readOrder and layer (start from index 2), extract indices 2-7, text from index 8
@@ -1043,7 +1047,9 @@ func (h *subtitleHandler) HandleBinary(id gomkv.ElementID, value []byte, info go
 				duration = float64(track.defaultDuration) / 1e6 // ms
 			}
 
-			h.processSubtitleData(trackNum, track, subtitleData, milliseconds, duration, h.pendingBlock.headPos)
+			// Get current position for SimpleBlock/standalone Block
+			headPos, _ := h.reader.Seek(0, io.SeekCurrent)
+			h.processSubtitleData(trackNum, track, subtitleData, milliseconds, duration, headPos)
 
 			// Reset the block duration for the next block
 			h.currentBlockDuration = 0
@@ -1058,7 +1064,7 @@ func (h *subtitleHandler) HandleBinary(id gomkv.ElementID, value []byte, info go
 func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
-	// however it's not ideal so we'll offset the offset by 2MB to avoid missing a cluster
+	// however it's not ideal so we'll offset the offset by 1MB to avoid missing a cluster
 	toRemove := int64(1 * 1024 * 1024) // 1MB
 	if seekOffset > toRemove {
 		seekOffset -= toRemove

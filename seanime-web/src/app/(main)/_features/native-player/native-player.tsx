@@ -1,5 +1,8 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
+import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { NativePlayerIcons } from "@/app/(main)/_features/native-player/native-player-icons"
 import {
     __seaMediaPlayer_autoNextAtom,
@@ -19,6 +22,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue } from "jotai"
 import {
     MediaControlBar,
@@ -52,8 +56,11 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } f
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
+import { toast } from "sonner"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
+import { useServerStatus } from "../../_hooks/use-server-status"
 import { TorrentStreamOverlay } from "../../entry/_containers/torrent-stream/torrent-stream-overlay"
+import { useSkipData } from "../sea-media-player/aniskip"
 import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
 import { NativePlayerDrawer } from "./native-player-drawer"
 import {
@@ -64,7 +71,13 @@ import {
 } from "./native-player-keybindings"
 import { StreamPreviewCaptureIntervalSeconds, StreamPreviewManager } from "./native-player-preview"
 import { nativePlayer_settingsAtom, nativePlayer_stateAtom, nativePlayerKeybindingsAtom } from "./native-player.atoms"
-import { detectSubtitleType, isSubtitleFile, nativeplayer_createChapterCues, nativeplayer_createChapterVTT } from "./native-player.utils"
+import {
+    detectSubtitleType,
+    isSubtitleFile,
+    nativeplayer_createChapterCues,
+    nativeplayer_createChaptersFromAniSkip,
+    nativeplayer_createChapterVTT,
+} from "./native-player.utils"
 
 const enum VideoPlayerEvents {
     LOADED_METADATA = "loaded-metadata",
@@ -78,11 +91,13 @@ const enum VideoPlayerEvents {
     VIDEO_STARTED = "video-started",
     VIDEO_COMPLETED = "video-completed",
     VIDEO_TERMINATED = "video-terminated",
+    VIDEO_TIME_UPDATE = "video-time-update",
 }
 
 const log = logger("NATIVE PLAYER")
 
 export function NativePlayer() {
+    const serverStatus = useServerStatus()
     const clientId = useAtomValue(clientIdAtom)
     const { sendMessage } = useWebsocketSender()
     //
@@ -93,6 +108,9 @@ export function NativePlayer() {
     const videoCompletedRef = useRef(false)
     const playerContainerRef = useRef<HTMLDivElement | null>(null)
     const timeRangeRef = useRef<any>(null)
+
+    const [hasUpdatedProgress, setHasUpdatedProgress] = useState(false)
+
 
     //
     // Control settings
@@ -110,6 +128,12 @@ export function NativePlayer() {
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [duration, setDuration] = useState(0)
 
+    // Continuity
+    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
+
+    // AniSkip
+    const { data: aniSkipData } = useSkipData(state?.playbackInfo?.media?.idMal, state?.playbackInfo?.episode?.progressNumber ?? -1)
+
     // Keybindings
     const keybindings = useAtomValue(nativePlayerKeybindingsAtom)
 
@@ -124,8 +148,11 @@ export function NativePlayer() {
     // Create chapter track
     const [chapterTrackUrl, setChapterTrackUrl] = useState<string | null>(null)
 
+    const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
+    const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
+
     useEffect(() => {
-        if (state.playbackInfo?.mkvMetadata?.chapters && duration > 0) {
+        if (!!state.playbackInfo && state.playbackInfo?.mkvMetadata?.chapters && duration > 0) {
             // Create VTT content for chapters
             const chapters = state.playbackInfo.mkvMetadata.chapters
             const vttContent = nativeplayer_createChapterVTT(chapters, duration)
@@ -140,16 +167,34 @@ export function NativePlayer() {
         }
     }, [state.playbackInfo?.mkvMetadata?.chapters, duration])
 
+    // If there are no chapters but we have AniSkip data, create a chapter track
+    useEffect(() => {
+            log.info("AniSkip data", aniSkipData)
+            if (!!state.playbackInfo && !state.playbackInfo?.mkvMetadata?.chapters?.length && !!aniSkipData?.op?.interval) {
+                const chapters = nativeplayer_createChaptersFromAniSkip(aniSkipData, duration, state?.playbackInfo?.media?.format)
+                if (chapters.length === 0) return
+
+                const vttContent = nativeplayer_createChapterVTT(chapters, duration)
+                const blob = new Blob([vttContent], { type: "text/vtt" })
+                const url = URL.createObjectURL(blob)
+                setChapterTrackUrl(url)
+
+                return () => {
+                    URL.revokeObjectURL(url)
+                }
+            }
+        },
+        [videoRef.current, state.playbackInfo?.mkvMetadata?.chapters, aniSkipData?.op?.interval, aniSkipData?.ed?.interval, duration,
+            state?.playbackInfo?.media?.format])
+
     //
     // Start
     //
 
+    const qc = useQueryClient()
     useUpdateEffect(() => {
         if (!!state.playbackInfo && (!streamLoadedRef.current || state.playbackInfo.id !== streamLoadedRef.current)) {
             if (videoRef.current) {
-                // log.info("Stream loaded")
-                // log.info("Can play", videoRef.current.canPlayType(state.playbackInfo.mkvMetadata?.mimeCodec || ""))
-
                 console.log("HEVC HVC1 main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hvc1\""))
                 console.log("HEVC main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\""))
                 console.log("HEVC main 10 profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\""))
@@ -157,14 +202,6 @@ export function NativePlayer() {
                 console.log("HEVC range extensions profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\""))
                 console.log("Dolby AC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ac-3\""))
                 console.log("Dolby EC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ec-3\""))
-
-
-                // if (!!streamLoadedRef.current && state.playbackInfo.id !== streamLoadedRef.current) {
-                //     log.info("Stream changed")
-                // }
-
-
-                // subtitleManagerRef.current?.loadTracks()
             }
         }
 
@@ -176,9 +213,12 @@ export function NativePlayer() {
             previewManagerRef.current = null
             setPreviewThumbnail(undefined)
             streamLoadedRef.current = null
-
         }
     }, [state.playbackInfo, videoRef.current])
+
+    React.useEffect(() => {
+        qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
+    }, [state])
 
     // Clean up player when unmounting or changing streams
     useEffect(() => {
@@ -232,11 +272,44 @@ export function NativePlayer() {
         }
     }
 
+    // Update progress
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: isProgressUpdateSuccess } = useUpdateAnimeEntryProgress(
+        state.playbackInfo?.media?.id,
+        state.playbackInfo?.episode?.progressNumber ?? 0,
+    )
+
+    const handleTimeInterval = () => {
+        if (videoRef.current) {
+            sendMessage({
+                type: WSEvents.NATIVE_PLAYER,
+                payload: {
+                    clientId: clientId,
+                    type: VideoPlayerEvents.VIDEO_TIME_UPDATE,
+                    payload: {
+                        currentTime: videoRef.current.currentTime,
+                        duration: videoRef.current.duration,
+                        paused: videoRef.current.paused,
+                    },
+                },
+            })
+        }
+    }
+
+    // Time update interval
+    React.useEffect(() => {
+        const interval = setInterval(handleTimeInterval, 2000)
+        return () => clearInterval(interval)
+    }, [videoRef.current])
+
     //
     // Event Handlers
     //
+    const watchHistoryIntervalRef = React.useRef<number>(0)
+    const checkTimeRef = React.useRef<number>(0)
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         // log.info("Time update", e.currentTarget.currentTime)
+
+        // Video completed event
         const percent = e.currentTarget.currentTime / e.currentTarget.duration
         if (!!e.currentTarget.duration && !videoCompletedRef.current && percent >= 0.8) {
             videoCompletedRef.current = true
@@ -245,9 +318,47 @@ export function NativePlayer() {
                 payload: {
                     clientId: clientId,
                     type: VideoPlayerEvents.VIDEO_COMPLETED,
+                    payload: {
+                        currentTime: e.currentTarget.currentTime,
+                        duration: e.currentTarget.duration,
+                    },
                 },
             })
         }
+
+        /**
+         * AniSkip
+         */
+        if (
+            aniSkipData?.op?.interval &&
+            !!e.currentTarget.currentTime &&
+            e.currentTarget.currentTime >= aniSkipData.op.interval.startTime &&
+            e.currentTarget.currentTime <= aniSkipData.op.interval.endTime
+        ) {
+            setShowSkipIntroButton(true)
+            if (autoSkipIntroOutro) {
+                seekTo(aniSkipData?.op?.interval?.endTime || 0)
+            }
+        } else {
+            setShowSkipIntroButton(false)
+        }
+        if (
+            aniSkipData?.ed?.interval &&
+            Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
+            !!e.currentTarget.currentTime &&
+            e.currentTarget.currentTime >= aniSkipData.ed.interval.startTime &&
+            e.currentTarget.currentTime <= aniSkipData.ed.interval.endTime
+        ) {
+            setShowSkipEndingButton(true)
+            if (autoSkipIntroOutro) {
+                seekTo(aniSkipData?.ed?.interval?.endTime || 0)
+            }
+        } else {
+            setShowSkipEndingButton(false)
+        }
+
+
+
     }
 
     const handleDurationChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -309,15 +420,21 @@ export function NativePlayer() {
         log.info("Video seeked", e)
     }
 
+    function onSeeking(e: Event) {
+        log.info("Video seeking", e)
+    }
+
     // Listen to seek events
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.addEventListener("seeked", onSeeked)
+            videoRef.current.addEventListener("seeking", onSeeking)
         }
 
         return () => {
             if (videoRef.current) {
                 videoRef.current.removeEventListener("seeked", onSeeked)
+                videoRef.current.removeEventListener("seeking", onSeeking)
             }
         }
     }, [videoRef.current])
@@ -330,6 +447,8 @@ export function NativePlayer() {
         videoCompletedRef.current = false
 
         if (!state.playbackInfo || !videoRef.current) return // shouldn't happen
+
+        setHasUpdatedProgress(false)
 
         streamLoadedRef.current = state.playbackInfo.id
 
@@ -357,14 +476,14 @@ export function NativePlayer() {
         }
 
         // Initialize thumbnailer
-        // if (state.playbackInfo?.streamUrl) {
-        //     const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
-        //     log.info("Initializing thumbnailer with URL:", streamUrl)
-        //     previewManagerRef.current = new StreamPreviewManager(videoRef.current, streamUrl)
-        //     log.info("Thumbnailer initialized successfully")
-        // } else {
-        //     log.info("No stream URL available for thumbnailer")
-        // }
+        if (state.playbackInfo?.streamUrl && state.playbackInfo.streamType === "localfile") {
+            const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
+            log.info("Initializing thumbnailer with URL:", streamUrl)
+            previewManagerRef.current = new StreamPreviewManager(videoRef.current, streamUrl)
+            log.info("Thumbnailer initialized successfully")
+        } else {
+            log.info("No stream URL available for thumbnailer")
+        }
 
         sendMessage({
             type: WSEvents.NATIVE_PLAYER,
@@ -377,6 +496,17 @@ export function NativePlayer() {
                 },
             },
         })
+
+        if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
+            const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
+                videoRef.current?.currentTime,
+                videoRef.current?.duration)
+            logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
+            if (lastWatchedTime > 0) {
+                logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
+                seekTo(lastWatchedTime)
+            }
+        }
     }
 
     const handlePause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -540,6 +670,14 @@ export function NativePlayer() {
                     log.info("Terminate event received")
                     handleTerminateStream()
                     break
+                case "error":
+                    log.error("Error event received", payload)
+                    toast.error("An error occurred while playing the stream. " + ((payload as { error: string }).error))
+                    setState(draft => {
+                        draft.playbackError = (payload as { error: string }).error
+                        return
+                    })
+                    break
             }
         },
     })
@@ -663,10 +801,25 @@ export function NativePlayer() {
     }, [handleTimeRangePreview])
 
     const chapterCues = useMemo(() => {
-        const cues = nativeplayer_createChapterCues(state.playbackInfo?.mkvMetadata?.chapters, duration)
-        log.info("Chapter cues", cues)
-        return cues
-    }, [state.playbackInfo?.mkvMetadata?.chapters, duration])
+            // If we have MKV chapters, use them
+            if (state.playbackInfo?.mkvMetadata?.chapters?.length) {
+                const cues = nativeplayer_createChapterCues(state.playbackInfo.mkvMetadata.chapters, duration)
+                log.info("Chapter cues from MKV", cues)
+                return cues
+            }
+
+            // Otherwise, create chapters from AniSkip data if available
+            if (!!aniSkipData?.op?.interval && duration > 0) {
+                const chapters = nativeplayer_createChaptersFromAniSkip(aniSkipData, duration, state?.playbackInfo?.media?.format)
+                const cues = nativeplayer_createChapterCues(chapters, duration)
+                log.info("Chapter cues from AniSkip", cues)
+                return cues
+            }
+
+            return []
+        },
+        [state.playbackInfo?.mkvMetadata?.chapters, aniSkipData?.op?.interval, aniSkipData?.ed?.interval, duration,
+            state?.playbackInfo?.media?.format])
 
     const [keybindingsModalOpen, setKeybindingsModalOpen] = useAtom(nativePlayerKeybindingsModalAtom)
 
@@ -808,6 +961,8 @@ export function NativePlayer() {
                                         muted,
                                         subtitleManagerRef,
                                         audioManagerRef,
+                                        introStartTime: aniSkipData?.op?.interval?.startTime,
+                                        introEndTime: aniSkipData?.op?.interval?.endTime,
                                     }}
                                 />
 
@@ -821,6 +976,29 @@ export function NativePlayer() {
                                     loadingDelay={300}
                                     className="native-player-loading-indicator"
                                 />
+
+                                {/* Skip Intro/Ending Buttons */}
+                                {showSkipIntroButton && !state.miniPlayer && (
+                                    <div className="absolute left-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
+                                        <button
+                                            className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
+                                            onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}
+                                        >
+                                            Skip Intro
+                                        </button>
+                                    </div>
+                                )}
+
+                                {showSkipEndingButton && !state.miniPlayer && (
+                                    <div className="absolute right-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
+                                        <button
+                                            className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
+                                            onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}
+                                        >
+                                            Skip Ending
+                                        </button>
+                                    </div>
+                                )}
 
                                 <Buttons />
 

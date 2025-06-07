@@ -15,6 +15,7 @@ func (a *App) SetOfflineMode(enabled bool) {
 	a.Config.Server.Offline = enabled
 	viper.Set("server.offline", enabled)
 	viper.WriteConfig()
+	a.isOffline = &enabled
 
 	// Update the platform and metadata provider
 	if enabled {

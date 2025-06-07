@@ -28,7 +28,7 @@ func GetMockRepository(t *testing.T, db *db.Database) *Repository {
 			// Do nothing
 		},
 		DiscordPresence:   nil,
-		IsOffline:         false,
+		IsOffline:         &[]bool{false}[0],
 		ContinuityManager: continuity.GetMockManager(t, db),
 	})
 

@@ -332,8 +332,23 @@ export function NativePlayerKeybindingController(props: {
     muted: boolean,
     subtitleManagerRef: React.RefObject<StreamSubtitleManager>,
     audioManagerRef: React.RefObject<StreamAudioManager>,
+    introEndTime: number | undefined,
+    introStartTime: number | undefined
 }) {
-    const { videoRef, chapterCues, seekTo, seek, setVolume, setMuted, volume, muted, subtitleManagerRef, audioManagerRef } = props
+    const {
+        videoRef,
+        chapterCues,
+        seekTo,
+        seek,
+        setVolume,
+        setMuted,
+        volume,
+        muted,
+        subtitleManagerRef,
+        audioManagerRef,
+        introEndTime,
+        introStartTime,
+    } = props
     const [keybindings] = useAtom(nativePlayerKeybindingsAtom)
     const [state] = useAtom(nativePlayer_stateAtom)
     const mediaStore = useMediaStore()
@@ -369,6 +384,11 @@ export function NativePlayerKeybindingController(props: {
         // Check which shortcut was pressed
         if (e.code === keybindings.seekForward.key) {
             e.preventDefault()
+            if (props.introEndTime && props.introStartTime && video.currentTime < props.introEndTime && video.currentTime >= props.introStartTime) {
+                seekTo(props.introEndTime)
+                showFlash("Skipped intro")
+                return
+            }
             seek(keybindings.seekForward.value)
         } else if (e.code === keybindings.seekBackward.key) {
             e.preventDefault()
@@ -425,7 +445,7 @@ export function NativePlayerKeybindingController(props: {
             video.playbackRate = newRate
             showFlash(`Speed: ${newRate.toFixed(2)}x`)
         }
-    }, [keybindings, volume, muted, seek, state.active, state.playbackInfo, fullscreen, pip, showFlash])
+    }, [keybindings, volume, muted, seek, state.active, state.playbackInfo, fullscreen, pip, showFlash, introEndTime, introStartTime])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {

@@ -142,7 +142,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         inject("continue-watching", {
             items: episodes.map(episode => ({
                 data: episode,
-                id: `${episode.localFile?.path || ""}-${episode.episodeNumber || 1}`,
+                id: `${episode.localFile?.path || episode.baseAnime?.title?.userPreferred || ""}-${episode.episodeNumber || 1}`,
                 value: `${episode.episodeNumber || 1}`,
                 heading: "Continue Watching",
                 priority: 100,

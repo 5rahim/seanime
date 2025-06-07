@@ -33,6 +33,7 @@ type (
 
 		chapterDownloadedCh chan chapter_downloader.DownloadID
 		readingDownloadDir  bool
+		isOffline           *bool
 	}
 
 	// MediaMap is created after reading the download directory.
@@ -66,6 +67,7 @@ type (
 		WSEventManager events.WSEventManagerInterface
 		DownloadDir    string
 		Repository     *Repository
+		IsOffline      *bool
 	}
 
 	DownloadChapterOptions struct {
@@ -88,6 +90,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		repository:     opts.Repository,
 		mediaMap:       new(MediaMap),
 		filecacher:     filecacher,
+		isOffline:      opts.IsOffline,
 	}
 
 	d.chapterDownloader = chapter_downloader.NewDownloader(&chapter_downloader.NewDownloaderOptions{
@@ -110,6 +113,10 @@ func (d *Downloader) Start() {
 			select {
 			// Listen for downloaded chapters
 			case downloadId := <-d.chapterDownloader.ChapterDownloaded():
+				if d.isOffline != nil && *d.isOffline {
+					continue
+				}
+
 				// When a chapter is downloaded, fetch the chapter container from the file cache
 				// and store it in the permanent bucket.
 				// DEVNOTE: This will be useful to avoid re-fetching the chapter container when the cache expires.
@@ -178,6 +185,10 @@ func (r *Repository) getChapterContainerFromPermanentFilecache(provider string, 
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
+	if d.isOffline != nil && *d.isOffline {
+		return errors.New("manga downloader: Manga downloader is in offline mode")
+	}
+
 	chapterContainer, found := d.repository.getChapterContainerFromFilecache(opts.Provider, opts.MediaId)
 	if !found {
 		return errors.New("chapters not found")
@@ -191,7 +202,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	}
 
 	// Fetch the chapter pages
-	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false, false)
+	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false, &[]bool{false}[0])
 	if err != nil {
 		return err
 	}

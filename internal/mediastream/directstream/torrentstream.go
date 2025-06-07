@@ -59,6 +59,13 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 
 		id := uuid.New().String()
 
+		var entryListData *anime.EntryListData
+		if animeCollection, ok := s.manager.animeCollection.Get(); ok {
+			if listEntry, ok := animeCollection.GetListEntryFromAnimeId(s.media.ID); ok {
+				entryListData = anime.NewEntryListData(listEntry)
+			}
+		}
+
 		playbackInfo := nativeplayer.PlaybackInfo{
 			ID:                id,
 			StreamType:        s.Type(),
@@ -69,6 +76,7 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 			MkvMetadataParser: mo.None[*mkvparser.MetadataParser](),
 			Episode:           s.episode,
 			Media:             s.media,
+			EntryListData:     entryListData,
 		}
 
 		// If the content type is an EBML content type, we can create a metadata parser

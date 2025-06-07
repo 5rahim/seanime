@@ -23,14 +23,15 @@ const (
 
 type (
 	PlaybackInfo struct {
-		ID            string              `json:"id"`
-		StreamType    StreamType          `json:"streamType"`
-		MimeType      string              `json:"mimeType"`              // e.g. "video/mp4", "video/webm"
-		StreamUrl     string              `json:"streamUrl"`             // URL of the stream
-		ContentLength int64               `json:"contentLength"`         // Size of the stream in bytes
-		MkvMetadata   *mkvparser.Metadata `json:"mkvMetadata,omitempty"` // nil if not ebml
-		Episode       *anime.Episode      `json:"episode"`
-		Media         *anilist.BaseAnime  `json:"media"`
+		ID            string               `json:"id"`
+		StreamType    StreamType           `json:"streamType"`
+		MimeType      string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
+		StreamUrl     string               `json:"streamUrl"`               // URL of the stream
+		ContentLength int64                `json:"contentLength"`           // Size of the stream in bytes
+		MkvMetadata   *mkvparser.Metadata  `json:"mkvMetadata,omitempty"`   // nil if not ebml
+		EntryListData *anime.EntryListData `json:"entryListData,omitempty"` // nil if not in list
+		Episode       *anime.Episode       `json:"episode"`
+		Media         *anilist.BaseAnime   `json:"media"`
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}

@@ -47,7 +47,6 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 )
 
 type (
@@ -112,6 +111,7 @@ type (
 		moduleMu           sync.Mutex
 		HookManager        hook.Manager
 		ServerReady        bool // Whether the Anilist data from the first request has been fetched
+		isOffline          *bool
 	}
 )
 
@@ -301,6 +301,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize extension playground for testing extensions
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
+	isOffline := cfg.Server.Offline
+
 	// Create the main app instance with initialized components
 	app := &App{
 		Config:                        cfg,
@@ -346,6 +348,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		SelfUpdater: selfupdater,
 		moduleMu:    sync.Mutex{},
 		HookManager: hookManager,
+		isOffline:   &isOffline,
 	}
 
 	// Run database migrations if version has changed
@@ -355,7 +358,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.initModulesOnce()
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		IsOffline:               lo.ToPtr(app.IsOffline()),
+		IsOffline:               app.IsOffline(),
 		ContinuityManager:       app.ContinuityManager,
 		AutoScanner:             app.AutoScanner,
 		AutoDownloader:          app.AutoDownloader,
@@ -372,7 +375,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.AddExtensionBankToConsumers()
 
 	// Initialize Anilist data if not in offline mode
-	if !app.IsOffline() {
+	if !*app.IsOffline() {
 		app.InitOrRefreshAnilistData()
 	} else {
 		app.ServerReady = true
@@ -393,12 +396,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	return app
 }
 
-func (a *App) IsOffline() bool {
-	if a.Config == nil {
-		return false
-	}
-
-	return a.Config.Server.Offline
+func (a *App) IsOffline() *bool {
+	return a.isOffline
 }
 
 func (a *App) AddCleanupFunction(f func()) {

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/mediastream/nativeplayer"
@@ -30,6 +32,8 @@ type Stream interface {
 	Media() *anilist.BaseAnime
 	// Episode returns the episode of the current stream.
 	Episode() *anime.Episode
+	// ListEntryData returns the list entry data for the current stream.
+	ListEntryData() *anime.EntryListData
 	// EpisodeCollection returns the episode collection for the media of the current stream.
 	EpisodeCollection() *anime.EpisodeCollection
 	// LoadPlaybackInfo loads and returns the playback info.
@@ -150,19 +154,34 @@ func (m *Manager) listenToNativePlayerEvents() {
 				}
 				switch event := event.(type) {
 				case *nativeplayer.VideoPausedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
+					m.Logger.Debug().Msgf("directstream: Video paused")
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), true)
+					}
 				case *nativeplayer.VideoResumedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
+					m.Logger.Debug().Msgf("directstream: Video resumed")
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), false)
+					}
 				case *nativeplayer.VideoEndedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: %s", event)
+					m.Logger.Debug().Msgf("directstream: Video ended")
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.Close()
+					}
 				case *nativeplayer.VideoSeekedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: VideoSeeked, CurrentTime: %f", event.CurrentTime)
+					m.Logger.Debug().Msgf("directstream: Video seeked, CurrentTime: %f", event.CurrentTime)
 					// Convert video timestamp to byte offset for subtitle extraction
 					// if event.CurrentTime > 0 {
 					// 	cs.ServeSubtitlesFromTime(event.CurrentTime)
 					// }
 				case *nativeplayer.VideoLoadedMetadataEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: VideoLoadedMetadata")
+					m.Logger.Debug().Msgf("directstream: Video loaded metadata")
 					// Start subtitle extraction from the beginning
 					// cs.ServeSubtitlesFromTime(0.0)
 					if lfStream, ok := cs.(*LocalFileStream); ok {
@@ -178,15 +197,63 @@ func (m *Manager) listenToNativePlayerEvents() {
 						subReader.SetResponsive()
 						ts.StartSubtitleStream(ts, m.playbackCtx, subReader, 0)
 					}
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+							ID:            cs.Media().GetID(),
+							Title:         cs.Media().GetPreferredTitle(),
+							Image:         cs.Media().GetCoverImageSafe(),
+							IsMovie:       cs.Media().IsMovie(),
+							EpisodeNumber: cs.Episode().ProgressNumber,
+							Progress:      int(event.CurrentTime),
+							Duration:      int(event.Duration),
+						})
+					}
 				case *nativeplayer.VideoErrorEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: VideoError, Error: %s", event.Error)
+					m.Logger.Debug().Msgf("directstream: Video error, Error: %s", event.Error)
 					cs.StreamError(fmt.Errorf(event.Error))
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.Close()
+					}
 				case *nativeplayer.SubtitleFileUploadedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: SubtitleFileUploaded, Filename: %s", event.Filename)
+					m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", event.Filename)
 					cs.OnSubtitleFileUploaded(event.Filename, event.Content)
 				case *nativeplayer.VideoTerminatedEvent:
-					m.Logger.Debug().Msgf("directstream: Stream event: VideoTerminated")
+					m.Logger.Debug().Msgf("directstream: Video terminated")
 					cs.Terminate()
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.Close()
+					}
+				case *nativeplayer.VideoStatusEvent:
+					_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
+						CurrentTime:   event.Status.CurrentTime,
+						Duration:      event.Status.Duration,
+						MediaId:       cs.Media().GetID(),
+						EpisodeNumber: cs.Episode().GetEpisodeNumber(),
+						Kind:          continuity.MediastreamKind,
+					})
+
+					// Discord
+					if m.discordPresence != nil && !*m.isOffline {
+						go m.discordPresence.UpdateAnimeActivity(int(event.Status.CurrentTime), int(event.Status.Duration), event.Status.Paused)
+					}
+				case *nativeplayer.VideoCompletedEvent:
+					m.Logger.Debug().Msgf("directstream: Video completed")
+
+					if baseStream, ok := cs.(*BaseStream); ok {
+						baseStream.updateProgress.Do(func() {
+							mediaId := baseStream.media.GetID()
+							epNum := baseStream.episode.GetProgressNumber()
+							totalEpisodes := baseStream.media.GetTotalEpisodeCount() // total episode count or -1
+
+							_ = baseStream.manager.platform.UpdateEntryProgress(mediaId, epNum, &totalEpisodes)
+						})
+					}
 				}
 			}
 		}
@@ -225,6 +292,7 @@ type BaseStream struct {
 	contentTypeOnce        sync.Once
 	episode                *anime.Episode
 	media                  *anilist.BaseAnime
+	listEntryData          *anime.EntryListData
 	episodeCollection      *anime.EpisodeCollection
 	playbackInfo           *nativeplayer.PlaybackInfo
 	playbackInfoErr        error
@@ -237,8 +305,31 @@ type BaseStream struct {
 	// Subtitle stream management
 	activeSubtitleStreams *result.Map[string, *SubtitleStream]
 
-	manager *Manager
+	manager        *Manager
+	updateProgress sync.Once
 }
+
+func (s *BaseStream) GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool) {
+	return nil, false
+}
+
+func (s *BaseStream) GetStreamHandler() http.Handler {
+	return nil
+}
+
+func (s *BaseStream) LoadContentType() string {
+	return s.contentType
+}
+
+func (s *BaseStream) LoadPlaybackInfo() (*nativeplayer.PlaybackInfo, error) {
+	return s.playbackInfo, s.playbackInfoErr
+}
+
+func (s *BaseStream) Type() nativeplayer.StreamType {
+	return ""
+}
+
+var _ Stream = (*BaseStream)(nil)
 
 func (s *BaseStream) Media() *anilist.BaseAnime {
 	return s.media
@@ -246,6 +337,10 @@ func (s *BaseStream) Media() *anilist.BaseAnime {
 
 func (s *BaseStream) Episode() *anime.Episode {
 	return s.episode
+}
+
+func (s *BaseStream) ListEntryData() *anime.EntryListData {
+	return s.listEntryData
 }
 
 func (s *BaseStream) EpisodeCollection() *anime.EpisodeCollection {
@@ -325,5 +420,6 @@ func loadContentType(path string, reader ...io.ReadSeekCloser) string {
 
 func (m *Manager) preStreamError(stream Stream, err error) {
 	stream.Terminate()
+	m.nativePlayer.Error(stream.ClientId(), err)
 	m.unloadStream()
 }

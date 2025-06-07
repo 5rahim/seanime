@@ -98,6 +98,7 @@ const (
 	PlayerEventVideoLoadedMetadata  ClientEvent = "loaded-metadata"
 	PlayerEventSubtitleFileUploaded ClientEvent = "subtitle-file-uploaded"
 	PlayerEventVideoTerminated      ClientEvent = "video-terminated"
+	PlayerEventVideoTimeUpdate      ClientEvent = "video-time-update"
 )
 
 type (
@@ -107,7 +108,6 @@ type (
 		Type     ClientEvent `json:"type"`
 		Payload  interface{} `json:"payload"`
 	}
-
 	VideoEvent interface {
 		GetClientId() string
 	}
@@ -151,9 +151,13 @@ type (
 		Filename string `json:"filename"`
 		Content  string `json:"content"`
 	}
-
 	VideoTerminatedEvent struct {
 		BaseVideoEvent
+	}
+	VideoCompletedEvent struct {
+		BaseVideoEvent
+		CurrentTime float64 `json:"currentTime"`
+		Duration    float64 `json:"duration"`
 	}
 )
 
@@ -165,7 +169,6 @@ type (
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
 	}
-
 	videoPausedPayload struct {
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
@@ -178,26 +181,30 @@ type (
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
 	}
-
 	videoSeekedPayload struct {
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
 	}
-
 	subtitleFileUploadedPayload struct {
 		Filename string `json:"filename"`
 		Content  string `json:"content"`
 	}
-
 	videoErrorPayload struct {
 		Error string `json:"error"`
 	}
-
 	videoEndedPayload struct {
 		AutoNext bool `json:"autoNext"`
 	}
-
 	videoTerminatedPayload struct {
+	}
+	videoTimeUpdatePayload struct {
+		CurrentTime float64 `json:"currentTime"`
+		Duration    float64 `json:"duration"`
+		Paused      bool    `json:"paused"`
+	}
+	videoCompletedPayload struct {
+		CurrentTime float64 `json:"currentTime"`
+		Duration    float64 `json:"duration"`
 	}
 )
 
@@ -239,6 +246,10 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
 							})
+							p.NotifySubscribers(&VideoStatusEvent{
+								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								Status:         *p.playbackStatus,
+							})
 						}
 					case PlayerEventVideoResumed:
 						payload := &videoResumedPayload{}
@@ -254,14 +265,25 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
 							})
+							p.NotifySubscribers(&VideoStatusEvent{
+								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								Status:         *p.playbackStatus,
+							})
 						}
 					case PlayerEventVideoCompleted:
-						p.setPlaybackStatus(func() {
-							p.playbackStatus.ClientId = playerEvent.ClientId
-						})
-						p.NotifySubscribers(&VideoEndedEvent{
-							BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
-						})
+						payload := &videoCompletedPayload{}
+						if err := playerEvent.UnmarshalAs(&payload); err == nil {
+							p.setPlaybackStatus(func() {
+								p.playbackStatus.ClientId = playerEvent.ClientId
+								p.playbackStatus.CurrentTime = payload.CurrentTime
+								p.playbackStatus.Duration = payload.Duration
+							})
+							p.NotifySubscribers(&VideoCompletedEvent{
+								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								CurrentTime:    payload.CurrentTime,
+								Duration:       payload.Duration,
+							})
+						}
 					case PlayerEventVideoEnded:
 						payload := &videoEndedPayload{}
 						if err := playerEvent.UnmarshalAs(&payload); err == nil {
@@ -356,6 +378,20 @@ func (p *NativePlayer) listenToPlayerEvents() {
 						p.NotifySubscribers(&VideoTerminatedEvent{
 							BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 						})
+					case PlayerEventVideoTimeUpdate:
+						payload := &videoTimeUpdatePayload{}
+						if err := playerEvent.UnmarshalAs(&payload); err == nil {
+							p.setPlaybackStatus(func() {
+								p.playbackStatus.ClientId = playerEvent.ClientId
+								p.playbackStatus.CurrentTime = payload.CurrentTime
+								p.playbackStatus.Duration = payload.Duration
+								p.playbackStatus.Paused = payload.Paused
+							})
+							p.NotifySubscribers(&VideoStatusEvent{
+								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
+								Status:         *p.playbackStatus,
+							})
+						}
 					}
 				}
 			}

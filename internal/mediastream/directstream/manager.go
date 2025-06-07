@@ -53,17 +53,17 @@ type (
 
 		settings *Settings
 
-		isOffline       bool
+		isOffline       *bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
 		animeCache      *result.Cache[int, *anilist.BaseAnime]
 
 		parserCache *result.Cache[string, *mkvparser.MetadataParser]
-
 		//playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
 	}
 
 	Settings struct {
 		AutoPlayNextEpisode bool
+		AutoUpdateProgress  bool
 	}
 
 	NewManagerOptions struct {
@@ -74,7 +74,7 @@ type (
 		DiscordPresence            *discordrpc_presence.Presence
 		Platform                   platform.Platform
 		RefreshAnimeCollectionFunc func()
-		IsOffline                  bool
+		IsOffline                  *bool
 		NativePlayer               *nativeplayer.NativePlayer
 	}
 )
