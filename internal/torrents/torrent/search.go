@@ -282,7 +282,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		return cmp.Compare(j.Seeders, i.Seeders)
 	})
 	previews = lo.Filter(previews, func(p *Preview, _ int) bool {
-		return p.Torrent != nil
+		return p != nil && p.Torrent != nil
 	})
 	slices.SortFunc(previews, func(i, j *Preview) int {
 		return cmp.Compare(j.Torrent.Seeders, i.Torrent.Seeders)

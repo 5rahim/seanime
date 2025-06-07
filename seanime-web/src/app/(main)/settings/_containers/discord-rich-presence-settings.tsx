@@ -3,6 +3,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import React from "react"
 import { useFormContext } from "react-hook-form"
+import { LuTriangleAlert } from "react-icons/lu"
 
 type DiscordRichPresenceSettingsProps = {
     children?: React.ReactNode
@@ -68,8 +69,9 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
                 <Field.Switch
                     side="right"
                     name="richPresenceUseMediaTitleStatus"
-                    label="Use Media Title Status"
-                    help="Replace 'Seanime' with the media title for the status"
+                    label={<span className="flex gap-2 items-center">Use Media Title as Status <LuTriangleAlert className="text-[--orange]" /></span>}
+                    moreHelp="Does not work with the default Discord Desktop Client."
+                    help="Replace 'Seanime' with the media title in the activity status. Only works if you use a discord client that utilizes arRPC."
                 />
             </SettingsCard>
         </>

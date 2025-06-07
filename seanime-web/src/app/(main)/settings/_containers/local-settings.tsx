@@ -6,7 +6,9 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/c
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { LuCloudUpload } from "react-icons/lu"
 
 type Props = {
     isPending: boolean
@@ -46,25 +48,23 @@ export function LocalSettings(props: Props) {
             </div>
 
             <SettingsCard
+                title="AniList"
+                // description="You can upload your local Seanime collection to your AniList account."
             >
                 <div className={cn(serverStatus?.user?.isSimulated && "opacity-50 pointer-events-none")}>
                     <Field.Switch
                         side="right"
                         name="autoSyncToLocalAccount"
                         label="Auto sync from AniList"
-                        help="Automatically sync your AniList library to your local account."
+                        help="Periodically update your local collection by using your AniList data."
                     />
                 </div>
-            </SettingsCard>
-
-            <SettingsCard
-                title="AniList"
-                description="You can upload your local Seanime collection to your AniList account."
-            >
+                <Separator />
                 <Button
                     size="sm"
-                    intent="white-subtle"
+                    intent="primary-subtle"
                     loading={isUploading}
+                    leftIcon={<LuCloudUpload className="size-4" />}
                     onClick={() => {
                         confirmDialog.open()
                     }}

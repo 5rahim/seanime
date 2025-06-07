@@ -42,6 +42,7 @@ export function SettingsNavCard({ title, children }: SettingsCardProps) {
 
 export function SettingsCard({ title, description, children, className }: SettingsCardProps & { className?: string }) {
     const [position, setPosition] = useState({ x: 0, y: 0 })
+    const [isHovered, setIsHovered] = useState(false)
     const cardRef = useRef<HTMLDivElement>(null)
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -65,11 +66,11 @@ export function SettingsCard({ title, description, children, className }: Settin
                         background: `radial-gradient(700px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                     }}
                  /> */}
-                {title && <CardHeader>
-                    <CardTitle className="font-semibold text-xl text-[--muted] transition-colors group-hover/settings-card:text-[--brand]">
+                {title && <CardHeader className="p-0 pb-4">
+                    <CardTitle className="font-semibold tracking-wide text-base transition-colors group-hover/settings-card:text-white px-4 py-2 bg-[--subtle] w-fit rounded-br-md">
                         {title}
                     </CardTitle>
-                    {description && <CardDescription>
+                    {description && <CardDescription className="px-4">
                         {description}
                     </CardDescription>}
                 </CardHeader>}

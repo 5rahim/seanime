@@ -483,6 +483,10 @@ function createMainWindow() {
         }
     };
 
+    // contextMenu({
+    //     showInspectElement: true
+    // });
+
     // Set title bar style based on platform
     if (process.platform === 'darwin') {
         windowOptions.titleBarStyle = 'hiddenInset';

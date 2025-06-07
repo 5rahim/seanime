@@ -27,7 +27,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
-import { __isDesktop__ } from "@/types/constants"
+import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -55,12 +55,16 @@ const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1f
 
 const tabsTriggerClass = cn(
     "text-base px-6 rounded-[--radius-md] w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-    "h-10 lg:justify-start px-3",
+    "h-10 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
 )
 
 const tabsListClass = cn(
     "w-full flex flex-wrap lg:flex-nowrap h-fit xl:h-10",
     "lg:block",
+)
+
+const tabContentClass = cn(
+    "space-y-4 animate-in fade-in-0 slide-in-from-right-2 duration-300",
 )
 
 export const dynamic = "force-static"
@@ -121,47 +125,95 @@ export default function Page() {
                     <TabsList className="flex-wrap max-w-full lg:space-y-2">
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
-                                <div className="space-y-1 my-2 px-2">
-                                    <h4 className="text-center md:text-left">Settings</h4>
-                                    <p className="text-[--muted] text-sm text-center md:text-left">Version: {status?.version} {status?.versionName}</p>
-                                    <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isDesktop__ &&
-                                        <span className="text-[--muted]">(Desktop)</span>}</p>
+                                <div className="space-y-2 my-3 px-2">
+                                    <h4 className="text-center md:text-left text-2xl font-bold">Settings</h4>
+                                    <div className="space-y-1">
+                                        <p className="text-[--muted] text-sm text-center md:text-left flex items-center gap-2">
+                                            <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                            Version: {status?.version} {status?.versionName}
+                                        </p>
+                                        <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
+                                            <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
+                                            <span className="font-medium">- Denshi</span>}</p>
+                                    </div>
                                 </div>
                                 <div>
 
                                 </div>
                             </div>
-                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll h-40 lg:h-auto rounded-[--radius-md] border lg:border-none">
-                                <TabsTrigger value="seanime"><LuWandSparkles className="text-lg mr-3" /> App</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="local"><LuUserCog className="text-lg mr-3" /> Local Account</TabsTrigger>
-                                <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
-                                <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Desktop Media Player</TabsTrigger>
-                                <TabsTrigger value="external-player-link"><FaShareFromSquare className="text-lg mr-3" /> External Player
-                                                                                                                         Link</TabsTrigger>
-                                <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
-                                                                                                                                            Streaming</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
-                                <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
-                                <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
-                                <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
-                                                                                                                                  Streaming</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
-                                <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online Streaming</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
-                                {/* <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger> */}
-                                <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
-                                <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
-                                {/*<TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>*/}
-                                {/* <Separator className="hidden lg:block my-2" /> */}
-                                <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
+                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll h-40 lg:h-auto rounded-[--radius-md] border lg:border-none space-y-1 lg:space-y-0">
+                                <TabsTrigger
+                                    value="seanime"
+                                    className="group"
+                                ><LuWandSparkles className="text-lg mr-3 transition-transform duration-200" /> App</TabsTrigger>
+                                <TabsTrigger
+                                    value="local"
+                                    className="group"
+                                ><LuUserCog className="text-lg mr-3 transition-transform duration-200" /> Local Account</TabsTrigger>
+                                <TabsTrigger
+                                    value="library"
+                                    className="group"
+                                ><IoLibrary className="text-lg mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+                                <TabsTrigger
+                                    value="playback"
+                                    className="group"
+                                ><IoPlayBackCircleSharp className="text-lg mr-3 transition-transform duration-200" /> Client Playback</TabsTrigger>
+                                <TabsTrigger
+                                    value="media-player"
+                                    className="group"
+                                ><PiVideoFill className="text-lg mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
+                                <TabsTrigger
+                                    value="external-player-link"
+                                    className="group"
+                                ><FaShareFromSquare className="text-lg mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
+                                <TabsTrigger
+                                    value="mediastream"
+                                    className="relative group"
+                                ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Media Streaming</TabsTrigger>
+                                <TabsTrigger
+                                    value="torrent"
+                                    className="group"
+                                ><CgPlayListSearch className="text-lg mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
+                                <TabsTrigger
+                                    value="torrent-client"
+                                    className="group"
+                                ><MdOutlineDownloading className="text-lg mr-3 transition-transform duration-200" /> Torrent Client</TabsTrigger>
+                                <TabsTrigger
+                                    value="debrid"
+                                    className="group"
+                                ><HiOutlineServerStack className="text-lg mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
+                                <TabsTrigger
+                                    value="torrentstream"
+                                    className="relative group"
+                                ><SiBittorrent className="text-lg mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
+                                <TabsTrigger
+                                    value="manga"
+                                    className="group"
+                                ><FaBookReader className="text-lg mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
+                                <TabsTrigger
+                                    value="onlinestream"
+                                    className="group"
+                                ><CgMediaPodcast className="text-lg mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
+                                <TabsTrigger
+                                    value="discord"
+                                    className="group"
+                                ><FaDiscord className="text-lg mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
+                                <TabsTrigger
+                                    value="anilist"
+                                    className="group"
+                                ><SiAnilist className="text-lg mr-3 transition-transform duration-200" /> AniList</TabsTrigger>
+                                <TabsTrigger
+                                    value="cache"
+                                    className="group"
+                                ><TbDatabaseExclamation className="text-lg mr-3 transition-transform duration-200" /> Cache</TabsTrigger>
+                                <TabsTrigger
+                                    value="logs"
+                                    className="group"
+                                ><LuBookKey className="text-lg mr-3 transition-transform duration-200" /> Logs</TabsTrigger>
+                                <TabsTrigger
+                                    value="ui"
+                                    className="group"
+                                ><MdOutlinePalette className="text-lg mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
                             </div>
                         </SettingsNavCard>
                     </TabsList>
@@ -320,17 +372,20 @@ export default function Page() {
                             {(f) => {
                                 return <>
                                     <SettingsIsDirty />
-                                    <TabsContent value="seanime" className="space-y-4">
+                                    <TabsContent value="seanime" className={tabContentClass}>
 
                                         <h3>App</h3>
 
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-2 slide-in-from-bottom duration-500 delay-150">
                                             {!!status?.dataDir && <Button
                                                 size="sm"
                                                 intent="gray-outline"
                                                 onClick={() => openInExplorer({
                                                     path: status?.dataDir,
                                                 })}
+                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md"
+                                                leftIcon={
+                                                    <RiFolderDownloadFill className="transition-transform duration-200 group-hover:scale-110" />}
                                             >
                                                 Open Data directory
                                             </Button>}
@@ -338,7 +393,8 @@ export default function Page() {
                                                 size="sm"
                                                 intent="gray-outline"
                                                 onClick={handleOpenIssueRecorder}
-                                                leftIcon={<VscDebugAlt />}
+                                                leftIcon={<VscDebugAlt className="transition-transform duration-200 group-hover:scale-110" />}
+                                                className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
                                             >
                                                 Record an issue
                                             </Button>
@@ -348,7 +404,7 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="library" className="space-y-4">
+                                    <TabsContent value="library" className={tabContentClass}>
 
                                         <h3>Anime Library</h3>
 
@@ -356,25 +412,25 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="local" className="space-y-4">
+                                    <TabsContent value="local" className={tabContentClass}>
 
                                         <LocalSettings isPending={isPending} />
 
                                     </TabsContent>
 
-                                    <TabsContent value="anilist" className="space-y-4">
+                                    <TabsContent value="anilist" className={tabContentClass}>
 
                                         <AnilistSettings isPending={isPending} />
 
                                     </TabsContent>
 
-                                    <TabsContent value="manga" className="space-y-4">
+                                    <TabsContent value="manga" className={tabContentClass}>
 
                                         <MangaSettings isPending={isPending} />
 
                                     </TabsContent>
 
-                                    <TabsContent value="onlinestream" className="space-y-4">
+                                    <TabsContent value="onlinestream" className={tabContentClass}>
 
                                         <h3>Online Streaming</h3>
 
@@ -400,7 +456,7 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="discord" className="space-y-4">
+                                    <TabsContent value="discord" className={tabContentClass}>
 
                                         <h3>Discord</h3>
 
@@ -410,7 +466,7 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="torrent" className="space-y-4">
+                                    <TabsContent value="torrent" className={tabContentClass}>
 
                                         <h3>Torrent Provider</h3>
 
@@ -451,20 +507,20 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="media-player" className="space-y-4">
+                                    <TabsContent value="media-player" className={tabContentClass}>
                                         <MediaplayerSettings isPending={isPending} />
                                     </TabsContent>
 
 
-                                    <TabsContent value="external-player-link" className="space-y-4">
+                                    <TabsContent value="external-player-link" className={tabContentClass}>
                                         <ExternalPlayerLinkSettings />
                                     </TabsContent>
 
-                                    <TabsContent value="playback" className="space-y-4">
+                                    <TabsContent value="playback" className={tabContentClass}>
                                         <PlaybackSettings />
                                     </TabsContent>
 
-                                    <TabsContent value="torrent-client" className="space-y-4">
+                                    <TabsContent value="torrent-client" className={tabContentClass}>
 
                                         <h3>Torrent Client</h3>
 
@@ -484,9 +540,9 @@ export default function Page() {
                                             <Accordion
                                                 type="single"
                                                 className=""
-                                                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
-                                                itemClass="border-b"
-                                                contentClass="pb-8"
+                                                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black transition-all duration-200 hover:translate-x-1"
+                                                itemClass="border-b border-[--border] rounded-[--radius] transition-all duration-200 hover:border-[--brand]/30"
+                                                contentClass="pb-8 animate-in slide-in-from-top-2 duration-300"
                                                 collapsible
                                                 defaultValue={status?.settings?.torrent?.defaultTorrentClient}
                                             >
@@ -585,7 +641,7 @@ export default function Page() {
                             }}
                         </Form>
 
-                        <TabsContent value="cache" className="space-y-4">
+                        <TabsContent value="cache" className={tabContentClass}>
 
                             <h3>Cache</h3>
 
@@ -593,7 +649,7 @@ export default function Page() {
 
                         </TabsContent>
 
-                        <TabsContent value="mediastream" className="space-y-4 relative">
+                        <TabsContent value="mediastream" className={tabContentClass}>
 
                             <h3>Media Streaming</h3>
 
@@ -601,7 +657,7 @@ export default function Page() {
 
                         </TabsContent>
 
-                        <TabsContent value="ui" className="space-y-4">
+                        <TabsContent value="ui" className={tabContentClass}>
 
                             <h3>User Interface</h3>
 
@@ -609,7 +665,7 @@ export default function Page() {
 
                         </TabsContent>
 
-                        <TabsContent value="torrentstream" className="space-y-4 relative">
+                        <TabsContent value="torrentstream" className={tabContentClass}>
 
                             <h3>Torrent Streaming</h3>
 
@@ -617,7 +673,7 @@ export default function Page() {
 
                         </TabsContent>
 
-                        <TabsContent value="logs" className="space-y-4">
+                        <TabsContent value="logs" className={tabContentClass}>
 
                             <h3>Logs</h3>
 
@@ -632,7 +688,7 @@ export default function Page() {
 
                         {/*</TabsContent>*/}
 
-                        <TabsContent value="debrid" className="space-y-4 relative">
+                        <TabsContent value="debrid" className={tabContentClass}>
 
                             <h3>Debrid Service</h3>
 
