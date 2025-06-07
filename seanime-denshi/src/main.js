@@ -506,6 +506,16 @@ function createMainWindow() {
         }
     });
 
+    mainWindow.webContents.setWindowOpenHandler(({url}) => {
+        // Open external links in the default browser
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            shell.openExternal(url);
+            return {action: 'deny'};
+        }
+        // Allow other URLs to open in the app
+        return {action: 'allow'};
+    })
+
     // Load the web content
     if (_development) {
         // In development, load from the dev server

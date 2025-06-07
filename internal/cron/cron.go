@@ -27,6 +27,9 @@ func RunJobs(app *core.App) {
 				select {
 				case <-refreshAnilistTicker.C:
 					RefreshAnilistDataJob(ctx)
+					if app.LocalManager != nil && !app.GetUser().IsSimulated {
+						app.LocalManager.SynchronizeAnilistToSimulatedCollection()
+					}
 				}
 			}
 		}()

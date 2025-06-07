@@ -9,13 +9,12 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
-	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/5rahim/gomkv"
 	"github.com/goccy/go-json"
-	"github.com/remko/go-mkvparse"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
@@ -156,20 +155,20 @@ func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 
 		_, _ = mp.reader.Seek(0, io.SeekStart)
 
-		limitedReader, err := util.NewLimitedReadSeeker(mp.reader, maxScanBytes)
-		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser: Failed to create limited reader")
-			mp.parseErr = fmt.Errorf("mkvparser: Failed to create limited reader: %w", err)
-			return
-		}
+		//limitedReader, err := util.NewLimitedReadSeeker(mp.reader, maxScanBytes)
+		//if err != nil {
+		//	mp.logger.Error().Err(err).Msg("mkvparser: Failed to create limited reader")
+		//	mp.parseErr = fmt.Errorf("mkvparser: Failed to create limited reader: %w", err)
+		//	return
+		//}
 
 		// Parse the MKV file
-		err = mkvparse.ParseSections(limitedReader, handler,
-			mkvparse.InfoElement,
-			mkvparse.AttachmentsElement,
-			mkvparse.TracksElement,
-			mkvparse.SegmentElement,
-			mkvparse.ChaptersElement,
+		err := gomkv.ParseSections(mp.reader, handler,
+			gomkv.InfoElement,
+			gomkv.AttachmentsElement,
+			gomkv.TracksElement,
+			gomkv.SegmentElement,
+			gomkv.ChaptersElement,
 		)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
 			mp.logger.Error().Err(err).Msg("mkvparser: MKV parsing error")
@@ -192,7 +191,7 @@ func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 
 // Handler for parsing metadata
 type metadataHandler struct {
-	mkvparse.DefaultHandler
+	gomkv.DefaultHandler
 	mp     *MetadataParser
 	ctx    context.Context
 	logger *zerolog.Logger
@@ -216,57 +215,57 @@ type metadataHandler struct {
 	currentAttachment *AttachmentInfo
 }
 
-func (h *metadataHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
+func (h *metadataHandler) HandleMasterBegin(id gomkv.ElementID, info gomkv.ElementInfo) (bool, error) {
 	switch id {
-	case mkvparse.SegmentElement:
+	case gomkv.SegmentElement:
 		return true, nil // Parse Segment and its children
-	case mkvparse.TracksElement:
+	case gomkv.TracksElement:
 		return true, nil // Parse Track metadata
-	case mkvparse.TrackEntryElement:
+	case gomkv.TrackEntryElement:
 		h.inTrackEntry = true
 		h.currentTrack = &TrackInfo{
 			Default: false,
 			Enabled: true,
 		}
 		return true, nil
-	case mkvparse.VideoElement:
+	case gomkv.VideoElement:
 		h.inVideo = true
 		if h.currentTrack != nil && h.currentTrack.Video == nil {
 			h.currentTrack.Video = &VideoTrack{}
 		}
 		return true, nil
-	case mkvparse.AudioElement:
+	case gomkv.AudioElement:
 		h.inAudio = true
 		if h.currentTrack != nil && h.currentTrack.Audio == nil {
 			h.currentTrack.Audio = &AudioTrack{}
 		}
 		return true, nil
-	case mkvparse.InfoElement:
+	case gomkv.InfoElement:
 		if h.mp.info == nil {
 			h.mp.info = &Info{}
 		}
 		return true, nil
-	case mkvparse.ChaptersElement:
+	case gomkv.ChaptersElement:
 		return true, nil
-	case mkvparse.EditionEntryElement:
+	case gomkv.EditionEntryElement:
 		h.inEditionEntry = true
 		return true, nil
-	case mkvparse.ChapterAtomElement:
+	case gomkv.ChapterAtomElement:
 		h.inChapterAtom = true
 		h.currentChapter = &ChapterInfo{}
 		return true, nil
-	case mkvparse.ChapterDisplayElement:
+	case gomkv.ChapterDisplayElement:
 		h.inChapterDisplay = true
 		h.currentLanguages = make([]string, 0)
 		h.currentIETF = make([]string, 0)
 		return true, nil
-	case mkvparse.AttachmentsElement:
+	case gomkv.AttachmentsElement:
 		return true, nil
-	case mkvparse.AttachedFileElement:
+	case gomkv.AttachedFileElement:
 		h.isAttachment = true
 		h.currentAttachment = &AttachmentInfo{}
 		return true, nil
-	case mkvparse.ContentEncodingsElement:
+	case gomkv.ContentEncodingsElement:
 		if h.currentTrack != nil && h.currentTrack.contentEncodings == nil {
 			h.currentTrack.contentEncodings = &ContentEncodings{
 				ContentEncoding: make([]ContentEncoding, 0),
@@ -280,27 +279,27 @@ func (h *metadataHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse
 	return false, nil
 }
 
-func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
+func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.TrackEntryElement:
+	case gomkv.TrackEntryElement:
 		if h.currentTrack != nil {
 			h.mp.tracks = append(h.mp.tracks, h.currentTrack)
 		}
 		h.inTrackEntry = false
 		h.currentTrack = nil
-	case mkvparse.VideoElement:
+	case gomkv.VideoElement:
 		h.inVideo = false
-	case mkvparse.AudioElement:
+	case gomkv.AudioElement:
 		h.inAudio = false
-	case mkvparse.EditionEntryElement:
+	case gomkv.EditionEntryElement:
 		h.inEditionEntry = false
-	case mkvparse.ChapterAtomElement:
+	case gomkv.ChapterAtomElement:
 		if h.currentChapter != nil && h.inEditionEntry {
 			h.mp.chapters = append(h.mp.chapters, h.currentChapter)
 		}
 		h.inChapterAtom = false
 		h.currentChapter = nil
-	case mkvparse.ChapterDisplayElement:
+	case gomkv.ChapterDisplayElement:
 		if h.currentChapter != nil {
 			h.currentChapter.Languages = h.currentLanguages
 			h.currentChapter.LanguagesIETF = h.currentIETF
@@ -308,7 +307,7 @@ func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.E
 		h.inChapterDisplay = false
 		h.currentLanguages = nil
 		h.currentIETF = nil
-	case mkvparse.AttachedFileElement:
+	case gomkv.AttachedFileElement:
 		if h.currentAttachment != nil {
 			// Handle compressed attachments if needed
 			if h.currentAttachment.Data != nil && h.currentAttachment.IsCompressed {
@@ -342,53 +341,53 @@ func (h *metadataHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.E
 	return nil
 }
 
-func (h *metadataHandler) HandleString(id mkvparse.ElementID, value string, info mkvparse.ElementInfo) error {
+func (h *metadataHandler) HandleString(id gomkv.ElementID, value string, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.CodecIDElement:
+	case gomkv.CodecIDElement:
 		if h.currentTrack != nil {
 			h.currentTrack.CodecID = value
 		}
-	case mkvparse.LanguageElement:
+	case gomkv.LanguageElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Language = value
 		} else if h.inChapterDisplay {
 			h.currentLanguages = append(h.currentLanguages, value)
 		}
-	case mkvparse.LanguageIETFElement:
+	case gomkv.LanguageIETFElement:
 		if h.currentTrack != nil {
 			h.currentTrack.LanguageIETF = value
 		} else if h.inChapterDisplay {
 			h.currentIETF = append(h.currentIETF, value)
 		}
-	case mkvparse.NameElement:
+	case gomkv.NameElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Name = value
 		}
-	case mkvparse.TitleElement:
+	case gomkv.TitleElement:
 		if h.mp.info != nil {
 			h.mp.info.Title = value
 		}
-	case mkvparse.MuxingAppElement:
+	case gomkv.MuxingAppElement:
 		if h.mp.info != nil {
 			h.mp.info.MuxingApp = value
 		}
-	case mkvparse.WritingAppElement:
+	case gomkv.WritingAppElement:
 		if h.mp.info != nil {
 			h.mp.info.WritingApp = value
 		}
-	case mkvparse.ChapStringElement:
+	case gomkv.ChapStringElement:
 		if h.inChapterDisplay && h.currentChapter != nil {
 			h.currentChapter.Text = value
 		}
-	case mkvparse.FileDescriptionElement:
+	case gomkv.FileDescriptionElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.Description = value
 		}
-	case mkvparse.FileNameElement:
+	case gomkv.FileNameElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.Filename = value
 		}
-	case mkvparse.FileMimeTypeElement:
+	case gomkv.FileMimeTypeElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.Mimetype = value
 		}
@@ -396,70 +395,70 @@ func (h *metadataHandler) HandleString(id mkvparse.ElementID, value string, info
 	return nil
 }
 
-func (h *metadataHandler) HandleInteger(id mkvparse.ElementID, value int64, info mkvparse.ElementInfo) error {
+func (h *metadataHandler) HandleInteger(id gomkv.ElementID, value int64, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.TimecodeScaleElement:
+	case gomkv.TimecodeScaleElement:
 		h.mp.timecodeScale = uint64(value)
 		if h.mp.info != nil {
 			h.mp.info.TimecodeScale = uint64(value)
 		}
-	case mkvparse.TrackNumberElement:
+	case gomkv.TrackNumberElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Number = value
 		}
-	case mkvparse.TrackUIDElement:
+	case gomkv.TrackUIDElement:
 		if h.currentTrack != nil {
 			h.currentTrack.UID = value
 		}
-	case mkvparse.TrackTypeElement:
+	case gomkv.TrackTypeElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Type = convertTrackType(uint64(value))
 		}
-	case mkvparse.DefaultDurationElement:
+	case gomkv.DefaultDurationElement:
 		if h.currentTrack != nil {
 			h.currentTrack.defaultDuration = uint64(value)
 		}
-	case mkvparse.FlagDefaultElement:
+	case gomkv.FlagDefaultElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Default = value == 1
 		}
-	case mkvparse.FlagForcedElement:
+	case gomkv.FlagForcedElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Forced = value == 1
 		}
-	case mkvparse.FlagEnabledElement:
+	case gomkv.FlagEnabledElement:
 		if h.currentTrack != nil {
 			h.currentTrack.Enabled = value == 1
 		}
-	case mkvparse.PixelWidthElement:
+	case gomkv.PixelWidthElement:
 		if h.currentTrack != nil && h.currentTrack.Video != nil {
 			h.currentTrack.Video.PixelWidth = uint64(value)
 		}
-	case mkvparse.PixelHeightElement:
+	case gomkv.PixelHeightElement:
 		if h.currentTrack != nil && h.currentTrack.Video != nil {
 			h.currentTrack.Video.PixelHeight = uint64(value)
 		}
-	case mkvparse.ChannelsElement:
+	case gomkv.ChannelsElement:
 		if h.currentTrack != nil && h.currentTrack.Audio != nil {
 			h.currentTrack.Audio.Channels = uint64(value)
 		}
-	case mkvparse.BitDepthElement:
+	case gomkv.BitDepthElement:
 		if h.currentTrack != nil && h.currentTrack.Audio != nil {
 			h.currentTrack.Audio.BitDepth = uint64(value)
 		}
-	case mkvparse.ChapterTimeStartElement:
+	case gomkv.ChapterTimeStartElement:
 		if h.inChapterAtom && h.currentChapter != nil {
 			h.currentChapter.Start = float64(value) * float64(h.mp.timecodeScale) / 1e9
 		}
-	case mkvparse.ChapterTimeEndElement:
+	case gomkv.ChapterTimeEndElement:
 		if h.inChapterAtom && h.currentChapter != nil {
 			h.currentChapter.End = float64(value) * float64(h.mp.timecodeScale) / 1e9
 		}
-	case mkvparse.ChapterUIDElement:
+	case gomkv.ChapterUIDElement:
 		if h.inChapterAtom && h.currentChapter != nil {
 			h.currentChapter.UID = uint64(value)
 		}
-	case mkvparse.FileUIDElement:
+	case gomkv.FileUIDElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.UID = uint64(value)
 		}
@@ -467,13 +466,13 @@ func (h *metadataHandler) HandleInteger(id mkvparse.ElementID, value int64, info
 	return nil
 }
 
-func (h *metadataHandler) HandleFloat(id mkvparse.ElementID, value float64, info mkvparse.ElementInfo) error {
+func (h *metadataHandler) HandleFloat(id gomkv.ElementID, value float64, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.DurationElement:
+	case gomkv.DurationElement:
 		if h.mp.info != nil {
 			h.mp.info.Duration = value
 		}
-	case mkvparse.SamplingFrequencyElement:
+	case gomkv.SamplingFrequencyElement:
 		if h.currentTrack != nil && h.currentTrack.Audio != nil {
 			h.currentTrack.Audio.SamplingFrequency = value
 		}
@@ -481,14 +480,14 @@ func (h *metadataHandler) HandleFloat(id mkvparse.ElementID, value float64, info
 	return nil
 }
 
-func (h *metadataHandler) HandleBinary(id mkvparse.ElementID, value []byte, info mkvparse.ElementInfo) error {
+func (h *metadataHandler) HandleBinary(id gomkv.ElementID, value []byte, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.CodecPrivateElement:
+	case gomkv.CodecPrivateElement:
 		if h.currentTrack != nil {
 			h.currentTrack.CodecPrivate = string(value)
 			h.currentTrack.CodecPrivate = strings.ReplaceAll(h.currentTrack.CodecPrivate, "\r\n", "\n")
 		}
-	case mkvparse.FileDataElement:
+	case gomkv.FileDataElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.Data = value
 			h.currentAttachment.Size = len(value)
@@ -746,7 +745,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		}
 
 		// Parse the MKV file for subtitles
-		err := mkvparse.Parse(newReader, handler)
+		err := gomkv.Parse(newReader, handler)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
 			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
 			closeChannels(err)
@@ -761,7 +760,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 // Handler for subtitle extraction
 type subtitleHandler struct {
-	mkvparse.DefaultHandler
+	gomkv.DefaultHandler
 	mp                   *MetadataParser
 	ctx                  context.Context
 	logger               *zerolog.Logger
@@ -790,13 +789,13 @@ type pendingSubtitleBlock struct {
 	headPos     int64
 }
 
-func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
+func (h *subtitleHandler) HandleMasterBegin(id gomkv.ElementID, info gomkv.ElementInfo) (bool, error) {
 	switch id {
-	case mkvparse.SegmentElement:
+	case gomkv.SegmentElement:
 		return true, nil
-	case mkvparse.ClusterElement:
+	case gomkv.ClusterElement:
 		return true, nil
-	case mkvparse.BlockGroupElement:
+	case gomkv.BlockGroupElement:
 		h.inBlockGroup = true
 		headPos, _ := h.reader.Seek(0, io.SeekCurrent)
 		h.pendingBlock = &pendingSubtitleBlock{
@@ -807,9 +806,9 @@ func (h *subtitleHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse
 	return false, nil
 }
 
-func (h *subtitleHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
+func (h *subtitleHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.BlockGroupElement:
+	case gomkv.BlockGroupElement:
 		// Process the pending block if we have complete information
 		if h.pendingBlock != nil && h.pendingBlock.hasBlock {
 			// If we have duration from BlockDurationElement, use it; otherwise use track default
@@ -826,10 +825,10 @@ func (h *subtitleHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.E
 	return nil
 }
 
-func (h *subtitleHandler) HandleInteger(id mkvparse.ElementID, value int64, info mkvparse.ElementInfo) error {
-	if id == mkvparse.TimecodeElement {
+func (h *subtitleHandler) HandleInteger(id gomkv.ElementID, value int64, info gomkv.ElementInfo) error {
+	if id == gomkv.TimecodeElement {
 		h.clusterTime = uint64(value)
-	} else if id == mkvparse.BlockDurationElement {
+	} else if id == gomkv.BlockDurationElement {
 		if h.inBlockGroup && h.pendingBlock != nil {
 			h.pendingBlock.duration = uint64(value)
 			h.pendingBlock.hasDuration = true
@@ -1007,9 +1006,9 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 	}
 }
 
-func (h *subtitleHandler) HandleBinary(id mkvparse.ElementID, value []byte, info mkvparse.ElementInfo) error {
+func (h *subtitleHandler) HandleBinary(id gomkv.ElementID, value []byte, info gomkv.ElementInfo) error {
 	switch id {
-	case mkvparse.SimpleBlockElement, mkvparse.BlockElement:
+	case gomkv.SimpleBlockElement, gomkv.BlockElement:
 		if len(value) < 4 {
 			return nil
 		}

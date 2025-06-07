@@ -40,8 +40,8 @@ import { FaShareFromSquare } from "react-icons/fa6"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey, LuWandSparkles } from "react-icons/lu"
-import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
+import { LuBookKey, LuUserCog, LuWandSparkles } from "react-icons/lu"
+import { MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist, SiBittorrent } from "react-icons/si"
@@ -49,6 +49,7 @@ import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
+import { LocalSettings } from "./_containers/local-settings"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
@@ -133,6 +134,7 @@ export default function Page() {
                             <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll h-40 lg:h-auto rounded-[--radius-md] border lg:border-none">
                                 <TabsTrigger value="seanime"><LuWandSparkles className="text-lg mr-3" /> App</TabsTrigger>
                                 {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="local"><LuUserCog className="text-lg mr-3" /> Local Account</TabsTrigger>
                                 <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
                                 <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
                                 {/* <Separator className="hidden lg:block my-2" /> */}
@@ -152,7 +154,7 @@ export default function Page() {
                                 <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online Streaming</TabsTrigger>
                                 {/* <Separator className="hidden lg:block my-2" /> */}
                                 <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
-                                <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
+                                {/* <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger> */}
                                 <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                                 {/* <Separator className="hidden lg:block my-2" /> */}
                                 <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
@@ -190,6 +192,7 @@ export default function Page() {
                                         autoSyncOfflineLocalData: data.autoSyncOfflineLocalData ?? false,
                                         scannerMatchingThreshold: data.scannerMatchingThreshold,
                                         scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
+                                        autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -310,6 +313,7 @@ export default function Page() {
                                 scannerMatchingThreshold: status?.settings?.library?.scannerMatchingThreshold ?? 0.5,
                                 scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
                                 mangaLocalSourceDirectory: status?.settings?.manga?.mangaLocalSourceDirectory || "",
+                                autoSyncToLocalAccount: status?.settings?.library?.autoSyncToLocalAccount ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >
@@ -352,29 +356,9 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="nsfw" className="space-y-4">
+                                    <TabsContent value="local" className="space-y-4">
 
-                                        <h3>NSFW</h3>
-
-                                        <SettingsCard>
-                                            <Field.Switch
-                                                side="right"
-                                                name="enableAdultContent"
-                                                label="Enable adult content"
-                                                help="If disabled, adult content will be hidden from search results and your library."
-                                            />
-                                            <Field.Switch
-                                                side="right"
-                                                name="blurAdultContent"
-                                                label="Blur adult content"
-                                                help="If enabled, adult content will be blurred."
-                                                fieldClass={cn(
-                                                    !f.watch("enableAdultContent") && "opacity-50",
-                                                )}
-                                            />
-                                        </SettingsCard>
-
-                                        <SettingsSubmitButton isPending={isPending} />
+                                        <LocalSettings isPending={isPending} />
 
                                     </TabsContent>
 

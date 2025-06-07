@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "2.9.0-rc.0"
+	Version              = "2.9.0-rc.1"
 	VersionName          = "Denshi"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

@@ -28107,6 +28107,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AutoSyncToLocalAccount",
+        "jsonName": "autoSyncToLocalAccount",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

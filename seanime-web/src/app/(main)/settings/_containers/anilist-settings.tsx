@@ -3,7 +3,6 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
-import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/form"
 import React from "react"
 
@@ -54,22 +53,6 @@ export function AnilistSettings(props: Props) {
                     help=""
                 />
             </SettingsCard>
-
-            {!serverStatus?.user?.isSimulated && <SettingsCard
-                title="Unauthenticated collection"
-                description="You can upload your local Seanime collection to your AniList account."
-            >
-                <Button
-                    size="sm"
-                    intent="white-subtle"
-                    loading={isUploading}
-                    onClick={() => {
-                        confirmDialog.open()
-                    }}
-                >
-                    Upload to AniList
-                </Button>
-            </SettingsCard>}
 
             <SettingsSubmitButton isPending={isPending} />
 

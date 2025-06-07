@@ -15,13 +15,13 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent"
-	"github.com/remko/go-mkvparse"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	testMagnet  = util.Decode("bWFnbmV0Oj94dD11cm46YnRpaDpRRVI1TFlQSkFYWlFBVVlLSE5TTE80TzZNTlY2VUQ2QSZ0cj1odHRwJTNBJTJGJTJGbnlhYS50cmFja2VyLndmJTNBNzc3NyUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIuY29wcGVyc3VyZmVyLnRrJTNBNjk2OSUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIub3BlbnRyYWNrci5vcmclM0ExMzM3JTJGYW5ub3VuY2UmdHI9dWRwJTNBJTJGJTJGOS5yYXJiZy50byUzQTI3MTAlMkZhbm5vdW5jZSZ0cj11ZHAlM0ElMkYlMkY5LnJhcmJnLm1lJTNBMjcxMCUyRmFubm91bmNlJmRuPSU1QlN1YnNQbGVhc2UlNUQlMjBTb3Vzb3UlMjBubyUyMEZyaWVyZW4lMjAtJTIwMjglMjAlMjgxMDgwcCUyOSUyMCU1QjhCQkJDMjhDJTVELm1rdg==")
+	testMagnet = util.Decode("bWFnbmV0Oj94dD11cm46YnRpaDpRRVI1TFlQSkFYWlFBVVlLSE5TTE80TzZNTlY2VUQ2QSZ0cj1odHRwJTNBJTJGJTJGbnlhYS50cmFja2VyLndmJTNBNzc3NyUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIuY29wcGVyc3VyZmVyLnRrJTNBNjk2OSUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIub3BlbnRyYWNrci5vcmclM0ExMzM3JTJGYW5ub3VuY2UmdHI9dWRwJTNBJTJGJTJGOS5yYXJiZy50byUzQTI3MTAlMkZhbm5vdW5jZSZ0cj11ZHAlM0ElMkYlMkY5LnJhcmJnLm1lJTNBMjcxMCUyRmFubm91bmNlJmRuPSU1QlN1YnNQbGVhc2UlNUQlMjBTb3Vzb3UlMjBubyUyMEZyaWVyZW4lMjAtJTIwMjglMjAlMjgxMDgwcCUyOSUyMCU1QjhCQkJDMjhDJTVELm1rdg==")
+	//testMagnet  = util.Decode("bWFnbmV0Oj94dD11cm46YnRpaDpiMDA1MmU2OWZlOWJlYWEyYTc2ODIwOGY5M2ZkMGY1YmVkNTcxNWM1JmRuPVNBS0FNT1RPJTIwREFZUyUyMFMwMUUwNCUyMEhhcmQtQm9pbGVkJTIwUkVQQUNLJTIwMTA4MHAlMjBORiUyMFdFQi1ETCUyMEREUDUuMSUyMEglMjAyNjQlMjBNVUxUaS1WQVJZRyUyMCUyOE11bHRpLUF1ZGlvJTJDJTIwTXVsdGktU3VicyUyOSZ0cj1odHRwJTNBJTJGJTJGbnlhYS50cmFja2VyLndmJTNBNzc3NyUyRmFubm91bmNlJnRyPXVkcCUzQSUyRiUyRm9wZW4uc3RlYWx0aC5zaSUzQTgwJTJGYW5ub3VuY2UmdHI9dWRwJTNBJTJGJTJGdHJhY2tlci5vcGVudHJhY2tyLm9yZyUzQTEzMzclMkZhbm5vdW5jZSZ0cj11ZHAlM0ElMkYlMkZleG9kdXMuZGVzeW5jLmNvbSUzQTY5NjklMkZhbm5vdW5jZSZ0cj11ZHAlM0ElMkYlMkZ0cmFja2VyLnRvcnJlbnQuZXUub3JnJTNBNDUxJTJGYW5ub3VuY2U=")
 	testHttpUrl = ""
 	testFile    = util.Decode("L1VzZXJzL3JhaGltL0RvY3VtZW50cy9jb2xsZWN0aW9uL1NvdXNvdSBubyBGcmllcmVuL0ZyaWVyZW4uQmV5b25kLkpvdXJuZXlzLkVuZC5TMDFFMDEuMTA4MHAuQ1IuV0VCLURMLkFBQzIuMC5IaW4tVGFtLUVuZy1KcG4tR2VyLVNwYS1TcGEtRnJhLVBvci5ILjI2NC5NU3Vicy1Ub29uc0h1Yi5ta3Y=")
 	testFile2   = util.Decode("L1VzZXJzL3JhaGltL0RvY3VtZW50cy9jb2xsZWN0aW9uL0RhbmRhZGFuL1tTdWJzUGxlYXNlXSBEYW5kYWRhbiAtIDA0ICgxMDgwcCkgWzNEMkNDN0NGXS5ta3Y=")
@@ -363,31 +363,4 @@ func TestMetadataParser_File(t *testing.T) {
 	require.NoError(t, err)
 
 	testStreamSubtitles(t, parser, file, 1230000000, ctx)
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type cueTableHandler struct {
-	mkvparse.DefaultHandler
-}
-
-func (h *cueTableHandler) HandleMasterBegin(id mkvparse.ElementID, info mkvparse.ElementInfo) (bool, error) {
-	return false, nil
-}
-
-func (h *cueTableHandler) HandleMasterEnd(id mkvparse.ElementID, info mkvparse.ElementInfo) error {
-	return nil
-}
-
-func TestExtractCueTableAtEnd(t *testing.T) {
-	if testFile == "" {
-		t.Skip("Skipping file test")
-	}
-
-	file, err := os.Open(testFile)
-	if err != nil {
-		t.Fatalf("Could not open file: %v", err)
-	}
-	defer file.Close()
-
 }

@@ -87,6 +87,7 @@ export const settingsSchema = z.object({
     autoSyncOfflineLocalData: z.boolean().optional().default(false),
     scannerMatchingThreshold: z.number().optional().default(0.5),
     scannerMatchingAlgorithm: z.string().optional().default(""),
+    autoSyncToLocalAccount: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

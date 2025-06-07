@@ -81,6 +81,8 @@ type Manager interface {
 	SaveSimulatedMangaCollection(mc *anilist.MangaCollection)
 	// SynchronizeSimulatedCollectionToAnilist synchronizes the simulated anime and manga collections to the user's AniList account.
 	SynchronizeSimulatedCollectionToAnilist() error
+	// SynchronizeAnilistToSimulatedCollection synchronizes the user's AniList account to the simulated anime and manga collections.
+	SynchronizeAnilistToSimulatedCollection() error
 
 	SetOffline(bool)
 }
@@ -800,6 +802,18 @@ func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) 
 
 func (m *ManagerImpl) SaveSimulatedMangaCollection(mc *anilist.MangaCollection) {
 	_ = m.localDb.SaveSimulatedMangaCollection(mc)
+}
+
+func (m *ManagerImpl) SynchronizeAnilistToSimulatedCollection() error {
+	if animeCollection, ok := m.animeCollection.Get(); ok {
+		m.SaveSimulatedAnimeCollection(animeCollection)
+	}
+
+	if mangaCollection, ok := m.mangaCollection.Get(); ok {
+		m.SaveSimulatedMangaCollection(mangaCollection)
+	}
+
+	return nil
 }
 
 func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {

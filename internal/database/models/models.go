@@ -81,6 +81,11 @@ type LibrarySettings struct {
 	// v2.6+
 	ScannerMatchingThreshold float64 `gorm:"column:scanner_matching_threshold" json:"scannerMatchingThreshold"`
 	ScannerMatchingAlgorithm string  `gorm:"column:scanner_matching_algorithm" json:"scannerMatchingAlgorithm"`
+	// v2.9+
+	AutoSyncToLocalAccount bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
+	//ClientModeEnabled    bool   `gorm:"column:client_mode_enabled" json:"clientModeEnabled"`
+	//RemoteServerURL      string `gorm:"column:remote_server_url" json:"remoteServerURL"`
+	//RemoteServerPassword string `gorm:"column:remote_server_password" json:"remoteServerPassword"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -276,12 +281,10 @@ type Theme struct {
 	ShowMangaUnreadCount                 bool   `gorm:"column:show_manga_unread_count" json:"showMangaUnreadCount"`
 
 	// v2.8+
-	HideEpisodeCardDescription        bool `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
-	HideDownloadedEpisodeCardFilename bool `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
-
-	// v2.9+
-	CustomCSS       string `gorm:"column:custom_css" json:"customCSS"`
-	MobileCustomCSS string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
+	HideEpisodeCardDescription        bool   `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
+	HideDownloadedEpisodeCardFilename bool   `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
+	CustomCSS                         string `gorm:"column:custom_css" json:"customCSS"`
+	MobileCustomCSS                   string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
 }
 
 // +---------------------+

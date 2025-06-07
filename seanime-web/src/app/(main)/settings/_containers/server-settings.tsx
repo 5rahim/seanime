@@ -6,6 +6,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { useFormContext } from "react-hook-form"
 import { FaRedo } from "react-icons/fa"
 
 type ServerSettingsProps = {
@@ -20,6 +21,7 @@ export function ServerSettings(props: ServerSettingsProps) {
     } = props
 
     const [shortcuts, setShortcuts] = useAtom(__seaCommand_shortcuts)
+    const f = useFormContext()
 
     return (
         <div className="space-y-4">
@@ -177,6 +179,24 @@ export function ServerSettings(props: ServerSettingsProps) {
                     side="right"
                     name="openWebURLOnStart"
                     label="Open localhost web URL on startup"
+                />
+            </SettingsCard>
+
+            <SettingsCard title="NSFW">
+                <Field.Switch
+                    side="right"
+                    name="enableAdultContent"
+                    label="Enable adult content"
+                    help="If disabled, adult content will be hidden from search results and your library."
+                />
+                <Field.Switch
+                    side="right"
+                    name="blurAdultContent"
+                    label="Blur adult content"
+                    help="If enabled, adult content will be blurred."
+                    fieldClass={cn(
+                        !f.watch("enableAdultContent") && "opacity-50",
+                    )}
                 />
             </SettingsCard>
 

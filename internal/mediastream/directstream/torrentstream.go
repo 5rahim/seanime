@@ -77,9 +77,9 @@ func (s *TorrentStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err 
 			parser := mkvparser.NewMetadataParser(reader, s.logger)
 			metadata := parser.GetMetadata(context.Background())
 			if metadata.Error != nil {
+				err = fmt.Errorf("failed to get metadata: %w", metadata.Error)
 				s.logger.Error().Err(metadata.Error).Msg("directstream(torrent): Failed to get metadata")
-				s.manager.preStreamError(s, fmt.Errorf("failed to get metadata: %w", metadata.Error))
-				s.playbackInfoErr = fmt.Errorf("failed to get metadata: %w", metadata.Error)
+				s.playbackInfoErr = err
 				return
 			}
 

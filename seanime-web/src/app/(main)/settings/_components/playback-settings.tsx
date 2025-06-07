@@ -1,4 +1,5 @@
 import {
+    ElectronPlaybackMethod,
     PlaybackDownloadedMedia,
     playbackDownloadedMediaOptions,
     PlaybackTorrentStreaming,
@@ -15,6 +16,8 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { MdOutlineDevices } from "react-icons/md"
@@ -38,6 +41,8 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
         setDownloadedMediaPlayback,
         torrentStreamingPlayback,
         setTorrentStreamingPlayback,
+        electronPlaybackMethod,
+        setElectronPlaybackMethod,
     } = useCurrentDevicePlaybackSettings()
 
     const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
@@ -63,6 +68,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 Current client: {serverStatus?.clientDevice || "N/A"}, {serverStatus?.clientPlatform || "N/A"}.
             </p>
 
+
             {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
                 <Alert
                     intent="alert" description={<>
@@ -75,7 +81,28 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 />
             )}
 
-            <SettingsCard title="Downloaded media" description="Player to use for downloaded media.">
+            {__isElectronDesktop__ && (
+                <>
+                    <SettingsCard title="Seanime Denshi" description="Player to use for the desktop client.">
+                        <Switch
+                            label="Use native player"
+                            value={electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer}
+                            onValueChange={v => {
+                                setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Classic)
+                                toast.success("Playback settings updated")
+                            }}
+                        />
+                    </SettingsCard>
+                </>
+            )}
+
+            <SettingsCard
+                title="Downloaded media"
+                description="Player to use for downloaded media."
+                className={cn(
+                    __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer && "opacity-30 pointer-events-none",
+                )}
+            >
 
                 {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
                     <Alert
@@ -137,7 +164,13 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 </>
             </SettingsCard>
 
-            <SettingsCard title="Torrent/Debrid streaming" description="Player to use for torrent and debrid streaming.">
+            <SettingsCard
+                title="Torrent/Debrid streaming"
+                description="Player to use for torrent and debrid streaming."
+                className={cn(
+                    __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer && "opacity-30 pointer-events-none",
+                )}
+            >
 
                 <Alert
                     intent="info" description={<>
