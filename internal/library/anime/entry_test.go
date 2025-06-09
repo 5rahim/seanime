@@ -72,7 +72,7 @@ func TestNewAnimeEntry(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestNewAnimeEntry(t *testing.T) {
 				Progress: lo.ToPtr(tt.currentProgress), // Mock progress
 			})
 
-			entry, err := anime.NewEntry(&anime.NewEntryOptions{
+			entry, err := anime.NewEntry(t.Context(), &anime.NewEntryOptions{
 				MediaId:          tt.mediaId,
 				LocalFiles:       tt.localFiles,
 				AnimeCollection:  animeCollection,

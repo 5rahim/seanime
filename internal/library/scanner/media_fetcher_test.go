@@ -79,7 +79,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			// |    MediaFetcher     |
 			// +---------------------+
 
-			mf, err := NewMediaFetcher(&MediaFetcherOptions{
+			mf, err := NewMediaFetcher(t.Context(), &MediaFetcherOptions{
 				Enhanced:               tt.enhanced,
 				Platform:               anilistPlatform,
 				LocalFiles:             lfs,
@@ -160,7 +160,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			// |    MediaFetcher     |
 			// +---------------------+
 
-			mf, err := NewMediaFetcher(&MediaFetcherOptions{
+			mf, err := NewMediaFetcher(t.Context(), &MediaFetcherOptions{
 				Enhanced:           tt.enhanced,
 				Platform:           anilistPlatform,
 				LocalFiles:         lfs,
@@ -241,6 +241,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			// +--------------------------+
 
 			media, ok := FetchMediaFromLocalFiles(
+				t.Context(),
 				anilistPlatform,
 				lfs,
 				completeAnimeCache,

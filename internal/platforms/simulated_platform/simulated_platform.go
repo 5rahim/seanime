@@ -9,6 +9,7 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog"
 )
@@ -26,17 +27,21 @@ type SimulatedPlatform struct {
 	client       anilist.AnilistClient // should only receive an unauthenticated client
 
 	// Cache for collections
-	animeCollection *anilist.AnimeCollection
-	mangaCollection *anilist.MangaCollection
-	mu              sync.RWMutex
-	collectionMu    sync.RWMutex // used to protect access to collections
+	animeCollection                *anilist.AnimeCollection
+	mangaCollection                *anilist.MangaCollection
+	mu                             sync.RWMutex
+	collectionMu                   sync.RWMutex // used to protect access to collections
+	lastAnimeCollectionRefetchTime time.Time    // used to prevent refetching too many times
+	lastMangaCollectionRefetchTime time.Time    // used to prevent refetching too many times
+	anilistRateLimit               *limiter.Limiter
 }
 
 func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
 	sp := &SimulatedPlatform{
-		logger:       logger,
-		localManager: localManager,
-		client:       client,
+		logger:           logger,
+		localManager:     localManager,
+		client:           client,
+		anilistRateLimit: limiter.NewAnilistLimiter(),
 	}
 
 	return sp, nil
@@ -56,7 +61,7 @@ func (sp *SimulatedPlatform) SetAnilistClient(client anilist.AnilistClient) {
 
 // UpdateEntry updates the entry for the given media ID.
 // If the entry doesn't exist, it will be added automatically after determining the media type.
-func (sp *SimulatedPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
+func (sp *SimulatedPlatform) UpdateEntry(ctx context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Updating entry")
 
 	sp.mu.Lock()
@@ -81,7 +86,7 @@ func (sp *SimulatedPlatform) UpdateEntry(mediaID int, status *anilist.MediaListS
 	}
 
 	// Try to fetch as anime first
-	if _, err := sp.client.BaseAnimeByID(context.Background(), &mediaID); err == nil {
+	if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
 		// It's an anime, add it to anime collection
 		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry")
 		if err := animeWrapper.AddEntry(mediaID, defaultStatus); err != nil {
@@ -95,7 +100,7 @@ func (sp *SimulatedPlatform) UpdateEntry(mediaID int, status *anilist.MediaListS
 	}
 
 	// Try to fetch as manga
-	if _, err := sp.client.BaseMangaByID(context.Background(), &mediaID); err == nil {
+	if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
 		// It's a manga, add it to manga collection
 		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry")
 		if err := mangaWrapper.AddEntry(mediaID, defaultStatus); err != nil {
@@ -112,7 +117,7 @@ func (sp *SimulatedPlatform) UpdateEntry(mediaID int, status *anilist.MediaListS
 	return errors.New("media not found on AniList")
 }
 
-func (sp *SimulatedPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error {
+func (sp *SimulatedPlatform) UpdateEntryProgress(ctx context.Context, mediaID int, progress int, totalEpisodes *int) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Int("progress", progress).Msg("simulated platform: Updating entry progress")
 
 	sp.mu.Lock()
@@ -137,7 +142,7 @@ func (sp *SimulatedPlatform) UpdateEntryProgress(mediaID int, progress int, tota
 
 	// Entry doesn't exist, determine media type and add it
 	// Try to fetch as anime first
-	if _, err := sp.client.BaseAnimeByID(context.Background(), &mediaID); err == nil {
+	if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
 		// It's an anime, add it to anime collection
 		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry for progress update")
 		if err := animeWrapper.AddEntry(mediaID, status); err != nil {
@@ -147,7 +152,7 @@ func (sp *SimulatedPlatform) UpdateEntryProgress(mediaID int, progress int, tota
 	}
 
 	// Try to fetch as manga
-	if _, err := sp.client.BaseMangaByID(context.Background(), &mediaID); err == nil {
+	if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
 		// It's a manga, add it to manga collection
 		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry for progress update")
 		if err := mangaWrapper.AddEntry(mediaID, status); err != nil {
@@ -160,7 +165,7 @@ func (sp *SimulatedPlatform) UpdateEntryProgress(mediaID int, progress int, tota
 	return errors.New("media not found on AniList")
 }
 
-func (sp *SimulatedPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
+func (sp *SimulatedPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Int("repeat", repeat).Msg("simulated platform: Updating entry repeat")
 
 	sp.mu.Lock()
@@ -189,7 +194,7 @@ func (sp *SimulatedPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 	return ErrMediaNotFound
 }
 
-func (sp *SimulatedPlatform) DeleteEntry(entryId int) error {
+func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, entryId int) error {
 	sp.logger.Trace().Int("entryId", entryId).Msg("simulated platform: Deleting entry")
 
 	sp.mu.Lock()
@@ -210,11 +215,11 @@ func (sp *SimulatedPlatform) DeleteEntry(entryId int) error {
 	return ErrMediaNotFound
 }
 
-func (sp *SimulatedPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
+func (sp *SimulatedPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime")
 
 	// Get anime from anilist
-	resp, err := sp.client.BaseAnimeByID(context.Background(), &mediaID)
+	resp, err := sp.client.BaseAnimeByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -230,10 +235,10 @@ func (sp *SimulatedPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
+func (sp *SimulatedPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*anilist.BaseAnime, error) {
 	sp.logger.Trace().Int("malID", malID).Msg("simulated platform: Getting anime by MAL ID")
 
-	resp, err := sp.client.BaseAnimeByMalID(context.Background(), &malID)
+	resp, err := sp.client.BaseAnimeByMalID(ctx, &malID)
 	if err != nil {
 		return nil, err
 	}
@@ -251,10 +256,10 @@ func (sp *SimulatedPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, err
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
+func (sp *SimulatedPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime details")
 
-	resp, err := sp.client.AnimeDetailsByID(context.Background(), &mediaID)
+	resp, err := sp.client.AnimeDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -262,10 +267,10 @@ func (sp *SimulatedPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetails
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
+func (sp *SimulatedPlatform) GetAnimeWithRelations(ctx context.Context, mediaID int) (*anilist.CompleteAnime, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime with relations")
 
-	resp, err := sp.client.CompleteAnimeByID(context.Background(), &mediaID)
+	resp, err := sp.client.CompleteAnimeByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -273,11 +278,11 @@ func (sp *SimulatedPlatform) GetAnimeWithRelations(mediaID int) (*anilist.Comple
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
+func (sp *SimulatedPlatform) GetManga(ctx context.Context, mediaID int) (*anilist.BaseManga, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting manga")
 
 	// Get manga from anilist
-	resp, err := sp.client.BaseMangaByID(context.Background(), &mediaID)
+	resp, err := sp.client.BaseMangaByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -293,10 +298,10 @@ func (sp *SimulatedPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
+func (sp *SimulatedPlatform) GetMangaDetails(ctx context.Context, mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting manga details")
 
-	resp, err := sp.client.MangaDetailsByID(context.Background(), &mediaID)
+	resp, err := sp.client.MangaDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -304,62 +309,65 @@ func (sp *SimulatedPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetails
 	return resp.GetMedia(), nil
 }
 
-func (sp *SimulatedPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (sp *SimulatedPlatform) GetAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
 	sp.logger.Trace().Bool("bypassCache", bypassCache).Msg("simulated platform: Getting anime collection")
 
 	if bypassCache {
 		sp.invalidateAnimeCollectionCache()
+		return sp.getOrCreateAnimeCollection()
 	}
 
-	return sp.getOrCreateAnimeCollection()
+	return sp.animeCollection, nil
 }
 
-func (sp *SimulatedPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	return sp.GetAnimeCollection(bypassCache)
+func (sp *SimulatedPlatform) GetRawAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
+	return sp.GetAnimeCollection(ctx, bypassCache)
 }
 
-func (sp *SimulatedPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+func (sp *SimulatedPlatform) RefreshAnimeCollection(ctx context.Context) (*anilist.AnimeCollection, error) {
 	sp.logger.Trace().Msg("simulated platform: Refreshing anime collection")
 
-	collection, err := sp.getOrCreateAnimeCollection()
-	if err != nil {
-		return nil, err
-	}
+	// if time.Since(sp.lastAnimeCollectionRefetchTime) > 1*time.Hour {
+	// 	collection, err := sp.getOrCreateAnimeCollection()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	wg := sync.WaitGroup{}
+	// 	m := sync.Mutex{}
+	// 	// Refresh all current media data in the collection
+	// 	// This is to get accurate airing dates
+	// 	for _, list := range collection.GetMediaListCollection().GetLists() {
+	// 		for _, entry := range list.GetEntries() {
+	// 			if entry.GetMedia() != nil && entry.GetStatus() != nil && *entry.GetStatus() == anilist.MediaListStatusCurrent {
+	// 				mediaID := entry.GetMedia().GetID()
+	// 				wg.Add(1)
+	// 				go func(mID int, e *anilist.AnimeCollection_MediaListCollection_Lists_Entries) {
+	// 					defer wg.Done()
+	// 					sp.anilistRateLimit.Wait()
+	// 					if updatedMedia, err := sp.GetAnime(ctx, mID); err == nil {
+	// 						m.Lock()
+	// 						e.Media = updatedMedia
+	// 						m.Unlock()
+	// 					}
+	// 				}(mediaID, entry)
+	// 			}
+	// 		}
+	// 	}
+	// 	wg.Wait()
 
-	anilistRateLimit := limiter.NewAnilistLimiter()
-	wg := sync.WaitGroup{}
-	m := sync.Mutex{}
-
-	// Refresh all media data in the collection
-	for _, list := range collection.GetMediaListCollection().GetLists() {
-		for _, entry := range list.GetEntries() {
-			if entry.GetMedia() != nil {
-				mediaID := entry.GetMedia().GetID()
-				wg.Add(1)
-				go func(mID int, e *anilist.AnimeCollection_MediaListCollection_Lists_Entries) {
-					defer wg.Done()
-					anilistRateLimit.Wait()
-					if updatedMedia, err := sp.GetAnime(mID); err == nil {
-						m.Lock()
-						e.Media = updatedMedia
-						m.Unlock()
-					}
-				}(mediaID, entry)
-			}
-		}
-	}
-
-	wg.Wait()
-
-	// Save updated collection
-	sp.localManager.SaveSimulatedAnimeCollection(collection)
+	// 	// Save updated collection
+	// 	sp.localManager.SaveSimulatedAnimeCollection(collection)
+	// 	sp.lastAnimeCollectionRefetchTime = time.Now()
+	// 	sp.invalidateAnimeCollectionCache()
+	// 	return sp.getOrCreateAnimeCollection()
+	// }
 
 	sp.invalidateAnimeCollectionCache()
 	return sp.getOrCreateAnimeCollection()
 }
 
 // GetAnimeCollectionWithRelations returns the anime collection (without relations)
-func (sp *SimulatedPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
+func (sp *SimulatedPlatform) GetAnimeCollectionWithRelations(ctx context.Context) (*anilist.AnimeCollectionWithRelations, error) {
 	sp.logger.Trace().Msg("simulated platform: Getting anime collection with relations")
 
 	// Use JSON to convert the collection structs
@@ -383,61 +391,68 @@ func (sp *SimulatedPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCo
 	return collectionWithRelations, nil
 }
 
-func (sp *SimulatedPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+func (sp *SimulatedPlatform) GetMangaCollection(ctx context.Context, bypassCache bool) (*anilist.MangaCollection, error) {
 	sp.logger.Trace().Bool("bypassCache", bypassCache).Msg("simulated platform: Getting manga collection")
 
 	if bypassCache {
 		sp.invalidateMangaCollectionCache()
+		return sp.getOrCreateMangaCollection()
 	}
 
-	return sp.getOrCreateMangaCollection()
+	return sp.mangaCollection, nil
 }
 
-func (sp *SimulatedPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	return sp.GetMangaCollection(bypassCache)
+func (sp *SimulatedPlatform) GetRawMangaCollection(ctx context.Context, bypassCache bool) (*anilist.MangaCollection, error) {
+	return sp.GetMangaCollection(ctx, bypassCache)
 }
 
-func (sp *SimulatedPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+func (sp *SimulatedPlatform) RefreshMangaCollection(ctx context.Context) (*anilist.MangaCollection, error) {
 	sp.logger.Trace().Msg("simulated platform: Refreshing manga collection")
 
-	collection, err := sp.getOrCreateMangaCollection()
-	if err != nil {
-		return nil, err
-	}
+	// if time.Since(sp.lastMangaCollectionRefetchTime) > 1*time.Hour {
 
-	anilistRateLimit := limiter.NewAnilistLimiter()
-	wg := sync.WaitGroup{}
-	m := sync.Mutex{}
+	// 	collection, err := sp.getOrCreateMangaCollection()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-	// Refresh all media data in the collection
-	for _, list := range collection.GetMediaListCollection().GetLists() {
-		for _, entry := range list.GetEntries() {
-			if entry.GetMedia() != nil {
-				mediaID := entry.GetMedia().GetID()
-				wg.Add(1)
-				go func(mID int, e *anilist.MangaCollection_MediaListCollection_Lists_Entries) {
-					defer wg.Done()
-					anilistRateLimit.Wait()
-					if updatedMedia, err := sp.GetManga(mID); err == nil {
-						m.Lock()
-						e.Media = updatedMedia
-						m.Unlock()
-					}
-				}(mediaID, entry)
-			}
-		}
-	}
+	// 	wg := sync.WaitGroup{}
+	// 	m := sync.Mutex{}
 
-	wg.Wait()
+	// 	// Refresh all current media data in the collection
+	// 	// This is to get accurate publishing dates
+	// 	for _, list := range collection.GetMediaListCollection().GetLists() {
+	// 		for _, entry := range list.GetEntries() {
+	// 			if entry.GetMedia() != nil && entry.GetStatus() != nil && *entry.GetStatus() == anilist.MediaListStatusCurrent {
+	// 				mediaID := entry.GetMedia().GetID()
+	// 				wg.Add(1)
+	// 				go func(mID int, e *anilist.MangaCollection_MediaListCollection_Lists_Entries) {
+	// 					defer wg.Done()
+	// 					sp.anilistRateLimit.Wait()
+	// 					if updatedMedia, err := sp.GetManga(ctx, mID); err == nil {
+	// 						m.Lock()
+	// 						e.Media = updatedMedia
+	// 						m.Unlock()
+	// 					}
+	// 				}(mediaID, entry)
+	// 			}
+	// 		}
+	// 	}
 
-	// Save updated collection
-	sp.localManager.SaveSimulatedMangaCollection(collection)
+	// 	wg.Wait()
+
+	// 	// Save updated collection
+	// 	sp.localManager.SaveSimulatedMangaCollection(collection)
+	// 	sp.lastMangaCollectionRefetchTime = time.Now()
+	// 	sp.invalidateMangaCollectionCache()
+	// 	return sp.getOrCreateMangaCollection()
+	// }
 
 	sp.invalidateMangaCollectionCache()
 	return sp.getOrCreateMangaCollection()
 }
 
-func (sp *SimulatedPlatform) AddMediaToCollection(mIds []int) error {
+func (sp *SimulatedPlatform) AddMediaToCollection(ctx context.Context, mIds []int) error {
 	sp.logger.Trace().Interface("mediaIDs", mIds).Msg("simulated platform: Adding media to collection")
 
 	sp.mu.Lock()
@@ -453,16 +468,20 @@ func (sp *SimulatedPlatform) AddMediaToCollection(mIds []int) error {
 	return nil
 }
 
-func (sp *SimulatedPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
-	return sp.client.StudioDetails(context.Background(), &studioID)
+func (sp *SimulatedPlatform) GetStudioDetails(ctx context.Context, studioID int) (*anilist.StudioDetails, error) {
+	return sp.client.StudioDetails(ctx, &studioID)
 }
 
 func (sp *SimulatedPlatform) GetAnilistClient() anilist.AnilistClient {
 	return sp.client
 }
 
-func (sp *SimulatedPlatform) GetViewerStats() (*anilist.ViewerStats, error) {
+func (sp *SimulatedPlatform) GetViewerStats(ctx context.Context) (*anilist.ViewerStats, error) {
 	return nil, errors.New("use a real account to get stats")
+}
+
+func (sp *SimulatedPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist.AnimeAiringSchedule, error) {
+	return nil, errors.New("use a real account to get schedule")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -38,12 +38,19 @@ func (s *SubtitleStream) Stop(completed bool) {
 }
 
 // StartSubtitleStream starts a subtitle stream for the given stream at the given offset.
+//
+// If the media has no MKV metadata, this function will do nothing.
 func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64) {
+	mkvMetadataParser, ok := s.playbackInfo.MkvMetadataParser.Get()
+	if !ok {
+		return
+	}
+
 	s.logger.Trace().Int64("offset", offset).Msg("directstream: Starting new subtitle stream")
 	subtitleStream := &SubtitleStream{
 		stream: stream,
 		logger: s.logger,
-		parser: s.playbackInfo.MkvMetadataParser.MustGet(),
+		parser: mkvMetadataParser,
 		reader: newReader,
 		offset: offset,
 	}

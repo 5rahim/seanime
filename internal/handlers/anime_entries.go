@@ -57,7 +57,7 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 	}
 
 	// Create a new media entry
-	entry, err := anime.NewEntry(&anime.NewEntryOptions{
+	entry, err := anime.NewEntry(c.Request().Context(), &anime.NewEntryOptions{
 		MediaId:          mId,
 		LocalFiles:       lfs,
 		AnimeCollection:  animeCollection,
@@ -313,7 +313,7 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	animeCollectionWithRelations, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollectionWithRelations, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations(c.Request().Context())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -344,7 +344,7 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 	})
 
 	// Get the media
-	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -557,6 +557,7 @@ func (h *Handler) HandleUpdateAnimeEntryProgress(c echo.Context) error {
 
 	// Update the progress on AniList
 	err := h.App.AnilistPlatform.UpdateEntryProgress(
+		c.Request().Context(),
 		b.MediaId,
 		b.EpisodeNumber,
 		&b.TotalEpisodes,
@@ -592,6 +593,7 @@ func (h *Handler) HandleUpdateAnimeEntryRepeat(c echo.Context) error {
 	}
 
 	err := h.App.AnilistPlatform.UpdateEntryRepeat(
+		c.Request().Context(),
 		b.MediaId,
 		b.Repeat,
 	)

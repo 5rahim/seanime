@@ -43,7 +43,7 @@ export function LocalSettings(props: Props) {
             <div className="">
                 <h3>Local Data</h3>
                 <p className="text-[--muted]">
-                    Local anime and manga list data managed by Seanime.
+                    Local anime and manga list managed by Seanime.
                 </p>
             </div>
 

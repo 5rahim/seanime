@@ -146,7 +146,7 @@ func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 
 	userAgent := c.Request().Header.Get("User-Agent")
 
-	err := h.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
+	err := h.App.TorrentstreamRepository.StartStream(c.Request().Context(), &torrentstream.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/user"
@@ -39,17 +40,17 @@ func (a *App) UpdateAnilistClientToken(token string) {
 // GetAnimeCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
 func (a *App) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	return a.AnilistPlatform.GetAnimeCollection(bypassCache)
+	return a.AnilistPlatform.GetAnimeCollection(context.Background(), bypassCache)
 }
 
 // GetRawAnimeCollection is the same as GetAnimeCollection but returns the raw collection that includes custom lists
 func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	return a.AnilistPlatform.GetRawAnimeCollection(bypassCache)
+	return a.AnilistPlatform.GetRawAnimeCollection(context.Background(), bypassCache)
 }
 
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
-	ret, err := a.AnilistPlatform.RefreshAnimeCollection()
+	ret, err := a.AnilistPlatform.RefreshAnimeCollection(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -74,17 +75,17 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 // GetMangaCollection is the same as GetAnimeCollection but for manga
 func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	return a.AnilistPlatform.GetMangaCollection(bypassCache)
+	return a.AnilistPlatform.GetMangaCollection(context.Background(), bypassCache)
 }
 
 // GetRawMangaCollection does not exclude custom lists
 func (a *App) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	return a.AnilistPlatform.GetRawMangaCollection(bypassCache)
+	return a.AnilistPlatform.GetRawMangaCollection(context.Background(), bypassCache)
 }
 
 // RefreshMangaCollection queries Anilist for the user's manga collection
 func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
-	mc, err := a.AnilistPlatform.RefreshMangaCollection()
+	mc, err := a.AnilistPlatform.RefreshMangaCollection(context.Background())
 
 	if err != nil {
 		return nil, err

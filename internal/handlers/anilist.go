@@ -87,6 +87,7 @@ func (h *Handler) HandleEditAnilistListEntry(c echo.Context) error {
 	}
 
 	err := h.App.AnilistPlatform.UpdateEntry(
+		c.Request().Context(),
 		*p.MediaId,
 		p.Status,
 		p.Score,
@@ -134,7 +135,7 @@ func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 	if details, ok := detailsCache.Get(mId); ok {
 		return h.RespondWithData(c, details)
 	}
-	details, err := h.App.AnilistPlatform.GetAnimeDetails(mId)
+	details, err := h.App.AnilistPlatform.GetAnimeDetails(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -164,7 +165,7 @@ func (h *Handler) HandleGetAnilistStudioDetails(c echo.Context) error {
 	if details, ok := studioDetailsMap.Get(mId); ok {
 		return h.RespondWithData(c, details)
 	}
-	details, err := h.App.AnilistPlatform.GetStudioDetails(mId)
+	details, err := h.App.AnilistPlatform.GetStudioDetails(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -234,7 +235,7 @@ func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 	}
 
 	// Delete the list entry
-	err := h.App.AnilistPlatform.DeleteEntry(listEntryID)
+	err := h.App.AnilistPlatform.DeleteEntry(c.Request().Context(), listEntryID)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -413,7 +414,7 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 	}
 
 	// Get complete anime collection
-	animeCollection, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollection, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations(c.Request().Context())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -448,7 +449,7 @@ func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 		return h.RespondWithData(c, cached)
 	}
 
-	stats, err := h.App.AnilistPlatform.GetViewerStats()
+	stats, err := h.App.AnilistPlatform.GetViewerStats(c.Request().Context())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

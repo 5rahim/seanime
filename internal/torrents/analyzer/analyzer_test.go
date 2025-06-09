@@ -77,7 +77,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Get media
-			media, err := anilistPlatform.GetAnimeWithRelations(tt.mediaId)
+			media, err := anilistPlatform.GetAnimeWithRelations(t.Context(), tt.mediaId)
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}

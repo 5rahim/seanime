@@ -1,11 +1,13 @@
 package anime
 
 import (
+	"context"
 	"errors"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/platform"
 	"sort"
+
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -36,7 +38,7 @@ type (
 	}
 )
 
-func NewSimpleEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
+func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 
 	if opts.AnimeCollection == nil ||
 		opts.Platform == nil {
@@ -60,7 +62,7 @@ func NewSimpleEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 		anilistEntry = &anilist.AnimeListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := opts.Platform.GetAnime(opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}

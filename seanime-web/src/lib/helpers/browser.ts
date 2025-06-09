@@ -6,8 +6,6 @@ export function openTab(url: string) {
     if (__isTauriDesktop__) {
         const { open } = require("@tauri-apps/plugin-shell")
         open(url)
-    } else if (__isElectronDesktop__ && (window as any).electron?.shell) {
-        (window as any).electron.shell.open(url)
     } else {
         window.open(url, "_blank")
     }

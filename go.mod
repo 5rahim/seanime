@@ -24,7 +24,6 @@ require (
 	github.com/evanw/esbuild v0.24.2
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
-	github.com/gen2brain/go-fitz v1.24.14
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
 	github.com/goccy/go-json v0.10.4
@@ -98,7 +97,6 @@ require (
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/dop251/base64dec v0.0.0-20231022112746-c6c9f9a96217 // indirect
-	github.com/ebitengine/purego v0.8.0 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
@@ -123,7 +121,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/jupiterrider/ffi v0.2.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect

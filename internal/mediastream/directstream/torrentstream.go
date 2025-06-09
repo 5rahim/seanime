@@ -160,10 +160,12 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			return
 		}
 
-		// Start a subtitle stream from the current position
-		subReader := file.NewReader()
-		subReader.SetResponsive()
-		s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ranges[0].Start)
+		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
+			// Start a subtitle stream from the current position
+			subReader := file.NewReader()
+			subReader.SetResponsive()
+			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ranges[0].Start)
+		}
 
 		serveTorrent(w, r, s.manager.playbackCtx, tr, file.DisplayPath(), file.Length(), s.LoadContentType(), ranges)
 	})
@@ -179,7 +181,7 @@ type PlayTorrentStreamOptions struct {
 }
 
 // PlayTorrentStream is used by a module to load a new torrent stream.
-func (m *Manager) PlayTorrentStream(opts PlayTorrentStreamOptions) (chan struct{}, error) {
+func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamOptions) (chan struct{}, error) {
 	m.playbackMu.Lock()
 	defer m.playbackMu.Unlock()
 

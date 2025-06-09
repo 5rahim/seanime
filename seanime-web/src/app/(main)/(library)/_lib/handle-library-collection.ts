@@ -223,6 +223,7 @@ export function useHandleLibraryCollection() {
         ignoredLocalFiles: data?.ignoredLocalFiles ?? [],
         unmatchedGroups: data?.unmatchedGroups ?? [],
         unknownGroups: data?.unknownGroups ?? [],
+        streamingMediaIds: data?.stream?.anime?.map(n => n.id) ?? [],
     }
 
 }

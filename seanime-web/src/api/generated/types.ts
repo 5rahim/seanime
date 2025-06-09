@@ -1929,7 +1929,7 @@ export type DebridClient_FilePreview = {
  * - Filename: stream.go
  * - Package: debrid_client
  */
-export type DebridClient_StreamPlaybackType = "default" | "directstream" | "externalPlayerLink"
+export type DebridClient_StreamPlaybackType = "default" | "nativeplayer" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/debrid/client/stream.go
@@ -3462,7 +3462,8 @@ export type NativePlayer_ClientEvent = "video-paused" |
     "video-error" |
     "loaded-metadata" |
     "subtitle-file-uploaded" |
-    "video-terminated"
+    "video-terminated" |
+    "video-time-update"
 
 /**
  * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go

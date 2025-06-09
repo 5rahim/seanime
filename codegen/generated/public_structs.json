@@ -648,6 +648,56 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "AnimeSchedule",
+    "formattedName": "AL_AnimeSchedule",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IDMal",
+        "jsonName": "idMal",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Previous",
+        "jsonName": "previous",
+        "goType": "AnimeSchedule_Previous",
+        "typescriptType": "AL_AnimeSchedule_Previous",
+        "usedTypescriptType": "AL_AnimeSchedule_Previous",
+        "usedStructName": "anilist.AnimeSchedule_Previous",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Upcoming",
+        "jsonName": "upcoming",
+        "goType": "AnimeSchedule_Upcoming",
+        "typescriptType": "AL_AnimeSchedule_Upcoming",
+        "usedTypescriptType": "AL_AnimeSchedule_Upcoming",
+        "usedStructName": "anilist.AnimeSchedule_Upcoming",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "BaseManga",
     "formattedName": "AL_BaseManga",
     "package": "anilist",
@@ -2164,6 +2214,122 @@
         "jsonName": "large",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeSchedule_Upcoming_Nodes",
         "required": false,
         "public": true,
         "comments": []
@@ -7047,6 +7213,691 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Ongoing",
+    "formattedName": "AL_AnimeAiringSchedule_Ongoing",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_OngoingNext",
+    "formattedName": "AL_AnimeAiringSchedule_OngoingNext",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_UpcomingNext",
+    "formattedName": "AL_AnimeAiringSchedule_UpcomingNext",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule_Preceding",
+    "formattedName": "AL_AnimeAiringSchedule_Preceding",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "UpdateMediaListEntry_SaveMediaListEntry",
     "formattedName": "AL_UpdateMediaListEntry_SaveMediaListEntry",
     "package": "anilist",
@@ -10132,6 +10983,71 @@
         "typescriptType": "AL_ListRecentAnime_Page",
         "usedTypescriptType": "AL_ListRecentAnime_Page",
         "usedStructName": "anilist.ListRecentAnime_Page",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringSchedule",
+    "formattedName": "AL_AnimeAiringSchedule",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Ongoing",
+        "jsonName": "ongoing",
+        "goType": "AnimeAiringSchedule_Ongoing",
+        "typescriptType": "AL_AnimeAiringSchedule_Ongoing",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Ongoing",
+        "usedStructName": "anilist.AnimeAiringSchedule_Ongoing",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OngoingNext",
+        "jsonName": "ongoingNext",
+        "goType": "AnimeAiringSchedule_OngoingNext",
+        "typescriptType": "AL_AnimeAiringSchedule_OngoingNext",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_OngoingNext",
+        "usedStructName": "anilist.AnimeAiringSchedule_OngoingNext",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Upcoming",
+        "jsonName": "upcoming",
+        "goType": "AnimeAiringSchedule_Upcoming",
+        "typescriptType": "AL_AnimeAiringSchedule_Upcoming",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Upcoming",
+        "usedStructName": "anilist.AnimeAiringSchedule_Upcoming",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpcomingNext",
+        "jsonName": "upcomingNext",
+        "goType": "AnimeAiringSchedule_UpcomingNext",
+        "typescriptType": "AL_AnimeAiringSchedule_UpcomingNext",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_UpcomingNext",
+        "usedStructName": "anilist.AnimeAiringSchedule_UpcomingNext",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Preceding",
+        "jsonName": "preceding",
+        "goType": "AnimeAiringSchedule_Preceding",
+        "typescriptType": "AL_AnimeAiringSchedule_Preceding",
+        "usedTypescriptType": "AL_AnimeAiringSchedule_Preceding",
+        "usedStructName": "anilist.AnimeAiringSchedule_Preceding",
         "required": false,
         "public": true,
         "comments": []
@@ -22644,6 +23560,20 @@
     "comments": []
   },
   {
+    "filepath": "../internal/api/anilist/utils.go",
+    "filename": "utils.go",
+    "name": "GetSeasonKind",
+    "formattedName": "AL_GetSeasonKind",
+    "package": "anilist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
     "filepath": "../internal/api/anizip/anizip.go",
     "filename": "anizip.go",
     "name": "Episode",
@@ -26861,6 +27791,15 @@
         "comments": [
           " Whether the Anilist data from the first request has been fetched"
         ]
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -30457,7 +31396,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"default\"",
-        "\"directstream\"",
+        "\"nativeplayer\"",
         "\"externalPlayerLink\""
       ]
     },
@@ -33368,6 +34307,27 @@
         "jsonName": "payload",
         "goType": "",
         "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/events/websocket.go",
+    "filename": "websocket.go",
+    "name": "GlobalWSEventManagerWrapper",
+    "formattedName": "Events_GlobalWSEventManagerWrapper",
+    "package": "events",
+    "fields": [
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": true,
         "public": true,
         "comments": []
@@ -42248,6 +43208,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -42332,6 +43301,15 @@
         "typescriptType": "DebridClient_Repository",
         "usedTypescriptType": "DebridClient_Repository",
         "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
@@ -43708,7 +44686,7 @@
         "jsonName": "isOffline",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -44045,7 +45023,7 @@
         "jsonName": "IsOffline",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -47734,6 +48712,15 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -47884,6 +48871,15 @@
         "typescriptType": "Manga_Repository",
         "usedTypescriptType": "Manga_Repository",
         "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
@@ -53236,7 +54232,7 @@
         "jsonName": "isOffline",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -53283,6 +54279,15 @@
       {
         "name": "AutoPlayNextEpisode",
         "jsonName": "AutoPlayNextEpisode",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoUpdateProgress",
+        "jsonName": "AutoUpdateProgress",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -53382,7 +54387,7 @@
         "jsonName": "IsOffline",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -53585,6 +54590,17 @@
         "typescriptType": "Directstream_Manager",
         "usedTypescriptType": "Directstream_Manager",
         "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateProgress",
+        "jsonName": "updateProgress",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
         "required": false,
         "public": false,
         "comments": []
@@ -55324,7 +56340,8 @@
         "\"video-error\"",
         "\"loaded-metadata\"",
         "\"subtitle-file-uploaded\"",
-        "\"video-terminated\""
+        "\"video-terminated\"",
+        "\"video-time-update\""
       ]
     },
     "comments": []
@@ -55617,6 +56634,37 @@
     "formattedName": "NativePlayer_VideoTerminatedEvent",
     "package": "nativeplayer",
     "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "nativeplayer.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/nativeplayer/events.go",
+    "filename": "events.go",
+    "name": "VideoCompletedEvent",
+    "formattedName": "NativePlayer_VideoCompletedEvent",
+    "package": "nativeplayer",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "nativeplayer.BaseVideoEvent"
@@ -59509,6 +60557,41 @@
         "comments": [
           " used to protect access to collections"
         ]
+      },
+      {
+        "name": "lastAnimeCollectionRefetchTime",
+        "jsonName": "lastAnimeCollectionRefetchTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " used to prevent refetching too many times"
+        ]
+      },
+      {
+        "name": "lastMangaCollectionRefetchTime",
+        "jsonName": "lastMangaCollectionRefetchTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " used to prevent refetching too many times"
+        ]
+      },
+      {
+        "name": "anilistRateLimit",
+        "jsonName": "anilistRateLimit",
+        "goType": "limiter.Limiter",
+        "typescriptType": "Limiter",
+        "usedTypescriptType": "Limiter",
+        "usedStructName": "limiter.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [

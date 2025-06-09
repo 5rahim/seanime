@@ -74,7 +74,6 @@ query BaseAnimeById ($id: Int) {
   }
 }
 
-
 query SearchBaseAnimeByIds ($ids: [Int], $page: Int, $perPage: Int, $status: [MediaStatus], $inCollection: Boolean, $sort: [MediaSort], $season: MediaSeason, $year: Int, $genre: String, $format: MediaFormat) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
@@ -399,4 +398,51 @@ fragment baseCharacter on Character {
   }
   description
   siteUrl
+}
+
+query AnimeAiringSchedule($ids: [Int],$season: MediaSeason, $seasonYear: Int, $previousSeason: MediaSeason, $previousSeasonYear: Int, $nextSeason: MediaSeason, $nextSeasonYear: Int) {
+  ongoing: Page {
+    media(id_in: $ids, type: ANIME, season: $season, seasonYear: $seasonYear, onList: true) {
+      ...animeSchedule
+    }
+  }
+  ongoingNext: Page(page: 2) {
+    media(id_in: $ids, type: ANIME, season: $season, seasonYear: $seasonYear, onList: true) {
+      ...animeSchedule
+    }
+  }
+  upcoming: Page {
+    media(id_in: $ids, type: ANIME, season: $nextSeason, seasonYear: $nextSeasonYear, sort: [START_DATE], onList: true) {
+      ...animeSchedule
+    }
+  }
+  upcomingNext: Page(page: 2) {
+    media(id_in: $ids, type: ANIME, season: $nextSeason, seasonYear: $nextSeasonYear, sort: [START_DATE], onList: true) {
+      ...animeSchedule
+    }
+  }
+  preceding: Page {
+    media(id_in: $ids, type: ANIME, season: $previousSeason, seasonYear: $previousSeasonYear, onList: true) {
+      ...animeSchedule
+    }
+  }
+}
+
+fragment animeSchedule on Media {
+  id,
+  idMal
+  previous: airingSchedule(notYetAired: false, perPage: 30) {
+    nodes {
+      airingAt
+      timeUntilAiring
+      episode
+    }
+  },
+  upcoming: airingSchedule(notYetAired: true, perPage: 30) {
+    nodes {
+      airingAt
+      timeUntilAiring
+      episode
+    }
+  }
 }

@@ -32,7 +32,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
 	metadataProvider := metadata.GetMockProvider(t)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{

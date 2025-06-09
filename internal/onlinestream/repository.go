@@ -1,6 +1,7 @@
 package onlinestream
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
@@ -115,9 +116,9 @@ func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) fileca
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMedia(mId int) (*anilist.BaseAnime, error) {
+func (r *Repository) getMedia(ctx context.Context, mId int) (*anilist.BaseAnime, error) {
 	media, err := r.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
-		media, err := r.platform.GetAnime(mId)
+		media, err := r.platform.GetAnime(ctx, mId)
 		if err != nil {
 			return nil, err
 		}
@@ -129,8 +130,8 @@ func (r *Repository) getMedia(mId int) (*anilist.BaseAnime, error) {
 	return media, nil
 }
 
-func (r *Repository) GetMedia(mId int) (*anilist.BaseAnime, error) {
-	return r.getMedia(mId)
+func (r *Repository) GetMedia(ctx context.Context, mId int) (*anilist.BaseAnime, error) {
+	return r.getMedia(ctx, mId)
 }
 
 func (r *Repository) EmptyCache(mediaId int) error {
@@ -224,13 +225,13 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	return episodes, nil
 }
 
-func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
+func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
 
 	// +---------------------+
 	// |        Media        |
 	// +---------------------+
 
-	media, err := r.getMedia(mId)
+	media, err := r.getMedia(ctx, mId)
 	if err != nil {
 		return nil, err
 	}

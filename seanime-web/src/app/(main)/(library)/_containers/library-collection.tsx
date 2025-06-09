@@ -10,9 +10,10 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { LuListFilter } from "react-icons/lu"
 
-export function LibraryCollectionLists({ collectionList, isLoading }: {
+export function LibraryCollectionLists({ collectionList, isLoading, streamingMediaIds }: {
     collectionList: Anime_LibraryCollectionList[],
-    isLoading: boolean
+    isLoading: boolean,
+    streamingMediaIds: number[]
 }) {
 
     return (
@@ -30,16 +31,17 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
             }}>
             {collectionList.map(collection => {
                 if (!collection.entries?.length) return null
-                return <LibraryCollectionListItem key={collection.type} list={collection} />
+                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} />
             })}
         </PageWrapper>
     )
 
 }
 
-export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
+export function LibraryCollectionFilteredLists({ collectionList, isLoading, streamingMediaIds }: {
     collectionList: Anime_LibraryCollectionList[],
-    isLoading: boolean
+    isLoading: boolean,
+    streamingMediaIds: number[]
 }) {
 
     // const params = useAtomValue(__mainLibrary_paramsAtom)
@@ -62,7 +64,7 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
             {/*</h3>*/}
             <MediaCardLazyGrid itemCount={collectionList?.flatMap(n => n.entries)?.length ?? 0}>
                 {collectionList?.flatMap(n => n.entries)?.filter(Boolean)?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
                 })}
             </MediaCardLazyGrid>
         </PageWrapper>
@@ -70,7 +72,10 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
 
 }
 
-export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCollectionList }) => {
+export const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: {
+    list: Anime_LibraryCollectionList,
+    streamingMediaIds: number[]
+}) => {
 
     const isCurrentlyWatching = list.type === "CURRENT"
 
@@ -107,14 +112,17 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
                 data-list-type={list.type}
             >
                 {list.entries?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
                 })}
             </MediaCardLazyGrid>
         </React.Fragment>
     )
 })
 
-export const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
+export const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
+    entry: Anime_LibraryCollectionEntry,
+    streamingMediaIds: number[]
+}) => {
     return (
         <MediaEntryCard
             media={entry.media!}
@@ -123,6 +131,7 @@ export const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_
             showListDataButton
             withAudienceScore={false}
             type="anime"
+            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
         />
     )
 })

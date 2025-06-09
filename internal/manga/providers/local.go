@@ -4,7 +4,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"image/jpeg"
+
+	// "image/jpeg"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,7 +16,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gen2brain/go-fitz"
+	// "github.com/gen2brain/go-fitz"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
@@ -301,34 +302,34 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 			}
 		}
 	case ".pdf":
-		doc, err := fitz.New(fullpath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to open PDF file: %w", err)
-		}
-		defer doc.Close()
+		// doc, err := fitz.New(fullpath)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("failed to open PDF file: %w", err)
+		// }
+		// defer doc.Close()
 
-		// Load images into memory
-		for n := 0; n < doc.NumPage(); n++ {
-			img, err := doc.Image(n)
-			if err != nil {
-				panic(err)
-			}
+		// // Load images into memory
+		// for n := 0; n < doc.NumPage(); n++ {
+		// 	img, err := doc.Image(n)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
 
-			var buf bytes.Buffer
-			err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
-			if err != nil {
-				panic(err)
-			}
+		// 	var buf bytes.Buffer
+		// 	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
 
-			p.currentPages[fmt.Sprintf("page_%d.jpg", n)] = &loadedPage{
-				buf: buf.Bytes(),
-				page: &hibikemanga.ChapterPage{
-					Provider: LocalProvider,
-					URL:      formatUrl(fmt.Sprintf("page_%d.jpg", n)),
-					Index:    n,
-				},
-			}
-		}
+		// 	p.currentPages[fmt.Sprintf("page_%d.jpg", n)] = &loadedPage{
+		// 		buf: buf.Bytes(),
+		// 		page: &hibikemanga.ChapterPage{
+		// 			Provider: LocalProvider,
+		// 			URL:      formatUrl(fmt.Sprintf("page_%d.jpg", n)),
+		// 			Index:    n,
+		// 		},
+		// 	}
+		// }
 	default:
 		// If it's a directory of images
 		stat, err := os.Stat(fullpath)

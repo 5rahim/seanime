@@ -59,7 +59,7 @@ func (ap *AnilistPlatform) SetAnilistClient(client anilist.AnilistClient) {
 	ap.anilistClient = client
 }
 
-func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
+func (ap *AnilistPlatform) UpdateEntry(ctx context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry")
 
 	event := new(PreUpdateEntryEvent)
@@ -79,7 +79,7 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 		return nil
 	}
 
-	_, err = ap.anilistClient.UpdateMediaListEntry(context.Background(), event.MediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
+	_, err = ap.anilistClient.UpdateMediaListEntry(ctx, event.MediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 	return nil
 }
 
-func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalCount *int) error {
+func (ap *AnilistPlatform) UpdateEntryProgress(ctx context.Context, mediaID int, progress int, totalCount *int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry progress")
 
 	event := new(PreUpdateEntryProgressEvent)
@@ -140,7 +140,7 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 	}
 
 	_, err = ap.anilistClient.UpdateMediaListEntryProgress(
-		context.Background(),
+		ctx,
 		event.MediaID,
 		event.Progress,
 		event.Status,
@@ -160,7 +160,7 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 	return nil
 }
 
-func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
+func (ap *AnilistPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry repeat")
 
 	event := new(PreUpdateEntryRepeatEvent)
@@ -176,7 +176,7 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 		return nil
 	}
 
-	_, err = ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), event.MediaID, event.Repeat)
+	_, err = ap.anilistClient.UpdateMediaListEntryRepeat(ctx, event.MediaID, event.Repeat)
 	if err != nil {
 		return err
 	}
@@ -192,19 +192,19 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 	return nil
 }
 
-func (ap *AnilistPlatform) DeleteEntry(mediaID int) error {
+func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
-	_, err := ap.anilistClient.DeleteEntry(context.Background(), &mediaID)
+	_, err := ap.anilistClient.DeleteEntry(ctx, &mediaID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
+func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
 
-	ret, err := ap.anilistClient.BaseAnimeByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.BaseAnimeByID(ctx, &mediaID)
 	if err != nil {
 
 		return nil, err
@@ -223,9 +223,9 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	return event.Anime, nil
 }
 
-func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
+func (ap *AnilistPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime by MAL ID")
-	ret, err := ap.anilistClient.BaseAnimeByMalID(context.Background(), &malID)
+	ret, err := ap.anilistClient.BaseAnimeByMalID(ctx, &malID)
 	if err != nil {
 		return nil, err
 	}
@@ -243,9 +243,9 @@ func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error
 	return event.Anime, nil
 }
 
-func (ap *AnilistPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
+func (ap *AnilistPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime details")
-	ret, err := ap.anilistClient.AnimeDetailsByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.AnimeDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -263,18 +263,18 @@ func (ap *AnilistPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsBy
 	return event.Anime, nil
 }
 
-func (ap *AnilistPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
+func (ap *AnilistPlatform) GetAnimeWithRelations(ctx context.Context, mediaID int) (*anilist.CompleteAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime with relations")
-	ret, err := ap.anilistClient.CompleteAnimeByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.CompleteAnimeByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
 	return ret.GetMedia(), nil
 }
 
-func (ap *AnilistPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
+func (ap *AnilistPlatform) GetManga(ctx context.Context, mediaID int) (*anilist.BaseManga, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching manga")
-	ret, err := ap.anilistClient.BaseMangaByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.BaseMangaByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -292,16 +292,16 @@ func (ap *AnilistPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 	return event.Manga, nil
 }
 
-func (ap *AnilistPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
+func (ap *AnilistPlatform) GetMangaDetails(ctx context.Context, mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching manga details")
-	ret, err := ap.anilistClient.MangaDetailsByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.MangaDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
 	return ret.GetMedia(), nil
 }
 
-func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (ap *AnilistPlatform) GetAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.animeCollection.IsPresent() {
 		event := new(GetCachedAnimeCollectionEvent)
 		event.AnimeCollection = ap.animeCollection.MustGet()
@@ -316,7 +316,7 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 		return nil, nil
 	}
 
-	err := ap.refreshAnimeCollection()
+	err := ap.refreshAnimeCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +332,7 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 	return event.AnimeCollection, nil
 }
 
-func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (ap *AnilistPlatform) GetRawAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.rawAnimeCollection.IsPresent() {
 		event := new(GetCachedRawAnimeCollectionEvent)
 		event.AnimeCollection = ap.rawAnimeCollection.MustGet()
@@ -347,7 +347,7 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.Ani
 		return nil, nil
 	}
 
-	err := ap.refreshAnimeCollection()
+	err := ap.refreshAnimeCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -363,12 +363,12 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.Ani
 	return event.AnimeCollection, nil
 }
 
-func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+func (ap *AnilistPlatform) RefreshAnimeCollection(ctx context.Context) (*anilist.AnimeCollection, error) {
 	if ap.username.IsAbsent() {
 		return nil, nil
 	}
 
-	err := ap.refreshAnimeCollection()
+	err := ap.refreshAnimeCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -392,13 +392,13 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 	return event.AnimeCollection, nil
 }
 
-func (ap *AnilistPlatform) refreshAnimeCollection() error {
+func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 	if ap.username.IsAbsent() {
 		return errors.New("anilist: Username is not set")
 	}
 
 	// Else, get the collection from Anilist
-	collection, err := ap.anilistClient.AnimeCollection(context.Background(), ap.username.ToPointer())
+	collection, err := ap.anilistClient.AnimeCollection(ctx, ap.username.ToPointer())
 	if err != nil {
 		return err
 	}
@@ -423,14 +423,14 @@ func (ap *AnilistPlatform) refreshAnimeCollection() error {
 	return nil
 }
 
-func (ap *AnilistPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
+func (ap *AnilistPlatform) GetAnimeCollectionWithRelations(ctx context.Context) (*anilist.AnimeCollectionWithRelations, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime collection with relations")
 
 	if ap.username.IsAbsent() {
 		return nil, nil
 	}
 
-	ret, err := ap.anilistClient.AnimeCollectionWithRelations(context.Background(), ap.username.ToPointer())
+	ret, err := ap.anilistClient.AnimeCollectionWithRelations(ctx, ap.username.ToPointer())
 	if err != nil {
 		return nil, err
 	}
@@ -438,7 +438,7 @@ func (ap *AnilistPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeColl
 	return ret, nil
 }
 
-func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+func (ap *AnilistPlatform) GetMangaCollection(ctx context.Context, bypassCache bool) (*anilist.MangaCollection, error) {
 
 	if !bypassCache && ap.mangaCollection.IsPresent() {
 		event := new(GetCachedMangaCollectionEvent)
@@ -454,7 +454,7 @@ func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaC
 		return nil, nil
 	}
 
-	err := ap.refreshMangaCollection()
+	err := ap.refreshMangaCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +470,7 @@ func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaC
 	return event.MangaCollection, nil
 }
 
-func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+func (ap *AnilistPlatform) GetRawMangaCollection(ctx context.Context, bypassCache bool) (*anilist.MangaCollection, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching raw manga collection")
 
 	if !bypassCache && ap.rawMangaCollection.IsPresent() {
@@ -488,7 +488,7 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 		return nil, nil
 	}
 
-	err := ap.refreshMangaCollection()
+	err := ap.refreshMangaCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -504,12 +504,12 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 	return event.MangaCollection, nil
 }
 
-func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+func (ap *AnilistPlatform) RefreshMangaCollection(ctx context.Context) (*anilist.MangaCollection, error) {
 	if ap.username.IsAbsent() {
 		return nil, nil
 	}
 
-	err := ap.refreshMangaCollection()
+	err := ap.refreshMangaCollection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -533,12 +533,12 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 	return event.MangaCollection, nil
 }
 
-func (ap *AnilistPlatform) refreshMangaCollection() error {
+func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 	if ap.username.IsAbsent() {
 		return errors.New("anilist: Username is not set")
 	}
 
-	collection, err := ap.anilistClient.MangaCollection(context.Background(), ap.username.ToPointer())
+	collection, err := ap.anilistClient.MangaCollection(ctx, ap.username.ToPointer())
 	if err != nil {
 		return err
 	}
@@ -583,7 +583,7 @@ func (ap *AnilistPlatform) refreshMangaCollection() error {
 	return nil
 }
 
-func (ap *AnilistPlatform) AddMediaToCollection(mIds []int) error {
+func (ap *AnilistPlatform) AddMediaToCollection(ctx context.Context, mIds []int) error {
 	ap.logger.Trace().Msg("anilist platform: Adding media to collection")
 	if len(mIds) == 0 {
 		ap.logger.Debug().Msg("anilist: No media added to planning list")
@@ -599,7 +599,7 @@ func (ap *AnilistPlatform) AddMediaToCollection(mIds []int) error {
 			rateLimiter.Wait()
 			defer wg.Done()
 			_, err := ap.anilistClient.UpdateMediaListEntry(
-				context.Background(),
+				ctx,
 				&id,
 				lo.ToPtr(anilist.MediaListStatusPlanning),
 				lo.ToPtr(0),
@@ -618,9 +618,9 @@ func (ap *AnilistPlatform) AddMediaToCollection(mIds []int) error {
 	return nil
 }
 
-func (ap *AnilistPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
+func (ap *AnilistPlatform) GetStudioDetails(ctx context.Context, studioID int) (*anilist.StudioDetails, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching studio details")
-	ret, err := ap.anilistClient.StudioDetails(context.Background(), &studioID)
+	ret, err := ap.anilistClient.StudioDetails(ctx, &studioID)
 	if err != nil {
 		return nil, err
 	}
@@ -640,16 +640,43 @@ func (ap *AnilistPlatform) GetAnilistClient() anilist.AnilistClient {
 	return ap.anilistClient
 }
 
-func (ap *AnilistPlatform) GetViewerStats() (*anilist.ViewerStats, error) {
+func (ap *AnilistPlatform) GetViewerStats(ctx context.Context) (*anilist.ViewerStats, error) {
 	if ap.username.IsAbsent() {
 		return nil, errors.New("anilist: Username is not set")
 	}
 
 	ap.logger.Trace().Msg("anilist platform: Fetching viewer stats")
-	ret, err := ap.anilistClient.ViewerStats(context.Background())
+	ret, err := ap.anilistClient.ViewerStats(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	return ret, nil
+}
+
+func (ap *AnilistPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist.AnimeAiringSchedule, error) {
+	if ap.username.IsAbsent() {
+		return nil, errors.New("anilist: Username is not set")
+	}
+
+	collection, err := ap.GetAnimeCollection(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	mediaIds := make([]int, 0)
+	for _, list := range collection.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			mediaIds = append(mediaIds, entry.GetMedia().GetID())
+		}
+	}
+
+	var ret *anilist.AnimeAiringSchedule
+
+	// ret, err := ap.anilistClient.AnimeAiringSchedule(ctx, mediaIds)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return ret, nil
 }

@@ -49,6 +49,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
     const { externalPlayerLink } = useExternalPlayerLink()
     const setTab = useSetAtom(__settings_tabAtom)
 
+    const usingNativePlayer = __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer
 
     return (
         <>
@@ -88,7 +89,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             label="Use native player"
                             value={electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer}
                             onValueChange={v => {
-                                setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Classic)
+                                setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Default)
                                 toast.success("Playback settings updated")
                             }}
                         />
@@ -104,7 +105,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 )}
             >
 
-                {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
+                {(!usingNativePlayer && downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
                     <Alert
                         intent="info" description={<>
                         Using <span className="font-semibold">{(serverStatus?.mediastreamSettings?.transcodeEnabled && activeOnDevice)
@@ -172,13 +173,13 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 )}
             >
 
-                <Alert
+                {!usingNativePlayer && <Alert
                     intent="info" description={<>
                     Using <span className="font-semibold">{(torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)
                     ? "external player link"
                     : "desktop media player"}</span> for torrent/debrid streaming.
                 </>}
-                />
+                />}
 
                 <RadioGroup
                     // name="-"

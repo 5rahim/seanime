@@ -605,6 +605,7 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 
 	// Update the progress on AniList
 	err = pm.platform.UpdateEntryProgress(
+		context.Background(),
 		mediaId,
 		epNum,
 		&totalEpisodes,

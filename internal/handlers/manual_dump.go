@@ -33,7 +33,7 @@ func (h *Handler) HandleTestDump(c echo.Context) error {
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 
-	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
+	mc, err := scanner.NewMediaFetcher(c.Request().Context(), &scanner.MediaFetcherOptions{
 		Enhanced:               false,
 		Platform:               h.App.AnilistPlatform,
 		MetadataProvider:       h.App.MetadataProvider,

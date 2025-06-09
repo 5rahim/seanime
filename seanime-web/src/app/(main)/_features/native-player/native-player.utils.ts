@@ -44,22 +44,51 @@ export function isSubtitleFile(filename: string) {
 }
 
 export function detectSubtitleType(content: string): "ass" | "vtt" | "ttml" | "stl" | "srt" | "unknown" {
-    content = content.trim()
-    if (content.startsWith("[Script Info]")) {
+    const trimmed = content.trim()
+
+    // ASS/SSA: [Script Info] or [V4+ Styles] or [V4 Styles]
+    if (
+        /^\[Script Info\]/im.test(trimmed) ||
+        /^\[V4\+ Styles\]/im.test(trimmed) ||
+        /^\[V4 Styles\]/im.test(trimmed)
+    ) {
         return "ass"
     }
-    if (content.startsWith("WEBVTT")) {
+
+    // VTT: WEBVTT at start, optionally with BOM or comments
+    if (/^(?:\uFEFF)?WEBVTT\b/im.test(trimmed)) {
         return "vtt"
     }
-    if (content.startsWith("<?xml") || content.startsWith("<tt")) {
+
+    // TTML: XML root with <tt> or <tt:tt>
+    if (
+        /^<\?xml[\s\S]*?<tt[:\s>]/im.test(trimmed) ||
+        /^<tt[:\s>]/im.test(trimmed)
+    ) {
         return "ttml"
     }
-    if (content.startsWith("{")) {
+
+    // STL: { ... } lines (MicroDVD/other curly-brace formats)
+    if (/^\{\d+\}/m.test(trimmed)) {
         return "stl"
     }
-    if (content.includes(" -->")) {
+
+    // SRT: 1\n00:00:00,000 --> 00:00:05,000
+    if (
+        /^\d+\s*\n\s*\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/m.test(trimmed) ||
+        /\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/.test(trimmed)
+    ) {
         return "srt"
     }
+
+    // Fallback: check for VTT/SRT timecodes
+    if (/\d{2}:\d{2}:\d{2}\.\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}\.\d{3}/.test(trimmed)) {
+        return "vtt"
+    }
+    if (/\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/.test(trimmed)) {
+        return "srt"
+    }
+
     return "unknown"
 }
 
@@ -103,7 +132,8 @@ export function nativeplayer_createChaptersFromAniSkip(
             uid: 90,
             start: 0,
             end: aniSkipData.op.interval.startTime,
-            text: aniSkipData.op.interval.startTime > 1.5 * 60 ? "Intro" : "Recap",
+            // text: aniSkipData.op.interval.startTime > 1.5 * 60 ? "Intro" : "Recap",
+            text: "Intro",
         })
     }
 
@@ -121,7 +151,7 @@ export function nativeplayer_createChaptersFromAniSkip(
             uid: 94,
             start: aniSkipData.ed.interval.endTime,
             end: duration,
-            text: ((duration) - aniSkipData.ed.interval.endTime) > 1.5 * 60 ? "Outro" : "Preview",
+            text: ((duration) - aniSkipData.ed.interval.endTime) > 0.5 * 60 ? "Outro" : "Preview",
         })
     }
 

@@ -50,6 +50,8 @@ import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 import { LocalSettings } from "./_containers/local-settings"
+import { BiDonateHeart } from "react-icons/bi"
+import { SeaLink } from "@/components/shared/sea-link"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
@@ -216,6 +218,22 @@ export default function Page() {
                                 ><MdOutlinePalette className="text-lg mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
                             </div>
                         </SettingsNavCard>
+
+                        <div className="flex justify-center !mt-0">
+                            <SeaLink
+                                href="https://github.com/sponsors/5rahim"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Button
+                                    intent="gray-link"
+                                    size="md"
+                                    leftIcon={<BiDonateHeart className="text-lg" />}
+                                >
+                                    Donate
+                                </Button>
+                            </SeaLink>
+                        </div>
                     </TabsList>
 
                     <div className="">

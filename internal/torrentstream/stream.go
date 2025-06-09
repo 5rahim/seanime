@@ -1,6 +1,7 @@
 package torrentstream
 
 import (
+	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -38,7 +39,7 @@ type StartStreamOptions struct {
 }
 
 // StartStream is called by the client to start streaming a torrent
-func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
+func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartStream", &err)
 	// DEVNOTE: Do not
 	//r.Shutdown()
@@ -57,7 +58,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 	//
 	// Get the media info
 	//
-	media, _, err := r.GetMediaInfo(opts.MediaId)
+	media, _, err := r.GetMediaInfo(ctx, opts.MediaId)
 	if err != nil {
 		return err
 	}
@@ -120,7 +121,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
 		// Direct stream
 		//
 		case PlaybackTypeNativePlayer:
-			readyCh, err := r.directStreamManager.PlayTorrentStream(directstream.PlayTorrentStreamOptions{
+			readyCh, err := r.directStreamManager.PlayTorrentStream(ctx, directstream.PlayTorrentStreamOptions{
 				ClientId:      opts.ClientId,
 				EpisodeNumber: opts.EpisodeNumber,
 				AnidbEpisode:  opts.AniDBEpisode,
@@ -358,13 +359,13 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) GetMediaInfo(mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
+func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
 	// Get the media
 	var found bool
 	media, found = r.completeAnimeCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		media, err = r.platform.GetAnimeWithRelations(mediaId)
+		media, err = r.platform.GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
 			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 		}

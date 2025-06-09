@@ -27,7 +27,7 @@ func (h *Handler) HandlePopulateTVDBEpisodes(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -66,7 +66,7 @@ func (h *Handler) HandleEmptyTVDBEpisodes(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -108,7 +108,7 @@ func (h *Handler) HandlePopulateFillerData(c echo.Context) error {
 	media, found := animeCollection.FindAnime(b.MediaId)
 	if !found {
 		// Fetch media
-		media, err = h.App.AnilistPlatform.GetAnime(b.MediaId)
+		media, err = h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}

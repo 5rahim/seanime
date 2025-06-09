@@ -251,7 +251,7 @@ func (m *Manager) listenToNativePlayerEvents() {
 							epNum := baseStream.episode.GetProgressNumber()
 							totalEpisodes := baseStream.media.GetTotalEpisodeCount() // total episode count or -1
 
-							_ = baseStream.manager.platform.UpdateEntryProgress(mediaId, epNum, &totalEpisodes)
+							_ = baseStream.manager.platform.UpdateEntryProgress(context.Background(), mediaId, epNum, &totalEpisodes)
 						})
 					}
 				}
@@ -396,7 +396,7 @@ func loadContentType(path string, reader ...io.ReadSeekCloser) string {
 		return "video/mp4"
 	case ".mkv":
 		return "video/x-matroska"
-	case ".webm":
+	case ".webm", ".m4v":
 		return "video/webm"
 	case ".avi":
 		return "video/x-msvideo"

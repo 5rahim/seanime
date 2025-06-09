@@ -1,6 +1,7 @@
 package anime
 
 import (
+	"context"
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -64,7 +65,7 @@ type (
 //   - LocalFiles: List of local files (if any)
 //   - AnidbId: AniDB id
 //   - CurrentEpisodeCount: Current episode count
-func NewEntry(opts *NewEntryOptions) (*Entry, error) {
+func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	// Create new Entry
 	entry := new(Entry)
 	entry.MediaId = opts.MediaId
@@ -118,7 +119,7 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 		anilistEntry = &anilist.AnimeListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := opts.Platform.GetAnime(opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}
@@ -164,7 +165,7 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 		// +---------------------+
 
 		// If AniZip data is not found, we will still create the Entry without it
-		simpleAnimeEntry, err := NewSimpleEntry(&NewSimpleAnimeEntryOptions{
+		simpleAnimeEntry, err := NewSimpleEntry(ctx, &NewSimpleAnimeEntryOptions{
 			MediaId:         opts.MediaId,
 			LocalFiles:      opts.LocalFiles,
 			AnimeCollection: opts.AnimeCollection,

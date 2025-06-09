@@ -1,10 +1,12 @@
 package playbackmanager
 
 import (
+	"context"
 	"fmt"
-	"github.com/samber/lo"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
+
+	"github.com/samber/lo"
 )
 
 type StartRandomVideoOptions struct {
@@ -20,7 +22,7 @@ func (pm *PlaybackManager) StartRandomVideo(opts *StartRandomVideoOptions) error
 		return err
 	}
 
-	animeCollection, err := pm.platform.GetAnimeCollection(false)
+	animeCollection, err := pm.platform.GetAnimeCollection(context.Background(), false)
 	if err != nil {
 		return err
 	}

@@ -6,11 +6,11 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/util"
 
 	"github.com/labstack/echo/v4"
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 // HandleGetActiveTorrentList
@@ -136,7 +136,7 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("could not contact torrent client, verify your settings or make sure it's running"))
 	}
 
-	completeAnime, err := h.App.AnilistPlatform.GetAnimeWithRelations(b.Media.ID)
+	completeAnime, err := h.App.AnilistPlatform.GetAnimeWithRelations(c.Request().Context(), b.Media.ID)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -198,7 +198,7 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 				return
 			}
 			// Add the media to the collection
-			err = h.App.AnilistPlatform.AddMediaToCollection([]int{b.Media.ID})
+			err = h.App.AnilistPlatform.AddMediaToCollection(c.Request().Context(), []int{b.Media.ID})
 			if err != nil {
 				h.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}

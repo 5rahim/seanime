@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"seanime/internal/events"
 	"seanime/internal/util"
 	"strconv"
 	"time"
@@ -46,6 +47,7 @@ type AnilistClient interface {
 	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
+	AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error)
 }
 
 type (
@@ -231,7 +233,14 @@ func (ac *AnilistClientImpl) SearchBaseAnimeByIds(ctx context.Context, ids []*in
 	return ac.Client.SearchBaseAnimeByIds(ctx, ids, page, perPage, status, inCollection, sort, season, year, genre, format, interceptors...)
 }
 
+func (ac *AnilistClientImpl) AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error) {
+	ac.logger.Debug().Msg("anilist: Fetching schedule")
+	return ac.Client.AnimeAiringSchedule(ctx, ids, season, seasonYear, previousSeason, previousSeasonYear, nextSeason, nextSeasonYear, interceptors...)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var sentRateLimitWarningTime = time.Now().Add(-10 * time.Second)
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.
 func (ac *AnilistClientImpl) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) (err error) {
@@ -286,6 +295,10 @@ func (ac *AnilistClientImpl) customDoFunc(ctx context.Context, req *http.Request
 		rlRetryAfter, err := strconv.Atoi(rlRetryAfterStr)
 		if err == nil {
 			ac.logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", rlRetryAfter+1)
+			if time.Since(sentRateLimitWarningTime) > 10*time.Second {
+				events.GlobalWSEventManager.SendEvent(events.WarningToast, "anilist: Rate limited, retrying in "+strconv.Itoa(rlRetryAfter+1)+" seconds")
+				sentRateLimitWarningTime = time.Now()
+			}
 			select {
 			case <-time.After(time.Duration(rlRetryAfter+1) * time.Second):
 				continue

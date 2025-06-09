@@ -35,7 +35,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
+	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
 		Platform:         h.App.AnilistPlatform,
 		LocalFiles:       lfs,
@@ -82,7 +82,7 @@ func (h *Handler) HandleAddUnknownMedia(c echo.Context) error {
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := h.App.AnilistPlatform.AddMediaToCollection(b.MediaIds); err != nil {
+	if err := h.App.AnilistPlatform.AddMediaToCollection(c.Request().Context(), b.MediaIds); err != nil {
 		return h.RespondWithError(c, errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 

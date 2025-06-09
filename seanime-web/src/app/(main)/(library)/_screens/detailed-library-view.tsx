@@ -42,6 +42,7 @@ type LibraryViewProps = {
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
     hasEntries: boolean
+    streamingMediaIds: number[]
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -51,6 +52,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         continueWatchingList,
         isLoading,
         hasEntries,
+        streamingMediaIds,
         ...rest
     } = props
 
@@ -121,13 +123,13 @@ export function DetailedLibraryView(props: LibraryViewProps) {
 
             {libraryCollectionList.map(collection => {
                 if (!collection.entries?.length) return null
-                return <LibraryCollectionListItem key={collection.type} list={collection} />
+                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} />
             })}
         </PageWrapper>
     )
 }
 
-const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCollectionList }) => {
+const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { list: Anime_LibraryCollectionList, streamingMediaIds: number[] }) => {
 
     const selectedList = useAtomValue(__library_selectedListAtom)
 
@@ -138,14 +140,17 @@ const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCol
             <h2>{getLibraryCollectionTitle(list.type)} <span className="text-[--muted] font-medium ml-3">{list?.entries?.length ?? 0}</span></h2>
             <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
                 })}
             </MediaCardLazyGrid>
         </React.Fragment>
     )
 })
 
-const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
+const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
+    entry: Anime_LibraryCollectionEntry,
+    streamingMediaIds: number[]
+}) => {
     return (
         <MediaEntryCard
             media={entry.media!}
@@ -154,6 +159,7 @@ const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_Library
             showListDataButton
             withAudienceScore={false}
             type="anime"
+            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
         />
     )
 })

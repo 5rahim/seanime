@@ -1,6 +1,7 @@
 package local
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -609,6 +610,7 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 				}
 
 				_ = m.anilistPlatform.UpdateEntry(
+					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
 					score,
@@ -671,6 +673,7 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 				}
 
 				_ = m.anilistPlatform.UpdateEntry(
+					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
 					score,
@@ -797,6 +800,12 @@ func (m *ManagerImpl) GetSimulatedMangaCollection() mo.Option[*anilist.MangaColl
 }
 
 func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) {
+	// Remove airing dates from each entry
+	for _, list := range ac.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			entry.GetMedia().NextAiringEpisode = nil
+		}
+	}
 	_ = m.localDb.SaveSimulatedAnimeCollection(ac)
 }
 
@@ -870,6 +879,7 @@ func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {
 				}
 
 				_ = m.anilistPlatform.UpdateEntry(
+					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
 					score,
@@ -934,6 +944,7 @@ func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {
 				}
 
 				_ = m.anilistPlatform.UpdateEntry(
+					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
 					score,

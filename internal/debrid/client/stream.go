@@ -69,12 +69,12 @@ func NewStreamManager(repository *Repository) *StreamManager {
 
 const (
 	PlaybackTypeDefault        StreamPlaybackType = "default"
-	PlaybackTypeDirectStream   StreamPlaybackType = "directstream"
+	PlaybackTypeNativePlayer   StreamPlaybackType = "nativeplayer"
 	PlaybackTypeExternalPlayer StreamPlaybackType = "externalPlayerLink"
 )
 
 // startStream is called by the client to start streaming a torrent
-func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
+func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("debrid/client/StartStream", &err)
 
 	s.repository.logger.Info().
@@ -96,7 +96,7 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 	//
 	// Get the media info
 	//
-	media, _, err := s.getMediaInfo(opts.MediaId)
+	media, _, err := s.getMediaInfo(ctx, opts.MediaId)
 	if err != nil {
 		return err
 	}

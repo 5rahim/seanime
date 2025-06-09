@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
 	"seanime/internal/api/anilist"
 	"seanime/internal/onlinestream"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetOnlineStreamEpisodeList
@@ -35,7 +36,7 @@ func (h *Handler) HandleGetOnlineStreamEpisodeList(c echo.Context) error {
 
 	// Get media
 	// This is cached
-	media, err := h.App.OnlinestreamRepository.GetMedia(b.MediaId)
+	media, err := h.App.OnlinestreamRepository.GetMedia(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -82,12 +83,12 @@ func (h *Handler) HandleGetOnlineStreamEpisodeSource(c echo.Context) error {
 
 	// Get media
 	// This is cached
-	media, err := h.App.OnlinestreamRepository.GetMedia(b.MediaId)
+	media, err := h.App.OnlinestreamRepository.GetMedia(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	sources, err := h.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
+	sources, err := h.App.OnlinestreamRepository.GetEpisodeSources(c.Request().Context(), b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

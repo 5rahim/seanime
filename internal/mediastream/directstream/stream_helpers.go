@@ -12,66 +12,11 @@ import (
 	"github.com/neilotoole/streamcache"
 )
 
-func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileStream) {
-	if lfStream.serveContentCancelFunc != nil {
-		lfStream.serveContentCancelFunc()
-	}
-
-	ct, cancel := context.WithCancel(lfStream.manager.playbackCtx)
-	lfStream.serveContentCancelFunc = cancel
-
-	reader, err := lfStream.newReader()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer reader.Close()
-
-	playbackInfo, err := lfStream.LoadPlaybackInfo()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	size := playbackInfo.ContentLength
-	w.Header().Set("Content-Length", fmt.Sprint(size))
-
-	// No Range header → let Go handle it
-	rangeHdr := r.Header.Get("Range")
-	if rangeHdr == "" {
-		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
-		return
-	}
-
-	// Parse the range header
-	ranges, err := httputil.ParseRange(rangeHdr, size)
-	if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
-		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
-		http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
-		return
-	} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
-		// Let Go handle overlap
-		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
-		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
-		return
-	}
-
-	// Start a subtitle stream from the current position
-	subReader, err := lfStream.newReader()
-	if err != nil {
-		lfStream.logger.Error().Err(err).Msg("directstream: Failed to create subtitle reader")
-		http.Error(w, "Failed to create subtitle reader", http.StatusInternalServerError)
-		return
-	}
-	lfStream.StartSubtitleStream(lfStream, lfStream.manager.playbackCtx, subReader, ranges[0].Start)
-
-	serveContentRange(w, r, ct, reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ranges)
-}
-
 func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Connection", "keep-alive") // Explicitly use keep-alive
+	// w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Type", "video/webm")
+	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Cache-Control", "no-store")
 
 	// Only handle the first range for now (multiples are rare)
@@ -159,7 +104,8 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	// w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0")
 	w.Header().Set("Expires", "0")
@@ -209,8 +155,8 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 		fmt.Printf("directstream > Served content range: %s\n", ra.ContentRange(size))
 	}()
 
-	http.ServeContent(w, r, name, time.Now(), reader)
-	// copyWithContext(ctx, w, reader, ra.Length)
+	// http.ServeContent(w, r, name, time.Now(), reader)
+	copyWithContext(ctx, w, reader, ra.Length)
 }
 
 func copyWithFlush(ctx context.Context, w http.ResponseWriter, rdr io.Reader, totalBytes int64) {

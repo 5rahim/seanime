@@ -22,7 +22,7 @@ func (h *Handler) HandleGetAnimeEpisodeCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(mId)
+	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

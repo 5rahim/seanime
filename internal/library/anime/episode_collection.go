@@ -2,6 +2,7 @@ package anime
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -194,7 +195,7 @@ type NewEpisodeCollectionFromLocalFilesOptions struct {
 	Logger           *zerolog.Logger
 }
 
-func NewEpisodeCollectionFromLocalFiles(opts NewEpisodeCollectionFromLocalFilesOptions) (*EpisodeCollection, error) {
+func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeCollectionFromLocalFilesOptions) (*EpisodeCollection, error) {
 	if opts.Logger == nil {
 		opts.Logger = lo.ToPtr(zerolog.Nop())
 	}
@@ -209,7 +210,7 @@ func NewEpisodeCollectionFromLocalFiles(opts NewEpisodeCollectionFromLocalFilesO
 	})
 
 	// Create a new media entry
-	entry, err := NewEntry(&NewEntryOptions{
+	entry, err := NewEntry(ctx, &NewEntryOptions{
 		MediaId:          opts.Media.GetID(),
 		LocalFiles:       opts.LocalFiles,
 		AnimeCollection:  opts.AnimeCollection,

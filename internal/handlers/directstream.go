@@ -30,7 +30,7 @@ func (h *Handler) HandleDirectstreamPlayLocalFile(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	return h.App.DirectStreamManager.PlayLocalFile(directstream.PlayLocalFileOptions{
+	return h.App.DirectStreamManager.PlayLocalFile(c.Request().Context(), directstream.PlayLocalFileOptions{
 		ClientId:   b.ClientId,
 		Path:       b.Path,
 		LocalFiles: lfs,

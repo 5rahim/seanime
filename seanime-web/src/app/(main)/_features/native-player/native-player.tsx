@@ -195,13 +195,43 @@ export function NativePlayer() {
     useUpdateEffect(() => {
         if (!!state.playbackInfo && (!streamLoadedRef.current || state.playbackInfo.id !== streamLoadedRef.current)) {
             if (videoRef.current) {
-                console.log("HEVC HVC1 main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hvc1\""))
-                console.log("HEVC main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\""))
-                console.log("HEVC main 10 profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\""))
-                console.log("HEVC main still-picture profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.3.E.L120.90\""))
-                console.log("HEVC range extensions profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\""))
+                // MP4 container codec tests
+                console.log("MP4 HEVC HVC1 main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hvc1\""))
+                console.log("MP4 HEVC main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\""))
+                console.log("MP4 HEVC main 10 profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\""))
+                console.log("MP4 HEVC main still-picture profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.3.E.L120.90\""))
+                console.log("MP4 HEVC range extensions profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\""))
+
+                // MKV container codec tests
+                console.log("MKV HEVC main profile support ->", videoRef.current.canPlayType("video/x-matroska;codecs=\"hev1.1.6.L120.90\""))
+                console.log("MKV HEVC main 10 profile support ->", videoRef.current.canPlayType("video/x-matroska;codecs=\"hev1.2.4.L120.90\""))
+                console.log("MKV HEVC HVC1 support ->", videoRef.current.canPlayType("video/x-matroska;codecs=\"hvc1\""))
+                console.log("MKV H264 support ->", videoRef.current.canPlayType("video/x-matroska;codecs=\"avc1\""))
+
+                // Additional 10-bit HEVC tests
+                console.log("HEVC Main 10 Level 4.0 ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120\""))
+                console.log("HEVC Main 10 Level 4.1 ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L123\""))
+                console.log("HEVC Main 10 Level 5.0 ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L150\""))
+                console.log("HEVC Main 10 Level 5.1 ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L153\""))
+
+                // Audio codec tests
                 console.log("Dolby AC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ac-3\""))
                 console.log("Dolby EC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ec-3\""))
+                console.log("MKV AC3 support ->", videoRef.current.canPlayType("video/x-matroska; codecs=\"ac-3\""))
+                console.log("MKV DTS support ->", videoRef.current.canPlayType("video/x-matroska; codecs=\"dts\""))
+
+                // GPU and hardware acceleration status
+                const canvas = document.createElement("canvas")
+                const gl = canvas.getContext("webgl2") || canvas.getContext("webgl")
+                if (gl) {
+                    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info")
+                    if (debugInfo) {
+                        console.log("GPU Vendor:", gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL))
+                        console.log("GPU Renderer:", gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
+                    }
+                }
+                console.log("Hardware concurrency:", navigator.hardwareConcurrency)
+                console.log("User agent:", navigator.userAgent)
             }
         }
 
@@ -386,13 +416,49 @@ export function NativePlayer() {
     }
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Media error", e.currentTarget.error)
+        const error = e.currentTarget.error
+        let errorMessage = "Unknown error"
+        let detailedInfo = ""
+
+        if (error) {
+            switch (error.code) {
+                case MediaError.MEDIA_ERR_ABORTED:
+                    errorMessage = "Media playback aborted"
+                    break
+                case MediaError.MEDIA_ERR_NETWORK:
+                    errorMessage = "Network error occurred"
+                    break
+                case MediaError.MEDIA_ERR_DECODE:
+                    errorMessage = "Media decode error - codec not supported or corrupted file"
+                    detailedInfo = "This is likely a codec compatibility issue."
+                    break
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                    errorMessage = "Media format not supported"
+                    detailedInfo = "The video codec/container format is not supported."
+                    break
+                default:
+                    errorMessage = error.message || "Unknown media error"
+            }
+        }
+
+        log.error("Media error", {
+            code: error?.code,
+            message: error?.message,
+            src: e.currentTarget.src,
+            networkState: e.currentTarget.networkState,
+            readyState: e.currentTarget.readyState,
+        })
+
+        const fullErrorMessage = detailedInfo ? `${errorMessage}\n\n${detailedInfo}` : errorMessage
+
+        log.error("Media error", fullErrorMessage)
+
         sendMessage({
             type: WSEvents.NATIVE_PLAYER,
             payload: {
                 clientId: clientId,
                 type: VideoPlayerEvents.VIDEO_ERROR,
-                payload: { error: e.currentTarget.error?.message || "Unknown error" },
+                payload: { error: fullErrorMessage },
             },
         })
     }
@@ -546,8 +612,8 @@ export function NativePlayer() {
         clipboardData?: DataTransfer
     }
     const handleUpload = useCallback(async (e: UploadEvent & Event) => {
-        e.preventDefault() // stop the default behavior
-        log.info("Upload", e)
+        e.preventDefault()
+        log.info("Upload event", e)
         const items = [...(e.dataTransfer ?? e.clipboardData)?.items ?? []]
 
         // First, try to get actual files
@@ -586,7 +652,9 @@ export function NativePlayer() {
                 textItem.getAsString(str => {
                     log.info("Uploading subtitle content from clipboard")
                     const type = detectSubtitleType(str)
+                    log.info("Detected subtitle type", type)
                     if (type === "unknown") {
+                        toast.error("Unknown subtitle type")
                         log.info("Unknown subtitle type, skipping")
                         return
                     }
@@ -829,7 +897,7 @@ export function NativePlayer() {
                 {!state.miniPlayer && <IconButton
                     icon={<FiMinimize2 className="text-2xl" />}
                     intent="gray-basic"
-                    className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen"
+                    className="rounded-full absolute top-8 right-4 native-player-hide-on-fullscreen z-[99]"
                     onClick={() => {
                         setState(draft => {
                             draft.miniPlayer = true
@@ -923,7 +991,7 @@ export function NativePlayer() {
                             ) : (
                                 <h1 className={cn("text-2xl font-bold", state.miniPlayer && "text-lg")}>Playback Error</h1>
                             )}
-                            <p className={cn("text-base text-white/50", state.miniPlayer && "text-sm")}>
+                            <p className={cn("text-base text-white/50", state.miniPlayer && "text-sm max-w-lg mx-auto")}>
                                 {state.playbackError || "An error occurred while playing the stream. Please try again later."}
                             </p>
                         </div>
@@ -978,7 +1046,7 @@ export function NativePlayer() {
                                 />
 
                                 {/* Skip Intro/Ending Buttons */}
-                                {showSkipIntroButton && !state.miniPlayer && (
+                                {showSkipIntroButton && !state.miniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
                                     <div className="absolute left-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
                                         <button
                                             className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
@@ -989,7 +1057,7 @@ export function NativePlayer() {
                                     </div>
                                 )}
 
-                                {showSkipEndingButton && !state.miniPlayer && (
+                                {showSkipEndingButton && !state.miniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
                                     <div className="absolute right-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
                                         <button
                                             className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
@@ -1053,7 +1121,7 @@ export function NativePlayer() {
                                     )}
                                 </video>
 
-                                <MediaErrorDialog slot="dialog" />
+                                {/* <MediaErrorDialog slot="dialog" /> */}
 
                                 <div className="native-player-gradient-bottom"></div>
 
@@ -1187,7 +1255,7 @@ export function NativePlayer() {
                             className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
                         >
 
-                            <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />
+                            {/* {!state.miniPlayer && <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />} */}
                             <Buttons />
 
                             <LoadingSpinner

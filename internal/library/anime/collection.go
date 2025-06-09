@@ -2,6 +2,7 @@ package anime
 
 import (
 	"cmp"
+	"context"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -93,7 +94,7 @@ type (
 )
 
 // NewLibraryCollection creates a new LibraryCollection.
-func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
+func NewLibraryCollection(ctx context.Context, opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
 	lc = new(LibraryCollection)
 
@@ -135,6 +136,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 
 	// Add Continue Watching list
 	lc.hydrateContinueWatchingList(
+		ctx,
 		opts.LocalFiles,
 		opts.AnimeCollection,
 		opts.Platform,
@@ -344,6 +346,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 // hydrateContinueWatchingList creates a list of Episode for the "continue watching" feature.
 // This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
+	ctx context.Context,
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
 	platform platform.Platform,
@@ -370,7 +373,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	mEntryPool := pool.NewWithResults[*Entry]()
 	for _, mId := range mIds {
 		mEntryPool.Go(func() *Entry {
-			me, _ := NewEntry(&NewEntryOptions{
+			me, _ := NewEntry(ctx, &NewEntryOptions{
 				MediaId:          mId,
 				LocalFiles:       localFiles,
 				AnimeCollection:  animeCollection,

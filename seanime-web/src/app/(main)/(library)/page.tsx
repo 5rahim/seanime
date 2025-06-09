@@ -31,6 +31,7 @@ export default function Library() {
         ignoredLocalFiles,
         unmatchedGroups,
         unknownGroups,
+        streamingMediaIds,
     } = useHandleLibraryCollection()
 
     const [view, setView] = useAtom(__library_viewAtom)
@@ -75,6 +76,7 @@ export default function Library() {
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
                         hasEntries={hasEntries}
+                        streamingMediaIds={streamingMediaIds}
                     />
                 </PageWrapper>}
                 {view === "detailed" && <PageWrapper
@@ -94,6 +96,7 @@ export default function Library() {
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
                         hasEntries={hasEntries}
+                        streamingMediaIds={streamingMediaIds}
                     />
                 </PageWrapper>}
             </AnimatePresence>

@@ -33,21 +33,51 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 	// Bind anilist platform
 	anilistPlatform, ok := a.anilistPlatform.Get()
 	if ok {
-		_ = anilistObj.Set("updateEntry", anilistPlatform.UpdateEntry)
-		_ = anilistObj.Set("updateEntryProgress", anilistPlatform.UpdateEntryProgress)
-		_ = anilistObj.Set("updateEntryRepeat", anilistPlatform.UpdateEntryRepeat)
-		_ = anilistObj.Set("deleteEntry", anilistPlatform.DeleteEntry)
-		_ = anilistObj.Set("getAnimeCollection", anilistPlatform.GetAnimeCollection)
-		_ = anilistObj.Set("getRawAnimeCollection", anilistPlatform.GetRawAnimeCollection)
-		_ = anilistObj.Set("getMangaCollection", anilistPlatform.GetMangaCollection)
-		_ = anilistObj.Set("getRawMangaCollection", anilistPlatform.GetRawMangaCollection)
-		_ = anilistObj.Set("getAnime", anilistPlatform.GetAnime)
-		_ = anilistObj.Set("getManga", anilistPlatform.GetManga)
-		_ = anilistObj.Set("getAnimeDetails", anilistPlatform.GetAnimeDetails)
-		_ = anilistObj.Set("getMangaDetails", anilistPlatform.GetMangaDetails)
-		_ = anilistObj.Set("getAnimeCollectionWithRelations", anilistPlatform.GetAnimeCollectionWithRelations)
-		_ = anilistObj.Set("addMediaToCollection", anilistPlatform.AddMediaToCollection)
-		_ = anilistObj.Set("getStudioDetails", anilistPlatform.GetStudioDetails)
+		_ = anilistObj.Set("updateEntry", func(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
+			return anilistPlatform.UpdateEntry(context.Background(), mediaID, status, scoreRaw, progress, startedAt, completedAt)
+		})
+		_ = anilistObj.Set("updateEntryProgress", func(mediaID int, progress int, totalEpisodes *int) error {
+			return anilistPlatform.UpdateEntryProgress(context.Background(), mediaID, progress, totalEpisodes)
+		})
+		_ = anilistObj.Set("updateEntryRepeat", func(mediaID int, repeat int) error {
+			return anilistPlatform.UpdateEntryRepeat(context.Background(), mediaID, repeat)
+		})
+		_ = anilistObj.Set("deleteEntry", func(mediaID int) error {
+			return anilistPlatform.DeleteEntry(context.Background(), mediaID)
+		})
+		_ = anilistObj.Set("getAnimeCollection", func(bypassCache bool) (*anilist.AnimeCollection, error) {
+			return anilistPlatform.GetAnimeCollection(context.Background(), bypassCache)
+		})
+		_ = anilistObj.Set("getRawAnimeCollection", func(bypassCache bool) (*anilist.AnimeCollection, error) {
+			return anilistPlatform.GetRawAnimeCollection(context.Background(), bypassCache)
+		})
+		_ = anilistObj.Set("getMangaCollection", func(bypassCache bool) (*anilist.MangaCollection, error) {
+			return anilistPlatform.GetMangaCollection(context.Background(), bypassCache)
+		})
+		_ = anilistObj.Set("getRawMangaCollection", func(bypassCache bool) (*anilist.MangaCollection, error) {
+			return anilistPlatform.GetRawMangaCollection(context.Background(), bypassCache)
+		})
+		_ = anilistObj.Set("getAnime", func(mediaID int) (*anilist.BaseAnime, error) {
+			return anilistPlatform.GetAnime(context.Background(), mediaID)
+		})
+		_ = anilistObj.Set("getManga", func(mediaID int) (*anilist.BaseManga, error) {
+			return anilistPlatform.GetManga(context.Background(), mediaID)
+		})
+		_ = anilistObj.Set("getAnimeDetails", func(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
+			return anilistPlatform.GetAnimeDetails(context.Background(), mediaID)
+		})
+		_ = anilistObj.Set("getMangaDetails", func(mediaID int) (*anilist.MangaDetailsById_Media, error) {
+			return anilistPlatform.GetMangaDetails(context.Background(), mediaID)
+		})
+		_ = anilistObj.Set("getAnimeCollectionWithRelations", func() (*anilist.AnimeCollectionWithRelations, error) {
+			return anilistPlatform.GetAnimeCollectionWithRelations(context.Background())
+		})
+		_ = anilistObj.Set("addMediaToCollection", func(mIds []int) error {
+			return anilistPlatform.AddMediaToCollection(context.Background(), mIds)
+		})
+		_ = anilistObj.Set("getStudioDetails", func(studioID int) (*anilist.StudioDetails, error) {
+			return anilistPlatform.GetStudioDetails(context.Background(), studioID)
+		})
 
 		anilistClient := anilistPlatform.GetAnilistClient()
 		_ = anilistObj.Set("listAnime", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool) (*anilist.ListAnime, error) {

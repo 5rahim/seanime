@@ -22,9 +22,9 @@ func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist
 	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
 	require.NoError(t, err)
-	mangaCollection, err := anilistPlatform.GetMangaCollection(true)
+	mangaCollection, err := anilistPlatform.GetMangaCollection(t.Context(), true)
 	require.NoError(t, err)
 
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)

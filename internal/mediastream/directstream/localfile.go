@@ -2,6 +2,7 @@ package directstream
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"seanime/internal/mediastream/mkvparser"
 	"seanime/internal/mediastream/nativeplayer"
 	"seanime/internal/util"
+	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
 	"time"
 
@@ -174,6 +176,64 @@ func (s *LocalFileStream) GetStreamHandler() http.Handler {
 	})
 }
 
+func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileStream) {
+	if lfStream.serveContentCancelFunc != nil {
+		lfStream.serveContentCancelFunc()
+	}
+
+	ct, cancel := context.WithCancel(lfStream.manager.playbackCtx)
+	lfStream.serveContentCancelFunc = cancel
+
+	reader, err := lfStream.newReader()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer reader.Close()
+
+	playbackInfo, err := lfStream.LoadPlaybackInfo()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	size := playbackInfo.ContentLength
+	w.Header().Set("Content-Length", fmt.Sprint(size))
+
+	// No Range header → let Go handle it
+	rangeHdr := r.Header.Get("Range")
+	if rangeHdr == "" {
+		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
+		return
+	}
+
+	// Parse the range header
+	ranges, err := httputil.ParseRange(rangeHdr, size)
+	if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
+		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
+		http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
+		return
+	} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
+		// Let Go handle overlap
+		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
+		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
+		return
+	}
+
+	if _, ok := playbackInfo.MkvMetadataParser.Get(); ok {
+		// Start a subtitle stream from the current position
+		subReader, err := lfStream.newReader()
+		if err != nil {
+			lfStream.logger.Error().Err(err).Msg("directstream: Failed to create subtitle reader")
+			http.Error(w, "Failed to create subtitle reader", http.StatusInternalServerError)
+			return
+		}
+		lfStream.StartSubtitleStream(lfStream, lfStream.manager.playbackCtx, subReader, ranges[0].Start)
+	}
+
+	serveContentRange(w, r, ct, reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ranges)
+}
+
 type PlayLocalFileOptions struct {
 	ClientId   string
 	Path       string
@@ -181,7 +241,7 @@ type PlayLocalFileOptions struct {
 }
 
 // PlayLocalFile is used by a module to load a new torrent stream.
-func (m *Manager) PlayLocalFile(opts PlayLocalFileOptions) error {
+func (m *Manager) PlayLocalFile(ctx context.Context, opts PlayLocalFileOptions) error {
 	m.playbackMu.Lock()
 	defer m.playbackMu.Unlock()
 
@@ -218,7 +278,7 @@ func (m *Manager) PlayLocalFile(opts PlayLocalFileOptions) error {
 		return fmt.Errorf("media not found in anime collection: %d", mId)
 	}
 
-	episodeCollection, err := anime.NewEpisodeCollectionFromLocalFiles(anime.NewEpisodeCollectionFromLocalFilesOptions{
+	episodeCollection, err := anime.NewEpisodeCollectionFromLocalFiles(ctx, anime.NewEpisodeCollectionFromLocalFilesOptions{
 		LocalFiles:       opts.LocalFiles,
 		Media:            media,
 		AnimeCollection:  animeCollection,

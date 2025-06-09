@@ -3,8 +3,6 @@ package debrid_client
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -18,6 +16,9 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 var (
@@ -228,8 +229,8 @@ func (r *Repository) CancelDownload(itemID string) error {
 	return nil
 }
 
-func (r *Repository) StartStream(opts *StartStreamOptions) error {
-	return r.streamManager.startStream(opts)
+func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) error {
+	return r.streamManager.startStream(ctx, opts)
 }
 
 func (r *Repository) CancelStream(opts *CancelStreamOptions) {

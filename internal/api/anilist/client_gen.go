@@ -19,6 +19,7 @@ type GithubGraphQLClient interface {
 	AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error)
 	ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error)
 	ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error)
+	AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
@@ -443,6 +444,38 @@ func (t *BaseCharacter) GetSiteURL() *string {
 		t = &BaseCharacter{}
 	}
 	return t.SiteURL
+}
+
+type AnimeSchedule struct {
+	ID       int                     "json:\"id\" graphql:\"id\""
+	IDMal    *int                    "json:\"idMal,omitempty\" graphql:\"idMal\""
+	Previous *AnimeSchedule_Previous "json:\"previous,omitempty\" graphql:\"previous\""
+	Upcoming *AnimeSchedule_Upcoming "json:\"upcoming,omitempty\" graphql:\"upcoming\""
+}
+
+func (t *AnimeSchedule) GetID() int {
+	if t == nil {
+		t = &AnimeSchedule{}
+	}
+	return t.ID
+}
+func (t *AnimeSchedule) GetIDMal() *int {
+	if t == nil {
+		t = &AnimeSchedule{}
+	}
+	return t.IDMal
+}
+func (t *AnimeSchedule) GetPrevious() *AnimeSchedule_Previous {
+	if t == nil {
+		t = &AnimeSchedule{}
+	}
+	return t.Previous
+}
+func (t *AnimeSchedule) GetUpcoming() *AnimeSchedule_Upcoming {
+	if t == nil {
+		t = &AnimeSchedule{}
+	}
+	return t.Upcoming
 }
 
 type BaseManga struct {
@@ -1491,6 +1524,78 @@ func (t *BaseCharacter_Image) GetLarge() *string {
 		t = &BaseCharacter_Image{}
 	}
 	return t.Large
+}
+
+type AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeSchedule_Previous struct {
+	Nodes []*AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeSchedule_Previous) GetNodes() []*AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeSchedule_Upcoming) GetNodes() []*AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
 }
 
 type BaseManga_Title struct {
@@ -4744,6 +4849,421 @@ func (t *ListRecentAnime_Page) GetAiringSchedules() []*ListRecentAnime_Page_Airi
 	return t.AiringSchedules
 }
 
+type AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Ongoing struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringSchedule_Ongoing) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringSchedule_Ongoing{}
+	}
+	return t.Media
+}
+
+type AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_OngoingNext struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringSchedule_OngoingNext) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringSchedule_OngoingNext{}
+	}
+	return t.Media
+}
+
+type AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Upcoming struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringSchedule_Upcoming) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringSchedule_Upcoming{}
+	}
+	return t.Media
+}
+
+type AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_UpcomingNext struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringSchedule_UpcomingNext) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringSchedule_UpcomingNext{}
+	}
+	return t.Media
+}
+
+type AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringSchedule_Preceding struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringSchedule_Preceding) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringSchedule_Preceding{}
+	}
+	return t.Media
+}
+
 type UpdateMediaListEntry_SaveMediaListEntry struct {
 	ID int "json:\"id\" graphql:\"id\""
 }
@@ -6763,6 +7283,45 @@ func (t *ListRecentAnime) GetPage() *ListRecentAnime_Page {
 	return t.Page
 }
 
+type AnimeAiringSchedule struct {
+	Ongoing      *AnimeAiringSchedule_Ongoing      "json:\"ongoing,omitempty\" graphql:\"ongoing\""
+	OngoingNext  *AnimeAiringSchedule_OngoingNext  "json:\"ongoingNext,omitempty\" graphql:\"ongoingNext\""
+	Upcoming     *AnimeAiringSchedule_Upcoming     "json:\"upcoming,omitempty\" graphql:\"upcoming\""
+	UpcomingNext *AnimeAiringSchedule_UpcomingNext "json:\"upcomingNext,omitempty\" graphql:\"upcomingNext\""
+	Preceding    *AnimeAiringSchedule_Preceding    "json:\"preceding,omitempty\" graphql:\"preceding\""
+}
+
+func (t *AnimeAiringSchedule) GetOngoing() *AnimeAiringSchedule_Ongoing {
+	if t == nil {
+		t = &AnimeAiringSchedule{}
+	}
+	return t.Ongoing
+}
+func (t *AnimeAiringSchedule) GetOngoingNext() *AnimeAiringSchedule_OngoingNext {
+	if t == nil {
+		t = &AnimeAiringSchedule{}
+	}
+	return t.OngoingNext
+}
+func (t *AnimeAiringSchedule) GetUpcoming() *AnimeAiringSchedule_Upcoming {
+	if t == nil {
+		t = &AnimeAiringSchedule{}
+	}
+	return t.Upcoming
+}
+func (t *AnimeAiringSchedule) GetUpcomingNext() *AnimeAiringSchedule_UpcomingNext {
+	if t == nil {
+		t = &AnimeAiringSchedule{}
+	}
+	return t.UpcomingNext
+}
+func (t *AnimeAiringSchedule) GetPreceding() *AnimeAiringSchedule_Preceding {
+	if t == nil {
+		t = &AnimeAiringSchedule{}
+	}
+	return t.Preceding
+}
+
 type UpdateMediaListEntry struct {
 	SaveMediaListEntry *UpdateMediaListEntry_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
 }
@@ -7921,6 +8480,76 @@ func (c *Client) ListRecentAnime(ctx context.Context, page *int, perPage *int, a
 	return &res, nil
 }
 
+const AnimeAiringScheduleDocument = `query AnimeAiringSchedule ($ids: [Int], $season: MediaSeason, $seasonYear: Int, $previousSeason: MediaSeason, $previousSeasonYear: Int, $nextSeason: MediaSeason, $nextSeasonYear: Int) {
+	ongoing: Page {
+		media(id_in: $ids, type: ANIME, season: $season, seasonYear: $seasonYear, onList: true) {
+			... animeSchedule
+		}
+	}
+	ongoingNext: Page(page: 2) {
+		media(id_in: $ids, type: ANIME, season: $season, seasonYear: $seasonYear, onList: true) {
+			... animeSchedule
+		}
+	}
+	upcoming: Page {
+		media(id_in: $ids, type: ANIME, season: $nextSeason, seasonYear: $nextSeasonYear, sort: [START_DATE], onList: true) {
+			... animeSchedule
+		}
+	}
+	upcomingNext: Page(page: 2) {
+		media(id_in: $ids, type: ANIME, season: $nextSeason, seasonYear: $nextSeasonYear, sort: [START_DATE], onList: true) {
+			... animeSchedule
+		}
+	}
+	preceding: Page {
+		media(id_in: $ids, type: ANIME, season: $previousSeason, seasonYear: $previousSeasonYear, onList: true) {
+			... animeSchedule
+		}
+	}
+}
+fragment animeSchedule on Media {
+	id
+	idMal
+	previous: airingSchedule(notYetAired: false, perPage: 30) {
+		nodes {
+			airingAt
+			timeUntilAiring
+			episode
+		}
+	}
+	upcoming: airingSchedule(notYetAired: true, perPage: 30) {
+		nodes {
+			airingAt
+			timeUntilAiring
+			episode
+		}
+	}
+}
+`
+
+func (c *Client) AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error) {
+	vars := map[string]any{
+		"ids":                ids,
+		"season":             season,
+		"seasonYear":         seasonYear,
+		"previousSeason":     previousSeason,
+		"previousSeasonYear": previousSeasonYear,
+		"nextSeason":         nextSeason,
+		"nextSeasonYear":     nextSeasonYear,
+	}
+
+	var res AnimeAiringSchedule
+	if err := c.Client.Post(ctx, "AnimeAiringSchedule", AnimeAiringScheduleDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const UpdateMediaListEntryDocument = `mutation UpdateMediaListEntry ($mediaId: Int, $status: MediaListStatus, $scoreRaw: Int, $progress: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput) {
 	SaveMediaListEntry(mediaId: $mediaId, status: $status, scoreRaw: $scoreRaw, progress: $progress, startedAt: $startedAt, completedAt: $completedAt) {
 		id
@@ -8757,6 +9386,7 @@ var DocumentOperationNames = map[string]string{
 	AnimeDetailsByIDDocument:             "AnimeDetailsById",
 	ListAnimeDocument:                    "ListAnime",
 	ListRecentAnimeDocument:              "ListRecentAnime",
+	AnimeAiringScheduleDocument:          "AnimeAiringSchedule",
 	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
 	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
 	DeleteEntryDocument:                  "DeleteEntry",

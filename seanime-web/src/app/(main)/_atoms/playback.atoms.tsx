@@ -7,7 +7,7 @@ import { PiVideoFill } from "react-icons/pi"
 
 export const enum ElectronPlaybackMethod {
     NativePlayer = "nativePlayer", // Desktop media player or Integrated player (media streaming)
-    Classic = "classic", // Desktop media player, media streaming or external player link
+    Default = "default", // Desktop media player, media streaming or external player link
 }
 
 export const __playback_electronPlaybackMethodAtom = atomWithStorage<string>("sea-playback-electron-playback-method",

@@ -105,7 +105,7 @@ func TestSmartSearch(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilistPlatform.GetAnime(tt.mId)
+			media, err := anilistPlatform.GetAnime(t.Context(), tt.mId)
 			require.NoError(t, err)
 			require.NotNil(t, media)
 

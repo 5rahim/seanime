@@ -606,7 +606,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 	if pm.animeCollection.IsAbsent() {
 		// If the anime collection is not present, we retrieve it from the platform
-		collection, err := pm.platform.GetAnimeCollection(false)
+		collection, err := pm.platform.GetAnimeCollection(context.Background(), false)
 		if err != nil {
 			return err
 		}

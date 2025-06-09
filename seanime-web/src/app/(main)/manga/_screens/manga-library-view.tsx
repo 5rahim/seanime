@@ -59,7 +59,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
 
                 <AnimatePresence mode="wait" initial={false}>
 
-                    {!hasManga && <LuffyError
+                    {!!collection && !hasManga && <LuffyError
                         title="No manga found"
                     >
                         <div className="space-y-2">

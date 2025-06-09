@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -38,7 +39,7 @@ type Scanner struct {
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
-func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
+func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error) {
 	defer util.HandlePanicWithError(&err)
 
 	go func() {
@@ -270,7 +271,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	// +---------------------+
 
 	// Fetch media needed for matching
-	mf, err := NewMediaFetcher(&MediaFetcherOptions{
+	mf, err := NewMediaFetcher(ctx, &MediaFetcherOptions{
 		Enhanced:               scn.Enhanced,
 		Platform:               scn.Platform,
 		MetadataProvider:       scn.MetadataProvider,
@@ -363,7 +364,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	if len(mf.UnknownMediaIds) < 5 {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Adding missing media to AniList...")
 
-		if err = scn.Platform.AddMediaToCollection(mf.UnknownMediaIds); err != nil {
+		if err = scn.Platform.AddMediaToCollection(ctx, mf.UnknownMediaIds); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}

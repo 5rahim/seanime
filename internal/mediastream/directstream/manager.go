@@ -111,7 +111,7 @@ func (m *Manager) SetSettings(s *Settings) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *Manager) getAnime(mediaId int) (*anilist.BaseAnime, error) {
+func (m *Manager) getAnime(ctx context.Context, mediaId int) (*anilist.BaseAnime, error) {
 	media, ok := m.animeCache.Get(mediaId)
 	if ok {
 		return media, nil
@@ -127,7 +127,7 @@ func (m *Manager) getAnime(mediaId int) (*anilist.BaseAnime, error) {
 	}
 
 	// Find in platform
-	media, err := m.platform.GetAnime(mediaId)
+	media, err := m.platform.GetAnime(ctx, mediaId)
 	if err != nil {
 		return nil, err
 	}

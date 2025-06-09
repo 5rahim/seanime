@@ -21,6 +21,7 @@ type LibraryViewProps = {
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
     hasEntries: boolean
+    streamingMediaIds: number[]
 }
 
 export function LibraryView(props: LibraryViewProps) {
@@ -32,6 +33,7 @@ export function LibraryView(props: LibraryViewProps) {
         filteredCollectionList,
         isLoading,
         hasEntries,
+        streamingMediaIds,
         ...rest
     } = props
 
@@ -83,11 +85,13 @@ export function LibraryView(props: LibraryViewProps) {
                             key="library-collection-lists"
                             collectionList={collectionList}
                             isLoading={isLoading}
+                            streamingMediaIds={streamingMediaIds}
                         />
                         : <LibraryCollectionFilteredLists
                             key="library-filtered-lists"
                             collectionList={filteredCollectionList}
                             isLoading={isLoading}
+                            streamingMediaIds={streamingMediaIds}
                         />
                     }
                 </AnimatePresence>

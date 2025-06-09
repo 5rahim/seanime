@@ -557,3 +557,8 @@ func (ac *MockAnilistClientImpl) SearchBaseAnimeByIds(ctx context.Context, ids [
 	ac.logger.Debug().Msg("anilist: Searching anime by ids")
 	return ac.realAnilistClient.SearchBaseAnimeByIds(ctx, ids, page, perPage, status, inCollection, sort, season, year, genre, format, interceptors...)
 }
+
+func (ac *MockAnilistClientImpl) AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error) {
+	ac.logger.Debug().Msg("anilist: Fetching schedule")
+	return ac.realAnilistClient.AnimeAiringSchedule(ctx, ids, season, seasonYear, previousSeason, previousSeasonYear, nextSeason, nextSeasonYear, interceptors...)
+}

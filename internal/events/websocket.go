@@ -20,6 +20,26 @@ type WSEventManagerInterface interface {
 	UnsubscribeFromClientEvents(id string)
 }
 
+type GlobalWSEventManagerWrapper struct {
+	WSEventManager WSEventManagerInterface
+}
+
+var GlobalWSEventManager *GlobalWSEventManagerWrapper
+
+func (w *GlobalWSEventManagerWrapper) SendEvent(t string, payload interface{}) {
+	if w.WSEventManager == nil {
+		return
+	}
+	w.WSEventManager.SendEvent(t, payload)
+}
+
+func (w *GlobalWSEventManagerWrapper) SendEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
+	if w.WSEventManager == nil {
+		return
+	}
+	w.WSEventManager.SendEventTo(clientId, t, payload, noLog...)
+}
+
 type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
@@ -52,12 +72,16 @@ type (
 
 // NewWSEventManager creates a new WSEventManager instance for App.
 func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
-	return &WSEventManager{
+	ret := &WSEventManager{
 		Logger:                             logger,
 		Conns:                              make([]*WSConn, 0),
 		clientEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
 		clientNativePlayerEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
 	}
+	GlobalWSEventManager = &GlobalWSEventManagerWrapper{
+		WSEventManager: ret,
+	}
+	return ret
 }
 
 // ExitIfNoConnsAsDesktopSidecar monitors the websocket connection as a desktop sidecar.

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gen2brain/go-fitz"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,6 +1,7 @@
 package debrid_client
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,13 +12,13 @@ import (
 	"strings"
 )
 
-func (s *StreamManager) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
+func (s *StreamManager) getMediaInfo(ctx context.Context, mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
 	// Get the media
 	var found bool
 	media, found = s.repository.completeAnimeCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		media, err = s.repository.platform.GetAnimeWithRelations(mediaId)
+		media, err = s.repository.platform.GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
 			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 		}
