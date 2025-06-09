@@ -1,6 +1,6 @@
 "use client"
 
-import { weekStartsOnAtom } from "@/app/(main)/schedule/_components/month-calendar"
+import { weekStartsOnAtom } from "@/app/(main)/schedule/_components/schedule-calendar"
 import { cva } from "class-variance-authority"
 import { Day, formatISO, getYear, Locale, setYear } from "date-fns"
 import { useAtomValue } from "jotai/react"

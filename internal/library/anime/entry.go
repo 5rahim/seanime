@@ -49,6 +49,7 @@ type (
 		AnimeCollection  *anilist.AnimeCollection
 		Platform         platform.Platform
 		MetadataProvider metadata.Provider
+		IsSimulated      bool // If the account is simulated
 	}
 )
 
@@ -132,6 +133,17 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 			return nil, err
 		}
 		entry.Media = animeEvent.Anime
+	}
+
+	// If the account is simulated and the media was in the library, we will still fetch
+	// the media from AniList to ensure we have the latest data
+	if opts.IsSimulated && found {
+		// Fetch the media
+		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
+		if err != nil {
+			return nil, err
+		}
+		entry.Media = fetchedMedia
 	}
 
 	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()

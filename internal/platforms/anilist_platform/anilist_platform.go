@@ -664,19 +664,24 @@ func (ap *AnilistPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	mediaIds := make([]int, 0)
+	mediaIds := make([]*int, 0)
 	for _, list := range collection.MediaListCollection.Lists {
 		for _, entry := range list.Entries {
-			mediaIds = append(mediaIds, entry.GetMedia().GetID())
+			mediaIds = append(mediaIds, &[]int{entry.GetMedia().GetID()}[0])
 		}
 	}
 
 	var ret *anilist.AnimeAiringSchedule
 
-	// ret, err := ap.anilistClient.AnimeAiringSchedule(ctx, mediaIds)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	now := time.Now()
+	currentSeason, currentSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindCurrent)
+	previousSeason, previousSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindPrevious)
+	nextSeason, nextSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindNext)
+
+	ret, err = ap.anilistClient.AnimeAiringSchedule(ctx, mediaIds, &currentSeason, &currentSeasonYear, &previousSeason, &previousSeasonYear, &nextSeason, &nextSeasonYear)
+	if err != nil {
+		return nil, err
+	}
 
 	return ret, nil
 }

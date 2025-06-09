@@ -527,32 +527,3 @@ fragment baseAnime on Media {
 	}
 }
   `
-
-func ListRecentAiringAnimeCacheKey(
-	Page *int,
-	Search *string,
-	PerPage *int,
-	AiringAtGreater *int,
-	AiringAtLesser *int,
-) string {
-
-	key := "ListRecentAnime"
-	if Page != nil {
-		key += fmt.Sprintf("_%d", *Page)
-	}
-	if Search != nil {
-		key += fmt.Sprintf("_%s", *Search)
-	}
-	if PerPage != nil {
-		key += fmt.Sprintf("_%d", *PerPage)
-	}
-	if AiringAtGreater != nil {
-		key += fmt.Sprintf("_%d", *AiringAtGreater)
-	}
-	if AiringAtLesser != nil {
-		key += fmt.Sprintf("_%d", *AiringAtLesser)
-	}
-
-	return key
-
-}

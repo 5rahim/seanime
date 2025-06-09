@@ -2302,6 +2302,22 @@ export type ExtensionRepo_UpdateData = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/handlers/anime_collection.go
+ * - Filename: anime_collection.go
+ * - Package: handlers
+ */
+export type AnimeCollectionScheduleItem = {
+    mediaId: number
+    title: string
+    time: string
+    dateTime?: string
+    image: string
+    episodeNumber: number
+    isMovie: boolean
+    isSeasonFinale: boolean
+}
+
+/**
  * - Filepath: internal/handlers/docs.go
  * - Filename: docs.go
  * - Package: handlers

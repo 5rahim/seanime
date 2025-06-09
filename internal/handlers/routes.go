@@ -208,6 +208,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
 
 	v1Library.GET("/collection", h.HandleGetLibraryCollection)
+	v1Library.GET("/schedule", h.HandleGetAnimeCollectionSchedule)
 
 	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 

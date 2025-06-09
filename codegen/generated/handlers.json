@@ -669,6 +669,36 @@
     }
   },
   {
+    "name": "HandleGetAnimeCollectionSchedule",
+    "trimmedName": "GetAnimeCollectionSchedule",
+    "comments": [
+      "HandleGetAnimeCollectionSchedule",
+      "",
+      "\t@summary returns anime collection schedule",
+      "\t@desc This is used by the \"Schedule\" page to display the anime schedule.",
+      "\t@route /api/v1/library/schedule [GET]",
+      "\t@returns []handlers.AnimeCollectionScheduleItem",
+      ""
+    ],
+    "filepath": "internal/handlers/anime_collection.go",
+    "filename": "anime_collection.go",
+    "api": {
+      "summary": "returns anime collection schedule",
+      "descriptions": [
+        "This is used by the \"Schedule\" page to display the anime schedule."
+      ],
+      "endpoint": "/api/v1/library/schedule",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]handlers.AnimeCollectionScheduleItem",
+      "returnGoType": "handlers.AnimeCollectionScheduleItem",
+      "returnTypescriptType": "Array\u003cAnimeCollectionScheduleItem\u003e"
+    }
+  },
+  {
     "name": "HandleAddUnknownMedia",
     "trimmedName": "AddUnknownMedia",
     "comments": [

@@ -49,6 +49,7 @@ const (
 	GetAnilistMangaCollectionEndpoint                  = "MANGA-get-anilist-manga-collection"
 	GetAnilistStudioDetailsEndpoint                    = "ANILIST-get-anilist-studio-details"
 	GetAnimeCollectionEndpoint                         = "ANILIST-get-anime-collection"
+	GetAnimeCollectionScheduleEndpoint                 = "ANIME-COLLECTION-get-anime-collection-schedule"
 	GetAnimeEntryEndpoint                              = "ANIME-ENTRIES-get-anime-entry"
 	GetAnimeEntrySilenceStatusEndpoint                 = "ANIME-ENTRIES-get-anime-entry-silence-status"
 	GetAnimeEpisodeCollectionEndpoint                  = "ANIME-get-anime-episode-collection"

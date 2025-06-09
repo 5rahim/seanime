@@ -159,6 +159,15 @@
 //     })
 // }
 
+// export function useGetAnimeCollectionSchedule() {
+//     return useServerQuery<Array<AnimeCollectionScheduleItem>>({
+//         endpoint: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.endpoint,
+//         method: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.methods[0],
+//         queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useAddUnknownMedia() {
 //     return useServerMutation<AL_AnimeCollection, AddUnknownMedia_Variables>({
 //         endpoint: API_ENDPOINTS.ANIME_COLLECTION.AddUnknownMedia.endpoint,

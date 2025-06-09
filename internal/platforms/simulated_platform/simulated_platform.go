@@ -327,41 +327,6 @@ func (sp *SimulatedPlatform) GetRawAnimeCollection(ctx context.Context, bypassCa
 func (sp *SimulatedPlatform) RefreshAnimeCollection(ctx context.Context) (*anilist.AnimeCollection, error) {
 	sp.logger.Trace().Msg("simulated platform: Refreshing anime collection")
 
-	// if time.Since(sp.lastAnimeCollectionRefetchTime) > 1*time.Hour {
-	// 	collection, err := sp.getOrCreateAnimeCollection()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	wg := sync.WaitGroup{}
-	// 	m := sync.Mutex{}
-	// 	// Refresh all current media data in the collection
-	// 	// This is to get accurate airing dates
-	// 	for _, list := range collection.GetMediaListCollection().GetLists() {
-	// 		for _, entry := range list.GetEntries() {
-	// 			if entry.GetMedia() != nil && entry.GetStatus() != nil && *entry.GetStatus() == anilist.MediaListStatusCurrent {
-	// 				mediaID := entry.GetMedia().GetID()
-	// 				wg.Add(1)
-	// 				go func(mID int, e *anilist.AnimeCollection_MediaListCollection_Lists_Entries) {
-	// 					defer wg.Done()
-	// 					sp.anilistRateLimit.Wait()
-	// 					if updatedMedia, err := sp.GetAnime(ctx, mID); err == nil {
-	// 						m.Lock()
-	// 						e.Media = updatedMedia
-	// 						m.Unlock()
-	// 					}
-	// 				}(mediaID, entry)
-	// 			}
-	// 		}
-	// 	}
-	// 	wg.Wait()
-
-	// 	// Save updated collection
-	// 	sp.localManager.SaveSimulatedAnimeCollection(collection)
-	// 	sp.lastAnimeCollectionRefetchTime = time.Now()
-	// 	sp.invalidateAnimeCollectionCache()
-	// 	return sp.getOrCreateAnimeCollection()
-	// }
-
 	sp.invalidateAnimeCollectionCache()
 	return sp.getOrCreateAnimeCollection()
 }
@@ -409,45 +374,6 @@ func (sp *SimulatedPlatform) GetRawMangaCollection(ctx context.Context, bypassCa
 func (sp *SimulatedPlatform) RefreshMangaCollection(ctx context.Context) (*anilist.MangaCollection, error) {
 	sp.logger.Trace().Msg("simulated platform: Refreshing manga collection")
 
-	// if time.Since(sp.lastMangaCollectionRefetchTime) > 1*time.Hour {
-
-	// 	collection, err := sp.getOrCreateMangaCollection()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	wg := sync.WaitGroup{}
-	// 	m := sync.Mutex{}
-
-	// 	// Refresh all current media data in the collection
-	// 	// This is to get accurate publishing dates
-	// 	for _, list := range collection.GetMediaListCollection().GetLists() {
-	// 		for _, entry := range list.GetEntries() {
-	// 			if entry.GetMedia() != nil && entry.GetStatus() != nil && *entry.GetStatus() == anilist.MediaListStatusCurrent {
-	// 				mediaID := entry.GetMedia().GetID()
-	// 				wg.Add(1)
-	// 				go func(mID int, e *anilist.MangaCollection_MediaListCollection_Lists_Entries) {
-	// 					defer wg.Done()
-	// 					sp.anilistRateLimit.Wait()
-	// 					if updatedMedia, err := sp.GetManga(ctx, mID); err == nil {
-	// 						m.Lock()
-	// 						e.Media = updatedMedia
-	// 						m.Unlock()
-	// 					}
-	// 				}(mediaID, entry)
-	// 			}
-	// 		}
-	// 	}
-
-	// 	wg.Wait()
-
-	// 	// Save updated collection
-	// 	sp.localManager.SaveSimulatedMangaCollection(collection)
-	// 	sp.lastMangaCollectionRefetchTime = time.Now()
-	// 	sp.invalidateMangaCollectionCache()
-	// 	return sp.getOrCreateMangaCollection()
-	// }
-
 	sp.invalidateMangaCollectionCache()
 	return sp.getOrCreateMangaCollection()
 }
@@ -481,7 +407,31 @@ func (sp *SimulatedPlatform) GetViewerStats(ctx context.Context) (*anilist.Viewe
 }
 
 func (sp *SimulatedPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist.AnimeAiringSchedule, error) {
-	return nil, errors.New("use a real account to get schedule")
+	collection, err := sp.GetAnimeCollection(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	mediaIds := make([]*int, 0)
+	for _, list := range collection.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			mediaIds = append(mediaIds, &[]int{entry.GetMedia().GetID()}[0])
+		}
+	}
+
+	var ret *anilist.AnimeAiringSchedule
+
+	now := time.Now()
+	currentSeason, currentSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindCurrent)
+	previousSeason, previousSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindPrevious)
+	nextSeason, nextSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindNext)
+
+	ret, err = sp.client.AnimeAiringSchedule(ctx, mediaIds, &currentSeason, &currentSeasonYear, &previousSeason, &previousSeasonYear, &nextSeason, &nextSeasonYear)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -144,6 +144,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route returns anime collection schedule
+         *  This is used by the "Schedule" page to display the anime schedule.
+         */
+        GetAnimeCollectionSchedule: {
+            key: "ANIME-COLLECTION-get-anime-collection-schedule",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/schedule",
+        },
+        /**
+         *  @description
          *  Route adds the given media to the user's AniList planning collections
          *  Since media not found in the user's AniList collection are not displayed in the library, this route is used to add them.
          *  The response is ignored in the frontend, the client should just refetch the entire library collection.

@@ -38237,6 +38237,89 @@
     "comments": []
   },
   {
+    "filepath": "../internal/handlers/anime_collection.go",
+    "filename": "anime_collection.go",
+    "name": "AnimeCollectionScheduleItem",
+    "formattedName": "AnimeCollectionScheduleItem",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Time",
+        "jsonName": "time",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateTime",
+        "jsonName": "dateTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMovie",
+        "jsonName": "isMovie",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsSeasonFinale",
+        "jsonName": "isSeasonFinale",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/handlers/directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
@@ -40813,6 +40896,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsSimulated",
+        "jsonName": "IsSimulated",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If the account is simulated"
+        ]
       }
     ],
     "comments": []
@@ -59756,8 +59850,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/anilist.go",
-    "filename": "anilist.go",
+    "filepath": "../internal/platforms/anilist_platform/anilist_platform.go",
+    "filename": "anilist_platform.go",
     "name": "AnilistPlatform",
     "formattedName": "AnilistPlatform",
     "package": "anilist_platform",

@@ -112,7 +112,7 @@ func (h *Handler) HandleEditAnilistListEntry(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 var (
 	detailsCache = result.NewCache[int, *anilist.AnimeDetailsById_Media]()
@@ -144,7 +144,7 @@ func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 	return h.RespondWithData(c, details)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 var studioDetailsMap = result.NewResultMap[int, *anilist.StudioDetails]()
 
@@ -179,7 +179,7 @@ func (h *Handler) HandleGetAnilistStudioDetails(c echo.Context) error {
 	return h.RespondWithData(c, details)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 // HandleDeleteAnilistListEntry
 //
@@ -250,7 +250,7 @@ func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
 	anilistListAnimeCache       = result.NewCache[string, *anilist.ListAnime]()
@@ -396,7 +396,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
+var anilistMissedSequelsCache = result.NewCache[int, []*anilist.BaseAnime]()
 
 // HandleAnilistListMissedSequels
 //
@@ -406,9 +406,7 @@ var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
 //	@returns []anilist.BaseAnime
 func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 
-	cacheKey := "missed_sequels"
-
-	cached, ok := anilistMissedSequelsCache.Get(cacheKey)
+	cached, ok := anilistMissedSequelsCache.Get(1)
 	if ok {
 		return h.RespondWithData(c, cached)
 	}
@@ -428,7 +426,7 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	anilistMissedSequelsCache.SetT(cacheKey, ret, time.Hour*4)
+	anilistMissedSequelsCache.SetT(1, ret, time.Hour*4)
 
 	return h.RespondWithData(c, ret)
 }
