@@ -2,7 +2,7 @@ package nativeplayer
 
 import (
 	"context"
-	"seanime/internal/mediastream/mkvparser"
+	"seanime/internal/mkvparser"
 	"time"
 
 	"github.com/goccy/go-json"

@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 	"seanime/internal/database/db_bridge"
-	"seanime/internal/mediastream/directstream"
+	"seanime/internal/directstream"
 
 	"github.com/labstack/echo/v4"
 )

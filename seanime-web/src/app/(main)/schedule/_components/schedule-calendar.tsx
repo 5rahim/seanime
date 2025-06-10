@@ -10,11 +10,12 @@ import { addMonths, Day, endOfMonth, endOfWeek, format, isSameMonth, isToday, st
 import { addDays } from "date-fns/addDays"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import { sortBy } from "lodash"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
-import { LuBadge } from "react-icons/lu"
+import { FaFlag } from "react-icons/fa6"
 
 type ScheduleCalendarProps = {
     children?: React.ReactNode
@@ -22,7 +23,7 @@ type ScheduleCalendarProps = {
     missingEpisodes: Anime_Episode[]
 }
 
-const MAX_EVENT_COUNT = 5
+const MAX_EVENT_COUNT = 4
 
 export const weekStartsOnAtom = atomWithStorage("sea-calendar-week-starts-on", 1)
 
@@ -119,7 +120,7 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                     <SeaLink className="group flex" href={event.href}>
                         <p className="flex-auto truncate font-medium text-gray-100 group-hover:text-gray-200 flex items-center gap-2">
                             {event.isSeasonFinale &&
-                                <LuBadge className="size-3 text-[--blue] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
+                                <FaFlag className="size-3 text-[--blue] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
                             {event.name}
                         </p>
                         <time
@@ -137,11 +138,11 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                 <Popover
                     className="w-full max-w-sm lg:max-w-sm"
                     trigger={
-                        <li className="text-[--muted]">+ {events.length - MAX_EVENT_COUNT} more</li>
+                        <li className="text-[--muted] cursor-pointer">+ {events.length - MAX_EVENT_COUNT} more</li>
                     }
                 >
                     <ol className="text-sm max-w-full block">
-                        {events.map((event) => (
+                        {events.slice(MAX_EVENT_COUNT).map((event) => (
                             <li key={event.id}>
                                 <SeaLink className="group flex gap-2" href={event.href}>
                                     <p className="flex-1 truncate font-medium">
@@ -282,7 +283,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
         let day = startOfCalendar
 
         while (day <= endOfCalendar) {
-            const events = schedule?.filter(item => isSameDayUtc(new Date(item.dateTime!), day))?.map(item => {
+            let events = schedule?.filter(item => isSameDayUtc(new Date(item.dateTime!), day))?.map(item => {
                 return {
                     id: String(item.mediaId) + "-" + String(item.episodeNumber) + "-" + String(item.dateTime),
                     name: item.title,
@@ -295,6 +296,9 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                     isMovie: item.isMovie,
                 }
             }) ?? []
+            events = sortBy(events, (e) => e.episode)
+            events = sortBy(events, (e) => e.time)
+
             daysArray.push({
                 date: format(day, "yyyy-MM-dd"),
                 isCurrentMonth: isSameMonth(day, currentDate),

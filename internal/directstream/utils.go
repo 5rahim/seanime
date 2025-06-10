@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/url"
 	"path/filepath"
-	"seanime/internal/mediastream/mkvparser"
+	"seanime/internal/mkvparser"
 )
 
 func getAttachmentByName(ctx context.Context, stream Stream, filename string) (*mkvparser.AttachmentInfo, bool) {

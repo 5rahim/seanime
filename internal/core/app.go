@@ -9,8 +9,9 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
-	debrid_client "seanime/internal/debrid/client"
-	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/debrid/client"
+	"seanime/internal/directstream"
+	"seanime/internal/discordrpc/presence"
 	"seanime/internal/doh"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
@@ -28,8 +29,7 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
-	"seanime/internal/mediastream/directstream"
-	"seanime/internal/mediastream/nativeplayer"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/offline_platform"
@@ -74,25 +74,26 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		MediaPlayerRepository   *mediaplayer.Repository
-		Version                 string
-		Updater                 *updater.Updater
-		AutoScanner             *autoscanner.AutoScanner
-		PlaybackManager         *playbackmanager.PlaybackManager
-		FileCacher              *filecache.Cacher
-		OnlinestreamRepository  *onlinestream.Repository
-		MangaRepository         *manga.Repository
-		MetadataProvider        metadata.Provider
-		DiscordPresence         *discordrpc_presence.Presence
-		MangaDownloader         *manga.Downloader
-		ContinuityManager       *continuity.Manager
-		Cleanups                []func()
-		OnFlushLogs             func()
-		MediastreamRepository   *mediastream.Repository
-		TorrentstreamRepository *torrentstream.Repository
-		FeatureFlags            FeatureFlags
-		Settings                *models.Settings
-		SecondarySettings       struct {
+		MediaPlayerRepository           *mediaplayer.Repository
+		Version                         string
+		Updater                         *updater.Updater
+		AutoScanner                     *autoscanner.AutoScanner
+		PlaybackManager                 *playbackmanager.PlaybackManager
+		FileCacher                      *filecache.Cacher
+		OnlinestreamRepository          *onlinestream.Repository
+		MangaRepository                 *manga.Repository
+		MetadataProvider                metadata.Provider
+		DiscordPresence                 *discordrpc_presence.Presence
+		MangaDownloader                 *manga.Downloader
+		ContinuityManager               *continuity.Manager
+		Cleanups                        []func()
+		OnRefreshAnilistCollectionFuncs map[string]func()
+		OnFlushLogs                     func()
+		MediastreamRepository           *mediastream.Repository
+		TorrentstreamRepository         *torrentstream.Repository
+		FeatureFlags                    FeatureFlags
+		Settings                        *models.Settings
+		SecondarySettings               struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
@@ -345,10 +346,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
 		}{Mediastream: nil, Torrentstream: nil},
-		SelfUpdater: selfupdater,
-		moduleMu:    sync.Mutex{},
-		HookManager: hookManager,
-		isOffline:   &isOffline,
+		SelfUpdater:                     selfupdater,
+		moduleMu:                        sync.Mutex{},
+		OnRefreshAnilistCollectionFuncs: make(map[string]func()),
+		HookManager:                     hookManager,
+		isOffline:                       &isOffline,
 	}
 
 	// Run database migrations if version has changed
@@ -402,6 +404,12 @@ func (a *App) IsOffline() *bool {
 
 func (a *App) AddCleanupFunction(f func()) {
 	a.Cleanups = append(a.Cleanups, f)
+}
+func (a *App) AddOnRefreshAnilistCollectionFunc(key string, f func()) {
+	if key == "" {
+		return
+	}
+	a.OnRefreshAnilistCollectionFuncs[key] = f
 }
 
 func (a *App) Cleanup() {

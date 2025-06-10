@@ -2,7 +2,7 @@ package torrentstream
 
 import (
 	"context"
-	"seanime/internal/mediastream/nativeplayer"
+	"seanime/internal/nativeplayer"
 )
 
 type (

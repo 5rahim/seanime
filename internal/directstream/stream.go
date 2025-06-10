@@ -10,8 +10,8 @@ import (
 	"seanime/internal/continuity"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediastream/mkvparser"
-	"seanime/internal/mediastream/nativeplayer"
+	"seanime/internal/mkvparser"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/util/result"
 	"sync"
 

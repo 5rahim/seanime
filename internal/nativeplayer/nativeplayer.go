@@ -5,7 +5,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
-	"seanime/internal/mediastream/mkvparser"
+	"seanime/internal/mkvparser"
 	"seanime/internal/util/result"
 	"sync"
 

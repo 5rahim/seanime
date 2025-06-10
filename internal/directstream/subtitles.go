@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"seanime/internal/events"
-	"seanime/internal/mediastream/mkvparser"
+	"seanime/internal/mkvparser"
 	"seanime/internal/util"
 	"strings"
 	"sync"

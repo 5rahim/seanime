@@ -2898,7 +2898,7 @@ export type Metadata_EpisodeMetadata = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  * @description
@@ -2914,14 +2914,14 @@ export type MKVParser_AttachmentInfo = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  */
 export type MKVParser_AttachmentType = "font" | "subtitle" | "other"
 
 /**
- * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filepath: internal/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
  * @description
@@ -2934,7 +2934,7 @@ export type MKVParser_AudioTrack = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  * @description
@@ -2962,7 +2962,7 @@ export type MKVParser_ChapterInfo = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filepath: internal/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
  * @description
@@ -2974,7 +2974,7 @@ export type MKVParser_ContentCompression = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filepath: internal/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
  * @description
@@ -2988,7 +2988,7 @@ export type MKVParser_ContentEncoding = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filepath: internal/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
  * @description
@@ -2999,7 +2999,7 @@ export type MKVParser_ContentEncodings = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  * @description
@@ -3030,7 +3030,7 @@ export type MKVParser_Metadata = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/mkvparser.go
+ * - Filepath: internal/mkvparser/mkvparser.go
  * - Filename: mkvparser.go
  * - Package: mkvparser
  * @description
@@ -3058,7 +3058,7 @@ export type MKVParser_SubtitleEvent = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  * @description
@@ -3093,7 +3093,7 @@ export type MKVParser_TrackInfo = {
 }
 
 /**
- * - Filepath: internal/mediastream/mkvparser/metadata.go
+ * - Filepath: internal/mkvparser/metadata.go
  * - Filename: metadata.go
  * - Package: mkvparser
  * @description
@@ -3108,7 +3108,7 @@ export type MKVParser_TrackType = "video" |
     "unknown"
 
 /**
- * - Filepath: internal/mediastream/mkvparser/structs.go
+ * - Filepath: internal/mkvparser/structs.go
  * - Filename: structs.go
  * - Package: mkvparser
  * @description
@@ -3466,7 +3466,7 @@ export type Models_TorrentstreamSettings = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/mediastream/nativeplayer/events.go
+ * - Filepath: internal/nativeplayer/events.go
  * - Filename: events.go
  * - Package: nativeplayer
  */
@@ -3482,7 +3482,7 @@ export type NativePlayer_ClientEvent = "video-paused" |
     "video-time-update"
 
 /**
- * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
+ * - Filepath: internal/nativeplayer/nativeplayer.go
  * - Filename: nativeplayer.go
  * - Package: nativeplayer
  */
@@ -3514,7 +3514,7 @@ export type NativePlayer_PlaybackInfo = {
 }
 
 /**
- * - Filepath: internal/mediastream/nativeplayer/events.go
+ * - Filepath: internal/nativeplayer/events.go
  * - Filename: events.go
  * - Package: nativeplayer
  */
@@ -3530,7 +3530,7 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "terminate"
 
 /**
- * - Filepath: internal/mediastream/nativeplayer/nativeplayer.go
+ * - Filepath: internal/nativeplayer/nativeplayer.go
  * - Filename: nativeplayer.go
  * - Package: nativeplayer
  */

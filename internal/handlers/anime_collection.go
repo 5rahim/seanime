@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 )
 
 // HandleGetLibraryCollection
@@ -90,6 +91,11 @@ var animeScheduleCache = result.NewCache[int, []*AnimeCollectionScheduleItem]()
 //	@returns []handlers.AnimeCollectionScheduleItem
 func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 
+	// Invalidate the cache when the Anilist collection is refreshed
+	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetAnimeCollectionSchedule", func() {
+		animeScheduleCache.Delete(1)
+	})
+
 	if ret, ok := animeScheduleCache.Get(1); ok {
 		return h.RespondWithData(c, ret)
 	}
@@ -121,14 +127,14 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 		GetMedia() []*anilist.AnimeSchedule
 	}
 
-	formatItem := func(node animeScheduleNode, entry *anilist.AnimeListEntry) *AnimeCollectionScheduleItem {
+	formatNodeItem := func(node animeScheduleNode, entry *anilist.AnimeListEntry) *AnimeCollectionScheduleItem {
 		t := time.Unix(int64(node.GetAiringAt()), 0)
 		item := &AnimeCollectionScheduleItem{
 			MediaId:        entry.GetMedia().GetID(),
 			Title:          *entry.GetMedia().GetTitle().GetUserPreferred(),
 			Time:           t.UTC().Format("15:04"),
 			DateTime:       t.UTC(),
-			Image:          entry.GetMedia().GetBannerImageSafe(),
+			Image:          entry.GetMedia().GetCoverImageSafe(),
 			EpisodeNumber:  node.GetEpisode(),
 			IsMovie:        entry.GetMedia().IsMovie(),
 			IsSeasonFinale: false,
@@ -150,17 +156,14 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 				return nil, false
 			}
 			for _, n := range m.GetPrevious().GetNodes() {
-				ret = append(ret, formatItem(n, entry))
+				ret = append(ret, formatNodeItem(n, entry))
 			}
 			for _, n := range m.GetUpcoming().GetNodes() {
-				ret = append(ret, formatItem(n, entry))
+				ret = append(ret, formatNodeItem(n, entry))
 			}
 		}
 		return ret, true
 	}
-
-	// Use a map to deduplicate items based on unique key (mediaId + episodeNumber + airingTime)
-	itemMap := make(map[string]*AnimeCollectionScheduleItem)
 
 	ongoingItems, _ := formatPart(animeSchedule.GetOngoing())
 	ongoingNextItems, _ := formatPart(animeSchedule.GetOngoingNext())
@@ -175,17 +178,12 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 	allItems = append(allItems, upcomingItems...)
 	allItems = append(allItems, upcomingNextItems...)
 
-	// Deduplicate
-	for _, item := range allItems {
-		if item != nil {
-			key := fmt.Sprintf("%d-%d-%d", item.MediaId, item.EpisodeNumber, item.DateTime.Unix())
-			itemMap[key] = item
+	ret := lo.UniqBy(allItems, func(item *AnimeCollectionScheduleItem) string {
+		if item == nil {
+			return ""
 		}
-	}
-	ret := make([]*AnimeCollectionScheduleItem, 0, len(itemMap))
-	for _, item := range itemMap {
-		ret = append(ret, item)
-	}
+		return fmt.Sprintf("%d-%d-%d", item.MediaId, item.EpisodeNumber, item.DateTime.Unix())
+	})
 
 	animeScheduleCache.SetT(1, ret, 1*time.Hour)
 

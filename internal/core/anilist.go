@@ -68,6 +68,12 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to DirectStreamManager
 	a.DirectStreamManager.SetAnimeCollection(ret)
 
+	go func() {
+		for _, f := range a.OnRefreshAnilistCollectionFuncs {
+			go f()
+		}
+	}()
+
 	return ret, nil
 }
 
