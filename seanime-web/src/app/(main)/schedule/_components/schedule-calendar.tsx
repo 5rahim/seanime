@@ -207,6 +207,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                                 {hoveredEvent.name}
                                 {hoveredEvent.isSeasonFinale && <span className="text-[--blue] ml-1">Finale</span>}
                                 <span className="ml-1">- #{hoveredEvent.episode}</span>
+                                {hoveredEvent.time && <span className="ml-1">{hoveredEvent.time}</span>}
                             </p>
                         </div>
                     )}
@@ -217,8 +218,8 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                 dateTime={day.date}
                 className={
                     day.isToday
-                        ? "z-[1] relative flex h-7 w-7 text-lg items-center justify-center rounded-full bg-brand font-bold rotate-12 text-white"
-                        : "text-xs md:text-base"
+                        ? "z-[1] relative flex h-7 w-7 text-lg items-center justify-center rounded-full bg-brand font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-white"
+                        : "text-xs md:text-base group-hover:text-white group-hover:scale-110 group-hover:font-bold group-hover:translate-x-1 transition-transform duration-300 ease-out"
                 }
             >
                 {day.date.split("-")?.pop()?.replace(/^0/, "")}
