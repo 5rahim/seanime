@@ -20,6 +20,8 @@ type (
 		repository            *Repository
 		currentTorrentItemId  string
 		downloadCtxCancelFunc context.CancelFunc
+
+		currentStreamUrl string
 	}
 
 	StreamPlaybackType string
@@ -338,6 +340,8 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			s.repository.logger.Debug().Msg("debridstream: Stream prevented by hook")
 			return
 		}
+
+		s.currentStreamUrl = streamUrl
 
 		switch playbackType {
 		case PlaybackTypeDefault:

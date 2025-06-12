@@ -12,6 +12,8 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { NativePlayer } from "../native-player/native-player"
 import { SeaCommand } from "../sea-command/sea-command"
+import { __isElectronDesktop__ } from "@/types/constants"
+import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 type OfflineLayoutProps = {
     children?: React.ReactNode
@@ -62,7 +64,8 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            <NativePlayer />
+            {__isElectronDesktop__ && <NativePlayer />}
+            <TopIndefiniteLoader />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

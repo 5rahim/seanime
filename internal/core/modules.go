@@ -22,6 +22,7 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
 	"seanime/internal/plugin"
@@ -249,6 +250,18 @@ func (a *App) initModulesOnce() {
 		MangaRepository:       a.MangaRepository,
 	})
 
+	// +---------------------+
+	// |       Nakama        |
+	// +---------------------+
+
+	a.NakamaManager = nakama.NewManager(&nakama.NewManagerOptions{
+		Logger:          a.Logger,
+		WSEventManager:  a.WSEventManager,
+		PlaybackManager: a.PlaybackManager,
+		ServerHost:      a.Config.Server.Host,
+		ServerPort:      a.Config.Server.Port,
+	})
+
 }
 
 // HandleNewDatabaseEntries initializes essential database collections.
@@ -474,6 +487,14 @@ func (a *App) InitOrRefreshModules() {
 
 	if settings.Manga != nil {
 		a.MangaRepository.SetSettings(settings)
+	}
+
+	// +---------------------+
+	// |       Nakama        |
+	// +---------------------+
+
+	if settings.Nakama != nil {
+		a.NakamaManager.SetSettings(settings.Nakama)
 	}
 
 	runtime.GC()

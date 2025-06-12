@@ -47,7 +47,7 @@ func TestNewGojaPlugin(t *testing.T) {
 	_, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
-	m, err := anilistPlatform.GetAnime(178022)
+	m, err := anilistPlatform.GetAnime(t.Context(), 178022)
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}

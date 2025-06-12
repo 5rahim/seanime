@@ -9,9 +9,9 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
-	"seanime/internal/debrid/client"
+	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/directstream"
-	"seanime/internal/discordrpc/presence"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/doh"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
@@ -29,6 +29,7 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
@@ -113,6 +114,7 @@ type (
 		HookManager        hook.Manager
 		ServerReady        bool // Whether the Anilist data from the first request has been fetched
 		isOffline          *bool
+		NakamaManager      *nakama.Manager
 	}
 )
 
@@ -335,6 +337,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
 		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
 		NativePlayer:                  nil, // Initialized in App.initModulesOnce
+		NakamaManager:                 nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
@@ -391,6 +394,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize debrid settings (for debrid services)
 	app.InitOrRefreshDebridSettings()
+
+	// Register Nakama manager cleanup
+	app.AddCleanupFunction(app.NakamaManager.Cleanup)
 
 	// Run one-time initialization actions
 	app.performActionsOnce()

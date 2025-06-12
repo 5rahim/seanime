@@ -117,10 +117,14 @@ export type VerticalMenuItem = {
     name: string
     href?: string | null | undefined
     iconType?: React.ElementType
+    className?: string
+    iconClass?: string
     isCurrent?: boolean
     onClick?: React.MouseEventHandler<HTMLElement>
     addon?: React.ReactNode
     subContent?: React.ReactNode
+    subContentOpen?: boolean
+    onSubContentOpenChange?: (open: boolean) => void
 }
 
 export type VerticalMenuProps = React.ComponentPropsWithRef<"div"> &
@@ -205,15 +209,18 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                 className={cn(
                     VerticalMenuAnatomy.itemContent({ size, collapsed }),
                     itemContentClass,
+                    item.className,
                 )}
             >
                 {item.iconType && <item.iconType
                     className={cn(
                         VerticalMenuAnatomy.itemIcon({ size, collapsed }),
                         itemIconClass,
+                        item.iconClass,
                     )}
                     aria-hidden="true"
                     data-current={item.isCurrent}
+                    data-collapsed={collapsed}
                 />}
                 {!collapsed && <span>{item.name}</span>}
                 {item.addon}
@@ -248,7 +255,12 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                                         <ItemContent {...item} />
                                     </button>
                                 ) : (
-                                    <Disclosure type="multiple">
+                                    <Disclosure
+                                        type="single"
+                                        collapsible
+                                        defaultValue={item.subContentOpen ? item.name : undefined}
+                                        onValueChange={v => item.onSubContentOpenChange?.(v.length > 0)}
+                                    >
                                         <DisclosureItem value={item.name}>
                                             <DisclosureTrigger>
                                                 <button

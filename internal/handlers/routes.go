@@ -22,8 +22,9 @@ type Handler struct {
 func InitRoutes(app *core.App, e *echo.Echo) {
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization", "X-Seanime-Password"},
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization",
+			"X-Seanime-Password", "X-Seanime-Nakama-Password", "X-Seanime-Nakama-Username", "X-Seanime-Nakama-Server-Version"},
 		AllowCredentials: true,
 	}))
 
@@ -109,6 +110,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
 
+	//
+	// Auth middleware
+	//
 	v1.Use(h.OptionalAuthMiddleware)
 
 	imageProxy := &util.ImageProxy{}
@@ -482,6 +486,25 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.POST("/report/issue", h.HandleSaveIssueReport)
 	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
+
+	//
+	// Nakama
+	//
+
+	v1Nakama := v1.Group("/nakama")
+	v1Nakama.GET("/ws", h.HandleNakamaWebSocket)
+	v1Nakama.GET("/status", h.HandleGetNakamaStatus)
+	v1Nakama.POST("/message", h.HandleSendNakamaMessage)
+	v1Nakama.POST("/reconnect", h.HandleNakamaReconnectToHost)
+	v1Nakama.POST("/cleanup", h.HandleNakamaRemoveStaleConnections)
+	v1Nakama.GET("/host/anime/library/collection", h.HandleGetNakamaAnimeLibraryCollection)
+	v1Nakama.GET("/host/anime/library/files/:id", h.HandleGetNakamaAnimeLibraryFiles)
+	v1Nakama.POST("/play", h.HandleNakamaPlayVideo)
+	v1Nakama.GET("/host/torrentstream/stream", h.HandleNakamaHostTorrentstreamServeStream)
+	v1Nakama.GET("/host/anime/library/stream", h.HandleNakamaHostAnimeLibraryServeStream)
+	v1Nakama.GET("/host/debridstream/stream", h.HandleNakamaHostDebridstreamServeStream)
+	v1Nakama.GET("/stream", h.HandleNakamaProxyStream)
+
 }
 
 func (h *Handler) JSON(c echo.Context, code int, i interface{}) error {

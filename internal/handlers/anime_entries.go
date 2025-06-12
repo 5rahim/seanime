@@ -46,6 +46,12 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	// Get the host anime library files
+	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(mId)
+	if hydratedFromNakama && nakamaLfs != nil {
+		lfs = nakamaLfs
+	}
+
 	// Get the user's anilist collection
 	animeCollection, err := h.App.GetAnimeCollection(false)
 	if err != nil {
@@ -78,6 +84,13 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 
 	if !fillerEvent.DefaultPrevented {
 		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
+	}
+
+	if hydratedFromNakama {
+		entry.IsNakamaEntry = true
+		for _, ep := range entry.Episodes {
+			ep.IsNakamaEpisode = true
+		}
 	}
 
 	return h.RespondWithData(c, entry)

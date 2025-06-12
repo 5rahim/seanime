@@ -2,6 +2,7 @@ package torrentstream
 
 import (
 	"context"
+	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/nativeplayer"
 )
 
@@ -15,7 +16,6 @@ type (
 )
 
 func (r *Repository) listenToMediaPlayerEvents() {
-	r.mediaPlayerRepositorySubscriber = r.mediaPlayerRepository.Subscribe("torrentstream")
 	r.mediaPlayerRepositorySubscriber = r.mediaPlayerRepository.Subscribe("torrentstream")
 
 	if r.playback.mediaPlayerCtxCancelFunc != nil {
@@ -31,36 +31,32 @@ func (r *Repository) listenToMediaPlayerEvents() {
 			case <-ctx.Done():
 				r.logger.Debug().Msg("torrentstream: Media player context cancelled")
 				return
-			case _ = <-r.mediaPlayerRepositorySubscriber.TrackingStartedCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.TrackingRetryCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.VideoCompletedCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.TrackingStoppedCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.PlaybackStatusCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingTrackingStartedCh:
-				// Reset the current video duration, as the video has stopped
-				// DEVNOTE: This is changed in client.go as well when the duration is updated over 0
-				r.playback.currentVideoDuration = 0
-			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingVideoCompletedCh:
-			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingTrackingStoppedCh:
-				if r.client.currentTorrent.IsPresent() {
-					go func() {
-						defer func() {
-							if r := recover(); r != nil {
-							}
+			case event := <-r.mediaPlayerRepositorySubscriber.EventCh:
+				switch e := event.(type) {
+				case mediaplayer.StreamingTrackingStartedEvent:
+					// Reset the current video duration, as the video has stopped
+					// DEVNOTE: This is changed in client.go as well when the duration is updated over 0
+					r.playback.currentVideoDuration = 0
+				case mediaplayer.StreamingVideoCompletedEvent:
+				case mediaplayer.StreamingTrackingStoppedEvent:
+					if r.client.currentTorrent.IsPresent() {
+						go func() {
+							defer func() {
+								if r := recover(); r != nil {
+								}
+							}()
+							r.logger.Debug().Msg("torrentstream: Media player stopped event received")
+							// Stop the stream
+							_ = r.StopStream()
 						}()
-						r.logger.Debug().Msg("torrentstream: Media player stopped event received")
-						// Stop the stream
-						_ = r.StopStream()
+					}
+				case mediaplayer.StreamingPlaybackStatusEvent:
+					go func() {
+						if e.Status != nil && r.client.currentTorrent.IsPresent() {
+							r.client.mediaPlayerPlaybackStatusCh <- e.Status
+						}
 					}()
 				}
-			case status := <-r.mediaPlayerRepositorySubscriber.StreamingPlaybackStatusCh:
-				go func() {
-					if status != nil && r.client.currentTorrent.IsPresent() {
-						r.client.mediaPlayerPlaybackStatusCh <- status
-					}
-				}()
-			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingTrackingRetryCh:
-				// ignored
 			}
 		}
 	}(ctx)

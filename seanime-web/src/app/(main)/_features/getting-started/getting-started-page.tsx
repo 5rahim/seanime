@@ -90,6 +90,16 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         scannerMatchingAlgorithm: "",
                                         autoSyncToLocalAccount: false,
                                     },
+                                    nakama: {
+                                        enabled: false,
+                                        isHost: false,
+                                        hostPassword: "",
+                                        remoteServerURL: "",
+                                        remoteServerPassword: "",
+                                        hostShareLocalAnimeLibrary: false,
+                                        username: data.nakamaUsername,
+                                        includeNakamaAnimeLibrary: false,
+                                    },
                                     manga: {
                                         defaultMangaProvider: "",
                                         mangaAutoUpdateProgress: false,
@@ -172,6 +182,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 enableTranscode: false,
                                 debridProvider: "none",
                                 debridApiKey: "",
+                                nakamaUsername: "",
                             }}
                             stackClass="space-y-8"
                         >

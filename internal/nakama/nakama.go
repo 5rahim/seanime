@@ -1,0 +1,518 @@
+package nakama
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/util/result"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/imroc/req/v3"
+	"github.com/rs/zerolog"
+)
+
+type Manager struct {
+	serverHost      string
+	serverPort      int
+	logger          *zerolog.Logger
+	settings        *models.NakamaSettings
+	wsEventManager  events.WSEventManagerInterface
+	playbackManager *playbackmanager.PlaybackManager
+
+	// Host connections (when acting as host)
+	peerConnections *result.Map[string, *PeerConnection]
+
+	// Host connection (when connecting to a host)
+	hostConnection *HostConnection
+	hostMu         sync.RWMutex
+
+	// Connection management
+	cancel context.CancelFunc
+	ctx    context.Context
+
+	// Message handlers
+	messageHandlers map[MessageType]func(*Message, string) error
+	handlerMu       sync.RWMutex
+
+	// Cleanup functions
+	cleanups []func()
+
+	reqClient *req.Client
+}
+
+type NewManagerOptions struct {
+	Logger          *zerolog.Logger
+	WSEventManager  events.WSEventManagerInterface
+	PlaybackManager *playbackmanager.PlaybackManager
+	ServerHost      string
+	ServerPort      int
+}
+
+type ConnectionType string
+
+const (
+	ConnectionTypeHost ConnectionType = "host"
+	ConnectionTypePeer ConnectionType = "peer"
+)
+
+// MessageType represents the type of message being sent
+type MessageType string
+
+const (
+	// System messages
+	MessageTypeAuth      MessageType = "auth"
+	MessageTypeAuthReply MessageType = "auth_reply"
+	MessageTypePing      MessageType = "ping"
+	MessageTypePong      MessageType = "pong"
+	MessageTypeError     MessageType = "error"
+
+	// Watch together messages
+	MessageTypeWatchTogetherCreate MessageType = "watch_together_create"
+	MessageTypeWatchTogetherJoin   MessageType = "watch_together_join"
+	MessageTypeWatchTogetherSync   MessageType = "watch_together_sync"
+	MessageTypeWatchTogetherLeave  MessageType = "watch_together_leave"
+
+	MessageTypeCustom MessageType = "custom"
+)
+
+// Message represents a message sent between Nakama instances
+type Message struct {
+	Type      MessageType `json:"type"`
+	Payload   interface{} `json:"payload"`
+	RequestID string      `json:"requestId,omitempty"`
+	Timestamp time.Time   `json:"timestamp"`
+}
+
+// PeerConnection represents a connection from a peer to this host
+type PeerConnection struct {
+	ID             string
+	Username       string
+	Conn           *websocket.Conn
+	ConnectionType ConnectionType
+	Authenticated  bool
+	LastPing       time.Time
+	mu             sync.RWMutex
+}
+
+// HostConnection represents this instance's connection to a host
+type HostConnection struct {
+	URL            string
+	Username       string
+	Conn           *websocket.Conn
+	Authenticated  bool
+	LastPing       time.Time
+	reconnectTimer *time.Timer
+	mu             sync.RWMutex
+}
+
+// NakamaEvent represents events sent to the client
+type NakamaEvent struct {
+	Type    string      `json:"type"`
+	Payload interface{} `json:"payload"`
+}
+
+// AuthPayload represents authentication data
+type AuthPayload struct {
+	Password string `json:"password"`
+}
+
+// AuthReplyPayload represents authentication response
+type AuthReplyPayload struct {
+	Success  bool   `json:"success"`
+	Message  string `json:"message"`
+	Username string `json:"username"`
+}
+
+// ErrorPayload represents error messages
+type ErrorPayload struct {
+	Message string `json:"message"`
+	Code    string `json:"code,omitempty"`
+}
+
+// HostConnectionStatus represents the status of the host connection
+type HostConnectionStatus struct {
+	Connected     bool      `json:"connected"`
+	Authenticated bool      `json:"authenticated"`
+	URL           string    `json:"url"`
+	LastPing      time.Time `json:"lastPing"`
+	Username      string    `json:"username"`
+}
+
+// NakamaStatus represents the overall status of Nakama connections
+type NakamaStatus struct {
+	IsHost               bool                  `json:"isHost"`
+	ConnectedPeers       []string              `json:"connectedPeers"`
+	IsConnectedToHost    bool                  `json:"isConnectedToHost"`
+	HostConnectionStatus *HostConnectionStatus `json:"hostConnectionStatus"`
+}
+
+// MessageResponse represents a response to message sending requests
+type MessageResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+func NewManager(opts *NewManagerOptions) *Manager {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	m := &Manager{
+		logger:          opts.Logger,
+		wsEventManager:  opts.WSEventManager,
+		playbackManager: opts.PlaybackManager,
+		peerConnections: result.NewResultMap[string, *PeerConnection](),
+		ctx:             ctx,
+		cancel:          cancel,
+		messageHandlers: make(map[MessageType]func(*Message, string) error),
+		cleanups:        make([]func(), 0),
+		reqClient:       req.C(),
+		serverHost:      opts.ServerHost,
+		serverPort:      opts.ServerPort,
+	}
+
+	// Register default message handlers
+	m.registerDefaultHandlers()
+
+	return m
+}
+
+func (m *Manager) SetSettings(settings *models.NakamaSettings) {
+	var previousSettings *models.NakamaSettings
+	if m.settings != nil {
+		previousSettings = &[]models.NakamaSettings{*m.settings}[0]
+	}
+
+	// If the host password has changed, stop host service
+	// This will cause a restart of the host service
+	disconnectAsHost := false
+	if m.settings != nil && m.settings.HostPassword != settings.HostPassword {
+		disconnectAsHost = true
+		m.stopHostServices()
+	}
+
+	m.settings = settings
+	m.logger.Debug().Bool("isHost", settings.IsHost).Str("remoteURL", settings.RemoteServerURL).Msg("nakama: Settings updated")
+
+	if previousSettings == nil || previousSettings.IsHost != settings.IsHost || previousSettings.Enabled != settings.Enabled || disconnectAsHost {
+		// Start or stop services based on settings
+		if settings.IsHost && settings.Enabled {
+			m.startHostServices()
+		} else {
+			m.stopHostServices()
+		}
+	}
+
+	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.Enabled != settings.Enabled {
+		if settings.RemoteServerURL != "" && settings.RemoteServerPassword != "" && settings.Enabled {
+			m.connectToHost()
+		} else {
+			m.disconnectFromHost()
+		}
+	}
+
+	// if previousSettings == nil || previousSettings.Username != settings.Username {
+	// 	m.SendMessage(MessageTypeCustom, map[string]interface{}{
+	// 		"type": "nakama_username_changed",
+	// 		"username": settings.Username,
+	// 	})
+	// }
+}
+
+func (m *Manager) GetHostBaseServerURL() string {
+	url := m.settings.RemoteServerURL
+	if strings.HasSuffix(url, "/") {
+		url = strings.TrimSuffix(url, "/")
+	}
+	return url
+}
+
+func (m *Manager) IsHost() bool {
+	return m.settings.IsHost
+}
+
+// Cleanup stops all connections and services
+func (m *Manager) Cleanup() {
+	m.logger.Debug().Msg("nakama: Cleaning up")
+
+	if m.cancel != nil {
+		m.cancel()
+	}
+
+	// Cleanup host connections
+	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
+		conn.Close()
+		return true
+	})
+	m.peerConnections.Clear()
+
+	// Cleanup client connection
+	m.hostMu.Lock()
+	if m.hostConnection != nil {
+		m.hostConnection.Close()
+		m.hostConnection = nil
+	}
+	m.hostMu.Unlock()
+
+	// Run cleanup functions
+	for _, cleanup := range m.cleanups {
+		cleanup()
+	}
+}
+
+// RegisterMessageHandler registers a custom message handler
+func (m *Manager) RegisterMessageHandler(msgType MessageType, handler func(*Message, string) error) {
+	m.handlerMu.Lock()
+	defer m.handlerMu.Unlock()
+	m.messageHandlers[msgType] = handler
+}
+
+// SendMessage sends a message to all connected peers (when acting as host)
+func (m *Manager) SendMessage(msgType MessageType, payload interface{}) error {
+	if !m.settings.IsHost {
+		return errors.New("not acting as host")
+	}
+
+	message := &Message{
+		Type:      msgType,
+		Payload:   payload,
+		Timestamp: time.Now(),
+	}
+
+	var lastError error
+	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
+		if err := conn.SendMessage(message); err != nil {
+			m.logger.Error().Err(err).Str("peerId", id).Msg("nakama: Failed to send message to peer")
+			lastError = err
+		}
+		return true
+	})
+
+	return lastError
+}
+
+// SendMessageToPeer sends a message to a specific peer (when acting as host)
+func (m *Manager) SendMessageToPeer(peerID string, msgType MessageType, payload interface{}) error {
+	if !m.settings.IsHost {
+		return errors.New("not acting as host")
+	}
+
+	conn, exists := m.peerConnections.Get(peerID)
+	if !exists {
+		return errors.New("peer not found")
+	}
+
+	message := &Message{
+		Type:      msgType,
+		Payload:   payload,
+		Timestamp: time.Now(),
+	}
+
+	return conn.SendMessage(message)
+}
+
+// SendMessageToHost sends a message to the host (when acting as peer)
+func (m *Manager) SendMessageToHost(msgType MessageType, payload interface{}) error {
+	m.hostMu.RLock()
+	defer m.hostMu.RUnlock()
+
+	if m.hostConnection == nil || !m.hostConnection.Authenticated {
+		return errors.New("not connected to host")
+	}
+
+	message := &Message{
+		Type:      msgType,
+		Payload:   payload,
+		Timestamp: time.Now(),
+	}
+
+	return m.hostConnection.SendMessage(message)
+}
+
+// GetConnectedPeers returns a list of connected peer IDs
+func (m *Manager) GetConnectedPeers() []string {
+	if !m.settings.IsHost {
+		return []string{}
+	}
+
+	// Count occurrences of each username
+	usernameCount := make(map[string]int)
+	usernamePeers := make(map[string][]string)
+
+	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
+		if conn.Authenticated {
+			username := conn.Username
+			if username == "" {
+				username = "Unknown"
+			}
+			usernameCount[username]++
+			usernamePeers[username] = append(usernamePeers[username], id)
+		}
+		return true
+	})
+
+	peers := make([]string, 0)
+	for username, count := range usernameCount {
+		if count == 1 {
+			// Single user with this username
+			peers = append(peers, username)
+		} else {
+			// Multiple users with same username, add ID in parentheses
+			for _, peerID := range usernamePeers[username] {
+				peers = append(peers, fmt.Sprintf("%s (%s)", username, peerID[:8]))
+			}
+		}
+	}
+
+	return peers
+}
+
+// IsConnectedToHost returns whether this instance is connected to a host
+func (m *Manager) IsConnectedToHost() bool {
+	m.hostMu.RLock()
+	defer m.hostMu.RUnlock()
+	return m.hostConnection != nil && m.hostConnection.Authenticated
+}
+
+// GetHostConnectionStatus returns the status of the host connection
+func (m *Manager) GetHostConnectionStatus() *HostConnectionStatus {
+	m.hostMu.RLock()
+	defer m.hostMu.RUnlock()
+
+	if m.hostConnection == nil {
+		return nil
+	}
+
+	return &HostConnectionStatus{
+		Connected:     m.hostConnection != nil,
+		Authenticated: m.hostConnection != nil && m.hostConnection.Authenticated,
+		URL:           m.hostConnection.URL,
+		LastPing:      m.hostConnection.LastPing,
+		Username:      m.hostConnection.Username,
+	}
+}
+
+// Methods for PeerConnection
+func (pc *PeerConnection) SendMessage(message *Message) error {
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+	return pc.Conn.WriteJSON(message)
+}
+
+func (pc *PeerConnection) Close() {
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+	pc.Conn.Close()
+}
+
+// Methods for HostConnection
+func (hc *HostConnection) SendMessage(message *Message) error {
+	hc.mu.Lock()
+	defer hc.mu.Unlock()
+	return hc.Conn.WriteJSON(message)
+}
+
+func (hc *HostConnection) Close() {
+	hc.mu.Lock()
+	defer hc.mu.Unlock()
+	if hc.reconnectTimer != nil {
+		hc.reconnectTimer.Stop()
+	}
+	hc.Conn.Close()
+}
+
+// Helper function to generate connection IDs
+func generateConnectionID() string {
+	return fmt.Sprintf("conn_%d", time.Now().UnixNano())
+}
+
+// ReconnectToHost attempts to reconnect to the host
+func (m *Manager) ReconnectToHost() error {
+	if m.settings == nil || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
+		return errors.New("no host connection configured")
+	}
+
+	m.logger.Info().Msg("nakama: Manual reconnection to host requested")
+
+	// Disconnect current connection if exists
+	m.disconnectFromHost()
+
+	// Wait a moment before reconnecting
+	time.Sleep(1 * time.Second)
+
+	// Reconnect
+	m.connectToHost()
+	return nil
+}
+
+// RemoveStaleConnections removes connections that haven't responded to ping in a while
+func (m *Manager) RemoveStaleConnections() {
+	if !m.settings.IsHost {
+		return
+	}
+
+	staleThreshold := 90 * time.Second // Consider connections stale after 90 seconds of no ping
+	now := time.Now()
+
+	var staleConnections []string
+
+	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
+		conn.mu.RLock()
+		lastPing := conn.LastPing
+		authenticated := conn.Authenticated
+		conn.mu.RUnlock()
+
+		// Only check authenticated connections
+		if !authenticated {
+			return true
+		}
+
+		// If LastPing is zero, use connection time as reference
+		if lastPing.IsZero() {
+			lastPing = now.Add(-staleThreshold - time.Minute)
+		}
+
+		if now.Sub(lastPing) > staleThreshold {
+			staleConnections = append(staleConnections, id)
+		}
+		return true
+	})
+
+	// Remove stale connections
+	for _, id := range staleConnections {
+		if conn, exists := m.peerConnections.Get(id); exists {
+			// Double-check to avoid race conditions
+			conn.mu.RLock()
+			lastPing := conn.LastPing
+			if lastPing.IsZero() {
+				lastPing = now.Add(-staleThreshold - time.Minute)
+			}
+			isStale := now.Sub(lastPing) > staleThreshold
+			conn.mu.RUnlock()
+
+			if isStale {
+				m.logger.Info().Str("peerId", id).Msg("nakama: Removing stale peer connection")
+
+				// Remove from map first to prevent re-addition
+				m.peerConnections.Delete(id)
+
+				// Then close the connection (this will trigger the defer cleanup in handlePeerConnection)
+				conn.Close()
+
+				// Send event about peer disconnection
+				m.wsEventManager.SendEvent(events.NakamaPeerDisconnected, map[string]interface{}{
+					"peerId": id,
+					"reason": "stale_connection",
+				})
+			}
+		}
+	}
+
+	if len(staleConnections) > 0 {
+		m.logger.Info().Int("count", len(staleConnections)).Msg("nakama: Removed stale peer connections")
+	}
+}

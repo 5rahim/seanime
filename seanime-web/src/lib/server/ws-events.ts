@@ -42,6 +42,15 @@ export const enum WSEvents {
     CONSOLE_LOG = "console-log",
     CONSOLE_WARN = "console-warn",
     NATIVE_PLAYER = "native-player",
+    NAKAMA_HOST_STARTED = "nakama-host-started",
+    NAKAMA_HOST_STOPPED = "nakama-host-stopped",
+    NAKAMA_PEER_CONNECTED = "nakama-peer-connected",
+    NAKAMA_PEER_DISCONNECTED = "nakama-peer-disconnected",
+    NAKAMA_HOST_CONNECTED = "nakama-host-connected",
+    NAKAMA_HOST_DISCONNECTED = "nakama-host-disconnected",
+    NAKAMA_ERROR = "nakama-error",
+    SHOW_INDEFINITE_LOADER = "show-indefinite-loader",
+    HIDE_INDEFINITE_LOADER = "hide-indefinite-loader",
 }
 
 export const enum WebviewEvents {

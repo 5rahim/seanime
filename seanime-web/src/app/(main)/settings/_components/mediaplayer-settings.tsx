@@ -1,6 +1,6 @@
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert } from "@/components/ui/alert"
@@ -11,6 +11,8 @@ import { getDefaultMpcSocket } from "@/lib/server/settings"
 import React from "react"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
+import { LuExternalLink, LuLaptop } from "react-icons/lu"
+import { RiSettings3Fill } from "react-icons/ri"
 
 type MediaplayerSettingsProps = {
     isPending: boolean
@@ -26,13 +28,11 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
     return (
         <>
-            <div>
-                <h3>Desktop Media Player</h3>
-
-                <p className="text-[--muted]">
-                    Seanime has built-in support for MPV, VLC, and MPC-HC.
-                </p>
-            </div>
+            <SettingsPageHeader
+                title="Desktop Media Player"
+                description="Seanime has built-in support for MPV, VLC, and MPC-HC."
+                icon={LuLaptop}
+            />
 
             <SettingsCard>
                 <Field.Select
@@ -164,15 +164,11 @@ export function ExternalPlayerLinkSettings() {
 
     return (
         <>
-            <div>
-                <h3>
-                    External player link
-                </h3>
-                <p className="text-[--muted]">
-                    Enter a custom scheme format for opening files with an external player on this device.
-                    Ensure the player supports HTTP sources.
-                </p>
-            </div>
+            <SettingsPageHeader
+                title="External player link"
+                description="Enter a custom scheme format for opening files with an external player on this device."
+                icon={LuExternalLink}
+            />
 
             <Alert
                 intent="info" description={<>
@@ -200,9 +196,10 @@ export function ExternalPlayerLinkSettings() {
                 />
             </SettingsCard>
 
-            <p className="italic text-sm text-[--muted]">
-                Changes are saved automatically.
-            </p>
+            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+                <RiSettings3Fill className="text-base" />
+                <span>Settings are saved automatically</span>
+            </div>
         </>
     )
 }

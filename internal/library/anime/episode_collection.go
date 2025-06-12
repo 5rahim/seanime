@@ -29,6 +29,7 @@ type (
 )
 
 type NewEpisodeCollectionOptions struct {
+	// AnimeMetadata can be nil, if not provided, it will be fetched from the metadata provider.
 	AnimeMetadata    *metadata.AnimeMetadata
 	Media            *anilist.BaseAnime
 	MetadataProvider metadata.Provider

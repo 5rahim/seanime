@@ -49,6 +49,7 @@ type Settings struct {
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
 	Discord        *DiscordSettings        `gorm:"embedded" json:"discord"`
 	Notifications  *NotificationSettings   `gorm:"embedded" json:"notifications"`
+	Nakama         *NakamaSettings         `gorm:"embedded;embeddedPrefix:nakama_" json:"nakama"`
 }
 
 type AnilistSettings struct {
@@ -83,9 +84,6 @@ type LibrarySettings struct {
 	ScannerMatchingAlgorithm string  `gorm:"column:scanner_matching_algorithm" json:"scannerMatchingAlgorithm"`
 	// v2.9+
 	AutoSyncToLocalAccount bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
-	//ClientModeEnabled    bool   `gorm:"column:client_mode_enabled" json:"clientModeEnabled"`
-	//RemoteServerURL      string `gorm:"column:remote_server_url" json:"remoteServerURL"`
-	//RemoteServerPassword string `gorm:"column:remote_server_password" json:"remoteServerPassword"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -112,6 +110,21 @@ func (o LibraryPaths) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return strings.Join(o, ","), nil
+}
+
+type NakamaSettings struct {
+	Enabled bool `gorm:"column:enabled" json:"enabled"`
+	// Username is the name used to identify a peer or host.
+	Username string `gorm:"column:username" json:"username"`
+	// IsHost allows the server to act as a host for other clients. This requires a password to be set.
+	IsHost               bool   `gorm:"column:is_host" json:"isHost"`
+	HostPassword         string `gorm:"column:host_password" json:"hostPassword"`
+	RemoteServerURL      string `gorm:"column:remote_server_url" json:"remoteServerURL"`
+	RemoteServerPassword string `gorm:"column:remote_server_password" json:"remoteServerPassword"`
+	// IncludeNakamaAnimeLibrary adds the local anime library of the host to the connected clients.
+	IncludeNakamaAnimeLibrary bool `gorm:"column:include_nakama_anime_library" json:"includeNakamaAnimeLibrary"`
+	// HostShareLocalAnimeLibrary shares the local anime library to connected clients
+	HostShareLocalAnimeLibrary bool `gorm:"column:host_share_local_anime_library" json:"hostShareLocalAnimeLibrary"`
 }
 
 type MangaSettings struct {

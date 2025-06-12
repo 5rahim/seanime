@@ -1,6 +1,6 @@
 import { useLocalSyncSimulatedDataToAnilist } from "@/api/hooks/local.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
-import { LuCloudUpload } from "react-icons/lu"
+import { LuCloudUpload, LuDatabase, LuUserCog } from "react-icons/lu"
 
 type Props = {
     isPending: boolean
@@ -40,12 +40,11 @@ export function LocalSettings(props: Props) {
     return (
         <div className="space-y-4">
 
-            <div className="">
-                <h3>Local Data</h3>
-                <p className="text-[--muted]">
-                    Local anime and manga list managed by Seanime.
-                </p>
-            </div>
+            <SettingsPageHeader
+                title="Local Account"
+                description="Local anime and manga list managed by Seanime"
+                icon={LuUserCog}
+            />
 
             <SettingsCard
                 title="AniList"

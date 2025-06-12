@@ -6357,6 +6357,402 @@
     }
   },
   {
+    "name": "HandleNakamaWebSocket",
+    "trimmedName": "NakamaWebSocket",
+    "comments": [
+      "HandleNakamaWebSocket handles WebSocket connections for Nakama peers",
+      "",
+      "\t@summary handles WebSocket connections for Nakama peers.",
+      "\t@desc This endpoint handles WebSocket connections from Nakama peers when this instance is acting as a host.",
+      "\t@route /api/v1/nakama/ws [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "handles WebSocket connections for Nakama peers.",
+      "descriptions": [
+        "This endpoint handles WebSocket connections from Nakama peers when this instance is acting as a host."
+      ],
+      "endpoint": "/api/v1/nakama/ws",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetNakamaStatus",
+    "trimmedName": "GetNakamaStatus",
+    "comments": [
+      "HandleGetNakamaStatus",
+      "",
+      "\t@summary gets the current Nakama connection status.",
+      "\t@desc This returns the current status of Nakama connections including host mode and peer connections.",
+      "\t@route /api/v1/nakama/status [GET]",
+      "\t@returns nakama.NakamaStatus",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "gets the current Nakama connection status.",
+      "descriptions": [
+        "This returns the current status of Nakama connections including host mode and peer connections."
+      ],
+      "endpoint": "/api/v1/nakama/status",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nakama.NakamaStatus",
+      "returnGoType": "nakama.NakamaStatus",
+      "returnTypescriptType": "Nakama_NakamaStatus"
+    }
+  },
+  {
+    "name": "HandleSendNakamaMessage",
+    "trimmedName": "SendNakamaMessage",
+    "comments": [
+      "HandleSendNakamaMessage",
+      "",
+      "\t@summary sends a custom message through Nakama.",
+      "\t@desc This allows sending custom messages to connected peers or the host.",
+      "\t@route /api/v1/nakama/message [POST]",
+      "\t@returns nakama.MessageResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "sends a custom message through Nakama.",
+      "descriptions": [
+        "This allows sending custom messages to connected peers or the host."
+      ],
+      "endpoint": "/api/v1/nakama/message",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MessageType",
+          "jsonName": "messageType",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Payload",
+          "jsonName": "payload",
+          "goType": "",
+          "usedStructType": "",
+          "typescriptType": "any",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "PeerID",
+          "jsonName": "peerId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "nakama.MessageResponse",
+      "returnGoType": "nakama.MessageResponse",
+      "returnTypescriptType": "Nakama_MessageResponse"
+    }
+  },
+  {
+    "name": "HandleGetNakamaAnimeLibraryCollection",
+    "trimmedName": "GetNakamaAnimeLibraryCollection",
+    "comments": [
+      "HandleGetNakamaAnimeLibraryCollection",
+      "",
+      "\t@summary shares the local anime collection with Nakama clients.",
+      "\t@desc This creates a new LibraryCollection struct and returns it.",
+      "\t@desc This is used to share the local anime collection with Nakama clients.",
+      "\t@route /api/v1/nakama/host/anime/library/collection [GET]",
+      "\t@returns anime.LibraryCollection",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "shares the local anime collection with Nakama clients.",
+      "descriptions": [
+        "This creates a new LibraryCollection struct and returns it.",
+        "This is used to share the local anime collection with Nakama clients."
+      ],
+      "endpoint": "/api/v1/nakama/host/anime/library/collection",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anime.LibraryCollection",
+      "returnGoType": "anime.LibraryCollection",
+      "returnTypescriptType": "Anime_LibraryCollection"
+    }
+  },
+  {
+    "name": "HandleGetNakamaAnimeLibraryFiles",
+    "trimmedName": "GetNakamaAnimeLibraryFiles",
+    "comments": [
+      "HandleGetNakamaAnimeLibraryFiles",
+      "",
+      "\t@summary return the local files for the given AniList anime media id.",
+      "\t@desc This is used by the anime media entry pages to get all the data about the anime.",
+      "\t@desc This includes episodes and metadata (if any), AniList list data, download info...",
+      "\t@route /api/v1/nakama/host/anime/library/files/{id} [POST]",
+      "\t@param id - int - true - \"AniList anime media ID\"",
+      "\t@returns []anime.LocalFile",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "return the local files for the given AniList anime media id.",
+      "descriptions": [
+        "This is used by the anime media entry pages to get all the data about the anime.",
+        "This includes episodes and metadata (if any), AniList list data, download info..."
+      ],
+      "endpoint": "/api/v1/nakama/host/anime/library/files/{id}",
+      "methods": [
+        "POST"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList anime media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+    }
+  },
+  {
+    "name": "HandleNakamaPlayVideo",
+    "trimmedName": "NakamaPlayVideo",
+    "comments": [
+      "HandleNakamaPlayVideo",
+      "",
+      "\t@summary plays the media from the host.",
+      "\t@route /api/v1/nakama/play [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "plays the media from the host.",
+      "descriptions": [],
+      "endpoint": "/api/v1/nakama/play",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AniDBEpisode",
+          "jsonName": "anidbEpisode",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaHostTorrentstreamServeStream",
+    "trimmedName": "NakamaHostTorrentstreamServeStream",
+    "comments": [
+      "route /api/v1/nakama/host/torrentstream/stream",
+      "Allows peers to stream the currently playing torrent.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaHostDebridstreamServeStream",
+    "trimmedName": "NakamaHostDebridstreamServeStream",
+    "comments": [
+      "route /api/v1/nakama/host/debridstream/stream",
+      "Allows peers to stream the currently playing torrent.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaHostAnimeLibraryServeStream",
+    "trimmedName": "NakamaHostAnimeLibraryServeStream",
+    "comments": [
+      "route /api/v1/nakama/host/anime/library/stream?path={base64_encoded_path}",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaProxyStream",
+    "trimmedName": "NakamaProxyStream",
+    "comments": [
+      "route /api/v1/nakama/stream",
+      "Proxies stream requests to the host. It inserts the Nakama password in the headers.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaReconnectToHost",
+    "trimmedName": "NakamaReconnectToHost",
+    "comments": [
+      "HandleNakamaReconnectToHost",
+      "",
+      "\t@summary reconnects to the Nakama host.",
+      "\t@desc This attempts to reconnect to the configured Nakama host if the connection was lost.",
+      "\t@route /api/v1/nakama/reconnect [POST]",
+      "\t@returns nakama.MessageResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "reconnects to the Nakama host.",
+      "descriptions": [
+        "This attempts to reconnect to the configured Nakama host if the connection was lost."
+      ],
+      "endpoint": "/api/v1/nakama/reconnect",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nakama.MessageResponse",
+      "returnGoType": "nakama.MessageResponse",
+      "returnTypescriptType": "Nakama_MessageResponse"
+    }
+  },
+  {
+    "name": "HandleNakamaRemoveStaleConnections",
+    "trimmedName": "NakamaRemoveStaleConnections",
+    "comments": [
+      "HandleNakamaRemoveStaleConnections",
+      "",
+      "\t@summary removes stale peer connections.",
+      "\t@desc This removes peer connections that haven't responded to ping messages for a while.",
+      "\t@route /api/v1/nakama/cleanup [POST]",
+      "\t@returns nakama.MessageResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "removes stale peer connections.",
+      "descriptions": [
+        "This removes peer connections that haven't responded to ping messages for a while."
+      ],
+      "endpoint": "/api/v1/nakama/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nakama.MessageResponse",
+      "returnGoType": "nakama.MessageResponse",
+      "returnTypescriptType": "Nakama_MessageResponse"
+    }
+  },
+  {
     "name": "HandleGetOnlineStreamEpisodeList",
     "trimmedName": "GetOnlineStreamEpisodeList",
     "comments": [
@@ -7777,6 +8173,15 @@
           "descriptions": []
         },
         {
+          "name": "Nakama",
+          "jsonName": "nakama",
+          "goType": "models.NakamaSettings",
+          "usedStructType": "models.NakamaSettings",
+          "typescriptType": "Models_NakamaSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "EnableTranscode",
           "jsonName": "enableTranscode",
           "goType": "bool",
@@ -7905,6 +8310,15 @@
           "goType": "models.NotificationSettings",
           "usedStructType": "models.NotificationSettings",
           "typescriptType": "Models_NotificationSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Nakama",
+          "jsonName": "nakama",
+          "goType": "models.NakamaSettings",
+          "usedStructType": "models.NakamaSettings",
+          "typescriptType": "Models_NakamaSettings",
           "required": true,
           "descriptions": []
         }

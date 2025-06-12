@@ -26,7 +26,7 @@ export function SettingsSubmitButton({ isPending }: { isPending: boolean }) {
                 size="md"
                 className={cn(
                     "text-md transition-all group",
-                    isDirty && "animate-bounce",
+                    isDirty && "animate-pulse",
                 )}
                 intent="white"
                 rounded

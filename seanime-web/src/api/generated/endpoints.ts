@@ -1317,6 +1317,85 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/metadata-provider/filler",
         },
     },
+    NAKAMA: {
+        /**
+         *  @description
+         *  Route handles WebSocket connections for Nakama peers.
+         *  This endpoint handles WebSocket connections from Nakama peers when this instance is acting as a host.
+         */
+        NakamaWebSocket: {
+            key: "NAKAMA-nakama-web-socket",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/ws",
+        },
+        /**
+         *  @description
+         *  Route gets the current Nakama connection status.
+         *  This returns the current status of Nakama connections including host mode and peer connections.
+         */
+        GetNakamaStatus: {
+            key: "NAKAMA-get-nakama-status",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/status",
+        },
+        /**
+         *  @description
+         *  Route sends a custom message through Nakama.
+         *  This allows sending custom messages to connected peers or the host.
+         */
+        SendNakamaMessage: {
+            key: "NAKAMA-send-nakama-message",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/message",
+        },
+        /**
+         *  @description
+         *  Route shares the local anime collection with Nakama clients.
+         *  This creates a new LibraryCollection struct and returns it.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
+        GetNakamaAnimeLibraryCollection: {
+            key: "NAKAMA-get-nakama-anime-library-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/host/anime/library/collection",
+        },
+        /**
+         *  @description
+         *  Route return the local files for the given AniList anime media id.
+         *  This is used by the anime media entry pages to get all the data about the anime.
+         *  This includes episodes and metadata (if any), AniList list data, download info...
+         */
+        GetNakamaAnimeLibraryFiles: {
+            key: "NAKAMA-get-nakama-anime-library-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/host/anime/library/files/{id}",
+        },
+        NakamaPlayVideo: {
+            key: "NAKAMA-nakama-play-video",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/play",
+        },
+        /**
+         *  @description
+         *  Route reconnects to the Nakama host.
+         *  This attempts to reconnect to the configured Nakama host if the connection was lost.
+         */
+        NakamaReconnectToHost: {
+            key: "NAKAMA-nakama-reconnect-to-host",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/reconnect",
+        },
+        /**
+         *  @description
+         *  Route removes stale peer connections.
+         *  This removes peer connections that haven't responded to ping messages for a while.
+         */
+        NakamaRemoveStaleConnections: {
+            key: "NAKAMA-nakama-remove-stale-connections",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/cleanup",
+        },
+    },
     ONLINESTREAM: {
         /**
          *  @description

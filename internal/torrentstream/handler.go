@@ -3,6 +3,7 @@ package torrentstream
 import (
 	"net/http"
 	"seanime/internal/util/torrentutil"
+	"strconv"
 	"time"
 
 	"github.com/anacrolix/torrent"
@@ -25,6 +26,21 @@ func newHandler(repository *Repository) *handler {
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.repository.logger.Trace().Str("range", r.Header.Get("Range")).Msg("torrentstream: Stream endpoint hit")
+
+	if r.Method == http.MethodGet {
+		r.Response.Header.Set("Content-Type", "video/mp4")
+		r.Response.Header.Set("Content-Length", strconv.Itoa(int(h.repository.client.currentFile.MustGet().Length())))
+		r.Response.Header.Set("Content-Disposition", "inline; filename="+h.repository.client.currentFile.MustGet().DisplayPath())
+		r.Response.Header.Set("Accept-Ranges", "bytes")
+		r.Response.Header.Set("Cache-Control", "no-cache")
+		r.Response.Header.Set("Pragma", "no-cache")
+		r.Response.Header.Set("Expires", "0")
+		r.Response.Header.Set("X-Content-Type-Options", "nosniff")
+
+		// No content, just headers
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	if h.repository.client.currentFile.IsAbsent() || h.repository.client.currentTorrent.IsAbsent() {
 		h.repository.logger.Error().Msg("torrentstream: No torrent to stream")

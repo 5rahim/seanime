@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
+	"seanime/internal/nakama"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -59,6 +60,12 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 			MetadataProvider:  h.App.MetadataProvider,
 		})
 	}
+
+	h.App.NakamaManager.HydrateHostAnimeLibrary(&nakama.HydrateHostAnimeLibraryOptions{
+		AnimeCollection:   animeCollection,
+		LibraryCollection: libraryCollection,
+		MetadataProvider:  h.App.MetadataProvider,
+	})
 
 	// Hydrate total library size
 	if libraryCollection != nil && libraryCollection.Stats != nil {

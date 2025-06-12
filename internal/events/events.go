@@ -70,4 +70,18 @@ const (
 	InvalidateQueries = "invalidate-queries"
 	ConsoleLog        = "console-log"
 	ConsoleWarn       = "console-warn"
+
+	ShowIndefiniteLoader = "show-indefinite-loader"
+	HideIndefiniteLoader = "hide-indefinite-loader"
+
+	// Nakama events
+	NakamaHostStarted          = "nakama-host-started"
+	NakamaHostStopped          = "nakama-host-stopped"
+	NakamaPeerConnected        = "nakama-peer-connected"
+	NakamaPeerDisconnected     = "nakama-peer-disconnected"
+	NakamaHostConnected        = "nakama-host-connected"
+	NakamaHostDisconnected     = "nakama-host-disconnected"
+	NakamaError                = "nakama-error"
+	NakamaAnimeLibraryReceived = "nakama-anime-library-received"
+	NakamaCustomMessage        = "nakama-custom-message"
 )

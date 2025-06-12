@@ -34,7 +34,7 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiChevronDown, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -43,6 +43,8 @@ import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterCloc
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
+import { MdOutlineConnectWithoutContact } from "react-icons/md"
+import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 
 /**
  * @description
@@ -81,8 +83,9 @@ export function MainSidebar() {
     }, [isPending, data])
 
     const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
-
     const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
+    const [nakamaModalOpen, setNakamaModalOpen] = useAtom(nakamaModalOpenAtom)
+    const nakamaStatus = useNakamaStatus()
 
     const handleExpandSidebar = () => {
         if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
@@ -144,15 +147,16 @@ export function MainSidebar() {
                         className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
-
+                        itemChevronClass="hidden"
+                        itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
                         items={[
-                            // ...[__isDesktop__ && {
+                            // ...(__isDesktop__ ? [{
                             //     iconType: AiOutlineArrowLeft,
                             //     name: "Back",
                             //     onClick: () => {
                             //         router.back()
                             //     },
-                            // }],
+                            // }] : []),
                             {
                                 iconType: IoLibrary,
                                 name: "Library",
@@ -169,12 +173,12 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{missingEpisodeCount}</Badge> : undefined,
                             },
-                            ...[serverStatus?.settings?.library?.enableManga && {
+                            ...serverStatus?.settings?.library?.enableManga ? [{
                                 iconType: FaBookReader,
                                 name: "Manga",
                                 href: "/manga",
                                 isCurrent: pathname.startsWith("/manga"),
-                            }],
+                            }] : [],
                             {
                                 iconType: BiNews,
                                 name: "Discover",
@@ -187,46 +191,72 @@ export function MainSidebar() {
                                 href: "/anilist",
                                 isCurrent: pathname === "/anilist",
                             },
-                            ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
-                                iconType: TbWorldDownload,
-                                name: "Auto Downloader",
-                                href: "/auto-downloader",
-                                isCurrent: pathname === "/auto-downloader",
-                                addon: autoDownloaderQueueCount > 0 ? <Badge
-                                    className="absolute right-0 top-0" size="sm"
-                                    intent="alert-solid"
-                                >{autoDownloaderQueueCount}</Badge> : undefined,
-                            }],
-                            ...[(
-                                serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-                                && !serverStatus?.settings?.torrent?.hideTorrentList
-                                && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
-                            && {
-                                iconType: BiDownload,
-                                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                    ? "Torrent list"
-                                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
-                                href: "/torrent-list",
-                                isCurrent: pathname === "/torrent-list",
-                                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                    ? <Badge
-                                        className="absolute right-0 top-0 bg-green-500" size="sm"
-                                        intent="alert-solid"
-                                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
-                                    : undefined,
-                            }],
-                            ...[(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && {
-                                iconType: HiOutlineServerStack,
-                                name: "Debrid",
-                                href: "/debrid",
-                                isCurrent: pathname === "/debrid",
-                            }],
+                            ...serverStatus?.settings?.nakama?.enabled ? [{
+                                iconType: MdOutlineConnectWithoutContact,
+                                iconClass: "size-6",
+                                name: "Nakama",
+                                isCurrent: nakamaModalOpen,
+                                onClick: () => setNakamaModalOpen(true),
+                                addon: <>
+                                    {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                                        className="absolute right-0 top-0" size="sm"
+                                        intent="info-solid"
+                                    >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                                    {nakamaStatus?.isConnectedToHost && <div
+                                        className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                                    ></div>}
+                                </>,
+                            }] : [],
                             {
-                                iconType: PiClockCounterClockwiseFill,
-                                name: "Scan summaries",
-                                href: "/scan-summaries",
-                                isCurrent: pathname === "/scan-summaries",
+                                iconType: BiChevronRight,
+                                name: "More",
+                                subContent: <VerticalMenu
+                                    items={[
+                                        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+                                            iconType: TbWorldDownload,
+                                            name: "Auto Downloader",
+                                            href: "/auto-downloader",
+                                            isCurrent: pathname === "/auto-downloader",
+                                            addon: autoDownloaderQueueCount > 0 ? <Badge
+                                                className="absolute right-0 top-0" size="sm"
+                                                intent="alert-solid"
+                                            >{autoDownloaderQueueCount}</Badge> : undefined,
+                                        }] : [],
+                                        ...(
+                                            serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
+                                            && !serverStatus?.settings?.torrent?.hideTorrentList
+                                            && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
+                                            ? [{
+                                                iconType: BiDownload,
+                                                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                                                    ? "Torrent list"
+                                                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
+                                                href: "/torrent-list",
+                                                isCurrent: pathname === "/torrent-list",
+                                                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                                                    ? <Badge
+                                                        className="absolute right-0 top-0 bg-green-500" size="sm"
+                                                        intent="alert-solid"
+                                                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
+                                                    : undefined,
+                                            }] : [],
+                                        ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
+                                            iconType: HiOutlineServerStack,
+                                            name: "Debrid",
+                                            href: "/debrid",
+                                            isCurrent: pathname === "/debrid",
+                                        }] : [],
+                                        {
+                                            iconType: PiClockCounterClockwiseFill,
+                                            name: "Scan summaries",
+                                            href: "/scan-summaries",
+                                            isCurrent: pathname === "/scan-summaries",
+                                        },
+                                    ]}
+                                />,
                             },
+
                             {
                                 iconType: FiSearch,
                                 name: "Search",
@@ -235,7 +265,7 @@ export function MainSidebar() {
                                     setGlobalSearchIsOpen(true)
                                 },
                             },
-                        ].filter(Boolean)}
+                        ]}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
 

@@ -1,4 +1,6 @@
+import { Anime_Episode } from "@/api/generated/types"
 import { useDirectstreamPlayLocalFile } from "@/api/hooks/directstream.hooks"
+import { useNakamaPlayVideo } from "@/api/hooks/nakama.hooks"
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import {
     ElectronPlaybackMethod,
@@ -30,13 +32,20 @@ export function useHandlePlayMedia() {
 
     // Play using desktop external player
     const { mutate: playVideo } = usePlaybackPlayVideo()
+    const { mutate: playNakamaVideo } = useNakamaPlayVideo()
+
     const { mutate: directstreamPlayLocalFile } = useDirectstreamPlayLocalFile()
 
     const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
 
-    function playMediaFile({ path, mediaId }: { path: string, mediaId: number }) {
+    function playMediaFile({ path, mediaId, episode }: { path: string, mediaId: number, episode: Anime_Episode }) {
+        const anidbEpisode = episode.localFile?.metadata?.aniDBEpisode ?? ""
 
         setTorrentstreamAutoplayInfo(null)
+
+        if (episode._isNakamaEpisode) {
+            return playNakamaVideo({ path, mediaId, anidbEpisode })
+        }
 
         logger("PLAY_MEDIA").info("Playing media file", path)
 

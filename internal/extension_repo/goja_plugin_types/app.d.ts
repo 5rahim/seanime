@@ -2725,6 +2725,7 @@ declare namespace $app {
         localFiles?: Array<Anime_LocalFile>;
         anidbId: number;
         currentEpisodeCount: number;
+        _isNakamaEntry: boolean;
     }
 
     /**
@@ -2815,6 +2816,7 @@ declare namespace $app {
          */
         metadataIssue?: string;
         baseAnime?: AL_BaseAnime;
+        _isNakamaEpisode: boolean;
     }
 
     /**

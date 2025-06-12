@@ -29,6 +29,9 @@ import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } fro
 import React from "react"
 import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
 import { NativePlayer } from "../native-player/native-player"
+import { NakamaManager } from "../nakama/nakama-manager"
+import { __isElectronDesktop__ } from "@/types/constants"
+import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -68,7 +71,9 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            <NativePlayer />
+            {__isElectronDesktop__ && <NativePlayer />}
+            <NakamaManager />
+            <TopIndefiniteLoader />
             
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

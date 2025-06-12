@@ -51,18 +51,56 @@ type (
 		ContinuityManager *continuity.Manager
 	}
 
+	// RepositorySubscriber provides a single event channel for all media player events
 	RepositorySubscriber struct {
-		TrackingStartedCh chan *PlaybackStatus
-		TrackingRetryCh   chan string
-		VideoCompletedCh  chan *PlaybackStatus
-		TrackingStoppedCh chan string
-		PlaybackStatusCh  chan *PlaybackStatus
+		EventCh chan MediaPlayerEvent
+	}
 
-		StreamingTrackingStartedCh chan *PlaybackStatus
-		StreamingTrackingRetryCh   chan string
-		StreamingVideoCompletedCh  chan *PlaybackStatus
-		StreamingTrackingStoppedCh chan string
-		StreamingPlaybackStatusCh  chan *PlaybackStatus
+	// MediaPlayerEvent is the base interface for all media player events
+	MediaPlayerEvent interface {
+		Type() string
+	}
+
+	// Local file playback events
+	TrackingStartedEvent struct {
+		Status *PlaybackStatus
+	}
+
+	TrackingRetryEvent struct {
+		Reason string
+	}
+
+	VideoCompletedEvent struct {
+		Status *PlaybackStatus
+	}
+
+	TrackingStoppedEvent struct {
+		Reason string
+	}
+
+	PlaybackStatusEvent struct {
+		Status *PlaybackStatus
+	}
+
+	// Streaming playback events
+	StreamingTrackingStartedEvent struct {
+		Status *PlaybackStatus
+	}
+
+	StreamingTrackingRetryEvent struct {
+		Reason string
+	}
+
+	StreamingVideoCompletedEvent struct {
+		Status *PlaybackStatus
+	}
+
+	StreamingTrackingStoppedEvent struct {
+		Reason string
+	}
+
+	StreamingPlaybackStatusEvent struct {
+		Status *PlaybackStatus
 	}
 
 	PlaybackStatus struct {
@@ -77,6 +115,17 @@ type (
 		DurationInSeconds    float64 `json:"durationInSeconds"`    // in seconds
 	}
 )
+
+func (e TrackingStartedEvent) Type() string          { return "tracking_started" }
+func (e TrackingRetryEvent) Type() string            { return "tracking_retry" }
+func (e VideoCompletedEvent) Type() string           { return "video_completed" }
+func (e TrackingStoppedEvent) Type() string          { return "tracking_stopped" }
+func (e PlaybackStatusEvent) Type() string           { return "playback_status" }
+func (e StreamingTrackingStartedEvent) Type() string { return "streaming_tracking_started" }
+func (e StreamingTrackingRetryEvent) Type() string   { return "streaming_tracking_retry" }
+func (e StreamingVideoCompletedEvent) Type() string  { return "streaming_video_completed" }
+func (e StreamingTrackingStoppedEvent) Type() string { return "streaming_tracking_stopped" }
+func (e StreamingPlaybackStatusEvent) Type() string  { return "streaming_playback_status" }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 
@@ -97,19 +146,14 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 func (m *Repository) Subscribe(id string) *RepositorySubscriber {
 	sub := &RepositorySubscriber{
-		TrackingStartedCh:          make(chan *PlaybackStatus, 1),
-		TrackingRetryCh:            make(chan string, 1),
-		VideoCompletedCh:           make(chan *PlaybackStatus, 1),
-		TrackingStoppedCh:          make(chan string, 1),
-		PlaybackStatusCh:           make(chan *PlaybackStatus, 1),
-		StreamingTrackingStartedCh: make(chan *PlaybackStatus, 1),
-		StreamingTrackingRetryCh:   make(chan string, 1),
-		StreamingVideoCompletedCh:  make(chan *PlaybackStatus, 1),
-		StreamingTrackingStoppedCh: make(chan string, 1),
-		StreamingPlaybackStatusCh:  make(chan *PlaybackStatus, 1),
+		EventCh: make(chan MediaPlayerEvent, 10), // Buffered channel to avoid blocking
 	}
 	m.subscribers.Set(id, sub)
 	return sub
+}
+
+func (m *Repository) Unsubscribe(id string) {
+	m.subscribers.Delete(id)
 }
 
 func (m *Repository) GetStatus() *PlaybackStatus {
@@ -670,70 +714,70 @@ func (m *Repository) StartTracking() {
 
 func (m *Repository) trackingStopped(reason string) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.TrackingStoppedCh <- reason
+		value.EventCh <- TrackingStoppedEvent{Reason: reason}
 		return true
 	})
 }
 
 func (m *Repository) trackingStarted(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.TrackingStartedCh <- status
+		value.EventCh <- TrackingStartedEvent{Status: status}
 		return true
 	})
 }
 
 func (m *Repository) trackingRetry(reason string) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.TrackingRetryCh <- reason
+		value.EventCh <- TrackingRetryEvent{Reason: reason}
 		return true
 	})
 }
 
 func (m *Repository) videoCompleted(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.VideoCompletedCh <- status
+		value.EventCh <- VideoCompletedEvent{Status: status}
 		return true
 	})
 }
 
 func (m *Repository) playbackStatus(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.PlaybackStatusCh <- status
+		value.EventCh <- PlaybackStatusEvent{Status: status}
 		return true
 	})
 }
 
 func (m *Repository) streamingTrackingStopped(reason string) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.StreamingTrackingStoppedCh <- reason
+		value.EventCh <- StreamingTrackingStoppedEvent{Reason: reason}
 		return true
 	})
 }
 
 func (m *Repository) streamingTrackingStarted(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.StreamingTrackingStartedCh <- status
+		value.EventCh <- StreamingTrackingStartedEvent{Status: status}
 		return true
 	})
 }
 
 func (m *Repository) streamingTrackingRetry(reason string) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.StreamingTrackingRetryCh <- reason
+		value.EventCh <- StreamingTrackingRetryEvent{Reason: reason}
 		return true
 	})
 }
 
 func (m *Repository) streamingVideoCompleted(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.StreamingVideoCompletedCh <- status
+		value.EventCh <- StreamingVideoCompletedEvent{Status: status}
 		return true
 	})
 }
 
 func (m *Repository) streamingPlaybackStatus(status *PlaybackStatus) {
 	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
-		value.StreamingPlaybackStatusCh <- status
+		value.EventCh <- StreamingPlaybackStatusEvent{Status: status}
 		return true
 	})
 }
@@ -864,96 +908,3 @@ func (m *Repository) processStreamStatus(player string, status interface{}) bool
 		return false
 	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//type PlayMediaOptions struct {
-//	Type       PlayMediaType
-//	Path       string
-//	Player     string
-//	ClientId   string
-//	ClientInfo *hibikemediaplayer.ClientInfo
-//}
-//
-//type PlayMediaType string
-//
-//const (
-//	PlayMediaTypeLocal  PlayMediaType = "local"
-//	PlayMediaTypeStream PlayMediaType = "stream"
-//)
-//
-//type PlayMediaResponse struct {
-//	ShouldStartTracking bool
-//}
-//
-//func (m *Repository) PlayMedia(opts *PlayMediaOptions) (*PlayMediaResponse, error) {
-//	m.Logger.Debug().Str("path", opts.Path).Str("player", opts.Player).Msg("media player: Media requested")
-//
-//	m.playerInUse = opts.Player
-//
-//	// Handle built-in player integrations
-//	switch m.playerInUse {
-//	case "vlc", "mpc-hc", "mpv":
-//		switch opts.Type {
-//		case PlayMediaTypeLocal:
-//			err := m.Play(opts.Path)
-//			if err != nil {
-//				return nil, err
-//			}
-//		case PlayMediaTypeStream:
-//			err := m.Stream(opts.Path)
-//			if err != nil {
-//				return nil, err
-//			}
-//		}
-//		return &PlayMediaResponse{ShouldStartTracking: true}, nil
-//	}
-//
-//	providerExt, found := extension.GetExtension[extension.MediaPlayerExtension](m.extensionBank, opts.Player)
-//	if !found {
-//		return nil, fmt.Errorf("media player '%s' not found", opts.Player)
-//	}
-//
-//	var playResponse *hibikemediaplayer.PlayResponse
-//	var err error
-//
-//	switch opts.Type {
-//	case PlayMediaTypeLocal:
-//		playResponse, err = providerExt.GetMediaPlayer().Play(hibikemediaplayer.PlayRequest{
-//			Path:       opts.Path,
-//			ClientInfo: *opts.ClientInfo,
-//		})
-//	case PlayMediaTypeStream:
-//		playResponse, err = providerExt.GetMediaPlayer().Stream(hibikemediaplayer.PlayRequest{
-//			Path:       opts.Path,
-//			ClientInfo: *opts.ClientInfo,
-//		})
-//	}
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	resp := &PlayMediaResponse{
-//		ShouldStartTracking: providerExt.GetMediaPlayer().GetSettings().CanTrackProgress,
-//	}
-//
-//	if playResponse == nil {
-//		return resp, nil
-//	}
-//
-//	// If the response involves opening a URL,
-//	// send the corresponding event to the client
-//	if playResponse.OpenURL != "" {
-//		m.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, playResponse.OpenURL)
-//		return resp, nil
-//	}
-//
-//	if playResponse.Cmd != "" {
-//		return nil, fmt.Errorf("command execution not supported yet")
-//	}
-//
-//	return resp, nil
-//}

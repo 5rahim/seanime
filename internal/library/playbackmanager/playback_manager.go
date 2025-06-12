@@ -102,18 +102,56 @@ type (
 		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
 	}
 
+	// PlaybackStatusSubscriber provides a single event channel for all playback events
 	PlaybackStatusSubscriber struct {
-		PlaybackStateCh  chan PlaybackState
-		PlaybackStatusCh chan mediaplayer.PlaybackStatus
-		VideoStartedCh   chan string
-		VideoStoppedCh   chan string
-		VideoCompletedCh chan string
+		EventCh chan PlaybackEvent
+	}
 
-		StreamStateCh     chan PlaybackState
-		StreamStatusCh    chan mediaplayer.PlaybackStatus
-		StreamStartedCh   chan string
-		StreamStoppedCh   chan string
-		StreamCompletedCh chan string
+	// PlaybackEvent is the base interface for all playback events
+	PlaybackEvent interface {
+		Type() string
+	}
+
+	// Local file playback events
+	PlaybackStateChangedEvent struct {
+		State PlaybackState
+	}
+
+	PlaybackStatusChangedEvent struct {
+		Status mediaplayer.PlaybackStatus
+	}
+
+	VideoStartedEvent struct {
+		Filename string
+	}
+
+	VideoStoppedEvent struct {
+		Reason string
+	}
+
+	VideoCompletedEvent struct {
+		Filename string
+	}
+
+	// Stream playback events
+	StreamStateChangedEvent struct {
+		State PlaybackState
+	}
+
+	StreamStatusChangedEvent struct {
+		Status mediaplayer.PlaybackStatus
+	}
+
+	StreamStartedEvent struct {
+		Filename string
+	}
+
+	StreamStoppedEvent struct {
+		Reason string
+	}
+
+	StreamCompletedEvent struct {
+		Filename string
 	}
 
 	PlaybackStateType string
@@ -148,6 +186,18 @@ type (
 		AutoPlayNextEpisode bool
 	}
 )
+
+// Event type implementations
+func (e PlaybackStateChangedEvent) Type() string  { return "playback_state_changed" }
+func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_changed" }
+func (e VideoStartedEvent) Type() string          { return "video_started" }
+func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
+func (e VideoCompletedEvent) Type() string        { return "video_completed" }
+func (e StreamStateChangedEvent) Type() string    { return "stream_state_changed" }
+func (e StreamStatusChangedEvent) Type() string   { return "stream_status_changed" }
+func (e StreamStartedEvent) Type() string         { return "stream_started" }
+func (e StreamStoppedEvent) Type() string         { return "stream_stopped" }
+func (e StreamCompletedEvent) Type() string       { return "stream_completed" }
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	pm := &PlaybackManager{
@@ -617,17 +667,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusSubscriber {
 	subscriber := &PlaybackStatusSubscriber{
-		PlaybackStateCh:  make(chan PlaybackState),
-		PlaybackStatusCh: make(chan mediaplayer.PlaybackStatus),
-		VideoStartedCh:   make(chan string),
-		VideoStoppedCh:   make(chan string),
-		VideoCompletedCh: make(chan string),
-
-		StreamStateCh:     make(chan PlaybackState),
-		StreamStatusCh:    make(chan mediaplayer.PlaybackStatus),
-		StreamStartedCh:   make(chan string),
-		StreamStoppedCh:   make(chan string),
-		StreamCompletedCh: make(chan string),
+		EventCh: make(chan PlaybackEvent),
 	}
 	pm.playbackStatusSubscribers.Set(id, subscriber)
 	return subscriber
@@ -643,15 +683,6 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 	if !ok {
 		return
 	}
-	close(subscriber.PlaybackStateCh)
-	close(subscriber.PlaybackStatusCh)
-	close(subscriber.VideoStartedCh)
-	close(subscriber.VideoStoppedCh)
-	close(subscriber.VideoCompletedCh)
-	close(subscriber.StreamStateCh)
-	close(subscriber.StreamStatusCh)
-	close(subscriber.StreamStartedCh)
-	close(subscriber.StreamStoppedCh)
-	close(subscriber.StreamCompletedCh)
+	close(subscriber.EventCh)
 	pm.playbackStatusSubscribers.Delete(id)
 }

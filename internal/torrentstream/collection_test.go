@@ -25,7 +25,7 @@ func TestStreamCollection(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 	require.NoError(t, err)
 	require.NotNil(t, animeCollection)
 
@@ -64,7 +64,7 @@ func TestStreamCollection(t *testing.T) {
 		Progress: lo.ToPtr(4), // Mock progress
 	})
 
-	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
+	libraryCollection, err := anime.NewLibraryCollection(t.Context(), &anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
 		LocalFiles:       lfs,
 		Platform:         anilistPlatform,

@@ -24,6 +24,8 @@ type (
 		IsInvalid             bool               `json:"isInvalid"`               // No AniDB data
 		MetadataIssue         string             `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
 		BaseAnime             *anilist.BaseAnime `json:"baseAnime,omitempty"`
+		// IsNakamaEpisode indicates that this episode is from the Nakama host's anime library.
+		IsNakamaEpisode bool `json:"_isNakamaEpisode"`
 	}
 
 	// EpisodeMetadata represents the metadata of an Episode.

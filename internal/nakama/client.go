@@ -1,0 +1,290 @@
+package nakama
+
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"net/url"
+	"seanime/internal/constants"
+	"seanime/internal/events"
+	"seanime/internal/util"
+	"strings"
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+// connectToHost establishes a connection to the Nakama host
+func (m *Manager) connectToHost() {
+	if m.settings == nil || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
+		return
+	}
+
+	m.logger.Info().Str("url", m.settings.RemoteServerURL).Msg("nakama: Connecting to host")
+
+	go m.connectToHostAsync()
+}
+
+// disconnectFromHost disconnects from the Nakama host
+func (m *Manager) disconnectFromHost() {
+	m.hostMu.Lock()
+	defer m.hostMu.Unlock()
+
+	if m.hostConnection != nil {
+		m.logger.Info().Msg("nakama: Disconnecting from host")
+		m.hostConnection.Close()
+		m.hostConnection = nil
+
+		// Send event to client about disconnection
+		m.wsEventManager.SendEvent(events.NakamaHostDisconnected, map[string]interface{}{
+			"connected": false,
+		})
+	}
+}
+
+// connectToHostAsync handles the actual connection logic with retries
+func (m *Manager) connectToHostAsync() {
+	maxRetries := 5
+	retryDelay := 5 * time.Second
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		select {
+		case <-m.ctx.Done():
+			return
+		default:
+		}
+
+		if err := m.attemptHostConnection(); err != nil {
+			m.logger.Error().Err(err).Int("attempt", attempt+1).Msg("nakama: Failed to connect to host")
+
+			if attempt < maxRetries-1 {
+				select {
+				case <-m.ctx.Done():
+					return
+				case <-time.After(retryDelay):
+					retryDelay *= 2 // Exponential backoff
+					continue
+				}
+			}
+		} else {
+			// Success
+			m.logger.Info().Msg("nakama: Successfully connected to host")
+			return
+		}
+	}
+
+	m.logger.Error().Msg("nakama: Failed to connect to host after all retries")
+}
+
+// attemptHostConnection makes a single connection attempt to the host
+func (m *Manager) attemptHostConnection() error {
+	// Parse URL
+	u, err := url.Parse(m.settings.RemoteServerURL)
+	if err != nil {
+		return err
+	}
+
+	// Convert HTTP to WebSocket scheme
+	switch u.Scheme {
+	case "http":
+		u.Scheme = "ws"
+	case "https":
+		u.Scheme = "wss"
+	}
+
+	// Add Nakama WebSocket path
+	if !strings.HasSuffix(u.Path, "/") {
+		u.Path += "/"
+	}
+	u.Path += "api/v1/nakama/ws"
+
+	// Set up headers for authentication
+	headers := http.Header{}
+	headers.Set("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword)
+	headers.Set("X-Seanime-Nakama-Username", m.settings.Username)
+	headers.Set("X-Seanime-Nakama-Server-Version", constants.Version)
+
+	// Connect
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+	if err != nil {
+		return err
+	}
+
+	hostConn := &HostConnection{
+		URL:           u.String(),
+		Conn:          conn,
+		Authenticated: false,
+		LastPing:      time.Now(),
+	}
+
+	// Authenticate
+	authMessage := &Message{
+		Type: MessageTypeAuth,
+		Payload: AuthPayload{
+			Password: m.settings.RemoteServerPassword,
+		},
+		Timestamp: time.Now(),
+	}
+
+	if err := hostConn.SendMessage(authMessage); err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	// Wait for auth response with timeout
+	_ = conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	var authResponse Message
+	if err := conn.ReadJSON(&authResponse); err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	if authResponse.Type != MessageTypeAuthReply {
+		_ = conn.Close()
+		return errors.New("unexpected auth response type")
+	}
+
+	// Parse auth response
+	authReplyData, err := json.Marshal(authResponse.Payload)
+	if err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	var authReply AuthReplyPayload
+	if err := json.Unmarshal(authReplyData, &authReply); err != nil {
+		_ = conn.Close()
+		return err
+	}
+
+	if !authReply.Success {
+		_ = conn.Close()
+		return errors.New("authentication failed: " + authReply.Message)
+	}
+
+	hostConn.Username = authReply.Username
+	if hostConn.Username == "" {
+		hostConn.Username = "Host_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
+	}
+	hostConn.Authenticated = true
+
+	// Set the connection
+	m.hostMu.Lock()
+	m.hostConnection = hostConn
+	m.hostMu.Unlock()
+
+	// Send event to client about successful connection
+	m.wsEventManager.SendEvent(events.NakamaHostConnected, map[string]interface{}{
+		"connected":     true,
+		"authenticated": true,
+		"url":           hostConn.URL,
+	})
+
+	// Start handling the connection
+	go m.handleHostConnection(hostConn)
+
+	// Start client ping routine
+	go m.clientPingRoutine()
+
+	return nil
+}
+
+// handleHostConnection handles messages from the host
+func (m *Manager) handleHostConnection(hostConn *HostConnection) {
+	defer func() {
+		m.logger.Info().Msg("nakama: Host connection closed")
+
+		m.hostMu.Lock()
+		if m.hostConnection == hostConn {
+			m.hostConnection = nil
+		}
+		m.hostMu.Unlock()
+
+		// Send event to client about disconnection
+		m.wsEventManager.SendEvent(events.NakamaHostDisconnected, map[string]interface{}{
+			"connected": false,
+		})
+
+		// Attempt reconnection after a delay if settings are still valid
+		if m.settings != nil && m.settings.RemoteServerURL != "" && m.settings.RemoteServerPassword != "" {
+			hostConn.reconnectTimer = time.AfterFunc(10*time.Second, func() {
+				m.connectToHostAsync()
+			})
+		}
+	}()
+
+	// Set up ping/pong handler
+	hostConn.Conn.SetPongHandler(func(appData string) error {
+		hostConn.LastPing = time.Now()
+		return nil
+	})
+
+	// Set read deadline
+	_ = hostConn.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		default:
+			var message Message
+			err := hostConn.Conn.ReadJSON(&message)
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					m.logger.Error().Err(err).Msg("nakama: Unexpected close error from host")
+				}
+				return
+			}
+
+			// Handle the message
+			if err := m.handleMessage(&message, "host"); err != nil {
+				m.logger.Error().Err(err).Str("messageType", string(message.Type)).Msg("nakama: Failed to handle message from host")
+			}
+
+			// Reset read deadline
+			_ = hostConn.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		}
+	}
+}
+
+// clientPingRoutine sends ping messages to the host
+func (m *Manager) clientPingRoutine() {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			m.hostMu.RLock()
+			if m.hostConnection == nil || !m.hostConnection.Authenticated {
+				m.hostMu.RUnlock()
+				return
+			}
+
+			// Check if host is still alive
+			if time.Since(m.hostConnection.LastPing) > 90*time.Second {
+				m.logger.Warn().Msg("nakama: Host connection timeout")
+				m.hostConnection.Close()
+				m.hostMu.RUnlock()
+				return
+			}
+
+			// Send ping
+			message := &Message{
+				Type:      MessageTypePing,
+				Payload:   nil,
+				Timestamp: time.Now(),
+			}
+
+			if err := m.hostConnection.SendMessage(message); err != nil {
+				m.logger.Error().Err(err).Msg("nakama: Failed to send ping to host")
+				m.hostConnection.Close()
+				m.hostMu.RUnlock()
+				return
+			}
+			m.hostMu.RUnlock()
+		}
+	}
+}

@@ -40,24 +40,25 @@ import { FaShareFromSquare } from "react-icons/fa6"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey, LuUserCog, LuWandSparkles } from "react-icons/lu"
-import { MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
+import { LuBookKey, LuDatabase, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuUserCog, LuWandSparkles } from "react-icons/lu"
+import { MdOutlineBroadcastOnHome, MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
-import { RiFolderDownloadFill } from "react-icons/ri"
+import { RiCommunityLine, RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist, SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
-import { SettingsCard, SettingsNavCard } from "./_components/settings-card"
+import { SettingsCard, SettingsNavCard, SettingsPageHeader } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 import { LocalSettings } from "./_containers/local-settings"
 import { BiDonateHeart } from "react-icons/bi"
 import { SeaLink } from "@/components/shared/sea-link"
+import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
 const tabsTriggerClass = cn(
     "text-base px-6 rounded-[--radius-md] w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-    "h-10 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
+    "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
 )
 
 const tabsListClass = cn(
@@ -156,22 +157,33 @@ export default function Page() {
                                     value="library"
                                     className="group"
                                 ><IoLibrary className="text-lg mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+
+                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
+                                    Playback & players
+                                </div>
+
                                 <TabsTrigger
                                     value="playback"
                                     className="group"
-                                ><IoPlayBackCircleSharp className="text-lg mr-3 transition-transform duration-200" /> Client Playback</TabsTrigger>
+                                ><IoPlayBackCircleSharp className="text-lg mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
                                 <TabsTrigger
                                     value="media-player"
                                     className="group"
-                                ><PiVideoFill className="text-lg mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
+                                ><LuLaptop className="text-lg mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
                                 <TabsTrigger
                                     value="external-player-link"
                                     className="group"
-                                ><FaShareFromSquare className="text-lg mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
+                                ><LuExternalLink className="text-lg mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
                                 <TabsTrigger
                                     value="mediastream"
                                     className="relative group"
-                                ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Media Streaming</TabsTrigger>
+                                ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Transcoding / Direct
+                                                                                                                         play</TabsTrigger>
+
+                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
+                                    Torrent & Streaming
+                                </div>
+
                                 <TabsTrigger
                                     value="torrent"
                                     className="group"
@@ -189,21 +201,31 @@ export default function Page() {
                                     className="relative group"
                                 ><SiBittorrent className="text-lg mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
                                 <TabsTrigger
-                                    value="manga"
-                                    className="group"
-                                ><FaBookReader className="text-lg mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
-                                <TabsTrigger
                                     value="onlinestream"
                                     className="group"
                                 ><CgMediaPodcast className="text-lg mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
+
+                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
+                                    Other features
+                                </div>
+
+                                <TabsTrigger
+                                    value="manga"
+                                    className="group"
+                                ><FaBookReader className="text-lg mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
                                 <TabsTrigger
                                     value="discord"
                                     className="group"
                                 ><FaDiscord className="text-lg mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
                                 <TabsTrigger
-                                    value="anilist"
+                                    value="nakama"
                                     className="group"
-                                ><SiAnilist className="text-lg mr-3 transition-transform duration-200" /> AniList</TabsTrigger>
+                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
+
+                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
+                                    Server
+                                </div>
+
                                 <TabsTrigger
                                     value="cache"
                                     className="group"
@@ -219,7 +241,7 @@ export default function Page() {
                             </div>
                         </SettingsNavCard>
 
-                        <div className="flex justify-center !mt-0">
+                        <div className="flex justify-center !mt-0 pb-4">
                             <SeaLink
                                 href="https://github.com/sponsors/5rahim"
                                 target="_blank"
@@ -263,6 +285,16 @@ export default function Page() {
                                         scannerMatchingThreshold: data.scannerMatchingThreshold,
                                         scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
+                                    },
+                                    nakama: {
+                                        enabled: data.nakamaEnabled ?? false,
+                                        username: data.nakamaUsername,
+                                        isHost: data.nakamaIsHost ?? false,
+                                        remoteServerURL: data.nakamaRemoteServerURL,
+                                        remoteServerPassword: data.nakamaRemoteServerPassword,
+                                        hostShareLocalAnimeLibrary: data.nakamaHostShareLocalAnimeLibrary ?? false,
+                                        hostPassword: data.nakamaHostPassword,
+                                        includeNakamaAnimeLibrary: data.includeNakamaAnimeLibrary ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -384,6 +416,14 @@ export default function Page() {
                                 scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
                                 mangaLocalSourceDirectory: status?.settings?.manga?.mangaLocalSourceDirectory || "",
                                 autoSyncToLocalAccount: status?.settings?.library?.autoSyncToLocalAccount ?? false,
+                                nakamaEnabled: status?.settings?.nakama?.enabled ?? false,
+                                nakamaUsername: status?.settings?.nakama?.username ?? "",
+                                nakamaIsHost: status?.settings?.nakama?.isHost ?? false,
+                                nakamaRemoteServerURL: status?.settings?.nakama?.remoteServerURL ?? "",
+                                nakamaRemoteServerPassword: status?.settings?.nakama?.remoteServerPassword ?? "",
+                                nakamaHostShareLocalAnimeLibrary: status?.settings?.nakama?.hostShareLocalAnimeLibrary ?? false,
+                                nakamaHostPassword: status?.settings?.nakama?.hostPassword ?? "",
+                                includeNakamaAnimeLibrary: status?.settings?.nakama?.includeNakamaAnimeLibrary ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >
@@ -392,7 +432,11 @@ export default function Page() {
                                     <SettingsIsDirty />
                                     <TabsContent value="seanime" className={tabContentClass}>
 
-                                        <h3>App</h3>
+                                        <SettingsPageHeader
+                                            title="App"
+                                            description="General app settings"
+                                            icon={LuWandSparkles}
+                                        />
 
                                         <div className="flex flex-wrap gap-2 slide-in-from-bottom duration-500 delay-150">
                                             {!!status?.dataDir && <Button
@@ -424,7 +468,11 @@ export default function Page() {
 
                                     <TabsContent value="library" className={tabContentClass}>
 
-                                        <h3>Anime Library</h3>
+                                        <SettingsPageHeader
+                                            title="Anime Library"
+                                            description="Manage your local anime library"
+                                            icon={LuLibrary}
+                                        />
 
                                         <LibrarySettings isPending={isPending} />
 
@@ -436,12 +484,6 @@ export default function Page() {
 
                                     </TabsContent>
 
-                                    <TabsContent value="anilist" className={tabContentClass}>
-
-                                        <AnilistSettings isPending={isPending} />
-
-                                    </TabsContent>
-
                                     <TabsContent value="manga" className={tabContentClass}>
 
                                         <MangaSettings isPending={isPending} />
@@ -450,7 +492,11 @@ export default function Page() {
 
                                     <TabsContent value="onlinestream" className={tabContentClass}>
 
-                                        <h3>Online Streaming</h3>
+                                        <SettingsPageHeader
+                                            title="Online Streaming"
+                                            description="Configure online streaming settings"
+                                            icon={CgMediaPodcast}
+                                        />
 
                                         <SettingsCard>
                                             <Field.Switch
@@ -476,7 +522,11 @@ export default function Page() {
 
                                     <TabsContent value="discord" className={tabContentClass}>
 
-                                        <h3>Discord</h3>
+                                        <SettingsPageHeader
+                                            title="Discord"
+                                            description="Configure Discord rich presence settings"
+                                            icon={FaDiscord}
+                                        />
 
                                         <DiscordRichPresenceSettings />
 
@@ -486,7 +536,11 @@ export default function Page() {
 
                                     <TabsContent value="torrent" className={tabContentClass}>
 
-                                        <h3>Torrent Provider</h3>
+                                        <SettingsPageHeader
+                                            title="Torrent Provider"
+                                            description="Configure the torrent provider"
+                                            icon={CgPlayListSearch}
+                                        />
 
                                         <SettingsCard>
                                             <Field.Select
@@ -540,7 +594,11 @@ export default function Page() {
 
                                     <TabsContent value="torrent-client" className={tabContentClass}>
 
-                                        <h3>Torrent Client</h3>
+                                        <SettingsPageHeader
+                                            title="Torrent Client"
+                                            description="Configure the torrent client"
+                                            icon={MdOutlineDownloading}
+                                        />
 
                                         <SettingsCard>
                                             <Field.Select
@@ -655,13 +713,23 @@ export default function Page() {
                                         <SettingsSubmitButton isPending={isPending} />
 
                                     </TabsContent>
+
+                                    <TabsContent value="nakama" className={tabContentClass}>
+
+                                        <NakamaSettings isPending={isPending} />
+
+                                    </TabsContent>
                                 </>
                             }}
                         </Form>
 
                         <TabsContent value="cache" className={tabContentClass}>
 
-                            <h3>Cache</h3>
+                            <SettingsPageHeader
+                                title="Cache"
+                                description="Manage the cache"
+                                icon={TbDatabaseExclamation}
+                            />
 
                             <FilecacheSettings />
 
@@ -669,7 +737,11 @@ export default function Page() {
 
                         <TabsContent value="mediastream" className={tabContentClass}>
 
-                            <h3>Media Streaming</h3>
+                            <SettingsPageHeader
+                                title="Transcoding / Direct play"
+                                description="Manage transcoding and direct play settings"
+                                icon={MdOutlineBroadcastOnHome}
+                            />
 
                             <MediastreamSettings />
 
@@ -677,7 +749,11 @@ export default function Page() {
 
                         <TabsContent value="ui" className={tabContentClass}>
 
-                            <h3>User Interface</h3>
+                            <SettingsPageHeader
+                                title="User Interface"
+                                description="Customize the user interface"
+                                icon={LuPalette}
+                            />
 
                             <UISettings />
 
@@ -685,7 +761,11 @@ export default function Page() {
 
                         <TabsContent value="torrentstream" className={tabContentClass}>
 
-                            <h3>Torrent Streaming</h3>
+                            <SettingsPageHeader
+                                title="Torrent Streaming"
+                                description="Configure torrent streaming settings"
+                                icon={SiBittorrent}
+                            />
 
                             <TorrentstreamSettings settings={torrentstreamSettings} />
 
@@ -693,7 +773,11 @@ export default function Page() {
 
                         <TabsContent value="logs" className={tabContentClass}>
 
-                            <h3>Logs</h3>
+                            <SettingsPageHeader
+                                title="Logs"
+                                description="View the logs"
+                                icon={LuBookKey}
+                            />
 
                             <LogsSettings />
 
@@ -708,7 +792,11 @@ export default function Page() {
 
                         <TabsContent value="debrid" className={tabContentClass}>
 
-                            <h3>Debrid Service</h3>
+                            <SettingsPageHeader
+                                title="Debrid Service"
+                                description="Configure your debrid service integration"
+                                icon={HiOutlineServerStack}
+                            />
 
                             <DebridSettings />
 

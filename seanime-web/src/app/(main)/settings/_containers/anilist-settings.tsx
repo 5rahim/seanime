@@ -1,10 +1,11 @@
 import { useLocalSyncSimulatedDataToAnilist } from "@/api/hooks/local.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Field } from "@/components/ui/form"
 import React from "react"
+import { SiAnilist } from "react-icons/si"
 
 type Props = {
     isPending: boolean
@@ -36,23 +37,12 @@ export function AnilistSettings(props: Props) {
     return (
         <div className="space-y-4">
 
-            <h3>AniList</h3>
+            <SettingsPageHeader
+                title="AniList"
+                description="Manage your AniList account"
+                icon={SiAnilist}
+            />
 
-            <SettingsCard>
-                <Field.Switch
-                    side="right"
-                    name="hideAudienceScore"
-                    label="Hide audience score"
-                    help="If enabled, the audience score will be hidden until you decide to view it."
-                />
-
-                <Field.Switch
-                    side="right"
-                    name="disableAnimeCardTrailers"
-                    label="Disable anime card trailers"
-                    help=""
-                />
-            </SettingsCard>
 
             <SettingsSubmitButton isPending={isPending} />
 

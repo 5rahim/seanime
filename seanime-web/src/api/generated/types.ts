@@ -1372,6 +1372,7 @@ export type Anime_Entry = {
     localFiles?: Array<Anime_LocalFile>
     anidbId: number
     currentEpisodeCount: number
+    _isNakamaEntry: boolean
 }
 
 /**
@@ -1472,6 +1473,7 @@ export type Anime_Episode = {
      */
     metadataIssue?: string
     baseAnime?: AL_BaseAnime
+    _isNakamaEpisode: boolean
 }
 
 /**
@@ -3324,6 +3326,22 @@ export type Models_MediastreamSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_NakamaSettings = {
+    enabled: boolean
+    username: string
+    isHost: boolean
+    hostPassword: string
+    remoteServerURL: string
+    remoteServerPassword: string
+    includeNakamaAnimeLibrary: boolean
+    hostShareLocalAnimeLibrary: boolean
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_NotificationSettings = {
     disableNotifications: boolean
     disableAutoDownloaderNotifications: boolean
@@ -3345,6 +3363,7 @@ export type Models_Settings = {
     autoDownloader?: Models_AutoDownloaderSettings
     discord?: Models_DiscordSettings
     notifications?: Models_NotificationSettings
+    nakama?: Models_NakamaSettings
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3459,6 +3478,51 @@ export type Models_TorrentstreamSettings = {
     id: number
     createdAt?: string
     updatedAt?: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Nakama
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/nakama/nakama.go
+ * - Filename: nakama.go
+ * - Package: nakama
+ * @description
+ *  HostConnectionStatus represents the status of the host connection
+ */
+export type Nakama_HostConnectionStatus = {
+    connected: boolean
+    authenticated: boolean
+    url: string
+    lastPing?: string
+    username: string
+}
+
+/**
+ * - Filepath: internal/nakama/nakama.go
+ * - Filename: nakama.go
+ * - Package: nakama
+ * @description
+ *  MessageResponse represents a response to message sending requests
+ */
+export type Nakama_MessageResponse = {
+    success: boolean
+    message: string
+}
+
+/**
+ * - Filepath: internal/nakama/nakama.go
+ * - Filename: nakama.go
+ * - Package: nakama
+ * @description
+ *  NakamaStatus represents the overall status of Nakama connections
+ */
+export type Nakama_NakamaStatus = {
+    isHost: boolean
+    connectedPeers?: Array<string>
+    isConnectedToHost: boolean
+    hostConnectionStatus?: Nakama_HostConnectionStatus
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

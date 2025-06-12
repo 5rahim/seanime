@@ -25,7 +25,7 @@ export const playbackDownloadedMediaOptions = [
     {
         label: <div className="flex items-center gap-4 md:gap-2 w-full">
             <PiVideoFill className="text-2xl flex-none" />
-            <p className="max-w-[90%]">Desktop media player or Integrated player (media streaming)</p>
+            <p className="max-w-[90%]">Desktop media player or Transcoding / Direct Play</p>
         </div>, value: PlaybackDownloadedMedia.Default,
     },
     {

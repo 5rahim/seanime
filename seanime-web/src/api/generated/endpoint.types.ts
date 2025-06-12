@@ -27,6 +27,7 @@ import type {
     Models_MangaSettings,
     Models_MediaPlayerSettings,
     Models_MediastreamSettings,
+    Models_NakamaSettings,
     Models_NotificationSettings,
     Models_Theme,
     Models_TorrentSettings,
@@ -1301,6 +1302,50 @@ export type RemoveFillerData_Variables = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// nakama
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/message
+ * @description
+ * Route sends a custom message through Nakama.
+ */
+export type SendNakamaMessage_Variables = {
+    messageType: string
+    payload: any
+    peerId?: string
+}
+
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/host/anime/library/files/{id}
+ * @description
+ * Route return the local files for the given AniList anime media id.
+ */
+export type GetNakamaAnimeLibraryFiles_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/play
+ * @description
+ * Route plays the media from the host.
+ */
+export type NakamaPlayVideo_Variables = {
+    path: string
+    mediaId: number
+    anidbEpisode: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1563,6 +1608,7 @@ export type GettingStarted_Variables = {
     discord: Models_DiscordSettings
     manga: Models_MangaSettings
     notifications: Models_NotificationSettings
+    nakama: Models_NakamaSettings
     enableTranscode: boolean
     enableTorrentStreaming: boolean
     debridProvider: string
@@ -1584,6 +1630,7 @@ export type SaveSettings_Variables = {
     discord: Models_DiscordSettings
     manga: Models_MangaSettings
     notifications: Models_NotificationSettings
+    nakama: Models_NakamaSettings
 }
 
 /**
