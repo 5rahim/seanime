@@ -84,7 +84,8 @@ type (
 		// The current episode being streamed, set in [StartStreamingUsingMediaPlayer] by finding the episode in currentStreamEpisodeCollection
 		currentStreamEpisode mo.Option[*anime.Episode]
 		// The current media being streamed, set in [StartStreamingUsingMediaPlayer]
-		currentStreamMedia mo.Option[*anilist.BaseAnime]
+		currentStreamMedia        mo.Option[*anilist.BaseAnime]
+		currentStreamAniDbEpisode mo.Option[string]
 
 		// \/ Manual progress tracking (non-integrated external player)
 		manualTrackingCtx           context.Context
@@ -112,17 +113,25 @@ type (
 		Type() string
 	}
 
-	// Local file playback events
-	PlaybackStateChangedEvent struct {
-		State PlaybackState
+	PlaybackStartingEvent struct {
+		Filepath      string
+		PlaybackType  PlaybackType
+		Media         *anilist.BaseAnime
+		AniDbEpisode  string
+		EpisodeNumber int
+		WindowTitle   string
 	}
+
+	// Local file playback events
 
 	PlaybackStatusChangedEvent struct {
 		Status mediaplayer.PlaybackStatus
+		State  PlaybackState
 	}
 
 	VideoStartedEvent struct {
 		Filename string
+		Filepath string
 	}
 
 	VideoStoppedEvent struct {
@@ -144,6 +153,7 @@ type (
 
 	StreamStartedEvent struct {
 		Filename string
+		Filepath string
 	}
 
 	StreamStoppedEvent struct {
@@ -160,6 +170,7 @@ type (
 	// It is sent to the client each time the video playback state is picked up -- this is used to update the client's UI
 	PlaybackState struct {
 		EpisodeNumber        int     `json:"episodeNumber"`        // The episode number
+		AniDbEpisode         string  `json:"aniDbEpisode"`         // The AniDB episode number
 		MediaTitle           string  `json:"mediaTitle"`           // The title of the media
 		MediaCoverImage      string  `json:"mediaCoverImage"`      // The cover image of the media
 		MediaTotalEpisodes   int     `json:"mediaTotalEpisodes"`   // The total number of episodes
@@ -188,7 +199,6 @@ type (
 )
 
 // Event type implementations
-func (e PlaybackStateChangedEvent) Type() string  { return "playback_state_changed" }
 func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_changed" }
 func (e VideoStartedEvent) Type() string          { return "video_started" }
 func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
@@ -198,6 +208,7 @@ func (e StreamStatusChangedEvent) Type() string   { return "stream_status_change
 func (e StreamStartedEvent) Type() string         { return "stream_started" }
 func (e StreamStoppedEvent) Type() string         { return "stream_stopped" }
 func (e StreamCompletedEvent) Type() string       { return "stream_completed" }
+func (e PlaybackStartingEvent) Type() string      { return "playback_starting" }
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	pm := &PlaybackManager{
@@ -217,6 +228,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		nextEpisodeLocalFile:         mo.None[*anime.LocalFile](),
 		currentStreamEpisode:         mo.None[*anime.Episode](),
 		currentStreamMedia:           mo.None[*anilist.BaseAnime](),
+		currentStreamAniDbEpisode:    mo.None[string](),
 		animeCollection:              mo.None[*anilist.AnimeCollection](),
 		currentManualTrackingState:   mo.None[*ManualTrackingState](),
 		currentLocalFile:             mo.None[*anime.LocalFile](),
@@ -308,6 +320,17 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	if err != nil {
 		return err
 	}
+
+	// Notify subscribers
+	pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+		value.EventCh <- &PlaybackStartingEvent{
+			PlaybackType: LocalFilePlayback,
+			Media:        nil,
+			Filepath:     opts.Payload,
+			WindowTitle:  "",
+		}
+		return true
+	})
 
 	trackingEvent := &PlaybackBeforeTrackingEvent{
 		IsStream: false,
@@ -417,6 +440,8 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		MetadataProvider: pm.metadataProvider,
 		Logger:           pm.Logger,
 	})
+
+	pm.currentStreamAniDbEpisode = mo.Some(aniDbEpisode)
 
 	if episode, ok := episodeCollection.FindEpisodeByAniDB(aniDbEpisode); ok {
 		episodeNumber = episode.EpisodeNumber
@@ -547,6 +572,10 @@ func (pm *PlaybackManager) Resume() error {
 
 func (pm *PlaybackManager) Seek(seconds float64) error {
 	return pm.MediaPlayerRepository.Seek(seconds)
+}
+
+func (pm *PlaybackManager) PullStatus() (*mediaplayer.PlaybackStatus, bool) {
+	return pm.MediaPlayerRepository.PullStatus()
 }
 
 // Cancel stops the current media player playback and publishes a "normal" event.

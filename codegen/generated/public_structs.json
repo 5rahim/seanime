@@ -31502,6 +31502,17 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "playbackSubscriberCtxCancelFunc",
+        "jsonName": "playbackSubscriberCtxCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -45721,6 +45732,15 @@
         "comments": []
       },
       {
+        "name": "currentStreamAniDbEpisode",
+        "jsonName": "currentStreamAniDbEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "manualTrackingCtx",
         "jsonName": "manualTrackingCtx",
         "goType": "context.Context",
@@ -45838,17 +45858,64 @@
   {
     "filepath": "../internal/library/playbackmanager/playback_manager.go",
     "filename": "playback_manager.go",
-    "name": "PlaybackStateChangedEvent",
-    "formattedName": "PlaybackManager_PlaybackStateChangedEvent",
+    "name": "PlaybackStartingEvent",
+    "formattedName": "PlaybackManager_PlaybackStartingEvent",
     "package": "playbackmanager",
     "fields": [
       {
-        "name": "State",
-        "jsonName": "State",
-        "goType": "PlaybackState",
-        "typescriptType": "PlaybackManager_PlaybackState",
-        "usedTypescriptType": "PlaybackManager_PlaybackState",
-        "usedStructName": "playbackmanager.PlaybackState",
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "PlaybackType",
+        "goType": "PlaybackType",
+        "typescriptType": "PlaybackManager_PlaybackType",
+        "usedTypescriptType": "PlaybackManager_PlaybackType",
+        "usedStructName": "playbackmanager.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDbEpisode",
+        "jsonName": "AniDbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WindowTitle",
+        "jsonName": "WindowTitle",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -45873,6 +45940,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "State",
+        "goType": "PlaybackState",
+        "typescriptType": "PlaybackManager_PlaybackState",
+        "usedTypescriptType": "PlaybackManager_PlaybackState",
+        "usedStructName": "playbackmanager.PlaybackState",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -45887,6 +45965,15 @@
       {
         "name": "Filename",
         "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45991,6 +46078,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -46063,6 +46159,17 @@
         "public": true,
         "comments": [
           " The episode number"
+        ]
+      },
+      {
+        "name": "AniDbEpisode",
+        "jsonName": "aniDbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The AniDB episode number"
         ]
       },
       {
@@ -53392,6 +53499,23 @@
   {
     "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
     "filename": "repository.go",
+    "name": "PlaybackType",
+    "formattedName": "PlaybackType",
+    "package": "mediaplayer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"file\"",
+        "\"stream\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
+    "filename": "repository.go",
     "name": "Repository",
     "formattedName": "Repository",
     "package": "mediaplayer",
@@ -53943,6 +54067,19 @@
         "public": true,
         "comments": [
           " in seconds"
+        ]
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "playbackType",
+        "goType": "PlaybackType",
+        "typescriptType": "PlaybackType",
+        "usedTypescriptType": "PlaybackType",
+        "usedStructName": "mediaplayer.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"file\", \"stream\""
         ]
       }
     ],
@@ -58853,6 +58990,17 @@
         "comments": []
       },
       {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playbackManager",
         "jsonName": "playbackManager",
         "goType": "playbackmanager.PlaybackManager",
@@ -58860,6 +59008,15 @@
         "usedTypescriptType": "PlaybackManager_PlaybackManager",
         "usedStructName": "playbackmanager.PlaybackManager",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "peerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       },
@@ -58893,6 +59050,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "reconnecting",
+        "jsonName": "reconnecting",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Flag to prevent multiple concurrent reconnection attempts"
+        ]
       },
       {
         "name": "cancel",
@@ -58955,6 +59123,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "watchPartyManager",
+        "jsonName": "watchPartyManager",
+        "goType": "WatchPartyManager",
+        "typescriptType": "Nakama_WatchPartyManager",
+        "usedTypescriptType": "Nakama_WatchPartyManager",
+        "usedStructName": "nakama.WatchPartyManager",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -58995,6 +59174,17 @@
         "typescriptType": "PlaybackManager_PlaybackManager",
         "usedTypescriptType": "PlaybackManager_PlaybackManager",
         "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
         "required": false,
         "public": true,
         "comments": []
@@ -59053,10 +59243,6 @@
         "\"ping\"",
         "\"pong\"",
         "\"error\"",
-        "\"watch_together_create\"",
-        "\"watch_together_join\"",
-        "\"watch_together_sync\"",
-        "\"watch_together_leave\"",
         "\"custom\""
       ]
     },
@@ -59129,7 +59315,20 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " Internal connection ID (kept for internal use)"
+        ]
+      },
+      {
+        "name": "PeerId",
+        "jsonName": "PeerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " UUID generated by the peer (primary identifier)"
+        ]
       },
       {
         "name": "Username",
@@ -59138,7 +59337,9 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " Display name (kept for UI purposes)"
+        ]
       },
       {
         "name": "Conn",
@@ -59212,6 +59413,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PeerId",
+        "jsonName": "PeerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " UUID generated by this peer instance"
+        ]
       },
       {
         "name": "Username",
@@ -59324,6 +59536,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " UUID generated by the peer"
+        ]
       }
     ],
     "comments": [
@@ -59363,6 +59586,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Echo back the peer's UUID"
+        ]
       }
     ],
     "comments": [
@@ -59444,6 +59678,15 @@
         "comments": []
       },
       {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Username",
         "jsonName": "username",
         "goType": "string",
@@ -59501,6 +59744,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "CurrentWatchPartySession",
+        "jsonName": "currentWatchPartySession",
+        "goType": "WatchPartySession",
+        "typescriptType": "Nakama_WatchPartySession",
+        "usedTypescriptType": "Nakama_WatchPartySession",
+        "usedStructName": "nakama.WatchPartySession",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -59536,6 +59790,521 @@
     "comments": [
       " MessageResponse represents a response to message sending requests"
     ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyManager",
+    "formattedName": "Nakama_WatchPartyManager",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "Manager",
+        "typescriptType": "Nakama_Manager",
+        "usedTypescriptType": "Nakama_Manager",
+        "usedStructName": "nakama.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentSession",
+        "jsonName": "currentSession",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Current watch party session"
+        ]
+      },
+      {
+        "name": "sessionCtx",
+        "jsonName": "sessionCtx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Context for the current watch party session"
+        ]
+      },
+      {
+        "name": "sessionCtxCancel",
+        "jsonName": "sessionCtxCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for the current watch party session"
+        ]
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for the watch party manager"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartySession",
+    "formattedName": "Nakama_WatchPartySession",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Participants",
+        "jsonName": "participants",
+        "goType": "map[string]WatchPartySessionParticipant",
+        "typescriptType": "Record\u003cstring, Nakama_WatchPartySessionParticipant\u003e",
+        "usedTypescriptType": "Nakama_WatchPartySessionParticipant",
+        "usedStructName": "nakama.WatchPartySessionParticipant",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "WatchPartySessionSettings",
+        "typescriptType": "Nakama_WatchPartySessionSettings",
+        "usedTypescriptType": "Nakama_WatchPartySessionSettings",
+        "usedStructName": "nakama.WatchPartySessionSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentMediaInfo",
+        "jsonName": "currentMediaInfo",
+        "goType": "WatchPartySessionMediaInfo",
+        "typescriptType": "Nakama_WatchPartySessionMediaInfo",
+        "usedTypescriptType": "Nakama_WatchPartySessionMediaInfo",
+        "usedStructName": "nakama.WatchPartySessionMediaInfo",
+        "required": false,
+        "public": true,
+        "comments": [
+          " can be nil if not set"
+        ]
+      },
+      {
+        "name": "mu",
+        "jsonName": "",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartySessionParticipant",
+    "formattedName": "Nakama_WatchPartySessionParticipant",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " PeerID (UUID) for unique identification"
+        ]
+      },
+      {
+        "name": "Username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Display name"
+        ]
+      },
+      {
+        "name": "IsHost",
+        "jsonName": "isHost",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanControl",
+        "jsonName": "canControl",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsReady",
+        "jsonName": "isReady",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastSeen",
+        "jsonName": "lastSeen",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Latency",
+        "jsonName": "latency",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " in milliseconds"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartySessionMediaInfo",
+    "formattedName": "Nakama_WatchPartySessionMediaInfo",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamType",
+        "jsonName": "streamType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"file\", \"torrent\", \"debrid\""
+        ]
+      },
+      {
+        "name": "StreamPath",
+        "jsonName": "streamPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " URL for stream playback (e.g. /api/v1/nakama/stream?type=file\u0026path=...)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartySessionSettings",
+    "formattedName": "Nakama_WatchPartySessionSettings",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "AllowParticipantControl",
+        "jsonName": "allowParticipantControl",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SyncThreshold",
+        "jsonName": "syncThreshold",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Seconds of desync before forcing sync"
+        ]
+      },
+      {
+        "name": "MaxBufferWaitTime",
+        "jsonName": "maxBufferWaitTime",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Max time to wait for buffering peers (seconds)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyCreatedPayload",
+    "formattedName": "Nakama_WatchPartyCreatedPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Session",
+        "jsonName": "session",
+        "goType": "WatchPartySession",
+        "typescriptType": "Nakama_WatchPartySession",
+        "usedTypescriptType": "Nakama_WatchPartySession",
+        "usedStructName": "nakama.WatchPartySession",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyJoinPayload",
+    "formattedName": "Nakama_WatchPartyJoinPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyLeavePayload",
+    "formattedName": "Nakama_WatchPartyLeavePayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyPlaybackInfoPayload",
+    "formattedName": "Nakama_WatchPartyPlaybackInfoPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "MediaInfo",
+        "jsonName": "mediaInfo",
+        "goType": "WatchPartySessionMediaInfo",
+        "typescriptType": "Nakama_WatchPartySessionMediaInfo",
+        "usedTypescriptType": "Nakama_WatchPartySessionMediaInfo",
+        "usedStructName": "nakama.WatchPartySessionMediaInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyPlaybackStatusPayload",
+    "formattedName": "Nakama_WatchPartyPlaybackStatusPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PlaybackStatus",
+        "jsonName": "playbackStatus",
+        "goType": "mediaplayer.PlaybackStatus",
+        "typescriptType": "PlaybackStatus",
+        "usedTypescriptType": "PlaybackStatus",
+        "usedStructName": "mediaplayer.PlaybackStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Client timestamp"
+        ]
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " For episode changes"
+        ]
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyStateChangedPayload",
+    "formattedName": "Nakama_WatchPartyStateChangedPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Session",
+        "jsonName": "session",
+        "goType": "WatchPartySession",
+        "typescriptType": "Nakama_WatchPartySession",
+        "usedTypescriptType": "Nakama_WatchPartySession",
+        "usedStructName": "nakama.WatchPartySession",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "CreateWatchOptions",
+    "formattedName": "Nakama_CreateWatchOptions",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "WatchPartySessionSettings",
+        "typescriptType": "Nakama_WatchPartySessionSettings",
+        "usedTypescriptType": "Nakama_WatchPartySessionSettings",
+        "usedStructName": "nakama.WatchPartySessionSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/nativeplayer/events.go",

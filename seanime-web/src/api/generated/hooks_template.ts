@@ -1723,6 +1723,39 @@
 //     })
 // }
 
+// export function useNakamaCreateWatchParty() {
+//     return useServerMutation<boolean, NakamaCreateWatchParty_Variables>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useNakamaJoinWatchParty() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useNakamaLeaveWatchParty() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

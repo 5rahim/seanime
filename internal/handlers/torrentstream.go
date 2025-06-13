@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"net/http"
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -218,6 +217,7 @@ func (h *Handler) HandleGetTorrentstreamBatchHistory(c echo.Context) error {
 }
 
 // route /api/v1/torrentstream/stream/*
-func (h *Handler) HandleTorrentstreamServeStream() http.Handler {
-	return h.App.TorrentstreamRepository.HTTPStreamHandler()
+func (h *Handler) HandleTorrentstreamServeStream(c echo.Context) error {
+	h.App.TorrentstreamRepository.HTTPStreamHandler().ServeHTTP(c.Response().Writer, c.Request())
+	return nil
 }

@@ -21,6 +21,13 @@ const (
 	PlayerClosedEvent = "Player closed"
 )
 
+type PlaybackType string
+
+const (
+	PlaybackTypeFile   PlaybackType = "file"
+	PlaybackTypeStream PlaybackType = "stream"
+)
+
 type (
 	// Repository provides a common interface to interact with media players
 	Repository struct {
@@ -113,6 +120,8 @@ type (
 
 		CurrentTimeInSeconds float64 `json:"currentTimeInSeconds"` // in seconds
 		DurationInSeconds    float64 `json:"durationInSeconds"`    // in seconds
+
+		PlaybackType PlaybackType `json:"playbackType"` // "file", "stream"
 	}
 )
 
@@ -160,6 +169,20 @@ func (m *Repository) GetStatus() *PlaybackStatus {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.currentPlaybackStatus
+}
+
+// PullStatus returns the current playback status directly from the media player.
+func (m *Repository) PullStatus() (*PlaybackStatus, bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	status, err := m.getStatus()
+	if err != nil {
+		return nil, false
+	}
+
+	ok := m.processStatus(m.Default, status)
+	return m.currentPlaybackStatus, ok
 }
 
 func (m *Repository) IsRunning() bool {
@@ -795,6 +818,7 @@ func (m *Repository) getStatus() (interface{}, error) {
 }
 
 func (m *Repository) processStatus(player string, status interface{}) bool {
+	m.currentPlaybackStatus.PlaybackType = PlaybackTypeFile
 	switch player {
 	case "vlc":
 		// Process VLC status
@@ -852,6 +876,7 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 }
 
 func (m *Repository) processStreamStatus(player string, status interface{}) bool {
+	m.currentPlaybackStatus.PlaybackType = PlaybackTypeStream
 	switch player {
 	case "vlc":
 		// Process VLC status

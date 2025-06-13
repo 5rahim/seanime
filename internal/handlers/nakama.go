@@ -39,11 +39,17 @@ func (h *Handler) HandleNakamaWebSocket(c echo.Context) error {
 //	@route /api/v1/nakama/status [GET]
 //	@returns nakama.NakamaStatus
 func (h *Handler) HandleGetNakamaStatus(c echo.Context) error {
+	var currentWatchPartySession *nakama.WatchPartySession
+	if session, ok := h.App.NakamaManager.GetWatchPartyManager().GetCurrentSession(); ok {
+		currentWatchPartySession = session
+	}
+
 	status := &nakama.NakamaStatus{
-		IsHost:               h.App.Settings.GetNakama().IsHost,
-		ConnectedPeers:       h.App.NakamaManager.GetConnectedPeers(),
-		IsConnectedToHost:    h.App.NakamaManager.IsConnectedToHost(),
-		HostConnectionStatus: h.App.NakamaManager.GetHostConnectionStatus(),
+		IsHost:                   h.App.Settings.GetNakama().IsHost,
+		ConnectedPeers:           h.App.NakamaManager.GetConnectedPeers(),
+		IsConnectedToHost:        h.App.NakamaManager.IsConnectedToHost(),
+		HostConnectionStatus:     h.App.NakamaManager.GetHostConnectionStatus(),
+		CurrentWatchPartySession: currentWatchPartySession,
 	}
 
 	return h.RespondWithData(c, status)
@@ -276,7 +282,7 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 }
 
 //-------------------------------------------
-// Perr
+//
 //-------------------------------------------
 
 // route /api/v1/nakama/stream
@@ -413,4 +419,92 @@ func (h *Handler) HandleNakamaRemoveStaleConnections(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, response)
+}
+
+// HandleNakamaCreateWatchParty
+//
+//	@summary creates a new watch party session.
+//	@desc This creates a new watch party that peers can join to watch content together in sync.
+//	@route /api/v1/nakama/watch-party/create [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaCreateWatchParty(c echo.Context) error {
+	type body struct {
+		Settings *nakama.WatchPartySessionSettings `json:"settings"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if !h.App.Settings.GetNakama().IsHost {
+		return h.RespondWithError(c, errors.New("only hosts can create watch parties"))
+	}
+
+	// Set default settings if not provided
+	if b.Settings == nil {
+		b.Settings = &nakama.WatchPartySessionSettings{
+			AllowParticipantControl: false,
+			SyncThreshold:           2.0,
+			MaxBufferWaitTime:       5,
+		}
+	}
+
+	_, err := h.App.NakamaManager.GetWatchPartyManager().CreateWatchParty(&nakama.CreateWatchOptions{
+		Settings: b.Settings,
+	})
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
+// HandleNakamaJoinWatchParty
+//
+//	@summary joins an existing watch party.
+//	@desc This allows a peer to join an active watch party session.
+//	@route /api/v1/nakama/watch-party/join [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaJoinWatchParty(c echo.Context) error {
+	if h.App.Settings.GetNakama().IsHost {
+		return h.RespondWithError(c, errors.New("hosts cannot join watch parties"))
+	}
+
+	if !h.App.NakamaManager.IsConnectedToHost() {
+		return h.RespondWithError(c, errors.New("not connected to host"))
+	}
+
+	// Send join request to host
+	err := h.App.NakamaManager.GetWatchPartyManager().JoinWatchParty()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
+// HandleNakamaLeaveWatchParty
+//
+//	@summary leaves the current watch party.
+//	@desc This removes the user from the active watch party session.
+//	@route /api/v1/nakama/watch-party/leave [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaLeaveWatchParty(c echo.Context) error {
+	if h.App.Settings.GetNakama().IsHost {
+		// Host stopping the watch party
+		h.App.NakamaManager.GetWatchPartyManager().StopWatchParty()
+	} else {
+		// Peer leaving the watch party
+		if !h.App.NakamaManager.IsConnectedToHost() {
+			return h.RespondWithError(c, errors.New("not connected to host"))
+		}
+
+		err := h.App.NakamaManager.GetWatchPartyManager().LeaveWatchParty()
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+	}
+
+	return h.RespondWithData(c, true)
 }

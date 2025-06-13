@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -122,11 +123,15 @@ func (m *Manager) attemptHostConnection() error {
 	}
 	u.Path += "api/v1/nakama/ws"
 
+	// Generate UUID for this peer instance
+	peerID := uuid.New().String()
+
 	// Set up headers for authentication
 	headers := http.Header{}
 	headers.Set("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword)
 	headers.Set("X-Seanime-Nakama-Username", m.settings.Username)
 	headers.Set("X-Seanime-Nakama-Server-Version", constants.Version)
+	headers.Set("X-Seanime-Nakama-Peer-Id", peerID)
 
 	// Connect
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
@@ -139,6 +144,7 @@ func (m *Manager) attemptHostConnection() error {
 		Conn:          conn,
 		Authenticated: false,
 		LastPing:      time.Now(),
+		PeerId:        peerID, // Store our generated PeerID
 	}
 
 	// Authenticate
@@ -146,6 +152,7 @@ func (m *Manager) attemptHostConnection() error {
 		Type: MessageTypeAuth,
 		Payload: AuthPayload{
 			Password: m.settings.RemoteServerPassword,
+			PeerId:   peerID, // Include PeerID in auth payload
 		},
 		Timestamp: time.Now(),
 	}
@@ -186,6 +193,11 @@ func (m *Manager) attemptHostConnection() error {
 		return errors.New("authentication failed: " + authReply.Message)
 	}
 
+	// Verify that the host echoed back our PeerID
+	if authReply.PeerId != peerID {
+		m.logger.Warn().Str("expectedPeerID", peerID).Str("receivedPeerID", authReply.PeerId).Msg("nakama: Host returned different PeerID")
+	}
+
 	hostConn.Username = authReply.Username
 	if hostConn.Username == "" {
 		hostConn.Username = "Host_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
@@ -205,6 +217,7 @@ func (m *Manager) attemptHostConnection() error {
 		"connected":     true,
 		"authenticated": true,
 		"url":           hostConn.URL,
+		"peerID":        peerID, // Include our PeerID in the event
 	})
 
 	// Start handling the connection

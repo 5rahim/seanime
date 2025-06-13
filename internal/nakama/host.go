@@ -71,33 +71,43 @@ func (m *Manager) HandlePeerConnection(w http.ResponseWriter, r *http.Request) {
 		username = "Peer_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
 	}
 
+	peerID := r.Header.Get("X-Seanime-Nakama-Peer-Id")
+	if peerID == "" {
+		m.logger.Error().Msg("nakama: Peer connection missing PeerID header")
+		http.Error(w, "Missing PeerID header", http.StatusBadRequest)
+		return
+	}
+
 	serverVersion := r.Header.Get("X-Seanime-Nakama-Server-Version")
 	if serverVersion != constants.Version {
 		http.Error(w, "Server version mismatch", http.StatusForbidden)
 		return
 	}
 
-	// Clean up any existing connections from the same username to prevent duplicates
-	var oldConnections []string
+	// Check for existing connection with the same PeerID (reconnection scenario)
+	var existingConnID string
 	m.peerConnections.Range(func(id string, existingConn *PeerConnection) bool {
-		if existingConn.Username == username {
-			oldConnections = append(oldConnections, id)
+		if existingConn.PeerId == peerID {
+			existingConnID = id
+			return false // Stop iteration
 		}
 		return true
 	})
 
-	// Remove old connections from the same user
-	for _, oldID := range oldConnections {
-		if oldConn, exists := m.peerConnections.Get(oldID); exists {
-			m.logger.Info().Str("oldPeerId", oldID).Str("username", username).Msg("nakama: Removing old connection for reconnecting peer")
-			m.peerConnections.Delete(oldID)
+	// Remove existing connection for this PeerID to handle reconnection
+	if existingConnID != "" {
+		if oldConn, exists := m.peerConnections.Get(existingConnID); exists {
+			m.logger.Info().Str("peerID", peerID).Str("oldConnID", existingConnID).Msg("nakama: Removing old connection for reconnecting peer")
+			m.peerConnections.Delete(existingConnID)
 			oldConn.Close()
 		}
 	}
 
-	peerID := generateConnectionID()
+	// Generate new internal connection ID
+	internalConnID := generateConnectionID()
 	peerConn := &PeerConnection{
-		ID:             peerID,
+		ID:             internalConnID,
+		PeerId:         peerID,
 		Username:       username,
 		Conn:           conn,
 		ConnectionType: ConnectionTypePeer,
@@ -105,10 +115,10 @@ func (m *Manager) HandlePeerConnection(w http.ResponseWriter, r *http.Request) {
 		LastPing:       time.Now(),
 	}
 
-	m.logger.Info().Str("peerId", peerID).Str("username", username).Msg("nakama: New peer connection")
+	m.logger.Info().Str("internalConnID", internalConnID).Str("peerID", peerID).Str("username", username).Msg("nakama: New peer connection")
 
-	// Add to connections
-	m.peerConnections.Set(peerID, peerConn)
+	// Add to connections using internal connection ID as key
+	m.peerConnections.Set(internalConnID, peerConn)
 
 	// Handle the connection in a goroutine
 	go m.handlePeerConnection(peerConn)
@@ -117,7 +127,7 @@ func (m *Manager) HandlePeerConnection(w http.ResponseWriter, r *http.Request) {
 // handlePeerConnection handles messages from a specific peer
 func (m *Manager) handlePeerConnection(peerConn *PeerConnection) {
 	defer func() {
-		m.logger.Info().Str("peerId", peerConn.ID).Msg("nakama: Peer disconnected")
+		m.logger.Info().Str("peerId", peerConn.PeerId).Str("internalConnID", peerConn.ID).Msg("nakama: Peer disconnected")
 
 		// Remove from connections (safe to call multiple times)
 		if _, exists := m.peerConnections.Get(peerConn.ID); exists {
@@ -125,7 +135,7 @@ func (m *Manager) handlePeerConnection(peerConn *PeerConnection) {
 
 			// Send event to client about peer disconnection (only if we actually removed it)
 			m.wsEventManager.SendEvent(events.NakamaPeerDisconnected, map[string]interface{}{
-				"peerId": peerConn.ID,
+				"peerId": peerConn.PeerId,
 			})
 		}
 
@@ -151,14 +161,14 @@ func (m *Manager) handlePeerConnection(peerConn *PeerConnection) {
 			err := peerConn.Conn.ReadJSON(&message)
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					m.logger.Error().Err(err).Str("peerId", peerConn.ID).Msg("nakama: Unexpected close error")
+					m.logger.Error().Err(err).Str("peerId", peerConn.PeerId).Msg("nakama: Unexpected close error")
 				}
 				return
 			}
 
-			// Handle the message
+			// Handle the message using internal connection ID for message routing
 			if err := m.handleMessage(&message, peerConn.ID); err != nil {
-				m.logger.Error().Err(err).Str("peerId", peerConn.ID).Str("messageType", string(message.Type)).Msg("nakama: Failed to handle message")
+				m.logger.Error().Err(err).Str("peerId", peerConn.PeerId).Str("messageType", string(message.Type)).Msg("nakama: Failed to handle message")
 
 				// Send error response
 				errorMsg := &Message{
@@ -196,7 +206,7 @@ func (m *Manager) hostPingRoutine() {
 				}
 
 				if err := conn.SendMessage(message); err != nil {
-					m.logger.Error().Err(err).Str("peerId", id).Msg("nakama: Failed to send ping")
+					m.logger.Error().Err(err).Str("peerId", conn.PeerId).Msg("nakama: Failed to send ping")
 					// Don't close here, let the stale connection cleanup handle it
 				}
 				return true

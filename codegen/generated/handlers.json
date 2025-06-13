@@ -6753,6 +6753,106 @@
     }
   },
   {
+    "name": "HandleNakamaCreateWatchParty",
+    "trimmedName": "NakamaCreateWatchParty",
+    "comments": [
+      "HandleNakamaCreateWatchParty",
+      "",
+      "\t@summary creates a new watch party session.",
+      "\t@desc This creates a new watch party that peers can join to watch content together in sync.",
+      "\t@route /api/v1/nakama/watch-party/create [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "creates a new watch party session.",
+      "descriptions": [
+        "This creates a new watch party that peers can join to watch content together in sync."
+      ],
+      "endpoint": "/api/v1/nakama/watch-party/create",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "nakama.WatchPartySessionSettings",
+          "usedStructType": "nakama.WatchPartySessionSettings",
+          "typescriptType": "Nakama_WatchPartySessionSettings",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaJoinWatchParty",
+    "trimmedName": "NakamaJoinWatchParty",
+    "comments": [
+      "HandleNakamaJoinWatchParty",
+      "",
+      "\t@summary joins an existing watch party.",
+      "\t@desc This allows a peer to join an active watch party session.",
+      "\t@route /api/v1/nakama/watch-party/join [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "joins an existing watch party.",
+      "descriptions": [
+        "This allows a peer to join an active watch party session."
+      ],
+      "endpoint": "/api/v1/nakama/watch-party/join",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaLeaveWatchParty",
+    "trimmedName": "NakamaLeaveWatchParty",
+    "comments": [
+      "HandleNakamaLeaveWatchParty",
+      "",
+      "\t@summary leaves the current watch party.",
+      "\t@desc This removes the user from the active watch party session.",
+      "\t@route /api/v1/nakama/watch-party/leave [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "leaves the current watch party.",
+      "descriptions": [
+        "This removes the user from the active watch party session."
+      ],
+      "endpoint": "/api/v1/nakama/watch-party/leave",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetOnlineStreamEpisodeList",
     "trimmedName": "GetOnlineStreamEpisodeList",
     "comments": [

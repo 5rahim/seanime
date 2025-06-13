@@ -200,17 +200,11 @@ func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (f
 	go func() {
 		for event := range subscriber.EventCh {
 			switch e := event.(type) {
-			case playbackmanager.PlaybackStateChangedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						State: &e.State,
-					})
-					return nil
-				})
 			case playbackmanager.PlaybackStatusChangedEvent:
 				p.scheduler.ScheduleAsync(func() error {
 					callback(&PlaybackEvent{
 						Status: &e.Status,
+						State:  &e.State,
 					})
 					return nil
 				})

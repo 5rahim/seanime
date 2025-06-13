@@ -86,6 +86,19 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId int) (lfs []*anime.LocalFile, hyd
 	return entryResponse.Data, true
 }
 
+func (m *Manager) getBaseServerURL() string {
+	ret := ""
+	host := m.serverHost
+	if host == "0.0.0.0" {
+		host = "127.0.0.1"
+	}
+	ret = fmt.Sprintf("http://%s:%d", host, m.serverPort)
+	if strings.HasPrefix(ret, "http://http") {
+		ret = strings.Replace(ret, "http://http", "http", 1)
+	}
+	return ret
+}
+
 func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
@@ -125,6 +138,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		ClientId:  "",
 	}, media, aniDBEpisode)
 	if err != nil {
+		m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
 		go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
 		return err
 	}
@@ -137,6 +151,53 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 				case playbackmanager.StreamStartedEvent:
 					m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
 					go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
+				}
+			}
+		}
+	}(playbackSubscriber)
+
+	return nil
+}
+
+func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
+	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+		return errors.New("not connected to host")
+	}
+
+	m.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "nakama-stream")
+	m.wsEventManager.SendEvent(events.InfoToast, "Sending stream to player...")
+
+	host := m.serverHost
+	if host == "0.0.0.0" {
+		host = "127.0.0.1"
+	}
+	address := fmt.Sprintf("%s:%d", host, m.serverPort)
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s", address, streamType)
+	if strings.HasPrefix(ret, "http://http") {
+		ret = strings.Replace(ret, "http://http", "http", 1)
+	}
+
+	playbackSubscriber := m.playbackManager.SubscribeToPlaybackStatus("nakama-stream")
+
+	err := m.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
+		Payload:   ret,
+		UserAgent: userAgent,
+		ClientId:  "",
+	}, media, aniDBEpisode)
+	if err != nil {
+		m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+		go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
+		return err
+	}
+
+	go func(playbackSubscriber *playbackmanager.PlaybackStatusSubscriber) {
+		for {
+			select {
+			case event := <-playbackSubscriber.EventCh:
+				switch event.(type) {
+				case playbackmanager.StreamStartedEvent:
+					m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+					go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
 				}
 			}
 		}

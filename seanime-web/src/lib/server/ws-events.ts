@@ -49,6 +49,13 @@ export const enum WSEvents {
     NAKAMA_HOST_CONNECTED = "nakama-host-connected",
     NAKAMA_HOST_DISCONNECTED = "nakama-host-disconnected",
     NAKAMA_ERROR = "nakama-error",
+    NAKAMA_WATCH_PARTY_STATE = "nakama-watch-party-state",
+    NAKAMA_WATCH_PARTY_CREATED = "nakama-watch-party-created",
+    NAKAMA_WATCH_PARTY_JOINED = "nakama-watch-party-joined",
+    NAKAMA_WATCH_PARTY_LEFT = "nakama-watch-party-left",
+    NAKAMA_WATCH_PARTY_STOPPED = "nakama-watch-party-stopped",
+    NAKAMA_WATCH_PARTY_PLAYBACK_INFO = "nakama-watch-party-playback-info",
+    NAKAMA_WATCH_PARTY_PLAYBACK_STATUS = "nakama-watch-party-playback-status",
     SHOW_INDEFINITE_LOADER = "show-indefinite-loader",
     HIDE_INDEFINITE_LOADER = "hide-indefinite-loader",
 }

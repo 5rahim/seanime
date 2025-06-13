@@ -3496,6 +3496,7 @@ export type Nakama_HostConnectionStatus = {
     authenticated: boolean
     url: string
     lastPing?: string
+    peerId: string
     username: string
 }
 
@@ -3523,6 +3524,83 @@ export type Nakama_NakamaStatus = {
     connectedPeers?: Array<string>
     isConnectedToHost: boolean
     hostConnectionStatus?: Nakama_HostConnectionStatus
+    currentWatchPartySession?: Nakama_WatchPartySession
+}
+
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
+export type Nakama_WatchPartySession = {
+    id: string
+    participants?: Record<string, Nakama_WatchPartySessionParticipant>
+    settings?: Nakama_WatchPartySessionSettings
+    createdAt?: string
+    /**
+     * can be nil if not set
+     */
+    currentMediaInfo?: Nakama_WatchPartySessionMediaInfo
+}
+
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
+export type Nakama_WatchPartySessionMediaInfo = {
+    mediaId: number
+    episodeNumber: number
+    aniDbEpisode: string
+    /**
+     * "file", "torrent", "debrid"
+     */
+    streamType: string
+    /**
+     * URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
+     */
+    streamPath: string
+}
+
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
+export type Nakama_WatchPartySessionParticipant = {
+    /**
+     * PeerID (UUID) for unique identification
+     */
+    id: string
+    /**
+     * Display name
+     */
+    username: string
+    isHost: boolean
+    canControl: boolean
+    isReady: boolean
+    lastSeen?: string
+    /**
+     * in milliseconds
+     */
+    latency: number
+}
+
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
+export type Nakama_WatchPartySessionSettings = {
+    allowParticipantControl: boolean
+    /**
+     * Seconds of desync before forcing sync
+     */
+    syncThreshold: number
+    /**
+     * Max time to wait for buffering peers (seconds)
+     */
+    maxBufferWaitTime: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

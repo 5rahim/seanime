@@ -258,6 +258,7 @@ func (a *App) initModulesOnce() {
 		Logger:          a.Logger,
 		WSEventManager:  a.WSEventManager,
 		PlaybackManager: a.PlaybackManager,
+		Platform:        a.AnilistPlatform,
 		ServerHost:      a.Config.Server.Host,
 		ServerPort:      a.Config.Server.Port,
 	})

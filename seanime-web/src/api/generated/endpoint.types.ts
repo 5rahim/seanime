@@ -15,9 +15,9 @@ import type {
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
-    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -32,6 +32,7 @@ import type {
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
+    Nakama_WatchPartySessionSettings,
     Report_ClickLog,
     Report_ConsoleLog,
     Report_NetworkLog,
@@ -1345,6 +1346,17 @@ export type NakamaPlayVideo_Variables = {
     anidbEpisode: string
 }
 
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/watch-party/create
+ * @description
+ * Route creates a new watch party session.
+ */
+export type NakamaCreateWatchParty_Variables = {
+    settings?: Nakama_WatchPartySessionSettings
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1737,7 +1749,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string

@@ -16,12 +16,16 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		path := c.Request().URL.Path
 		password := c.Request().Header.Get("X-Seanime-Password")
 
-		if path == "/api/v1/auth/login" ||
-			path == "/api/v1/auth/logout" ||
-			path == "/api/v1/status" ||
-			path == "/events" {
+		// Allow the following paths to be accessed by anyone
+		if path == "/api/v1/auth/login" || // for auth
+			path == "/api/v1/auth/logout" || // for auth
+			path == "/api/v1/status" || // for interface
+			path == "/events" || // for server events
+			strings.HasPrefix(path, "/api/v1/torrentstream/stream/") { // accessible by media players
 
 			if path == "/api/v1/status" {
+				// allow status requests by anyone but mark as unauthenticated
+				// so we can filter out critical info like settings
 				if password != h.App.Config.Server.Password {
 					c.Set("unauthenticated", true)
 				}

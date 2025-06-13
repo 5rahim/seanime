@@ -219,6 +219,7 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 			r.sendStateEvent(eventLoadingFailed)
 			_ = r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+			r.wsEventManager.SendEventTo(opts.ClientId, events.ErrorToast, err.Error())
 		}
 
 	//
@@ -276,6 +277,7 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 			r.sendStateEvent(eventLoadingFailed)
 			_ = r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+			r.wsEventManager.SendEventTo(opts.ClientId, events.ErrorToast, err.Error())
 		}
 
 	//

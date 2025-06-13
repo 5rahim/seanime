@@ -1395,6 +1395,36 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/nakama/cleanup",
         },
+        /**
+         *  @description
+         *  Route creates a new watch party session.
+         *  This creates a new watch party that peers can join to watch content together in sync.
+         */
+        NakamaCreateWatchParty: {
+            key: "NAKAMA-nakama-create-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/create",
+        },
+        /**
+         *  @description
+         *  Route joins an existing watch party.
+         *  This allows a peer to join an active watch party session.
+         */
+        NakamaJoinWatchParty: {
+            key: "NAKAMA-nakama-join-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/join",
+        },
+        /**
+         *  @description
+         *  Route leaves the current watch party.
+         *  This removes the user from the active watch party session.
+         */
+        NakamaLeaveWatchParty: {
+            key: "NAKAMA-nakama-leave-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/leave",
+        },
     },
     ONLINESTREAM: {
         /**

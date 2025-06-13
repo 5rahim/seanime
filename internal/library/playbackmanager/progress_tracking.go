@@ -80,9 +80,8 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
-			value.EventCh <- VideoStartedEvent{Filename: status.Filename}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
+			value.EventCh <- VideoStartedEvent{Filename: status.Filename, Filepath: status.Filepath}
 			return true
 		})
 	}()
@@ -144,8 +143,8 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
+			value.EventCh <- VideoCompletedEvent{Filename: status.Filename}
 			return true
 		})
 	}()
@@ -222,8 +221,7 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			return true
 		})
 	}()
@@ -276,9 +274,8 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
-			value.EventCh <- StreamStartedEvent{Filename: status.Filename}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
+			value.EventCh <- StreamStartedEvent{Filename: status.Filename, Filepath: status.Filepath}
 			return true
 		})
 	}()
@@ -329,8 +326,7 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			return true
 		})
 	}()
@@ -362,8 +358,7 @@ func (pm *PlaybackManager) handleStreamingVideoCompleted(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			value.EventCh <- PlaybackStateChangedEvent{State: _ps}
-			value.EventCh <- PlaybackStatusChangedEvent{Status: *status}
+			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			value.EventCh <- StreamCompletedEvent{Filename: status.Filename}
 			return true
 		})
@@ -438,6 +433,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackState(status *mediaplayer.Playbac
 
 	return PlaybackState{
 		EpisodeNumber:        currentLocalFileWrapperEntry.GetProgressNumber(currentLocalFile),
+		AniDbEpisode:         currentLocalFile.GetAniDBEpisode(),
 		MediaTitle:           currentMediaListEntry.GetMedia().GetPreferredTitle(),
 		MediaTotalEpisodes:   currentMediaListEntry.GetMedia().GetCurrentEpisodeCount(),
 		MediaCoverImage:      currentMediaListEntry.GetMedia().GetCoverImageSafe(),
@@ -467,8 +463,14 @@ func (pm *PlaybackManager) getStreamPlaybackState(status *mediaplayer.PlaybackSt
 		return PlaybackState{}
 	}
 
+	currentStreamAniDbEpisode, ok := pm.currentStreamAniDbEpisode.Get()
+	if !ok {
+		return PlaybackState{}
+	}
+
 	return PlaybackState{
 		EpisodeNumber:        currentStreamEpisode.GetProgressNumber(),
+		AniDbEpisode:         currentStreamAniDbEpisode,
 		MediaTitle:           currentStreamMedia.GetPreferredTitle(),
 		MediaTotalEpisodes:   currentStreamMedia.GetCurrentEpisodeCount(),
 		MediaCoverImage:      currentStreamMedia.GetCoverImageSafe(),

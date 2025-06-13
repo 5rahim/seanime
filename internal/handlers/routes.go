@@ -24,7 +24,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization",
-			"X-Seanime-Password", "X-Seanime-Nakama-Password", "X-Seanime-Nakama-Username", "X-Seanime-Nakama-Server-Version"},
+			"X-Seanime-Password", "X-Seanime-Nakama-Password", "X-Seanime-Nakama-Username", "X-Seanime-Nakama-Server-Version", "X-Seanime-Nakama-Peer-Id"},
 		AllowCredentials: true,
 	}))
 
@@ -409,7 +409,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/torrentstream/drop", h.HandleTorrentstreamDropTorrent)
 	v1.POST("/torrentstream/torrent-file-previews", h.HandleGetTorrentstreamTorrentFilePreviews)
 	v1.POST("/torrentstream/batch-history", h.HandleGetTorrentstreamBatchHistory)
-	v1.GET("/torrentstream/stream/*", echo.WrapHandler(h.HandleTorrentstreamServeStream()))
+	v1.GET("/torrentstream/stream/*", h.HandleTorrentstreamServeStream)
 
 	//
 	// Extensions
@@ -504,6 +504,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.GET("/host/anime/library/stream", h.HandleNakamaHostAnimeLibraryServeStream)
 	v1Nakama.GET("/host/debridstream/stream", h.HandleNakamaHostDebridstreamServeStream)
 	v1Nakama.GET("/stream", h.HandleNakamaProxyStream)
+	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
+	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
+	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
 
 }
 

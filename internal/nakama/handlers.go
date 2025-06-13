@@ -15,6 +15,15 @@ func (m *Manager) registerDefaultHandlers() {
 	m.messageHandlers[MessageTypePong] = m.handlePongMessage
 	m.messageHandlers[MessageTypeError] = m.handleErrorMessage
 	m.messageHandlers[MessageTypeCustom] = m.handleCustomMessage
+
+	// Watch party handlers
+	m.messageHandlers[MessageTypeWatchPartyCreated] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyJoin] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyLeave] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyStateChanged] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyPlaybackInfo] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyPlaybackStatus] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyPlaybackStopped] = m.handleWatchPartyMessage
 }
 
 // handleMessage routes messages to the appropriate handler
@@ -57,18 +66,23 @@ func (m *Manager) handleAuthMessage(message *Message, senderID string) error {
 	success := authPayload.Password == m.settings.HostPassword
 	var replyMessage string
 	if success {
+		// Update the peer connection with the PeerID from auth payload if not already set
+		if peerConn.PeerId == "" && authPayload.PeerId != "" {
+			peerConn.PeerId = authPayload.PeerId
+		}
+
 		peerConn.Authenticated = true
 		replyMessage = "Authentication successful"
-		m.logger.Info().Str("peerId", senderID).Msg("nakama: Peer authenticated successfully")
+		m.logger.Info().Str("peerID", peerConn.PeerId).Str("senderID", senderID).Msg("nakama: Peer authenticated successfully")
 
 		// Send event to client about new peer connection
 		m.wsEventManager.SendEvent(events.NakamaPeerConnected, map[string]interface{}{
-			"peerId":        senderID,
+			"peerId":        peerConn.PeerId, // Use PeerID for events
 			"authenticated": true,
 		})
 	} else {
 		replyMessage = "Authentication failed"
-		m.logger.Warn().Str("peerId", senderID).Msg("nakama: Peer authentication failed")
+		m.logger.Warn().Str("peerId", peerConn.PeerId).Str("senderID", senderID).Msg("nakama: Peer authentication failed")
 	}
 
 	// Send auth reply
@@ -78,6 +92,7 @@ func (m *Manager) handleAuthMessage(message *Message, senderID string) error {
 			Success:  success,
 			Message:  replyMessage,
 			Username: m.settings.Username,
+			PeerId:   peerConn.PeerId, // Echo back the peer's UUID
 		},
 		Timestamp: time.Now(),
 	}
@@ -178,4 +193,9 @@ func (m *Manager) handleCustomMessage(message *Message, senderID string) error {
 	})
 
 	return nil
+}
+
+func (m *Manager) handleWatchPartyMessage(message *Message, senderID string) error {
+	m.logger.Debug().Str("senderID", senderID).Str("messageType", string(message.Type)).Msg("nakama: Received watch party message")
+	return m.watchPartyManager.handleMessage(message, senderID)
 }

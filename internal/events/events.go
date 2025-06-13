@@ -84,4 +84,7 @@ const (
 	NakamaError                = "nakama-error"
 	NakamaAnimeLibraryReceived = "nakama-anime-library-received"
 	NakamaCustomMessage        = "nakama-custom-message"
+
+	// Nakama Watch Party events
+	NakamaWatchPartyState = "nakama-watch-party-state"
 )
