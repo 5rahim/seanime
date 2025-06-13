@@ -27,7 +27,13 @@ func newHandler(repository *Repository) *handler {
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.repository.logger.Trace().Str("range", r.Header.Get("Range")).Msg("torrentstream: Stream endpoint hit")
 
-	if r.Method == http.MethodGet {
+	if h.repository.client.currentFile.IsAbsent() || h.repository.client.currentTorrent.IsAbsent() {
+		h.repository.logger.Error().Msg("torrentstream: No torrent to stream")
+		http.Error(w, "No torrent to stream", http.StatusNotFound)
+		return
+	}
+
+	if r.Method == http.MethodHead {
 		r.Response.Header.Set("Content-Type", "video/mp4")
 		r.Response.Header.Set("Content-Length", strconv.Itoa(int(h.repository.client.currentFile.MustGet().Length())))
 		r.Response.Header.Set("Content-Disposition", "inline; filename="+h.repository.client.currentFile.MustGet().DisplayPath())
@@ -39,12 +45,6 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// No content, just headers
 		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	if h.repository.client.currentFile.IsAbsent() || h.repository.client.currentTorrent.IsAbsent() {
-		h.repository.logger.Error().Msg("torrentstream: No torrent to stream")
-		http.Error(w, "No torrent to stream", http.StatusNotFound)
 		return
 	}
 

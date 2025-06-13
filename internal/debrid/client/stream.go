@@ -10,6 +10,7 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
 	"strconv"
 	"time"
@@ -22,6 +23,8 @@ type (
 		downloadCtxCancelFunc context.CancelFunc
 
 		currentStreamUrl string
+
+		playbackSubscriberCtxCancelFunc context.CancelFunc
 	}
 
 	StreamPlaybackType string
@@ -88,6 +91,11 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 	if s.downloadCtxCancelFunc != nil {
 		s.downloadCtxCancelFunc()
 		s.downloadCtxCancelFunc = nil
+	}
+
+	if s.playbackSubscriberCtxCancelFunc != nil {
+		s.playbackSubscriberCtxCancelFunc()
+		s.playbackSubscriberCtxCancelFunc = nil
 	}
 
 	provider, err := s.repository.GetProvider()
@@ -349,6 +357,11 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			// Start the stream
 			//
 			s.repository.logger.Debug().Msg("debridstream: Starting the media player")
+
+			var playbackSubscriberCtx context.Context
+			playbackSubscriberCtx, s.playbackSubscriberCtxCancelFunc = context.WithCancel(context.Background())
+			playbackSubscriber := s.repository.playbackManager.SubscribeToPlaybackStatus("debridstream")
+
 			// Sends the stream to the media player
 			// DEVNOTE: Events are handled by the torrentstream.Repository module
 			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
@@ -357,13 +370,43 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				ClientId:  opts.ClientId,
 			}, media, aniDbEpisode)
 			if err != nil {
+				go s.repository.playbackManager.UnsubscribeFromPlaybackStatus("debridstream")
+				if s.playbackSubscriberCtxCancelFunc != nil {
+					s.playbackSubscriberCtxCancelFunc()
+					s.playbackSubscriberCtxCancelFunc = nil
+				}
 				// Failed to start the stream, we'll drop the torrents and stop the server
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 					Status:      StreamStatusFailed,
 					TorrentName: selectedTorrent.Name,
 					Message:     fmt.Sprintf("Failed to send the stream to the media player, %v", err),
 				})
+				return
 			}
+
+			// Listen to the playback status
+			// Reset the current stream url when playback is stopped
+			go func() {
+				defer util.HandlePanicInModuleThen("debridstream/PlaybackSubscriber", func() {})
+				defer func() {
+					if s.playbackSubscriberCtxCancelFunc != nil {
+						s.playbackSubscriberCtxCancelFunc()
+						s.playbackSubscriberCtxCancelFunc = nil
+					}
+				}()
+				select {
+				case <-playbackSubscriberCtx.Done():
+					s.repository.playbackManager.UnsubscribeFromPlaybackStatus("debridstream")
+					s.currentStreamUrl = ""
+				case event := <-playbackSubscriber.EventCh:
+					s.repository.logger.Debug().Msgf("debridstream: Playback status received: %v", event)
+					switch event.(type) {
+					case mediaplayer.StreamingTrackingStoppedEvent:
+						go s.repository.playbackManager.UnsubscribeFromPlaybackStatus("debridstream")
+						s.currentStreamUrl = ""
+					}
+				}
+			}()
 
 		case PlaybackTypeExternalPlayer:
 			// Send the external player link
@@ -408,6 +451,8 @@ func (s *StreamManager) cancelStream(opts *CancelStreamOptions) {
 		s.downloadCtxCancelFunc()
 		s.downloadCtxCancelFunc = nil
 	}
+
+	s.currentStreamUrl = ""
 
 	if opts.RemoveTorrent && s.currentTorrentItemId != "" {
 		// Remove the torrent from the debrid service

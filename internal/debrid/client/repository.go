@@ -233,6 +233,10 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	return r.streamManager.startStream(ctx, opts)
 }
 
+func (r *Repository) GetStreamURL() (string, bool) {
+	return r.streamManager.currentStreamUrl, r.streamManager.currentStreamUrl != ""
+}
+
 func (r *Repository) CancelStream(opts *CancelStreamOptions) {
 	r.streamManager.cancelStream(opts)
 }

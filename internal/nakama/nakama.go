@@ -31,6 +31,7 @@ type Manager struct {
 	// Host connection (when connecting to a host)
 	hostConnection *HostConnection
 	hostMu         sync.RWMutex
+	reconnecting   bool // Flag to prevent multiple concurrent reconnection attempts
 
 	// Connection management
 	cancel context.CancelFunc
@@ -43,7 +44,8 @@ type Manager struct {
 	// Cleanup functions
 	cleanups []func()
 
-	reqClient *req.Client
+	reqClient         *req.Client
+	watchPartyManager *WatchPartyManager
 }
 
 type NewManagerOptions struct {
@@ -173,7 +175,10 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		reqClient:       req.C(),
 		serverHost:      opts.ServerHost,
 		serverPort:      opts.ServerPort,
+		settings:        &models.NakamaSettings{},
 	}
+
+	m.watchPartyManager = NewWatchPartyManager(m)
 
 	// Register default message handlers
 	m.registerDefaultHandlers()
@@ -435,6 +440,14 @@ func (m *Manager) ReconnectToHost() error {
 	if m.settings == nil || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
 		return errors.New("no host connection configured")
 	}
+
+	// Check if already reconnecting
+	m.hostMu.Lock()
+	if m.reconnecting {
+		m.hostMu.Unlock()
+		return errors.New("reconnection already in progress")
+	}
+	m.hostMu.Unlock()
 
 	m.logger.Info().Msg("nakama: Manual reconnection to host requested")
 

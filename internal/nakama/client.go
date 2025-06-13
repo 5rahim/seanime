@@ -22,6 +22,15 @@ func (m *Manager) connectToHost() {
 
 	m.logger.Info().Str("url", m.settings.RemoteServerURL).Msg("nakama: Connecting to host")
 
+	// Prevent multiple concurrent connection attempts
+	m.hostMu.Lock()
+	if m.reconnecting {
+		m.hostMu.Unlock()
+		return
+	}
+	m.reconnecting = true
+	m.hostMu.Unlock()
+
 	go m.connectToHostAsync()
 }
 
@@ -32,6 +41,12 @@ func (m *Manager) disconnectFromHost() {
 
 	if m.hostConnection != nil {
 		m.logger.Info().Msg("nakama: Disconnecting from host")
+
+		// Cancel any reconnection timer
+		if m.hostConnection.reconnectTimer != nil {
+			m.hostConnection.reconnectTimer.Stop()
+		}
+
 		m.hostConnection.Close()
 		m.hostConnection = nil
 
@@ -40,10 +55,19 @@ func (m *Manager) disconnectFromHost() {
 			"connected": false,
 		})
 	}
+
+	// Reset reconnecting flag
+	m.reconnecting = false
 }
 
 // connectToHostAsync handles the actual connection logic with retries
 func (m *Manager) connectToHostAsync() {
+	defer func() {
+		m.hostMu.Lock()
+		m.reconnecting = false
+		m.hostMu.Unlock()
+	}()
+
 	maxRetries := 5
 	retryDelay := 5 * time.Second
 
@@ -168,8 +192,11 @@ func (m *Manager) attemptHostConnection() error {
 	}
 	hostConn.Authenticated = true
 
-	// Set the connection
+	// Set the connection and cancel any existing reconnection timer
 	m.hostMu.Lock()
+	if m.hostConnection != nil && m.hostConnection.reconnectTimer != nil {
+		m.hostConnection.reconnectTimer.Stop()
+	}
 	m.hostConnection = hostConn
 	m.hostMu.Unlock()
 
@@ -205,12 +232,16 @@ func (m *Manager) handleHostConnection(hostConn *HostConnection) {
 			"connected": false,
 		})
 
-		// Attempt reconnection after a delay if settings are still valid
-		if m.settings != nil && m.settings.RemoteServerURL != "" && m.settings.RemoteServerPassword != "" {
+		// Attempt reconnection after a delay if settings are still valid and not already reconnecting
+		m.hostMu.Lock()
+		shouldReconnect := m.settings != nil && m.settings.RemoteServerURL != "" && m.settings.RemoteServerPassword != "" && !m.reconnecting
+		if shouldReconnect {
+			m.reconnecting = true
 			hostConn.reconnectTimer = time.AfterFunc(10*time.Second, func() {
 				m.connectToHostAsync()
 			})
 		}
+		m.hostMu.Unlock()
 	}()
 
 	// Set up ping/pong handler

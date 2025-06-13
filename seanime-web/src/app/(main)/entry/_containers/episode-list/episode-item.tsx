@@ -97,7 +97,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                 if (!episode._isNakamaEpisode) {
                                     copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(episode.localFile!.path))
                                 } else {
-                                    copyToClipboard(getServerBaseUrl() + "/api/v1/nakama/stream?type=file&path=" + window.btoa(episode.localFile!.path))
+                                    copyToClipboard(getServerBaseUrl() + "/api/v1/nakama/stream?type=file&path=" + Buffer.from(episode.localFile!.path)
+                                        .toString("base64"))
                                 }
                                 toast.info("Stream URL copied")
                             }}

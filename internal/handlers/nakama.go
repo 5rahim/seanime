@@ -202,27 +202,63 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 // route /api/v1/nakama/host/torrentstream/stream
 // Allows peers to stream the currently playing torrent.
 func (h *Handler) HandleNakamaHostTorrentstreamServeStream(c echo.Context) error {
-	w := c.Response().Writer
-	r := c.Request()
-
-	if c.Request().Method == http.MethodHead {
-		h.App.TorrentstreamRepository.HTTPStreamHandler().ServeHTTP(w, r)
-		return nil
-	}
-
-	// Check password
-	password := r.Header.Get("X-Seanime-Nakama-Password")
-	if password != h.App.Settings.GetNakama().HostPassword {
-		return h.RespondWithError(c, errors.New("invalid password"))
-	}
-
-	h.App.TorrentstreamRepository.HTTPStreamHandler().ServeHTTP(w, r)
+	h.App.TorrentstreamRepository.HTTPStreamHandler().ServeHTTP(c.Response().Writer, c.Request())
 	return nil
+}
+
+var videoProxyClient = &http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     90 * time.Second,
+		ForceAttemptHTTP2:   false, // Fixes issues on Linux
+	},
+	Timeout: 60 * time.Second,
 }
 
 // route /api/v1/nakama/host/debridstream/stream
 // Allows peers to stream the currently playing torrent.
 func (h *Handler) HandleNakamaHostDebridstreamServeStream(c echo.Context) error {
+	streamUrl, ok := h.App.DebridClientRepository.GetStreamURL()
+	if !ok {
+		return echo.NewHTTPError(http.StatusNotFound, "no stream url")
+	}
+
+	// Proxy the stream to the peer
+	// The debrid stream URL directly comes from the debrid service
+	req, err := http.NewRequest(c.Request().Method, streamUrl, c.Request().Body)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
+	}
+
+	// Copy original request headers to the proxied request
+	for key, values := range c.Request().Header {
+		for _, value := range values {
+			req.Header.Add(key, value)
+		}
+	}
+
+	resp, err := videoProxyClient.Do(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
+	}
+	defer resp.Body.Close()
+
+	// Copy response headers
+	for key, values := range resp.Header {
+		for _, value := range values {
+			c.Response().Header().Add(key, value)
+		}
+	}
+
+	// Set the status code
+	c.Response().WriteHeader(resp.StatusCode)
+
+	// Stream the response body
+	_, err = io.Copy(c.Response().Writer, resp.Body)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to stream response body")
+	}
 	return nil
 }
 
@@ -242,16 +278,6 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 //-------------------------------------------
 // Perr
 //-------------------------------------------
-
-var videoProxyClient = &http.Client{
-	Transport: &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 10,
-		IdleConnTimeout:     90 * time.Second,
-		ForceAttemptHTTP2:   false, // Fixes issues on Linux
-	},
-	Timeout: 60 * time.Second,
-}
 
 // route /api/v1/nakama/stream
 // Proxies stream requests to the host. It inserts the Nakama password in the headers.
