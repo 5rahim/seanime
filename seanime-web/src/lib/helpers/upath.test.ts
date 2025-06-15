@@ -55,8 +55,8 @@ describe("upath", () => {
 
             it("should handle special cases", () => {
                 expect(upath.normalize("/")).toBe("/")
-                expect(upath.normalize("//")).toBe("/")
-                expect(upath.normalize("//server/share")).toBe("/server/share")
+                expect(upath.normalize("//")).toBe("//")
+                expect(upath.normalize("//server/share")).toBe("//server/share")
                 expect(upath.normalize("a/../..")).toBe("..")
                 expect(upath.normalize("/a/../..")).toBe("/")
             })

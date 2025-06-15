@@ -18,12 +18,15 @@ func (m *Manager) registerDefaultHandlers() {
 
 	// Watch party handlers
 	m.messageHandlers[MessageTypeWatchPartyCreated] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyStopped] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyJoin] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyLeave] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyStateChanged] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPlaybackInfo] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPlaybackStatus] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPlaybackStopped] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyPeerStatus] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyBufferUpdate] = m.handleWatchPartyMessage
 }
 
 // handleMessage routes messages to the appropriate handler

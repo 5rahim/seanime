@@ -319,6 +319,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 	if c.Request().Method == http.MethodHead {
 		req, err := http.NewRequest(http.MethodHead, requestUrl, nil)
 		if err != nil {
+			h.App.Logger.Error().Msgf("nakama: failed to create request: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
 		}
 
@@ -327,6 +328,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 
 		resp, err := videoProxyClient.Do(req)
 		if err != nil {
+			h.App.Logger.Error().Msgf("nakama: failed to proxy request: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
 		}
 		defer resp.Body.Close()
@@ -344,6 +346,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 	// Proxy the request
 	req, err := http.NewRequest(c.Request().Method, requestUrl, c.Request().Body)
 	if err != nil {
+		h.App.Logger.Error().Msgf("nakama: failed to create request: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
 	}
 
@@ -363,6 +366,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 
 	resp, err := videoProxyClient.Do(req)
 	if err != nil {
+		h.App.Logger.Error().Msgf("nakama: failed to proxy request: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
 	}
 	defer resp.Body.Close()

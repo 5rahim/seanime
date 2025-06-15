@@ -440,6 +440,7 @@ func (m *Repository) Stop() {
 	if m.cancel != nil {
 		m.Logger.Debug().Msg("media player: Stop request received")
 		m.cancel()
+		m.cancel = nil
 		m.trackingStopped("Tracking stopped")
 	}
 	// Close MPV if it's the default player

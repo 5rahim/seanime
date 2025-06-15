@@ -104,6 +104,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		return errors.New("not connected to host")
 	}
 
+	m.logger.Debug().Int("mediaId", media.ID).Msg("nakama: Playing host anime library file")
 	m.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "nakama-file")
 	m.wsEventManager.SendEvent(events.InfoToast, "Sending stream to player...")
 
@@ -164,6 +165,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		return errors.New("not connected to host")
 	}
 
+	m.logger.Debug().Int("mediaId", media.ID).Msg("nakama: Playing host anime stream")
 	m.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "nakama-stream")
 	m.wsEventManager.SendEvent(events.InfoToast, "Sending stream to player...")
 

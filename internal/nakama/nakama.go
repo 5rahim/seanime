@@ -218,7 +218,7 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 	}
 
 	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.Enabled != settings.Enabled {
-		if settings.RemoteServerURL != "" && settings.RemoteServerPassword != "" && settings.Enabled {
+		if settings.RemoteServerURL != "" && settings.RemoteServerPassword != "" && settings.Enabled && !settings.IsHost {
 			m.connectToHost()
 		} else {
 			m.disconnectFromHost()
@@ -524,6 +524,9 @@ func (m *Manager) RemoveStaleConnections() {
 
 				// Remove from map first to prevent re-addition
 				m.peerConnections.Delete(id)
+
+				// Remove peer from watch party if they were participating
+				m.watchPartyManager.HandlePeerDisconnected(conn.PeerId)
 
 				// Then close the connection (this will trigger the defer cleanup in handlePeerConnection)
 				conn.Close()

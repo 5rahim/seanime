@@ -133,6 +133,9 @@ func (m *Manager) handlePeerConnection(peerConn *PeerConnection) {
 		if _, exists := m.peerConnections.Get(peerConn.ID); exists {
 			m.peerConnections.Delete(peerConn.ID)
 
+			// Remove peer from watch party if they were participating
+			m.watchPartyManager.HandlePeerDisconnected(peerConn.PeerId)
+
 			// Send event to client about peer disconnection (only if we actually removed it)
 			m.wsEventManager.SendEvent(events.NakamaPeerDisconnected, map[string]interface{}{
 				"peerId": peerConn.PeerId,

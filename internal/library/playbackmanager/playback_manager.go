@@ -321,17 +321,6 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 		return err
 	}
 
-	// Notify subscribers
-	pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-		value.EventCh <- &PlaybackStartingEvent{
-			PlaybackType: LocalFilePlayback,
-			Media:        nil,
-			Filepath:     opts.Payload,
-			WindowTitle:  "",
-		}
-		return true
-	})
-
 	trackingEvent := &PlaybackBeforeTrackingEvent{
 		IsStream: false,
 	}

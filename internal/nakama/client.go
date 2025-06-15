@@ -17,7 +17,7 @@ import (
 
 // connectToHost establishes a connection to the Nakama host
 func (m *Manager) connectToHost() {
-	if m.settings == nil || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
+	if m.settings == nil || !m.settings.Enabled || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
 		return
 	}
 
@@ -68,6 +68,10 @@ func (m *Manager) connectToHostAsync() {
 		m.reconnecting = false
 		m.hostMu.Unlock()
 	}()
+
+	if m.settings == nil || !m.settings.Enabled || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
+		return
+	}
 
 	maxRetries := 5
 	retryDelay := 5 * time.Second

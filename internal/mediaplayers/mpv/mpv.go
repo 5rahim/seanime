@@ -312,15 +312,7 @@ func (m *Mpv) Seek(position float64) error {
 		return errors.New("mpv is not running")
 	}
 
-	// pause the player
-	_, err := m.conn.Call("set_property", "pause", true)
-	if err != nil {
-		return err
-	}
-
-	time.Sleep(100 * time.Millisecond)
-
-	_, err = m.conn.Call("set_property", "time-pos", position)
+	_, err := m.conn.Call("set_property", "time-pos", position)
 	if err != nil {
 		return err
 	}

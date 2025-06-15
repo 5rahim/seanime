@@ -12,8 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { NumberInput } from "@/components/ui/number-input"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom, useAtom, useAtomValue } from "jotai"
@@ -35,6 +33,9 @@ type WatchPartySessionParticipant = {
     isReady: boolean
     lastSeen: string
     latency: number
+    isBuffering: boolean
+    bufferHealth: number
+    playbackStatus?: any
 }
 
 type WatchPartySessionMediaInfo = {
@@ -81,7 +82,7 @@ export function NakamaManager() {
         } else {
             setWatchPartySession(null)
         }
-    }, [status, setWatchPartySession])
+    }, [status])
 
     React.useEffect(() => {
         refetchStatus()
@@ -207,14 +208,14 @@ export function NakamaManager() {
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_WATCH_PARTY_STATE,
         onMessage: (data: any) => {
-            if (data === null || data === undefined) {
-                // Watch party was stopped
-                setWatchPartySession(null)
-            } else {
-                // Session data received
-                const session = data as Nakama_WatchPartySession
-                setWatchPartySession(session)
-            }
+            // if (data === null || data === undefined) {
+            //     // Watch party was stopped
+            //     setWatchPartySession(null)
+            // } else {
+            //     // Session data received
+            //     const session = data as Nakama_WatchPartySession
+            //     setWatchPartySession(session)
+            // }
             refetchStatus()
         },
     })
@@ -404,7 +405,7 @@ function WatchPartyCreation({
             {isHost && (
                 <SettingsCard title="Create Watch Party">
                     <div className="space-y-4">
-                        <div className="space-y-3">
+                        {/* <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-medium">Allow participant control</label>
                                 <Switch
@@ -441,7 +442,7 @@ function WatchPartyCreation({
                                 />
                                 <p className="text-xs text-[--muted]">Maximum time to wait for peers to buffer</p>
                             </div>
-                        </div>
+                         </div> */}
 
                         <Button
                             onClick={onCreateWatchParty}
@@ -567,22 +568,42 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                     <Badge className="text-xs">Controller</Badge>
                                 )}
                             </div>
-                            {/*<div className="flex items-center gap-2 text-xs text-[--muted]">*/}
-                            {/*    {participant.isReady ? (*/}
-                            {/*        <span className="text-green-500">Ready</span>*/}
-                            {/*    ) : (*/}
-                            {/*        <span className="text-yellow-500">Not Ready</span>*/}
-                            {/*    )}*/}
-                            {/*    {participant.latency > 0 && (*/}
-                            {/*        <span>{participant.latency}ms</span>*/}
-                            {/*    )}*/}
-                            {/*</div>*/}
+                            <div className="flex items-center gap-2 text-xs text-[--muted]">
+                                {(participant as any).isBuffering ? (
+                                    <Badge className="text-xs bg-red-500 text-white">
+                                        Buffering
+                                    </Badge>
+                                ) : participant.isReady ? (
+                                    <Badge className="text-xs bg-green-500 text-white">
+                                        Ready
+                                    </Badge>
+                                ) : (
+                                    <Badge className="text-xs bg-gray-500 text-white">
+                                        Not Ready
+                                    </Badge>
+                                )}
+                                {!participant.isHost && (participant as any).bufferHealth !== undefined && (
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-xs">Buffer:</span>
+                                        <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-green-500 transition-all duration-300"
+                                                style={{ width: `${Math.max(0, Math.min(100, (participant as any).bufferHealth * 100))}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-xs">{Math.round((participant as any).bufferHealth * 100)}%</span>
+                                    </div>
+                                )}
+                                {participant.latency > 0 && (
+                                    <span>{participant.latency}ms</span>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
             </SettingsCard>
 
-            <SettingsCard title="Settings">
+            {/* <SettingsCard title="Settings">
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <span className="text-sm text-[--muted]">Participant Control:</span>
@@ -599,7 +620,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                         <span className="text-sm">{session.settings?.maxBufferWaitTime}s</span>
                     </div>
                 </div>
-            </SettingsCard>
+             </SettingsCard> */}
         </div>
     )
 }
