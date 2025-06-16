@@ -1650,15 +1650,6 @@
 //     })
 // }
 
-// export function useGetNakamaStatus() {
-//     return useServerQuery<Nakama_NakamaStatus>({
-//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaStatus.endpoint,
-//         method: API_ENDPOINTS.NAKAMA.GetNakamaStatus.methods[0],
-//         queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaStatus.key],
-//         enabled: true,
-//     })
-// }
-
 // export function useSendNakamaMessage() {
 //     return useServerMutation<Nakama_MessageResponse, SendNakamaMessage_Variables>({
 //         endpoint: API_ENDPOINTS.NAKAMA.SendNakamaMessage.endpoint,

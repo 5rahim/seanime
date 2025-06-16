@@ -32,29 +32,6 @@ func (h *Handler) HandleNakamaWebSocket(c echo.Context) error {
 	return nil
 }
 
-// HandleGetNakamaStatus
-//
-//	@summary gets the current Nakama connection status.
-//	@desc This returns the current status of Nakama connections including host mode and peer connections.
-//	@route /api/v1/nakama/status [GET]
-//	@returns nakama.NakamaStatus
-func (h *Handler) HandleGetNakamaStatus(c echo.Context) error {
-	var currentWatchPartySession *nakama.WatchPartySession
-	if session, ok := h.App.NakamaManager.GetWatchPartyManager().GetCurrentSession(); ok {
-		currentWatchPartySession = session
-	}
-
-	status := &nakama.NakamaStatus{
-		IsHost:                   h.App.Settings.GetNakama().IsHost,
-		ConnectedPeers:           h.App.NakamaManager.GetConnectedPeers(),
-		IsConnectedToHost:        h.App.NakamaManager.IsConnectedToHost(),
-		HostConnectionStatus:     h.App.NakamaManager.GetHostConnectionStatus(),
-		CurrentWatchPartySession: currentWatchPartySession,
-	}
-
-	return h.RespondWithData(c, status)
-}
-
 // HandleSendNakamaMessage
 //
 //	@summary sends a custom message through Nakama.
@@ -281,13 +258,14 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 	return c.File(string(decodedPath))
 }
 
-//-------------------------------------------
-//
-//-------------------------------------------
-
-// route /api/v1/nakama/stream
+// route /api/v1/nakama/stream?password={password}
 // Proxies stream requests to the host. It inserts the Nakama password in the headers.
+// It checks if the password is valid.
 func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
+	password := c.QueryParam("password")
+	if password != h.App.Settings.GetNakama().RemoteServerPassword {
+		return echo.NewHTTPError(http.StatusUnauthorized, "invalid password")
+	}
 
 	streamType := c.QueryParam("type") // "file", "torrent", "debrid"
 	if streamType == "" {

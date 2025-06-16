@@ -89,7 +89,6 @@ const (
 	GetMissingEpisodesEndpoint                         = "ANIME-ENTRIES-get-missing-episodes"
 	GetNakamaAnimeLibraryCollectionEndpoint            = "NAKAMA-get-nakama-anime-library-collection"
 	GetNakamaAnimeLibraryFilesEndpoint                 = "NAKAMA-get-nakama-anime-library-files"
-	GetNakamaStatusEndpoint                            = "NAKAMA-get-nakama-status"
 	GetOnlineStreamEpisodeListEndpoint                 = "ONLINESTREAM-get-online-stream-episode-list"
 	GetOnlineStreamEpisodeSourceEndpoint               = "ONLINESTREAM-get-online-stream-episode-source"
 	GetOnlinestreamMappingEndpoint                     = "ONLINESTREAM-get-onlinestream-mapping"

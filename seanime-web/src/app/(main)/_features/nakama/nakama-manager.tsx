@@ -1,13 +1,14 @@
 import { Nakama_NakamaStatus, Nakama_WatchPartySession, Nakama_WatchPartySessionSettings } from "@/api/generated/types"
 import {
-    useGetNakamaStatus,
     useNakamaCreateWatchParty,
     useNakamaJoinWatchParty,
     useNakamaLeaveWatchParty,
     useNakamaReconnectToHost,
     useNakamaRemoveStaleConnections,
 } from "@/api/hooks/nakama.hooks"
-import { BetaBadge } from "@/components/shared/beta-badge"
+import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { AlphaBadge } from "@/components/shared/beta-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -18,35 +19,11 @@ import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPeople, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
 import { toast } from "sonner"
-import { useWebsocketMessageListener } from "../../_hooks/handle-websockets"
-import { SettingsCard } from "../../settings/_components/settings-card"
 
 export const nakamaModalOpenAtom = atom(false)
-export const nakamaStatusAtom = atom<Nakama_NakamaStatus | null>(null)
+export const nakamaStatusAtom = atom<Nakama_NakamaStatus | null | undefined>(undefined)
 
-
-type WatchPartySessionParticipant = {
-    id: string
-    username: string
-    isHost: boolean
-    canControl: boolean
-    isReady: boolean
-    lastSeen: string
-    latency: number
-    isBuffering: boolean
-    bufferHealth: number
-    playbackStatus?: any
-}
-
-type WatchPartySessionMediaInfo = {
-    mediaId: number
-    episodeNumber: number
-    aniDBEpisode: string
-    streamType: string
-    streamPath: string
-}
-
-export const watchPartySessionAtom = atom<Nakama_WatchPartySession | null>(null)
+export const watchPartySessionAtom = atom<Nakama_WatchPartySession | null | undefined>(undefined)
 
 export function useNakamaStatus() {
     return useAtomValue(nakamaStatusAtom)
@@ -57,11 +34,12 @@ export function useWatchPartySession() {
 }
 
 export function NakamaManager() {
+    const { sendMessage } = useWebsocketSender()
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const [watchPartySession, setWatchPartySession] = useAtom(watchPartySessionAtom)
 
-    const { data: status, refetch: refetchStatus, isLoading } = useGetNakamaStatus()
+    // const { data: status, refetch: refetchStatus, isLoading } = useGetNakamaStatus()
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
     const { mutate: createWatchParty, isPending: isCreatingWatchParty } = useNakamaCreateWatchParty()
@@ -75,14 +53,36 @@ export function NakamaManager() {
         maxBufferWaitTime: 10,
     })
 
+    function refetchStatus() {
+        sendMessage({
+            type: WSEvents.NAKAMA_STATUS_REQUESTED,
+            payload: null,
+        })
+    }
+
+    // Listen for NAKAMA_STATUS messages to update the status
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_STATUS,
+        onMessage: (data: Nakama_NakamaStatus | null) => {
+            setNakamaStatus(data ?? null)
+        },
+    })
+
+    // NAKAMA_WATCH_PARTY_STATE tells the client to refetch the status
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_WATCH_PARTY_STATE,
+        onMessage: (data: any) => {
+            refetchStatus()
+        },
+    })
+
     React.useEffect(() => {
-        setNakamaStatus(status ?? null)
-        if (status?.currentWatchPartySession) {
-            setWatchPartySession(status.currentWatchPartySession)
+        if (nakamaStatus?.currentWatchPartySession) {
+            setWatchPartySession(nakamaStatus.currentWatchPartySession)
         } else {
             setWatchPartySession(null)
         }
-    }, [status])
+    }, [nakamaStatus])
 
     React.useEffect(() => {
         refetchStatus()
@@ -121,7 +121,7 @@ export function NakamaManager() {
     const handleCreateWatchParty = React.useCallback(() => {
         createWatchParty({ settings: watchPartySettings }, {
             onSuccess: () => {
-                toast.success("Watch party created successfully")
+                toast.success("Watch party created")
                 refetchStatus()
             },
             onError: (error) => {
@@ -133,11 +133,8 @@ export function NakamaManager() {
     const handleJoinWatchParty = React.useCallback(() => {
         joinWatchParty(undefined, {
             onSuccess: () => {
-                toast.success("Joined watch party")
+                toast.info("Joining watch party")
                 refetchStatus()
-            },
-            onError: (error) => {
-                toast.error(`Failed to join watch party: ${error.message}`)
             },
         })
     }, [joinWatchParty, refetchStatus])
@@ -145,12 +142,9 @@ export function NakamaManager() {
     const handleLeaveWatchParty = React.useCallback(() => {
         leaveWatchParty(undefined, {
             onSuccess: () => {
-                toast.success("Left watch party")
+                toast.info("Leaving watch party")
                 setWatchPartySession(null)
                 refetchStatus()
-            },
-            onError: (error) => {
-                toast.error(`Failed to leave watch party: ${error.message}`)
             },
         })
     }, [leaveWatchParty, setWatchPartySession, refetchStatus])
@@ -204,41 +198,23 @@ export function NakamaManager() {
         },
     })
 
-    // Watch Party websocket listeners
-    useWebsocketMessageListener({
-        type: WSEvents.NAKAMA_WATCH_PARTY_STATE,
-        onMessage: (data: any) => {
-            // if (data === null || data === undefined) {
-            //     // Watch party was stopped
-            //     setWatchPartySession(null)
-            // } else {
-            //     // Session data received
-            //     const session = data as Nakama_WatchPartySession
-            //     setWatchPartySession(session)
-            // }
-            refetchStatus()
-        },
-    })
-
     return <>
-
-        {/* Modal */}
         <Modal
             open={isModalOpen}
             onOpenChange={setIsModalOpen}
             title={<div className="flex items-center gap-2 w-full justify-center">
                 <MdOutlineConnectWithoutContact className="size-6" />
                 Nakama
-                <BetaBadge />
+                <AlphaBadge />
             </div>}
             contentClass="max-w-3xl bg-gray-950/90 backdrop-blur-sm"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
             // allowOutsideInteraction
         >
 
-            {isLoading && <LoadingSpinner />}
+            {nakamaStatus === undefined && <LoadingSpinner />}
 
-            {!status?.isHost && (
+            {!nakamaStatus?.isHost && (
                 <div className="flex items-center justify-between">
                     <div></div>
                     <Button
@@ -253,7 +229,7 @@ export function NakamaManager() {
                 </div>
             )}
 
-            {!isLoading && (status?.isHost || status?.isConnectedToHost) && (
+            {nakamaStatus !== undefined && (nakamaStatus?.isHost || nakamaStatus?.isConnectedToHost) && (
                 <Tabs defaultValue="connection" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-4">
                         <TabsTrigger value="connection">Connection</TabsTrigger>
@@ -261,7 +237,7 @@ export function NakamaManager() {
                     </TabsList>
 
                     <TabsContent value="connection" className="space-y-4">
-                        {status?.isHost && (
+                        {nakamaStatus?.isHost && (
                             <>
                                 <div className="flex items-center justify-between">
                                     <h4>Currently hosting</h4>
@@ -276,8 +252,9 @@ export function NakamaManager() {
                                     </Button>
                                 </div>
                                 <SettingsCard title="Connected peers">
-                                    {!status?.connectedPeers?.length && <p className="text-center text-sm text-[--muted]">No connected peers</p>}
-                                    {status?.connectedPeers?.map((peer, index) => (
+                                    {!nakamaStatus?.connectedPeers?.length &&
+                                        <p className="text-center text-sm text-[--muted]">No connected peers</p>}
+                                    {nakamaStatus?.connectedPeers?.map((peer, index) => (
                                         <div key={index} className="flex items-center justify-between py-1">
                                             <span className="font-medium">{peer}</span>
                                         </div>
@@ -286,7 +263,7 @@ export function NakamaManager() {
                             </>
                         )}
 
-                        {status?.isConnectedToHost && (
+                        {nakamaStatus?.isConnectedToHost && (
                             <>
 
                                 <SettingsCard title="Host connection">
@@ -294,24 +271,24 @@ export function NakamaManager() {
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-[--muted]">Host:</span>
                                             <span className="font-medium">
-                                                {status?.hostConnectionStatus?.username || "Unknown"}
+                                                {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-[--muted]">Status:</span>
                                             <span
-                                                className={`font-medium ${status?.hostConnectionStatus?.authenticated
+                                                className={`font-medium ${nakamaStatus?.hostConnectionStatus?.authenticated
                                                     ? "text-green-500"
                                                     : "text-red-500"
                                                 }`}
                                             >
-                                                {status?.hostConnectionStatus?.authenticated ? "Connected" : "Disconnected"}
+                                                {nakamaStatus?.hostConnectionStatus?.authenticated ? "Connected" : "Disconnected"}
                                             </span>
                                         </div>
-                                        {status?.hostConnectionStatus?.url && (
+                                        {nakamaStatus?.hostConnectionStatus?.url && (
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm text-[--muted]">URL:</span>
-                                                <span className="font-mono text-xs">{status.hostConnectionStatus.url}</span>
+                                                <span className="font-mono text-xs">{nakamaStatus?.hostConnectionStatus.url}</span>
                                             </div>
                                         )}
                                     </div>
@@ -323,9 +300,9 @@ export function NakamaManager() {
                     <TabsContent value="watch-party" className="space-y-4">
                         {/* Watch Party Content */}
                         {(() => {
-                            const isHost = status?.isHost || false
-                            const isConnectedToHost = status?.isConnectedToHost || false
-                            const currentPeerID = status?.hostConnectionStatus?.peerId
+                            const isHost = nakamaStatus?.isHost || false
+                            const isConnectedToHost = nakamaStatus?.isConnectedToHost || false
+                            const currentPeerID = nakamaStatus?.hostConnectionStatus?.peerId
 
                             // Check if user is in the participant list by comparing peer ID
                             const isUserInSession = watchPartySession && (
@@ -364,7 +341,7 @@ export function NakamaManager() {
                 </Tabs>
             )}
 
-            {!status?.isHost && !status?.isConnectedToHost && !isLoading && (
+            {!nakamaStatus?.isHost && !nakamaStatus?.isConnectedToHost && nakamaStatus !== undefined && (
                 <div className="text-center py-8">
                     <p className="text-[--muted]">Nakama is not active</p>
                     <p className="text-sm text-[--muted] mt-2">
@@ -373,7 +350,6 @@ export function NakamaManager() {
                 </div>
             )}
         </Modal>
-
     </>
 }
 
@@ -526,7 +502,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                 </div>
             </div>
 
-            <SettingsCard title="Session Details">
+            {/* <SettingsCard title="Session Details">
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-sm text-[--muted]">Session ID:</span>
@@ -553,7 +529,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                         </>
                     )}
                 </div>
-            </SettingsCard>
+             </SettingsCard> */}
 
             <SettingsCard title="Participants">
                 <div className="space-y-2">
@@ -569,7 +545,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                 )}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-[--muted]">
-                                {(participant as any).isBuffering ? (
+                                {participant.isBuffering ? (
                                     <Badge className="text-xs bg-red-500 text-white">
                                         Buffering
                                     </Badge>
@@ -582,16 +558,16 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                         Not Ready
                                     </Badge>
                                 )}
-                                {!participant.isHost && (participant as any).bufferHealth !== undefined && (
+                                {!participant.isHost && participant.bufferHealth !== undefined && (
                                     <div className="flex items-center gap-1">
                                         <span className="text-xs">Buffer:</span>
                                         <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
                                             <div
                                                 className="h-full bg-green-500 transition-all duration-300"
-                                                style={{ width: `${Math.max(0, Math.min(100, (participant as any).bufferHealth * 100))}%` }}
+                                                style={{ width: `${Math.max(0, Math.min(100, participant.bufferHealth * 100))}%` }}
                                             />
                                         </div>
-                                        <span className="text-xs">{Math.round((participant as any).bufferHealth * 100)}%</span>
+                                        <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
                                     </div>
                                 )}
                                 {participant.latency > 0 && (

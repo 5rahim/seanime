@@ -49,6 +49,8 @@ export const enum WSEvents {
     NAKAMA_HOST_CONNECTED = "nakama-host-connected",
     NAKAMA_HOST_DISCONNECTED = "nakama-host-disconnected",
     NAKAMA_ERROR = "nakama-error",
+    NAKAMA_STATUS_REQUESTED = "nakama-status-requested",
+    NAKAMA_STATUS = "nakama-status",
     NAKAMA_WATCH_PARTY_STATE = "nakama-watch-party-state",
     NAKAMA_WATCH_PARTY_CREATED = "nakama-watch-party-created",
     NAKAMA_WATCH_PARTY_JOINED = "nakama-watch-party-joined",

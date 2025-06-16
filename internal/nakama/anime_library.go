@@ -100,7 +100,7 @@ func (m *Manager) getBaseServerURL() string {
 }
 
 func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
-	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
 
@@ -126,7 +126,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		host = "127.0.0.1"
 	}
 	address := fmt.Sprintf("%s:%d", host, m.serverPort)
-	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=file&path=%s", address, base64.StdEncoding.EncodeToString([]byte(path)))
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=file&password=%s&path=%s", address, m.settings.RemoteServerPassword, base64.StdEncoding.EncodeToString([]byte(path)))
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
@@ -161,7 +161,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 }
 
 func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
-	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
 
@@ -174,7 +174,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		host = "127.0.0.1"
 	}
 	address := fmt.Sprintf("%s:%d", host, m.serverPort)
-	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s", address, streamType)
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s&password=%s", address, streamType, m.settings.RemoteServerPassword)
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}

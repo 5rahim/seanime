@@ -551,18 +551,22 @@ func (pm *PlaybackManager) AutoPlayNextEpisode() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Pause pauses the current media player playback.
 func (pm *PlaybackManager) Pause() error {
 	return pm.MediaPlayerRepository.Pause()
 }
 
+// Resume resumes the current media player playback.
 func (pm *PlaybackManager) Resume() error {
 	return pm.MediaPlayerRepository.Resume()
 }
 
+// Seek seeks to the specified time in the current media.
 func (pm *PlaybackManager) Seek(seconds float64) error {
 	return pm.MediaPlayerRepository.Seek(seconds)
 }
 
+// PullStatus pulls the current media player playback status at the time of the call.
 func (pm *PlaybackManager) PullStatus() (*mediaplayer.PlaybackStatus, bool) {
 	return pm.MediaPlayerRepository.PullStatus()
 }

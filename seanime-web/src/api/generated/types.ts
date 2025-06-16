@@ -2808,6 +2808,46 @@ export type Manga_ProviderDownloadMapChapterInfo = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mediaplayer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediaplayers/mediaplayer/repository.go
+ * - Filename: repository.go
+ * - Package: mediaplayer
+ */
+export type PlaybackStatus = {
+    completionPercentage: number
+    playing: boolean
+    filename: string
+    path: string
+    /**
+     * in ms
+     */
+    duration: number
+    filepath: string
+    /**
+     * in seconds
+     */
+    currentTimeInSeconds: number
+    /**
+     * in seconds
+     */
+    durationInSeconds: number
+    /**
+     * "file", "stream"
+     */
+    playbackType: PlaybackType
+}
+
+/**
+ * - Filepath: internal/mediaplayers/mediaplayer/repository.go
+ * - Filename: repository.go
+ * - Package: mediaplayer
+ */
+export type PlaybackType = "file" | "stream"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mediastream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3584,6 +3624,15 @@ export type Nakama_WatchPartySessionParticipant = {
      * in milliseconds
      */
     latency: number
+    isBuffering: boolean
+    /**
+     * 0.0 to 1.0, how much buffer is available
+     */
+    bufferHealth: number
+    /**
+     * Current playback status
+     */
+    playbackStatus?: PlaybackStatus
 }
 
 /**

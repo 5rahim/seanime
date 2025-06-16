@@ -188,6 +188,23 @@ func NewManager(opts *NewManagerOptions) *Manager {
 	// Register default message handlers
 	m.registerDefaultHandlers()
 
+	eventListener := m.wsEventManager.SubscribeToClientEvents("nakama")
+	go func() {
+		for event := range eventListener.Channel {
+			if event.Type == events.NakamaStatusRequested {
+				currSession, _ := m.GetWatchPartyManager().GetCurrentSession()
+				status := &NakamaStatus{
+					IsHost:                   m.IsHost(),
+					ConnectedPeers:           m.GetConnectedPeers(),
+					IsConnectedToHost:        m.IsConnectedToHost(),
+					HostConnectionStatus:     m.GetHostConnectionStatus(),
+					CurrentWatchPartySession: currSession,
+				}
+				m.wsEventManager.SendEvent(events.NakamaStatus, status)
+			}
+		}
+	}()
+
 	return m
 }
 

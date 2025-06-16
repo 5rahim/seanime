@@ -199,6 +199,5 @@ func (m *Manager) handleCustomMessage(message *Message, senderID string) error {
 }
 
 func (m *Manager) handleWatchPartyMessage(message *Message, senderID string) error {
-	m.logger.Debug().Str("senderID", senderID).Str("messageType", string(message.Type)).Msg("nakama: Received watch party message")
 	return m.watchPartyManager.handleMessage(message, senderID)
 }

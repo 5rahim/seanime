@@ -442,10 +442,10 @@ func (m *Repository) Stop() {
 		m.cancel()
 		m.cancel = nil
 		m.trackingStopped("Tracking stopped")
-	}
-	// Close MPV if it's the default player
-	if m.Default == "mpv" {
-		m.Mpv.CloseAll()
+		// Close MPV if it's the default player
+		if m.Default == "mpv" {
+			go m.Mpv.CloseAll()
+		}
 	}
 	m.mu.Unlock()
 }
@@ -652,11 +652,16 @@ func (m *Repository) StartTracking() {
 				m.Logger.Debug().Msg("media player: Connection lost")
 				m.isRunning = false
 				m.mu.Unlock()
+				if m.cancel != nil {
+					m.cancel()
+					m.cancel = nil
+				}
 				return
 			case <-trackingCtx.Done():
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
 				m.isRunning = false
+				m.cancel = nil
 				m.mu.Unlock()
 				return
 			//case <-m.exitedCh:

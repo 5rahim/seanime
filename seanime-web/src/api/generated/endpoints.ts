@@ -1330,16 +1330,6 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
-         *  Route gets the current Nakama connection status.
-         *  This returns the current status of Nakama connections including host mode and peer connections.
-         */
-        GetNakamaStatus: {
-            key: "NAKAMA-get-nakama-status",
-            methods: ["GET"],
-            endpoint: "/api/v1/nakama/status",
-        },
-        /**
-         *  @description
          *  Route sends a custom message through Nakama.
          *  This allows sending custom messages to connected peers or the host.
          */

@@ -59316,7 +59316,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Internal connection ID (kept for internal use)"
+          " Internal connection ID (websocket)"
         ]
       },
       {
@@ -59869,6 +59869,263 @@
         "comments": [
           " Mutex for the watch party manager"
         ]
+      },
+      {
+        "name": "lastSeekTime",
+        "jsonName": "lastSeekTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Time of last seek operation"
+        ]
+      },
+      {
+        "name": "seekCooldown",
+        "jsonName": "seekCooldown",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedTypescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Minimum time between seeks"
+        ]
+      },
+      {
+        "name": "catchUpCancel",
+        "jsonName": "catchUpCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for catch-up operations"
+        ]
+      },
+      {
+        "name": "catchUpMu",
+        "jsonName": "catchUpMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for catch-up operations"
+        ]
+      },
+      {
+        "name": "seekDelayCompensation",
+        "jsonName": "seekDelayCompensation",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedTypescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Expected delay for seek operations"
+        ]
+      },
+      {
+        "name": "pendingSeekTime",
+        "jsonName": "pendingSeekTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When a seek was initiated"
+        ]
+      },
+      {
+        "name": "pendingSeekPosition",
+        "jsonName": "pendingSeekPosition",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Position we're seeking to"
+        ]
+      },
+      {
+        "name": "seekMu",
+        "jsonName": "seekMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for seek state"
+        ]
+      },
+      {
+        "name": "bufferWaitStart",
+        "jsonName": "bufferWaitStart",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When we started waiting for peers to buffer"
+        ]
+      },
+      {
+        "name": "isWaitingForBuffers",
+        "jsonName": "isWaitingForBuffers",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Whether we're currently waiting for peers to be ready"
+        ]
+      },
+      {
+        "name": "bufferMu",
+        "jsonName": "bufferMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for buffer state changes"
+        ]
+      },
+      {
+        "name": "statusReportTicker",
+        "jsonName": "statusReportTicker",
+        "goType": "time.Ticker",
+        "typescriptType": "Ticker",
+        "usedTypescriptType": "Ticker",
+        "usedStructName": "time.Ticker",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Ticker for peer status reporting"
+        ]
+      },
+      {
+        "name": "statusReportCancel",
+        "jsonName": "statusReportCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for status reporting"
+        ]
+      },
+      {
+        "name": "waitForPeersCancel",
+        "jsonName": "waitForPeersCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for waitForPeersReady goroutine"
+        ]
+      },
+      {
+        "name": "bufferDetectionMu",
+        "jsonName": "bufferDetectionMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for buffering detection state"
+        ]
+      },
+      {
+        "name": "lastPosition",
+        "jsonName": "lastPosition",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Last known playback position"
+        ]
+      },
+      {
+        "name": "lastPositionTime",
+        "jsonName": "lastPositionTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When we last updated the position"
+        ]
+      },
+      {
+        "name": "stallCount",
+        "jsonName": "stallCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Number of consecutive stalls detected"
+        ]
+      },
+      {
+        "name": "lastPlayState",
+        "jsonName": "lastPlayState",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Last known play/pause state to detect rapid changes"
+        ]
+      },
+      {
+        "name": "lastPlayStateTime",
+        "jsonName": "lastPlayStateTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When we last changed play state"
+        ]
+      },
+      {
+        "name": "lastSelfSeekTime",
+        "jsonName": "lastSelfSeekTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When we last seeked ourselves (to ignore stale sync messages)"
+        ]
       }
     ],
     "comments": []
@@ -60024,6 +60281,39 @@
         "comments": [
           " in milliseconds"
         ]
+      },
+      {
+        "name": "IsBuffering",
+        "jsonName": "isBuffering",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BufferHealth",
+        "jsonName": "bufferHealth",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " 0.0 to 1.0, how much buffer is available"
+        ]
+      },
+      {
+        "name": "PlaybackStatus",
+        "jsonName": "playbackStatus",
+        "goType": "mediaplayer.PlaybackStatus",
+        "typescriptType": "PlaybackStatus",
+        "usedTypescriptType": "PlaybackStatus",
+        "usedStructName": "mediaplayer.PlaybackStatus",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Current playback status"
+        ]
       }
     ],
     "comments": []
@@ -60166,6 +60456,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -60276,6 +60575,117 @@
         "typescriptType": "Nakama_WatchPartySession",
         "usedTypescriptType": "Nakama_WatchPartySession",
         "usedStructName": "nakama.WatchPartySession",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyPeerStatusPayload",
+    "formattedName": "Nakama_WatchPartyPeerStatusPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackStatus",
+        "jsonName": "playbackStatus",
+        "goType": "mediaplayer.PlaybackStatus",
+        "typescriptType": "PlaybackStatus",
+        "usedTypescriptType": "PlaybackStatus",
+        "usedStructName": "mediaplayer.PlaybackStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsBuffering",
+        "jsonName": "isBuffering",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BufferHealth",
+        "jsonName": "bufferHealth",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " 0.0 to 1.0"
+        ]
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyBufferUpdatePayload",
+    "formattedName": "Nakama_WatchPartyBufferUpdatePayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsBuffering",
+        "jsonName": "isBuffering",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BufferHealth",
+        "jsonName": "bufferHealth",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
         "required": false,
         "public": true,
         "comments": []

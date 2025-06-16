@@ -6386,36 +6386,6 @@
     }
   },
   {
-    "name": "HandleGetNakamaStatus",
-    "trimmedName": "GetNakamaStatus",
-    "comments": [
-      "HandleGetNakamaStatus",
-      "",
-      "\t@summary gets the current Nakama connection status.",
-      "\t@desc This returns the current status of Nakama connections including host mode and peer connections.",
-      "\t@route /api/v1/nakama/status [GET]",
-      "\t@returns nakama.NakamaStatus",
-      ""
-    ],
-    "filepath": "internal/handlers/nakama.go",
-    "filename": "nakama.go",
-    "api": {
-      "summary": "gets the current Nakama connection status.",
-      "descriptions": [
-        "This returns the current status of Nakama connections including host mode and peer connections."
-      ],
-      "endpoint": "/api/v1/nakama/status",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "nakama.NakamaStatus",
-      "returnGoType": "nakama.NakamaStatus",
-      "returnTypescriptType": "Nakama_NakamaStatus"
-    }
-  },
-  {
     "name": "HandleSendNakamaMessage",
     "trimmedName": "SendNakamaMessage",
     "comments": [
@@ -6674,8 +6644,9 @@
     "name": "HandleNakamaProxyStream",
     "trimmedName": "NakamaProxyStream",
     "comments": [
-      "route /api/v1/nakama/stream",
+      "route /api/v1/nakama/stream?password={password}",
       "Proxies stream requests to the host. It inserts the Nakama password in the headers.",
+      "It checks if the password is valid.",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",

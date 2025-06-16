@@ -51,6 +51,12 @@ type WatchPartyManager struct {
 	catchUpCancel context.CancelFunc // Cancel function for catch-up operations
 	catchUpMu     sync.Mutex         // Mutex for catch-up operations
 
+	// Seek management
+	seekDelayCompensation time.Duration // Expected delay for seek operations
+	pendingSeekTime       time.Time     // When a seek was initiated
+	pendingSeekPosition   float64       // Position we're seeking to
+	seekMu                sync.Mutex    // Mutex for seek state
+
 	// Buffering management (host only)
 	bufferWaitStart     time.Time          // When we started waiting for peers to buffer
 	isWaitingForBuffers bool               // Whether we're currently waiting for peers to be ready
@@ -154,9 +160,10 @@ type (
 
 func NewWatchPartyManager(manager *Manager) *WatchPartyManager {
 	return &WatchPartyManager{
-		logger:       manager.logger,
-		manager:      manager,
-		seekCooldown: 1 * time.Second,
+		logger:                manager.logger,
+		manager:               manager,
+		seekCooldown:          1 * time.Second,
+		seekDelayCompensation: 400 * time.Millisecond,
 	}
 }
 
@@ -172,6 +179,12 @@ func (wpm *WatchPartyManager) Cleanup() {
 
 	// Cancel any ongoing catch-up operations
 	wpm.cancelCatchUp()
+
+	// Clean up seek management state
+	wpm.seekMu.Lock()
+	wpm.pendingSeekTime = time.Time{}
+	wpm.pendingSeekPosition = 0
+	wpm.seekMu.Unlock()
 
 	// Cancel waitForPeersReady goroutine (host side)
 	wpm.bufferMu.Lock()
@@ -214,7 +227,7 @@ func (wpm *WatchPartyManager) handleMessage(message *Message, senderID string) e
 
 	switch message.Type {
 	case MessageTypeWatchPartyStateChanged:
-		wpm.logger.Debug().Msg("nakama: Received watch party state changed message")
+		// wpm.logger.Debug().Msg("nakama: Received watch party state changed message")
 		var payload WatchPartyStateChangedPayload
 		err := json.Unmarshal(marshaledPayload, &payload)
 		if err != nil {
@@ -269,15 +282,6 @@ func (wpm *WatchPartyManager) handleMessage(message *Message, senderID string) e
 			return err
 		}
 		wpm.handleWatchPartyBufferUpdateEvent(&payload)
-
-	// case MessageTypeWatchPartyPlaybackInfo:
-	// 	// wpm.logger.Debug().Msg("nakama: Received watch party playback info message")
-	// 	var payload WatchPartyPlaybackInfoPayload
-	// 	err := json.Unmarshal(marshaledPayload, &payload)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	wpm.handleWatchPartyPlaybackInfoEvent(&payload)
 
 	case MessageTypeWatchPartyPlaybackStatus:
 		wpm.logger.Debug().Msg("nakama: Received watch party playback status message")
@@ -508,13 +512,13 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 func (wpm *WatchPartyManager) broadcastSessionStateToPeers() {
 	session, ok := wpm.currentSession.Get()
 	if !ok {
-		wpm.manager.SendMessage(MessageTypeWatchPartyStateChanged, WatchPartyStateChangedPayload{
+		_ = wpm.manager.SendMessage(MessageTypeWatchPartyStateChanged, WatchPartyStateChangedPayload{
 			Session: nil,
 		})
 		return
 	}
 
-	wpm.manager.SendMessage(MessageTypeWatchPartyStateChanged, WatchPartyStateChangedPayload{
+	_ = wpm.manager.SendMessage(MessageTypeWatchPartyStateChanged, WatchPartyStateChangedPayload{
 		Session: session,
 	})
 }
@@ -792,7 +796,7 @@ func (wpm *WatchPartyManager) waitForPeersReady() {
 	}()
 
 	maxWaitTime := time.Duration(session.Settings.MaxBufferWaitTime) * time.Second
-	ticker := time.NewTicker(500 * time.Millisecond) // Check every 500ms
+	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
 
 	wpm.logger.Debug().Msg("nakama: Waiting for peers to be ready")
@@ -812,7 +816,7 @@ func (wpm *WatchPartyManager) waitForPeersReady() {
 			waitTime := time.Since(wpm.bufferWaitStart)
 			if waitTime > maxWaitTime {
 				wpm.logger.Debug().Float64("waitTimeSeconds", waitTime.Seconds()).Msg("nakama: Max wait time exceeded, resuming playback")
-				wpm.manager.playbackManager.Resume()
+				_ = wpm.manager.playbackManager.Resume()
 				wpm.isWaitingForBuffers = false
 				wpm.bufferMu.Unlock()
 				return
@@ -841,7 +845,7 @@ func (wpm *WatchPartyManager) waitForPeersReady() {
 					Int("readyPeers", readyPeers).
 					Int("totalPeers", totalPeers).
 					Msg("nakama: All peers are ready, resuming playback")
-				wpm.manager.playbackManager.Resume()
+				_ = wpm.manager.playbackManager.Resume()
 				wpm.isWaitingForBuffers = false
 				wpm.bufferMu.Unlock()
 				return
@@ -880,7 +884,7 @@ func (wpm *WatchPartyManager) JoinWatchParty() error {
 	}
 
 	// Send join message to host
-	wpm.manager.SendMessageToHost(MessageTypeWatchPartyJoin, WatchPartyJoinPayload{
+	_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyJoin, WatchPartyJoinPayload{
 		PeerId:   hostConn.PeerId,
 		Username: wpm.manager.settings.Username,
 	})
@@ -906,7 +910,7 @@ func (wpm *WatchPartyManager) startStatusReporting() {
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
-	// Reset buffering detection state using proper mutex
+	// Reset buffering detection state
 	wpm.bufferDetectionMu.Lock()
 	wpm.lastPosition = 0
 	wpm.lastPositionTime = time.Time{}
@@ -924,7 +928,7 @@ func (wpm *WatchPartyManager) startStatusReporting() {
 	wpm.statusReportTicker = time.NewTicker(2 * time.Second)
 
 	go func() {
-		defer util.HandlePanicInModuleThen("nakama/statusReporting", func() {})
+		defer util.HandlePanicInModuleThen("nakama/startStatusReporting", func() {})
 		defer wpm.statusReportTicker.Stop()
 
 		hostConn, ok := wpm.manager.GetHostConnection()
@@ -948,8 +952,6 @@ func (wpm *WatchPartyManager) startStatusReporting() {
 
 // stopStatusReporting stops sending status updates to the host
 func (wpm *WatchPartyManager) stopStatusReporting() {
-	// Note: Don't use wpm.mu here as this is called from within locked sections
-
 	if wpm.statusReportCancel != nil {
 		wpm.statusReportCancel()
 		wpm.statusReportCancel = nil
@@ -972,7 +974,7 @@ func (wpm *WatchPartyManager) sendStatusToHost(peerId string) {
 	isBuffering, bufferHealth := wpm.calculateBufferState(playbackStatus)
 
 	// Send peer status update
-	wpm.manager.SendMessageToHost(MessageTypeWatchPartyPeerStatus, WatchPartyPeerStatusPayload{
+	_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyPeerStatus, WatchPartyPeerStatusPayload{
 		PeerId:         peerId,
 		PlaybackStatus: *playbackStatus,
 		IsBuffering:    isBuffering,
@@ -1115,11 +1117,11 @@ func (wpm *WatchPartyManager) LeaveWatchParty() error {
 		return errors.New("no watch party found")
 	}
 
-	wpm.manager.SendMessageToHost(MessageTypeWatchPartyLeave, WatchPartyLeavePayload{
+	_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyLeave, WatchPartyLeavePayload{
 		PeerId: hostConn.PeerId,
 	})
 
-	// Send websocket event to update the UI (null indicates session left)
+	// Send websocket event to update the UI (nil indicates session left)
 	wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyState, nil)
 
 	return nil
@@ -1171,7 +1173,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		// Stop playback if it's playing
 		if _, ok := currentSession.Participants[hostConn.PeerId]; ok {
 			wpm.logger.Debug().Msg("nakama: Stopping playback due to session destroyed")
-			wpm.manager.playbackManager.Cancel()
+			_ = wpm.manager.playbackManager.Cancel()
 		}
 		wpm.currentSession = mo.None[*WatchPartySession]()
 		wpm.sendSessionStateToClient()
@@ -1230,7 +1232,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		wpm.logger.Debug().Msg("nakama: Removing peer from session due to new session state")
 		// Stop status reporting when removed from session
 		wpm.stopStatusReporting()
-		wpm.manager.playbackManager.Cancel()
+		_ = wpm.manager.playbackManager.Cancel()
 		canceledPlayback = true
 	}
 
@@ -1241,7 +1243,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	// If the host stopped the session, we need to cancel playback
 	if payload.Session.CurrentMediaInfo == nil && payload.Session.CurrentMediaInfo != nil && !canceledPlayback {
 		wpm.logger.Debug().Msg("nakama: Canceling playback due to host stopping session")
-		wpm.manager.playbackManager.Cancel()
+		_ = wpm.manager.playbackManager.Cancel()
 		canceledPlayback = true
 	}
 
@@ -1301,7 +1303,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStoppedEvent() {
 	currentSession, ok := wpm.currentSession.Get()
 	if ok {
 		if _, ok := currentSession.Participants[hostConn.PeerId]; ok {
-			wpm.manager.playbackManager.Cancel()
+			_ = wpm.manager.playbackManager.Cancel()
 		}
 	}
 
@@ -1371,6 +1373,45 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			if payloadStatus.Playing {
 				// Cancel any ongoing catch-up operation
 				wpm.cancelCatchUp()
+
+				// When host resumes, sync position before resuming if there's significant drift
+				timeSinceMessage := time.Since(payload.Timestamp).Seconds()
+				// Calculate where the host should be NOW, not when they resumed
+				hostCurrentPosition := payloadStatus.CurrentTimeInSeconds + timeSinceMessage
+				positionDrift := hostCurrentPosition - currentStatus.CurrentTimeInSeconds
+
+				if math.Abs(positionDrift) > 1.0 {
+					// Calculate dynamic seek delay based on message timing
+					dynamicDelay := time.Duration(timeSinceMessage*1000) * time.Millisecond
+					if dynamicDelay < 200*time.Millisecond {
+						dynamicDelay = 200 * time.Millisecond
+					}
+					if dynamicDelay > 500*time.Millisecond {
+						dynamicDelay = 500 * time.Millisecond
+					}
+
+					// Predict where host will be when our seek takes effect
+					seekPosition := hostCurrentPosition + dynamicDelay.Seconds()
+
+					wpm.logger.Debug().
+						Float64("positionDrift", positionDrift).
+						Float64("hostCurrentPosition", hostCurrentPosition).
+						Float64("seekPosition", seekPosition).
+						Float64("peerPosition", currentStatus.CurrentTimeInSeconds).
+						Float64("dynamicDelay", dynamicDelay.Seconds()).
+						Msg("nakama: Host resumed, syncing position before resume")
+
+					// Track pending seek
+					now := time.Now()
+					wpm.seekMu.Lock()
+					wpm.pendingSeekTime = now
+					wpm.pendingSeekPosition = seekPosition
+					wpm.seekMu.Unlock()
+
+					wpm.manager.playbackManager.Seek(seekPosition)
+					wpm.lastSelfSeekTime = now
+				}
+
 				wpm.logger.Debug().Msg("nakama: Host resumed, resuming peer playback")
 				wpm.manager.playbackManager.Resume()
 			} else {
@@ -1380,9 +1421,37 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 		}
 	}
 
-	// Calculate drift for position synchronization (only if both are playing or both are paused)
+	// Calculate drift for position synchronization
+	// Now sync even during state transitions, but with different logic
 	if payloadStatus.Playing == playbackStatus.Playing {
+		// Both in same state - use normal sync
 		wpm.syncPlaybackPosition(payloadStatus, *playbackStatus, payload.Timestamp, session)
+	} else if payloadStatus.Playing && !playbackStatus.Playing {
+		// Host is playing but peer is paused - this could indicate peer is behind and needs to catch up
+		timeSinceMessage := time.Since(payload.Timestamp).Seconds()
+		hostExpectedPosition := payloadStatus.CurrentTimeInSeconds + timeSinceMessage
+		positionDrift := hostExpectedPosition - playbackStatus.CurrentTimeInSeconds
+
+		if positionDrift > 3.0 { // If peer is significantly behind (> 3 seconds)
+			wpm.logger.Debug().
+				Float64("positionDrift", positionDrift).
+				Float64("hostPosition", hostExpectedPosition).
+				Float64("peerPosition", playbackStatus.CurrentTimeInSeconds).
+				Msg("nakama: Peer significantly behind playing host, initiating catch-up")
+
+			// Start playing and seek to catch up
+			wpm.manager.playbackManager.Resume()
+
+			// Track pending seek
+			now := time.Now()
+			wpm.seekMu.Lock()
+			wpm.pendingSeekTime = now
+			wpm.pendingSeekPosition = hostExpectedPosition
+			wpm.seekMu.Unlock()
+
+			wpm.manager.playbackManager.Seek(hostExpectedPosition)
+			wpm.lastSelfSeekTime = now
+		}
 	}
 }
 
@@ -1391,18 +1460,39 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 	// Cancel any ongoing catch-up operation
 	wpm.cancelCatchUp()
 
-	timeDifference := hostStatus.CurrentTimeInSeconds - peerStatus.CurrentTimeInSeconds
+	now := time.Now()
+	timeSinceMessage := now.Sub(hostTimestamp).Seconds()
+
+	// Calculate where the host actually paused based on dynamic timing
+	hostActualPausePosition := hostStatus.CurrentTimeInSeconds
+	// Don't add time compensation for pause position - the host has already paused
+
+	// Calculate time difference considering message delay
+	timeDifference := hostActualPausePosition - peerStatus.CurrentTimeInSeconds
 
 	// If peer is significantly behind the host, let it catch up before pausing
 	if timeDifference > 2.0 {
 		wpm.logger.Debug().Msgf("nakama: Host paused, peer behind by %.2f seconds, catching up", timeDifference)
-		wpm.startCatchUp(hostStatus.CurrentTimeInSeconds, hostTimestamp)
+		wpm.startCatchUp(hostActualPausePosition, hostTimestamp)
 	} else {
-		// Peer is close enough or ahead, pause immediately
-		// Only seek if the difference is significant to avoid choppy playback
-		if math.Abs(timeDifference) > 2.0 {
-			wpm.manager.playbackManager.Seek(hostStatus.CurrentTimeInSeconds)
-			wpm.lastSelfSeekTime = time.Now() // Track self-initiated seek
+		// Peer is close enough or ahead, pause immediately with position correction
+		// Use more aggressive sync threshold for pause operations
+		if math.Abs(timeDifference) > 0.7 {
+			wpm.logger.Debug().
+				Float64("hostPausePosition", hostActualPausePosition).
+				Float64("peerPosition", peerStatus.CurrentTimeInSeconds).
+				Float64("timeDifference", timeDifference).
+				Float64("timeSinceMessage", timeSinceMessage).
+				Msg("nakama: Host paused, syncing position before pause")
+
+			// Track pending seek
+			wpm.seekMu.Lock()
+			wpm.pendingSeekTime = now
+			wpm.pendingSeekPosition = hostActualPausePosition
+			wpm.seekMu.Unlock()
+
+			wpm.manager.playbackManager.Seek(hostActualPausePosition)
+			wpm.lastSelfSeekTime = now // Track self-initiated seek
 		}
 		wpm.manager.playbackManager.Pause()
 		wpm.logger.Debug().Msgf("nakama: Host paused, peer paused immediately (diff: %.2f)", timeDifference)
@@ -1426,10 +1516,10 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimest
 	go func() {
 		defer cancel()
 
-		ticker := time.NewTicker(250 * time.Millisecond)
+		ticker := time.NewTicker(200 * time.Millisecond)
 		defer ticker.Stop()
 
-		maxCatchUpTime := 5 * time.Second
+		maxCatchUpTime := 4 * time.Second
 		startTime := time.Now()
 
 		for {
@@ -1440,8 +1530,16 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimest
 				// Check if we've been trying to catch up for too long
 				if time.Since(startTime) > maxCatchUpTime {
 					wpm.logger.Debug().Msg("nakama: Catch-up timeout, pausing immediately")
+
+					// Track pending seek
+					now := time.Now()
+					wpm.seekMu.Lock()
+					wpm.pendingSeekTime = now
+					wpm.pendingSeekPosition = hostPausePosition
+					wpm.seekMu.Unlock()
+
 					wpm.manager.playbackManager.Seek(hostPausePosition)
-					wpm.lastSelfSeekTime = time.Now() // Track self-initiated seek
+					wpm.lastSelfSeekTime = now // Track self-initiated seek
 					wpm.manager.playbackManager.Pause()
 					return
 				}
@@ -1452,24 +1550,38 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimest
 					continue
 				}
 
-				// Check if we've reached or passed the host's pause position (with tolerance)
+				// Check if we've reached or passed the host's pause position (with tighter tolerance)
 				positionDiff := hostPausePosition - currentStatus.CurrentTimeInSeconds
-				if positionDiff <= 1.0 { // Increased tolerance to 1.0 second
+				if positionDiff <= 0.5 {
 					wpm.logger.Debug().Msgf("nakama: Caught up to host position %.2f (current: %.2f), pausing", hostPausePosition, currentStatus.CurrentTimeInSeconds)
+
+					// Track pending seek
+					now := time.Now()
+					wpm.seekMu.Lock()
+					wpm.pendingSeekTime = now
+					wpm.pendingSeekPosition = hostPausePosition
+					wpm.seekMu.Unlock()
+
 					wpm.manager.playbackManager.Seek(hostPausePosition)
-					wpm.lastSelfSeekTime = time.Now() // Track self-initiated seek
+					wpm.lastSelfSeekTime = now // Track self-initiated seek
 					wpm.manager.playbackManager.Pause()
 					return
 				}
 
-				// Check if host has resumed (conservative timeout)
+				// Check if host has resumed
 				timeSincePause := time.Since(hostTimestamp)
-				if timeSincePause > 10*time.Second { // Increased timeout from 5s to 10s
+				if timeSincePause > 6*time.Second {
 					// We might have missed a resume message, so let's be conservative and pause
 					wpm.logger.Debug().Msg("nakama: Catch-up taking too long, pausing at current position")
 					wpm.manager.playbackManager.Pause()
 					return
 				}
+
+				wpm.logger.Debug().
+					Float64("positionDiff", positionDiff).
+					Float64("currentPosition", currentStatus.CurrentTimeInSeconds).
+					Float64("hostPausePosition", hostPausePosition).
+					Msg("nakama: Still catching up to host pause position")
 			}
 		}
 	}()
@@ -1492,14 +1604,47 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 	timeSinceMessage := now.Sub(hostTimestamp).Seconds()
 
 	// Ignore very old messages to prevent stale syncing
-	if timeSinceMessage > 3.0 {
+	if timeSinceMessage > 1.5 {
 		return
 	}
 
+	// Check if we have a pending seek operation - use dynamic compensation
+	wpm.seekMu.Lock()
+	hasPendingSeek := !wpm.pendingSeekTime.IsZero()
+	timeSincePendingSeek := now.Sub(wpm.pendingSeekTime)
+	pendingSeekPosition := wpm.pendingSeekPosition
+	wpm.seekMu.Unlock()
+
+	// Use dynamic compensation - if we have a pending seek, wait for at least the message delay time
+	dynamicSeekDelay := time.Duration(timeSinceMessage*1000) * time.Millisecond
+	if dynamicSeekDelay < 200*time.Millisecond {
+		dynamicSeekDelay = 200 * time.Millisecond // Minimum delay
+	}
+	if dynamicSeekDelay > 600*time.Millisecond {
+		dynamicSeekDelay = 600 * time.Millisecond // Maximum delay
+	}
+
+	// If we have a pending seek that's still in progress, don't sync
+	if hasPendingSeek && timeSincePendingSeek < dynamicSeekDelay {
+		wpm.logger.Debug().
+			Float64("timeSincePendingSeek", timeSincePendingSeek.Seconds()).
+			Float64("dynamicSeekDelay", dynamicSeekDelay.Seconds()).
+			Float64("pendingSeekPosition", pendingSeekPosition).
+			Msg("nakama: Ignoring sync - pending seek in progress")
+		return
+	}
+
+	// Clear pending seek if it's been long enough
+	if hasPendingSeek && timeSincePendingSeek >= dynamicSeekDelay {
+		wpm.seekMu.Lock()
+		wpm.pendingSeekTime = time.Time{}
+		wpm.pendingSeekPosition = 0
+		wpm.seekMu.Unlock()
+	}
+
 	// Critical: Ignore sync messages if we recently seeked ourselves
-	// This prevents the endless seek loop when the peer seeks and then receives stale host messages
 	timeSinceSelfSeek := now.Sub(wpm.lastSelfSeekTime)
-	if timeSinceSelfSeek < 5*time.Second {
+	if timeSinceSelfSeek < time.Duration(1.5*float64(time.Second)) {
 		wpm.logger.Debug().
 			Float64("timeSinceSelfSeek", timeSinceSelfSeek.Seconds()).
 			Msg("nakama: Ignoring sync - recently seeked ourselves")
@@ -1521,42 +1666,68 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 		return
 	}
 
-	// Adjust host position based on time elapsed (if playing)
-	hostExpectedPosition := hostStatus.CurrentTimeInSeconds
+	// Dynamic compensation: Calculate where the host should be NOW based on their timestamp
+	hostCurrentPosition := hostStatus.CurrentTimeInSeconds
 	if hostStatus.Playing {
-		hostExpectedPosition += timeSinceMessage
+		// Add the exact time that has passed since the host's status was captured
+		hostCurrentPosition += timeSinceMessage
 	}
 
-	// Calculate drift between peer and host
-	drift := hostExpectedPosition - peerStatus.CurrentTimeInSeconds
+	// Calculate drift between peer and host's current position
+	drift := hostCurrentPosition - peerStatus.CurrentTimeInSeconds
 	driftAbs := drift
 	if driftAbs < 0 {
 		driftAbs = -driftAbs
 	}
 
-	// Get sync threshold from session settings, with reasonable bounds
+	// Get sync threshold from session settings, with more aggressive bounds
 	syncThreshold := session.Settings.SyncThreshold
-	if syncThreshold < 2.0 {
-		syncThreshold = 2.0
-	} else if syncThreshold > 10.0 {
-		syncThreshold = 10.0
+	if syncThreshold < 0.8 {
+		syncThreshold = 0.8
+	} else if syncThreshold > 5.0 {
+		syncThreshold = 5.0
 	}
 
 	// Check if we're in seek cooldown period
 	timeSinceLastSeek := now.Sub(wpm.lastSeekTime)
-	seekCooldown := 5 * time.Second
-	inCooldown := timeSinceLastSeek < seekCooldown
+	inCooldown := timeSinceLastSeek < wpm.seekCooldown
+
+	// Use even more aggressive thresholds for different drift ranges
+	effectiveThreshold := syncThreshold
+	if driftAbs > 3.0 { // Large drift - be very aggressive
+		effectiveThreshold = syncThreshold * 0.4
+	} else if driftAbs > 1.5 { // Medium drift - be more aggressive
+		effectiveThreshold = syncThreshold * 0.6
+	}
 
 	// Only sync if drift exceeds threshold and we're not in cooldown
-	if driftAbs > syncThreshold && !inCooldown {
+	if driftAbs > effectiveThreshold && !inCooldown {
+		// For the seek position, predict where the host will be when our seek takes effect
+		// Use the dynamic delay we calculated based on actual network conditions
+		seekPosition := hostCurrentPosition
+		if hostStatus.Playing {
+			// Add compensation for the time it will take for our seek to take effect
+			seekPosition += dynamicSeekDelay.Seconds()
+		}
+
 		wpm.logger.Debug().
 			Float64("drift", drift).
-			Float64("newPosition", hostExpectedPosition).
-			Float64("hostTimestamp", float64(hostTimestamp.Unix())).
+			Float64("hostOriginalPosition", hostStatus.CurrentTimeInSeconds).
+			Float64("hostCurrentPosition", hostCurrentPosition).
+			Float64("seekPosition", seekPosition).
 			Float64("peerPosition", peerStatus.CurrentTimeInSeconds).
-			Msg("nakama: Syncing playback position due to significant drift")
+			Float64("timeSinceMessage", timeSinceMessage).
+			Float64("dynamicSeekDelay", dynamicSeekDelay.Seconds()).
+			Float64("effectiveThreshold", effectiveThreshold).
+			Msg("nakama: Syncing playback position with dynamic compensation")
 
-		wpm.manager.playbackManager.Seek(hostExpectedPosition)
+		// Track pending seek
+		wpm.seekMu.Lock()
+		wpm.pendingSeekTime = now
+		wpm.pendingSeekPosition = seekPosition
+		wpm.seekMu.Unlock()
+
+		wpm.manager.playbackManager.Seek(seekPosition)
 		wpm.lastSeekTime = now
 		wpm.lastSelfSeekTime = now // Track that we initiated this seek
 	}
