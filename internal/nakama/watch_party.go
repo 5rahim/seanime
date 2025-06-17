@@ -108,9 +108,8 @@ type WatchPartySessionMediaInfo struct {
 }
 
 type WatchPartySessionSettings struct {
-	AllowParticipantControl bool    `json:"allowParticipantControl"`
-	SyncThreshold           float64 `json:"syncThreshold"`     // Seconds of desync before forcing sync
-	MaxBufferWaitTime       int     `json:"maxBufferWaitTime"` // Max time to wait for buffering peers (seconds)
+	SyncThreshold     float64 `json:"syncThreshold"`     // Seconds of desync before forcing sync
+	MaxBufferWaitTime int     `json:"maxBufferWaitTime"` // Max time to wait for buffering peers (seconds)
 }
 
 // Events
@@ -491,7 +490,7 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 						wpm.isWaitingForBuffers = true
 						wpm.bufferWaitStart = time.Now()
 
-						// Cancel any existing waitForPeersReady goroutine to prevent memory leaks
+						// Cancel existing waitForPeersReady goroutine
 						if wpm.waitForPeersCancel != nil {
 							wpm.waitForPeersCancel()
 							wpm.waitForPeersCancel = nil
@@ -1680,8 +1679,9 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 		driftAbs = -driftAbs
 	}
 
-	// Get sync threshold from session settings, with more aggressive bounds
+	// Get sync threshold from session settings
 	syncThreshold := session.Settings.SyncThreshold
+	// between 0.8 and 5.0
 	if syncThreshold < 0.8 {
 		syncThreshold = 0.8
 	} else if syncThreshold > 5.0 {

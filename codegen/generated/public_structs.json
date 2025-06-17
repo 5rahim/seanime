@@ -60385,15 +60385,6 @@
     "package": "nakama",
     "fields": [
       {
-        "name": "AllowParticipantControl",
-        "jsonName": "allowParticipantControl",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "SyncThreshold",
         "jsonName": "syncThreshold",
         "goType": "float64",

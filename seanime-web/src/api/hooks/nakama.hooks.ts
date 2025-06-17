@@ -1,7 +1,7 @@
 import { useServerMutation, useServerQuery } from "../client/requests"
 import { NakamaCreateWatchParty_Variables, NakamaPlayVideo_Variables, SendNakamaMessage_Variables } from "../generated/endpoint.types"
 import { API_ENDPOINTS } from "../generated/endpoints"
-import { Anime_LibraryCollection, Nakama_MessageResponse, Nakama_NakamaStatus } from "../generated/types"
+import { Anime_LibraryCollection, Nakama_MessageResponse } from "../generated/types"
 
 export function useNakamaWebSocket() {
     return useServerQuery<boolean>({
@@ -12,14 +12,6 @@ export function useNakamaWebSocket() {
     })
 }
 
-export function useGetNakamaStatus() {
-    return useServerQuery<Nakama_NakamaStatus>({
-        endpoint: API_ENDPOINTS.NAKAMA.GetNakamaStatus.endpoint,
-        method: API_ENDPOINTS.NAKAMA.GetNakamaStatus.methods[0],
-        queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaStatus.key],
-        enabled: true,
-    })
-}
 
 export function useSendNakamaMessage() {
     return useServerMutation<Nakama_MessageResponse, SendNakamaMessage_Variables>({

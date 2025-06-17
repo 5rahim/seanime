@@ -16,21 +16,20 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('no-sandbox');
     app.commandLine.appendSwitch('no-zygote');
 
+    app.commandLine.appendSwitch('force_high_performance_gpu');
+
     // Performance and caching
-    app.commandLine.appendSwitch('disk-cache-size', '450000000');
+    app.commandLine.appendSwitch('disk-cache-size', (400 * 1000 * 1000).toString());
     app.commandLine.appendSwitch('force-effective-connection-type', '4g');
     app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
     // Disable features that can interfere with playback
     app.commandLine.appendSwitch('disable-features', [
-        'MediaEngagementBypassAutoplayPolicies',
         'Vulkan',
         'WidgetLayering',
-        'PreloadMediaEngagementData',
-        'RecordMediaEngagementScores',
         'ColorProviderRedirection',
         'WebContentsForceDarkMode',
-        'ForcedColors'
+        // 'ForcedColors'
     ].join(','));
 
     // Color management and rendering optimizations
@@ -61,8 +60,8 @@ function setupChromiumFlags() {
         'UseSkiaRenderer',
         'WebAssemblyLazyCompilation',
         'RawDraw',
-        'MediaFoundationHEVC',
-        'PlatformHEVCDecoderSupport',
+        // 'MediaFoundationHEVC',
+        // 'PlatformHEVCDecoderSupport',
         // 'MediaFoundationH264Encoding'
     ].join(','));
 
@@ -74,10 +73,6 @@ function setupChromiumFlags() {
 
     app.commandLine.appendSwitch('double-buffer-compositing');
     app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
-
-    app.commandLine.appendSwitch('v', '5');
-    app.commandLine.appendSwitch('vmodule', '*/media/*=5');
-
 }
 
 const _development = process.env.NODE_ENV === 'development';

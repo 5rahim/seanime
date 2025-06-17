@@ -493,7 +493,6 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Nakama := v1.Group("/nakama")
 	v1Nakama.GET("/ws", h.HandleNakamaWebSocket)
-	v1Nakama.GET("/status", h.HandleGetNakamaStatus)
 	v1Nakama.POST("/message", h.HandleSendNakamaMessage)
 	v1Nakama.POST("/reconnect", h.HandleNakamaReconnectToHost)
 	v1Nakama.POST("/cleanup", h.HandleNakamaRemoveStaleConnections)

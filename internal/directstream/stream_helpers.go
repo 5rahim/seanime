@@ -14,8 +14,7 @@ import (
 
 func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
-	// w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Content-Type", "video/webm")
+	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Cache-Control", "no-store")
 

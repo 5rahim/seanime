@@ -3641,7 +3641,6 @@ export type Nakama_WatchPartySessionParticipant = {
  * - Package: nakama
  */
 export type Nakama_WatchPartySessionSettings = {
-    allowParticipantControl: boolean
     /**
      * Seconds of desync before forcing sync
      */

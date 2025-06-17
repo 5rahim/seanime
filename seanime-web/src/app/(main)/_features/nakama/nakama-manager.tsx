@@ -48,7 +48,6 @@ export function NakamaManager() {
 
     // Watch party settings for creating a new session
     const [watchPartySettings, setWatchPartySettings] = React.useState<Nakama_WatchPartySessionSettings>({
-        allowParticipantControl: false,
         syncThreshold: 3.0,
         maxBufferWaitTime: 10,
     })

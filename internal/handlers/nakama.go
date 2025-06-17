@@ -426,9 +426,8 @@ func (h *Handler) HandleNakamaCreateWatchParty(c echo.Context) error {
 	// Set default settings if not provided
 	if b.Settings == nil {
 		b.Settings = &nakama.WatchPartySessionSettings{
-			AllowParticipantControl: false,
-			SyncThreshold:           2.0,
-			MaxBufferWaitTime:       5,
+			SyncThreshold:     2.0,
+			MaxBufferWaitTime: 5,
 		}
 	}
 
