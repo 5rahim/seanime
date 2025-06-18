@@ -16,7 +16,6 @@ type ScannedChapterFile struct {
 	IsPDF        bool
 }
 
-// Token types for our lexer
 type TokenType int
 
 const (
@@ -54,7 +53,6 @@ var VolumeKeywords = []string{
 	"v", "vol", "volume",
 }
 
-// SeparatorChars contains characters that separate tokens
 var SeparatorChars = []rune{
 	' ', '-', '_', '.', '[', ']', '(', ')', '{', '}', '~',
 }

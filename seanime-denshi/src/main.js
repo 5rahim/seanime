@@ -47,13 +47,11 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,single-on-top,underlay');
     app.commandLine.appendSwitch('ignore-gpu-blocklist');
 
-    // // Video-specific optimizations
-    app.commandLine.appendSwitch('disable-accelerated-video-decode', 'false');
+    // Video-specific optimizations
     app.commandLine.appendSwitch('enable-accelerated-video-decode');
 
     // Enable advanced features
     app.commandLine.appendSwitch('enable-features', [
-        // 'HardwareMediaKeyHandling',
         'ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes',
         'PlatformEncryptedDolbyVision',
         'CanvasOopRasterization',
@@ -61,9 +59,12 @@ function setupChromiumFlags() {
         'WebAssemblyLazyCompilation',
         'RawDraw',
         // 'MediaFoundationHEVC',
-        // 'PlatformHEVCDecoderSupport',
-        // 'MediaFoundationH264Encoding'
+        'PlatformHEVCDecoderSupport',
     ].join(','));
+
+    app.commandLine.appendSwitch('enable-unsafe-webgpu');
+    app.commandLine.appendSwitch('enable-gpu-rasterization');
+    app.commandLine.appendSwitch('enable-oop-rasterization');
 
     // Background processing optimizations
     app.commandLine.appendSwitch('disable-background-timer-throttling');
@@ -523,6 +524,7 @@ function createMainWindow() {
         // In development, load from the dev server
         logStartupEvent('Loading from dev server', 'http://127.0.0.1:43210');
         mainWindow.loadURL('http://127.0.0.1:43210');
+        // mainWindow.loadURL('chrome://gpu');
     } else {
         // Load from electron-serve
         logStartupEvent('Loading production build with electron-serve');
