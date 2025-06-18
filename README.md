@@ -46,18 +46,18 @@ Seanime is a **media server** with a **web interface** and **desktop app** for w
 - Complete AniList integration (browse, manage, score, discover, etc.)
 - Offline mode for both anime and manga
 - Scan your local library in seconds, no renaming needed
-- Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
-- Stream torrents directly to your media player without downloading using Bittorrent, Torbox or Real-Debrid
-- Support for qBittorrent, Transmission, Torbox or Real-Debrid for downloading
+- Integrated torrent search engine
+- Stream torrents directly to your media player without downloading using Bittorrent, Torbox and Real-Debrid
+- Support for qBittorrent, Transmission, Torbox and Real-Debrid for downloading
 - Auto-downloading for new episodes with custom filters
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
-- Online streaming with support for multiple sources & extensions
+- Online streaming with support for multiple web sources & extensions
 - Read and download manga chapters with support for multiple sources & extensions
 - Extension system for adding new sources
 - Schedule for tracking upcoming or missed episodes
 - Customizable UI
-- More...
+- And more
 
 ## Get started
 
@@ -69,14 +69,6 @@ How to install Seanime
 </a>
 </p>
 
-## Sponsors
-
-The maintenance of this project is made possible by all the sponsors.
-
-<p align="center">
-<!-- real-sponsors --><a href="https://github.com/sin3point14"><img src="https:&#x2F;&#x2F;github.com&#x2F;sin3point14.png" width="60px" alt="User avatar: sin3point14" /></a>&nbsp;&nbsp;<a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
-</p>
-
 ## Goal
 
 This is a one-person project and may not meet every use case. If it doesn’t fully fit your needs, other tools might be a better match.
@@ -86,10 +78,17 @@ This is a one-person project and may not meet every use case. If it doesn’t fu
 - Support for other providers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
-- Support for other languages
+- Support for other languages (translations)
 
 Consider sponsoring or sharing the project if you want to see more features implemented.
 
+## Sponsors
+
+The maintenance of this project is made possible by the sponsors.
+
+<p align="center">
+<!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
+</p>
 
 ## Development and Build
 
