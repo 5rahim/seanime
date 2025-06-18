@@ -184,6 +184,7 @@ const _normalize = (p: string): string => {
     }
 
     const isAbsolute = p.startsWith("/")
+    const isUNC = p.startsWith("//")
     // Keep track of trailing slash for non-root paths
     const hasTrailingSlash = p.endsWith("/") && p.length > 1
 
@@ -199,19 +200,23 @@ const _normalize = (p: string): string => {
 
     // If originally absolute, prepend root
     if (isAbsolute) {
-        result = "/" + result
+        if (isUNC) {
+            result = "//" + result
+        } else {
+            result = "/" + result
+        }
     }
 
     // Handle edge case: absolute path normalized to empty segments (e.g. '/../')
-    // Should result in '/'
+    // Should result in '/' or '//' for UNC paths
     if (isAbsolute && result.length === 0) {
-        return "/"
+        return isUNC ? "//" : "/"
     }
 
     // Add trailing slash back based on original path AND if the result wasn't normalized to '.'
     // Node.js posix trailing slash rule: preserve if original path had it AND result is not '.' AND result does not end with '/..'
-    // A simplified rule: preserve if original had it AND the result is not just '.' and not just '/'
-    if (hasTrailingSlash && result !== "." && result !== "/") {
+    // A simplified rule: preserve if original had it AND the result is not just '.' and not just '/' and not just '//'
+    if (hasTrailingSlash && result !== "." && result !== "/" && result !== "//") {
         result += "/"
     }
 
@@ -466,7 +471,7 @@ const _relative = (from: string, to: string): string => {
         // As a fallback, return '.' if they weren't strictly equal but resulted in no relative path (e.g., different trailing slashes resolving the
         // same)
         return "." // This is different from Node.js relative which returns '' for identical resolved paths.
-                    // Let's stick to the Node.js behavior and rely on from === to check.
+        // Let's stick to the Node.js behavior and rely on from === to check.
         // If from === to, return ''. Otherwise, relativeParts should not be empty unless one is ancestor of other resolving to empty relative part.
         // E.g. relative('/a', '/a') -> '', relative('/a/', '/a') -> ''
         // Let's remove the '.' fallback and trust the resolved paths logic.
@@ -653,36 +658,15 @@ const extraFunctions = {
         if (originalP.startsWith("./") && !result.startsWith("./") && !upath_internal.isAbsolute(result) && result !== "..") {
             return "./" + result
         }
-            // Restore '//' prefix if original started with it and result lost it or changed it
-        // This logic exactly replicates the source, including the potentially strange '//./' and '/' restoration.
+        // Special case: Handle "//./..." paths separately to preserve the "//." prefix
+        else if (originalP.startsWith("//./")) {
+            // Remove the leading "//" from result before prepending "//."
+            const resultWithoutLeadingSlashes = result.startsWith("//") ? result.substring(2) : result.startsWith("/") ? result.substring(1) : result
+            return "//." + (resultWithoutLeadingSlashes ? "/" + resultWithoutLeadingSlashes : "")
+        }
+        // Restore '//' prefix if original started with it and result lost it or changed it
         else if (originalP.startsWith("//") && !result.startsWith("//")) {
-            if (originalP.startsWith("//./")) {
-                // Original was //./..., result isn't //... Prepends //.? This is strange, but matched original.
-                // Let's assume the intent was to prepend // if it started with //./ and lost its leading slashes.
-                // Example: normalizeSafe('//./a/../b') -> normalize -> /b -> '//.' + /b -> '//./b' ? This seems inconsistent.
-                // Let's re-read original CoffeeScript `if p.startsWith('//./') then result = '//.' + result else result = '/' + result`.
-                // It seems to add '//.' or '/' regardless of what the original was beyond the prefix.
-                // This feels like potentially incorrect logic carried over.
-                // A more standard approach would be: if original starts with `//` and result does *not* start with `//` (or `/`), prepend `//`.
-                // Let's stick to the source's specific logic for now, as it might have a specific use case.
-                return "//." + result
-            } else {
-                // Original was //..., result isn't //... or /... Prepend /?
-                // Example: normalizeSafe('//a/b') -> normalize -> //a/b. No change.
-                // Example: normalizeSafe('//a/../b') -> normalize -> //b. No change.
-                // If normalize somehow returned '/b', then this would make it '//b' ? Seems wrong.
-                // The original coffee `result = '/' + result` for the general `//` case is very suspicious.
-                // It means `normalizeSafe('//a/b')` -> `normalize('//a/b')` -> `//a/b`. Clause `originalP.startsWith('//') &&
-                // !result.startsWith('//')` is false. Correct. It means `normalizeSafe('//a/../b')` -> `normalize('//a/../b')` -> `//b`. Clause is
-                // false. Correct. When would `!result.startsWith('//')` be true for a path starting with `//` after normalization? Maybe like
-                // `//server//share` -> `normalize` -> `//server/share`. `!result.startsWith('//')` is false. What about `normalizeSafe('///a/b')`?
-                // -> `toUnix` -> `///a/b`. Clause `originalP.startsWith('//')` is true. `normalize` -> `///a/b`. Clause `!result.startsWith('//')`
-                // is false. No change. If `toUnix` was supposed to make `///a` -> `//a`, then `normalizeSafe('///a/b')` -> `toUnix` -> `//a/b`.
-                // `normalize` -> `//a/b`. No change. It seems the `else result = '/' + result` branch might never be hit with the corrected `toUnix`
-                // and `_normalize`? Or maybe it's for cases like `normalizeSafe('//')` -> `normalize` -> `/` -> then prepend `/` -> `//`? Let's keep
-                // the source logic exactly for now, assuming there's a reason, but acknowledge it looks odd.
-                return "/" + result
-            }
+            return "/" + result
         }
         // Otherwise, return the result from upath.normalize
         return result
