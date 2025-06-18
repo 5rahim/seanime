@@ -211,7 +211,7 @@ func (mp *Mangapill) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage
 		page.Index = index - 1
 
 		page.Headers = map[string]string{
-			"Referer": mp.Url,
+			"Referer": "https://mangapill.com/",
 		}
 
 		ret = append(ret, page)

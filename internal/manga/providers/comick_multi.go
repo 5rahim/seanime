@@ -2,9 +2,7 @@ package manga_providers
 
 import (
 	"cmp"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
@@ -13,28 +11,29 @@ import (
 	"strings"
 	"time"
 
+	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog"
 )
 
 type (
 	ComicKMulti struct {
-		Url       string
-		Client    *http.Client
-		UserAgent string
-		logger    *zerolog.Logger
+		Url    string
+		Client *req.Client
+		logger *zerolog.Logger
 	}
 )
 
 func NewComicKMulti(logger *zerolog.Logger) *ComicKMulti {
-	c := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-	//c.Transport = util.AddCloudFlareByPass(c.Transport)
+	client := req.C().
+		SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36").
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateSafari()
+
 	return &ComicKMulti{
-		Url:       "https://api.comick.fun",
-		Client:    c,
-		UserAgent: util.GetRandomUserAgent(),
-		logger:    logger,
+		Url:    "https://api.comick.fun",
+		Client: client,
+		logger: logger,
 	}
 }
 
@@ -56,24 +55,19 @@ func (c *ComicKMulti) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sea
 		searchUrl += fmt.Sprintf("&from=%d&to=%d", opts.Year, opts.Year)
 	}
 
-	req, err := http.NewRequest("GET", searchUrl, nil)
-	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to create request")
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
+	var data []*ComicKResultItem
+	resp, err := c.Client.R().
+		SetSuccessResult(&data).
+		Get(searchUrl)
 
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
-
-	resp, err := c.Client.Do(req)
 	if err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	var data []*ComicKResultItem
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
-		return nil, fmt.Errorf("failed to reach API: %w", err)
+	if !resp.IsSuccessState() {
+		c.logger.Error().Str("status", resp.Status).Msg("comick: Request failed")
+		return nil, fmt.Errorf("failed to reach API: status %s", resp.Status)
 	}
 
 	results := make([]*hibikemanga.SearchResult, 0)
@@ -125,28 +119,23 @@ func (c *ComicKMulti) FindChapters(id string) ([]*hibikemanga.ChapterDetails, er
 
 	uri := fmt.Sprintf("%s/comic/%s/chapters?page=0&limit=1000000&chap-order=1", c.Url, id)
 	c.logger.Debug().Str("mangaId", id).Str("uri", uri).Msg("comick: Fetching chapters")
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to create request")
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to send request")
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
 
 	var data struct {
 		Chapters []*ComicChapter `json:"chapters"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&data)
+
+	resp, err := c.Client.R().
+		SetSuccessResult(&data).
+		Get(uri)
+
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		c.logger.Error().Err(err).Msg("comick: Failed to send request")
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+
+	if !resp.IsSuccessState() {
+		c.logger.Error().Str("status", resp.Status).Msg("comick: Request failed")
+		return nil, fmt.Errorf("failed to decode response: status %s", resp.Status)
 	}
 
 	chapters := make([]*hibikemanga.ChapterDetails, 0)
@@ -214,28 +203,24 @@ func (c *ComicKMulti) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, e
 	c.logger.Debug().Str("chapterId", id).Msg("comick: Finding chapter pages")
 
 	uri := fmt.Sprintf("%s/chapter/%s", c.Url, id)
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to create request")
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("User-Agent", util.GetRandomUserAgent())
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to send request")
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
 
 	var data struct {
 		Chapter *ComicChapter `json:"chapter"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&data)
+
+	resp, err := c.Client.R().
+		SetHeader("User-Agent", util.GetRandomUserAgent()).
+		SetSuccessResult(&data).
+		Get(uri)
+
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		c.logger.Error().Err(err).Msg("comick: Failed to send request")
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+
+	if !resp.IsSuccessState() {
+		c.logger.Error().Str("status", resp.Status).Msg("comick: Request failed")
+		return nil, fmt.Errorf("failed to decode response: status %s", resp.Status)
 	}
 
 	if data.Chapter == nil {

@@ -1,10 +1,8 @@
 package manga_providers
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/gocolly/colly"
-	"github.com/rs/zerolog"
-	"net/http"
 	"net/url"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
@@ -12,14 +10,17 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/imroc/req/v3"
+	"github.com/rs/zerolog"
 )
 
 type (
 	Manganato struct {
-		Url       string
-		Client    *http.Client
-		UserAgent string
-		logger    *zerolog.Logger
+		Url    string
+		Client *req.Client
+		logger *zerolog.Logger
 	}
 
 	ManganatoSearchResult struct {
@@ -34,14 +35,16 @@ type (
 )
 
 func NewManganato(logger *zerolog.Logger) *Manganato {
-	c := &http.Client{
-		Timeout: 60 * time.Second,
-	}
+	client := req.C().
+		SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36").
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateSafari()
+
 	return &Manganato{
-		Url:       "https://manganato.com",
-		Client:    c,
-		UserAgent: util.GetRandomUserAgent(),
-		logger:    logger,
+		Url:    "https://natomanga.com",
+		Client: client,
+		logger: logger,
 	}
 }
 
@@ -62,43 +65,77 @@ func (mp *Manganato) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.
 	q = strings.ToLower(q)
 	q = strings.TrimSpace(q)
 	q = url.QueryEscape(q)
-	uri := fmt.Sprintf("https://manganato.com/search/story/%s", q)
+	uri := fmt.Sprintf("https://natomanga.com/search/story/%s", q)
 
-	c := colly.NewCollector(
-		colly.UserAgent(mp.UserAgent),
-	)
+	resp, err := mp.Client.R().
+		SetHeader("User-Agent", util.GetRandomUserAgent()).
+		Get(uri)
 
-	c.OnHTML("div.search-story-item", func(e *colly.HTMLElement) {
+	if err != nil {
+		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to send request")
+		return nil, err
+	}
+
+	if !resp.IsSuccessState() {
+		mp.logger.Error().Str("status", resp.Status).Str("uri", uri).Msg("manganato: Request failed")
+		return nil, fmt.Errorf("failed to fetch search results: status %s", resp.Status)
+	}
+
+	bodyBytes := resp.Bytes()
+
+	//mp.logger.Debug().Str("body", string(bodyBytes)).Msg("manganato: Response body")
+
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(bodyBytes))
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("manganato: Failed to parse HTML")
+		return nil, err
+	}
+
+	doc.Find("div.story_item").Each(func(i int, s *goquery.Selection) {
 		defer func() {
 			if r := recover(); r != nil {
 			}
 		}()
+
 		result := &hibikemanga.SearchResult{
 			Provider: string(ManganatoProvider),
 		}
-		result.ID = e.DOM.Find("a.item-title").AttrOr("href", "")
+
+		href, exists := s.Find("a").Attr("href")
+		if !exists {
+			return
+		}
+
+		if !strings.HasPrefix(href, "https://natomanga.com/") &&
+			!strings.HasPrefix(href, "https://www.natomanga.com/") &&
+			!strings.HasPrefix(href, "https://www.chapmanganato.com/") &&
+			!strings.HasPrefix(href, "https://chapmanganato.com/") {
+			return
+		}
+
+		result.ID = href
 		splitHref := strings.Split(result.ID, "/")
 
-		if strings.Contains(e.DOM.Find("a.item-title").AttrOr("href", ""), "chapmanganato") {
+		if strings.Contains(href, "chapmanganato") {
 			result.ID = "chapmanganato$"
 		} else {
 			result.ID = "manganato$"
 		}
 
-		result.ID += splitHref[3]
-		result.Title = e.DOM.Find("a.item-title").Text()
-		result.Image = e.DOM.Find("img").AttrOr("src", "")
+		util.Spew(splitHref)
+
+		if len(splitHref) > 4 {
+			result.ID += splitHref[4]
+		}
+
+		result.Title = s.Find("h3.story_name").Text()
+		result.Title = strings.TrimSpace(result.Title)
+		result.Image, _ = s.Find("img").Attr("src")
 
 		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, []*string{&result.Title})
 		result.SearchRating = compRes.Rating
 		ret = append(ret, result)
 	})
-
-	err = c.Visit(uri)
-	if err != nil {
-		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to visit")
-		return nil, err
-	}
 
 	if len(ret) == 0 {
 		mp.logger.Error().Str("query", opts.Query).Msg("manganato: No results found")
@@ -123,44 +160,66 @@ func (mp *Manganato) FindChapters(id string) (ret []*hibikemanga.ChapterDetails,
 
 	uri := ""
 	if splitId[0] == "manganato" {
-		uri = fmt.Sprintf("https://manganato.com/%s", splitId[1])
+		uri = fmt.Sprintf("https://natomanga.com/manga/%s", splitId[1])
 	} else if splitId[0] == "chapmanganato" {
-		uri = fmt.Sprintf("https://chapmanganato.to/%s", splitId[1])
+		uri = fmt.Sprintf("https://chapmanganato.com/manga/%s", splitId[1])
 	}
 
-	c := colly.NewCollector(
-		colly.UserAgent(mp.UserAgent),
-	)
+	resp, err := mp.Client.R().
+		SetHeader("User-Agent", util.GetRandomUserAgent()).
+		Get(uri)
 
-	c.OnHTML("li.a-h", func(e *colly.HTMLElement) {
+	if err != nil {
+		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to send request")
+		return nil, err
+	}
+
+	if !resp.IsSuccessState() {
+		mp.logger.Error().Str("status", resp.Status).Str("uri", uri).Msg("manganato: Request failed")
+		return nil, fmt.Errorf("failed to fetch chapters: status %s", resp.Status)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("manganato: Failed to parse HTML")
+		return nil, err
+	}
+
+	doc.Find(".chapter-list .row").Each(func(i int, s *goquery.Selection) {
 		defer func() {
 			if r := recover(); r != nil {
 			}
 		}()
-		name := e.DOM.Find("a").Text()
+
+		name := s.Find("a").Text()
 		if strings.HasPrefix(name, "Vol.") {
 			split := strings.Split(name, " ")
 			name = strings.Join(split[1:], " ")
 		}
+
 		chStr := strings.TrimSpace(strings.Split(name, " ")[1])
 		chStr = strings.TrimSuffix(chStr, ":")
-		href := e.ChildAttr("a", "href")
-		id := strings.Split(href, "/")[4]
+
+		href, exists := s.Find("a").Attr("href")
+		if !exists {
+			return
+		}
+
+		hrefParts := strings.Split(href, "/")
+		if len(hrefParts) < 6 {
+			return
+		}
+
+		chapterId := hrefParts[5]
 		chapter := &hibikemanga.ChapterDetails{
 			Provider: string(ManganatoProvider),
-			ID:       splitId[1] + "$" + id,
+			ID:       splitId[1] + "$" + chapterId,
 			URL:      href,
 			Title:    strings.TrimSpace(name),
 			Chapter:  chStr,
 		}
 		ret = append(ret, chapter)
 	})
-
-	err = c.Visit(uri)
-	if err != nil {
-		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to visit")
-		return nil, err
-	}
 
 	slices.Reverse(ret)
 	for i, chapter := range ret {
@@ -188,36 +247,50 @@ func (mp *Manganato) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage
 		return nil, ErrNoPages
 	}
 
-	uri := fmt.Sprintf("https://chapmanganato.to/%s/%s", splitId[0], splitId[1])
+	uri := fmt.Sprintf("https://natomanga.com/manga/%s/%s", splitId[0], splitId[1])
 
-	c := colly.NewCollector(
-		colly.UserAgent(mp.UserAgent),
-	)
+	resp, err := mp.Client.R().
+		SetHeader("User-Agent", util.GetRandomUserAgent()).
+		SetHeader("Referer", "https://natomanga.com/").
+		Get(uri)
 
-	c.OnHTML(".container-chapter-reader img", func(e *colly.HTMLElement) {
+	if err != nil {
+		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to send request")
+		return nil, err
+	}
+
+	if !resp.IsSuccessState() {
+		mp.logger.Error().Str("status", resp.Status).Str("uri", uri).Msg("manganato: Request failed")
+		return nil, fmt.Errorf("failed to fetch chapter pages: status %s", resp.Status)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("manganato: Failed to parse HTML")
+		return nil, err
+	}
+
+	doc.Find(".container-chapter-reader img").Each(func(i int, s *goquery.Selection) {
 		defer func() {
 			if r := recover(); r != nil {
 			}
 		}()
-		if e.Attr("src") == "" {
+
+		src, exists := s.Attr("src")
+		if !exists || src == "" {
 			return
 		}
+
 		page := &hibikemanga.ChapterPage{
 			Provider: string(ManganatoProvider),
-			URL:      e.Attr("src"),
+			URL:      src,
 			Index:    len(ret),
 			Headers: map[string]string{
-				"Referer": "https://chapmanganato.to",
+				"Referer": "https://natomanga.com/",
 			},
 		}
 		ret = append(ret, page)
 	})
-
-	err = c.Visit(uri)
-	if err != nil {
-		mp.logger.Error().Err(err).Str("uri", uri).Msg("manganato: Failed to visit")
-		return nil, err
-	}
 
 	if len(ret) == 0 {
 		mp.logger.Error().Str("chapterId", id).Msg("manganato: No pages found")

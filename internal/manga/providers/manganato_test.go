@@ -1,10 +1,11 @@
 package manga_providers
 
 import (
-	"github.com/stretchr/testify/assert"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestManganato_Search(t *testing.T) {
@@ -58,7 +59,7 @@ func TestManganato_FindChapters(t *testing.T) {
 	}{
 		{
 			name:    "The Dangers in My Heart",
-			id:      "chapmanganato$manga-dv981004",
+			id:      "manganato$boku-no-kokoro-no-yabai-yatsu",
 			atLeast: 141,
 		},
 	}
@@ -101,7 +102,7 @@ func TestManganato_FindChapterPages(t *testing.T) {
 	}{
 		{
 			name:      "The Dangers in My Heart",
-			chapterId: "manga-dv981004$chapter-1", // Chapter 1
+			chapterId: "boku-no-kokoro-no-yabai-yatsu$chapter-20", // Chapter 20
 		},
 	}
 
