@@ -471,7 +471,7 @@ const _relative = (from: string, to: string): string => {
         // As a fallback, return '.' if they weren't strictly equal but resulted in no relative path (e.g., different trailing slashes resolving the
         // same)
         return "." // This is different from Node.js relative which returns '' for identical resolved paths.
-                    // Let's stick to the Node.js behavior and rely on from === to check.
+        // Let's stick to the Node.js behavior and rely on from === to check.
         // If from === to, return ''. Otherwise, relativeParts should not be empty unless one is ancestor of other resolving to empty relative part.
         // E.g. relative('/a', '/a') -> '', relative('/a/', '/a') -> ''
         // Let's remove the '.' fallback and trust the resolved paths logic.

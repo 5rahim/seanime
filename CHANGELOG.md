@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.8.5
+
+- 🦺 Fixed scraping for manga extensions
+- 🦺 Library: Fixed bulks actions not available for unreleased anime
+- 🦺 Auto Downloader: Button not showing up for finished anime
+- 🦺 Online streaming: Fixed 'auto next episode' not working for some anime
+
 ## v2.8.4
 
 - ⚡️ Plugin development improvements

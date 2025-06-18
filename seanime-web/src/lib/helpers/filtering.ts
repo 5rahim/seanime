@@ -36,9 +36,9 @@ type CollectionSorting<T extends CollectionType> = BaseCollectionSorting | (T ex
     | "AIRDATE"
     | "AIRDATE_DESC"
     : T extends "manga" ?
-    "PROGRESS"
-    | "PROGRESS_DESC"
-    : never)
+        "PROGRESS"
+        | "PROGRESS_DESC"
+        : never)
 
 
 type ContinueWatchingSorting =
@@ -498,8 +498,8 @@ export function sortContinueWatchingEntries(
     if (sorting === "LAST_WATCHED")
         arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(9999, 1, 1).toISOString())
     if (sorting === "LAST_WATCHED_DESC")
-    arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(1000, 1, 1).toISOString())
-        .reverse()
+        arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(1000, 1, 1).toISOString())
+            .reverse()
 
     return arr
 }
