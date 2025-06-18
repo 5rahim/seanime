@@ -1,25 +1,21 @@
 package manga_providers
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"regexp"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog"
-
-	"seanime/internal/util"
-	"seanime/internal/util/comparison"
-
-	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 // WeebCentral implements the manga provider for WeebCentral
@@ -28,16 +24,18 @@ import (
 type WeebCentral struct {
 	Url       string
 	UserAgent string
-	Client    *http.Client
+	Client    *req.Client
 	logger    *zerolog.Logger
 }
 
 // NewWeebCentral initializes and returns a new WeebCentral provider instance.
 func NewWeebCentral(logger *zerolog.Logger) *WeebCentral {
-	client := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-	// Optionally, add transport modifications if necessary.
+	client := req.C().
+		SetUserAgent(util.GetRandomUserAgent()).
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateChrome()
+
 	return &WeebCentral{
 		Url:       "https://weebcentral.com",
 		UserAgent: util.GetRandomUserAgent(),
@@ -60,34 +58,29 @@ func (w *WeebCentral) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sea
 	form := url.Values{}
 	form.Set("text", opts.Query)
 
-	req, err := http.NewRequest("POST", searchUrl, strings.NewReader(form.Encode()))
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to create search request")
-		return nil, err
-	}
+	resp, err := w.Client.R().
+		SetContentType("application/x-www-form-urlencoded").
+		SetHeader("HX-Request", "true").
+		SetHeader("HX-Trigger", "quick-search-input").
+		SetHeader("HX-Trigger-Name", "text").
+		SetHeader("HX-Target", "quick-search-result").
+		SetHeader("HX-Current-URL", w.Url+"/").
+		SetBody(form.Encode()).
+		Post(searchUrl)
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("HX-Request", "true")
-	req.Header.Set("HX-Trigger", "quick-search-input")
-	req.Header.Set("HX-Trigger-Name", "text")
-	req.Header.Set("HX-Target", "quick-search-result")
-	req.Header.Set("HX-Current-URL", w.Url+"/")
-	req.Header.Set("User-Agent", w.UserAgent)
-
-	res, err := w.Client.Do(req)
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to send search request")
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to read search response")
-		return nil, err
+	if !resp.IsSuccessState() {
+		w.logger.Error().Str("status", resp.Status).Msg("weebcentral: Search request failed")
+		return nil, fmt.Errorf("search request failed: status %s", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
+	body := resp.String()
+
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to parse search HTML")
 		return nil, err
@@ -150,32 +143,26 @@ func (w *WeebCentral) FindChapters(mangaId string) ([]*hibikemanga.ChapterDetail
 	w.logger.Debug().Str("mangaId", mangaId).Msg("weebcentral: Fetching chapters")
 
 	chapterUrl := fmt.Sprintf("%s/series/%s/full-chapter-list", w.Url, mangaId)
-	req, err := http.NewRequest("GET", chapterUrl, nil)
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to create chapter list request")
-		return nil, err
-	}
 
-	req.Header.Set("HX-Request", "true")
-	req.Header.Set("HX-Target", "chapter-list")
-	req.Header.Set("HX-Current-URL", fmt.Sprintf("%s/series/%s", w.Url, mangaId))
-	req.Header.Set("Referer", fmt.Sprintf("%s/series/%s", w.Url, mangaId))
-	req.Header.Set("User-Agent", w.UserAgent)
+	resp, err := w.Client.R().
+		SetHeader("HX-Request", "true").
+		SetHeader("HX-Target", "chapter-list").
+		SetHeader("HX-Current-URL", fmt.Sprintf("%s/series/%s", w.Url, mangaId)).
+		SetHeader("Referer", fmt.Sprintf("%s/series/%s", w.Url, mangaId)).
+		Get(chapterUrl)
 
-	res, err := w.Client.Do(req)
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to fetch chapter list")
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to read chapter list response")
-		return nil, err
+	if !resp.IsSuccessState() {
+		w.logger.Error().Str("status", resp.Status).Msg("weebcentral: Chapter list request failed")
+		return nil, fmt.Errorf("chapter list request failed: status %s", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
+	body := resp.String()
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to parse chapter list HTML")
 		return nil, err
@@ -249,31 +236,25 @@ func (w *WeebCentral) FindChapters(mangaId string) ([]*hibikemanga.ChapterDetail
 
 func (w *WeebCentral) FindChapterPages(chapterId string) ([]*hibikemanga.ChapterPage, error) {
 	url := fmt.Sprintf("%s/chapters/%s/images?is_prev=False&reading_style=long_strip", w.Url, chapterId)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to create chapter pages request")
-		return nil, err
-	}
 
-	req.Header.Set("HX-Request", "true")
-	req.Header.Set("HX-Current-URL", fmt.Sprintf("%s/chapters/%s", w.Url, chapterId))
-	req.Header.Set("Referer", fmt.Sprintf("%s/chapters/%s", w.Url, chapterId))
-	req.Header.Set("User-Agent", w.UserAgent)
+	resp, err := w.Client.R().
+		SetHeader("HX-Request", "true").
+		SetHeader("HX-Current-URL", fmt.Sprintf("%s/chapters/%s", w.Url, chapterId)).
+		SetHeader("Referer", fmt.Sprintf("%s/chapters/%s", w.Url, chapterId)).
+		Get(url)
 
-	res, err := w.Client.Do(req)
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to fetch chapter pages")
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		w.logger.Error().Err(err).Msg("weebcentral: Failed to read chapter pages response")
-		return nil, err
+	if !resp.IsSuccessState() {
+		w.logger.Error().Str("status", resp.Status).Msg("weebcentral: Chapter pages request failed")
+		return nil, fmt.Errorf("chapter pages request failed: status %s", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
+	body := resp.String()
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
 	if err != nil {
 		w.logger.Error().Err(err).Msg("weebcentral: Failed to parse chapter pages HTML")
 		return nil, err

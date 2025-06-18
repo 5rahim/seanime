@@ -2,9 +2,6 @@ package manga_providers
 
 import (
 	"fmt"
-	"github.com/gocolly/colly"
-	"github.com/rs/zerolog"
-	"net/http"
 	"net/url"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
@@ -13,25 +10,31 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gocolly/colly"
+	"github.com/imroc/req/v3"
+	"github.com/rs/zerolog"
 )
 
 type (
 	Mangapill struct {
 		Url       string
-		Client    *http.Client
+		Client    *req.Client
 		UserAgent string
 		logger    *zerolog.Logger
 	}
 )
 
 func NewMangapill(logger *zerolog.Logger) *Mangapill {
-	c := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-	c.Transport = util.AddCloudFlareByPass(c.Transport)
+	client := req.C().
+		SetUserAgent(util.GetRandomUserAgent()).
+		SetTimeout(60 * time.Second).
+		EnableInsecureSkipVerify().
+		ImpersonateChrome()
+
 	return &Mangapill{
 		Url:       "https://mangapill.com",
-		Client:    c,
+		Client:    client,
 		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
@@ -139,7 +142,7 @@ func (mp *Mangapill) FindChapters(id string) (ret []*hibikemanga.ChapterDetails,
 			}
 		}()
 		chapter := &hibikemanga.ChapterDetails{
-			Provider: string(MangapillProvider),
+			Provider: MangapillProvider,
 		}
 
 		chapter.ID = strings.Split(e.Attr("href"), "/chapters/")[1]
@@ -208,7 +211,7 @@ func (mp *Mangapill) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage
 		page.Index = index - 1
 
 		page.Headers = map[string]string{
-			"Referer": mp.Url,
+			"Referer": "https://mangapill.com/",
 		}
 
 		ret = append(ret, page)

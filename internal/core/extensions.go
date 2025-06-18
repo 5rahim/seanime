@@ -81,17 +81,17 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
 	}, manga_providers.NewMangadex(logger))
 
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "manganato",
-		Name:        "Manganato",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeMangaProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
-	}, manga_providers.NewManganato(logger))
+	//extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	//	ID:          "manganato",
+	//	Name:        "Manganato",
+	//	Version:     "",
+	//	ManifestURI: "builtin",
+	//	Language:    extension.LanguageGo,
+	//	Type:        extension.TypeMangaProvider,
+	//	Author:      "Seanime",
+	//	Lang:        "en",
+	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
+	//}, manga_providers.NewManganato(logger))
 
 	//
 	// Built-in online stream providers
