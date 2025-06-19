@@ -228,7 +228,7 @@ var (
 		Assets: &discordrpc_client.Assets{
 			LargeImage: "",
 			LargeText:  "",
-			SmallImage: "https://seanime.rahim.app/images/circular-logo.png",
+			SmallImage: "https://seanime.app/images/circular-logo.png",
 			SmallText:  "Seanime v" + constants.Version,
 		},
 		Timestamps: &discordrpc_client.Timestamps{

@@ -8,7 +8,7 @@ import (
 
 func TestUpdater_GetLatestUpdate(t *testing.T) {
 
-	docsUrl = "https://seanime.rahim.app/api/releases" // simulate dead endpoint
+	docsUrl = "https://seanime.app/api/releases" // simulate dead endpoint
 
 	u := New("2.0.2", util.NewLogger(), nil)
 

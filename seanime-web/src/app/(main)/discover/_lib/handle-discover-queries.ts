@@ -1,8 +1,8 @@
 import { AL_MediaSeason } from "@/api/generated/types"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
-import { useInView } from "framer-motion"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/react"
+import { useInView } from "motion/react"
 
 export const __discover_trendingGenresAtom = atom<string[]>([])
 

@@ -1,5 +1,5 @@
 import { cn } from "@/components/ui/core/styling"
-import { motion, stagger, useAnimate } from "framer-motion"
+import { motion, stagger, useAnimate } from "motion/react"
 import React, { useEffect } from "react"
 
 export const TextGenerateEffect = ({

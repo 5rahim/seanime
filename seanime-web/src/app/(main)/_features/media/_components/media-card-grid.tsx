@@ -173,7 +173,7 @@ export function MediaCardLazyGridRenderer({
                     return (
                         <div
                             data-media-card-lazy-grid-item
-                            ref={el => itemRefs.current[index] = el}
+                            ref={el => { itemRefs.current[index] = el }}
                             data-index={index}
                             key={!!(child as React.ReactElement)?.key ? (child as React.ReactElement)?.key : index}
                             className="transition-all duration-300 ease-in-out"

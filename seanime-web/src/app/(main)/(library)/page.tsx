@@ -13,8 +13,8 @@ import { EmptyLibraryView } from "@/app/(main)/(library)/_screens/empty-library-
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { AnimatePresence } from "framer-motion"
 import { useAtom } from "jotai/react"
+import { AnimatePresence } from "motion/react"
 import React from "react"
 
 export const dynamic = "force-static"

@@ -5,8 +5,8 @@ import { __extensions_currentPageAtom, ExtensionList } from "@/app/(main)/extens
 import { MarketplaceExtensions } from "@/app/(main)/extensions/_containers/marketplace-extensions"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { StaticTabs } from "@/components/ui/tabs"
-import { AnimatePresence } from "framer-motion"
 import { useAtom } from "jotai"
+import { AnimatePresence } from "motion/react"
 import React from "react"
 import { LuDownload, LuGlobe } from "react-icons/lu"
 

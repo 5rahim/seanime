@@ -3,7 +3,7 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { cn } from "@/components/ui/core/styling"
 import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import React, { useEffect } from "react"
 import { useWindowScroll } from "react-use"
 

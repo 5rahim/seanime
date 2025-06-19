@@ -19,9 +19,9 @@ import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__ } from "@/types/constants"
-import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
+import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -297,8 +297,8 @@ export function DiscoverPageHeader() {
                         >
                             <motion.div
                                 className="flex-none"
-                                initial={{ opacity: 0, scale: 0.7, skew: 5 }}
-                                animate={{ opacity: 1, scale: 1, skew: 0 }}
+                                initial={{ opacity: 0, scale: 0.7, skew: 5 } as any}
+                                animate={{ opacity: 1, scale: 1, skew: 0 } as any}
                                 exit={{ opacity: 1, scale: 1, skewY: 1 }}
                                 transition={{ duration: 0.5 }}
                                 data-discover-page-header-metadata-media-image-container
