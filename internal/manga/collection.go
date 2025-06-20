@@ -132,7 +132,7 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 
 	event := new(MangaLibraryCollectionEvent)
 	event.LibraryCollection = coll
-	hook.GlobalHookManager.OnMangaLibraryCollection().Trigger(event)
+	_ = hook.GlobalHookManager.OnMangaLibraryCollection().Trigger(event)
 	coll = event.LibraryCollection
 
 	return coll, nil

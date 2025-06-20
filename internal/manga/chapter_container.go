@@ -281,7 +281,7 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 			mu.Lock()
 			// Remove the container from the cache if it hasn't been removed yet
 			if _, ok := removedMediaIds[mediaId]; !ok {
-				r.EmptyMangaCache(mediaId)
+				_ = r.EmptyMangaCache(mediaId)
 				removedMediaIds[mediaId] = struct{}{}
 			}
 			mu.Unlock()

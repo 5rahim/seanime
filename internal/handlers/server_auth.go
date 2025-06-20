@@ -24,6 +24,7 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			strings.HasPrefix(path, "/api/v1/directstream") ||
 			strings.HasPrefix(path, "/api/v1/mediastream") ||
 			strings.HasPrefix(path, "/api/v1/image-proxy") ||
+			strings.HasPrefix(path, "/api/v1/manga/local-page") ||
 			strings.HasPrefix(path, "/api/v1/torrentstream/stream/") || // accessible by media players
 			strings.HasPrefix(path, "/api/v1/nakama/stream") { // accessible by media players
 

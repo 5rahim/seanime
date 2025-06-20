@@ -1727,7 +1727,7 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 		wpm.pendingSeekPosition = seekPosition
 		wpm.seekMu.Unlock()
 
-		wpm.manager.playbackManager.Seek(seekPosition)
+		_ = wpm.manager.playbackManager.Seek(seekPosition)
 		wpm.lastSeekTime = now
 		wpm.lastSelfSeekTime = now // Track that we initiated this seek
 	}

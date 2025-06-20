@@ -521,14 +521,6 @@ func (h *Handler) RespondWithError(c echo.Context, err error) error {
 	return c.JSON(500, NewErrorResponse(err))
 }
 
-func optionalAuthMiddleware(app *core.App) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			return next(c)
-		}
-	}
-}
-
 func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Skip directstream route

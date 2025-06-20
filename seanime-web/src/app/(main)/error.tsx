@@ -18,8 +18,11 @@ export default function Error({
     return (
         <div className="flex justify-center">
             <LuffyError
-                title="Something went wrong!"
+                title="Client side error"
             >
+                <p className="max-w-xl text-sm text-[--muted] mb-4">
+                    {error.message || "An unexpected error occurred."}
+                </p>
                 <Button
                     onClick={
                         () => reset()

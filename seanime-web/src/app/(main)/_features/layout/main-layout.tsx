@@ -25,12 +25,15 @@ import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
 import { DebridStreamOverlay } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-overlay"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
+import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
-import React from "react"
-import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
-import { NativePlayer } from "../native-player/native-player"
-import { NakamaManager } from "../nakama/nakama-manager"
 import { __isElectronDesktop__ } from "@/types/constants"
+import { usePathname, useRouter } from "next/navigation"
+import React from "react"
+import { useServerStatus } from "../../_hooks/use-server-status"
+import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
+import { NakamaManager } from "../nakama/nakama-manager"
+import { NativePlayer } from "../native-player/native-player"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
@@ -54,6 +57,20 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useSyncListener()
     useInvalidateQueriesListener()
 
+    const serverStatus = useServerStatus()
+    const router = useRouter()
+    const pathname = usePathname()
+
+    React.useEffect(() => {
+        if (!serverStatus?.isOffline && pathname.startsWith("/offline")) {
+            router.push("/")
+        }
+    }, [serverStatus?.isOffline, pathname])
+
+    if (serverStatus?.isOffline) {
+        return <LoadingOverlayWithLogo />
+    }
+
     return (
         <>
             <GlobalSearch />
@@ -74,7 +91,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             {__isElectronDesktop__ && <NativePlayer />}
             <NakamaManager />
             <TopIndefiniteLoader />
-            
+
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">
                     <AppLayoutSidebar>
