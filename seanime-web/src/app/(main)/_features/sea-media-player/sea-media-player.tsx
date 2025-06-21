@@ -16,6 +16,7 @@ import {
     useSeaMediaPlayer,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
 import {
+    __seaMediaPlayer_autoFullscreenNextAtom,
     __seaMediaPlayer_autoNextAtom,
     __seaMediaPlayer_autoPlayAtom,
     __seaMediaPlayer_autoSkipIntroOutroAtom,
@@ -125,6 +126,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     const autoPlay = useAtomValue(__seaMediaPlayer_autoPlayAtom)
     const autoNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
+    const autoFullscreenNext = useAtomValue(__seaMediaPlayer_autoFullscreenNextAtom)
     const discreteControls = useAtomValue(__seaMediaPlayer_discreteControlsAtom)
     const autoSkipIntroOutro = useAtomValue(__seaMediaPlayer_autoSkipIntroOutroAtom)
     const [volume, setVolume] = useAtom(__seaMediaPlayer_volumeAtom)
@@ -324,6 +326,16 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         _onCanPlay?.(e, event)
 
         canPlayRef.current = true
+
+        
+        if (autoFullscreenNext && wentToNextEpisodeRef.current && process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
+            logger("MEDIA PLAYER").info("Fullscreen via Auto-Fullscreen")
+            try {
+                playerRef.current?.enterFullscreen()
+                playerRef.current?.el?.focus()
+            } catch {
+            }
+        }
 
         wentToNextEpisodeRef.current = false
 
