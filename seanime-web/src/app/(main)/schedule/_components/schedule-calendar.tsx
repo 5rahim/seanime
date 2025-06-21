@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_Episode } from "@/api/generated/types"
+import { Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeCollectionSchedule } from "@/api/hooks/anime_collection.hooks"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
@@ -19,7 +19,6 @@ import { FaFlag } from "react-icons/fa6"
 
 type ScheduleCalendarProps = {
     children?: React.ReactNode
-    media: AL_BaseAnime[]
     missingEpisodes: Anime_Episode[]
 }
 
@@ -239,7 +238,6 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
 
     const {
         children,
-        media,
         missingEpisodes,
         ...rest
     } = props
@@ -268,9 +266,6 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
             dateLeft.getDate() === dateRight.getDate()
         )
     }
-
-    console.log(schedule)
-
 
     const days = React.useMemo(() => {
         const startOfCurrentMonth = startOfMonth(currentDate)
@@ -309,9 +304,8 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
             day = addDays(day, 1)
         }
         return daysArray
-    }, [currentDate, media, missingEpisodes, weekStartsOn, schedule])
+    }, [currentDate, missingEpisodes, weekStartsOn, schedule])
 
-    if (media?.length === 0 && missingEpisodes?.length === 0) return null
 
     return (
         <>

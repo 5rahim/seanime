@@ -50,7 +50,6 @@ export function ComingUpNext() {
             </div>
 
             <ScheduleCalendar
-                media={media}
                 missingEpisodes={missingEpisodes}
             />
 

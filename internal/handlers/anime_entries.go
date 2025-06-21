@@ -69,6 +69,7 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		AnimeCollection:  animeCollection,
 		Platform:         h.App.AnilistPlatform,
 		MetadataProvider: h.App.MetadataProvider,
+		IsSimulated:      h.App.GetUser().IsSimulated,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)

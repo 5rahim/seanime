@@ -800,12 +800,12 @@ func (m *ManagerImpl) GetSimulatedMangaCollection() mo.Option[*anilist.MangaColl
 }
 
 func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) {
-	// Remove airing dates from each entry
-	for _, list := range ac.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			entry.GetMedia().NextAiringEpisode = nil
-		}
-	}
+	//// Remove airing dates from each entry
+	//for _, list := range ac.MediaListCollection.Lists {
+	//	for _, entry := range list.Entries {
+	//		entry.GetMedia().NextAiringEpisode = nil
+	//	}
+	//}
 	_ = m.localDb.SaveSimulatedAnimeCollection(ac)
 }
 
