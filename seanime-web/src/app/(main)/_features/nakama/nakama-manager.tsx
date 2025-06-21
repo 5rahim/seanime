@@ -29,10 +29,6 @@ export function useNakamaStatus() {
     return useAtomValue(nakamaStatusAtom)
 }
 
-export function useWatchPartySession() {
-    return useAtomValue(watchPartySessionAtom)
-}
-
 export function NakamaManager() {
     const { sendMessage } = useWebsocketSender()
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
@@ -545,15 +541,15 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                             </div>
                             <div className="flex items-center gap-2 text-xs text-[--muted]">
                                 {participant.isBuffering ? (
-                                    <Badge className="text-xs bg-red-500 text-white">
+                                    <Badge intent="alert" className="text-xs">
                                         Buffering
                                     </Badge>
                                 ) : participant.isReady ? (
-                                    <Badge className="text-xs bg-green-500 text-white">
+                                    <Badge intent="success" className="text-xs">
                                         Ready
                                     </Badge>
                                 ) : (
-                                    <Badge className="text-xs bg-gray-500 text-white">
+                                    <Badge intent="gray" className="text-xs">
                                         Not Ready
                                     </Badge>
                                 )}

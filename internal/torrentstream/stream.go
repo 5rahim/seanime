@@ -266,7 +266,7 @@ func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (er
 	// Desktop player
 	//
 	case PlaybackTypeExternal:
-		r.logger.Debug().Msg("torrentstream: Starting the media player	")
+		r.logger.Debug().Msg("torrentstream: Starting the media player")
 		err = r.playbackManager.StartUntrackedStreamingUsingMediaPlayer(opts.WindowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   opts.Magnet,
 			UserAgent: opts.UserAgent,
