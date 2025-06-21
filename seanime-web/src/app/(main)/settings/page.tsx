@@ -10,7 +10,6 @@ import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/se
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
-import { AnilistSettings } from "@/app/(main)/settings/_containers/anilist-settings"
 import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
@@ -21,6 +20,7 @@ import { ServerSettings } from "@/app/(main)/settings/_containers/server-setting
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -31,27 +31,24 @@ import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
+import { BiDonateHeart } from "react-icons/bi"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
-import { FaShareFromSquare } from "react-icons/fa6"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey, LuDatabase, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuUserCog, LuWandSparkles } from "react-icons/lu"
+import { LuBookKey, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuUserCog, LuWandSparkles } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome, MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
-import { PiVideoFill } from "react-icons/pi"
-import { RiCommunityLine, RiFolderDownloadFill } from "react-icons/ri"
-import { SiAnilist, SiBittorrent } from "react-icons/si"
+import { RiFolderDownloadFill } from "react-icons/ri"
+import { SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard, SettingsPageHeader } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 import { LocalSettings } from "./_containers/local-settings"
-import { BiDonateHeart } from "react-icons/bi"
-import { SeaLink } from "@/components/shared/sea-link"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
@@ -76,6 +73,8 @@ export default function Page() {
     const status = useServerStatus()
     const setServerStatus = useSetServerStatus()
     const router = useRouter()
+
+    const searchParams = useSearchParams()
 
     const { mutate, data, isPending } = useSaveSettings()
 
@@ -108,6 +107,21 @@ export default function Page() {
             formRef.current?.reset()
         }
     }, [tab])
+
+    React.useEffect(() => {
+        const initialTab = searchParams.get("tab")
+        if (initialTab) {
+            setTab(initialTab)
+            setTimeout(() => {
+                // Remove search param
+                if (searchParams.has("tab")) {
+                    const newParams = new URLSearchParams(searchParams)
+                    newParams.delete("tab")
+                    router.replace(`?${newParams.toString()}`, { scroll: false })
+                }
+            }, 500)
+        }
+    }, [searchParams])
 
     return (
         <>

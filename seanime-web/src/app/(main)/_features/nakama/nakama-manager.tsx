@@ -9,14 +9,16 @@ import {
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { AlphaBadge } from "@/components/shared/beta-badge"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
+import { BiCog } from "react-icons/bi"
 import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPeople, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
 import { toast } from "sonner"
 
@@ -207,6 +209,12 @@ export function NakamaManager() {
             // allowOutsideInteraction
         >
 
+            <div className="absolute top-4 right-14">
+                <SeaLink href="/settings?tab=nakama" onClick={() => setIsModalOpen(false)}>
+                    <IconButton intent="gray-basic" size="sm" icon={<BiCog />} />
+                </SeaLink>
+            </div>
+
             {nakamaStatus === undefined && <LoadingSpinner />}
 
             {!nakamaStatus?.isHost && (
@@ -264,13 +272,13 @@ export function NakamaManager() {
                                 <SettingsCard title="Host connection">
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm text-[--muted]">Host:</span>
+                                            <span className="text-sm text-[--muted]">Host</span>
                                             <span className="font-medium">
                                                 {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm text-[--muted]">Status:</span>
+                                            <span className="text-sm text-[--muted]">Status</span>
                                             <span
                                                 className={`font-medium ${nakamaStatus?.hostConnectionStatus?.authenticated
                                                     ? "text-green-500"
@@ -282,7 +290,7 @@ export function NakamaManager() {
                                         </div>
                                         {nakamaStatus?.hostConnectionStatus?.url && (
                                             <div className="flex items-center justify-between">
-                                                <span className="text-sm text-[--muted]">URL:</span>
+                                                <span className="text-sm text-[--muted]">URL</span>
                                                 <span className="font-mono text-xs">{nakamaStatus?.hostConnectionStatus.url}</span>
                                             </div>
                                         )}
@@ -377,42 +385,42 @@ function WatchPartyCreation({
                 <SettingsCard title="Create Watch Party">
                     <div className="space-y-4">
                         {/* <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-medium">Allow participant control</label>
-                                <Switch
-                                    value={settings.allowParticipantControl}
-                                    onValueChange={(checked: boolean) =>
-                                        onSettingsChange({ ...settings, allowParticipantControl: checked })
-                                    }
-                                />
-                            </div>
+                         <div className="flex items-center justify-between">
+                         <label className="text-sm font-medium">Allow participant control</label>
+                         <Switch
+                         value={settings.allowParticipantControl}
+                         onValueChange={(checked: boolean) =>
+                         onSettingsChange({ ...settings, allowParticipantControl: checked })
+                         }
+                         />
+                         </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Sync threshold (seconds)</label>
-                                <NumberInput
-                                    value={settings.syncThreshold}
-                                    onValueChange={(value) =>
-                                        onSettingsChange({ ...settings, syncThreshold: value || 3.0 })
-                                    }
-                                    min={1}
-                                    max={10}
-                                    step={0.5}
-                                />
-                                <p className="text-xs text-[--muted]">How far out of sync before forcing synchronization</p>
-                            </div>
+                         <div className="space-y-2">
+                         <label className="text-sm font-medium">Sync threshold (seconds)</label>
+                         <NumberInput
+                         value={settings.syncThreshold}
+                         onValueChange={(value) =>
+                         onSettingsChange({ ...settings, syncThreshold: value || 3.0 })
+                         }
+                         min={1}
+                         max={10}
+                         step={0.5}
+                         />
+                         <p className="text-xs text-[--muted]">How far out of sync before forcing synchronization</p>
+                         </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Max buffer wait time (seconds)</label>
-                                <NumberInput
-                                    value={settings.maxBufferWaitTime}
-                                    onValueChange={(value) =>
-                                        onSettingsChange({ ...settings, maxBufferWaitTime: value || 10 })
-                                    }
-                                    min={5}
-                                    max={60}
-                                />
-                                <p className="text-xs text-[--muted]">Maximum time to wait for peers to buffer</p>
-                            </div>
+                         <div className="space-y-2">
+                         <label className="text-sm font-medium">Max buffer wait time (seconds)</label>
+                         <NumberInput
+                         value={settings.maxBufferWaitTime}
+                         onValueChange={(value) =>
+                         onSettingsChange({ ...settings, maxBufferWaitTime: value || 10 })
+                         }
+                         min={5}
+                         max={60}
+                         />
+                         <p className="text-xs text-[--muted]">Maximum time to wait for peers to buffer</p>
+                         </div>
                          </div> */}
 
                         <Button
@@ -498,32 +506,32 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
             </div>
 
             {/* <SettingsCard title="Session Details">
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-[--muted]">Session ID:</span>
-                        <span className="font-mono text-xs">{session.id}</span>
-                    </div>
+             <div className="space-y-3">
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Session ID:</span>
+             <span className="font-mono text-xs">{session.id}</span>
+             </div>
 
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-[--muted]">Created:</span>
-                        <span className="text-sm">{session.createdAt ? new Date(session.createdAt).toLocaleString() : "Unknown"}</span>
-                    </div>
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Created:</span>
+             <span className="text-sm">{session.createdAt ? new Date(session.createdAt).toLocaleString() : "Unknown"}</span>
+             </div>
 
-                    {session.currentMediaInfo && (
-                        <>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-[--muted]">Current Media:</span>
-                                <span className="text-sm">Episode {session.currentMediaInfo.episodeNumber}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-[--muted]">Stream Type:</span>
-                                <Badge className="">
-                                    {session.currentMediaInfo.streamType}
-                                </Badge>
-                            </div>
-                        </>
-                    )}
-                </div>
+             {session.currentMediaInfo && (
+             <>
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Current Media:</span>
+             <span className="text-sm">Episode {session.currentMediaInfo.episodeNumber}</span>
+             </div>
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Stream Type:</span>
+             <Badge className="">
+             {session.currentMediaInfo.streamType}
+             </Badge>
+             </div>
+             </>
+             )}
+             </div>
              </SettingsCard> */}
 
             <SettingsCard title="Participants">
@@ -575,22 +583,22 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
             </SettingsCard>
 
             {/* <SettingsCard title="Settings">
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-[--muted]">Participant Control:</span>
-                        <span className="text-sm">
-                            {session.settings?.allowParticipantControl ? "Enabled" : "Disabled"}
-                        </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-[--muted]">Sync Threshold:</span>
-                        <span className="text-sm">{session.settings?.syncThreshold}s</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-[--muted]">Max Buffer Wait:</span>
-                        <span className="text-sm">{session.settings?.maxBufferWaitTime}s</span>
-                    </div>
-                </div>
+             <div className="space-y-2">
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Participant Control:</span>
+             <span className="text-sm">
+             {session.settings?.allowParticipantControl ? "Enabled" : "Disabled"}
+             </span>
+             </div>
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Sync Threshold:</span>
+             <span className="text-sm">{session.settings?.syncThreshold}s</span>
+             </div>
+             <div className="flex items-center justify-between">
+             <span className="text-sm text-[--muted]">Max Buffer Wait:</span>
+             <span className="text-sm">{session.settings?.maxBufferWaitTime}s</span>
+             </div>
+             </div>
              </SettingsCard> */}
         </div>
     )
