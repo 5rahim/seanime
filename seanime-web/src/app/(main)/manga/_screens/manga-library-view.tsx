@@ -31,6 +31,7 @@ type MangaLibraryViewProps = {
     filteredCollection: Manga_Collection | undefined
     genres: string[]
     storedProviders: Record<string, string>
+    hasManga: boolean
 }
 
 export function MangaLibraryView(props: MangaLibraryViewProps) {
@@ -40,12 +41,11 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
         filteredCollection,
         genres,
         storedProviders,
+        hasManga,
         ...rest
     } = props
 
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
-
-    const hasManga = collection?.lists?.some(list => list.entries?.length)
 
     return (
         <>

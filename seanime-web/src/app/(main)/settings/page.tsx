@@ -521,12 +521,12 @@ export default function Page() {
                                             />
                                         </SettingsCard>
 
-                                        <SettingsCard title="Integration">
+                                        <SettingsCard title="My library">
                                             <Field.Switch
                                                 side="right"
                                                 name="includeOnlineStreamingInLibrary"
                                                 label="Include in library"
-                                                help="Shows that are currently being watched but haven't been downloaded will default to the streaming view and appear in your library."
+                                                help="Add non-downloaded shows currently being watched to 'My library'"
                                             />
                                         </SettingsCard>
 

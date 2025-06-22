@@ -1057,12 +1057,12 @@ func (wpm *WatchPartyManager) calculateBufferState(status *mediaplayer.PlaybackS
 		return false, 1.0 // Not buffering if we're at the end
 	}
 
-	// Handle seeking - if position jumped significantly, reset tracking
+	// Handle seeking, if position jumped significantly, reset tracking
 	if math.Abs(positionDelta) > SignificantPositionJump { // Detect seeking vs normal playback
 		wpm.logger.Debug().
 			Float64("positionDelta", positionDelta).
 			Float64("currentPosition", currentPosition).
-			Msg("nakama: Position change detected, likely seeking - resetting stall tracking")
+			Msg("nakama: Position change detected, likely seeking, resetting stall tracking")
 		wpm.stallCount = 0
 		return false, 1.0 // Reset state after seeking
 	}
@@ -1073,7 +1073,7 @@ func (wpm *WatchPartyManager) calculateBufferState(status *mediaplayer.PlaybackS
 		expectedMinChange := timeDelta * BufferDetectionTolerance
 
 		if positionDelta < expectedMinChange {
-			// Position hasn't advanced as expected while playing - likely buffering
+			// Position hasn't advanced as expected while playing, likely buffering
 			wpm.stallCount++
 
 			// Consider buffering after threshold consecutive stalls to avoid false positives
@@ -1088,12 +1088,12 @@ func (wpm *WatchPartyManager) calculateBufferState(status *mediaplayer.PlaybackS
 					Float64("positionDelta", positionDelta).
 					Float64("expectedMinChange", expectedMinChange).
 					Float64("bufferHealth", bufferHealth).
-					Msg("nakama: Buffering detected - position not advancing while playing")
+					Msg("nakama: Buffering detected, position not advancing while playing")
 			}
 
 			return isBuffering, bufferHealth
 		} else {
-			// Position is advancing normally - reset stall count
+			// Position is advancing normally, reset stall count
 			if wpm.stallCount > 0 {
 				wpm.logger.Debug().
 					Int("previousStallCount", wpm.stallCount).
@@ -1104,7 +1104,7 @@ func (wpm *WatchPartyManager) calculateBufferState(status *mediaplayer.PlaybackS
 			return false, 0.95 // good buffer health when playing normally
 		}
 	} else {
-		// Player is paused - reset stall count and return good buffer state
+		// Player is paused, reset stall count and return good buffer state
 		if wpm.stallCount > 0 {
 			wpm.logger.Debug().Msg("nakama: Player paused, resetting stall count")
 		}
@@ -1405,10 +1405,10 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			// Check if we need to seek
 			shouldSeek := false
 			if positionDrift < 0 {
-				// Peer is behind - always seek if beyond threshold
+				// Peer is behind, always seek if beyond threshold
 				shouldSeek = math.Abs(positionDrift) > ResumePositionDriftThreshold
 			} else {
-				// Peer is ahead - only seek backward if significantly ahead to prevent jitter
+				// Peer is ahead, only seek backward if significantly ahead to prevent jitter
 				// This prevents backward seeks when peer is slightly ahead due to pause message delay
 				shouldSeek = positionDrift > ResumeAheadTolerance
 			}
@@ -1448,7 +1448,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 					Float64("positionDrift", positionDrift).
 					Float64("hostCurrentPosition", hostCurrentPosition).
 					Float64("peerPosition", playbackStatus.CurrentTimeInSeconds).
-					Msg("nakama: Host resumed, peer slightly ahead - not seeking to prevent jitter")
+					Msg("nakama: Host resumed, peer slightly ahead, not seeking yet")
 			}
 
 			wpm.logger.Debug().Msg("nakama: Host resumed, resuming peer playback")
@@ -1461,10 +1461,10 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 
 	// Handle position sync for different state combinations
 	if payloadStatus.Playing == playbackStatus.Playing {
-		// Both in same state - use normal sync
+		// Both in same state, use normal sync
 		wpm.syncPlaybackPosition(payloadStatus, *playbackStatus, payload.Timestamp, session)
 	} else if payloadStatus.Playing && !playbackStatus.Playing {
-		// Host playing, peer paused - sync position and resume
+		// Host playing, peer paused, sync position and resume
 		timeSinceMessage := time.Since(payload.Timestamp).Seconds()
 		hostExpectedPosition := payloadStatus.CurrentTimeInSeconds + timeSinceMessage
 
@@ -1485,7 +1485,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 
 		wpm.manager.playbackManager.Seek(hostExpectedPosition)
 	} else if !payloadStatus.Playing && playbackStatus.Playing {
-		// Host paused, peer playing - pause immediately
+		// Host paused, peer playing, pause immediately
 		wpm.logger.Debug().Msg("nakama: Host is paused but peer is playing, pausing immediately")
 
 		// Cancel catch-up and pause
@@ -1504,7 +1504,7 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 
 	// Calculate where the host actually paused based on dynamic timing
 	hostActualPausePosition := hostStatus.CurrentTimeInSeconds
-	// Don't add time compensation for pause position - the host has already paused
+	// Don't add time compensation for pause position, the host has already paused
 
 	// Calculate time difference considering message delay
 	timeDifference := hostActualPausePosition - peerStatus.CurrentTimeInSeconds
@@ -1637,14 +1637,14 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 		return
 	}
 
-	// Check if we have a pending seek operation - use dynamic compensation
+	// Check if we have a pending seek operation, use dynamic compensation
 	wpm.seekMu.Lock()
 	hasPendingSeek := !wpm.pendingSeekTime.IsZero()
 	timeSincePendingSeek := now.Sub(wpm.pendingSeekTime)
 	pendingSeekPosition := wpm.pendingSeekPosition
 	wpm.seekMu.Unlock()
 
-	// Use dynamic compensation - if we have a pending seek, wait for at least the message delay time
+	// Use dynamic compensation, if we have a pending seek, wait for at least the message delay time
 	dynamicSeekDelay := time.Duration(timeSinceMessage*1000) * time.Millisecond
 	if dynamicSeekDelay < MinSeekDelay {
 		dynamicSeekDelay = MinSeekDelay // Minimum delay
@@ -1659,7 +1659,7 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 			Float64("timeSincePendingSeek", timeSincePendingSeek.Seconds()).
 			Float64("dynamicSeekDelay", dynamicSeekDelay.Seconds()).
 			Float64("pendingSeekPosition", pendingSeekPosition).
-			Msg("nakama: Ignoring sync - pending seek in progress")
+			Msg("nakama: Ignoring sync, pending seek in progress")
 		return
 	}
 

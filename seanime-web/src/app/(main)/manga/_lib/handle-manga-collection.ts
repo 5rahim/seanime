@@ -150,6 +150,7 @@ export function useHandleMangaCollection() {
 
     return {
         genres,
+        hasManga: !!data?.lists?.some(l => !!l.entries?.length),
         mangaCollection: sortedCollection,
         filteredMangaCollection: filteredCollection,
         mangaCollectionGenres: libraryGenres,

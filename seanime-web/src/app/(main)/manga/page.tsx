@@ -19,6 +19,7 @@ export default function Page() {
         storedFilters,
         storedProviders,
         mangaCollectionGenres,
+        hasManga,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -61,6 +62,7 @@ export default function Page() {
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
                 storedProviders={storedProviders}
+                hasManga={hasManga}
             />
         </div>
     )
