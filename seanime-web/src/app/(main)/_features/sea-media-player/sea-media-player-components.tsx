@@ -9,7 +9,6 @@ import { RxSlider } from "react-icons/rx"
 import {
     __seaMediaPlayer_autoNextAtom,
     __seaMediaPlayer_autoPlayAtom,
-    __seaMediaPlayer_autoFullscreenNextAtom,
     __seaMediaPlayer_autoSkipIntroOutroAtom,
     __seaMediaPlayer_discreteControlsAtom,
 } from "./sea-media-player.atoms"
@@ -18,10 +17,8 @@ export function SeaMediaPlayerPlaybackSubmenu() {
 
     const [autoPlay, setAutoPlay] = useAtom(__seaMediaPlayer_autoPlayAtom)
     const [autoNext, setAutoNext] = useAtom(__seaMediaPlayer_autoNextAtom)
-    const [autoFullscreenNext, setAutoFullscreenNext] = useAtom(__seaMediaPlayer_autoFullscreenNextAtom)
     const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__seaMediaPlayer_autoSkipIntroOutroAtom)
     const [discreteControls, setDiscreteControls] = useAtom(__seaMediaPlayer_discreteControlsAtom)
-    const isDesktop = process.env.NEXT_PUBLIC_PLATFORM === "desktop"
 
     return (
         <>
@@ -57,24 +54,6 @@ export function SeaMediaPlayerPlaybackSubmenu() {
                     />
                 </Menu.Content>
             </Menu.Root>
-            {isDesktop && (
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Auto Fullscreen Next Episode`}
-                    hint={autoFullscreenNext ? "On" : "Off"}
-                    disabled={false}
-                    icon={MdPlaylistPlay}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Auto Fullscreen next Episode"
-                        fieldClass="py-2 px-2"
-                        value={autoFullscreenNext}
-                        onValueChange={setAutoFullscreenNext}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            )}
             <Menu.Root>
                 <VdsSubmenuButton
                     label={`Skip Intro/Outro`}
