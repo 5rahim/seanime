@@ -309,6 +309,7 @@ export default function Page() {
                                         hostShareLocalAnimeLibrary: data.nakamaHostShareLocalAnimeLibrary ?? false,
                                         hostPassword: data.nakamaHostPassword,
                                         includeNakamaAnimeLibrary: data.includeNakamaAnimeLibrary ?? false,
+                                        hostUnsharedAnimeIds: data?.nakamaHostUnsharedAnimeIds ?? [],
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -438,6 +439,7 @@ export default function Page() {
                                 nakamaHostShareLocalAnimeLibrary: status?.settings?.nakama?.hostShareLocalAnimeLibrary ?? false,
                                 nakamaHostPassword: status?.settings?.nakama?.hostPassword ?? "",
                                 includeNakamaAnimeLibrary: status?.settings?.nakama?.includeNakamaAnimeLibrary ?? false,
+                                nakamaHostUnsharedAnimeIds: status?.settings?.nakama?.hostUnsharedAnimeIds ?? [],
                             }}
                             stackClass="space-y-0 relative"
                         >

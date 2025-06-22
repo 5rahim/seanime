@@ -1,6 +1,7 @@
 "use client"
 
 import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
+import { MediaExclusionSelector, MediaExclusionSelectorProps } from "@/components/shared/media-exclusion-selector"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -478,6 +479,16 @@ const MultiDirectorySelectorField = React.memo(withControlledInput(forwardRef<HT
     },
 )))
 
+const MediaExclusionSelectorField = React.memo(withControlledInput(forwardRef<HTMLDivElement, FieldComponent<MediaExclusionSelectorProps>>(
+    ({ onChange, ...props }, ref) => {
+        return <MediaExclusionSelector
+            {...props}
+            onChange={onChange}
+            ref={ref}
+        />
+    },
+)))
+
 export const Field = createPolymorphicComponent<"div", FieldProps, {
     Text: typeof TextInputField,
     Textarea: typeof TextareaField,
@@ -498,6 +509,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     MultiDirectorySelector: typeof MultiDirectorySelectorField
     RadioCards: typeof RadioCardsField
     ColorPicker: typeof ColorPickerField
+    MediaExclusionSelector: typeof MediaExclusionSelectorField
     Submit: typeof SubmitField
 }>({
     Text: TextInputField,
@@ -519,6 +531,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     MultiDirectorySelector: MultiDirectorySelectorField,
     ColorPicker: ColorPickerField,
     RadioCards: RadioCardsField,
+    MediaExclusionSelector: MediaExclusionSelectorField,
     Submit: SubmitField,
 })
 

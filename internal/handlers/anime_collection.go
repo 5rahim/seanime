@@ -6,7 +6,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
-	"seanime/internal/nakama"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -36,9 +35,15 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		return h.RespondWithData(c, &anime.LibraryCollection{})
 	}
 
-	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
-	if err != nil {
-		return h.RespondWithError(c, err)
+	var lfs []*anime.LocalFile
+	nakamaLfs, fromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles()
+	if fromNakama {
+		lfs = nakamaLfs
+	} else {
+		lfs, _, err = db_bridge.GetLocalFiles(h.App.Database)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
@@ -61,11 +66,17 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		})
 	}
 
-	h.App.NakamaManager.HydrateHostAnimeLibrary(&nakama.HydrateHostAnimeLibraryOptions{
-		AnimeCollection:   animeCollection,
-		LibraryCollection: libraryCollection,
-		MetadataProvider:  h.App.MetadataProvider,
-	})
+	// Add and remove necessary medatada when hydrating from Nakama
+	if fromNakama {
+		for _, ep := range libraryCollection.ContinueWatchingList {
+			ep.IsNakamaEpisode = true
+		}
+		for _, list := range libraryCollection.Lists {
+			for _, entry := range list.Entries {
+				entry.EntryLibraryData = nil
+			}
+		}
+	}
 
 	// Hydrate total library size
 	if libraryCollection != nil && libraryCollection.Stats != nil {

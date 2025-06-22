@@ -29182,9 +29182,34 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HostUnsharedAnimeIds",
+        "jsonName": "hostUnsharedAnimeIds",
+        "goType": "IntSlice",
+        "typescriptType": "Models_IntSlice",
+        "usedTypescriptType": "Models_IntSlice",
+        "usedStructName": "models.IntSlice",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "IntSlice",
+    "formattedName": "Models_IntSlice",
+    "package": "models",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]int",
+      "typescriptType": "Array\u003cnumber\u003e",
+      "declaredValues": null
+    },
+    "comments": null
   },
   {
     "filepath": "../internal/database/models/models.go",
@@ -46498,6 +46523,107 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/playbackmanager/stream_magnet.go",
+    "filename": "stream_magnet.go",
+    "name": "StreamMagnetRequestOptions",
+    "formattedName": "PlaybackManager_StreamMagnetRequestOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "MagnetLink",
+        "jsonName": "magnet_link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " magnet link to stream"
+        ]
+      },
+      {
+        "name": "OptionalMediaId",
+        "jsonName": "optionalMediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " optional media ID to associate with the magnet link"
+        ]
+      },
+      {
+        "name": "Untracked",
+        "jsonName": "untracked",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/stream_magnet.go",
+    "filename": "stream_magnet.go",
+    "name": "TrackedStreamMagnetRequestResponse",
+    "formattedName": "PlaybackManager_TrackedStreamMagnetRequestResponse",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " episode number of the magnet link"
+        ]
+      },
+      {
+        "name": "EpisodeCollection",
+        "jsonName": "episodeCollection",
+        "goType": "anime.EpisodeCollection",
+        "typescriptType": "Anime_EpisodeCollection",
+        "usedTypescriptType": "Anime_EpisodeCollection",
+        "usedStructName": "anime.EpisodeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/stream_magnet.go",
+    "filename": "stream_magnet.go",
+    "name": "TrackedStreamMagnetOptions",
+    "formattedName": "PlaybackManager_TrackedStreamMagnetOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "anidbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/scanner/hook_events.go",
     "filename": "hook_events.go",
     "name": "ScanStartedEvent",
@@ -52245,20 +52371,11 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -52425,9 +52542,7 @@
       "typescriptType": "number",
       "declaredValues": []
     },
-    "comments": [
-      " Token types for our lexer"
-    ]
+    "comments": []
   },
   {
     "filepath": "../internal/manga/providers/local_parser.go",
@@ -53002,20 +53117,11 @@
       {
         "name": "Client",
         "jsonName": "Client",
-        "goType": "http.Client",
+        "goType": "req.Client",
         "typescriptType": "Client",
         "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
+        "usedStructName": "req.Client",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -59922,19 +60028,6 @@
         ]
       },
       {
-        "name": "seekDelayCompensation",
-        "jsonName": "seekDelayCompensation",
-        "goType": "time.Duration",
-        "typescriptType": "Duration",
-        "usedTypescriptType": "Duration",
-        "usedStructName": "time.Duration",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Expected delay for seek operations"
-        ]
-      },
-      {
         "name": "pendingSeekTime",
         "jsonName": "pendingSeekTime",
         "goType": "time.Time",
@@ -60113,18 +60206,6 @@
         "public": false,
         "comments": [
           " When we last changed play state"
-        ]
-      },
-      {
-        "name": "lastSelfSeekTime",
-        "jsonName": "lastSelfSeekTime",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": false,
-        "comments": [
-          " When we last seeked ourselves (to ignore stale sync messages)"
         ]
       }
     ],

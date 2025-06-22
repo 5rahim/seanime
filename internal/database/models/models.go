@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -125,6 +126,33 @@ type NakamaSettings struct {
 	IncludeNakamaAnimeLibrary bool `gorm:"column:include_nakama_anime_library" json:"includeNakamaAnimeLibrary"`
 	// HostShareLocalAnimeLibrary shares the local anime library to connected clients
 	HostShareLocalAnimeLibrary bool `gorm:"column:host_share_local_anime_library" json:"hostShareLocalAnimeLibrary"`
+	// HostUnsharedAnimeIds is a list of anime IDs that should not be shared with connected clients.
+	HostUnsharedAnimeIds IntSlice `gorm:"column:host_unshared_anime_ids;type:text" json:"hostUnsharedAnimeIds"`
+}
+
+type IntSlice []int
+
+func (o *IntSlice) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	ids := strings.Split(str, ",")
+	*o = make(IntSlice, len(ids))
+	for i, id := range ids {
+		(*o)[i], _ = strconv.Atoi(id)
+	}
+	return nil
+}
+func (o IntSlice) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return nil, nil
+	}
+	strs := make([]string, len(o))
+	for i, id := range o {
+		strs[i] = strconv.Itoa(id)
+	}
+	return strings.Join(strs, ","), nil
 }
 
 type MangaSettings struct {

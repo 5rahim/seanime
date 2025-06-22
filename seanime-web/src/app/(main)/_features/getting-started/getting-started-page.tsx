@@ -99,6 +99,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         hostShareLocalAnimeLibrary: false,
                                         username: data.nakamaUsername,
                                         includeNakamaAnimeLibrary: false,
+                                        hostUnsharedAnimeIds: [],
                                     },
                                     manga: {
                                         defaultMangaProvider: "",

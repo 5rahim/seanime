@@ -12,6 +12,8 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"strconv"
 	"strings"
+
+	"github.com/imroc/req/v3"
 )
 
 type (
@@ -22,51 +24,27 @@ type (
 	}
 )
 
-// HydrateHostAnimeLibrary hydrates the anime collection object with the host's anime library
-func (m *Manager) HydrateHostAnimeLibrary(opts *HydrateHostAnimeLibraryOptions) {
-	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
-		return
-	}
-
-	// Send a HTTP request to the host to get the anime library
-	response, err := m.reqClient.R().
-		SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
-		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/collection")
-	if err != nil {
-		return
-	}
-
-	if !response.IsSuccessState() {
-		return
-	}
-
-	body := response.Bytes()
-
-	var libraryCollectionResponse struct {
-		Data *anime.LibraryCollection `json:"data"`
-	}
-	err = json.Unmarshal(body, &libraryCollectionResponse)
-	if err != nil {
-		return
-	}
-
-	for _, ep := range libraryCollectionResponse.Data.ContinueWatchingList {
-		ep.IsNakamaEpisode = true
-	}
-
-	*opts.LibraryCollection = *libraryCollectionResponse.Data
-}
-
-func (m *Manager) GetHostAnimeLibraryFiles(mId int) (lfs []*anime.LocalFile, hydrated bool) {
+func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, hydrated bool) {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
 		return nil, false
 	}
 
-	response, err := m.reqClient.R().
-		SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
-		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files/" + strconv.Itoa(mId))
-	if err != nil {
-		return nil, false
+	var response *req.Response
+	var err error
+	if len(mId) > 0 {
+		response, err = m.reqClient.R().
+			SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files/" + strconv.Itoa(mId[0]))
+		if err != nil {
+			return nil, false
+		}
+	} else {
+		response, err = m.reqClient.R().
+			SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files")
+		if err != nil {
+			return nil, false
+		}
 	}
 
 	if !response.IsSuccessState() {

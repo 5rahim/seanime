@@ -55,7 +55,7 @@ export function NakamaSettings(props: Props) {
                     label="Username"
                     name="nakamaUsername"
                     placeholder="Username"
-                    help="The username to identify this server to other instances."
+                    help="The username to identify this server to other instances. If empty a random ID will be assigned."
                 />
             </SettingsCard>
 
@@ -65,7 +65,7 @@ export function NakamaSettings(props: Props) {
                 <div
                     className={cn(
                         "space-y-4",
-                        serverStatus?.settings?.nakama?.isHost ? "opacity-50 pointer-events-none" : "",
+                        serverStatus?.settings?.nakama?.isHost ? "hidden" : "",
                     )}
                 >
                     {!serverStatus?.settings?.nakama?.isHost &&
@@ -136,6 +136,12 @@ export function NakamaSettings(props: Props) {
                     name="nakamaHostShareLocalAnimeLibrary"
                     label="Share local anime library"
                     help="If enabled, this server will share its local anime library to other clients."
+                />
+
+                <Field.MediaExclusionSelector
+                    name="nakamaHostUnsharedAnimeIds"
+                    label="Exclude anime from sharing"
+                    help="Select anime that you don't want to share with other clients."
                 />
             </SettingsCard>
 

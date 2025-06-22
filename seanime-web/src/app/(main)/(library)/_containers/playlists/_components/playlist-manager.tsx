@@ -82,6 +82,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                 return n.type === selectedCategory
             })
             ?.flatMap(n => n.entries)
+            ?.filter(n => !!n?.libraryData)
             ?.filter(Boolean) ?? []
     }, [libraryCollection, debouncedSearchInput, selectedCategory])
 

@@ -3267,6 +3267,13 @@ export type Models_DiscordSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_IntSlice = Array<number>
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_LibraryPaths = Array<string>
 
 /**
@@ -3375,6 +3382,7 @@ export type Models_NakamaSettings = {
     remoteServerPassword: string
     includeNakamaAnimeLibrary: boolean
     hostShareLocalAnimeLibrary: boolean
+    hostUnsharedAnimeIds: Models_IntSlice
 }
 
 /**

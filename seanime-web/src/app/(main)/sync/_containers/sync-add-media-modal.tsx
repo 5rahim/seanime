@@ -94,7 +94,7 @@ function MediaSelector(props: MediaSelectorProps) {
             if (prev.find(n => n.mediaId === mediaId)) {
                 return prev.filter(n => n.mediaId !== mediaId)
             } else {
-                return [...prev, { mediaId, type: "anime" }]
+                return [...prev, { mediaId, type: "anime" as const }]
             }
         })
     }
@@ -104,7 +104,7 @@ function MediaSelector(props: MediaSelectorProps) {
             if (prev.find(n => n.mediaId === mediaId)) {
                 return prev.filter(n => n.mediaId !== mediaId)
             } else {
-                return [...prev, { mediaId, type: "manga" }]
+                return [...prev, { mediaId, type: "manga" as const }]
             }
         })
     }

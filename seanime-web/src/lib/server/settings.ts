@@ -96,6 +96,7 @@ export const settingsSchema = z.object({
     nakamaEnabled: z.boolean().optional().default(false),
     nakamaUsername: z.string().optional().default(""),
     includeNakamaAnimeLibrary: z.boolean().optional().default(false),
+    nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
