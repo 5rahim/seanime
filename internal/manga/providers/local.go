@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-
 	// "image/jpeg"
 	"io"
 	"os"
@@ -102,7 +101,7 @@ func (p *Local) Search(opts hibikemanga.SearchOptions) (res []*hibikemanga.Searc
 	for i, manga := range all {
 		allTitles[i] = &manga.Title
 	}
-	compRes := comparison.CompareWithLevenshtein(&opts.Query, allTitles)
+	compRes := comparison.CompareWithLevenshteinCleanFunc(&opts.Query, allTitles, cleanMangaTitle)
 
 	var bestMatch *comparison.LevenshteinResult
 	for _, res := range compRes {
@@ -112,6 +111,11 @@ func (p *Local) Search(opts hibikemanga.SearchOptions) (res []*hibikemanga.Searc
 	}
 
 	if bestMatch == nil {
+		return res, nil
+	}
+
+	if bestMatch.Distance > 3 {
+		// If the best match is too far away, return no results
 		return res, nil
 	}
 
@@ -126,6 +130,20 @@ func (p *Local) Search(opts hibikemanga.SearchOptions) (res []*hibikemanga.Searc
 	res = append(res, manga)
 
 	return res, nil
+}
+
+func cleanMangaTitle(title string) string {
+	title = strings.TrimSpace(title)
+
+	// Remove some characters to make comparison easier
+	title = strings.Map(func(r rune) rune {
+		if r == '/' || r == '\\' || r == ':' || r == '*' || r == '?' || r == '!' || r == '"' || r == '<' || r == '>' || r == '|' || r == ',' {
+			return rune(0)
+		}
+		return r
+	}, title)
+
+	return title
 }
 
 // FindChapters scans the manga series directory and returns the chapters.
