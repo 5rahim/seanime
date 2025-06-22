@@ -16,6 +16,21 @@ export const metadata: Metadata = {
     description: "Self-hosted, user-friendly media server for anime and manga.",
     icons: {
         icon: "/icons/favicon.ico",
+        apple: "/icons/apple-icon.png",
+    },
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "black-translucent",
+        title: "Seanime",
+    },
+    formatDetection: {
+        telephone: false,
+    },
+    other: {
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "black-translucent",
+        "apple-mobile-web-app-title": "Seanime",
     },
 }
 
