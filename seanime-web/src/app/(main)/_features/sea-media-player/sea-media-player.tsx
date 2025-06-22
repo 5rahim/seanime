@@ -326,12 +326,13 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
         canPlayRef.current = true
 
-        if (__isDesktop__ && wentToNextEpisodeRef.current && process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
-            logger("MEDIA PLAYER").info("Fullscreen via Auto-Fullscreen")
+        if (__isDesktop__ && wentToNextEpisodeRef.current) {
+            logger("MEDIA PLAYER").info("Restoring fullscreen")
             try {
                 playerRef.current?.enterFullscreen()
                 playerRef.current?.el?.focus()
-            } catch {
+            }
+            catch {
             }
         }
 
