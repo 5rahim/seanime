@@ -5,6 +5,8 @@ import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, f
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
+import { atom } from "jotai"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { MangaEntryFilters, useStoredMangaFilters, useStoredMangaProviders } from "./handle-manga-selected-provider"
@@ -15,7 +17,41 @@ export const MANGA_LIBRARY_DEFAULT_PARAMS: CollectionParams<"manga"> = {
     unreadOnly: false,
 }
 
-export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams<"manga">>(MANGA_LIBRARY_DEFAULT_PARAMS)
+// Persistent atom for unreadOnly setting
+export const __mangaLibrary_unreadOnlyAtom = atomWithStorage<boolean>(
+    "sea-manga-library-unread-only",
+    false,
+    undefined,
+    { getOnInit: false }
+)
+
+// Base params atom (non-persistent)
+const __mangaLibrary_baseParamsAtom = atomWithImmer<Omit<CollectionParams<"manga">, "unreadOnly">>({
+    sorting: MANGA_LIBRARY_DEFAULT_PARAMS.sorting,
+    genre: MANGA_LIBRARY_DEFAULT_PARAMS.genre,
+    status: MANGA_LIBRARY_DEFAULT_PARAMS.status,
+    format: MANGA_LIBRARY_DEFAULT_PARAMS.format,
+    season: MANGA_LIBRARY_DEFAULT_PARAMS.season,
+    year: MANGA_LIBRARY_DEFAULT_PARAMS.year,
+    isAdult: MANGA_LIBRARY_DEFAULT_PARAMS.isAdult,
+})
+
+// Derived atom that combines base params with persistent unreadOnly
+export const __mangaLibrary_paramsAtom = atom(
+    (get) => {
+        const baseParams = get(__mangaLibrary_baseParamsAtom)
+        const unreadOnly = get(__mangaLibrary_unreadOnlyAtom)
+        return {
+            ...baseParams,
+            unreadOnly,
+        }
+    },
+    (get, set, newValue: CollectionParams<"manga">) => {
+        const { unreadOnly, ...baseParams } = newValue
+        set(__mangaLibrary_baseParamsAtom, baseParams)
+        set(__mangaLibrary_unreadOnlyAtom, unreadOnly)
+    }
+)
 
 export const __mangaLibrary_paramsInputAtom = atomWithImmer<CollectionParams<"manga">>(MANGA_LIBRARY_DEFAULT_PARAMS)
 
@@ -63,13 +99,17 @@ export function useHandleMangaCollection() {
     }, [storedProviders, storedFilters, latestChapterNumbers])
 
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
+    const [unreadOnly, setUnreadOnly] = useAtom(__mangaLibrary_unreadOnlyAtom)
 
-    // Reset params when data changes
+    // Initialize params with persistent unreadOnly value when data loads
     React.useEffect(() => {
         if (!!data) {
-            setParams(MANGA_LIBRARY_DEFAULT_PARAMS)
+            setParams({
+                ...MANGA_LIBRARY_DEFAULT_PARAMS,
+                unreadOnly,
+            })
         }
-    }, [data])
+    }, [data, unreadOnly, setParams])
 
     const genres = React.useMemo(() => {
         const genresSet = new Set<string>()
