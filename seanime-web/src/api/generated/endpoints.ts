@@ -1353,12 +1353,21 @@ export const API_ENDPOINTS = {
          *  @description
          *  Route return the local files for the given AniList anime media id.
          *  This is used by the anime media entry pages to get all the data about the anime.
-         *  This includes episodes and metadata (if any), AniList list data, download info...
          */
         GetNakamaAnimeLibraryFiles: {
             key: "NAKAMA-get-nakama-anime-library-files",
             methods: ["POST"],
             endpoint: "/api/v1/nakama/host/anime/library/files/{id}",
+        },
+        /**
+         *  @description
+         *  Route return all the local files for the host.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
+        GetNakamaAnimeAllLibraryFiles: {
+            key: "NAKAMA-get-nakama-anime-all-library-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/host/anime/library/files",
         },
         NakamaPlayVideo: {
             key: "NAKAMA-nakama-play-video",
@@ -1422,8 +1431,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
-         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
+         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",

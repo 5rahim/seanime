@@ -21,17 +21,19 @@ import (
 
 const (
 	// Host -> Peer
-	MessageTypeWatchPartyCreated         = "watch_party_created"          // Host creates a watch party
-	MessageTypeWatchPartyStateChanged    = "watch_party_state_changed"    // Host or peer changes the state of the watch party
-	MessageTypeWatchPartyStopped         = "watch_party_stopped"          // Host stops a watch party
-	MessageTypeWatchPartyPlaybackInfo    = "watch_party_playback_info"    // Host is ready, sends playback info to peers
-	MessageTypeWatchPartyPlaybackStatus  = "watch_party_playback_status"  // Host or peer sends playback status to peers (seek, play, pause, etc)
-	MessageTypeWatchPartyPlaybackStopped = "watch_party_playback_stopped" // Peer sends playback stopped to host
+	MessageTypeWatchPartyCreated             = "watch_party_created"                // Host creates a watch party
+	MessageTypeWatchPartyStateChanged        = "watch_party_state_changed"          // Host or peer changes the state of the watch party
+	MessageTypeWatchPartyStopped             = "watch_party_stopped"                // Host stops a watch party
+	MessageTypeWatchPartyPlaybackInfo        = "watch_party_playback_info"          // Host is ready, sends playback info to peers
+	MessageTypeWatchPartyPlaybackStatus      = "watch_party_playback_status"        // Host or peer sends playback status to peers (seek, play, pause, etc)
+	MessageTypeWatchPartyPlaybackStopped     = "watch_party_playback_stopped"       // Peer sends playback stopped to host
+	MessageTypeWatchPartyRelayModePeersReady = "watch_party_relay_mode_peers_ready" // Relay server signals that all peers are ready to origin
 	// Peer -> Host
-	MessageTypeWatchPartyJoin         = "watch_party_join"          // Peer joins a watch party
-	MessageTypeWatchPartyLeave        = "watch_party_leave"         // Peer leaves a watch party
-	MessageTypeWatchPartyPeerStatus   = "watch_party_peer_status"   // Peer reports their current status to host
-	MessageTypeWatchPartyBufferUpdate = "watch_party_buffer_update" // Peer reports buffering state to host
+	MessageTypeWatchPartyJoin                          = "watch_party_join"                              // Peer joins a watch party
+	MessageTypeWatchPartyLeave                         = "watch_party_leave"                             // Peer leaves a watch party
+	MessageTypeWatchPartyPeerStatus                    = "watch_party_peer_status"                       // Peer reports their current status to host
+	MessageTypeWatchPartyBufferUpdate                  = "watch_party_buffer_update"                     // Peer reports buffering state to host
+	MessageTypeWatchPartyRelayModeOriginPlaybackStatus = "watch_party_relay_mode_origin_playback_status" // Relay origin sends playback status to relay server
 )
 
 const (
@@ -120,6 +122,7 @@ type WatchPartySession struct {
 	Settings         *WatchPartySessionSettings               `json:"settings"`
 	CreatedAt        time.Time                                `json:"createdAt"`
 	CurrentMediaInfo *WatchPartySessionMediaInfo              `json:"currentMediaInfo"` // can be nil if not set
+	IsRelayMode      bool                                     `json:"isRelayMode"`      // Whether this session is in relay mode
 	mu               sync.RWMutex                             `json:"-"`
 }
 
@@ -135,6 +138,8 @@ type WatchPartySessionParticipant struct {
 	IsBuffering    bool                        `json:"isBuffering"`
 	BufferHealth   float64                     `json:"bufferHealth"`             // 0.0 to 1.0, how much buffer is available
 	PlaybackStatus *mediaplayer.PlaybackStatus `json:"playbackStatus,omitempty"` // Current playback status
+	// Relay mode
+	IsRelayOrigin bool `json:"isRelayHost"` // Whether this peer is the origin for relay mode
 }
 
 type WatchPartySessionMediaInfo struct {
@@ -327,6 +332,11 @@ func (wpm *WatchPartyManager) handleMessage(message *Message, senderID string) e
 			return err
 		}
 		wpm.handleWatchPartyPlaybackStatusEvent(&payload)
+
+	case MessageTypeWatchPartyRelayModePeersReady:
+		// TODO: Implement
+	case MessageTypeWatchPartyRelayModeOriginPlaybackStatus:
+		// TODO: Implement
 	}
 
 	return nil
@@ -397,7 +407,7 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 	wpm.currentSession = mo.Some(session)
 
 	// Notify all peers about the new watch party
-	wpm.manager.SendMessage(MessageTypeWatchPartyCreated, WatchPartyCreatedPayload{
+	_ = wpm.manager.SendMessage(MessageTypeWatchPartyCreated, WatchPartyCreatedPayload{
 		Session: session,
 	})
 
@@ -428,6 +438,40 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 	return session, nil
 }
 
+// PromotePeerToRelayModeOrigin promotes a peer to be the origin for relay mode
+// TODO: To implement
+func (wpm *WatchPartyManager) PromotePeerToRelayModeOrigin(peerId string) {
+	wpm.mu.Lock()
+	defer wpm.mu.Unlock()
+
+	wpm.logger.Debug().Str("peerId", peerId).Msg("nakama: Promoting peer to relay mode origin")
+
+	session, ok := wpm.currentSession.Get()
+	if !ok {
+		wpm.logger.Warn().Msg("nakama: Cannot promote peer to relay mode origin, no active watch party session")
+		return
+	}
+
+	// Check if the peer exists in the session
+	participant, exists := session.Participants[peerId]
+	if !exists {
+		wpm.logger.Warn().Str("peerId", peerId).Msg("nakama: Cannot promote peer to relay mode origin, peer not found in session")
+		return
+	}
+
+	// Set the IsRelayOrigin flag to true
+	participant.IsRelayOrigin = true
+	// Broadcast the updated session state to all peers
+	session.mu.Lock()
+	session.IsRelayMode = true
+	session.mu.Unlock()
+
+	wpm.logger.Debug().Str("peerId", peerId).Msg("nakama: Peer promoted to relay mode origin")
+
+	wpm.broadcastSessionStateToPeers()
+	wpm.sendSessionStateToClient()
+}
+
 func (wpm *WatchPartyManager) StopWatchParty() {
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
@@ -447,7 +491,7 @@ func (wpm *WatchPartyManager) StopWatchParty() {
 	wpm.bufferMu.Unlock()
 
 	// Broadcast the stop event to all peers
-	wpm.manager.SendMessage(MessageTypeWatchPartyStopped, nil)
+	_ = wpm.manager.SendMessage(MessageTypeWatchPartyStopped, nil)
 
 	if wpm.sessionCtxCancel != nil {
 		wpm.sessionCtxCancel()
@@ -784,7 +828,7 @@ func (wpm *WatchPartyManager) checkAndManageBuffering() {
 				Int("totalPeers", totalPeers).
 				Msg("nakama: Pausing playback due to peer buffering")
 
-			wpm.manager.playbackManager.Pause()
+			_ = wpm.manager.playbackManager.Pause()
 			wpm.isWaitingForBuffers = true
 			wpm.bufferWaitStart = time.Now()
 		}
@@ -805,7 +849,7 @@ func (wpm *WatchPartyManager) checkAndManageBuffering() {
 				Bool("maxWaitExceeded", waitTime > maxWaitTime).
 				Msg("nakama: Resuming playback after buffer wait")
 
-			wpm.manager.playbackManager.Resume()
+			_ = wpm.manager.playbackManager.Resume()
 			wpm.isWaitingForBuffers = false
 		}
 	}
@@ -1442,7 +1486,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 				wpm.pendingSeekPosition = seekPosition
 				wpm.seekMu.Unlock()
 
-				wpm.manager.playbackManager.Seek(seekPosition)
+				_ = wpm.manager.playbackManager.Seek(seekPosition)
 			} else if positionDrift > 0 && positionDrift <= ResumeAheadTolerance {
 				wpm.logger.Debug().
 					Float64("positionDrift", positionDrift).
@@ -1452,7 +1496,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			}
 
 			wpm.logger.Debug().Msg("nakama: Host resumed, resuming peer playback")
-			wpm.manager.playbackManager.Resume()
+			_ = wpm.manager.playbackManager.Resume()
 		} else {
 			wpm.logger.Debug().Msg("nakama: Host paused, handling peer pause")
 			wpm.handleHostPause(payloadStatus, *playbackStatus, payload.Timestamp)
@@ -1474,7 +1518,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			Msg("nakama: Host is playing but peer is paused, syncing and resuming")
 
 		// Resume and sync to host position
-		wpm.manager.playbackManager.Resume()
+		_ = wpm.manager.playbackManager.Resume()
 
 		// Track pending seek
 		now := time.Now()
@@ -1483,7 +1527,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 		wpm.pendingSeekPosition = hostExpectedPosition
 		wpm.seekMu.Unlock()
 
-		wpm.manager.playbackManager.Seek(hostExpectedPosition)
+		_ = wpm.manager.playbackManager.Seek(hostExpectedPosition)
 	} else if !payloadStatus.Playing && playbackStatus.Playing {
 		// Host paused, peer playing, pause immediately
 		wpm.logger.Debug().Msg("nakama: Host is paused but peer is playing, pausing immediately")
@@ -1530,9 +1574,9 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 			wpm.pendingSeekPosition = hostActualPausePosition
 			wpm.seekMu.Unlock()
 
-			wpm.manager.playbackManager.Seek(hostActualPausePosition)
+			_ = wpm.manager.playbackManager.Seek(hostActualPausePosition)
 		}
-		wpm.manager.playbackManager.Pause()
+		_ = wpm.manager.playbackManager.Pause()
 		wpm.logger.Debug().Msgf("nakama: Host paused, peer paused immediately (diff: %.2f)", timeDifference)
 	}
 }
@@ -1576,8 +1620,8 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimest
 					wpm.pendingSeekPosition = hostPausePosition
 					wpm.seekMu.Unlock()
 
-					wpm.manager.playbackManager.Seek(hostPausePosition)
-					wpm.manager.playbackManager.Pause()
+					_ = wpm.manager.playbackManager.Seek(hostPausePosition)
+					_ = wpm.manager.playbackManager.Pause()
 					return
 				}
 
@@ -1599,8 +1643,8 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimest
 					wpm.pendingSeekPosition = hostPausePosition
 					wpm.seekMu.Unlock()
 
-					wpm.manager.playbackManager.Seek(hostPausePosition)
-					wpm.manager.playbackManager.Pause()
+					_ = wpm.manager.playbackManager.Seek(hostPausePosition)
+					_ = wpm.manager.playbackManager.Pause()
 					return
 				}
 

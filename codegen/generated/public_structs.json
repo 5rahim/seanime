@@ -30206,6 +30206,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UnpinnedMenuItems",
+        "jsonName": "unpinnedMenuItems",
+        "goType": "StringSlice",
+        "typescriptType": "Models_StringSlice",
+        "usedTypescriptType": "Models_StringSlice",
+        "usedStructName": "models.StringSlice",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -30926,6 +30937,20 @@
     ]
   },
   {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "StringSlice",
+    "formattedName": "Models_StringSlice",
+    "package": "models",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]string",
+      "typescriptType": "Array\u003cstring\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
     "filepath": "../internal/debrid/client/hook_events.go",
     "filename": "hook_events.go",
     "name": "DebridAutoSelectTorrentsFetchedEvent",
@@ -31553,6 +31578,7 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
+        "\"none\"",
         "\"default\"",
         "\"nativeplayer\"",
         "\"externalPlayerLink\""
@@ -60273,6 +60299,17 @@
         ]
       },
       {
+        "name": "IsRelayMode",
+        "jsonName": "isRelayMode",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this session is in relay mode"
+        ]
+      },
+      {
         "name": "mu",
         "jsonName": "",
         "goType": "sync.RWMutex",
@@ -60394,6 +60431,17 @@
         "public": true,
         "comments": [
           " Current playback status"
+        ]
+      },
+      {
+        "name": "IsRelayOrigin",
+        "jsonName": "isRelayHost",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this peer is the origin for relay mode"
         ]
       }
     ],
@@ -76605,7 +76653,8 @@
       "declaredValues": [
         "\"default\"",
         "\"externalPlayerLink\"",
-        "\"nativeplayer\""
+        "\"nativeplayer\"",
+        "\"none\""
       ]
     },
     "comments": []

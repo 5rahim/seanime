@@ -1681,6 +1681,17 @@
 //     })
 // }
 
+// export function useGetNakamaAnimeAllLibraryFiles() {
+//     return useServerMutation<Array<Anime_LocalFile>>({
+//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useNakamaPlayVideo() {
 //     return useServerMutation<boolean, NakamaPlayVideo_Variables>({
 //         endpoint: API_ENDPOINTS.NAKAMA.NakamaPlayVideo.endpoint,

@@ -24,6 +24,7 @@ const (
 	PlaybackTypeExternal           PlaybackType = "default" // External player
 	PlaybackTypeExternalPlayerLink PlaybackType = "externalPlayerLink"
 	PlaybackTypeNativePlayer       PlaybackType = "nativeplayer"
+	PlaybackTypeNone               PlaybackType = "none"
 )
 
 type StartStreamOptions struct {
@@ -112,6 +113,11 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	//
 	go func() {
 		switch opts.PlaybackType {
+		case PlaybackTypeNone:
+			r.logger.Warn().Msg("torrentstream: Playback type is set to 'none'")
+			// Signal to the client that the torrent has started playing (remove loading status)
+			// There will be no tracking
+			r.sendStateEvent(eventTorrentStartedPlaying)
 		//
 		// External player
 		//

@@ -37,7 +37,7 @@ import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
-import { LuCornerLeftDown } from "react-icons/lu"
+import { LuCornerLeftDown, LuGem } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
@@ -461,6 +461,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                         <Badge
                             className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                             intent="success-solid"
+                            leftIcon={<LuGem className="text-md" />}
                         >
                             Best release
                         </Badge>

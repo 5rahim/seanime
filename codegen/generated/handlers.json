@@ -6483,7 +6483,6 @@
       "",
       "\t@summary return the local files for the given AniList anime media id.",
       "\t@desc This is used by the anime media entry pages to get all the data about the anime.",
-      "\t@desc This includes episodes and metadata (if any), AniList list data, download info...",
       "\t@route /api/v1/nakama/host/anime/library/files/{id} [POST]",
       "\t@param id - int - true - \"AniList anime media ID\"",
       "\t@returns []anime.LocalFile",
@@ -6494,8 +6493,7 @@
     "api": {
       "summary": "return the local files for the given AniList anime media id.",
       "descriptions": [
-        "This is used by the anime media entry pages to get all the data about the anime.",
-        "This includes episodes and metadata (if any), AniList list data, download info..."
+        "This is used by the anime media entry pages to get all the data about the anime."
       ],
       "endpoint": "/api/v1/nakama/host/anime/library/files/{id}",
       "methods": [
@@ -6514,6 +6512,36 @@
           ]
         }
       ],
+      "bodyFields": [],
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+    }
+  },
+  {
+    "name": "HandleGetNakamaAnimeAllLibraryFiles",
+    "trimmedName": "GetNakamaAnimeAllLibraryFiles",
+    "comments": [
+      "HandleGetNakamaAnimeAllLibraryFiles",
+      "",
+      "\t@summary return all the local files for the host.",
+      "\t@desc This is used to share the local anime collection with Nakama clients.",
+      "\t@route /api/v1/nakama/host/anime/library/files [POST]",
+      "\t@returns []anime.LocalFile",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "return all the local files for the host.",
+      "descriptions": [
+        "This is used to share the local anime collection with Nakama clients."
+      ],
+      "endpoint": "/api/v1/nakama/host/anime/library/files",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
       "bodyFields": [],
       "returns": "[]anime.LocalFile",
       "returnGoType": "anime.LocalFile",

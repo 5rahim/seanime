@@ -14,6 +14,7 @@ export function OfflineMangaLists() {
         genres,
         mangaCollectionLoading,
         storedProviders,
+        hasManga,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -49,6 +50,7 @@ export function OfflineMangaLists() {
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
                 storedProviders={storedProviders}
+                hasManga={hasManga}
             />
         </div>
     )

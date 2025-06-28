@@ -116,6 +116,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     hideDownloadedEpisodeCardFilename: false,
     customCSS: "",
     mobileCustomCSS: "",
+    unpinnedMenuItems: [],
 }
 
 
@@ -165,6 +166,7 @@ export function useThemeSettings(): ThemeSettingsHook {
         hideDownloadedEpisodeCardFilename: getThemeValue("hideDownloadedEpisodeCardFilename", serverStatus?.themeSettings),
         customCSS: getThemeValue("customCSS", serverStatus?.themeSettings),
         mobileCustomCSS: getThemeValue("mobileCustomCSS", serverStatus?.themeSettings),
+        unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings),
     }
 }
 

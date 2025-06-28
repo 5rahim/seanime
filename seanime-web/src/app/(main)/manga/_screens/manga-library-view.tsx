@@ -224,6 +224,22 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                     list.type)}</h2>
                 <div className="flex flex-1" data-manga-library-view-collection-list-item-header-spacer></div>
 
+                {list.type === "CURRENT" && params.unreadOnly && (
+                    <Button
+                        intent="white-link"
+                        size="xs"
+                        className="!px-2 !py-1"
+                        onClick={() => {
+                            setParams(draft => {
+                                draft.unreadOnly = false
+                                return
+                            })
+                        }}
+                    >
+                        Show all
+                    </Button>
+                )}
+
                 {list.type === "CURRENT" && <DropdownMenu
                     trigger={<div className="relative">
                         <IconButton
@@ -233,7 +249,7 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                             icon={<BiDotsVertical />}
                             // loading={isRefetchingMangaChapterContainers}
                         />
-                        {params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}
+                        {/*{params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}*/}
                         {isRefetchingMangaChapterContainers &&
                             <div className="absolute -top-1 -right-1 bg-[--orange] size-3 rounded-full animate-ping"></div>}
                     </div>}

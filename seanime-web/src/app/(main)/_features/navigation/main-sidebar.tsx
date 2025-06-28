@@ -34,17 +34,17 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChevronDown, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
+import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
-import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
-import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
+import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 /**
  * @description
@@ -120,6 +120,136 @@ export function MainSidebar() {
 
     const [loggingIn, setLoggingIn] = React.useState(false)
 
+    const items = [
+        {
+            id: "library",
+            iconType: IoLibrary,
+            name: "Library",
+            href: "/",
+            isCurrent: pathname === "/",
+        },
+        {
+            id: "schedule",
+            iconType: BiCalendarAlt,
+            name: "Schedule",
+            href: "/schedule",
+            isCurrent: pathname === "/schedule",
+            addon: missingEpisodeCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{missingEpisodeCount}</Badge> : undefined,
+        },
+        ...serverStatus?.settings?.library?.enableManga ? [{
+            id: "manga",
+            iconType: FaBookReader,
+            name: "Manga",
+            href: "/manga",
+            isCurrent: pathname.startsWith("/manga"),
+        }] : [],
+        {
+            id: "discover",
+            iconType: BiNews,
+            name: "Discover",
+            href: "/discover",
+            isCurrent: pathname === "/discover",
+        },
+        {
+            id: "anilist",
+            iconType: SiAnilist,
+            name: "AniList",
+            href: "/anilist",
+            isCurrent: pathname === "/anilist",
+        },
+        ...serverStatus?.settings?.nakama?.enabled ? [{
+            id: "nakama",
+            iconType: MdOutlineConnectWithoutContact,
+            iconClass: "size-6",
+            name: "Nakama",
+            isCurrent: nakamaModalOpen,
+            onClick: () => setNakamaModalOpen(true),
+            addon: <>
+                {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                    className="absolute right-0 top-0" size="sm"
+                    intent="info-solid"
+                >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                {nakamaStatus?.isConnectedToHost && <div
+                    className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                ></div>}
+            </>,
+        }] : [],
+        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+            id: "auto-downloader",
+            iconType: TbWorldDownload,
+            name: "Auto Downloader",
+            href: "/auto-downloader",
+            isCurrent: pathname === "/auto-downloader",
+            addon: autoDownloaderQueueCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{autoDownloaderQueueCount}</Badge> : undefined,
+        }] : [],
+        ...(
+            serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
+            && !serverStatus?.settings?.torrent?.hideTorrentList
+            && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
+            ? [{
+                id: "torrent-list",
+                iconType: BiDownload,
+                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                    ? "Torrent list"
+                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
+                href: "/torrent-list",
+                isCurrent: pathname === "/torrent-list",
+                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                    ? <Badge
+                        className="absolute right-0 top-0 bg-green-500" size="sm"
+                        intent="alert-solid"
+                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
+                    : undefined,
+            }] : [],
+        ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
+            id: "debrid",
+            iconType: HiOutlineServerStack,
+            name: "Debrid",
+            href: "/debrid",
+            isCurrent: pathname === "/debrid",
+        }] : [],
+        {
+            id: "scan-summaries",
+            iconType: PiClockCounterClockwiseFill,
+            name: "Scan summaries",
+            href: "/scan-summaries",
+            isCurrent: pathname === "/scan-summaries",
+        },
+        {
+            id: "search",
+            iconType: FiSearch,
+            name: "Search",
+            onClick: () => {
+                ctx.setOpen(false)
+                setGlobalSearchIsOpen(true)
+            },
+        },
+    ]
+
+    const pinnedMenuItems = React.useMemo(() => {
+        return items.filter(item => !ts.unpinnedMenuItems.includes(item.id))
+    }, [items, ts.unpinnedMenuItems])
+
+    const unpinnedMenuItems = React.useMemo(() => {
+        if (ts.unpinnedMenuItems.length === 0) return []
+        return [
+            {
+                iconType: BiChevronRight,
+                name: "More",
+                subContent: <VerticalMenu
+                    items={items.filter(item => ts.unpinnedMenuItems.includes(item.id))}
+                />,
+            },
+        ]
+    }, [items, ts.unpinnedMenuItems])
+
     return (
         <>
             <AppSidebar
@@ -150,129 +280,16 @@ export function MainSidebar() {
                         itemChevronClass="hidden"
                         itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
                         items={[
-                            // ...(__isDesktop__ ? [{
-                            //     iconType: AiOutlineArrowLeft,
-                            //     name: "Back",
-                            //     onClick: () => {
-                            //         router.back()
-                            //     },
-                            // }] : []),
-                            {
-                                iconType: IoLibrary,
-                                name: "Library",
-                                href: "/",
-                                isCurrent: pathname === "/",
-                            },
-                            {
-                                iconType: BiCalendarAlt,
-                                name: "Schedule",
-                                href: "/schedule",
-                                isCurrent: pathname === "/schedule",
-                                addon: missingEpisodeCount > 0 ? <Badge
-                                    className="absolute right-0 top-0" size="sm"
-                                    intent="alert-solid"
-                                >{missingEpisodeCount}</Badge> : undefined,
-                            },
-                            ...serverStatus?.settings?.library?.enableManga ? [{
-                                iconType: FaBookReader,
-                                name: "Manga",
-                                href: "/manga",
-                                isCurrent: pathname.startsWith("/manga"),
-                            }] : [],
-                            {
-                                iconType: BiNews,
-                                name: "Discover",
-                                href: "/discover",
-                                isCurrent: pathname === "/discover",
-                            },
-                            {
-                                iconType: SiAnilist,
-                                name: "AniList",
-                                href: "/anilist",
-                                isCurrent: pathname === "/anilist",
-                            },
-                            ...serverStatus?.settings?.nakama?.enabled ? [{
-                                iconType: MdOutlineConnectWithoutContact,
-                                iconClass: "size-6",
-                                name: "Nakama",
-                                isCurrent: nakamaModalOpen,
-                                onClick: () => setNakamaModalOpen(true),
-                                addon: <>
-                                    {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
-                                        className="absolute right-0 top-0" size="sm"
-                                        intent="info-solid"
-                                    >{nakamaStatus?.connectedPeers?.length}</Badge>}
-
-                                    {nakamaStatus?.isConnectedToHost && <div
-                                        className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
-                                    ></div>}
-                                </>,
-                            }] : [],
-                            {
-                                iconType: BiChevronRight,
-                                name: "More",
-                                subContent: <VerticalMenu
-                                    items={[
-                                        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
-                                            iconType: TbWorldDownload,
-                                            name: "Auto Downloader",
-                                            href: "/auto-downloader",
-                                            isCurrent: pathname === "/auto-downloader",
-                                            addon: autoDownloaderQueueCount > 0 ? <Badge
-                                                className="absolute right-0 top-0" size="sm"
-                                                intent="alert-solid"
-                                            >{autoDownloaderQueueCount}</Badge> : undefined,
-                                        }] : [],
-                                        ...(
-                                            serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-                                            && !serverStatus?.settings?.torrent?.hideTorrentList
-                                            && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
-                                            ? [{
-                                                iconType: BiDownload,
-                                                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                                    ? "Torrent list"
-                                                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
-                                                href: "/torrent-list",
-                                                isCurrent: pathname === "/torrent-list",
-                                                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                                    ? <Badge
-                                                        className="absolute right-0 top-0 bg-green-500" size="sm"
-                                                        intent="alert-solid"
-                                                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
-                                                    : undefined,
-                                            }] : [],
-                                        ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
-                                            iconType: HiOutlineServerStack,
-                                            name: "Debrid",
-                                            href: "/debrid",
-                                            isCurrent: pathname === "/debrid",
-                                        }] : [],
-                                        {
-                                            iconType: PiClockCounterClockwiseFill,
-                                            name: "Scan summaries",
-                                            href: "/scan-summaries",
-                                            isCurrent: pathname === "/scan-summaries",
-                                        },
-                                    ]}
-                                />,
-                            },
-
-                            {
-                                iconType: FiSearch,
-                                name: "Search",
-                                onClick: () => {
-                                    ctx.setOpen(false)
-                                    setGlobalSearchIsOpen(true)
-                                },
-                            },
+                            ...pinnedMenuItems,
+                            ...unpinnedMenuItems,
                         ]}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
 
                     <SidebarNavbar
                         isCollapsed={isCollapsed}
-                        handleExpandSidebar={() => {}}
-                        handleUnexpandedSidebar={() => {}}
+                        handleExpandSidebar={() => { }}
+                        handleUnexpandedSidebar={() => { }}
                     />
                     {__isDesktop__ && <div className="w-full flex justify-center px-4">
                         <HoverCard
@@ -311,8 +328,8 @@ export function MainSidebar() {
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
-                            onMouseEnter={() => {}}
-                            onMouseLeave={() => {}}
+                            onMouseEnter={() => { }}
+                            onMouseLeave={() => { }}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 // {

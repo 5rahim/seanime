@@ -9,7 +9,7 @@ import { AiFillWarning } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
 import { BsFileEarmarkPlayFill } from "react-icons/bs"
 import { FcFolder } from "react-icons/fc"
-import { MdVerified } from "react-icons/md"
+import { LuCircleCheckBig } from "react-icons/lu"
 
 type TorrentPreviewItemProps = {
     link?: string
@@ -84,10 +84,10 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             {addon}
 
             {confirmed && <div className="absolute left-2 top-2" data-torrent-preview-item-confirmed-badge>
-                <MdVerified
+                <LuCircleCheckBig
                     className={cn(
-                        "text-[--gray] text-lg",
-                        isBestRelease ? "text-[--pink]" : "opacity-30",
+                        "text-[--gray] text-sm",
+                        isBestRelease ? "text-[--pink] opacity-70" : "opacity-30",
                     )}
                 />
             </div>}

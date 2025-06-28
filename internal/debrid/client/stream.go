@@ -73,6 +73,7 @@ func NewStreamManager(repository *Repository) *StreamManager {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const (
+	PlaybackTypeNone           StreamPlaybackType = "none"
 	PlaybackTypeDefault        StreamPlaybackType = "default"
 	PlaybackTypeNativePlayer   StreamPlaybackType = "nativeplayer"
 	PlaybackTypeExternalPlayer StreamPlaybackType = "externalPlayerLink"
@@ -352,6 +353,13 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		s.currentStreamUrl = streamUrl
 
 		switch playbackType {
+		case PlaybackTypeNone:
+			// No playback type selected, just signal to the client that the stream is ready
+			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+				Status:      StreamStatusReady,
+				TorrentName: selectedTorrent.Name,
+				Message:     "External player link sent",
+			})
 		case PlaybackTypeDefault:
 			//
 			// Start the stream

@@ -352,6 +352,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				return // Skip rule
 			}
 
+			// DEVNOTE: This is bad, do not skip anime that are not releasing because dubs are delayed
 			// If the media is not releasing AND has more than one episode, skip the rule
 			// This is to avoid skipping movies and single-episode OVAs
 			//if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {

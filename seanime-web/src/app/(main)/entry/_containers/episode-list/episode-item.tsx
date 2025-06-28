@@ -7,9 +7,11 @@ import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/ac
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
-import { Modal } from "@/components/ui/modal"
+import { Modal, ModalProps } from "@/components/ui/modal"
+import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { getImageUrl } from "@/lib/server/assets"
+import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
 import Image from "next/image"
@@ -219,10 +221,32 @@ function MetadataModalButton() {
     </DropdownMenuItem>
 }
 
-export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
+function IsomorphicPopover(props: PopoverProps & ModalProps) {
+    const { title, children, ...rest } = props
+    const { width } = useWindowSize()
+
+    if (width && width > 1024) {
+        return <Popover
+            {...rest}
+            className="max-w-xl !w-full overflow-hidden"
+        >
+            {children}
+        </Popover>
+    }
+
     return <Modal
-        title={episode.displayTitle}
+        {...rest}
+        title={title}
+        titleClass="text-xl"
         contentClass="max-w-2xl overflow-hidden"
+    >
+        {children}
+    </Modal>
+}
+
+export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
+    return <IsomorphicPopover
+        title={episode.displayTitle}
         titleClass="text-xl"
         trigger={<IconButton
             icon={<MdInfo />}
@@ -233,7 +257,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
     >
 
         {episode.episodeMetadata?.image && <div
-            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
         >
             <Image
                 src={getImageUrl(episode.episodeMetadata?.image)}
@@ -249,7 +273,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
             />
         </div>}
 
-        <div className="space-y-4">
+        <div className="space-y-4 z-[5] relative">
             <p className="text-lg line-clamp-2 font-semibold">
                 {episode.episodeTitle?.replaceAll("`", "'")}
                 {episode.isInvalid && <AiFillWarning />}
@@ -280,5 +304,5 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
 
         </div>
 
-    </Modal>
+    </IsomorphicPopover>
 }

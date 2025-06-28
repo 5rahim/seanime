@@ -87,6 +87,7 @@ const (
 	GetMarketplaceExtensionsEndpoint                   = "EXTENSIONS-get-marketplace-extensions"
 	GetMediastreamSettingsEndpoint                     = "MEDIASTREAM-get-mediastream-settings"
 	GetMissingEpisodesEndpoint                         = "ANIME-ENTRIES-get-missing-episodes"
+	GetNakamaAnimeAllLibraryFilesEndpoint              = "NAKAMA-get-nakama-anime-all-library-files"
 	GetNakamaAnimeLibraryCollectionEndpoint            = "NAKAMA-get-nakama-anime-library-collection"
 	GetNakamaAnimeLibraryFilesEndpoint                 = "NAKAMA-get-nakama-anime-library-files"
 	GetOnlineStreamEpisodeListEndpoint                 = "ONLINESTREAM-get-online-stream-episode-list"

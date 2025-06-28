@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
 import { BiCalendarAlt } from "react-icons/bi"
+import { LuGem } from "react-icons/lu"
 
 type TorrentPreviewList = {
     entry: Anime_Entry
@@ -82,7 +83,7 @@ export const TorrentPreviewList = React.memo((
                 onSortChange={handleSortChange}
                 onFilterChange={handleFilterChange}
             />
-            <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
+            <ScrollAreaBox className="h-[calc(100dvh_-_25rem)] bg-gray-950/60">
                 {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">*/}
                 {sortedPreviews.filter(Boolean).map(item => {
                     if (!item.torrent) return null
@@ -108,6 +109,7 @@ export const TorrentPreviewList = React.memo((
                                     <Badge
                                         className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                                         intent="success-solid"
+                                        leftIcon={<LuGem className="text-md" />}
                                     >
                                         Best release
                                     </Badge>

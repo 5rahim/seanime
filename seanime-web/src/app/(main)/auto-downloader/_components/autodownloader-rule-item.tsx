@@ -43,7 +43,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                                 className={cn(
                                     "text-xl",
                                     rule.enabled ? "text-green-500" : "text-gray-500",
-                                    (media?.status === "FINISHED" || !media) && "text-red-300",
+                                    (!media) && "text-red-300",
                                 )}
                             />
                             {!!rule.releaseGroups?.length && <span>{rule.releaseGroups.join(", ")}</span>}
@@ -51,7 +51,8 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             {!!rule.episodeType && <span>{getEpisodeTypeName(rule.episodeType)}</span>}
                             {!!media ? (
                                 <>
-                                    {media.status === "FINISHED" && <span className="text-red-300">This anime is no longer airing</span>}
+                                    {media.status === "FINISHED" &&
+                                        <span className="text-orange-300 opacity-70">This anime is no longer airing</span>}
                                 </>
                             ) : (
                                 <span className="text-red-300">This anime is not in your library</span>

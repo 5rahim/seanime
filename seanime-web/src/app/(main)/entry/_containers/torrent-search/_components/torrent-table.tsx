@@ -151,6 +151,7 @@ export const TorrentTable = memo((
                                             <Badge
                                                 className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                                                 intent="success-solid"
+
                                             >
                                                 Best release
                                             </Badge>

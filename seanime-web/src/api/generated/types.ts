@@ -1931,7 +1931,7 @@ export type DebridClient_FilePreview = {
  * - Filename: stream.go
  * - Package: debrid_client
  */
-export type DebridClient_StreamPlaybackType = "default" | "nativeplayer" | "externalPlayerLink"
+export type DebridClient_StreamPlaybackType = "none" | "default" | "nativeplayer" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/debrid/client/stream.go
@@ -3433,6 +3433,13 @@ export type Models_SilencedMediaEntry = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_StringSlice = Array<string>
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_Theme = {
     enableColorSettings: boolean
     backgroundColor: string
@@ -3477,6 +3484,7 @@ export type Models_Theme = {
     hideDownloadedEpisodeCardFilename: boolean
     customCSS: string
     mobileCustomCSS: string
+    unpinnedMenuItems: Models_StringSlice
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3589,6 +3597,10 @@ export type Nakama_WatchPartySession = {
      * can be nil if not set
      */
     currentMediaInfo?: Nakama_WatchPartySessionMediaInfo
+    /**
+     * Whether this session is in relay mode
+     */
+    isRelayMode: boolean
 }
 
 /**
@@ -3641,6 +3653,10 @@ export type Nakama_WatchPartySessionParticipant = {
      * Current playback status
      */
     playbackStatus?: PlaybackStatus
+    /**
+     * Whether this peer is the origin for relay mode
+     */
+    isRelayHost: boolean
 }
 
 /**
@@ -4078,7 +4094,7 @@ export type Torrentstream_FilePreview = {
  * - Filename: stream.go
  * - Package: torrentstream
  */
-export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer"
+export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer" | "none"
 
 /**
  * - Filepath: internal/torrentstream/client.go

@@ -326,6 +326,9 @@ type Theme struct {
 	HideDownloadedEpisodeCardFilename bool   `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
 	CustomCSS                         string `gorm:"column:custom_css" json:"customCSS"`
 	MobileCustomCSS                   string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
+
+	// v2.9+
+	UnpinnedMenuItems StringSlice `gorm:"column:unpinned_menu_items;type:text" json:"unpinnedMenuItems"`
 }
 
 // +---------------------+
@@ -479,4 +482,23 @@ type PluginData struct {
 	BaseModel
 	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
 	Data     []byte `gorm:"column:data" json:"data"`
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+type StringSlice []string
+
+func (o *StringSlice) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	*o = strings.Split(str, ",")
+	return nil
+}
+func (o StringSlice) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return nil, nil
+	}
+	return strings.Join(o, ","), nil
 }
