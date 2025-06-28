@@ -2,6 +2,7 @@ import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } fr
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { __ui_fixBorderRenderingArtifacts } from "@/app/(main)/settings/_containers/ui-settings"
+import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -107,6 +108,15 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             )}
             {...rest}
         >
+            <GlowingEffect
+                spread={50}
+                glow={true}
+                disabled={false}
+                proximity={100}
+                inactiveZone={0.01}
+                // movementDuration={4}
+                className="opacity-15"
+            />
             {(ts.enableMediaCardBlurredBackground && !!coverImage) &&
                 <div
                     data-media-entry-card-hover-popup-image-container

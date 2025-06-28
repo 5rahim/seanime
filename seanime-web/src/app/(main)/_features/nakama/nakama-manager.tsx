@@ -7,18 +7,18 @@ import {
     useNakamaRemoveStaleConnections,
 } from "@/api/hooks/nakama.hooks"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { AlphaBadge } from "@/components/shared/beta-badge"
+import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { BiCog } from "react-icons/bi"
+import { LuPopcorn } from "react-icons/lu"
 import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPeople, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
 import { toast } from "sonner"
 
@@ -200,14 +200,23 @@ export function NakamaManager() {
             open={isModalOpen}
             onOpenChange={setIsModalOpen}
             title={<div className="flex items-center gap-2 w-full justify-center">
-                <MdOutlineConnectWithoutContact className="size-6" />
+                <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
                 <AlphaBadge />
             </div>}
-            contentClass="max-w-3xl bg-gray-950/90 backdrop-blur-sm"
+            contentClass="max-w-3xl bg-gray-950/70 backdrop-blur-sm sm:rounded-3xl"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
             // allowOutsideInteraction
         >
+
+            <GlowingEffect
+                spread={40}
+                glow={true}
+                disabled={false}
+                proximity={64}
+                inactiveZone={0.01}
+                className="opacity-50"
+            />
 
             <div className="absolute top-4 right-14">
                 <SeaLink href="/settings?tab=nakama" onClick={() => setIsModalOpen(false)}>
@@ -233,115 +242,109 @@ export function NakamaManager() {
             )}
 
             {nakamaStatus !== undefined && (nakamaStatus?.isHost || nakamaStatus?.isConnectedToHost) && (
-                <Tabs defaultValue="connection" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="connection">Connection</TabsTrigger>
-                        <TabsTrigger value="watch-party">Watch Party</TabsTrigger>
-                    </TabsList>
+                <>
 
-                    <TabsContent value="connection" className="space-y-4">
-                        {nakamaStatus?.isHost && (
-                            <>
-                                <div className="flex items-center justify-between">
-                                    <h4>Currently hosting</h4>
-                                    <Button
-                                        onClick={handleCleanupStaleConnections}
-                                        disabled={isCleaningUp}
-                                        size="sm"
-                                        intent="gray-subtle"
-                                        leftIcon={<MdCleaningServices />}
-                                    >
-                                        {isCleaningUp ? "Cleaning up..." : "Remove stale connections"}
-                                    </Button>
-                                </div>
-                                <SettingsCard title="Connected peers">
-                                    {!nakamaStatus?.connectedPeers?.length &&
-                                        <p className="text-center text-sm text-[--muted]">No connected peers</p>}
-                                    {nakamaStatus?.connectedPeers?.map((peer, index) => (
-                                        <div key={index} className="flex items-center justify-between py-1">
-                                            <span className="font-medium">{peer}</span>
-                                        </div>
-                                    ))}
-                                </SettingsCard>
-                            </>
-                        )}
-
-                        {nakamaStatus?.isConnectedToHost && (
-                            <>
-
-                                <SettingsCard title="Host connection">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-[--muted]">Host</span>
-                                            <span className="font-medium">
-                                                {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-[--muted]">Status</span>
-                                            <span
-                                                className={`font-medium ${nakamaStatus?.hostConnectionStatus?.authenticated
-                                                    ? "text-green-500"
-                                                    : "text-red-500"
-                                                }`}
-                                            >
-                                                {nakamaStatus?.hostConnectionStatus?.authenticated ? "Connected" : "Disconnected"}
-                                            </span>
-                                        </div>
-                                        {nakamaStatus?.hostConnectionStatus?.url && (
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-[--muted]">URL</span>
-                                                <span className="font-mono text-xs">{nakamaStatus?.hostConnectionStatus.url}</span>
-                                            </div>
-                                        )}
+                    {nakamaStatus?.isHost && (
+                        <>
+                            <div className="flex items-center justify-between">
+                                <Badge intent="success-solid" className="px-0 text-indigo-300 bg-transparent">Currently hosting</Badge>
+                                <Button
+                                    onClick={handleCleanupStaleConnections}
+                                    disabled={isCleaningUp}
+                                    size="sm"
+                                    intent="gray-subtle"
+                                    leftIcon={<MdCleaningServices />}
+                                >
+                                    {isCleaningUp ? "Cleaning up..." : "Remove stale connections"}
+                                </Button>
+                            </div>
+                            <h4>Connected peers</h4>
+                            <div className="p-4 border rounded-lg bg-gray-950">
+                                {!nakamaStatus?.connectedPeers?.length &&
+                                    <p className="text-center text-sm text-[--muted]">No connected peers</p>}
+                                {nakamaStatus?.connectedPeers?.map((peer, index) => (
+                                    <div key={index} className="flex items-center justify-between py-1">
+                                        <span className="font-medium">{peer}</span>
                                     </div>
-                                </SettingsCard>
-                            </>
-                        )}
-                    </TabsContent>
+                                ))}
+                            </div>
+                        </>
+                    )}
 
-                    <TabsContent value="watch-party" className="space-y-4">
-                        {/* Watch Party Content */}
-                        {(() => {
-                            const isHost = nakamaStatus?.isHost || false
-                            const isConnectedToHost = nakamaStatus?.isConnectedToHost || false
-                            const currentPeerID = nakamaStatus?.hostConnectionStatus?.peerId
+                    {nakamaStatus?.isConnectedToHost && (
+                        <>
 
-                            // Check if user is in the participant list by comparing peer ID
-                            const isUserInSession = watchPartySession && (
-                                isHost ||
-                                (currentPeerID && watchPartySession.participants && currentPeerID in watchPartySession.participants)
-                            )
+                            <h4>Host connection</h4>
+                            <div className="p-4 border rounded-lg bg-gray-950">
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-[--muted]">Host</span>
+                                        <span className="font-medium">
+                                            {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-[--muted]">Status</span>
+                                        <span
+                                            className={`font-medium ${nakamaStatus?.hostConnectionStatus?.authenticated
+                                                ? "text-green-500"
+                                                : "text-red-500"
+                                                }`}
+                                        >
+                                            {nakamaStatus?.hostConnectionStatus?.authenticated ? "Connected" : "Disconnected"}
+                                        </span>
+                                    </div>
+                                    {nakamaStatus?.hostConnectionStatus?.url && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-[--muted]">URL</span>
+                                            <span className="font-mono text-xs">{nakamaStatus?.hostConnectionStatus.url}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
 
-                            // Show session view if there's a session AND user is in it
-                            if (watchPartySession && isUserInSession) {
-                                return (
-                                    <WatchPartySessionView
-                                        session={watchPartySession}
-                                        isHost={isHost}
-                                        onLeave={handleLeaveWatchParty}
-                                        isLeaving={isLeavingWatchParty}
-                                    />
-                                )
-                            }
+                    {/* Watch Party Content */}
+                    {(() => {
+                        const isHost = nakamaStatus?.isHost || false
+                        const isConnectedToHost = nakamaStatus?.isConnectedToHost || false
+                        const currentPeerID = nakamaStatus?.hostConnectionStatus?.peerId
 
-                            // Otherwise show creation/join options
+                        // Check if user is in the participant list by comparing peer ID
+                        const isUserInSession = watchPartySession && (
+                            isHost ||
+                            (currentPeerID && watchPartySession.participants && currentPeerID in watchPartySession.participants)
+                        )
+
+                        // Show session view if there's a session AND user is in it
+                        if (watchPartySession && isUserInSession) {
                             return (
-                                <WatchPartyCreation
+                                <WatchPartySessionView
+                                    session={watchPartySession}
                                     isHost={isHost}
-                                    isConnectedToHost={isConnectedToHost}
-                                    hasActiveSession={!!watchPartySession}
-                                    settings={watchPartySettings}
-                                    onSettingsChange={setWatchPartySettings}
-                                    onCreateWatchParty={handleCreateWatchParty}
-                                    onJoinWatchParty={handleJoinWatchParty}
-                                    isCreating={isCreatingWatchParty}
-                                    isJoining={isJoiningWatchParty}
+                                    onLeave={handleLeaveWatchParty}
+                                    isLeaving={isLeavingWatchParty}
                                 />
                             )
-                        })()}
-                    </TabsContent>
-                </Tabs>
+                        }
+
+                        // Otherwise show creation/join options
+                        return (
+                            <WatchPartyCreation
+                                isHost={isHost}
+                                isConnectedToHost={isConnectedToHost}
+                                hasActiveSession={!!watchPartySession}
+                                settings={watchPartySettings}
+                                onSettingsChange={setWatchPartySettings}
+                                onCreateWatchParty={handleCreateWatchParty}
+                                onJoinWatchParty={handleJoinWatchParty}
+                                isCreating={isCreatingWatchParty}
+                                isJoining={isJoiningWatchParty}
+                            />
+                        )
+                    })()}
+                </>
             )}
 
             {!nakamaStatus?.isHost && !nakamaStatus?.isConnectedToHost && nakamaStatus !== undefined && (
@@ -381,8 +384,9 @@ function WatchPartyCreation({
 }: WatchPartyCreationProps) {
     return (
         <div className="space-y-4">
+            <h4 className="flex items-center gap-2"><LuPopcorn className="size-6" /> Watch Party</h4>
             {isHost && (
-                <SettingsCard title="Create Watch Party">
+                <div className="p-4 border rounded-lg bg-gray-950">
                     <div className="space-y-4">
                         {/* <div className="space-y-3">
                          <div className="flex items-center justify-between">
@@ -433,11 +437,11 @@ function WatchPartyCreation({
                             {isCreating ? "Creating..." : "Create Watch Party"}
                         </Button>
                     </div>
-                </SettingsCard>
+                </div>
             )}
 
             {isConnectedToHost && !isHost && hasActiveSession && (
-                <SettingsCard title="Join Watch Party">
+                <div className="p-4 border rounded-lg bg-gray-950">
                     <div className="space-y-4">
                         <p className="text-sm text-[--muted]">
                             There's an active watch party! Join to watch content together in sync.
@@ -452,7 +456,7 @@ function WatchPartyCreation({
                             {isJoining ? "Joining..." : "Join Watch Party"}
                         </Button>
                     </div>
-                </SettingsCard>
+                </div>
             )}
 
             {!isHost && !isConnectedToHost && (
@@ -487,9 +491,9 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h4>Active Watch Party</h4>
+                <h4 className="flex items-center gap-2"><LuPopcorn className="size-6" /> Watch Party</h4>
                 <div className="flex items-center gap-2">
-                    <Badge className="flex items-center gap-1">
+                    <Badge intent="unstyled">
                         <MdPeople className="size-3" />
                         {participantCount} participant{participantCount !== 1 ? "s" : ""}
                     </Badge>
@@ -497,10 +501,10 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                         onClick={onLeave}
                         disabled={isLeaving}
                         size="sm"
-                        intent="warning-subtle"
+                        intent="alert-subtle"
                         leftIcon={isHost ? <MdStop /> : <MdExitToApp />}
                     >
-                        {isLeaving ? "Leaving..." : isHost ? "Stop Party" : "Leave Party"}
+                        {isLeaving ? "Leaving..." : isHost ? "Stop" : "Leave"}
                     </Button>
                 </div>
             </div>
@@ -534,7 +538,8 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
              </div>
              </SettingsCard> */}
 
-            <SettingsCard title="Participants">
+            <h5>Participants</h5>
+            <div className="p-4 border rounded-lg bg-gray-950">
                 <div className="space-y-2">
                     {participants.map((participant) => (
                         <div key={participant.id} className="flex items-center justify-between py-2">
@@ -543,8 +548,8 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                 {participant.isHost && (
                                     <Badge className="text-xs">Host</Badge>
                                 )}
-                                {participant.canControl && !participant.isHost && (
-                                    <Badge className="text-xs">Controller</Badge>
+                                {participant.isRelayHost && (
+                                    <Badge className="text-xs">Origin</Badge>
                                 )}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-[--muted]">
@@ -580,7 +585,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                         </div>
                     ))}
                 </div>
-            </SettingsCard>
+            </div>
 
             {/* <SettingsCard title="Settings">
              <div className="space-y-2">

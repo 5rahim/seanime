@@ -2,6 +2,7 @@ import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
 import { useHandleTorrentSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Modal } from "@/components/ui/modal"
 import { useThemeSettings } from "@/lib/theme/hooks"
@@ -46,12 +47,22 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
             open={type !== undefined}
             onOpenChange={() => setter(undefined)}
             // size="xl"
-            contentClass="max-w-5xl bg-gray-950/70"
+            contentClass="max-w-5xl bg-gray-950/75"
             title={`${entry?.media?.title?.userPreferred || "Anime"}`}
             titleClass="max-w-[500px] text-ellipsis truncate"
             data-torrent-search-drawer
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
         >
+
+            <GlowingEffect
+                spread={40}
+                blur={1}
+                glow={true}
+                disabled={false}
+                proximity={100}
+                inactiveZone={0.01}
+                className="opacity-50"
+            />
 
             {/*{(ts.enableMediaPageBlurredBackground) && <div*/}
             {/*    data-media-page-header-blurred-background*/}

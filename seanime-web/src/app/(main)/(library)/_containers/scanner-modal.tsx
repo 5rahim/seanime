@@ -2,6 +2,7 @@ import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -85,19 +86,29 @@ export function ScannerModal() {
                 }}
                 // title="Library scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl overflow-hidden"
+                contentClass="space-y-4 max-w-2xl bg-gray-950/70 backdrop-blur-sm rounded-xl"
+                overlayClass="bg-gray-950/70 backdrop-blur-sm"
             >
+                <GlowingEffect
+                    spread={50}
+                    glow={true}
+                    disabled={false}
+                    proximity={100}
+                    inactiveZone={0.01}
+                    // movementDuration={4}
+                    className="!mt-0 opacity-30"
+                />
 
-                <div
+                {/* <div
                     data-scanner-modal-top-pattern
                     className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
                 >
                     <div
                         className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
                     />
-                </div>
+                 </div> */}
 
-                <div className="space-y-4 mt-6" data-scanner-modal-content>
+                <div className="space-y-4" data-scanner-modal-content>
 
                     <AppLayoutStack className="space-y-2">
                         <h5 className="text-[--muted]">Local files</h5>
