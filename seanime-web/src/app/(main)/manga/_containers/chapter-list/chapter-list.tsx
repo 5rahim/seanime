@@ -215,9 +215,8 @@ export function ChapterList(props: ChapterListProps) {
         }
         return d
     }, [
-        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData, selectedExtension,
+        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, downloadData, selectedExtension,
     ])
-
 
     const {
         rowSelectedChapters,
@@ -229,7 +228,7 @@ export function ChapterList(props: ChapterListProps) {
 
     React.useEffect(() => {
         resetRowSelection()
-    }, [chapters])
+    }, [])
 
     // Inject chapter list command
     React.useEffect(() => {
@@ -387,7 +386,7 @@ export function ChapterList(props: ChapterListProps) {
             )}
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
-                chapterContainerError ? <LuffyError title="Oops!"><p>No chapters found</p></LuffyError> : (
+                chapterContainerError ? <LuffyError title="No chapters found"><p>Try another source</p></LuffyError> : (
                     <>
 
                         {chapterContainer?.chapters?.length === 0 && (

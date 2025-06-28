@@ -22,6 +22,7 @@ export const metadata: Metadata = {
         capable: true,
         statusBarStyle: "black-translucent",
         title: "Seanime",
+
     },
     formatDetection: {
         telephone: false,
@@ -39,11 +40,11 @@ export default function RootLayout({ children }: {
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-        {/*<head>*/}
-        {/*    {process.env.NODE_ENV === "development" && <script src="https://unpkg.com/react-scan/dist/auto.global.js" async></script>}*/}
-        {/*</head>*/}
+        {process.env.NODE_ENV === "development" && <head>
+            <script src="https://unpkg.com/react-scan/dist/auto.global.js" async></script>
+        </head>}
         <body className={inter.className} suppressHydrationWarning>
-        {/*{process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>}*/}
+        {/* {process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>} */}
         <ClientProviders>
             {__isTauriDesktop__ && <TauriManager />}
             {__isElectronDesktop__ && <ElectronManager />}

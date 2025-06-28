@@ -1,5 +1,6 @@
 import { SeaCommandContextProps } from "@/app/(main)/_features/sea-command/sea-command"
-import { atom, useAtom } from "jotai/index"
+import { useAtomValue } from "jotai"
+import { atom, useSetAtom } from "jotai/index"
 import React from "react"
 
 export type SeaCommandInjectableItem = {
@@ -42,10 +43,15 @@ const injectablesAtom = atom<Record<string, SeaCommandInjectable>>({})
 //         remove("continue-watching")
 //     }
 // }, [episodes])
-export function useSeaCommandInject() {
-    const [injectables, setInjectables] = useAtom(injectablesAtom)
 
-    const inject = React.useCallback((key: string, injectable: SeaCommandInjectable) => {
+export function useSeaCommandInjectables() {
+    return useAtomValue(injectablesAtom)
+}
+
+export function useSeaCommandInject() {
+    const setInjectables = useSetAtom(injectablesAtom)
+
+    const inject = (key: string, injectable: SeaCommandInjectable) => {
         // setInjectables(prev => ({
         //     ...prev,
         //     [key]: injectable,
@@ -65,19 +71,19 @@ export function useSeaCommandInject() {
             }, {} as Record<string, SeaCommandInjectable>)
             return ret
         })
-    }, [])
+    }
 
-    const remove = React.useCallback((key: string) => {
+    const remove = (key: string) => {
         setInjectables(prev => {
             const next = { ...prev }
             delete next[key]
             return next
         })
-    }, [])
+    }
 
     return {
         inject,
         remove,
-        injectables,
     }
+
 }
