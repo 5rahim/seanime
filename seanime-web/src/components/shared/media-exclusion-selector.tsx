@@ -41,7 +41,8 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
             ...rest
         } = props
 
-        const animeLibraryCollection = useAtomValue(animeLibraryCollectionAtom)
+        const _animeLibraryCollection = useAtomValue(animeLibraryCollectionAtom)
+        const animeLibraryCollectionEntries = _animeLibraryCollection?.lists?.flatMap(n => n.entries)?.filter(n => !!n?.libraryData)?.filter(Boolean)
         const [selectedIds, setSelectedIds] = React.useState<number[]>(value)
         const [modalOpen, setModalOpen] = React.useState(false)
 
@@ -59,20 +60,18 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         }, [selectedIds, onChange])
 
         const handleSelectAll = React.useCallback(() => {
-            if (!animeLibraryCollection?.lists) return
+            if (!animeLibraryCollectionEntries) return
 
             const allMediaIds: number[] = []
-            animeLibraryCollection.lists.forEach(list => {
-                list.entries?.forEach(entry => {
-                    if (entry.mediaId && !allMediaIds.includes(entry.mediaId)) {
-                        allMediaIds.push(entry.mediaId)
-                    }
-                })
+            animeLibraryCollectionEntries?.forEach(entry => {
+                if (entry.mediaId && !allMediaIds.includes(entry.mediaId)) {
+                    allMediaIds.push(entry.mediaId)
+                }
             })
 
             setSelectedIds(allMediaIds)
             onChange?.(allMediaIds)
-        }, [animeLibraryCollection, onChange])
+        }, [animeLibraryCollectionEntries, onChange])
 
         const handleDeselectAll = React.useCallback(() => {
             setSelectedIds([])
@@ -80,24 +79,22 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         }, [onChange])
 
         const handleSelectAdult = React.useCallback(() => {
-            if (!animeLibraryCollection?.lists) return
+            if (!animeLibraryCollectionEntries) return
 
             const adultMediaIds: number[] = []
-            animeLibraryCollection.lists.forEach(list => {
-                list.entries?.forEach(entry => {
-                    if (entry.media?.isAdult && entry.mediaId && !adultMediaIds.includes(entry.mediaId)) {
-                        adultMediaIds.push(entry.mediaId)
-                    }
-                })
+            animeLibraryCollectionEntries?.forEach(entry => {
+                if (entry.media?.isAdult && entry.mediaId && !adultMediaIds.includes(entry.mediaId)) {
+                    adultMediaIds.push(entry.mediaId)
+                }
             })
 
             const newSelectedIds = [...new Set([...selectedIds, ...adultMediaIds])]
             setSelectedIds(newSelectedIds)
             onChange?.(newSelectedIds)
-        }, [animeLibraryCollection, selectedIds, onChange])
+        }, [animeLibraryCollectionEntries, selectedIds, onChange])
 
         const lists = React.useMemo(() => {
-            if (!animeLibraryCollection?.lists) return {
+            if (!animeLibraryCollectionEntries) return {
                 CURRENT: [],
                 PLANNING: [],
                 COMPLETED: [],
@@ -106,45 +103,42 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
             }
 
             return {
-                CURRENT: animeLibraryCollection.lists
-                    .find(n => n.type === "CURRENT")
-                    ?.entries?.filter(Boolean)
+                CURRENT: animeLibraryCollectionEntries
+                    ?.filter(Boolean)
                     ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
-                PLANNING: animeLibraryCollection.lists
-                    .find(n => n.type === "PLANNING")
-                    ?.entries?.filter(Boolean)
-                    ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
-                COMPLETED: animeLibraryCollection.lists
-                    .find(n => n.type === "COMPLETED")
-                    ?.entries?.filter(Boolean)
-                    ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
-                PAUSED: animeLibraryCollection.lists
-                    .find(n => n.type === "PAUSED")
-                    ?.entries?.filter(Boolean)
-                    ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
-                DROPPED: animeLibraryCollection.lists
-                    .find(n => n.type === "DROPPED")
-                    ?.entries?.filter(Boolean)
-                    ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
+                // PLANNING: animeLibraryCollection.lists
+                //     .find(n => n.type === "PLANNING")
+                //     ?.entries?.filter(Boolean)
+                //     ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
+                // COMPLETED: animeLibraryCollection.lists
+                //     .find(n => n.type === "COMPLETED")
+                //     ?.entries?.filter(Boolean)
+                //     ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
+                // PAUSED: animeLibraryCollection.lists
+                //     .find(n => n.type === "PAUSED")
+                //     ?.entries?.filter(Boolean)
+                //     ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
+                // DROPPED: animeLibraryCollection.lists
+                //     .find(n => n.type === "DROPPED")
+                //     ?.entries?.filter(Boolean)
+                //     ?.toSorted((a, b) => a.media!.title!.userPreferred!.localeCompare(b.media!.title!.userPreferred!)) ?? [],
             }
-        }, [animeLibraryCollection])
+        }, [animeLibraryCollectionEntries])
 
         // Get preview items for display
         const selectedEntries = React.useMemo(() => {
-            if (!animeLibraryCollection?.lists) return []
+            if (!animeLibraryCollectionEntries) return []
 
             const allEntries: Anime_LibraryCollectionEntry[] = []
-            animeLibraryCollection.lists.forEach(list => {
-                list.entries?.forEach(entry => {
+            animeLibraryCollectionEntries?.forEach(entry => {
                     if (selectedIds.includes(entry.mediaId)) {
                         allEntries.push(entry)
                     }
                 })
-            })
             return allEntries.slice(0, 5)
-        }, [animeLibraryCollection, selectedIds])
+        }, [animeLibraryCollectionEntries, selectedIds])
 
-        if (!animeLibraryCollection) {
+        if (!animeLibraryCollectionEntries) {
             return (
                 <BasicField
                     label={label}
@@ -268,49 +262,49 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
                                 <div className="space-y-6 max-h-[60vh] overflow-y-auto p-1">
                                     {!!lists.CURRENT.length && (
                                         <MediaSection
-                                            title="Currently Watching"
+                                            title="All"
                                             entries={lists.CURRENT}
                                             selectedIds={selectedIds}
                                             onToggle={handleToggleMedia}
                                             disabled={disabled}
                                         />
                                     )}
-                                    {!!lists.PAUSED.length && (
-                                        <MediaSection
-                                            title="Paused"
-                                            entries={lists.PAUSED}
-                                            selectedIds={selectedIds}
-                                            onToggle={handleToggleMedia}
-                                            disabled={disabled}
-                                        />
-                                    )}
-                                    {!!lists.PLANNING.length && (
-                                        <MediaSection
-                                            title="Planning"
-                                            entries={lists.PLANNING}
-                                            selectedIds={selectedIds}
-                                            onToggle={handleToggleMedia}
-                                            disabled={disabled}
-                                        />
-                                    )}
-                                    {!!lists.COMPLETED.length && (
-                                        <MediaSection
-                                            title="Completed"
-                                            entries={lists.COMPLETED}
-                                            selectedIds={selectedIds}
-                                            onToggle={handleToggleMedia}
-                                            disabled={disabled}
-                                        />
-                                    )}
-                                    {!!lists.DROPPED.length && (
-                                        <MediaSection
-                                            title="Dropped"
-                                            entries={lists.DROPPED}
-                                            selectedIds={selectedIds}
-                                            onToggle={handleToggleMedia}
-                                            disabled={disabled}
-                                        />
-                                    )}
+                                    {/*{!!lists.PAUSED.length && (*/}
+                                    {/*    <MediaSection*/}
+                                    {/*        title="Paused"*/}
+                                    {/*        entries={lists.PAUSED}*/}
+                                    {/*        selectedIds={selectedIds}*/}
+                                    {/*        onToggle={handleToggleMedia}*/}
+                                    {/*        disabled={disabled}*/}
+                                    {/*    />*/}
+                                    {/*)}*/}
+                                    {/*{!!lists.PLANNING.length && (*/}
+                                    {/*    <MediaSection*/}
+                                    {/*        title="Planning"*/}
+                                    {/*        entries={lists.PLANNING}*/}
+                                    {/*        selectedIds={selectedIds}*/}
+                                    {/*        onToggle={handleToggleMedia}*/}
+                                    {/*        disabled={disabled}*/}
+                                    {/*    />*/}
+                                    {/*)}*/}
+                                    {/*{!!lists.COMPLETED.length && (*/}
+                                    {/*    <MediaSection*/}
+                                    {/*        title="Completed"*/}
+                                    {/*        entries={lists.COMPLETED}*/}
+                                    {/*        selectedIds={selectedIds}*/}
+                                    {/*        onToggle={handleToggleMedia}*/}
+                                    {/*        disabled={disabled}*/}
+                                    {/*    />*/}
+                                    {/*)}*/}
+                                    {/*{!!lists.DROPPED.length && (*/}
+                                    {/*    <MediaSection*/}
+                                    {/*        title="Dropped"*/}
+                                    {/*        entries={lists.DROPPED}*/}
+                                    {/*        selectedIds={selectedIds}*/}
+                                    {/*        onToggle={handleToggleMedia}*/}
+                                    {/*        disabled={disabled}*/}
+                                    {/*    />*/}
+                                    {/*)}*/}
                                 </div>
 
                                 <div className="flex justify-end pt-4 border-t">

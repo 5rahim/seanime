@@ -1,13 +1,18 @@
 package nakama
 
 import (
+	"cmp"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"seanime/internal/database/models"
+	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/torrentstream"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
 	"sync"
@@ -19,14 +24,17 @@ import (
 )
 
 type Manager struct {
-	serverHost      string
-	serverPort      int
-	logger          *zerolog.Logger
-	settings        *models.NakamaSettings
-	wsEventManager  events.WSEventManagerInterface
-	platform        platform.Platform
-	playbackManager *playbackmanager.PlaybackManager
-	peerId          string
+	serverHost              string
+	serverPort              int
+	username                string
+	logger                  *zerolog.Logger
+	settings                *models.NakamaSettings
+	wsEventManager          events.WSEventManagerInterface
+	platform                platform.Platform
+	playbackManager         *playbackmanager.PlaybackManager
+	torrentstreamRepository *torrentstream.Repository
+	debridClientRepository  *debrid_client.Repository
+	peerId                  string
 
 	// Host connections (when acting as host)
 	peerConnections *result.Map[string, *PeerConnection]
@@ -49,15 +57,19 @@ type Manager struct {
 
 	reqClient         *req.Client
 	watchPartyManager *WatchPartyManager
+
+	previousPath string // latest file streamed by the peer - real path on the host
 }
 
 type NewManagerOptions struct {
-	Logger          *zerolog.Logger
-	WSEventManager  events.WSEventManagerInterface
-	PlaybackManager *playbackmanager.PlaybackManager
-	Platform        platform.Platform
-	ServerHost      string
-	ServerPort      int
+	Logger                  *zerolog.Logger
+	WSEventManager          events.WSEventManagerInterface
+	PlaybackManager         *playbackmanager.PlaybackManager
+	TorrentstreamRepository *torrentstream.Repository
+	DebridClientRepository  *debrid_client.Repository
+	Platform                platform.Platform
+	ServerHost              string
+	ServerPort              int
 }
 
 type ConnectionType string
@@ -168,19 +180,23 @@ func NewManager(opts *NewManagerOptions) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	m := &Manager{
-		logger:          opts.Logger,
-		wsEventManager:  opts.WSEventManager,
-		playbackManager: opts.PlaybackManager,
-		peerConnections: result.NewResultMap[string, *PeerConnection](),
-		platform:        opts.Platform,
-		ctx:             ctx,
-		cancel:          cancel,
-		messageHandlers: make(map[MessageType]func(*Message, string) error),
-		cleanups:        make([]func(), 0),
-		reqClient:       req.C(),
-		serverHost:      opts.ServerHost,
-		serverPort:      opts.ServerPort,
-		settings:        &models.NakamaSettings{},
+		username:                "",
+		logger:                  opts.Logger,
+		wsEventManager:          opts.WSEventManager,
+		playbackManager:         opts.PlaybackManager,
+		peerConnections:         result.NewResultMap[string, *PeerConnection](),
+		platform:                opts.Platform,
+		ctx:                     ctx,
+		cancel:                  cancel,
+		messageHandlers:         make(map[MessageType]func(*Message, string) error),
+		cleanups:                make([]func(), 0),
+		reqClient:               req.C(),
+		serverHost:              opts.ServerHost,
+		serverPort:              opts.ServerPort,
+		settings:                &models.NakamaSettings{},
+		torrentstreamRepository: opts.TorrentstreamRepository,
+		debridClientRepository:  opts.DebridClientRepository,
+		previousPath:            "",
 	}
 
 	m.watchPartyManager = NewWatchPartyManager(m)
@@ -201,6 +217,21 @@ func NewManager(opts *NewManagerOptions) *Manager {
 					CurrentWatchPartySession: currSession,
 				}
 				m.wsEventManager.SendEvent(events.NakamaStatus, status)
+			}
+
+			if event.Type == events.NakamaWatchPartyEnableRelayMode {
+				var payload WatchPartyEnableRelayModePayload
+				marshaledPayload, err := json.Marshal(event.Payload)
+				if err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to marshal watch party enable relay mode payload")
+					continue
+				}
+				err = json.Unmarshal(marshaledPayload, &payload)
+				if err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to unmarshal watch party enable relay mode payload")
+					continue
+				}
+				m.GetWatchPartyManager().EnableRelayMode(payload.PeerId)
 			}
 		}
 	}()
@@ -223,7 +254,8 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 	}
 
 	m.settings = settings
-	m.logger.Debug().Bool("isHost", settings.IsHost).Str("remoteURL", settings.RemoteServerURL).Msg("nakama: Settings updated")
+	m.username = cmp.Or(settings.Username, "Peer_"+util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789"))
+	m.logger.Debug().Bool("isHost", settings.IsHost).Str("username", m.username).Str("remoteURL", settings.RemoteServerURL).Msg("nakama: Settings updated")
 
 	if previousSettings == nil || previousSettings.IsHost != settings.IsHost || previousSettings.Enabled != settings.Enabled || disconnectAsHost {
 		// Start or stop services based on settings

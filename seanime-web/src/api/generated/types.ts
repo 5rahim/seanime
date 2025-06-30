@@ -3656,7 +3656,7 @@ export type Nakama_WatchPartySessionParticipant = {
     /**
      * Whether this peer is the origin for relay mode
      */
-    isRelayHost: boolean
+    isRelayOrigin: boolean
 }
 
 /**

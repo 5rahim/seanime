@@ -22,13 +22,14 @@ func (m *Manager) registerDefaultHandlers() {
 	m.messageHandlers[MessageTypeWatchPartyJoin] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyLeave] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyStateChanged] = m.handleWatchPartyMessage
-	m.messageHandlers[MessageTypeWatchPartyPlaybackInfo] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPlaybackStatus] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPlaybackStopped] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyPeerStatus] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyBufferUpdate] = m.handleWatchPartyMessage
-	m.messageHandlers[MessageTypeWatchPartyRelayModePeersReady] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyRelayModeOriginStreamStarted] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyRelayModeOriginPlaybackStatus] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyRelayModePeersReady] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyRelayModePeerBuffering] = m.handleWatchPartyMessage
 }
 
 // handleMessage routes messages to the appropriate handler
@@ -96,7 +97,7 @@ func (m *Manager) handleAuthMessage(message *Message, senderID string) error {
 		Payload: AuthReplyPayload{
 			Success:  success,
 			Message:  replyMessage,
-			Username: m.settings.Username,
+			Username: m.username,
 			PeerId:   peerConn.PeerId, // Echo back the peer's UUID
 		},
 		Timestamp: time.Now(),

@@ -13,7 +13,10 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
 	"strconv"
+	"sync"
 	"time"
+
+	"github.com/samber/mo"
 )
 
 type (
@@ -74,6 +77,7 @@ func NewStreamManager(repository *Repository) *StreamManager {
 
 const (
 	PlaybackTypeNone           StreamPlaybackType = "none"
+	PlaybackTypeNoneAndAwait   StreamPlaybackType = "noneAndAwait"
 	PlaybackTypeDefault        StreamPlaybackType = "default"
 	PlaybackTypeNativePlayer   StreamPlaybackType = "nativeplayer"
 	PlaybackTypeExternalPlayer StreamPlaybackType = "externalPlayerLink"
@@ -82,6 +86,8 @@ const (
 // startStream is called by the client to start streaming a torrent
 func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("debrid/client/StartStream", &err)
+
+	s.repository.previousStreamOptions = mo.Some(opts)
 
 	s.repository.logger.Info().
 		Str("clientId", opts.ClientId).
@@ -201,6 +207,14 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	s.downloadCtxCancelFunc = cancelCtx
 
+	readyCh := make(chan struct{})
+	readyOnce := sync.Once{}
+	ready := func() {
+		readyOnce.Do(func() {
+			close(readyCh)
+		})
+	}
+
 	// Launch a goroutine that will listen to the added torrent's status
 	go func(ctx context.Context) {
 		defer util.HandlePanicInModuleThen("debrid/client/StartStream", func() {})
@@ -246,6 +260,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 
 		if ctx.Err() != nil {
 			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+			ready()
 			return
 		}
 
@@ -258,6 +273,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 					Message:     fmt.Sprintf("Failed to get stream URL, %v", err),
 				})
 			}
+			ready()
 			return
 		}
 
@@ -325,6 +341,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 
 		if ctx.Err() != nil {
 			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+			ready()
 			return
 		}
 
@@ -347,6 +364,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 
 		if event.DefaultPrevented {
 			s.repository.logger.Debug().Msg("debridstream: Stream prevented by hook")
+			ready()
 			return
 		}
 
@@ -360,6 +378,15 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				TorrentName: selectedTorrent.Name,
 				Message:     "External player link sent",
 			})
+		case PlaybackTypeNoneAndAwait:
+			// No playback type selected, just signal to the client that the stream is ready
+			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+				Status:      StreamStatusReady,
+				TorrentName: selectedTorrent.Name,
+				Message:     "External player link sent",
+			})
+			ready()
+
 		case PlaybackTypeDefault:
 			//
 			// Start the stream
@@ -450,6 +477,11 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		Message:     "Stream started",
 	})
 	s.repository.logger.Info().Msg("debridstream: Stream started")
+
+	if opts.PlaybackType == PlaybackTypeNoneAndAwait {
+		s.repository.logger.Debug().Msg("debridstream: Waiting for stream to be ready")
+		<-readyCh
+	}
 
 	return nil
 }

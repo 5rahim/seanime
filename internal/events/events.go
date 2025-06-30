@@ -88,5 +88,7 @@ const (
 	NakamaStatus               = "nakama-status"
 
 	// Nakama Watch Party events
-	NakamaWatchPartyState = "nakama-watch-party-state"
+	NakamaWatchPartyState                                 = "nakama-watch-party-state"
+	NakamaWatchPartyEnableRelayMode                       = "nakama-watch-party-enable-relay-mode"
+	NakamaWatchPartyRelayModeToggleShareLibraryWithOrigin = "nakama-watch-party-relay-mode-toggle-share-library-with-origin"
 )

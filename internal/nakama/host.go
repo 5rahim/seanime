@@ -24,6 +24,9 @@ func (m *Manager) startHostServices() {
 
 	m.logger.Info().Msg("nakama: Starting host services")
 
+	// Clean up any existing watch party session
+	m.watchPartyManager.Cleanup()
+
 	// Start ping routine for connected peers
 	go m.hostPingRoutine()
 
@@ -67,6 +70,7 @@ func (m *Manager) HandlePeerConnection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	username := r.Header.Get("X-Seanime-Nakama-Username")
+	// Generate a random username if username is not set (this shouldn't be the case because the peer will generate its own username)
 	if username == "" {
 		username = "Peer_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
 	}

@@ -25,6 +25,7 @@ const (
 	PlaybackTypeExternalPlayerLink PlaybackType = "externalPlayerLink"
 	PlaybackTypeNativePlayer       PlaybackType = "nativeplayer"
 	PlaybackTypeNone               PlaybackType = "none"
+	PlaybackTypeNoneAndAwait       PlaybackType = "noneAndAwait"
 )
 
 type StartStreamOptions struct {
@@ -44,6 +45,8 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartStream", &err)
 	// DEVNOTE: Do not
 	//r.Shutdown()
+
+	r.previousStreamOptions = mo.Some(opts)
 
 	r.logger.Info().
 		Str("clientId", opts.ClientId).
@@ -117,6 +120,17 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 			r.logger.Warn().Msg("torrentstream: Playback type is set to 'none'")
 			// Signal to the client that the torrent has started playing (remove loading status)
 			// There will be no tracking
+			r.sendStateEvent(eventTorrentStartedPlaying)
+		case PlaybackTypeNoneAndAwait:
+			r.logger.Warn().Msg("torrentstream: Playback type is set to 'noneAndAwait'")
+			// Signal to the client that the torrent has started playing (remove loading status)
+			// There will be no tracking
+			for {
+				if r.client.readyToStream() {
+					break
+				}
+				time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
+			}
 			r.sendStateEvent(eventTorrentStartedPlaying)
 		//
 		// External player

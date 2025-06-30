@@ -247,7 +247,6 @@ function IsomorphicPopover(props: PopoverProps & ModalProps) {
 export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
     return <IsomorphicPopover
         title={episode.displayTitle}
-        titleClass="text-xl"
         trigger={<IconButton
             icon={<MdInfo />}
             className="opacity-30 hover:opacity-100 transform-opacity"
@@ -257,7 +256,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
     >
 
         {episode.episodeMetadata?.image && <div
-            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
+            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0] rounded-t-lg"
         >
             <Image
                 src={getImageUrl(episode.episodeMetadata?.image)}

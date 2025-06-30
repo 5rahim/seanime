@@ -130,10 +130,16 @@ func (m *Manager) attemptHostConnection() error {
 	// Generate UUID for this peer instance
 	peerID := uuid.New().String()
 
+	username := m.username
+	// Generate a random username if username is not set
+	if username == "" {
+		username = "Peer_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
+	}
+
 	// Set up headers for authentication
 	headers := http.Header{}
 	headers.Set("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword)
-	headers.Set("X-Seanime-Nakama-Username", m.settings.Username)
+	headers.Set("X-Seanime-Nakama-Username", username)
 	headers.Set("X-Seanime-Nakama-Server-Version", constants.Version)
 	headers.Set("X-Seanime-Nakama-Peer-Id", peerID)
 

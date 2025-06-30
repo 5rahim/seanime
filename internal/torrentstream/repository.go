@@ -51,6 +51,8 @@ type (
 		db                              *db.Database
 
 		onEpisodeCollectionChanged func(ec *anime.EpisodeCollection)
+
+		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
 
 	Settings struct {
@@ -94,10 +96,15 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		db:                              opts.Database,
 		directStreamManager:             opts.DirectStreamManager,
 		nativePlayer:                    opts.NativePlayer,
+		previousStreamOptions:           mo.None[*StartStreamOptions](),
 	}
 	ret.client = NewClient(ret)
 	ret.handler = newHandler(ret)
 	return ret
+}
+
+func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
+	return r.previousStreamOptions.Get()
 }
 
 // SetMediaPlayerRepository sets the mediaplayer repository and listens to events.

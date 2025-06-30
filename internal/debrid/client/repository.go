@@ -41,6 +41,8 @@ type (
 		completeAnimeCache *anilist.CompleteAnimeCache
 		metadataProvider   metadata.Provider
 		platform           platform.Platform
+
+		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
 
 	NewRepositoryOptions struct {
@@ -64,12 +66,13 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		settings: &models.DebridSettings{
 			Enabled: false,
 		},
-		torrentRepository:  opts.TorrentRepository,
-		platform:           opts.Platform,
-		playbackManager:    opts.PlaybackManager,
-		metadataProvider:   opts.MetadataProvider,
-		completeAnimeCache: anilist.NewCompleteAnimeCache(),
-		ctxMap:             result.NewResultMap[string, context.CancelFunc](),
+		torrentRepository:     opts.TorrentRepository,
+		platform:              opts.Platform,
+		playbackManager:       opts.PlaybackManager,
+		metadataProvider:      opts.MetadataProvider,
+		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
+		ctxMap:                result.NewResultMap[string, context.CancelFunc](),
+		previousStreamOptions: mo.None[*StartStreamOptions](),
 	}
 
 	ret.streamManager = NewStreamManager(ret)
@@ -239,6 +242,10 @@ func (r *Repository) GetStreamURL() (string, bool) {
 
 func (r *Repository) CancelStream(opts *CancelStreamOptions) {
 	r.streamManager.cancelStream(opts)
+}
+
+func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
+	return r.previousStreamOptions.Get()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

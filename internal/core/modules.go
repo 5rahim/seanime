@@ -255,12 +255,14 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.NakamaManager = nakama.NewManager(&nakama.NewManagerOptions{
-		Logger:          a.Logger,
-		WSEventManager:  a.WSEventManager,
-		PlaybackManager: a.PlaybackManager,
-		Platform:        a.AnilistPlatform,
-		ServerHost:      a.Config.Server.Host,
-		ServerPort:      a.Config.Server.Port,
+		Logger:                  a.Logger,
+		WSEventManager:          a.WSEventManager,
+		PlaybackManager:         a.PlaybackManager,
+		TorrentstreamRepository: a.TorrentstreamRepository,
+		DebridClientRepository:  a.DebridClientRepository,
+		Platform:                a.AnilistPlatform,
+		ServerHost:              a.Config.Server.Host,
+		ServerPort:              a.Config.Server.Port,
 	})
 
 }

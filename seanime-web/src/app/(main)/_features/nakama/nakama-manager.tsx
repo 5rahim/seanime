@@ -7,6 +7,7 @@ import {
     useNakamaRemoveStaleConnections,
 } from "@/api/hooks/nakama.hooks"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -14,12 +15,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { BiCog } from "react-icons/bi"
+import { FaBroadcastTower } from "react-icons/fa"
+import { HiOutlinePlay } from "react-icons/hi2"
 import { LuPopcorn } from "react-icons/lu"
-import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPeople, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
+import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
 import { toast } from "sonner"
 
 export const nakamaModalOpenAtom = atom(false)
@@ -279,19 +283,8 @@ export function NakamaManager() {
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-[--muted]">Host</span>
-                                        <span className="font-medium">
+                                        <span className="font-medium text-sm tracking-wide">
                                             {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-[--muted]">Status</span>
-                                        <span
-                                            className={`font-medium ${nakamaStatus?.hostConnectionStatus?.authenticated
-                                                ? "text-green-500"
-                                                : "text-red-500"
-                                                }`}
-                                        >
-                                            {nakamaStatus?.hostConnectionStatus?.authenticated ? "Connected" : "Disconnected"}
                                         </span>
                                     </div>
                                     {nakamaStatus?.hostConnectionStatus?.url && (
@@ -485,18 +478,42 @@ interface WatchPartySessionViewProps {
 }
 
 function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPartySessionViewProps) {
+    const { sendMessage } = useWebsocketSender()
+    const nakamaStatus = useNakamaStatus()
     const participants = Object.values(session.participants || {})
     const participantCount = participants.length
+    const serverStatus = useServerStatus()
+
+    const [enablingRelayMode, setEnablingRelayMode] = React.useState(false)
+
+    // Identify current user - either "host" if hosting, or the peer ID if connected as peer
+    const currentUserId = isHost ? "host" : nakamaStatus?.hostConnectionStatus?.peerId
+
+    function handleEnableRelayMode(peerId: string) {
+        sendMessage({
+            type: WSEvents.NAKAMA_WATCH_PARTY_ENABLE_RELAY_MODE,
+            payload: { peerId },
+        })
+    }
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h4 className="flex items-center gap-2"><LuPopcorn className="size-6" /> Watch Party</h4>
                 <div className="flex items-center gap-2">
-                    <Badge intent="unstyled">
-                        <MdPeople className="size-3" />
-                        {participantCount} participant{participantCount !== 1 ? "s" : ""}
-                    </Badge>
+                    {/*Enable relay mode*/}
+                    {isHost && !session.isRelayMode && (
+                        <Tooltip
+                            trigger={<IconButton
+                                size="sm"
+                                intent={!enablingRelayMode ? "primary-subtle" : "primary"}
+                                icon={<FaBroadcastTower />}
+                                onClick={() => setEnablingRelayMode(p => !p)}
+                            />}
+                        >
+                            Enable relay mode
+                        </Tooltip>
+                    )}
                     <Button
                         onClick={onLeave}
                         disabled={isLeaving}
@@ -538,52 +555,67 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
              </div>
              </SettingsCard> */}
 
-            <h5>Participants</h5>
+            <h5>Participants ({participantCount})</h5>
             <div className="p-4 border rounded-lg bg-gray-950">
-                <div className="space-y-2">
-                    {participants.map((participant) => (
-                        <div key={participant.id} className="flex items-center justify-between py-2">
-                            <div className="flex items-center gap-2">
-                                <span className="font-medium">{participant.username}</span>
-                                {participant.isHost && (
-                                    <Badge className="text-xs">Host</Badge>
-                                )}
-                                {participant.isRelayHost && (
-                                    <Badge className="text-xs">Origin</Badge>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-[--muted]">
-                                {participant.isBuffering ? (
-                                    <Badge intent="alert" className="text-xs">
-                                        Buffering
-                                    </Badge>
-                                ) : participant.isReady ? (
-                                    <Badge intent="success" className="text-xs">
-                                        Ready
-                                    </Badge>
-                                ) : (
-                                    <Badge intent="gray" className="text-xs">
-                                        Not Ready
-                                    </Badge>
-                                )}
-                                {!participant.isHost && participant.bufferHealth !== undefined && (
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-xs">Buffer:</span>
-                                        <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-green-500 transition-all duration-300"
-                                                style={{ width: `${Math.max(0, Math.min(100, participant.bufferHealth * 100))}%` }}
-                                            />
+                <div className="space-y-0">
+                    {participants.map((participant) => {
+                        const isCurrentUser = participant.id === currentUserId
+                        return (
+                            <div key={participant.id} className="flex items-center justify-between py-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm tracking-wide">
+                                        {participant.username}
+                                        {isCurrentUser && <span className="text-[--muted] font-normal"> (me)</span>}
+                                    </span>
+                                    {session.isRelayMode && participant.isHost && (
+                                        <Badge intent="unstyled" className="text-xs" leftIcon={<FaBroadcastTower />}>Relay</Badge>
+                                    )}
+                                    {participant.isHost && (
+                                        <Badge className="text-xs">Host</Badge>
+                                    )}
+                                    {participant.isRelayOrigin && (
+                                        <Badge intent="warning" className="text-xs">Origin</Badge>
+                                    )}
+                                    {enablingRelayMode && !participant.isHost && !participant.isRelayOrigin && !session.isRelayMode && (
+                                        <Button
+                                            size="sm" intent="white" leftIcon={<HiOutlinePlay />}
+                                            onClick={() => handleEnableRelayMode(participant.id)}
+                                        >Promote to origin</Button>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-[--muted]">
+                                    {!participant.isHost && participant.bufferHealth !== undefined && (
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-xs">Buffer:</span>
+                                            <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-green-500 transition-all duration-300"
+                                                    style={{ width: `${Math.max(0, Math.min(100, participant.bufferHealth * 100))}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
                                         </div>
-                                        <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
-                                    </div>
-                                )}
-                                {participant.latency > 0 && (
-                                    <span>{participant.latency}ms</span>
-                                )}
+                                    )}
+                                    {participant.latency > 0 && (
+                                        <span>{participant.latency}ms</span>
+                                    )}
+                                    {participant.isBuffering ? (
+                                        <Badge intent="alert" className="text-xs">
+                                            Buffering
+                                        </Badge>
+                                    ) : participant.isReady ? (
+                                        <Badge intent="success" className="text-xs">
+                                            Ready
+                                        </Badge>
+                                    ) : (
+                                        <Badge intent="gray" className="text-xs">
+                                            Awaiting
+                                        </Badge>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 

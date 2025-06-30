@@ -1,4 +1,4 @@
-import { __DEV_SERVER_PORT, TESTONLY__DEV_SERVER_PORT2 } from "@/lib/server/config"
+import { __DEV_SERVER_PORT, TESTONLY__DEV_SERVER_PORT2, TESTONLY__DEV_SERVER_PORT3 } from "@/lib/server/config"
 import { __isDesktop__ } from "@/types/constants"
 
 function devOrProd(dev: string, prod: string): string {
@@ -22,15 +22,16 @@ export function getServerBaseUrl(removeProtocol: boolean = false): string {
         if (removeProtocol) {
             ret = ret.replace("http://", "").replace("https://", "")
         }
+        12
         return ret
     }
-    // if (process.env.NODE_ENV === "development" && window.location.host.startsWith("192.168")) {
-    //     let ret = `http://127.0.0.1:${TESTONLY__DEV_SERVER_PORT3}`
-    //     if (removeProtocol) {
-    //         ret = ret.replace("http://", "").replace("https://", "")
-    //     }
-    //     return ret
-    // }
+    if (process.env.NODE_ENV === "development" && window.location.host.startsWith("192.168")) {
+        let ret = `http://127.0.0.1:${TESTONLY__DEV_SERVER_PORT3}`
+        if (removeProtocol) {
+            ret = ret.replace("http://", "").replace("https://", "")
+        }
+        return ret
+    }
 
     let ret = typeof window !== "undefined"
         ? (`${window?.location?.protocol}//` + devOrProd(`${window?.location?.hostname}:${__DEV_SERVER_PORT}`, window?.location?.host))

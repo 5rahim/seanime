@@ -189,6 +189,9 @@ function getThemeValue(key: string, settings: ThemeSettings | undefined | null):
     } else if (typeof val === "number" && val === 0) {
         // @ts-ignore
         return THEME_DEFAULT_VALUES[key]
+    } else if (!val?.length) {
+        // @ts-ignore
+        return THEME_DEFAULT_VALUES[key]
     } else {
         return val
     }

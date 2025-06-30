@@ -82,6 +82,8 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		return errors.New("not connected to host")
 	}
 
+	m.previousPath = path
+
 	m.logger.Debug().Int("mediaId", media.ID).Msg("nakama: Playing host anime library file")
 	m.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "nakama-file")
 	m.wsEventManager.SendEvent(events.InfoToast, "Sending stream to player...")
@@ -123,14 +125,11 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 	}
 
 	go func(playbackSubscriber *playbackmanager.PlaybackStatusSubscriber) {
-		for {
-			select {
-			case event := <-playbackSubscriber.EventCh:
-				switch event.(type) {
-				case playbackmanager.StreamStartedEvent:
-					m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-					go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
-				}
+		for event := range playbackSubscriber.EventCh {
+			switch event.(type) {
+			case playbackmanager.StreamStartedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
+				go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
 			}
 		}
 	}(playbackSubscriber)
@@ -171,14 +170,11 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 	}
 
 	go func(playbackSubscriber *playbackmanager.PlaybackStatusSubscriber) {
-		for {
-			select {
-			case event := <-playbackSubscriber.EventCh:
-				switch event.(type) {
-				case playbackmanager.StreamStartedEvent:
-					m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-					go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
-				}
+		for event := range playbackSubscriber.EventCh {
+			switch event.(type) {
+			case playbackmanager.StreamStartedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+				go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
 			}
 		}
 	}(playbackSubscriber)

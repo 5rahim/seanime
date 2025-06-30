@@ -59021,49 +59021,6 @@
     ]
   },
   {
-    "filepath": "../internal/nakama/anime_library.go",
-    "filename": "anime_library.go",
-    "name": "HydrateHostAnimeLibraryOptions",
-    "formattedName": "Nakama_HydrateHostAnimeLibraryOptions",
-    "package": "nakama",
-    "fields": [
-      {
-        "name": "AnimeCollection",
-        "jsonName": "AnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedTypescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LibraryCollection",
-        "jsonName": "LibraryCollection",
-        "goType": "anime.LibraryCollection",
-        "typescriptType": "Anime_LibraryCollection",
-        "usedTypescriptType": "Anime_LibraryCollection",
-        "usedStructName": "anime.LibraryCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataProvider",
-        "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/nakama/nakama.go",
     "filename": "nakama.go",
     "name": "Manager",
@@ -59084,6 +59041,15 @@
         "jsonName": "serverPort",
         "goType": "int",
         "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": false,
         "comments": []
@@ -59924,6 +59890,49 @@
     ]
   },
   {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "HydrateHostAnimeLibraryOptions",
+    "formattedName": "Nakama_HydrateHostAnimeLibraryOptions",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibraryCollection",
+        "jsonName": "LibraryCollection",
+        "goType": "anime.LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedTypescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedTypescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/nakama/watch_party.go",
     "filename": "watch_party.go",
     "name": "WatchPartyManager",
@@ -60435,7 +60444,7 @@
       },
       {
         "name": "IsRelayOrigin",
-        "jsonName": "isRelayHost",
+        "jsonName": "isRelayOrigin",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -60811,6 +60820,40 @@
         "comments": []
       }
     ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyEnableRelayModePayload",
+    "formattedName": "Nakama_WatchPartyEnableRelayModePayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " PeerID of the peer to promote to origin"
+        ]
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyRelayModeOriginStreamStartedPayload",
+    "formattedName": "Nakama_WatchPartyRelayModeOriginStreamStartedPayload",
+    "package": "nakama",
+    "fields": [],
     "comments": [
       " Events"
     ]
