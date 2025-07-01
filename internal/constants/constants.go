@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Version              = "2.9.0-rc.3"
-	VersionName          = "Yume"
+	Version              = "2.9.0-rc.5"
+	VersionName          = "Natsu"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"
