@@ -9,7 +9,6 @@ testdata/
 .DS_Store
 */.DS_Store
 
-Dockerfile
 Dockerfile.dev
 dev.dockerfile
 .dockerignore

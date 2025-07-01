@@ -1,0 +1,44 @@
+name: Publish Release Docker Image
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-push-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Permission to push to GHCR
+    steps:
+      - name: Get latest release version
+        id: get_version
+        run: |
+          # The version is available from the event payload
+          echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU for multi-platform builds
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-platform image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: builder-release
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            VERSION=${{ steps.get_version.outputs.version }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/seanime:latest
+            ghcr.io/${{ github.repository_owner }}/seanime:${{ steps.get_version.outputs.version }}
