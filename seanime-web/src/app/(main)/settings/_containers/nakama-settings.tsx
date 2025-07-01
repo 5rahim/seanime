@@ -127,6 +127,14 @@ export function NakamaSettings(props: Props) {
                     help="Set a password to secure your host mode. This password should be different than your server password."
                 />
 
+                {/*<Field.Switch*/}
+                {/*    side="right"*/}
+                {/*    name="nakamaHostEnablePortForwarding"*/}
+                {/*    label="Enable port forwarding"*/}
+                {/*    moreHelp="This might not work for all networks."*/}
+                {/*    help="If enabled, this server will expose its port to the internet. This might be required for other clients to connect to this server."*/}
+                {/*/>*/}
+
                 <Separator className="!my-6" />
 
                 <h3>Host settings</h3>

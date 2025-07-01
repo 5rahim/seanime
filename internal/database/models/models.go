@@ -128,6 +128,8 @@ type NakamaSettings struct {
 	HostShareLocalAnimeLibrary bool `gorm:"column:host_share_local_anime_library" json:"hostShareLocalAnimeLibrary"`
 	// HostUnsharedAnimeIds is a list of anime IDs that should not be shared with connected clients.
 	HostUnsharedAnimeIds IntSlice `gorm:"column:host_unshared_anime_ids;type:text" json:"hostUnsharedAnimeIds"`
+	// HostEnablePortForwarding enables port forwarding.
+	HostEnablePortForwarding bool `gorm:"column:host_enable_port_forwarding" json:"hostEnablePortForwarding"`
 }
 
 type IntSlice []int

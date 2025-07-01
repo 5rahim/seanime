@@ -34,6 +34,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/grafov/m3u8 v0.12.1
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
+	github.com/huin/goupnp v1.3.0
 	github.com/imroc/req/v3 v3.52.2
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.4

@@ -1931,7 +1931,7 @@ export type DebridClient_FilePreview = {
  * - Filename: stream.go
  * - Package: debrid_client
  */
-export type DebridClient_StreamPlaybackType = "none" | "default" | "nativeplayer" | "externalPlayerLink"
+export type DebridClient_StreamPlaybackType = "none" | "noneAndAwait" | "default" | "nativeplayer" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/debrid/client/stream.go
@@ -3383,6 +3383,7 @@ export type Models_NakamaSettings = {
     includeNakamaAnimeLibrary: boolean
     hostShareLocalAnimeLibrary: boolean
     hostUnsharedAnimeIds: Models_IntSlice
+    hostEnablePortForwarding: boolean
 }
 
 /**
@@ -4094,7 +4095,7 @@ export type Torrentstream_FilePreview = {
  * - Filename: stream.go
  * - Package: torrentstream
  */
-export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer" | "none"
+export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer" | "none" | "noneAndAwait"
 
 /**
  * - Filepath: internal/torrentstream/client.go

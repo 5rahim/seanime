@@ -310,6 +310,7 @@ export default function Page() {
                                         hostPassword: data.nakamaHostPassword,
                                         includeNakamaAnimeLibrary: data.includeNakamaAnimeLibrary ?? false,
                                         hostUnsharedAnimeIds: data?.nakamaHostUnsharedAnimeIds ?? [],
+                                        hostEnablePortForwarding: data.nakamaHostEnablePortForwarding ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -528,7 +529,7 @@ export default function Page() {
                                                 side="right"
                                                 name="includeOnlineStreamingInLibrary"
                                                 label="Include in library"
-                                                help="Add non-downloaded shows currently being watched to 'My library'"
+                                                help="Add non-downloaded shows to 'My library' for streaming"
                                             />
                                         </SettingsCard>
 

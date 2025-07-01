@@ -29193,6 +29193,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HostEnablePortForwarding",
+        "jsonName": "hostEnablePortForwarding",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -31415,6 +31424,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "previousStreamOptions",
+        "jsonName": "previousStreamOptions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -31579,6 +31597,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"none\"",
+        "\"noneAndAwait\"",
         "\"default\"",
         "\"nativeplayer\"",
         "\"externalPlayerLink\""
@@ -59110,6 +59129,28 @@
         "comments": []
       },
       {
+        "name": "torrentstreamRepository",
+        "jsonName": "torrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedTypescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "debridClientRepository",
+        "jsonName": "debridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedTypescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "peerId",
         "jsonName": "peerId",
         "goType": "string",
@@ -59232,6 +59273,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "previousPath",
+        "jsonName": "previousPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " latest file streamed by the peer - real path on the host"
+        ]
       }
     ],
     "comments": []
@@ -59272,6 +59324,28 @@
         "typescriptType": "PlaybackManager_PlaybackManager",
         "usedTypescriptType": "PlaybackManager_PlaybackManager",
         "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedTypescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedTypescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -60853,7 +60927,88 @@
     "name": "WatchPartyRelayModeOriginStreamStartedPayload",
     "formattedName": "Nakama_WatchPartyRelayModeOriginStreamStartedPayload",
     "package": "nakama",
-    "fields": [],
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamType",
+        "jsonName": "streamType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OptionalLocalPath",
+        "jsonName": "optionalLocalPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OptionalTorrentStreamStartOptions",
+        "jsonName": "optionalTorrentStreamStartOptions",
+        "goType": "torrentstream.StartStreamOptions",
+        "typescriptType": "Torrentstream_StartStreamOptions",
+        "usedTypescriptType": "Torrentstream_StartStreamOptions",
+        "usedStructName": "torrentstream.StartStreamOptions",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OptionalDebridStreamStartOptions",
+        "jsonName": "optionalDebridStreamStartOptions",
+        "goType": "debrid_client.StartStreamOptions",
+        "typescriptType": "DebridClient_StartStreamOptions",
+        "usedTypescriptType": "DebridClient_StartStreamOptions",
+        "usedStructName": "debrid_client.StartStreamOptions",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "mediaplayer.PlaybackStatus",
+        "typescriptType": "PlaybackStatus",
+        "usedTypescriptType": "PlaybackStatus",
+        "usedStructName": "mediaplayer.PlaybackStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "playbackmanager.PlaybackState",
+        "typescriptType": "PlaybackManager_PlaybackState",
+        "usedTypescriptType": "PlaybackManager_PlaybackState",
+        "usedStructName": "playbackmanager.PlaybackState",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [
       " Events"
     ]
@@ -60861,6 +61016,50 @@
   {
     "filepath": "../internal/nakama/watch_party.go",
     "filename": "watch_party.go",
+    "name": "WatchPartyRelayModeOriginPlaybackStatusPayload",
+    "formattedName": "Nakama_WatchPartyRelayModeOriginPlaybackStatusPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "mediaplayer.PlaybackStatus",
+        "typescriptType": "PlaybackStatus",
+        "usedTypescriptType": "PlaybackStatus",
+        "usedStructName": "mediaplayer.PlaybackStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "playbackmanager.PlaybackState",
+        "typescriptType": "PlaybackManager_PlaybackState",
+        "usedTypescriptType": "PlaybackManager_PlaybackState",
+        "usedStructName": "playbackmanager.PlaybackState",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party_host.go",
+    "filename": "watch_party_host.go",
     "name": "CreateWatchOptions",
     "formattedName": "Nakama_CreateWatchOptions",
     "package": "nakama",
@@ -76517,6 +76716,15 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "previousStreamOptions",
+        "jsonName": "previousStreamOptions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -76697,7 +76905,8 @@
         "\"default\"",
         "\"externalPlayerLink\"",
         "\"nativeplayer\"",
-        "\"none\""
+        "\"none\"",
+        "\"noneAndAwait\""
       ]
     },
     "comments": []

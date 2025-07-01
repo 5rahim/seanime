@@ -1,3 +1,4 @@
+import { GettingStarted_Variables } from "@/api/generated/endpoint.types"
 import { z } from "zod"
 
 export const DEFAULT_TORRENT_PROVIDER = "animetosho"
@@ -94,12 +95,107 @@ export const settingsSchema = z.object({
     nakamaRemoteServerPassword: z.string().optional().default(""),
     nakamaHostShareLocalAnimeLibrary: z.boolean().optional().default(false),
     nakamaEnabled: z.boolean().optional().default(false),
+    nakamaHostEnablePortForwarding: z.boolean().optional().default(false),
     nakamaUsername: z.string().optional().default(""),
     includeNakamaAnimeLibrary: z.boolean().optional().default(false),
     nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
+
+export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): GettingStarted_Variables => ({
+    library: {
+        libraryPath: data.libraryPath,
+        autoUpdateProgress: true,
+        disableUpdateCheck: false,
+        torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
+        autoScan: false,
+        disableAnimeCardTrailers: false,
+        enableManga: data.enableManga,
+        enableOnlinestream: data.enableOnlinestream,
+        dohProvider: DEFAULT_DOH_PROVIDER,
+        openTorrentClientOnStart: false,
+        openWebURLOnStart: false,
+        refreshLibraryOnStart: false,
+        autoPlayNextEpisode: false,
+        enableWatchContinuity: false,
+        libraryPaths: [],
+        autoSyncOfflineLocalData: false,
+        includeOnlineStreamingInLibrary: false,
+        scannerMatchingThreshold: 0,
+        scannerMatchingAlgorithm: "",
+        autoSyncToLocalAccount: false,
+    },
+    nakama: {
+        enabled: false,
+        isHost: false,
+        hostPassword: "",
+        remoteServerURL: "",
+        remoteServerPassword: "",
+        hostShareLocalAnimeLibrary: false,
+        username: data.nakamaUsername,
+        includeNakamaAnimeLibrary: false,
+        hostUnsharedAnimeIds: [],
+        hostEnablePortForwarding: false,
+    },
+    manga: {
+        defaultMangaProvider: "",
+        mangaAutoUpdateProgress: false,
+        mangaLocalSourceDirectory: "",
+    },
+    mediaPlayer: {
+        host: data.mediaPlayerHost,
+        defaultPlayer: data.defaultPlayer,
+        vlcPort: data.vlcPort,
+        vlcUsername: data.vlcUsername || "",
+        vlcPassword: data.vlcPassword,
+        vlcPath: data.vlcPath || "",
+        mpcPort: data.mpcPort,
+        mpcPath: data.mpcPath || "",
+        mpvSocket: data.mpvSocket || "",
+        mpvPath: data.mpvPath || "",
+    },
+    discord: {
+        enableRichPresence: data.enableRichPresence,
+        enableAnimeRichPresence: true,
+        enableMangaRichPresence: true,
+        richPresenceHideSeanimeRepositoryButton: false,
+        richPresenceShowAniListMediaButton: false,
+        richPresenceShowAniListProfileButton: false,
+        richPresenceUseMediaTitleStatus: true,
+    },
+    torrent: {
+        defaultTorrentClient: data.defaultTorrentClient,
+        qbittorrentPath: data.qbittorrentPath,
+        qbittorrentHost: data.qbittorrentHost,
+        qbittorrentPort: data.qbittorrentPort,
+        qbittorrentPassword: data.qbittorrentPassword,
+        qbittorrentUsername: data.qbittorrentUsername,
+        qbittorrentTags: "",
+        transmissionPath: data.transmissionPath,
+        transmissionHost: data.transmissionHost,
+        transmissionPort: data.transmissionPort,
+        transmissionUsername: data.transmissionUsername,
+        transmissionPassword: data.transmissionPassword,
+        showActiveTorrentCount: false,
+        hideTorrentList: false,
+    },
+    anilist: {
+        hideAudienceScore: false,
+        enableAdultContent: data.enableAdultContent,
+        blurAdultContent: false,
+    },
+    enableTorrentStreaming: data.enableTorrentStreaming,
+    enableTranscode: data.enableTranscode,
+    notifications: {
+        disableNotifications: false,
+        disableAutoDownloaderNotifications: false,
+        disableAutoScannerNotifications: false,
+    },
+    debridProvider: data.debridProvider,
+    debridApiKey: data.debridApiKey,
+})
+
 
 export function useDefaultSettingsPaths() {
 

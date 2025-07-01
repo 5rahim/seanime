@@ -35,7 +35,7 @@ export function SettingsNavCard({ title, children }: SettingsCardProps) {
                     disabled={false}
                     proximity={100}
                     inactiveZone={0.01}
-                    className="opacity-30"
+                    className="opacity-25"
                 />
                 {/* <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-nav:opacity-100 hidden lg:block"
@@ -76,7 +76,7 @@ export function SettingsCard({ title, description, children, className }: Settin
                     disabled={false}
                     proximity={100}
                     inactiveZone={0.01}
-                    className="opacity-40"
+                    className="opacity-25"
                 />
                 {/* <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-card:opacity-100"
