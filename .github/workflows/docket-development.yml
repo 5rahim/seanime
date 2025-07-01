@@ -10,12 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Permission to push to GHCR
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU for multi-platform builds
+      - name: Convert owner to lowercase
+        id: string
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ github.repository_owner }}
+
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
@@ -36,5 +42,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/seanime:development
-            ghcr.io/${{ github.repository_owner }}/seanime:dev-${{ github.sha }}
+            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:development
+            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:dev-${{ github.sha }}
