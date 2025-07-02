@@ -16,6 +16,23 @@ on:
 
 jobs:
   build-and-push-release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "CPU"
+            target: "production-cpu-from-release"
+            tag_suffix: ""
+            platforms: "linux/amd64,linux/arm64"
+          - name: "VAAPI (Intel/AMD)"
+            target: "production-vaapi-from-release"
+            tag_suffix: "-vaapi"
+            platforms: "linux/amd64" # HWA images are often single-platform
+          - name: "NVIDIA"
+            target: "production-nvidia-from-release"
+            tag_suffix: "-nvidia"
+            platforms: "linux/amd64" # HWA images are often single-platform
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -59,17 +76,17 @@ jobs:
             echo "scope=${{ github.workflow }}-${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build and push multi-platform image
+      - name: Build and push ${{ matrix.name }} image
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: production-release
-          platforms: linux/amd64,linux/arm64
+          target: ${{ matrix.target }}
+          platforms: ${{ matrix.platforms }}
           push: true
           build-args: |
             VERSION=${{ steps.get_version.outputs.version }}
           tags: |
-            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:latest
-            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:${{ steps.get_version.outputs.version }}
-          cache-from: type=gha,scope=${{ steps.cache_scope.outputs.scope }}
-          cache-to: type=gha,scope=${{ steps.cache_scope.outputs.scope }},mode=max
+            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:latest${{ matrix.tag_suffix }}
+            ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:${{ steps.get_version.outputs.version }}${{ matrix.tag_suffix }}
+          cache-from: type=gha,scope=release-${{ matrix.target }}
+          cache-to: type=gha,scope=release-${{ matrix.target }},mode=max

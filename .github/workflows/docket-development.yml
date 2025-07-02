@@ -54,11 +54,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: production-source
+          target: production-cpu-from-source
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:development
             ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:dev-${{ github.sha }}
-          cache-from: type=gha,scope=${{ steps.cache_scope.outputs.scope }}
-          cache-to: type=gha,scope=${{ steps.cache_scope.outputs.scope }},mode=max
+          cache-from: type=gha,scope=dev-cpu
+          cache-to: type=gha,scope=dev-cpu,mode=max
