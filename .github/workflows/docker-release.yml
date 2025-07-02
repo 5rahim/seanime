@@ -21,6 +21,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Get release version
         id: get_version
         run: |
