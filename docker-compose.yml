@@ -1,0 +1,12 @@
+services:
+  seanime:
+    image: ghcr.io/Ju1-js/seanime:latest 
+    container_name: seanime
+    restart: unless-stopped
+    ports:
+      - "43211:43211"
+    environment:
+      - SEANIME_SERVER_HOST=0.0.0.0
+      - SEANIME_DATA_DIR=/data
+    volumes:
+      - ./seanime-data:/data

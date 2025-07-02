@@ -4,6 +4,12 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+    inputs:
+      clear_cache:
+        description: "Clear build cache before running"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-and-push-dev:
@@ -25,6 +31,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
@@ -34,13 +41,24 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Define cache scope
+        id: cache_scope
+        run: |
+          if [[ "${{ github.event.inputs.clear_cache }}" == "true" ]]; then
+            echo "scope=${{ github.workflow }}-${{ github.ref_name }}-${{ github.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "scope=${{ github.workflow }}-${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: builder-source
+          target: production-source
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:development
             ghcr.io/${{ steps.string.outputs.lowercase }}/seanime:dev-${{ github.sha }}
+          cache-from: type=gha,scope=${{ steps.cache_scope.outputs.scope }}
+          cache-to: type=gha,scope=${{ steps.cache_scope.outputs.scope }},mode=max
