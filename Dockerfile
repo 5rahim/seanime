@@ -53,15 +53,6 @@ RUN chown -R app:app /app
 USER app
 CMD ["./seanime"]
 
-FROM debian:12-slim AS production-vaapi-from-release
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg vainfo intel-media-va-driver-non-free i965-va-driver mesa-va-drivers && rm -rf /var/lib/apt/lists/*
-EXPOSE 43211
-RUN addgroup --system app && adduser --system --ingroup app --no-create-home app
-WORKDIR /app
-COPY --from=builder-release /seanime-server /app/seanime
-RUN chown -R app:app /app
-USER app
-CMD ["./seanime"]
 
 FROM nvidia/cuda:12.1.1-base-ubuntu22.04 AS production-nvidia-from-release
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*

@@ -24,14 +24,10 @@ jobs:
             target: "production-cpu-from-release"
             tag_suffix: ""
             platforms: "linux/amd64,linux/arm64"
-          - name: "VAAPI (Intel/AMD)"
-            target: "production-vaapi-from-release"
-            tag_suffix: "-vaapi"
-            platforms: "linux/amd64" # HWA images are often single-platform
           - name: "NVIDIA"
             target: "production-nvidia-from-release"
             tag_suffix: "-nvidia"
-            platforms: "linux/amd64" # HWA images are often single-platform
+            platforms: "linux/amd64"
 
     runs-on: ubuntu-latest
     permissions:

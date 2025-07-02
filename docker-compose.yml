@@ -1,18 +1,13 @@
-# ============================================================================
+# ========================================================
 # Docker Compose for Seanime
-# ----------------------------------------------------------------------------
-# This file provides configurations for running Seanime with Docker.
-#
+# --------------------------------------------------------
 # Instructions:
-# 1. Uncomment ONE of the services below (cpu, nvidia, or vaapi) that matches
-#    your hardware. Do NOT run more than one at a time.
-# 2. Update the image tag if you want a specific version (e.g., v2.8.5).
-# 3. Run 'docker-compose up -d' in your terminal.
-# 4. Your persistent data will be stored in a 'seanime-data' folder.
-# ============================================================================
+# 1. Uncomment ONE of the services below (cpu or nvidia).
+# 2. Run 'docker-compose up -d'.
+# ========================================================
 
 services:
-  # --- Option 1: Default CPU-only instance (works on any system) ---
+  # --- Option 1: Default CPU-only instance (should work on any system) ---
   seanime:
     image: ghcr.io/5rahim/seanime:latest
     container_name: seanime
@@ -26,8 +21,6 @@ services:
       - ./seanime-data:/data
 
   # --- Option 2: NVIDIA GPU instance (for NVENC hardware transcoding) ---
-  # Uncomment the block below if you have an NVIDIA GPU and the NVIDIA Container Toolkit installed.
-  #
   # seanime-nvidia:
   #   image: ghcr.io/5rahim/seanime:latest-nvidia # Note the '-nvidia' tag
   #   container_name: seanime-nvidia
@@ -46,21 +39,3 @@ services:
   #           - driver: nvidia
   #             count: 1
   #             capabilities: [gpu]
-
-  # --- Option 3: VAAPI instance (for Intel QSV / AMD hardware transcoding) ---
-  # Uncomment the block below if you have a supported Intel or AMD GPU.
-  #
-  # seanime-vaapi:
-  #   image: ghcr.io/5rahim/seanime:latest-vaapi # Note the '-vaapi' tag
-  #   container_name: seanime-vaapi
-  #   restart: unless-stopped
-  #   ports:
-  #     - "43211:43211"
-  #   environment:
-  #     - SEANIME_SERVER_HOST=0.0.0.0
-  #     - SEANIME_DATA_DIR=/data
-  #   volumes:
-  #     - ./seanime-data:/data
-  #   devices:
-  #     # This mounts the host's video acceleration device into the container.
-  #     - /dev/dri:/dev/dri
