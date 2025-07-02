@@ -1,6 +1,6 @@
 services:
   seanime:
-    image: ghcr.io/Ju1-js/seanime:latest 
+    image: ghcr.io/5rahim/seanime:latest 
     container_name: seanime
     restart: unless-stopped
     ports:
