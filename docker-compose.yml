@@ -1,41 +1,86 @@
-# ========================================================
-# Docker Compose for Seanime
-# --------------------------------------------------------
-# Instructions:
-# 1. Uncomment ONE of the services below (cpu or nvidia).
-# 2. Run 'docker-compose up -d'.
-# ========================================================
+# ===================================================================================
+# Docker Compose for Seanime Media Stack
+# -----------------------------------------------------------------------------------
+# This file provides configurations for running Seanime and its dependencies.
+#
+# FULL STACK (Recommended):
+# 1. Uncomment the 'seanime' service AND one torrent client (e.g., 'qbittorrent').
+# 2. In the Seanime UI, connect to the torrent client using its service name, e.g.,
+#    Host: http://qbittorrent
+#    Port: 8080
+#
+# SEANIME ONLY (Connecting to a client on your Host PC):
+# 1. ONLY uncomment the 'seanime' service.
+# 2. Add the 'extra_hosts' block to it (see commented example).
+# 3. In the Seanime UI, connect using: http://host.docker.internal:<PORT>
+# ===================================================================================
 
 services:
-  # --- Option 1: Default CPU-only instance (should work on any system) ---
+  # --- SEANIME CORE SERVICE ---
   seanime:
     image: ghcr.io/5rahim/seanime:latest
     container_name: seanime
     restart: unless-stopped
     ports:
+      # Exposes the Seanime UI on your host
       - "43211:43211"
     environment:
       - SEANIME_SERVER_HOST=0.0.0.0
       - SEANIME_DATA_DIR=/data
     volumes:
+      # For Seanime's persistent database and metadata
       - ./seanime-data:/data
+      # Shared downloads folder (MUST match the torrent client's downloads volume)
+      - ./downloads:/downloads
+    # --- Uncomment below to connect to a torrent client on your HOST PC ---
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
 
-  # --- Option 2: NVIDIA GPU instance (for NVENC hardware transcoding) ---
-  # seanime-nvidia:
-  #   image: ghcr.io/5rahim/seanime:latest-nvidia # Note the '-nvidia' tag
-  #   container_name: seanime-nvidia
-  #   restart: unless-stopped
-  #   ports:
-  #     - "43211:43211"
-  #   environment:
-  #     - SEANIME_SERVER_HOST=0.0.0.0
-  #     - SEANIME_DATA_DIR=/data
-  #   volumes:
-  #     - ./seanime-data:/data
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
+
+  # --- TORRENT CLIENTS (Choose ONE) ---
+
+  # Option A: qBittorrent
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8080
+    ports:
+      # Exposes the qBittorrent Web UI on your host
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    volumes:
+      # For qBittorrent's persistent configuration
+      - ./qbittorrent-config:/config
+      # Shared downloads folder (MUST match Seanime's downloads volume)
+      - ./downloads:/downloads
+
+  # Option B: Transmission
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    ports:
+      # Exposes the Transmission Web UI on your host
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"
+    volumes:
+      # For Transmission's persistent configuration
+      - ./transmission-config:/config
+      # Shared downloads folder
+      - ./downloads:/downloads
+      # For files you want to watch to auto-add torrents
+      - ./watch:/watch
+
+# Note: The 'services' defined above automatically share a network and can
+#       communicate using their service names (e.g., 'seanime', 'qbittorrent').
