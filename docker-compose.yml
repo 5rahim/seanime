@@ -1,0 +1,87 @@
+# ===================================================================================
+# Docker Compose for Seanime Media Stack
+# -----------------------------------------------------------------------------------
+# This file provides configurations for running Seanime and its dependencies.
+#
+# Instructions:
+# 1. Choose your Seanime version: Uncomment EITHER 'seanime-cpu' OR 'seanime-nvidia'.
+# 2. Choose your torrent client: Uncomment EITHER 'qbittorrent' OR 'transmission'.
+# 3. The service names (e.g., 'http://qbittorrent') are used for communication.
+# 4. Run 'docker-compose up -d'.
+# ===================================================================================
+
+services:
+  # --- SEANIME SERVICES (Choose ONE) ---
+
+  # Option A: CPU-only instance (works on any system)
+  seanime-cpu:
+    image: ghcr.io/5rahim/seanime:latest
+    container_name: seanime-cpu
+    restart: unless-stopped
+    ports:
+      - "43211:43211"
+    environment:
+      - SEANIME_SERVER_HOST=0.0.0.0
+      - SEANIME_DATA_DIR=/data
+    volumes:
+      - ./seanime-data:/data
+      - ./downloads:/downloads
+  # Option B: NVIDIA GPU instance (for NVENC hardware transcoding)
+  # seanime-nvidia:
+  #   image: ghcr.io/5rahim/seanime:latest-nvidia # Note the '-nvidia' tag
+  #   container_name: seanime-nvidia
+  #   restart: unless-stopped
+  #   ports:
+  #     - "43211:43211"
+  #   environment:
+  #     - SEANIME_SERVER_HOST=0.0.0.0
+  #     - SEANIME_DATA_DIR=/data
+  #   volumes:
+  #     - ./seanime-data:/data
+  #     - ./downloads:/downloads
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+
+  # --- TORRENT CLIENTS (Choose ONE) ---
+
+  # Option 1: qBittorrent
+  # qbittorrent:
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   container_name: qbittorrent
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #     - WEBUI_PORT=8080
+  #   ports:
+  #     - "8080:8080"
+  #     - "6881:6881"
+  #     - "6881:6881/udp"
+  #   volumes:
+  #     - ./qbittorrent-config:/config
+  #     - ./downloads:/downloads
+
+  # Option 2: Transmission
+  # transmission:
+  #   image: lscr.io/linuxserver/transmission:latest
+  #   container_name: transmission
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #   ports:
+  #     - "9091:9091"
+  #     - "51413:51413"
+  #     - "51413:51413/udp"
+  #   volumes:
+  #     - ./transmission-config:/config
+  #     - ./downloads:/downloads
+  #     - ./watch:/watch
