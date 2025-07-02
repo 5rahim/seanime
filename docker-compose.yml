@@ -40,47 +40,47 @@ services:
   # --- TORRENT CLIENTS (Choose ONE) ---
 
   # Option A: qBittorrent
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - WEBUI_PORT=8080
-    ports:
-      # Exposes the qBittorrent Web UI on your host
-      - "8080:8080"
-      - "6881:6881"
-      - "6881:6881/udp"
-    volumes:
-      # For qBittorrent's persistent configuration
-      - ./qbittorrent-config:/config
-      # Shared downloads folder (MUST match Seanime's downloads volume)
-      - ./downloads:/downloads
+  # qbittorrent:
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   container_name: qbittorrent
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #     - WEBUI_PORT=8080
+  #   ports:
+  #     # Exposes the qBittorrent Web UI on your host
+  #     - "8080:8080"
+  #     - "6881:6881"
+  #     - "6881:6881/udp"
+  #   volumes:
+  #     # For qBittorrent's persistent configuration
+  #     - ./qbittorrent-config:/config
+  #     # Shared downloads folder (MUST match Seanime's downloads volume)
+  #     - ./downloads:/downloads
 
   # Option B: Transmission
-  transmission:
-    image: lscr.io/linuxserver/transmission:latest
-    container_name: transmission
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    ports:
-      # Exposes the Transmission Web UI on your host
-      - "9091:9091"
-      - "51413:51413"
-      - "51413:51413/udp"
-    volumes:
-      # For Transmission's persistent configuration
-      - ./transmission-config:/config
-      # Shared downloads folder
-      - ./downloads:/downloads
-      # For files you want to watch to auto-add torrents
-      - ./watch:/watch
+  # transmission:
+  #   image: lscr.io/linuxserver/transmission:latest
+  #   container_name: transmission
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #   ports:
+  #     # Exposes the Transmission Web UI on your host
+  #     - "9091:9091"
+  #     - "51413:51413"
+  #     - "51413:51413/udp"
+  #   volumes:
+  #     # For Transmission's persistent configuration
+  #     - ./transmission-config:/config
+  #     # Shared downloads folder
+  #     - ./downloads:/downloads
+  #     # For files you want to watch to auto-add torrents
+  #     - ./watch:/watch
 
 # Note: The 'services' defined above automatically share a network and can
 #       communicate using their service names (e.g., 'seanime', 'qbittorrent').
