@@ -37,6 +37,8 @@ RUN go build -o seanime-server -trimpath -ldflags="-s -w"
 # Development builds from source
 FROM alpine:latest AS production-source
 
+RUN apk add --no-cache ffmpeg
+
 EXPOSE 43211
 
 RUN addgroup -S app && adduser -S -G app app
@@ -50,6 +52,8 @@ CMD ["./seanime"]
 
 # Release builds using pre-compiled binaries
 FROM alpine:latest AS production-release
+
+RUN apk add --no-cache ffmpeg
 
 EXPOSE 43211
 
