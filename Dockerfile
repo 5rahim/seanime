@@ -12,7 +12,7 @@ RUN \
   "linux/arm64") ARCH="arm64" ;; \
   *) echo "Unsupported platform for release build: ${TARGETPLATFORM}" >&2; exit 1 ;; \
   esac; \
-  wget https://github.com/5rahim/seanime/releases/download/${VERSION}/seanime-${VERSION#v}_Linux_${ARCH}.tar.gz && \
+  wget https://github.com/Ju1-js/seanime/releases/download/${VERSION}/seanime-${VERSION#v}_Linux_${ARCH}.tar.gz && \
   tar -xzf seanime-*.tar.gz && \
   mv seanime seanime-server
 
@@ -22,7 +22,7 @@ FROM golang:1.24-alpine AS builder-source
 RUN apk add --no-cache git npm
 
 WORKDIR /src
-RUN git clone --depth 1 https://github.com/5rahim/seanime.git .
+RUN git clone --depth 1 https://github.com/Ju1-js/seanime.git .
 WORKDIR /src/seanime-web
 
 RUN npm install
