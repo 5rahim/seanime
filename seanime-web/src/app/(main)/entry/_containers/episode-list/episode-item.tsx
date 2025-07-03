@@ -284,7 +284,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
                 {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'")?.replace(/source:.*/gi, "") || "No summary"}
             </p>
             <Separator />
-            <p className="text-[--muted] line-clamp-2">
+            <p className="text-[--muted] line-clamp-2 tracking-wide text-sm">
                 {episode.localFile?.parsedInfo?.original}
             </p>
             {

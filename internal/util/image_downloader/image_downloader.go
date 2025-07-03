@@ -3,12 +3,6 @@ package image_downloader
 import (
 	"bytes"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/google/uuid"
-	"github.com/rs/zerolog"
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
-	_ "golang.org/x/image/webp"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -22,6 +16,13 @@ import (
 	"slices"
 	"sync"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/google/uuid"
+	"github.com/rs/zerolog"
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/tiff"
+	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -200,6 +201,11 @@ func (id *ImageDownloader) downloadImage(url string) {
 	defer util.HandlePanicInModuleThen("util/image_downloader/downloadImage", func() {
 	})
 
+	if url == "" {
+		id.logger.Warn().Msg("image downloader: Empty URL provided, skipping download")
+		return
+	}
+
 	// Check if the image has already been downloaded
 	id.registryMu.Lock()
 	if _, ok := id.registry.content.UrlToId[url]; ok {
@@ -327,6 +333,9 @@ func (r *Registry) save(urls []string) (err error) {
 	// Verify all images have been downloaded
 	allDownloaded := true
 	for _, url := range urls {
+		if url == "" {
+			continue
+		}
 		if _, ok := r.content.UrlToId[url]; !ok {
 			allDownloaded = false
 			break

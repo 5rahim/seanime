@@ -367,6 +367,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                         <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-2 p-2">
                             {days.map((day, index) => (
                                 <CalendarDay
+                                    key={index}
                                     day={day}
                                     index={index}
                                 />

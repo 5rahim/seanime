@@ -185,7 +185,7 @@ export function AnimeEntryPage() {
             <div className="px-4 md:px-8 relative z-[8]" data-anime-entry-page-content-container>
                 <PageWrapper
                     data-anime-entry-page-content
-                    className="relative 2xl:order-first pb-10"
+                    className="relative 2xl:order-first pb-10 lg:min-h-[calc(100vh-10rem)]"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -226,49 +226,23 @@ export function AnimeEntryPage() {
                             />
                         </PageWrapper>}
 
-                        {currentView === "torrentstream" && <PageWrapper
-                            data-anime-entry-page-torrent-stream-view
-                            key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10 lg:pt-0"
-                            {...{
-                                initial: { opacity: 0, y: 60 },
-                                animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
-                                transition: {
-                                    duration: 0.35,
-                                },
-                            }}
-                        >
+                        {currentView === "torrentstream" &&
                             <TorrentStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
-                            />
-                        </PageWrapper>}
+                            />}
 
-                        {currentView === "debridstream" && <PageWrapper
-                            data-anime-entry-page-debrid-stream-view
-                            key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10 lg:pt-0"
-                            {...{
-                                initial: { opacity: 0, y: 60 },
-                                animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
-                                transition: {
-                                    duration: 0.35,
-                                },
-                            }}
-                        >
+                        {currentView === "debridstream" &&
                             <DebridStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
-                            />
-                        </PageWrapper>}
+                            />}
 
                         {currentView === "onlinestream" && <PageWrapper
                             data-anime-entry-page-online-streaming-view

@@ -13,6 +13,7 @@ import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -214,6 +215,7 @@ export function NakamaManager() {
         >
 
             <GlowingEffect
+                variant="classic"
                 spread={40}
                 glow={true}
                 disabled={false}
@@ -237,7 +239,7 @@ export function NakamaManager() {
                         onClick={handleReconnect}
                         disabled={isReconnecting}
                         size="sm"
-                        intent="primary-subtle"
+                        intent="gray-subtle"
                         leftIcon={<MdRefresh />}
                     >
                         {isReconnecting ? "Reconnecting..." : "Reconnect"}
@@ -287,12 +289,6 @@ export function NakamaManager() {
                                             {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
                                         </span>
                                     </div>
-                                    {nakamaStatus?.hostConnectionStatus?.url && (
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-[--muted]">URL</span>
-                                            <span className="font-mono text-xs">{nakamaStatus?.hostConnectionStatus.url}</span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </>
@@ -461,9 +457,6 @@ function WatchPartyCreation({
             {!isHost && isConnectedToHost && !hasActiveSession && (
                 <div className="text-center py-8">
                     <p className="text-[--muted]">No active watch party</p>
-                    <p className="text-sm text-[--muted] mt-2">
-                        Waiting for the host to create a watch party...
-                    </p>
                 </div>
             )}
         </div>
@@ -509,6 +502,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                 intent={!enablingRelayMode ? "primary-subtle" : "primary"}
                                 icon={<FaBroadcastTower />}
                                 onClick={() => setEnablingRelayMode(p => !p)}
+                                className={cn(enablingRelayMode && "animate-pulse")}
                             />}
                         >
                             Enable relay mode

@@ -512,7 +512,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 </Tooltip>
             </div>}
 
-            {(!!bannerImage) ? <Image
+            {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full rounded-[--radius] overflow-hidden"><Image
                 data-media-entry-card-hover-popup-banner-image
                 src={getImageUrl(bannerImage || "")}
                 alt={"banner"}
@@ -521,10 +521,11 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover top-0 object-center rounded-[--radius] transition",
+                    "object-cover top-0 object-center rounded-[--radius] transition scale-[1.04] duration-200",
+                    "group-hover/media-entry-card:scale-100",
                     trailerLoaded && "hidden",
                 )}
-            /> : <div
+            /></div> : <div
                 data-media-entry-card-hover-popup-banner-image-gradient
                 className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
             ></div>}

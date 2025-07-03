@@ -529,7 +529,7 @@ export default function Page() {
                                                 side="right"
                                                 name="includeOnlineStreamingInLibrary"
                                                 label="Include in library"
-                                                help="Add non-downloaded shows to 'My library' for streaming"
+                                                help="Add non-downloaded shows that are in your currently watching list to 'My library' for streaming"
                                             />
                                         </SettingsCard>
 

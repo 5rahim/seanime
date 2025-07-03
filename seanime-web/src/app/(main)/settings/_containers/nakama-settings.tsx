@@ -59,8 +59,8 @@ export function NakamaSettings(props: Props) {
                 />
             </SettingsCard>
 
-            <SettingsCard title="Connect to a Nakama">
-                {serverStatus?.settings?.nakama?.isHost && <Alert intent="info" description="Cannot connect to a Nakama host while in host mode." />}
+            <SettingsCard title="Connect to a host">
+                {serverStatus?.settings?.nakama?.isHost && <Alert intent="info" description="Cannot connect to a host while in host mode." />}
 
                 <div
                     className={cn(
@@ -116,7 +116,7 @@ export function NakamaSettings(props: Props) {
                     side="right"
                     name="nakamaIsHost"
                     label="Enable host mode"
-                    moreHelp="Password must be set in the config file"
+                    // moreHelp="Password must be set in the config file"
                     help="If enabled, this server will act as a host for other clients. This requires a host password to be set."
                 />
 

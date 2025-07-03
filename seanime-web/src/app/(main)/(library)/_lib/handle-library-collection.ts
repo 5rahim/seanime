@@ -224,6 +224,8 @@ export function useHandleLibraryCollection() {
         unmatchedGroups: data?.unmatchedGroups ?? [],
         unknownGroups: data?.unknownGroups ?? [],
         streamingMediaIds: data?.stream?.anime?.map(n => n.id) ?? [],
+        hasEntries: sortedCollection.some(n => n.entries?.length > 0),
+        isStreamingOnly: sortedCollection.every(n => n.entries?.every(e => !e.libraryData)),
     }
 
 }

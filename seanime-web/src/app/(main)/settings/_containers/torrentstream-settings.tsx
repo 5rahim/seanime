@@ -101,7 +101,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                         side="right"
                         name="includeInLibrary"
                         label="Include in library"
-                        help="Add non-downloaded shows to 'My library' for streaming"
+                        help="Add non-downloaded shows that are in your currently watching list to 'My library' for streaming"
                     />
                 </SettingsCard>
 

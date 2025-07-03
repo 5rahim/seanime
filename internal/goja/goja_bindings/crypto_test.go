@@ -140,3 +140,55 @@ async function run() {
 		t.Fatal(err)
 	}
 }
+
+func TestGojaCryptoOpenSSL(t *testing.T) {
+	vm := goja.New()
+	defer vm.ClearInterrupt()
+
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+	gojabuffer.Enable(vm)
+	BindCrypto(vm)
+	BindConsole(vm, util.NewLogger())
+
+	_, err := vm.RunString(`
+async function run() {
+
+    try {
+
+        console.log("\nTesting Buffer encoding/decoding")
+
+        const payload = "U2FsdGVkX19ZanX9W5jQGgNGOIOBGxhY6gxa1EHnRi3yHL8Ml4cMmQeryf9p04N12VuOjiBas21AcU0Ypc4dB4AWOdc9Cn1wdA2DuQhryUonKYHwV/XXJ53DBn1OIqAvrIAxrN8S2j9Rk5z/F/peu1Kk/d3m82jiKvhTWQcxDeDW8UzCMZbbFnm4qJC3k19+PD5Pal5sBcVTGRXNCpvSSpYb56FcP9Xs+3DyBWhNUqJuO+Wwm3G1J5HhklxCWZ7tcn7TE5Y8d5ORND7t51Padrw4LgEOootqHtfHuBVX6EqlvJslXt0kFgcXJUIO+hw0q5SJ+tiS7o/2OShJ7BCk4XzfQmhFJdBJYGjQ8WPMHYzLuMzDkf6zk2+m7YQtUTXx8SVoLXFOt8gNZeD942snGrWA5+CdYveOfJ8Yv7owoOueMzzYqr5rzG7GVapVI0HzrA24LR4AjRDICqTsJEy6Yg=="
+		const key = "6315b93606d60f48c964b67b14701f3848ef25af01296cf7e6a98c9460e1d2ac"
+        console.log("Original String:", payload)
+
+        const decrypted = CryptoJS.AES.decrypt(payload, key)
+
+		console.log("Decrypted:", decrypted.toString(CryptoJS.enc.Utf8))
+
+    }
+    catch (e) {
+        console.error(e)
+    }
+
+}
+`)
+	require.NoError(t, err)
+
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if promise.State() == goja.PromiseStateRejected {
+		err := promise.Result()
+		t.Fatal(err)
+	}
+}

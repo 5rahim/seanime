@@ -32,13 +32,13 @@ export default function Library() {
         unmatchedGroups,
         unknownGroups,
         streamingMediaIds,
+        hasEntries,
+        isStreamingOnly,
     } = useHandleLibraryCollection()
 
     const [view, setView] = useAtom(__library_viewAtom)
 
     const ts = useThemeSettings()
-
-    const hasEntries = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
 
     return (
         <div data-library-page-container>
@@ -52,6 +52,7 @@ export default function Library() {
                 unknownGroups={unknownGroups}
                 isLoading={isLoading}
                 hasEntries={hasEntries}
+                isStreamingOnly={isStreamingOnly}
             />
 
             <EmptyLibraryView isLoading={isLoading} hasEntries={hasEntries} />
