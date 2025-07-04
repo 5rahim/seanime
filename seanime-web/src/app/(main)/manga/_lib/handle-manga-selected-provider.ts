@@ -72,15 +72,17 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
         }
     }, [storedProvider, extensions, serverStatus])
 
+    const setStoredProviderCallback = React.useCallback(({ mediaId, providerId }: { mediaId: string | number, providerId: string }) => {
+        if (!mediaId) return
+        setStoredProvider(prev => ({
+            ...prev,
+            [String(mediaId)]: providerId,
+        }))
+    }, [setStoredProvider])
+
     return {
         storedProviders: storedProvider,
-        setStoredProvider: ({ mediaId, providerId }: { mediaId: string | number, providerId: string }) => {
-            if (!mediaId) return
-            setStoredProvider(prev => ({
-                ...prev,
-                [String(mediaId)]: providerId,
-            }))
-        },
+        setStoredProvider: setStoredProviderCallback,
     }
 }
 
@@ -136,18 +138,25 @@ export function useSelectedMangaProvider(mId: Nullish<string | number>) {
 
     }, [mId, storedProvider, extensions, serverStatus])
 
+    const selectedExtension = React.useMemo(() =>
+        extensions?.find(provider => provider.id === storedProvider?.[String(mId)]),
+        [extensions, storedProvider, mId]
+    )
+
+    const setSelectedProviderCallback = React.useCallback(({ mId, provider }: { mId: Nullish<string | number>, provider: string }) => {
+        if (!mId) return
+        setStoredProvider(prev => {
+            return {
+                ...prev,
+                [String(mId)]: provider,
+            }
+        })
+    }, [setStoredProvider])
+
     return {
-        selectedExtension: extensions?.find(provider => provider.id === storedProvider?.[String(mId)]),
+        selectedExtension,
         selectedProvider: storedProvider?.[String(mId)] || null,
-        setSelectedProvider: ({ mId, provider }: { mId: Nullish<string | number>, provider: string }) => {
-            if (!mId) return
-            setStoredProvider(prev => {
-                return {
-                    ...prev,
-                    [String(mId)]: provider,
-                }
-            })
-        }
+        setSelectedProvider: setSelectedProviderCallback,
     }
 }
 
@@ -195,22 +204,31 @@ export function useSelectedMangaFilters(
     }, [isLoaded, selectedExtension])
 
 
+    const selectedFilters = React.useMemo(() =>
+        storedFilters[key] || { scanlators: [], language: "" },
+        [storedFilters, key]
+    )
+
+    const setSelectedScanlatorCallback = React.useCallback(({ mId, scanlators }: { mId: Nullish<string | number>, scanlators: string[] }) => {
+        if (!mId) return
+        setStoredFilters(draft => {
+            draft[key]["scanlators"] = scanlators
+            return
+        })
+    }, [setStoredFilters, key])
+
+    const setSelectedLanguageCallback = React.useCallback(({ mId, language }: { mId: Nullish<string | number>, language: string }) => {
+        if (!mId) return
+        setStoredFilters(draft => {
+            draft[key]["language"] = language
+            return
+        })
+    }, [setStoredFilters, key])
+
     return {
-        selectedFilters: storedFilters[key] || { scanlators: [], language: "" },
-        setSelectedScanlator: ({ mId, scanlators }: { mId: Nullish<string | number>, scanlators: string[] }) => {
-            if (!mId) return
-            setStoredFilters(draft => {
-                draft[key]["scanlators"] = scanlators
-                return
-            })
-        },
-        setSelectedLanguage: ({ mId, language }: { mId: Nullish<string | number>, language: string }) => {
-            if (!mId) return
-            setStoredFilters(draft => {
-                draft[key]["language"] = language
-                return
-            })
-        },
+        selectedFilters,
+        setSelectedScanlator: setSelectedScanlatorCallback,
+        setSelectedLanguage: setSelectedLanguageCallback,
     }
 }
 
@@ -218,10 +236,13 @@ export function useStoredMangaFilters(_extensions: ExtensionRepo_MangaProviderEx
     selectedProviders: Record<string, string>,
 ) {
     const [_storedFilters] = useAtom(withImmer(__manga_entryFiltersAtom))
+    const prevFiltersRef = React.useRef<Record<string, MangaEntryFilters>>({})
 
     const storedFilters = React.useMemo(() => {
         let filters: Record<string, MangaEntryFilters> = {}
-        Object.entries(_storedFilters).map(([key, value]) => {
+        const entries = Object.entries(_storedFilters)
+
+        for (const [key, value] of entries) {
             const [mangaId, providerId] = key.split("$")
             const mangaProvider = selectedProviders[mangaId]
             const extension = _extensions?.find(extension => extension.id === mangaProvider)
@@ -232,8 +253,41 @@ export function useStoredMangaFilters(_extensions: ExtensionRepo_MangaProviderEx
                     language: value.language ?? "",
                 }
             }
-        })
-        return filters
+        }
+
+        // Deep comparison to avoid unnecessary re-renders
+        const prevFilters = prevFiltersRef.current
+        const filtersKeys = Object.keys(filters).sort()
+        const prevFiltersKeys = Object.keys(prevFilters).sort()
+
+        // Quick check: different number of keys
+        if (filtersKeys.length !== prevFiltersKeys.length) {
+            prevFiltersRef.current = filters
+            return filters
+        }
+
+        // Quick check: different keys
+        if (filtersKeys.join(',') !== prevFiltersKeys.join(',')) {
+            prevFiltersRef.current = filters
+            return filters
+        }
+
+        // Deep check: same keys but potentially different values
+        for (const key of filtersKeys) {
+            const current = filters[key]
+            const previous = prevFilters[key]
+
+            if (!previous ||
+                current.language !== previous.language ||
+                current.scanlators.length !== previous.scanlators.length ||
+                !current.scanlators.every((s, i) => s === previous.scanlators[i])) {
+                prevFiltersRef.current = filters
+                return filters
+            }
+        }
+
+        // No changes detected, return the previous reference
+        return prevFilters
     }, [_storedFilters, _extensions, selectedProviders])
 
     return {
