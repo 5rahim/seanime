@@ -11,13 +11,17 @@
 
 1. Build the web interface:
    ```bash
+   cd seanime-web 
+   npm install
    npm run build
    ```
 
 2. After the build completes, a new `out` directory will be created inside `seanime-web`.
 
 3. Move the contents of the `out` directory to a new `web` directory at the root of the project.
-
+   ```bash
+   mv out ../web
+   ```
 ### 2. Building the Server
 
 Choose the appropriate command based on your target platform:
