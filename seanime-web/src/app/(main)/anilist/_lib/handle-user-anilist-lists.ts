@@ -11,7 +11,6 @@ import { useDebounce } from "use-debounce"
 export const MYLISTS_DEFAULT_PARAMS: CollectionParams<"anime"> | CollectionParams<"manga"> = {
     ...DEFAULT_COLLECTION_PARAMS,
     sorting: "SCORE_DESC",
-    unreadOnly: false,
     continueWatchingOnly: false,
 }
 

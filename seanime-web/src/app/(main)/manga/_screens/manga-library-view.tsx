@@ -6,7 +6,7 @@ import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/med
 import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
-import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
+import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom, __manga_unreadOnlyAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { IconButton } from "@/components/ui/button"
@@ -162,6 +162,7 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
     const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
     const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
+    const [unreadOnly, setUnreadOnly] = useAtom(__manga_unreadOnlyAtom)
     const router = useRouter()
 
     const { mutate: refetchMangaChapterContainers, isPending: isRefetchingMangaChapterContainers } = useRefetchMangaChapterContainers()
@@ -219,9 +220,9 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                             size="xs"
                             className="mt-1"
                             icon={<BiDotsVertical />}
-                            // loading={isRefetchingMangaChapterContainers}
+                        // loading={isRefetchingMangaChapterContainers}
                         />
-                        {params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}
+                        {unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}
                         {isRefetchingMangaChapterContainers &&
                             <div className="absolute -top-1 -right-1 bg-[--orange] size-3 rounded-full animate-ping"></div>}
                     </div>}
@@ -240,13 +241,10 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {
-                            setParams(draft => {
-                                draft.unreadOnly = !draft.unreadOnly
-                                return
-                            })
+                            setUnreadOnly(!unreadOnly)
                         }}
                     >
-                        <LuBookOpenCheck /> {params.unreadOnly ? "Show all" : "Unread chapters only"}
+                        <LuBookOpenCheck /> {unreadOnly ? "Show all" : "Unread chapters only"}
                     </DropdownMenuItem>
                 </DropdownMenu>}
 

@@ -36,9 +36,9 @@ type CollectionSorting<T extends CollectionType> = BaseCollectionSorting | (T ex
     | "AIRDATE"
     | "AIRDATE_DESC"
     : T extends "manga" ?
-        "PROGRESS"
-        | "PROGRESS_DESC"
-        : never)
+    "PROGRESS"
+    | "PROGRESS_DESC"
+    : never)
 
 
 type ContinueWatchingSorting =
@@ -113,7 +113,7 @@ export type CollectionParams<T extends CollectionType> = {
     year: string | null
     isAdult: boolean
 } & (T extends "manga" ? {
-    unreadOnly: boolean
+    // unreadOnly removed - now handled by separate persistent atom
 } : T extends "anime" ? {
     continueWatchingOnly: boolean
 } : never)
@@ -149,7 +149,6 @@ export const DEFAULT_MANGA_COLLECTION_PARAMS: CollectionParams<"manga"> = {
     season: null,
     year: null,
     isAdult: false,
-    unreadOnly: false,
 }
 
 
@@ -411,12 +410,13 @@ export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEn
     storedProviders: Record<string, string> | null | undefined,
     storedProviderFilters: Record<number, MangaEntryFilters> | null | undefined,
     latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]> | null | undefined,
+    unreadOnly?: boolean,
 ) {
     if (!latestChapterNumbers || !storedProviders || !storedProviderFilters) return []
     let arr = filterCollectionEntries("manga", entries, params, showAdultContent)
 
 
-    if (params.unreadOnly) {
+    if (unreadOnly) {
         arr = arr.filter(n => {
             const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
             const mangaChapterCount = latestChapterNumber || 999999
