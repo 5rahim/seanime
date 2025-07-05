@@ -118,7 +118,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         openWebURLOnStart: false,
         refreshLibraryOnStart: false,
         autoPlayNextEpisode: false,
-        enableWatchContinuity: false,
+        enableWatchContinuity: data.enableWatchContinuity,
         libraryPaths: [],
         autoSyncOfflineLocalData: false,
         includeOnlineStreamingInLibrary: false,

@@ -76,7 +76,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                     <span className="text-[--muted]">Author:</span> <span className="">{extension.author}</span>
                 </p>
                 <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Language:</span>
+                    <span className="text-[--muted]">Language: </span>
                     <span className="">{LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang}</span>
                 </p>
                 <p className="text-md line-clamp-1">

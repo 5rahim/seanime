@@ -40,7 +40,7 @@ import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill, PiListChecksFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
@@ -155,8 +155,8 @@ export function MainSidebar() {
         },
         {
             id: "anilist",
-            iconType: SiAnilist,
-            name: "AniList",
+            iconType: user?.isSimulated ? PiListChecksFill : SiAnilist,
+            name: user?.isSimulated ? "My lists" : "AniList",
             href: "/anilist",
             isCurrent: pathname === "/anilist",
         },

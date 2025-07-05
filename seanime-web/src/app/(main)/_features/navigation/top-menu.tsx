@@ -55,7 +55,7 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                 href: "/anilist",
                 icon: null,
                 isCurrent: pathname.startsWith("/anilist"),
-                name: "AniList",
+                name: serverStatus?.user?.isSimulated ? "My lists" : "AniList",
             },
         ].filter(Boolean)
     }, [pathname, missingEpisodeCount, serverStatus?.settings?.library?.enableManga])

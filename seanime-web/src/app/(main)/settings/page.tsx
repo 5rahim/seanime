@@ -25,6 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
@@ -37,10 +38,11 @@ import { UseFormReturn } from "react-hook-form"
 import { BiDonateHeart } from "react-icons/bi"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
+import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuUserCog, LuWandSparkles } from "react-icons/lu"
+import { LuBookKey, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuWandSparkles } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome, MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiBittorrent } from "react-icons/si"
@@ -143,15 +145,16 @@ export default function Page() {
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                                 <div className="space-y-2 my-3 px-2">
-                                    <h4 className="text-center md:text-left text-2xl font-bold">Settings</h4>
+                                    <h4 className="text-center md:text-left text-xl font-bold">Settings</h4>
                                     <div className="space-y-1">
                                         <p className="text-[--muted] text-sm text-center md:text-left flex items-center gap-2">
-                                            <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                            Version: {status?.version} {status?.versionName}
+                                            {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isTauriDesktop__ &&
+                                            <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
+                                            <span className="font-medium"> - Denshi</span>}
                                         </p>
-                                        <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
+                                        {/* <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
                                             <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
-                                            <span className="font-medium">- Denshi</span>}</p>
+                                         <span className="font-medium">- Denshi</span>}</p> */}
                                     </div>
                                 </div>
                                 <div>
@@ -163,17 +166,17 @@ export default function Page() {
                                     value="seanime"
                                     className="group"
                                 ><LuWandSparkles className="text-lg mr-3 transition-transform duration-200" /> App</TabsTrigger>
-                                <TabsTrigger
+                                {/* <TabsTrigger
                                     value="local"
                                     className="group"
-                                ><LuUserCog className="text-lg mr-3 transition-transform duration-200" /> Local Account</TabsTrigger>
+                                 ><LuUserCog className="text-lg mr-3 transition-transform duration-200" /> Local Account</TabsTrigger> */}
                                 <TabsTrigger
                                     value="library"
                                     className="group"
                                 ><IoLibrary className="text-lg mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
-                                    Playback & players
+                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                    Anime playback
                                 </div>
 
                                 <TabsTrigger
@@ -194,8 +197,8 @@ export default function Page() {
                                 ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Transcoding / Direct
                                                                                                                          play</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
-                                    Torrent & Streaming
+                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                    Torrenting
                                 </div>
 
                                 <TabsTrigger
@@ -207,51 +210,54 @@ export default function Page() {
                                     className="group"
                                 ><MdOutlineDownloading className="text-lg mr-3 transition-transform duration-200" /> Torrent Client</TabsTrigger>
                                 <TabsTrigger
-                                    value="debrid"
-                                    className="group"
-                                ><HiOutlineServerStack className="text-lg mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
-                                <TabsTrigger
                                     value="torrentstream"
                                     className="relative group"
                                 ><SiBittorrent className="text-lg mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
                                 <TabsTrigger
+                                    value="debrid"
+                                    className="group"
+                                ><HiOutlineServerStack className="text-lg mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
+
+                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                    Other features
+                                </div>
+
+                                <TabsTrigger
                                     value="onlinestream"
                                     className="group"
                                 ><CgMediaPodcast className="text-lg mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
-
-                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
-                                    Other features
-                                </div>
 
                                 <TabsTrigger
                                     value="manga"
                                     className="group"
                                 ><FaBookReader className="text-lg mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
                                 <TabsTrigger
+                                    value="nakama"
+                                    className="group relative"
+                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama <GrTest
+                                    className="text-md text-orange-300/40 absolute right-2"
+                                /></TabsTrigger>
+                                <TabsTrigger
                                     value="discord"
                                     className="group"
                                 ><FaDiscord className="text-lg mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
-                                <TabsTrigger
-                                    value="nakama"
-                                    className="group"
-                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] py-3 uppercase text-center tracking-wide font-medium">
-                                    Server
+                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                    Server & Interface
                                 </div>
 
-                                <TabsTrigger
-                                    value="cache"
-                                    className="group"
-                                ><TbDatabaseExclamation className="text-lg mr-3 transition-transform duration-200" /> Cache</TabsTrigger>
-                                <TabsTrigger
-                                    value="logs"
-                                    className="group"
-                                ><LuBookKey className="text-lg mr-3 transition-transform duration-200" /> Logs</TabsTrigger>
                                 <TabsTrigger
                                     value="ui"
                                     className="group"
                                 ><MdOutlinePalette className="text-lg mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
+                                {/* <TabsTrigger
+                                    value="cache"
+                                    className="group"
+                                 ><TbDatabaseExclamation className="text-lg mr-3 transition-transform duration-200" /> Cache</TabsTrigger> */}
+                                <TabsTrigger
+                                    value="logs"
+                                    className="group"
+                                ><LuBookKey className="text-lg mr-3 transition-transform duration-200" /> Logs & Cache</TabsTrigger>
                             </div>
                         </SettingsNavCard>
 
@@ -740,7 +746,7 @@ export default function Page() {
                             }}
                         </Form>
 
-                        <TabsContent value="cache" className={tabContentClass}>
+                        {/* <TabsContent value="cache" className={tabContentClass}>
 
                             <SettingsPageHeader
                                 title="Cache"
@@ -750,7 +756,7 @@ export default function Page() {
 
                             <FilecacheSettings />
 
-                        </TabsContent>
+                         </TabsContent> */}
 
                         <TabsContent value="mediastream" className={tabContentClass}>
 
@@ -796,7 +802,18 @@ export default function Page() {
                                 icon={LuBookKey}
                             />
 
+
                             <LogsSettings />
+
+                            <Separator />
+
+                            <SettingsPageHeader
+                                title="Cache"
+                                description="Manage the cache"
+                                icon={TbDatabaseExclamation}
+                            />
+
+                            <FilecacheSettings />
 
                         </TabsContent>
 

@@ -167,7 +167,7 @@ export function DiscoverPageHeader() {
             <div
                 data-discover-page-header-banner-image-container
                 className={cn(
-                    "lg:h-[35rem] w-full overflow-hidden flex-none object-cover object-center absolute top-0 bg-[--background]",
+                    "lg:h-[35rem] w-full  flex-none object-cover object-center absolute top-0 bg-[--background]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     __isDesktop__ && "top-[-2rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
@@ -192,23 +192,25 @@ export function DiscoverPageHeader() {
                     )}
                 />
                 <AnimatePresence>
-                    {(!!bannerImage) && (
-                        <MotionImage
-                            data-discover-page-header-banner-image
-                            src={bannerImage}
-                            alt="banner image"
-                            fill
-                            quality={100}
-                            priority
-                            className={cn(
-                                "object-cover object-center z-[1] transition-all duration-1000",
-                                isTransitioning && "scale-[1.01] -translate-x-0.5",
-                                !isTransitioning && "scale-100 translate-x-0",
-                                !randomTrending?.bannerImage && "opacity-35",
-                                trailerLoaded && "opacity-0",
-                            )}
-                        />
-                    )}
+                    <div className="w-full h-full absolute z-[1] overflow-hidden">
+                        {(!!bannerImage) && (
+                            <MotionImage
+                                data-discover-page-header-banner-image
+                                src={bannerImage}
+                                alt="banner image"
+                                fill
+                                quality={100}
+                                priority
+                                className={cn(
+                                    "object-cover object-center z-[1] transition-all duration-1000",
+                                    isTransitioning && "scale-[1.01] -translate-x-0.5",
+                                    !isTransitioning && "scale-100 translate-x-0",
+                                    !randomTrending?.bannerImage && "opacity-35",
+                                    trailerLoaded && "opacity-0",
+                                )}
+                            />
+                        )}
+                    </div>
                 </AnimatePresence>
 
                 {/* Trailer */}

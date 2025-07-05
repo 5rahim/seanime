@@ -71,8 +71,8 @@ export function NakamaSettings(props: Props) {
                     {!serverStatus?.settings?.nakama?.isHost &&
                         <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-700 border-dashed text-blue-100">
                             <RiInformation2Line className="text-base" />
-                            <span>The server you're connecting to must be running in host mode and be accessible on the internet or on the same
-                                  network.</span>
+                            <span>The server you're connecting to must be accessible over the internet.
+                            </span>
                         </div>}
 
                     <Field.Text

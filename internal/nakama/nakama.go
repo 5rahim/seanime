@@ -428,7 +428,8 @@ func (m *Manager) GetConnectedPeers() []string {
 				peerDisplayName = "Unknown"
 			}
 			// Format: "Username (PeerID_short)"
-			peers = append(peers, fmt.Sprintf("%s (%s)", peerDisplayName, conn.PeerId[:8]))
+			// peers = append(peers, fmt.Sprintf("%s (%s)", peerDisplayName, conn.PeerId[:8]))
+			peers = append(peers, fmt.Sprintf("%s", peerDisplayName))
 		}
 		return true
 	})

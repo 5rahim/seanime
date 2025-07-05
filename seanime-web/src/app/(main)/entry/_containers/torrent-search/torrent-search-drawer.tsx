@@ -61,7 +61,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
                 disabled={false}
                 proximity={100}
                 inactiveZone={0.01}
-                className="opacity-50"
+                className="opacity-30"
             />
 
             {/*{(ts.enableMediaPageBlurredBackground) && <div*/}

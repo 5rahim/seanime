@@ -96,7 +96,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
                                 <BiCheck className="text-green-500" /> : shouldExist ?
-                                    <BiX className="text-red-500" /> : <BiFolderPlus />)}
+                                    input.length > 0 ? <BiX className="text-red-500" /> : null : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
                             setInput(sanitizeInput(e.target.value ?? ""))

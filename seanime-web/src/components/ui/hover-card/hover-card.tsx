@@ -26,6 +26,8 @@ export const HoverCardAnatomy = defineStyleAnatomy({
 
 export type HoverCardProps = React.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content> & {
     trigger: React.ReactElement
+    openDelay?: number
+    closeDelay?: number
 }
 
 export const HoverCard = React.forwardRef<HTMLDivElement, HoverCardProps>((props, ref) => {
@@ -33,11 +35,13 @@ export const HoverCard = React.forwardRef<HTMLDivElement, HoverCardProps>((props
         className,
         align = "center",
         sideOffset = 8,
+        openDelay = 1,
+        closeDelay = 0,
         ...rest
     } = props
 
     return (
-        <HoverCardPrimitive.Root openDelay={1} closeDelay={0}>
+        <HoverCardPrimitive.Root openDelay={openDelay} closeDelay={closeDelay}>
             <HoverCardPrimitive.Trigger asChild>
                 {props.trigger}
             </HoverCardPrimitive.Trigger>

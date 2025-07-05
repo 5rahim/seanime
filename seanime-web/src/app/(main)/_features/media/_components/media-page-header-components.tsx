@@ -1,6 +1,7 @@
 import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -106,10 +107,16 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
                         ? "opacity-15"
+                        : "opacity-15"),
+                    !ts.libraryScreenCustomBackgroundImage && y > 300 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
+                        ? "opacity-15"
                         : "opacity-5"),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     shouldHideBanner && "bg-transparent",
                 )}
+                // style={{
+                //     opacity: !ts.libraryScreenCustomBackgroundImage && y > 100 ? (ts.enableMediaPageBlurredBackground ? 0 : shouldDimBanner ? 0.15
+                // : 1  - Math.min(y * 0.005, 0.9) ) : 1, }}
             >
                 {/*TOP FADE*/}
                 <div
@@ -132,12 +139,12 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 <motion.div
                     data-media-page-header-banner-image-container
                     className={cn(
-                        "absolute top-0 left-0 scroll-locked-offset w-full h-full",
+                        "absolute top-0 left-0 scroll-locked-offset w-full h-full overflow-hidden",
                         // shouldBlurBanner && "blur-xl",
                         shouldHideBanner && "hidden",
                     )}
                     initial={{ scale: 1, y: 0 }}
-                    animate={{ scale: Math.min(1 + y * 0.0002, 1.03), y: Math.max(y * -0.9, -10) }}
+                    animate={{ scale: !ts.libraryScreenCustomBackgroundImage ? Math.min(1 + y * 0.0002, 1.03) : 1, y: Math.max(y * -0.9, -10) }}
                     exit={{ scale: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                 >
@@ -151,10 +158,10 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         sizes="100vw"
                         className={cn(
                             "object-cover object-center scroll-locked-offset z-[1]",
-                            shouldDimBanner && "opacity-30",
+                            // shouldDimBanner && "!opacity-30",
                         )}
                         initial={{ scale: 1.05, x: 0, y: -10, opacity: 0 }}
-                        animate={{ scale: 1, x: 0, y: 1, opacity: 1 }}
+                        animate={{ scale: 1, x: 0, y: 1, opacity: shouldDimBanner ? 0.3 : 1 }}
                         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                     />}
 
@@ -354,6 +361,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             alt="cover image"
                             fill
                             priority
+                            placeholder={imageShimmer(700, 475)}
                             className="object-cover object-center"
                             initial={{ scale: 1.1, x: 0 }}
                             animate={{ scale: Math.min(1 + y * 0.0002, 1.05), x: 0 }}

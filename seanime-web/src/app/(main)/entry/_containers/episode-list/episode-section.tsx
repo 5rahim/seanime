@@ -5,7 +5,7 @@ import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-ca
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
+import { EpisodeListGrid, EpisodeListPaginatedGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
@@ -174,19 +174,20 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
 
                 <div className="space-y-10" data-episode-list-stack>
-                    <EpisodeListGrid data-episode-list-main>
-                        {mainEpisodes.map(episode => (
+                    <EpisodeListPaginatedGrid
+                        length={mainEpisodes.length}
+                        renderItem={(index) => (
                             <EpisodeItem
-                                key={episode.localFile?.path || ""}
-                                episode={episode}
+                                key={mainEpisodes[index].localFile?.path || ""}
+                                episode={mainEpisodes[index]}
                                 media={media}
-                                isWatched={!!entry.listData?.progress && entry.listData.progress >= episode.progressNumber}
-                                onPlay={({ path, mediaId }) => playMediaFile({ path, mediaId, episode: episode })}
-                                percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
-                                minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                isWatched={!!entry.listData?.progress && entry.listData.progress >= mainEpisodes[index].progressNumber}
+                                onPlay={({ path, mediaId }) => playMediaFile({ path, mediaId, episode: mainEpisodes[index] })}
+                                percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, mainEpisodes[index].episodeNumber)}
+                                minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, mainEpisodes[index].episodeNumber)}
                             />
-                        ))}
-                    </EpisodeListGrid>
+                        )}
+                    />
 
                     {!serverStatus?.isOffline && !entry._isNakamaEntry && <UndownloadedEpisodeList
                         downloadInfo={entry.downloadInfo}

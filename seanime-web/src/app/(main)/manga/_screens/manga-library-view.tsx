@@ -67,13 +67,13 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                                 No manga has been added to your library yet.
                             </p>
 
-                            <p>
+                            <div className="!mt-4">
                                 <Link href="/discover?type=manga">
                                     <Button intent="white-outline" rounded>
                                         Browse manga
                                     </Button>
                                 </Link>
-                            </p>
+                            </div>
                         </div>
                     </LuffyError>}
 

@@ -5,10 +5,9 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
 import { ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { Transition } from "@headlessui/react"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
-import { motion } from "motion/react"
+import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { useWindowScroll } from "react-use"
@@ -17,6 +16,8 @@ export const __libraryHeaderImageAtom = atom<{ bannerImage?: string | null, epis
     bannerImage: null,
     episodeImage: null,
 })
+
+const MotionImage = motion(Image)
 
 export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 
@@ -104,7 +105,7 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1, delay: 0.2 }}
                     className={cn(
-                        "LIB_HEADER_INNER_CONTAINER h-full z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden",
+                        "LIB_HEADER_INNER_CONTAINER h-full z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden bg-[--background]",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     )}
                 >
@@ -122,32 +123,38 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                     {/*<div*/}
                     {/*    className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"*/}
                     {/*/>*/}
-                    <Transition
-                        data-library-header-banner-image-container
-                        show={!!actualImage}
-                        enter="transition-opacity duration-500"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="transition-opacity duration-500"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        {(actualImage || prevImage) && <Image
-                            data-library-header-banner-image
-                            src={getImageUrl(actualImage || prevImage!)}
-                            alt="banner image"
-                            fill
-                            quality={100}
-                            priority
-                            sizes="100vw"
-                            className={cn(
-                                "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
-                                (shouldHideBanner || shouldBlurBanner) && "opacity-15",
-                                { "opacity-5": dimmed },
-                            )}
-                        />}
-                    </Transition>
-                    {prevImage && <Image
+                    <AnimatePresence>
+                        {!!actualImage && (
+                            <motion.div
+                                key="library-header-banner-image-container"
+                                data-library-header-image-container
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0.4 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                <MotionImage
+                                    data-library-header-banner-image
+                                    src={getImageUrl(actualImage || prevImage!)}
+                                    alt="banner image"
+                                    fill
+                                    quality={100}
+                                    priority
+                                    sizes="100vw"
+                                    className={cn(
+                                        "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
+                                        (shouldHideBanner || shouldBlurBanner) && "opacity-15",
+                                        { "opacity-5": dimmed },
+                                    )}
+                                    initial={{ scale: 1.01, y: 0 }}
+                                    animate={{ scale: Math.min(1 + y * 0.0002, 1.03), y: Math.max(y * -0.9, -10) }}
+                                    exit={{ scale: 1.01, y: 0 }}
+                                    transition={{ duration: 0.6, ease: "easeOut" }}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    {/* {prevImage && <MotionImage
                         data-library-header-banner-previous-image
                         src={getImageUrl(actualImage || prevImage!)}
                         alt="banner image"
@@ -160,7 +167,11 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                             (shouldHideBanner || shouldBlurBanner) && "opacity-15",
                             { "opacity-5": dimmed },
                         )}
-                    />}
+                     initial={{ scale: 1, y: 0 }}
+                     animate={{ scale: Math.min(1 + y * 0.0002, 1.03), y: Math.max(y * -0.9, -10) }}
+                     exit={{ scale: 1, y: 0 }}
+                     transition={{ duration: 0.6, ease: "easeOut" }}
+                     />} */}
                     <div
                         data-library-header-banner-bottom-gradient
                         className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] lg:h-[15rem] bg-gradient-to-t from-[--background] lg:via-opacity-50 lg:via-10% to-transparent"
