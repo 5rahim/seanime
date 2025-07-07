@@ -118,7 +118,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
-    const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
+    const debridInstantAvailability = React.useMemo(() => serverStatus?.debridSettings?.enabled ? data?.debridInstantAvailability ?? {} : {},
+        [data?.debridInstantAvailability, serverStatus?.debridSettings?.enabled])
 
     /**
      * Select torrent

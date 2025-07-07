@@ -32,6 +32,7 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
+import { Announcements } from "../announcements"
 import { NakamaManager } from "../nakama/nakama-manager"
 import { NativePlayer } from "../native-player/native-player"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
@@ -91,6 +92,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             {__isElectronDesktop__ && <NativePlayer />}
             <NakamaManager />
             <TopIndefiniteLoader />
+            <Announcements />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

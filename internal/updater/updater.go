@@ -26,6 +26,7 @@ type (
 		logger              *zerolog.Logger
 		client              *http.Client
 		wsEventManager      mo.Option[events.WSEventManagerInterface]
+		announcements       []Announcement
 	}
 
 	Update struct {

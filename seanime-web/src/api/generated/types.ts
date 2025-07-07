@@ -4133,6 +4133,113 @@ export type TVDB_Episode = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/updater/announcement.go
+ * - Filename: announcement.go
+ * - Package: updater
+ */
+export type Updater_Announcement = {
+    /**
+     * Unique identifier for tracking
+     */
+    id: string
+    /**
+     * Title for dialogs/banners
+     */
+    title?: string
+    /**
+     * The message to display
+     */
+    message: string
+    /**
+     * The type of announcement
+     */
+    type: Updater_AnnouncementType
+    /**
+     * Severity level
+     */
+    severity: Updater_AnnouncementSeverity
+    /**
+     * Date of the announcement
+     */
+    date?: string
+    /**
+     * Can user dismiss it
+     */
+    notDismissible: boolean
+    /**
+     * Advanced targeting
+     */
+    conditions?: Updater_AnnouncementConditions
+    /**
+     * Action buttons
+     */
+    actions?: Array<Updater_AnnouncementAction>
+    priority: number
+}
+
+/**
+ * - Filepath: internal/updater/announcement.go
+ * - Filename: announcement.go
+ * - Package: updater
+ */
+export type Updater_AnnouncementAction = {
+    /**
+     * Button text
+     */
+    label: string
+    /**
+     * Link to open
+     */
+    url: string
+    /**
+     * "link"
+     */
+    type: string
+}
+
+/**
+ * - Filepath: internal/updater/announcement.go
+ * - Filename: announcement.go
+ * - Package: updater
+ */
+export type Updater_AnnouncementConditions = {
+    /**
+     * ["windows", "darwin", "linux"]
+     */
+    os?: string
+    /**
+     * ["tauri", "web", "denshi"]
+     */
+    platform?: Array<string>
+    /**
+     * e.g. "<= 2.9.0", "2.9.0"
+     */
+    versionConstraint?: string
+    /**
+     * JSON path to check in user settings
+     */
+    userSettingsPath?: string
+    /**
+     * Expected values at that path
+     */
+    userSettingsValue?: Array<string>
+}
+
+/**
+ * - Filepath: internal/updater/announcement.go
+ * - Filename: announcement.go
+ * - Package: updater
+ */
+export type Updater_AnnouncementSeverity = "info" | "warning" | "error" | "critical"
+
+/**
+ * - Filepath: internal/updater/announcement.go
+ * - Filename: announcement.go
+ * - Package: updater
+ */
+export type Updater_AnnouncementType = "toast" | "dialog" | "banner"
+
+/**
  * - Filepath: internal/updater/check.go
  * - Filename: check.go
  * - Package: updater

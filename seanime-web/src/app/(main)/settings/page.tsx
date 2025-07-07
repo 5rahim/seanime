@@ -62,7 +62,7 @@ const tabsTriggerClass = cn(
 
 const tabsListClass = cn(
     "w-full flex flex-wrap lg:flex-nowrap h-fit xl:h-10",
-    "lg:block",
+    "lg:block p-2 lg:p-0",
 )
 
 const tabContentClass = cn(
@@ -175,7 +175,7 @@ export default function Page() {
                                     className="group"
                                 ><IoLibrary className="text-lg mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
                                     Anime playback
                                 </div>
 
@@ -197,7 +197,7 @@ export default function Page() {
                                 ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Transcoding / Direct
                                                                                                                          play</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
                                     Torrenting
                                 </div>
 
@@ -218,7 +218,7 @@ export default function Page() {
                                     className="group"
                                 ><HiOutlineServerStack className="text-lg mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
                                     Other features
                                 </div>
 
@@ -235,14 +235,14 @@ export default function Page() {
                                     value="nakama"
                                     className="group relative"
                                 ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama <GrTest
-                                    className="text-md text-orange-300/40 absolute right-2"
+                                    className="text-md text-orange-300/40 absolute right-2 lg:block hidden"
                                 /></TabsTrigger>
                                 <TabsTrigger
                                     value="discord"
                                     className="group"
                                 ><FaDiscord className="text-lg mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
 
-                                <div className="text-xs text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
+                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
                                     Server & Interface
                                 </div>
 

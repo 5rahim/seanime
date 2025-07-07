@@ -180,7 +180,7 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 			}
 		}
 
-		if searchRes == nil || len(searchRes) == 0 {
+		if len(searchRes) == 0 {
 			r.logger.Error().Msg("manga: No search results found")
 			if err != nil {
 				return nil, fmt.Errorf("%w, %w", ErrNoResults, err)

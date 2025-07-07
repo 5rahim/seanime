@@ -479,14 +479,15 @@ export function ChapterList(props: ChapterListProps) {
                             </>
                         )}
 
-                        {chapterContainer && <ChapterReaderDrawer
-                            entry={entry}
-                            chapterContainer={chapterContainer}
-                            chapterIdToNumbersMap={chapterIdToNumbersMap}
-                        />}
                     </>
                 )
             )}
+
+            {chapterContainer && <ChapterReaderDrawer
+                entry={entry}
+                chapterContainer={chapterContainer}
+                chapterIdToNumbersMap={chapterIdToNumbersMap}
+            />}
 
             <DownloadedChapterList
                 entry={entry}

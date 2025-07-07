@@ -373,6 +373,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		TorrentstreamRepository: app.TorrentstreamRepository,
 	})
 
+	if !*app.IsOffline() {
+		go app.Updater.FetchAnnouncements()
+	}
+
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
 

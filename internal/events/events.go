@@ -43,7 +43,8 @@ const (
 	WarningToast = "warning-toast"
 	SuccessToast = "success-toast"
 
-	CheckForUpdates = "check-for-updates"
+	CheckForUpdates       = "check-for-updates"
+	CheckForAnnouncements = "check-for-announcements"
 
 	RefreshedMangaDownloadData  = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated = "chapter-download-queue-updated"

@@ -10,6 +10,14 @@ export function TopIndefiniteLoader() {
 
     const [showStack, setShowStack] = React.useState<string[]>([])
 
+    // Empty after 3 minutes
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            setShowStack([])
+        }, 3 * 60 * 1000)
+        return () => clearTimeout(timeout)
+    }, [showStack])
+
     useWebsocketMessageListener<string>({
         type: WSEvents.SHOW_INDEFINITE_LOADER,
         onMessage: data => {

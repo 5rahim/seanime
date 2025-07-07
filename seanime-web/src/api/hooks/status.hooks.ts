@@ -1,7 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { DeleteLogs_Variables } from "@/api/generated/endpoint.types"
+import { DeleteLogs_Variables, GetAnnouncements_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Status } from "@/api/generated/types"
+import { Status, Updater_Announcement } from "@/api/generated/types"
 import { copyToClipboard } from "@/lib/helpers/browser"
 import { __isDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
@@ -60,5 +60,13 @@ export function useGetLatestLogContent() {
                 toast.error("Failed to copy logs: " + err.message)
             }
         },
+    })
+}
+
+export function useGetAnnouncements() {
+    return useServerMutation<Array<Updater_Announcement>, GetAnnouncements_Variables>({
+        endpoint: API_ENDPOINTS.STATUS.GetAnnouncements.endpoint,
+        method: API_ENDPOINTS.STATUS.GetAnnouncements.methods[0],
+        mutationKey: [API_ENDPOINTS.STATUS.GetAnnouncements.key],
     })
 }

@@ -62,6 +62,8 @@ function setupChromiumFlags() {
         'PlatformHEVCDecoderSupport',
     ].join(','));
 
+    app.commandLine.appendSwitch("use-gl", "angle");
+
     app.commandLine.appendSwitch('enable-unsafe-webgpu');
     app.commandLine.appendSwitch('enable-gpu-rasterization');
     app.commandLine.appendSwitch('enable-oop-rasterization');

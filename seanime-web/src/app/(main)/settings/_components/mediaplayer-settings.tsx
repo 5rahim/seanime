@@ -166,7 +166,7 @@ export function ExternalPlayerLinkSettings() {
         <>
             <SettingsPageHeader
                 title="External player link"
-                description="Enter a custom scheme format for opening files with an external player on this device."
+                description="Send streams to an external player on this device."
                 icon={LuExternalLink}
             />
 

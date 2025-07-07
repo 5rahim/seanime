@@ -8668,6 +8668,46 @@
     }
   },
   {
+    "name": "HandleGetAnnouncements",
+    "trimmedName": "GetAnnouncements",
+    "comments": [
+      "HandleGetAnnouncements",
+      "",
+      "\t@summary returns the server announcements.",
+      "\t@desc This returns the announcements for the server.",
+      "\t@route /api/v1/announcements [POST]",
+      "\t@returns []updater.Announcement",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns the server announcements.",
+      "descriptions": [
+        "This returns the announcements for the server."
+      ],
+      "endpoint": "/api/v1/announcements",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Platform",
+          "jsonName": "platform",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]updater.Announcement",
+      "returnGoType": "updater.Announcement",
+      "returnTypescriptType": "Array\u003cUpdater_Announcement\u003e"
+    }
+  },
+  {
     "name": "HandleGetTheme",
     "trimmedName": "GetTheme",
     "comments": [

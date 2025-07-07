@@ -7,7 +7,7 @@ const internalHost = process.env.TAURI_DEV_HOST || '127.0.0.1';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: "export",
+    ...(isProd && {output: "export"}),
     distDir: isDesktop ? (isElectronDesktop ? "out-denshi" : "out-desktop") : undefined,
     cleanDistDir: true,
     reactStrictMode: false,

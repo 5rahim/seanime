@@ -77737,6 +77737,278 @@
     "comments": []
   },
   {
+    "filepath": "../internal/updater/announcement.go",
+    "filename": "announcement.go",
+    "name": "AnnouncementType",
+    "formattedName": "Updater_AnnouncementType",
+    "package": "updater",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"toast\"",
+        "\"dialog\"",
+        "\"banner\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/announcement.go",
+    "filename": "announcement.go",
+    "name": "AnnouncementSeverity",
+    "formattedName": "Updater_AnnouncementSeverity",
+    "package": "updater",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"info\"",
+        "\"warning\"",
+        "\"error\"",
+        "\"critical\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/announcement.go",
+    "filename": "announcement.go",
+    "name": "AnnouncementAction",
+    "formattedName": "Updater_AnnouncementAction",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Button text"
+        ]
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Link to open"
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"link\""
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/announcement.go",
+    "filename": "announcement.go",
+    "name": "AnnouncementConditions",
+    "formattedName": "Updater_AnnouncementConditions",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "OS",
+        "jsonName": "os",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " [\"windows\", \"darwin\", \"linux\"]"
+        ]
+      },
+      {
+        "name": "Platform",
+        "jsonName": "platform",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " [\"tauri\", \"web\", \"denshi\"]"
+        ]
+      },
+      {
+        "name": "VersionConstraint",
+        "jsonName": "versionConstraint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " e.g. \"\u003c= 2.9.0\", \"2.9.0\""
+        ]
+      },
+      {
+        "name": "UserSettingsPath",
+        "jsonName": "userSettingsPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " JSON path to check in user settings"
+        ]
+      },
+      {
+        "name": "UserSettingsValue",
+        "jsonName": "userSettingsValue",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Expected values at that path"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/announcement.go",
+    "filename": "announcement.go",
+    "name": "Announcement",
+    "formattedName": "Updater_Announcement",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Unique identifier for tracking"
+        ]
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Title for dialogs/banners"
+        ]
+      },
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The message to display"
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "AnnouncementType",
+        "typescriptType": "Updater_AnnouncementType",
+        "usedTypescriptType": "Updater_AnnouncementType",
+        "usedStructName": "updater.AnnouncementType",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The type of announcement"
+        ]
+      },
+      {
+        "name": "Severity",
+        "jsonName": "severity",
+        "goType": "AnnouncementSeverity",
+        "typescriptType": "Updater_AnnouncementSeverity",
+        "usedTypescriptType": "Updater_AnnouncementSeverity",
+        "usedStructName": "updater.AnnouncementSeverity",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Severity level"
+        ]
+      },
+      {
+        "name": "Date",
+        "jsonName": "date",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Date of the announcement"
+        ]
+      },
+      {
+        "name": "NotDismissible",
+        "jsonName": "notDismissible",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Can user dismiss it"
+        ]
+      },
+      {
+        "name": "Conditions",
+        "jsonName": "conditions",
+        "goType": "AnnouncementConditions",
+        "typescriptType": "Updater_AnnouncementConditions",
+        "usedTypescriptType": "Updater_AnnouncementConditions",
+        "usedStructName": "updater.AnnouncementConditions",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Advanced targeting"
+        ]
+      },
+      {
+        "name": "Actions",
+        "jsonName": "actions",
+        "goType": "[]AnnouncementAction",
+        "typescriptType": "Array\u003cUpdater_AnnouncementAction\u003e",
+        "usedTypescriptType": "Updater_AnnouncementAction",
+        "usedStructName": "updater.AnnouncementAction",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Action buttons"
+        ]
+      },
+      {
+        "name": "Priority",
+        "jsonName": "priority",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/check.go",
     "filename": "check.go",
     "name": "GitHubResponse",
@@ -78247,6 +78519,17 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "announcements",
+        "jsonName": "announcements",
+        "goType": "[]Announcement",
+        "typescriptType": "Array\u003cUpdater_Announcement\u003e",
+        "usedTypescriptType": "Updater_Announcement",
+        "usedStructName": "updater.Announcement",
+        "required": false,
         "public": false,
         "comments": []
       }

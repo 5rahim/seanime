@@ -126,6 +126,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/logs/filenames", h.HandleGetLogFilenames)
 	v1.DELETE("/logs", h.HandleDeleteLogs)
 	v1.GET("/logs/latest", h.HandleGetLatestLogContent)
+
+	v1.POST("/announcements", h.HandleGetAnnouncements)
+
 	// Auth
 	v1.POST("/auth/login", h.HandleLogin)
 	v1.POST("/auth/logout", h.HandleLogout)

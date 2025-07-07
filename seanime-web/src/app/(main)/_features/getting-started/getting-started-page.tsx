@@ -137,7 +137,7 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
                 </p>
             </div>
 
-            <div className="flex items-start justify-between max-w-4xl mx-auto px-4 border p-4 rounded-lg relative">
+            <div className="flex items-start justify-between max-w-4xl mx-auto px-4 border p-4 rounded-lg relative bg-gray-900/50 backdrop-blur-sm">
                 <GlowingEffect
                     spread={40}
                     glow={true}
@@ -699,7 +699,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
     if (isPending) return <LoadingOverlayWithLogo />
 
     if (!data) return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20">
+        <div className="min-h-screen bg-gradient-to-br from-[--background] via-[--background] to-purple-950/10">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 {/* <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" /> */}
                 {/* <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" /> */}

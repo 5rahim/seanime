@@ -38,6 +38,7 @@ export const enum WSEvents {
     DEBRID_DOWNLOAD_PROGRESS = "debrid-download-progress",
     DEBRID_STREAM_STATE = "debrid-stream-state",
     CHECK_FOR_UPDATES = "check-for-updates",
+    CHECK_FOR_ANNOUNCEMENTS = "check-for-announcements",
     INVALIDATE_QUERIES = "invalidate-queries",
     CONSOLE_LOG = "console-log",
     CONSOLE_WARN = "console-warn",

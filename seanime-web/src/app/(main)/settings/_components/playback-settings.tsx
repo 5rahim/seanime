@@ -1,9 +1,7 @@
 import {
     ElectronPlaybackMethod,
     PlaybackDownloadedMedia,
-    playbackDownloadedMediaOptions,
     PlaybackTorrentStreaming,
-    playbackTorrentStreamingOptions,
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
@@ -13,20 +11,15 @@ import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_compone
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
-import { RadioGroup } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
-import { BiCheck, BiDesktop, BiInfoCircle, BiPlay, BiWifi } from "react-icons/bi"
-import { LuClapperboard, LuExternalLink } from "react-icons/lu"
-import { HiOutlineSparkles } from "react-icons/hi2"
+import { BiDesktop, BiPlay } from "react-icons/bi"
 import { IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuLaptop } from "react-icons/lu"
-import { MdOutlineBroadcastOnHome, MdOutlineDevices, MdPlayArrow } from "react-icons/md"
-import { PiVideoFill } from "react-icons/pi"
+import { LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
+import { MdOutlineBroadcastOnHome } from "react-icons/md"
 import { RiSettings3Fill } from "react-icons/ri"
 import { toast } from "sonner"
 
@@ -78,16 +71,16 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
 
             {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
                 <Alert
-                    intent="alert"
+                    intent="alert-basic"
                     description={
-                        <div className="flex items-center justify-between">
-                            <span>External player link needs to be configured first</span>
+                        <div className="flex items-center justify-between gap-3">
+                            <span>No external player custom scheme has been set</span>
                             <Button
-                                intent="white-outline"
+                                intent="gray-outline"
                                 size="sm"
                                 onClick={() => setTab("external-player-link")}
                             >
-                                Configure Now
+                                Add
                             </Button>
                         </div>
                     }
@@ -97,12 +90,12 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
             {__isElectronDesktop__ && (
                 <SettingsCard
                     title="Seanime Denshi"
-                    className="border-2 border-dashed dark:border-gray-700 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-gray-900/20 dark:to-gray-900/20"
+                    className="border-2 border-dashed dark:border-gray-700 bg-gradient-to-r from-indigo-50/50 to-pink-50/50 dark:from-gray-900/20 dark:to-gray-900/20"
                 >
                     <div className="space-y-4">
 
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20">
+                            <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 border border-indigo-500/20">
                                 <LuClapperboard className="text-2xl text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <div className="flex-1">
@@ -151,7 +144,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
-                                        <h4 className="font-medium text-sm">Desktop Media Player</h4>
+                                        <p className="font-medium">Desktop Media Player</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Opens files in your system player with automatic
                                                                                                 tracking</p>
                                     </div>
@@ -180,7 +173,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <MdOutlineBroadcastOnHome className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
-                                        <h4 className="font-medium text-sm">Transcoding / Direct Play</h4>
+                                        <p className="font-medium">Transcoding / Direct Play</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">
                                             {serverStatus?.mediastreamSettings?.transcodeEnabled
                                                 ? "Plays in browser with transcoding"
@@ -209,7 +202,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
-                                        <h4 className="font-medium text-sm">External Player Link</h4>
+                                        <p className="font-medium">External Player Link</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Send stream URL to another application</p>
                                     </div>
                                 </div>
@@ -248,7 +241,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
-                                        <h4 className="font-medium text-sm">Desktop Media Player</h4>
+                                        <p className="font-medium">Desktop Media Player</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Opens streams in your system player with automatic
                                                                                                 tracking</p>
                                     </div>
@@ -273,7 +266,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                                 <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
                                 <div className="flex-1 space-y-2">
                                     <div>
-                                        <h4 className="font-medium text-sm">External Player Link</h4>
+                                        <p className="font-medium">External Player Link</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">Send stream URL to another application</p>
                                     </div>
                                 </div>
@@ -290,9 +283,9 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
 
             {usingNativePlayer && (
                 <div className="text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700">
-                        <BiPlay className="text-purple-600 dark:text-purple-400" />
-                        <span className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
+                        <BiPlay className="text-indigo-600 dark:text-indigo-400" />
+                        <span className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
                             Native player is active - other settings are disabled
                         </span>
                     </div>

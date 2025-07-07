@@ -171,7 +171,7 @@ rgb(167, 123, 221) calc(100% / var(--repeating-conic-gradient-times))
                         } as React.CSSProperties
                     }
                     className={cn(
-                        "pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity",
+                        "pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity lg:block hidden",
                         glow && "opacity-100",
                         blur > 0 && "blur-[var(--blur)] ",
                         className,

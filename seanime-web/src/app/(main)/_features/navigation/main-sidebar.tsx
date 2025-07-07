@@ -375,9 +375,9 @@ export function MainSidebar() {
                                 },
                                 ...(ctx.isBelowBreakpoint ? [
                                     {
-                                        iconType: BiLogOut,
-                                        name: "Sign out",
-                                        onClick: confirmSignOut.open,
+                                        iconType: user?.isSimulated ? FiLogIn : BiLogOut,
+                                        name: user?.isSimulated ? "Sign in" : "Sign out",
+                                        onClick: user?.isSimulated ? () => setLoginModal(true) : confirmSignOut.open,
                                     },
                                 ] : []),
                             ]}

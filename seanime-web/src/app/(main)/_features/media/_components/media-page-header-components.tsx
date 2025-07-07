@@ -107,10 +107,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
                         ? "opacity-15"
-                        : "opacity-15"),
-                    !ts.libraryScreenCustomBackgroundImage && y > 300 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
-                        ? "opacity-15"
-                        : "opacity-5"),
+                        : (y > 300 ? "opacity-5" : "opacity-15")),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     shouldHideBanner && "bg-transparent",
                 )}
@@ -144,7 +141,10 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         shouldHideBanner && "hidden",
                     )}
                     initial={{ scale: 1, y: 0 }}
-                    animate={{ scale: !ts.libraryScreenCustomBackgroundImage ? Math.min(1 + y * 0.0002, 1.03) : 1, y: Math.max(y * -0.9, -10) }}
+                    animate={{
+                        scale: !ts.libraryScreenCustomBackgroundImage ? Math.min(1 + y * 0.0002, 1.03) : 1,
+                        y: Math.max(y * -0.9, -10),
+                    }}
                     exit={{ scale: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                 >
@@ -230,7 +230,10 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
         <>
             <motion.div
                 initial={{ opacity: 1, y: 0 }}
-                animate={{ opacity: y > 400 ? Math.max(1 - y * 0.006, 0.1) : 1, y: Math.max(y * -0.6, -40) }}
+                animate={{
+                    opacity: y > 400 ? Math.max(1 - y * 0.006, 0.1) : 1,
+                    y: y > 50 ? Math.max(y * -0.1, -40) : 0,
+                }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className="relative z-[4]"
             >

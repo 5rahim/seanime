@@ -1788,6 +1788,16 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/logs/latest",
         },
+        /**
+         *  @description
+         *  Route returns the server announcements.
+         *  This returns the announcements for the server.
+         */
+        GetAnnouncements: {
+            key: "STATUS-get-announcements",
+            methods: ["POST"],
+            endpoint: "/api/v1/announcements",
+        },
     },
     THEME: {
         GetTheme: {

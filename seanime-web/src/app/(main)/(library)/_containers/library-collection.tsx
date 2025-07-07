@@ -131,7 +131,7 @@ export const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds
             showListDataButton
             withAudienceScore={false}
             type="anime"
-            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
+            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId) && entry.listData?.status === "CURRENT"}
         />
     )
 })
