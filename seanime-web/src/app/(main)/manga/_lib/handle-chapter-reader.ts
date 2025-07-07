@@ -381,6 +381,7 @@ export function useSwitchSettingsWithKeys() {
         mousetrap.bind("f", () => switchValue(pageFit, Object.values(MangaPageFit), setPageFit))
         mousetrap.bind("s", () => switchValue(pageStretch, Object.values(MangaPageStretch), setPageStretch))
         mousetrap.bind("=", () => incrementOffset())
+        mousetrap.bind("+", () => incrementOffset())
         mousetrap.bind("-", () => decrementOffset())
 
         return () => {
