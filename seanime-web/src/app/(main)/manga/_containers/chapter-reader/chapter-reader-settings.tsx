@@ -578,6 +578,24 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             }, {
                                 key: "b",
                                 label: "Toggle bottom bar visibility",
+                            }, {
+                                key: "m",
+                                label: "Switch reading mode",
+                            }, {
+                                key: "d",
+                                label: "Switch reading direction",
+                            }, {
+                                key: "f",
+                                label: "Switch page fit",
+                            }, {
+                                key: "s",
+                                label: "Switch page stretch",
+                            }, {
+                                key: "+",
+                                label: "Increment manga offset",
+                            }, {
+                                key: "-",
+                                label: "Decrement manga offset",
                             }].map(item => {
                                 return (
                                     <div className="flex gap-2 items-center" key={item.key}>
