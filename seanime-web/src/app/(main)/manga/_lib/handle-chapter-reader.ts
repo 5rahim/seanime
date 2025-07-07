@@ -390,6 +390,7 @@ export function useSwitchSettingsWithKeys() {
             mousetrap.unbind("f")
             mousetrap.unbind("s")
             mousetrap.unbind("=")
+            mousetrap.unbind("+")
             mousetrap.unbind("-")
         }
     }, [readingMode, readingDirection, pageFit, pageStretch, doublePageOffset])
