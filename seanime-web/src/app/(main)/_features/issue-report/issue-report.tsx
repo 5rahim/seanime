@@ -15,6 +15,7 @@ import { BiX } from "react-icons/bi"
 import { PiRecordFill, PiStopCircleFill } from "react-icons/pi"
 import { VscDebugAlt } from "react-icons/vsc"
 import { toast } from "sonner"
+import { useServerPassword } from "../../_hooks/use-server-status"
 
 export const __issueReport_overlayOpenAtom = atom<boolean>(false)
 export const __issueReport_recordingAtom = atom<boolean>(false)
@@ -119,7 +120,7 @@ export function IssueReport() {
     React.useEffect(() => {
         if (!isRecording) return
 
-        queryClient.getQueryCache().subscribe(listener => {
+        const queryUnsubscribe = queryClient.getQueryCache().subscribe(listener => {
             if (listener.query.state.status === "pending") return
             setReactQueryLogs(prev => [...prev, {
                 type: "query",
@@ -135,22 +136,30 @@ export function IssueReport() {
             }])
         })
 
+        const mutationUnsubscribe = queryClient.getMutationCache().subscribe(listener => {
+            if (!listener.mutation) return
+            if (listener.mutation.state.status === "pending" || listener.mutation.state.status === "idle") return
+
+            // Don't log the save issue report mutation to prevent feedback loop
+            const mutationKey = listener.mutation.options.mutationKey
+            if (Array.isArray(mutationKey) && mutationKey.includes("REPORT-save-issue-report")) return
+
+            setReactQueryLogs(prev => [...prev, {
+                type: "mutation",
+                pageUrl: window.location.href.replace(window.location.host, "{client}"),
+                status: listener.mutation!.state.status,
+                hash: JSON.stringify(listener.mutation!.options.mutationKey),
+                error: listener.mutation!.state.error,
+                timestamp: new Date().toISOString(),
+                dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
+                    .slice(0, 200) : "",
+                dataType: typeof listener.mutation!.state.data,
+            }])
+        })
+
         return () => {
-            queryClient.getMutationCache().subscribe(listener => {
-                if (!listener.mutation) return
-                if (listener.mutation.state.status === "pending" || listener.mutation.state.status === "idle") return
-                setReactQueryLogs(prev => [...prev, {
-                    type: "mutation",
-                    pageUrl: window.location.href.replace(window.location.host, "{client}"),
-                    status: listener.mutation!.state.status,
-                    hash: JSON.stringify(listener.mutation!.options.mutationKey),
-                    error: listener.mutation!.state.error,
-                    timestamp: new Date().toISOString(),
-                    dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
-                        .slice(0, 200) : "",
-                    dataType: typeof listener.mutation!.state.data,
-                }])
-            })
+            queryUnsubscribe()
+            mutationUnsubscribe()
         }
     }, [isRecording])
 
@@ -210,26 +219,27 @@ export function IssueReport() {
         setRecording(true)
     }
 
-    function handleStopRecording() {
-        setRecording(false)
+    const { getServerPasswordQueryParam } = useServerPassword()
 
-        mutate({
+    function handleStopRecording() {
+        const logsToSave = {
             clickLogs,
             consoleLogs,
             networkLogs,
             reactQueryLogs,
+        }
+
+        setRecording(false)
+
+        mutate({
+            ...logsToSave,
             isAnimeLibraryIssue: recordLocalFiles,
         }, {
             onSuccess: () => {
-                setClickLogs([])
-                setConsoleLogs([])
-                setNetworkLogs([])
-                setReactQueryLogs([])
-
                 toast.success("Issue report saved successfully")
 
                 setTimeout(() => {
-                    openTab(getServerBaseUrl() + "/api/v1/report/issue/download")
+                    openTab(getServerBaseUrl() + "/api/v1/report/issue/download" + getServerPasswordQueryParam())
                 }, 1000)
             },
         })

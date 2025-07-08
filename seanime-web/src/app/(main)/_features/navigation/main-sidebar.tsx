@@ -170,7 +170,7 @@ export function MainSidebar() {
             addon: <>
                 {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
                     className="absolute right-0 top-0" size="sm"
-                    intent="info-solid"
+                    intent="info"
                 >{nakamaStatus?.connectedPeers?.length}</Badge>}
 
                 {nakamaStatus?.isConnectedToHost && <div
@@ -234,17 +234,17 @@ export function MainSidebar() {
     ]
 
     const pinnedMenuItems = React.useMemo(() => {
-        return items.filter(item => !ts.unpinnedMenuItems.includes(item.id))
+        return items.filter(item => !ts.unpinnedMenuItems?.includes(item.id))
     }, [items, ts.unpinnedMenuItems])
 
     const unpinnedMenuItems = React.useMemo(() => {
-        if (ts.unpinnedMenuItems.length === 0) return []
+        if (ts.unpinnedMenuItems?.length === 0) return []
         return [
             {
                 iconType: BiChevronRight,
                 name: "More",
                 subContent: <VerticalMenu
-                    items={items.filter(item => ts.unpinnedMenuItems.includes(item.id))}
+                    items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
                 />,
             },
         ]

@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { useImportLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useServerPassword } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -32,6 +33,8 @@ export function DataSettings(props: DataSettingsProps) {
         })
     }
 
+    const { getServerPasswordQueryParam } = useServerPassword()
+
     return (
         <div className="space-y-4">
 
@@ -44,7 +47,11 @@ export function DataSettings(props: DataSettingsProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-                <SeaLink href={`${getServerBaseUrl()}/api/v1/library/local-files/dump`} target="_blank" className="block">
+                <SeaLink
+                    href={`${getServerBaseUrl()}/api/v1/library/local-files/dump${getServerPasswordQueryParam()}`}
+                    target="_blank"
+                    className="block"
+                >
                     <Button
                         intent="primary-subtle"
                         leftIcon={<TbDatabaseExport className="text-xl" />}

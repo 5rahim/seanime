@@ -1,4 +1,5 @@
 import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -22,6 +23,7 @@ export function ScannerModal() {
     const serverStatus = useServerStatus()
     const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
     const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
+    const userMedia = useAtom(__anilist_userAnimeMediaAtom)
     const anilistDataOnly = useBoolean(true)
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
@@ -29,6 +31,10 @@ export function ScannerModal() {
     const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles(() => {
         setOpen(false)
     })
+
+    React.useEffect(() => {
+        if (!userMedia.length) anilistDataOnly.off()
+    }, [userMedia])
 
     React.useEffect(() => {
         setScannerIsScanning(isScanning)
@@ -134,13 +140,16 @@ export function ScannerModal() {
                             <Switch
                                 side="right"
                                 label="Use my AniList lists only"
-                                moreHelp="Disabling this will cause Seanime to use more requests which may lead to rate limits and slower scanning"
+                                moreHelp="Disabling this will cause Seanime to send more API requests which may lead to rate limits and slower scanning"
                                 // label="Enhanced scanning"
                                 value={anilistDataOnly.active}
                                 onValueChange={v => anilistDataOnly.set(v as boolean)}
                                 // className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
                                 // size="lg"
-                                help={!anilistDataOnly.active ? "Caution: Slower for large libraries" : ""}
+                                help={!anilistDataOnly.active
+                                    ? "Caution: Slower for large libraries. For faster scanning, add the anime entries present in your library to your lists and re-enable this before scanning."
+                                    : ""}
+                                disabled={!userMedia.length}
                             />
                         </AppLayoutStack>
 

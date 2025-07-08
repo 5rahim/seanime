@@ -77,6 +77,23 @@ func IsSameDir(dir1, dir2 string) bool {
 	return absDir1 == absDir2
 }
 
+func IsFileUnderDir(filePath, dir string) bool {
+	// Get the absolute path of the file
+	absFilePath, err := filepath.Abs(filePath)
+	if err != nil {
+		return false
+	}
+
+	// Get the absolute path of the directory
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return false
+	}
+
+	// Check if the file path starts with the directory path
+	return strings.HasPrefix(absFilePath, absDir+string(os.PathSeparator))
+}
+
 // UnzipFile unzips a file to the destination.
 //
 //	Example:

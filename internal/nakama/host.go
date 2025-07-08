@@ -84,7 +84,7 @@ func (m *Manager) HandlePeerConnection(w http.ResponseWriter, r *http.Request) {
 
 	serverVersion := r.Header.Get("X-Seanime-Nakama-Server-Version")
 	if serverVersion != constants.Version {
-		http.Error(w, "Server version mismatch", http.StatusForbidden)
+		http.Error(w, "Server version mismatch", http.StatusBadRequest)
 		return
 	}
 

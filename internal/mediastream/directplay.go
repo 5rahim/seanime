@@ -16,7 +16,7 @@ import (
 // Direct
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string) error {
+func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string, libraryPaths []string) error {
 	// Unescape the file path, ignore errors
 	filePath, _ := url.PathUnescape(rawFilePath)
 
@@ -28,6 +28,19 @@ func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId 
 			// this shouldn't happen, but just in case IsBase64 is wrong
 			filePath, _ = url.PathUnescape(rawFilePath)
 		}
+	}
+
+	// Make sure the file is in the library directories
+	inLibrary := false
+	for _, libraryPath := range libraryPaths {
+		if util.IsFileUnderDir(filePath, libraryPath) {
+			inLibrary = true
+			break
+		}
+	}
+
+	if !inLibrary {
+		return c.NoContent(http.StatusForbidden)
 	}
 
 	r.logger.Trace().Str("filepath", filePath).Str("payload", rawFilePath).Msg("mediastream: Served file")

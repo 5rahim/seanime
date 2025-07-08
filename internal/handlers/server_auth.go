@@ -22,7 +22,11 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			path == "/api/v1/status" || // for interface
 			path == "/events" || // for server events
 			strings.HasPrefix(path, "/api/v1/directstream") || // used by media players
-			strings.HasPrefix(path, "/api/v1/mediastream") || // used by media players
+			// strings.HasPrefix(path, "/api/v1/mediastream") || // used by media players // NODE: DO NOT
+			strings.HasPrefix(path, "/api/v1/mediastream/att/") || // used by media players
+			strings.HasPrefix(path, "/api/v1/mediastream/direct") || // used by media players
+			strings.HasPrefix(path, "/api/v1/mediastream/transcode/") || // used by media players
+			strings.HasPrefix(path, "/api/v1/mediastream/subs/") || // used by media players
 			strings.HasPrefix(path, "/api/v1/image-proxy") || // used by img tag
 			strings.HasPrefix(path, "/api/v1/proxy") || // used by video players
 			strings.HasPrefix(path, "/api/v1/manga/local-page") || // used by img tag
@@ -41,6 +45,11 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		}
 
 		if password == h.App.Config.Server.Password {
+			return next(c)
+		}
+
+		passwordQuery := c.Request().URL.Query().Get("password")
+		if passwordQuery == h.App.Config.Server.Password {
 			return next(c)
 		}
 

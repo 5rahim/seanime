@@ -119,7 +119,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     {pathname !== "/entry" && <>
                         <ContextMenuItem
                             onClick={() => {
-                                router.push(`/entry?id=${anime?.id}`)
+                                if (!serverStatus?.isOffline) {
+                                    router.push(`/entry?id=${anime?.id}`)
+                                } else {
+                                    router.push(`/offline/entry/anime?id=${anime?.id}`)
+                                }
                             }}
                         >
                             Open page

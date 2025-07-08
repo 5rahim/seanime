@@ -161,19 +161,19 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="disableNotifications"
-                    label="Disable notifications"
+                    label="Disable system notifications"
                 />
                 {/*<Separator />*/}
                 <Field.Switch
                     side="right"
                     name="disableAutoDownloaderNotifications"
-                    label="Disable Auto Downloader notifications"
+                    label="Disable Auto Downloader system notifications"
                 />
                 {/*<Separator />*/}
                 <Field.Switch
                     side="right"
                     name="disableAutoScannerNotifications"
-                    label="Disable Auto Scanner notifications"
+                    label="Disable Auto Scanner system notifications"
                 />
             </SettingsCard>
 

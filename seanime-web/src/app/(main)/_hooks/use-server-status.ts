@@ -1,6 +1,7 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { serverPasswordAtom, serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useAtomValue } from "jotai"
+import { useAtom } from "jotai/index"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 
@@ -30,5 +31,16 @@ export function useHasDebridService() {
     return {
         hasDebridService: React.useMemo(() => !!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider,
             [serverStatus?.debridSettings]),
+    }
+}
+
+export function useServerPassword() {
+    const serverStatus = useServerStatus()
+    const [password] = useAtom(serverPasswordAtom)
+    return {
+        getServerPasswordQueryParam: (symbol?: string) => {
+            if (!serverStatus?.serverHasPassword) return ""
+            return `${symbol ? `${symbol}` : "?"}password=${password ?? ""}`
+        },
     }
 }

@@ -103,6 +103,7 @@ func (m *Manager) connectToHostAsync() {
 	}
 
 	m.logger.Error().Msg("nakama: Failed to connect to host after all retries")
+	m.wsEventManager.SendEvent(events.ErrorToast, "Failed to connect to Nakama host after multiple attempts.")
 }
 
 // attemptHostConnection makes a single connection attempt to the host

@@ -18,6 +18,7 @@ import {
 import { AnimatePresence, motion } from "motion/react"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { useFormContext, useWatch } from "react-hook-form"
 import { BiChevronLeft, BiChevronRight, BiCloud, BiCog, BiDownload, BiFolder, BiPlay, BiRocket } from "react-icons/bi"
 import { FaBook, FaDiscord } from "react-icons/fa"
 import { HiOutlineDesktopComputer } from "react-icons/hi"
@@ -269,7 +270,8 @@ function LibraryStep({ form }: { form: any }) {
 }
 
 function PlayerStep({ form }: { form: any }) {
-    const defaultPlayer = form.watch("defaultPlayer")
+    const { watch } = useFormContext()
+    const defaultPlayer = useWatch({ name: "defaultPlayer" })
 
     return (
         <motion.div
@@ -373,7 +375,8 @@ function PlayerStep({ form }: { form: any }) {
 }
 
 function TorrentStep({ form }: { form: any }) {
-    const defaultTorrentClient = form.watch("defaultTorrentClient")
+    const { watch } = useFormContext()
+    const defaultTorrentClient = useWatch({ name: "defaultTorrentClient" })
 
     return (
         <motion.div
@@ -488,7 +491,7 @@ function TorrentStep({ form }: { form: any }) {
 }
 
 function DebridStep({ form }: { form: any }) {
-    const debridProvider = form.watch("debridProvider")
+    const debridProvider = useWatch({ name: "debridProvider" })
 
     return (
         <motion.div

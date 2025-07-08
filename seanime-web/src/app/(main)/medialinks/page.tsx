@@ -23,6 +23,7 @@ import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { toast } from "sonner"
 import { PluginEpisodeGridItemMenuItems } from "../_features/plugin/actions/plugin-actions"
+import { useServerPassword } from "../_hooks/use-server-status"
 
 export default function Page() {
 
@@ -32,6 +33,7 @@ export default function Page() {
     const mediaId = searchParams.get("id")
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { filePath, setFilePath } = useMediastreamCurrentFile()
+    const { getServerPasswordQueryParam } = useServerPassword()
 
     const { mutate: startManualTracking, isPending: isStarting } = usePlaybackStartManualTracking()
 
@@ -68,7 +70,7 @@ export default function Page() {
             }
 
             // Send video to external player
-            const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(filePath)
+            const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(filePath) + getServerPasswordQueryParam()
             logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
 
             openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))

@@ -175,13 +175,13 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     <ContextMenuLabel className="text-[--muted] line-clamp-1 py-0 my-2">
                         {media.title?.userPreferred}
                     </ContextMenuLabel>
-                    <ContextMenuItem
+                    {!serverStatus?.isOffline && <ContextMenuItem
                         onClick={() => {
                             setPreviewModalMediaId(media.id!, type)
                         }}
                     >
                         Preview
-                    </ContextMenuItem>
+                    </ContextMenuItem>}
 
                     <PluginMediaCardContextMenuItems for={type} media={media} />
                 </ContextMenuGroup>}

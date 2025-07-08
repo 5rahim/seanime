@@ -1,3 +1,8 @@
+build-web-only:
+	rm -rf ../web
+	npm run build
+	cp -r out ../web
+
 build-web:
 	rm -rf ../web
 	rm -rf ../web-desktop
