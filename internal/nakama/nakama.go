@@ -258,19 +258,44 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 	m.logger.Debug().Bool("isHost", settings.IsHost).Str("username", m.username).Str("remoteURL", settings.RemoteServerURL).Msg("nakama: Settings updated")
 
 	if previousSettings == nil || previousSettings.IsHost != settings.IsHost || previousSettings.Enabled != settings.Enabled || disconnectAsHost {
-		// Start or stop services based on settings
-		if settings.IsHost && settings.Enabled {
-			m.startHostServices()
-		} else {
+		// Determine if we should stop host services
+		shouldStopHost := m.IsHost() && (!settings.Enabled || // Nakama disabled
+			!settings.IsHost || // Switching to peer mode
+			disconnectAsHost) // Password changed (requires restart)
+
+		// Determine if we should start host services
+		shouldStartHost := settings.IsHost && settings.Enabled
+
+		// Always stop first if needed, then start
+		if shouldStopHost {
 			m.stopHostServices()
+		}
+		if shouldStartHost {
+			m.startHostServices()
 		}
 	}
 
 	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.Enabled != settings.Enabled {
-		if settings.RemoteServerURL != "" && settings.RemoteServerPassword != "" && settings.Enabled && !settings.IsHost {
-			m.connectToHost()
-		} else {
+		// Determine if we should disconnect from current host
+		shouldDisconnect := m.IsConnectedToHost() && (!settings.Enabled || // Nakama disabled
+			settings.IsHost || // Switching to host mode
+			settings.RemoteServerURL == "" || // No remote URL
+			settings.RemoteServerPassword == "" || // No password
+			(previousSettings != nil && previousSettings.RemoteServerURL != settings.RemoteServerURL) || // URL changed
+			(previousSettings != nil && previousSettings.HostPassword != settings.HostPassword)) // Password changed
+
+		// Determine if we should connect to a host
+		shouldConnect := !settings.IsHost &&
+			settings.Enabled &&
+			settings.RemoteServerURL != "" &&
+			settings.RemoteServerPassword != ""
+
+		// Always disconnect first if needed, then connect
+		if shouldDisconnect {
 			m.disconnectFromHost()
+		}
+		if shouldConnect {
+			m.connectToHost()
 		}
 	}
 

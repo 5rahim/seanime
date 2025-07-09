@@ -370,7 +370,7 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 			r.sendDownloadCancelledEvent(tId, downloadUrl, downloadMap)
 			return false
 		}
-		return false
+		return true
 	}
 	if err != nil {
 		r.logger.Err(err).Str("tmpDownloadedFilePath", tmpDownloadedFilePath).Msg("debrid: Failed to extract downloaded file")

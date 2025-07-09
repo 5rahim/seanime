@@ -15,6 +15,7 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/c
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -201,9 +202,9 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Set "showUnreadChapter" state if there are unread chapters
      */
-    React.useEffect(() => {
+    useUpdateEffect(() => {
         setShowUnreadChapter(!!unreadChapters.length)
-    }, [unreadChapters])
+    }, [unreadChapters?.length])
 
     /**
      * Filter chapters based on state

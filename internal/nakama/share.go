@@ -10,8 +10,10 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/imroc/req/v3"
 )
@@ -23,6 +25,20 @@ type (
 		MetadataProvider  metadata.Provider
 	}
 )
+
+// generateHMACToken generates an HMAC token for stream authentication
+func (m *Manager) generateHMACToken(endpoint string) (string, error) {
+	// Use the Nakama password as the base secret - HostPassword for hosts, RemoteServerPassword for peers
+	var secret string
+	if m.settings.IsHost {
+		secret = m.settings.HostPassword
+	} else {
+		secret = m.settings.RemoteServerPassword
+	}
+
+	hmacAuth := util.NewHMACAuth(secret, 24*time.Hour)
+	return hmacAuth.GenerateToken(endpoint)
+}
 
 func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, hydrated bool) {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
@@ -98,7 +114,9 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 	}
 
 	if !response.IsSuccessState() {
-		return fmt.Errorf("cannot access host's anime library: %w", err)
+		body := response.Bytes()
+		code := response.StatusCode
+		return fmt.Errorf("cannot access host's anime library: %d, %s", code, string(body))
 	}
 
 	host := m.serverHost
@@ -106,7 +124,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		host = "127.0.0.1"
 	}
 	address := fmt.Sprintf("%s:%d", host, m.serverPort)
-	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=file&password=%s&path=%s", address, m.settings.RemoteServerPassword, base64.StdEncoding.EncodeToString([]byte(path)))
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=file&path=%s", address, base64.StdEncoding.EncodeToString([]byte(path)))
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
@@ -151,7 +169,8 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		host = "127.0.0.1"
 	}
 	address := fmt.Sprintf("%s:%d", host, m.serverPort)
-	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s&password=%s", address, streamType, m.settings.RemoteServerPassword)
+
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s", address, streamType)
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}

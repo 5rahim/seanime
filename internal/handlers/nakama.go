@@ -298,17 +298,27 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 
 	h.App.Logger.Info().Msgf("nakama: Serving anime library file: %s", string(decodedPath))
 
+	// Make sure file is in library
+	isInLibrary := false
+	libraryPaths := h.App.Settings.GetLibrary().GetLibraryPaths()
+	for _, libraryPath := range libraryPaths {
+		if util.IsFileUnderDir(string(decodedPath), libraryPath) {
+			isInLibrary = true
+			break
+		}
+	}
+
+	if !isInLibrary {
+		return echo.NewHTTPError(http.StatusForbidden, "file not in library")
+	}
+
 	return c.File(string(decodedPath))
 }
 
-// route /api/v1/nakama/stream?password={password}
+// route /api/v1/nakama/stream
 // Proxies stream requests to the host. It inserts the Nakama password in the headers.
 // It checks if the password is valid.
 func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
-	password := c.QueryParam("password")
-	if password != h.App.Settings.GetNakama().RemoteServerPassword {
-		return echo.NewHTTPError(http.StatusUnauthorized, "invalid password")
-	}
 
 	streamType := c.QueryParam("type") // "file", "torrent", "debrid"
 	if streamType == "" {

@@ -1,6 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { Report_ClickLog, Report_ConsoleLog, Report_NetworkLog, Report_ReactQueryLog } from "@/api/generated/types"
 import { useSaveIssueReport } from "@/api/hooks/report.hooks"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
@@ -15,7 +16,6 @@ import { BiX } from "react-icons/bi"
 import { PiRecordFill, PiStopCircleFill } from "react-icons/pi"
 import { VscDebugAlt } from "react-icons/vsc"
 import { toast } from "sonner"
-import { useServerPassword } from "../../_hooks/use-server-status"
 
 export const __issueReport_overlayOpenAtom = atom<boolean>(false)
 export const __issueReport_recordingAtom = atom<boolean>(false)
@@ -219,9 +219,9 @@ export function IssueReport() {
         setRecording(true)
     }
 
-    const { getServerPasswordQueryParam } = useServerPassword()
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
 
-    function handleStopRecording() {
+    async function handleStopRecording() {
         const logsToSave = {
             clickLogs,
             consoleLogs,
@@ -235,11 +235,18 @@ export function IssueReport() {
             ...logsToSave,
             isAnimeLibraryIssue: recordLocalFiles,
         }, {
-            onSuccess: () => {
+            onSuccess: async () => {
                 toast.success("Issue report saved successfully")
 
-                setTimeout(() => {
-                    openTab(getServerBaseUrl() + "/api/v1/report/issue/download" + getServerPasswordQueryParam())
+                setTimeout(async () => {
+                    try {
+                        const endpoint = "/api/v1/report/issue/download"
+                        const tokenQuery = await getHMACTokenQueryParam(endpoint)
+                        openTab(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
+                    }
+                    catch (error) {
+                        toast.error("Failed to generate download token")
+                    }
                 }, 1000)
             },
         })

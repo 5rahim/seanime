@@ -44,23 +44,31 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			return next(c)
 		}
 
+		// Check server password header first
 		if password == h.App.Config.Server.Password {
 			return next(c)
 		}
 
-		passwordQuery := c.Request().URL.Query().Get("password")
-		if passwordQuery == h.App.Config.Server.Password {
-			return next(c)
+		// Check HMAC token in query parameter
+		token := c.Request().URL.Query().Get("token")
+		if token != "" {
+			hmacAuth := h.App.GetServerPasswordHMACAuth()
+			_, err := hmacAuth.ValidateToken(token, path)
+			if err == nil {
+				return next(c)
+			} else {
+				h.App.Logger.Debug().Err(err).Str("path", path).Msg("server auth: HMAC token validation failed")
+			}
 		}
 
 		// Handle Nakama client connections
 		if h.App.Settings.GetNakama().Enabled && h.App.Settings.GetNakama().IsHost {
 			// Verify the Nakama host password in the client request
-			nakamaPassword := c.Request().Header.Get("X-Seanime-Nakama-Password")
+			nakamaPasswordHeader := c.Request().Header.Get("X-Seanime-Nakama-Password")
 
 			// Allow WebSocket connections for peer-to-host communication
 			if path == "/api/v1/nakama/ws" {
-				if nakamaPassword == h.App.Settings.GetNakama().HostPassword {
+				if nakamaPasswordHeader == h.App.Settings.GetNakama().HostPassword {
 					c.Response().Header().Set("X-Seanime-Nakama-Is-Client", "true")
 					return next(c)
 				}
@@ -68,16 +76,8 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 
 			// Only allow the following paths to be accessed by Nakama clients
 			if strings.HasPrefix(path, "/api/v1/nakama/host/") {
-				if nakamaPassword == h.App.Settings.GetNakama().HostPassword {
+				if nakamaPasswordHeader == h.App.Settings.GetNakama().HostPassword {
 					c.Response().Header().Set("X-Seanime-Nakama-Is-Client", "true")
-					return next(c)
-				}
-			}
-			// Handle public Nakama paths (e.g. streaming endpoints)
-			// For these public paths, we don't check the password header because they can be accessed by anyone
-			// Instead we check if a query parameter is present
-			if strings.HasPrefix(path, "/api/v1/nakama/public") {
-				if c.QueryParam("nakama_password") == h.App.Settings.GetNakama().HostPassword {
 					return next(c)
 				}
 			}
