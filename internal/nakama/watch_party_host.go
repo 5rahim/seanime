@@ -68,6 +68,12 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 
 	wpm.currentSession = mo.Some(session)
 
+	// Reset sequence numbers for new session
+	wpm.sequenceMu.Lock()
+	wpm.sendSequence = 0
+	wpm.lastRxSequence = 0
+	wpm.sequenceMu.Unlock()
+
 	// Notify all peers about the new watch party
 	_ = wpm.manager.SendMessage(MessageTypeWatchPartyCreated, WatchPartyCreatedPayload{
 		Session: session,
@@ -96,12 +102,12 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 	}()
 
 	go wpm.listenToPlaybackManager()
+	// go wpm.listenToOnlineStreaming() // TODO
 
 	return session, nil
 }
 
 // PromotePeerToRelayModeOrigin promotes a peer to be the origin for relay mode
-// TODO: To implement
 func (wpm *WatchPartyManager) PromotePeerToRelayModeOrigin(peerId string) {
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
@@ -191,7 +197,6 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 				wpm.logger.Debug().Msg("nakama: Stopping playback manager listener")
 				return
 			case event := <-playbackSubscriber.EventCh:
-
 				session, ok := wpm.currentSession.Get()
 				if !ok {
 					continue
@@ -222,14 +227,27 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 						StreamType:    streamType,
 						StreamPath:    streamPath,
 					}
+
 					// Video playback has started, send the media info to the peers
+
+					// If this is the same media, just send the playback status
 					if session.CurrentMediaInfo.Equals(newCurrentMediaInfo) && event.State.MediaId != 0 {
+						// Get next sequence number for message ordering
+						wpm.sequenceMu.Lock()
+						wpm.sendSequence++
+						sequenceNum := wpm.sendSequence
+						wpm.sequenceMu.Unlock()
+
+						// Send message
 						_ = wpm.manager.SendMessage(MessageTypeWatchPartyPlaybackStatus, WatchPartyPlaybackStatusPayload{
 							PlaybackStatus: event.Status,
-							Timestamp:      time.Now(),
+							Timestamp:      time.Now().UnixNano(),
+							SequenceNumber: sequenceNum,
 							EpisodeNumber:  event.State.EpisodeNumber,
 						})
+
 					} else {
+						// For new playback, update the session
 						wpm.logger.Debug().Msgf("nakama: Playback changed or started: %s", streamPath)
 						session.CurrentMediaInfo = newCurrentMediaInfo
 
@@ -248,10 +266,18 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 						}
 						wpm.bufferMu.Unlock()
 
-						wpm.broadcastSessionStateToPeers()
+						go wpm.broadcastSessionStateToPeers()
 
 						// Start checking peer readiness
-						go wpm.waitForPeersReady()
+						go wpm.waitForPeersReady(func() {
+							if !session.IsRelayMode {
+								// resume playback
+								_ = wpm.manager.playbackManager.Resume()
+							} else {
+								// in relay mode, just signal to the origin
+								_ = wpm.manager.SendMessage(MessageTypeWatchPartyRelayModePeersReady, nil)
+							}
+						})
 					}
 				}
 			}
@@ -316,7 +342,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerJoinedEvent(payload *WatchPart
 	}
 
 	// Send session state
-	wpm.broadcastSessionStateToPeers()
+	go wpm.broadcastSessionStateToPeers()
 
 	wpm.logger.Debug().Str("peerId", payload.PeerId).Msg("nakama: Updated watch party state after peer joined")
 
@@ -343,7 +369,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerLeftEvent(payload *WatchPartyL
 	delete(session.Participants, payload.PeerId)
 
 	// Send session state
-	wpm.broadcastSessionStateToPeers()
+	go wpm.broadcastSessionStateToPeers()
 
 	wpm.logger.Debug().Str("peerId", payload.PeerId).Msg("nakama: Updated watch party state after peer left")
 
@@ -375,7 +401,7 @@ func (wpm *WatchPartyManager) HandlePeerDisconnected(peerID string) {
 	delete(session.Participants, peerID)
 
 	// Send session state to remaining peers
-	wpm.broadcastSessionStateToPeers()
+	go wpm.broadcastSessionStateToPeers()
 
 	wpm.logger.Debug().Str("peerId", peerID).Msg("nakama: Updated watch party state after peer disconnected")
 
@@ -414,7 +440,8 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerStatusEvent(payload *WatchPart
 	wpm.mu.Unlock()
 
 	// Check if we should start/resume playback based on peer states (call after releasing mutex)
-	wpm.checkAndManageBuffering()
+	// Run this asynchronously to avoid blocking the event processing
+	go wpm.checkAndManageBuffering()
 }
 
 // handleWatchPartyBufferUpdateEvent handles buffer state changes from peers
@@ -447,10 +474,11 @@ func (wpm *WatchPartyManager) handleWatchPartyBufferUpdateEvent(payload *WatchPa
 	wpm.mu.Unlock()
 
 	// Immediately check if we need to pause/resume based on buffer state (call after releasing mutex)
-	wpm.checkAndManageBuffering()
+	// Run this asynchronously to avoid blocking the event processing
+	go wpm.checkAndManageBuffering()
 
 	// Broadcast updated session state
-	wpm.broadcastSessionStateToPeers()
+	go wpm.broadcastSessionStateToPeers()
 }
 
 // checkAndManageBuffering manages playback based on peer buffering states
@@ -527,7 +555,7 @@ func (wpm *WatchPartyManager) checkAndManageBuffering() {
 }
 
 // waitForPeersReady waits for peers to be ready before resuming playback
-func (wpm *WatchPartyManager) waitForPeersReady() {
+func (wpm *WatchPartyManager) waitForPeersReady(onReady func()) {
 	session, ok := wpm.currentSession.Get()
 	if !ok {
 		return
@@ -568,13 +596,7 @@ func (wpm *WatchPartyManager) waitForPeersReady() {
 			if waitTime > maxWaitTime {
 				wpm.logger.Debug().Float64("waitTimeSeconds", waitTime.Seconds()).Msg("nakama: Max wait time exceeded, resuming playback")
 
-				if !session.IsRelayMode {
-					// not in relay mode, resume playback
-					_ = wpm.manager.playbackManager.Resume()
-				} else {
-					// in relay mode, just signal to the origin
-					_ = wpm.manager.SendMessage(MessageTypeWatchPartyRelayModePeersReady, nil)
-				}
+				onReady()
 
 				wpm.isWaitingForBuffers = false
 				wpm.bufferMu.Unlock()
@@ -605,13 +627,7 @@ func (wpm *WatchPartyManager) waitForPeersReady() {
 					Int("totalPeers", totalPeers).
 					Msg("nakama: All peers are ready, resuming playback")
 
-				if !session.IsRelayMode {
-					// not in relay mode, resume playback
-					_ = wpm.manager.playbackManager.Resume()
-				} else {
-					// in relay mode, just signal to the origin
-					_ = wpm.manager.SendMessage(MessageTypeWatchPartyRelayModePeersReady, nil)
-				}
+				onReady()
 
 				wpm.isWaitingForBuffers = false
 				wpm.bufferMu.Unlock()
@@ -676,6 +692,8 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		return
 	}
 
+	session.Settings.MaxBufferWaitTime = 60 // higher buffer wait time for relay mode
+
 	event := payload
 
 	// Load the stream on the host
@@ -736,7 +754,15 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 	wpm.broadcastSessionStateToPeers()
 
 	// Start checking peer readiness
-	go wpm.waitForPeersReady()
+	go wpm.waitForPeersReady(func() {
+		if !session.IsRelayMode {
+			// not in relay mode, resume playback
+			_ = wpm.manager.playbackManager.Resume()
+		} else {
+			// in relay mode, just signal to the origin
+			_ = wpm.manager.SendMessage(MessageTypeWatchPartyRelayModePeersReady, nil)
+		}
+	})
 
 }
 
@@ -748,9 +774,16 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginPlaybackStatusEvent
 	// wpm.logger.Debug().Msg("nakama: Relay mode origin playback status")
 
 	// Send the playback status immediately to the peers
+	// Get next sequence number for relayed message
+	wpm.sequenceMu.Lock()
+	wpm.sendSequence++
+	sequenceNum := wpm.sendSequence
+	wpm.sequenceMu.Unlock()
+
 	_ = wpm.manager.SendMessage(MessageTypeWatchPartyPlaybackStatus, WatchPartyPlaybackStatusPayload{
 		PlaybackStatus: payload.Status,
 		Timestamp:      payload.Timestamp, // timestamp of the origin
+		SequenceNumber: sequenceNum,
 		EpisodeNumber:  payload.State.EpisodeNumber,
 	})
 }

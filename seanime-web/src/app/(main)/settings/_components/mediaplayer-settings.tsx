@@ -147,6 +147,13 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                     help="Leave empty to use the CLI."
                                 />
                             </div>
+                            <div>
+                                <Field.Text
+                                    name="mpvArgs"
+                                    label="Options"
+                                    placeholder="e.g. --no-config --mute=yes"
+                                />
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>

@@ -355,7 +355,7 @@ func (a *App) InitOrRefreshModules() {
 			Path:   settings.MediaPlayer.MpcPath,
 			Logger: a.Logger,
 		}
-		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
+		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
 
 		// Set media player repository
 		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{

@@ -111,6 +111,11 @@ type WatchPartyManager struct {
 
 	lastPlayState     bool      // Last known play/pause state to detect rapid changes
 	lastPlayStateTime time.Time // When we last changed play state
+
+	// Sequence-based message ordering
+	sequenceMu     sync.Mutex // Mutex for sequence number operations
+	sendSequence   uint64     // Current sequence number for outgoing messages
+	lastRxSequence uint64     // Latest received sequence number
 }
 
 type WatchPartySession struct {
@@ -143,8 +148,19 @@ type WatchPartySessionMediaInfo struct {
 	MediaId       int    `json:"mediaId"`
 	EpisodeNumber int    `json:"episodeNumber"`
 	AniDBEpisode  string `json:"aniDbEpisode"`
-	StreamType    string `json:"streamType"` // "file", "torrent", "debrid"
+	StreamType    string `json:"streamType"` // "file", "torrent", "debrid", "online"
 	StreamPath    string `json:"streamPath"` // URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
+
+	OnlineStreamParams *OnlineStreamParams `json:"onlineStreamParams,omitempty"`
+}
+
+type OnlineStreamParams struct {
+	MediaId       int    `json:"mediaId"`
+	Provider      string `json:"provider"`
+	Server        string `json:"server"`
+	Dubbed        bool   `json:"dubbed"`
+	EpisodeNumber int    `json:"episodeNumber"`
+	Quality       string `json:"quality"`
 }
 
 type WatchPartySessionSettings struct {
@@ -173,7 +189,8 @@ type (
 
 	WatchPartyPlaybackStatusPayload struct {
 		PlaybackStatus mediaplayer.PlaybackStatus `json:"playbackStatus"`
-		Timestamp      time.Time                  `json:"timestamp"`     // Client timestamp
+		Timestamp      int64                      `json:"timestamp"` // Unix nano timestamp
+		SequenceNumber uint64                     `json:"sequenceNumber"`
 		EpisodeNumber  int                        `json:"episodeNumber"` // For episode changes
 	}
 
@@ -214,7 +231,7 @@ type (
 	WatchPartyRelayModeOriginPlaybackStatusPayload struct {
 		Status    mediaplayer.PlaybackStatus    `json:"status"`
 		State     playbackmanager.PlaybackState `json:"state"`
-		Timestamp time.Time                     `json:"timestamp"`
+		Timestamp int64                         `json:"timestamp"`
 	}
 )
 

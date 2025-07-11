@@ -83,7 +83,6 @@ const (
 type MessageType string
 
 const (
-	// System messages
 	MessageTypeAuth      MessageType = "auth"
 	MessageTypeAuthReply MessageType = "auth_reply"
 	MessageTypePing      MessageType = "ping"
@@ -174,6 +173,11 @@ type NakamaStatus struct {
 type MessageResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+
+type ClientEvent struct {
+	Type    string      `json:"type"`
+	Payload interface{} `json:"payload"`
 }
 
 func NewManager(opts *NewManagerOptions) *Manager {
@@ -488,7 +492,6 @@ func (m *Manager) GetHostConnectionStatus() *HostConnectionStatus {
 	}
 }
 
-// Methods for PeerConnection
 func (pc *PeerConnection) SendMessage(message *Message) error {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
@@ -498,10 +501,9 @@ func (pc *PeerConnection) SendMessage(message *Message) error {
 func (pc *PeerConnection) Close() {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
-	pc.Conn.Close()
+	_ = pc.Conn.Close()
 }
 
-// Methods for HostConnection
 func (hc *HostConnection) SendMessage(message *Message) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -514,7 +516,7 @@ func (hc *HostConnection) Close() {
 	if hc.reconnectTimer != nil {
 		hc.reconnectTimer.Stop()
 	}
-	hc.Conn.Close()
+	_ = hc.Conn.Close()
 }
 
 // Helper function to generate connection IDs

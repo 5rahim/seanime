@@ -49,10 +49,23 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 	}
 
 	// Check if the message is too old to prevent acting on stale data
-	timeSinceMessage := time.Since(payload.Timestamp).Seconds()
-	if timeSinceMessage > 5.0 {
-		wpm.logger.Debug().Float64("timeSinceMessage", timeSinceMessage).Msg("nakama: Ignoring stale playback status message")
+	wpm.sequenceMu.Lock()
+	isStale := payload.SequenceNumber != 0 && payload.SequenceNumber <= wpm.lastRxSequence
+	if payload.SequenceNumber > wpm.lastRxSequence {
+		wpm.lastRxSequence = payload.SequenceNumber
+	}
+	wpm.sequenceMu.Unlock()
+
+	if isStale {
+		wpm.logger.Debug().Uint64("messageSeq", payload.SequenceNumber).Uint64("lastSeq", wpm.lastRxSequence).Msg("nakama: Ignoring stale playback status message (old sequence)")
 		return
+	}
+
+	now := time.Now().UnixNano()
+	driftNs := now - payload.Timestamp
+	timeSinceMessage := float64(driftNs) / 1e9 // Convert to seconds
+	if timeSinceMessage > 5 {                  // Clamp to a reasonable maximum delay
+		timeSinceMessage = 0 // If it's more than 5 seconds, treat it as no delay
 	}
 
 	// Handle play/pause state changes
@@ -62,7 +75,6 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			wpm.cancelCatchUp()
 
 			// When host resumes, sync position before resuming if there's significant drift
-			timeSinceMessage := time.Since(payload.Timestamp).Seconds()
 			// Calculate where the host should be NOW, not when they resumed
 			hostCurrentPosition := payloadStatus.CurrentTimeInSeconds + timeSinceMessage
 			positionDrift := hostCurrentPosition - playbackStatus.CurrentTimeInSeconds
@@ -120,17 +132,16 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			_ = wpm.manager.playbackManager.Resume()
 		} else {
 			wpm.logger.Debug().Msg("nakama: Host paused, handling peer pause")
-			wpm.handleHostPause(payloadStatus, *playbackStatus, payload.Timestamp)
+			wpm.handleHostPause(payloadStatus, *playbackStatus, timeSinceMessage)
 		}
 	}
 
 	// Handle position sync for different state combinations
 	if payloadStatus.Playing == playbackStatus.Playing {
 		// Both in same state, use normal sync
-		wpm.syncPlaybackPosition(payloadStatus, *playbackStatus, payload.Timestamp, session)
+		wpm.syncPlaybackPosition(payloadStatus, *playbackStatus, timeSinceMessage, session)
 	} else if payloadStatus.Playing && !playbackStatus.Playing {
 		// Host playing, peer paused, sync position and resume
-		timeSinceMessage := time.Since(payload.Timestamp).Seconds()
 		hostExpectedPosition := payloadStatus.CurrentTimeInSeconds + timeSinceMessage
 
 		wpm.logger.Debug().
@@ -155,17 +166,16 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 
 		// Cancel catch-up and pause
 		wpm.cancelCatchUp()
-		wpm.handleHostPause(payloadStatus, *playbackStatus, payload.Timestamp)
+		wpm.handleHostPause(payloadStatus, *playbackStatus, timeSinceMessage)
 	}
 }
 
 // handleHostPause handles when the host pauses playback
-func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackStatus, peerStatus mediaplayer.PlaybackStatus, hostTimestamp time.Time) {
+func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackStatus, peerStatus mediaplayer.PlaybackStatus, timeSinceMessage float64) {
 	// Cancel any ongoing catch-up operation
 	wpm.cancelCatchUp()
 
 	now := time.Now()
-	timeSinceMessage := now.Sub(hostTimestamp).Seconds()
 
 	// Calculate where the host actually paused based on dynamic timing
 	hostActualPausePosition := hostStatus.CurrentTimeInSeconds
@@ -177,7 +187,7 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 	// If peer is significantly behind the host, let it catch up before pausing
 	if timeDifference > CatchUpBehindThreshold {
 		wpm.logger.Debug().Msgf("nakama: Host paused, peer behind by %.2f seconds, catching up", timeDifference)
-		wpm.startCatchUp(hostActualPausePosition, hostTimestamp)
+		wpm.startCatchUp(hostActualPausePosition, timeSinceMessage)
 	} else {
 		// Peer is close enough or ahead, pause immediately with position correction
 		// Use more aggressive sync threshold for pause operations
@@ -203,7 +213,7 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 }
 
 // startCatchUp starts a catch-up operation to sync with the host's pause position
-func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, hostTimestamp time.Time) {
+func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, timeSinceMessage float64) {
 	wpm.catchUpMu.Lock()
 	defer wpm.catchUpMu.Unlock()
 
@@ -293,9 +303,8 @@ func (wpm *WatchPartyManager) cancelCatchUp() {
 }
 
 // syncPlaybackPosition synchronizes playback position when both host and peer are in the same play/pause state
-func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.PlaybackStatus, peerStatus mediaplayer.PlaybackStatus, hostTimestamp time.Time, session *WatchPartySession) {
+func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.PlaybackStatus, peerStatus mediaplayer.PlaybackStatus, timeSinceMessage float64, session *WatchPartySession) {
 	now := time.Now()
-	timeSinceMessage := now.Sub(hostTimestamp).Seconds()
 
 	// Ignore very old messages to prevent stale syncing
 	if timeSinceMessage > MaxMessageAge {

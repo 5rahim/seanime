@@ -2,6 +2,7 @@ import { Anime_Entry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { SeaMediaPlayer } from "@/app/(main)/_features/sea-media-player/sea-media-player"
 import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/sea-media-player-layout"
 import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
@@ -84,11 +85,16 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
     const progress = animeEntry?.listData?.progress ?? 0
 
+    const nakamaStatus = useNakamaStatus()
+
     /**
      * Set episode number on mount
      */
     const firstRenderRef = React.useRef(true)
     useUpdateEffect(() => {
+        // Do not auto set the episode number if the user is in a watch party and is not the host
+        if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
+
         if (!!media && firstRenderRef.current && !!episodes) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined

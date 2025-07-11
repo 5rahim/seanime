@@ -38,6 +38,12 @@ func (wpm *WatchPartyManager) JoinWatchParty() error {
 
 	wpm.sessionCtx, wpm.sessionCtxCancel = context.WithCancel(context.Background())
 
+	// Reset sequence numbers for new session participation
+	wpm.sequenceMu.Lock()
+	wpm.sendSequence = 0
+	wpm.lastRxSequence = 0
+	wpm.sequenceMu.Unlock()
+
 	// Send join message to host
 	_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyJoin, WatchPartyJoinPayload{
 		PeerId:   hostConn.PeerId,
@@ -379,6 +385,8 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			err = wpm.manager.PlayHostAnimeStream(payload.Session.CurrentMediaInfo.StreamType, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
 		case "file":
 			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
+		case "online":
+			wpm.sendCommandToOnlineStream(OnlineStreamCommandStart, payload.Session.CurrentMediaInfo.OnlineStreamParams)
 		}
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to play watch party media")
@@ -585,7 +593,7 @@ func (wpm *WatchPartyManager) relayModeListenToPlaybackManager() {
 					_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginPlaybackStatus, WatchPartyRelayModeOriginPlaybackStatusPayload{
 						Status:    event.Status,
 						State:     event.State,
-						Timestamp: time.Now(),
+						Timestamp: time.Now().UnixNano(),
 					})
 				}
 				currentSession.mu.Unlock()

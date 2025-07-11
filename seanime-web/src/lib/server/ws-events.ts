@@ -63,6 +63,8 @@ export const enum WSEvents {
     NAKAMA_WATCH_PARTY_RELAY_MODE_TOGGLE_SHARE_LIBRARY_WITH_ORIGIN = "nakama-watch-party-relay-mode-toggle-share-library-with-origin",
     SHOW_INDEFINITE_LOADER = "show-indefinite-loader",
     HIDE_INDEFINITE_LOADER = "hide-indefinite-loader",
+    NAKAMA_ONLINE_STREAM_EVENT = "nakama-online-stream-event",
+    NAKAMA_ONLINE_STREAM_CLIENT_EVENT = "nakama-online-stream-client-event",
 }
 
 export const enum WebviewEvents {

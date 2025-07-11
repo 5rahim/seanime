@@ -80,6 +80,9 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			value.EventCh <- VideoStartedEvent{Filename: status.Filename, Filepath: status.Filepath}
 			return true
@@ -143,6 +146,9 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			value.EventCh <- VideoCompletedEvent{Filename: status.Filename}
 			return true
@@ -186,6 +192,9 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- VideoStoppedEvent{Reason: reason}
 			return true
 		})
@@ -221,6 +230,9 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			return true
 		})
@@ -274,6 +286,9 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			value.EventCh <- StreamStartedEvent{Filename: status.Filename, Filepath: status.Filepath}
 			return true
@@ -326,6 +341,9 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			return true
 		})
@@ -358,6 +376,9 @@ func (pm *PlaybackManager) handleStreamingVideoCompleted(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
 			value.EventCh <- StreamCompletedEvent{Filename: status.Filename}
 			return true
@@ -390,6 +411,9 @@ func (pm *PlaybackManager) handleStreamingTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.canceled.Load() {
+				return true
+			}
 			value.EventCh <- StreamStoppedEvent{Reason: reason}
 			return true
 		})

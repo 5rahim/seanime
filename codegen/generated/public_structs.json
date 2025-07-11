@@ -29355,6 +29355,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MpvArgs",
+        "jsonName": "mpvArgs",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -35344,6 +35353,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"native-player\"",
+        "\"nakama\"",
         "\"plugin\""
       ]
     },
@@ -35481,6 +35491,15 @@
       {
         "name": "clientNativePlayerEventSubscribers",
         "jsonName": "clientNativePlayerEventSubscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nakamaEventSubscribers",
+        "jsonName": "nakamaEventSubscribers",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -45920,6 +45939,17 @@
         "typescriptType": "any",
         "required": true,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "canceled",
+        "jsonName": "canceled",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -59964,6 +59994,152 @@
     ]
   },
   {
+    "filepath": "../internal/nakama/nakama.go",
+    "filename": "nakama.go",
+    "name": "ClientEvent",
+    "formattedName": "Nakama_ClientEvent",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "OnlineStreamStartedEventPayload",
+    "formattedName": "Nakama_OnlineStreamStartedEventPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Dubbed",
+        "jsonName": "dubbed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "OnlineStreamCommand",
+    "formattedName": "Nakama_OnlineStreamCommand",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"start\"",
+        "\"play\"",
+        "\"pause\"",
+        "\"seek\"",
+        "\"seekTo\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "OnlineStreamCommandPayload",
+    "formattedName": "Nakama_OnlineStreamCommandPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "OnlineStreamCommand",
+        "typescriptType": "Nakama_OnlineStreamCommand",
+        "usedTypescriptType": "Nakama_OnlineStreamCommand",
+        "usedStructName": "nakama.OnlineStreamCommand",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The command type"
+        ]
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Optional payload for the command"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/nakama/share.go",
     "filename": "share.go",
     "name": "HydrateHostAnimeLibraryOptions",
@@ -60316,6 +60492,41 @@
         "comments": [
           " When we last changed play state"
         ]
+      },
+      {
+        "name": "sequenceMu",
+        "jsonName": "sequenceMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for sequence number operations"
+        ]
+      },
+      {
+        "name": "sendSequence",
+        "jsonName": "sendSequence",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Current sequence number for outgoing messages"
+        ]
+      },
+      {
+        "name": "lastRxSequence",
+        "jsonName": "lastRxSequence",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Latest received sequence number"
+        ]
       }
     ],
     "comments": []
@@ -60572,7 +60783,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " \"file\", \"torrent\", \"debrid\""
+          " \"file\", \"torrent\", \"debrid\", \"online\""
         ]
       },
       {
@@ -60585,6 +60796,81 @@
         "comments": [
           " URL for stream playback (e.g. /api/v1/nakama/stream?type=file\u0026path=...)"
         ]
+      },
+      {
+        "name": "OnlineStreamParams",
+        "jsonName": "onlineStreamParams",
+        "goType": "OnlineStreamParams",
+        "typescriptType": "Nakama_OnlineStreamParams",
+        "usedTypescriptType": "Nakama_OnlineStreamParams",
+        "usedStructName": "nakama.OnlineStreamParams",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "OnlineStreamParams",
+    "formattedName": "Nakama_OnlineStreamParams",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Dubbed",
+        "jsonName": "dubbed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -60739,14 +61025,22 @@
       {
         "name": "Timestamp",
         "jsonName": "timestamp",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": [
-          " Client timestamp"
+          " Unix nano timestamp"
         ]
+      },
+      {
+        "name": "SequenceNumber",
+        "jsonName": "sequenceNumber",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       },
       {
         "name": "EpisodeNumber",
@@ -61045,10 +61339,9 @@
       {
         "name": "Timestamp",
         "jsonName": "timestamp",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -77787,9 +78080,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " Button text"
-        ]
+        "comments": []
       },
       {
         "name": "URL",
@@ -77798,9 +78089,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " Link to open"
-        ]
+        "comments": []
       },
       {
         "name": "Type",
@@ -77809,9 +78098,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " \"link\""
-        ]
+        "comments": []
       }
     ],
     "comments": []
@@ -77826,8 +78113,8 @@
       {
         "name": "OS",
         "jsonName": "os",
-        "goType": "string",
-        "typescriptType": "string",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -77950,10 +78237,9 @@
       {
         "name": "Date",
         "jsonName": "date",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": [
           " Date of the announcement"
@@ -79174,6 +79460,75 @@
       " Scheduler handles all VM operations added concurrently in a single goroutine",
       " Any goroutine that needs to execute a VM operation must schedule it because the UI VM isn't thread safe"
     ]
+  },
+  {
+    "filepath": "../internal/util/hmac_auth.go",
+    "filename": "hmac_auth.go",
+    "name": "TokenClaims",
+    "formattedName": "Util_TokenClaims",
+    "package": "util",
+    "fields": [
+      {
+        "name": "Endpoint",
+        "jsonName": "endpoint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The endpoint this token is valid for"
+        ]
+      },
+      {
+        "name": "IssuedAt",
+        "jsonName": "iat",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "exp",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/util/hmac_auth.go",
+    "filename": "hmac_auth.go",
+    "name": "HMACAuth",
+    "formattedName": "Util_HMACAuth",
+    "package": "util",
+    "fields": [
+      {
+        "name": "secret",
+        "jsonName": "secret",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ttl",
+        "jsonName": "ttl",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedTypescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/util/http/http_range.go",

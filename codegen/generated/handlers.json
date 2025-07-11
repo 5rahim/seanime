@@ -6672,7 +6672,7 @@
     "name": "HandleNakamaProxyStream",
     "trimmedName": "NakamaProxyStream",
     "comments": [
-      "route /api/v1/nakama/stream?password={password}",
+      "route /api/v1/nakama/stream",
       "Proxies stream requests to the host. It inserts the Nakama password in the headers.",
       "It checks if the password is valid.",
       ""

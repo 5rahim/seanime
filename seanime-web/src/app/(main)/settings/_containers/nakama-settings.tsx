@@ -6,6 +6,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { useWatch } from "react-hook-form"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { RiInformation2Line } from "react-icons/ri"
 
@@ -33,6 +34,7 @@ export function NakamaSettings(props: Props) {
     } = props
 
     const serverStatus = useServerStatus()
+    const nakamaIsHost = useWatch({ name: "nakamaIsHost" })
 
 
     return (
@@ -135,22 +137,24 @@ export function NakamaSettings(props: Props) {
                 {/*    help="If enabled, this server will expose its port to the internet. This might be required for other clients to connect to this server."*/}
                 {/*/>*/}
 
-                <Separator className="!my-6" />
+                {nakamaIsHost && <>
+                    <Separator className="!my-6" />
 
-                <h3>Host settings</h3>
+                    <h3>Host settings</h3>
 
-                <Field.Switch
-                    side="right"
-                    name="nakamaHostShareLocalAnimeLibrary"
-                    label="Share local anime library"
-                    help="If enabled, this server will share its local anime library to other clients."
-                />
+                    <Field.Switch
+                        side="right"
+                        name="nakamaHostShareLocalAnimeLibrary"
+                        label="Share local anime library"
+                        help="If enabled, this server will share its local anime library to other clients."
+                    />
 
-                <Field.MediaExclusionSelector
-                    name="nakamaHostUnsharedAnimeIds"
-                    label="Exclude anime from sharing"
-                    help="Select anime that you don't want to share with other clients."
-                />
+                    <Field.MediaExclusionSelector
+                        name="nakamaHostUnsharedAnimeIds"
+                        label="Exclude anime from sharing"
+                        help="Select anime that you don't want to share with other clients."
+                    />
+                </>}
             </SettingsCard>
 
 

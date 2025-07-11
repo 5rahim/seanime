@@ -18,6 +18,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -105,7 +106,8 @@ type (
 
 	// PlaybackStatusSubscriber provides a single event channel for all playback events
 	PlaybackStatusSubscriber struct {
-		EventCh chan PlaybackEvent
+		EventCh  chan PlaybackEvent
+		canceled atomic.Bool
 	}
 
 	// PlaybackEvent is the base interface for all playback events
@@ -689,7 +691,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusSubscriber {
 	subscriber := &PlaybackStatusSubscriber{
-		EventCh: make(chan PlaybackEvent),
+		EventCh: make(chan PlaybackEvent, 100),
 	}
 	pm.playbackStatusSubscribers.Set(id, subscriber)
 	return subscriber
@@ -705,6 +707,7 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 	if !ok {
 		return
 	}
-	close(subscriber.EventCh)
+	subscriber.canceled.Store(true)
 	pm.playbackStatusSubscribers.Delete(id)
+	close(subscriber.EventCh)
 }

@@ -4,6 +4,7 @@ type WebsocketClientEventType string
 
 const (
 	NativePlayerEventType WebsocketClientEventType = "native-player"
+	NakamaEventType       WebsocketClientEventType = "nakama"
 	PluginEvent           WebsocketClientEventType = "plugin"
 )
 
@@ -87,6 +88,8 @@ const (
 	NakamaCustomMessage        = "nakama-custom-message"
 	NakamaStatusRequested      = "nakama-status-requested"
 	NakamaStatus               = "nakama-status"
+
+	NakamaOnlineStreamEvent = "nakama-online-stream-event"
 
 	// Nakama Watch Party events
 	NakamaWatchPartyState                                 = "nakama-watch-party-state"

@@ -8,6 +8,7 @@ import {
 } from "@/api/hooks/nakama.hooks"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -34,6 +35,10 @@ export const watchPartySessionAtom = atom<Nakama_WatchPartySession | null | unde
 
 export function useNakamaStatus() {
     return useAtomValue(nakamaStatusAtom)
+}
+
+export function useWatchPartySession() {
+    return useAtomValue(watchPartySessionAtom)
 }
 
 export function NakamaManager() {
@@ -197,6 +202,25 @@ export function NakamaManager() {
         type: WSEvents.NAKAMA_ERROR,
         onMessage: () => {
             refetchStatus()
+        },
+    })
+
+    /////// Online stream
+
+    const { startOnlineStream } = useNakamaOnlineStreamWatchParty()
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_ONLINE_STREAM_EVENT,
+        onMessage: (_data: { type: string, payload: { type: string, payload: any } }) => {
+            console.log(_data)
+            switch (_data.type) {
+                case "online-stream-playback-status":
+                    const data = _data.payload
+                    switch (data.type) {
+                        case "start":
+                            startOnlineStream(data.payload)
+                            break
+                    }
+            }
         },
     })
 

@@ -3344,6 +3344,7 @@ export type Models_MediaPlayerSettings = {
     mpcPath: string
     mpvSocket: string
     mpvPath: string
+    mpvArgs: string
 }
 
 /**
@@ -3589,6 +3590,20 @@ export type Nakama_NakamaStatus = {
  * - Filename: watch_party.go
  * - Package: nakama
  */
+export type Nakama_OnlineStreamParams = {
+    mediaId: number
+    provider: string
+    server: string
+    dubbed: boolean
+    episodeNumber: number
+    quality: string
+}
+
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
 export type Nakama_WatchPartySession = {
     id: string
     participants?: Record<string, Nakama_WatchPartySessionParticipant>
@@ -3614,13 +3629,14 @@ export type Nakama_WatchPartySessionMediaInfo = {
     episodeNumber: number
     aniDbEpisode: string
     /**
-     * "file", "torrent", "debrid"
+     * "file", "torrent", "debrid", "online"
      */
     streamType: string
     /**
      * URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
      */
     streamPath: string
+    onlineStreamParams?: Nakama_OnlineStreamParams
 }
 
 /**
@@ -4161,7 +4177,7 @@ export type Updater_Announcement = {
     /**
      * Date of the announcement
      */
-    date?: string
+    date: any
     /**
      * Can user dismiss it
      */
@@ -4183,17 +4199,8 @@ export type Updater_Announcement = {
  * - Package: updater
  */
 export type Updater_AnnouncementAction = {
-    /**
-     * Button text
-     */
     label: string
-    /**
-     * Link to open
-     */
     url: string
-    /**
-     * "link"
-     */
     type: string
 }
 
@@ -4206,7 +4213,7 @@ export type Updater_AnnouncementConditions = {
     /**
      * ["windows", "darwin", "linux"]
      */
-    os?: string
+    os?: Array<string>
     /**
      * ["tauri", "web", "denshi"]
      */

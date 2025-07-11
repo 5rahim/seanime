@@ -88,6 +88,21 @@ export function AnimeEntryPage() {
     React.useLayoutEffect(() => {
         if (!animeEntryLoading &&
             animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+            searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
+            !switchedView.current // View has not been switched yet
+        ) {
+            switchedView.current = true
+            if (serverStatus?.debridSettings?.enabled && searchParams.get("tab") === "debridstream") {
+                setView("debridstream")
+            } else if (serverStatus?.torrentstreamSettings?.enabled && searchParams.get("tab") === "torrentstream") {
+                setView("torrentstream")
+            } else if (serverStatus?.settings?.library?.enableOnlinestream && searchParams.get("tab") === "onlinestream") {
+                setView("onlinestream")
+            }
+        }
+
+        if (!animeEntryLoading &&
+            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (
@@ -107,6 +122,7 @@ export function AnimeEntryPage() {
                 setView("onlinestream")
             }
         }
+
     }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
 
     React.useEffect(() => {

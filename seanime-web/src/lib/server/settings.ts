@@ -42,6 +42,7 @@ export const settingsSchema = z.object({
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
+    mpvArgs: z.string().optional().default(""),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
     hideTorrentList: z.boolean().optional().default(false),
     qbittorrentPath: z.string().optional().default(""),
@@ -154,6 +155,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         mpcPath: data.mpcPath || "",
         mpvSocket: data.mpvSocket || "",
         mpvPath: data.mpvPath || "",
+        mpvArgs: "",
     },
     discord: {
         enableRichPresence: data.enableRichPresence,
