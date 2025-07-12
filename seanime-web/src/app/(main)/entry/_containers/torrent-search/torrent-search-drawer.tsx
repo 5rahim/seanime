@@ -47,7 +47,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
             open={type !== undefined}
             onOpenChange={() => setter(undefined)}
             // size="xl"
-            contentClass="max-w-5xl bg-gray-950/75 sm:rounded-xl"
+            contentClass="max-w-5xl bg-gray-950 bg-opacity-75 firefox:bg-opacity-100 sm:rounded-xl"
             title={`${entry?.media?.title?.userPreferred || "Anime"}`}
             titleClass="max-w-[500px] text-ellipsis truncate"
             data-torrent-search-drawer

@@ -40,9 +40,11 @@ type Manager struct {
 	peerConnections *result.Map[string, *PeerConnection]
 
 	// Host connection (when connecting to a host)
-	hostConnection *HostConnection
-	hostMu         sync.RWMutex
-	reconnecting   bool // Flag to prevent multiple concurrent reconnection attempts
+	hostConnection       *HostConnection
+	hostConnectionCtx    context.Context
+	hostConnectionCancel context.CancelFunc
+	hostMu               sync.RWMutex
+	reconnecting         bool // Flag to prevent multiple concurrent reconnection attempts
 
 	// Connection management
 	cancel context.CancelFunc
@@ -279,14 +281,14 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 		}
 	}
 
-	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.Enabled != settings.Enabled {
+	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.RemoteServerPassword != settings.RemoteServerPassword || previousSettings.Enabled != settings.Enabled {
 		// Determine if we should disconnect from current host
 		shouldDisconnect := m.IsConnectedToHost() && (!settings.Enabled || // Nakama disabled
 			settings.IsHost || // Switching to host mode
 			settings.RemoteServerURL == "" || // No remote URL
 			settings.RemoteServerPassword == "" || // No password
 			(previousSettings != nil && previousSettings.RemoteServerURL != settings.RemoteServerURL) || // URL changed
-			(previousSettings != nil && previousSettings.HostPassword != settings.HostPassword)) // Password changed
+			(previousSettings != nil && previousSettings.RemoteServerPassword != settings.RemoteServerPassword)) // Password changed
 
 		// Determine if we should connect to a host
 		shouldConnect := !settings.IsHost &&
@@ -341,6 +343,14 @@ func (m *Manager) Cleanup() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+
+	// Cancel any ongoing host connection attempts
+	m.hostMu.Lock()
+	if m.hostConnectionCancel != nil {
+		m.hostConnectionCancel()
+		m.hostConnectionCancel = nil
+	}
+	m.hostMu.Unlock()
 
 	// Cleanup host connections
 	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {

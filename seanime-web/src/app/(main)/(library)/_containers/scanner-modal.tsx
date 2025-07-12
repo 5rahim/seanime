@@ -92,7 +92,7 @@ export function ScannerModal() {
                 }}
                 // title="Library scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl bg-gray-950/70 backdrop-blur-sm rounded-xl"
+                contentClass="space-y-4 max-w-2xl bg-gray-950 bg-opacity-70 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none rounded-xl"
                 overlayClass="bg-gray-950/70 backdrop-blur-sm"
             >
                 <GlowingEffect

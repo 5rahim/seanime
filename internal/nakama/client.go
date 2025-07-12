@@ -1,6 +1,7 @@
 package nakama
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -23,8 +24,16 @@ func (m *Manager) connectToHost() {
 
 	m.logger.Info().Str("url", m.settings.RemoteServerURL).Msg("nakama: Connecting to host")
 
-	// Prevent multiple concurrent connection attempts
+	// Cancel any existing connection attempts
 	m.hostMu.Lock()
+	if m.hostConnectionCancel != nil {
+		m.hostConnectionCancel()
+	}
+
+	// Create new context for this connection attempt
+	m.hostConnectionCtx, m.hostConnectionCancel = context.WithCancel(m.ctx)
+
+	// Prevent multiple concurrent connection attempts
 	if m.reconnecting {
 		m.hostMu.Unlock()
 		return
@@ -39,6 +48,12 @@ func (m *Manager) connectToHost() {
 func (m *Manager) disconnectFromHost() {
 	m.hostMu.Lock()
 	defer m.hostMu.Unlock()
+
+	// Cancel any ongoing connection attempts
+	if m.hostConnectionCancel != nil {
+		m.hostConnectionCancel()
+		m.hostConnectionCancel = nil
+	}
 
 	if m.hostConnection != nil {
 		m.logger.Info().Msg("nakama: Disconnecting from host")
@@ -73,21 +88,36 @@ func (m *Manager) connectToHostAsync() {
 		return
 	}
 
+	// Get the connection context
+	m.hostMu.RLock()
+	connCtx := m.hostConnectionCtx
+	m.hostMu.RUnlock()
+
+	if connCtx == nil {
+		return
+	}
+
 	maxRetries := 5
 	retryDelay := 5 * time.Second
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		select {
+		case <-connCtx.Done():
+			m.logger.Info().Msg("nakama: Connection attempt cancelled")
+			return
 		case <-m.ctx.Done():
 			return
 		default:
 		}
 
-		if err := m.attemptHostConnection(); err != nil {
+		if err := m.attemptHostConnection(connCtx); err != nil {
 			m.logger.Error().Err(err).Int("attempt", attempt+1).Msg("nakama: Failed to connect to host")
 
 			if attempt < maxRetries-1 {
 				select {
+				case <-connCtx.Done():
+					m.logger.Info().Msg("nakama: Connection attempt cancelled")
+					return
 				case <-m.ctx.Done():
 					return
 				case <-time.After(retryDelay):
@@ -102,12 +132,18 @@ func (m *Manager) connectToHostAsync() {
 		}
 	}
 
-	m.logger.Error().Msg("nakama: Failed to connect to host after all retries")
-	m.wsEventManager.SendEvent(events.ErrorToast, "Failed to connect to Nakama host after multiple attempts.")
+	// Only log error if not cancelled
+	select {
+	case <-connCtx.Done():
+		m.logger.Info().Msg("nakama: Connection attempts cancelled")
+	default:
+		m.logger.Error().Msg("nakama: Failed to connect to host after all retries")
+		m.wsEventManager.SendEvent(events.ErrorToast, "Failed to connect to Nakama host after multiple attempts.")
+	}
 }
 
 // attemptHostConnection makes a single connection attempt to the host
-func (m *Manager) attemptHostConnection() error {
+func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 	// Parse URL
 	u, err := url.Parse(m.settings.RemoteServerURL)
 	if err != nil {
@@ -144,8 +180,13 @@ func (m *Manager) attemptHostConnection() error {
 	headers.Set("X-Seanime-Nakama-Server-Version", constants.Version)
 	headers.Set("X-Seanime-Nakama-Peer-Id", peerID)
 
-	// Connect
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+	// Create a dialer with the connection context
+	dialer := websocket.Dialer{
+		HandshakeTimeout: 10 * time.Second,
+	}
+
+	// Connect with context
+	conn, _, err := dialer.DialContext(connCtx, u.String(), headers)
 	if err != nil {
 		return err
 	}

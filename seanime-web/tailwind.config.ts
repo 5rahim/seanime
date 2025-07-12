@@ -292,6 +292,9 @@ const config: Config = {
         require("tailwind-scrollbar-hide"),
         require("tailwindcss-animate"),
         addVariablesForColors,
+        function ({ addVariant }: { addVariant: (variant: string, selector: string) => void }) {
+            addVariant("firefox", ":-moz-any(&)")
+        },
     ],
 }
 export default config

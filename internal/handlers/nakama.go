@@ -309,7 +309,7 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 	}
 
 	if !isInLibrary {
-		return echo.NewHTTPError(http.StatusForbidden, "file not in library")
+		return echo.NewHTTPError(http.StatusNotFound, "file not in library")
 	}
 
 	return c.File(string(decodedPath))
@@ -326,9 +326,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 	}
 
 	hostServerUrl := h.App.Settings.GetNakama().RemoteServerURL
-	if strings.HasSuffix(hostServerUrl, "/") {
-		hostServerUrl = hostServerUrl[:len(hostServerUrl)-1]
-	}
+	hostServerUrl = strings.TrimSuffix(hostServerUrl, "/")
 
 	requestUrl := ""
 	switch streamType {
@@ -347,22 +345,43 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid type")
 	}
 
+	client := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:        10,
+			MaxIdleConnsPerHost: 2,
+			IdleConnTimeout:     30 * time.Second,
+			DisableKeepAlives:   true, // Disable keep-alive to prevent connection reuse issues
+			ForceAttemptHTTP2:   false,
+		},
+		Timeout: 120 * time.Second,
+	}
+
 	if c.Request().Method == http.MethodHead {
 		req, err := http.NewRequest(http.MethodHead, requestUrl, nil)
 		if err != nil {
-			h.App.Logger.Error().Msgf("nakama: failed to create request: %v", err)
+			h.App.Logger.Error().Err(err).Str("url", requestUrl).Msg("nakama: Failed to create HEAD request")
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
 		}
 
 		// Add Nakama password for authentication
 		req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
 
-		resp, err := videoProxyClient.Do(req)
+		// Add User-Agent from original request
+		if userAgent := c.Request().Header.Get("User-Agent"); userAgent != "" {
+			req.Header.Set("User-Agent", userAgent)
+		}
+
+		resp, err := client.Do(req)
 		if err != nil {
-			h.App.Logger.Error().Msgf("nakama: failed to proxy request: %v", err)
+			h.App.Logger.Error().Err(err).Str("url", requestUrl).Msg("nakama: Failed to proxy HEAD request")
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
 		}
 		defer resp.Body.Close()
+
+		// Log authentication failures
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			h.App.Logger.Warn().Int("status", resp.StatusCode).Str("url", requestUrl).Msg("nakama: Authentication failed - check password configuration")
+		}
 
 		// Copy response headers
 		for key, values := range resp.Header {
@@ -374,17 +393,21 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		return c.NoContent(resp.StatusCode)
 	}
 
-	// Proxy the request
-	req, err := http.NewRequest(c.Request().Method, requestUrl, c.Request().Body)
+	// Create request with timeout context
+	ctx := c.Request().Context()
+	req, err := http.NewRequestWithContext(ctx, c.Request().Method, requestUrl, c.Request().Body)
 	if err != nil {
-		h.App.Logger.Error().Msgf("nakama: failed to create request: %v", err)
+		h.App.Logger.Error().Err(err).Str("url", requestUrl).Msg("nakama: Failed to create request")
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
 	}
 
-	// Copy request headers but add authentication
+	// Copy request headers but skip problematic ones
 	for key, values := range c.Request().Header {
-		// Skip certain headers
-		if key == "Host" || key == "Content-Length" {
+		// Skip headers that should not be forwarded or might cause errors
+		if key == "Host" || key == "Content-Length" || key == "Connection" ||
+			key == "Transfer-Encoding" || key == "Accept-Encoding" ||
+			key == "Upgrade" || key == "Proxy-Connection" ||
+			strings.HasPrefix(key, "Sec-") { // Skip WebSocket and security headers
 			continue
 		}
 		for _, value := range values {
@@ -392,15 +415,48 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		}
 	}
 
+	req.Header.Set("Accept", "*/*")
+	// req.Header.Set("Accept-Encoding", "identity") // Disable compression to avoid issues
+
 	// Add Nakama password for authentication
 	req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
 
-	resp, err := videoProxyClient.Do(req)
-	if err != nil {
-		h.App.Logger.Error().Msgf("nakama: failed to proxy request: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
+	h.App.Logger.Debug().Str("url", requestUrl).Str("method", c.Request().Method).Msg("nakama: Proxying request")
+
+	// Add retry mechanism for intermittent network issues
+	var resp *http.Response
+	maxRetries := 3
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		resp, err = client.Do(req)
+		if err == nil {
+			break
+		}
+
+		if attempt < maxRetries-1 {
+			h.App.Logger.Warn().Err(err).Int("attempt", attempt+1).Str("url", requestUrl).Msg("nakama: request failed, retrying")
+			time.Sleep(time.Duration(attempt+1) * 100 * time.Millisecond) // Exponential backoff
+			continue
+		}
+
+		h.App.Logger.Error().Err(err).Str("url", requestUrl).Msg("nakama: failed to proxy request after retries")
+		return echo.NewHTTPError(http.StatusBadGateway, "failed to proxy request after retries")
 	}
 	defer resp.Body.Close()
+
+	// Log authentication failures with more detail
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		h.App.Logger.Warn().Int("status", resp.StatusCode).Str("url", requestUrl).Msg("nakama: authentication failed - verify RemoteServerPassword matches host's HostPassword")
+	}
+
+	// Log and handle 406 Not Acceptable errors
+	if resp.StatusCode == http.StatusNotAcceptable {
+		h.App.Logger.Error().Int("status", resp.StatusCode).Str("url", requestUrl).Str("content-type", resp.Header.Get("Content-Type")).Msg("nakama: 406 Not Acceptable - content negotiation failed")
+	}
+
+	// Handle range request errors
+	if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable {
+		h.App.Logger.Warn().Int("status", resp.StatusCode).Str("url", requestUrl).Str("range", c.Request().Header.Get("Range")).Msg("nakama: range request not satisfiable")
+	}
 
 	// Copy response headers
 	for key, values := range resp.Header {
@@ -409,10 +465,24 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		}
 	}
 
-	// Stream the response body
+	// Set the status code
 	c.Response().WriteHeader(resp.StatusCode)
-	_, err = io.Copy(c.Response().Writer, resp.Body)
-	return err
+
+	// Stream the response body with better error handling
+	bytesWritten, err := io.Copy(c.Response().Writer, resp.Body)
+	if err != nil {
+		// Check if it's a network-related error
+		if strings.Contains(err.Error(), "connection") || strings.Contains(err.Error(), "broken pipe") ||
+			strings.Contains(err.Error(), "wsasend") || strings.Contains(err.Error(), "reset by peer") {
+			h.App.Logger.Warn().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: network connection error during streaming")
+		} else {
+			h.App.Logger.Error().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: error streaming response body")
+		}
+		// Don't return error here as response has already started
+	} else {
+		h.App.Logger.Debug().Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: successfully streamed response")
+	}
+	return nil
 }
 
 // HandleNakamaReconnectToHost
@@ -480,7 +550,7 @@ func (h *Handler) HandleNakamaCreateWatchParty(c echo.Context) error {
 	if b.Settings == nil {
 		b.Settings = &nakama.WatchPartySessionSettings{
 			SyncThreshold:     2.0,
-			MaxBufferWaitTime: 5,
+			MaxBufferWaitTime: 10,
 		}
 	}
 

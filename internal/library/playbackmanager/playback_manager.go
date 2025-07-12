@@ -58,7 +58,7 @@ type (
 		metadataProvider           metadata.Provider
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
-		eventMu                    sync.Mutex
+		eventMu                    sync.RWMutex
 		cancel                     context.CancelFunc
 
 		// historyMap stores a PlaybackState whose state is "completed"
@@ -224,7 +224,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		refreshAnimeCollectionFunc:   opts.RefreshAnimeCollectionFunc,
 		mu:                           sync.Mutex{},
 		autoPlayMu:                   sync.Mutex{},
-		eventMu:                      sync.Mutex{},
+		eventMu:                      sync.RWMutex{},
 		historyMap:                   make(map[string]PlaybackState),
 		isOffline:                    opts.IsOffline,
 		nextEpisodeLocalFile:         mo.None[*anime.LocalFile](),
@@ -655,7 +655,6 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 				go pm.MediaPlayerRepository.Stop()
 				pm.playlistHub.cancel()
 				return
-			default:
 			}
 		}
 	}()

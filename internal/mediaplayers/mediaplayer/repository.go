@@ -40,7 +40,7 @@ type (
 		continuityManager     *continuity.Manager
 		playerInUse           string
 		completionThreshold   float64
-		mu                    sync.Mutex
+		mu                    sync.RWMutex
 		isRunning             bool
 		currentPlaybackStatus *PlaybackStatus
 		subscribers           *result.Map[string, *RepositorySubscriber]
@@ -173,15 +173,24 @@ func (m *Repository) GetStatus() *PlaybackStatus {
 
 // PullStatus returns the current playback status directly from the media player.
 func (m *Repository) PullStatus() (*PlaybackStatus, bool) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 
 	status, err := m.getStatus()
 	if err != nil {
 		return nil, false
 	}
 
-	ok := m.processStatus(m.Default, status)
+	var ok bool
+	if m.currentPlaybackStatus == nil {
+		return nil, false
+	}
+
+	if m.currentPlaybackStatus.PlaybackType == PlaybackTypeFile {
+		ok = m.processStatus(m.Default, status)
+	} else {
+		ok = m.processStreamStatus(m.Default, status)
+	}
 	return m.currentPlaybackStatus, ok
 }
 

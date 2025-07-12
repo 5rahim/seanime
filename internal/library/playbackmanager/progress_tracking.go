@@ -217,6 +217,8 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	pm.eventMu.Lock()
 	defer pm.eventMu.Unlock()
 
+	pm.currentPlaybackType = LocalFilePlayback
+
 	// Set the current media playback status
 	pm.currentMediaPlaybackStatus = status
 	// Get the playback state
@@ -327,6 +329,8 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	if pm.currentStreamEpisode.IsAbsent() {
 		return
 	}
+
+	pm.currentPlaybackType = StreamPlayback
 
 	// Set the current media playback status
 	pm.currentMediaPlaybackStatus = status
@@ -564,11 +568,11 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 //   - This method will return an error only if the progress update fails on AniList
 //   - This method will refresh the anilist collection
 func (pm *PlaybackManager) SyncCurrentProgress() error {
-	pm.eventMu.Lock()
+	pm.eventMu.RLock()
 
 	err := pm.updateProgress()
 	if err != nil {
-		pm.eventMu.Unlock()
+		pm.eventMu.RUnlock()
 		return err
 	}
 
@@ -588,7 +592,7 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 
 	pm.refreshAnimeCollectionFunc()
 
-	pm.eventMu.Unlock()
+	pm.eventMu.RUnlock()
 	return nil
 }
 

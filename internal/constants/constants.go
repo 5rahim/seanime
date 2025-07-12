@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "2.9.0-rc.12"
+	Version              = "2.9.0-rc.13"
 	VersionName          = "Clover" // Natsu
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
