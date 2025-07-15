@@ -24,6 +24,7 @@ import (
 	"seanime/internal/library/scanner"
 	"seanime/internal/local"
 	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
@@ -74,6 +75,7 @@ type (
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
+			Iina  *iina.Iina
 		}
 		MediaPlayerRepository           *mediaplayer.Repository
 		Version                         string

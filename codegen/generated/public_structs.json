@@ -27426,9 +27426,9 @@
         "name": "MediaPlayer",
         "jsonName": "MediaPlayer",
         "goType": "INTERNAL_App_MediaPlayer",
-        "inlineStructType": "struct{\nVLC vlc.VLC\nMpcHc mpchc.MpcHc\nMpv mpv.Mpv}",
+        "inlineStructType": "struct{\nVLC vlc.VLC\nMpcHc mpchc.MpcHc\nMpv mpv.Mpv\nIina iina.Iina}",
         "typescriptType": "INTERNAL_App_MediaPlayer",
-        "usedTypescriptType": "{ VLC: VLC; MpcHc: MpcHc; Mpv: Mpv; }",
+        "usedTypescriptType": "{ VLC: VLC; MpcHc: MpcHc; Mpv: Mpv; Iina: Iina; }",
         "usedStructName": "core.App_MediaPlayer",
         "required": true,
         "public": true,
@@ -27860,6 +27860,17 @@
         "typescriptType": "Mpv",
         "usedTypescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Iina",
+        "jsonName": "Iina",
+        "goType": "iina.Iina",
+        "typescriptType": "Iina",
+        "usedTypescriptType": "Iina",
+        "usedStructName": "iina.Iina",
         "required": false,
         "public": true,
         "comments": []
@@ -29359,6 +29370,33 @@
       {
         "name": "MpvArgs",
         "jsonName": "mpvArgs",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IinaSocket",
+        "jsonName": "iinaSocket",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IinaPath",
+        "jsonName": "iinaPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IinaArgs",
+        "jsonName": "iinaArgs",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45693,10 +45731,10 @@
       {
         "name": "eventMu",
         "jsonName": "eventMu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedTypescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
         "comments": []
@@ -53583,6 +53621,245 @@
     "comments": []
   },
   {
+    "filepath": "../internal/mediaplayers/iina/iina.go",
+    "filename": "iina.go",
+    "name": "Playback",
+    "formattedName": "Playback",
+    "package": "iina",
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRunning",
+        "jsonName": "IsRunning",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/iina/iina.go",
+    "filename": "iina.go",
+    "name": "Iina",
+    "formattedName": "Iina",
+    "package": "iina",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Playback",
+        "jsonName": "Playback",
+        "goType": "Playback",
+        "typescriptType": "Playback",
+        "usedTypescriptType": "Playback",
+        "usedStructName": "iina.Playback",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SocketName",
+        "jsonName": "SocketName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AppPath",
+        "jsonName": "AppPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Args",
+        "jsonName": "Args",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackMu",
+        "jsonName": "playbackMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Cancel function for the context"
+        ]
+      },
+      {
+        "name": "subscribers",
+        "jsonName": "subscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Subscribers to the iina events"
+        ]
+      },
+      {
+        "name": "conn",
+        "jsonName": "conn",
+        "goType": "mpvipc.Connection",
+        "typescriptType": "Connection",
+        "usedTypescriptType": "Connection",
+        "usedStructName": "mpvipc.Connection",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Reference to the mpv connection (iina uses mpv IPC)"
+        ]
+      },
+      {
+        "name": "cmd",
+        "jsonName": "cmd",
+        "goType": "exec.Cmd",
+        "typescriptType": "Cmd",
+        "usedTypescriptType": "Cmd",
+        "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "prevSocketName",
+        "jsonName": "prevSocketName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "exitedCh",
+        "jsonName": "exitedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/iina/iina.go",
+    "filename": "iina.go",
+    "name": "Subscriber",
+    "formattedName": "Subscriber",
+    "package": "iina",
+    "fields": [
+      {
+        "name": "eventCh",
+        "jsonName": "eventCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closedCh",
+        "jsonName": "closedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediaplayers/mediaplayer/hook_events.go",
     "filename": "hook_events.go",
     "name": "MediaPlayerLocalFileTrackingRequestedEvent",
@@ -53755,6 +54032,17 @@
         "comments": []
       },
       {
+        "name": "Iina",
+        "jsonName": "Iina",
+        "goType": "iina.Iina",
+        "typescriptType": "Iina",
+        "usedTypescriptType": "Iina",
+        "usedStructName": "iina.Iina",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
         "goType": "events.WSEventManagerInterface",
@@ -53797,10 +54085,10 @@
       {
         "name": "mu",
         "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedTypescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
         "comments": []
@@ -53915,6 +54203,17 @@
         "typescriptType": "Mpv",
         "usedTypescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Iina",
+        "jsonName": "Iina",
+        "goType": "iina.Iina",
+        "typescriptType": "Iina",
+        "usedTypescriptType": "Iina",
+        "usedStructName": "iina.Iina",
         "required": false,
         "public": true,
         "comments": []
@@ -54546,6 +54845,15 @@
       {
         "name": "AppPath",
         "jsonName": "AppPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Args",
+        "jsonName": "Args",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -59210,6 +59518,28 @@
         "comments": []
       },
       {
+        "name": "hostConnectionCtx",
+        "jsonName": "hostConnectionCtx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "hostConnectionCancel",
+        "jsonName": "hostConnectionCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "hostMu",
         "jsonName": "hostMu",
         "goType": "sync.RWMutex",
@@ -60022,124 +60352,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/nakama/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlineStreamStartedEventPayload",
-    "formattedName": "Nakama_OnlineStreamStartedEventPayload",
-    "package": "nakama",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Server",
-        "jsonName": "server",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Dubbed",
-        "jsonName": "dubbed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Quality",
-        "jsonName": "quality",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/nakama/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlineStreamCommand",
-    "formattedName": "Nakama_OnlineStreamCommand",
-    "package": "nakama",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"start\"",
-        "\"play\"",
-        "\"pause\"",
-        "\"seek\"",
-        "\"seekTo\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/nakama/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlineStreamCommandPayload",
-    "formattedName": "Nakama_OnlineStreamCommandPayload",
-    "package": "nakama",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "OnlineStreamCommand",
-        "typescriptType": "Nakama_OnlineStreamCommand",
-        "usedTypescriptType": "Nakama_OnlineStreamCommand",
-        "usedStructName": "nakama.OnlineStreamCommand",
-        "required": true,
-        "public": true,
-        "comments": [
-          " The command type"
-        ]
-      },
-      {
-        "name": "Payload",
-        "jsonName": "payload",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Optional payload for the command"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/nakama/share.go",
     "filename": "share.go",
     "name": "HydrateHostAnimeLibraryOptions",
@@ -60526,6 +60738,19 @@
         "public": false,
         "comments": [
           " Latest received sequence number"
+        ]
+      },
+      {
+        "name": "peerPlaybackListener",
+        "jsonName": "peerPlaybackListener",
+        "goType": "playbackmanager.PlaybackStatusSubscriber",
+        "typescriptType": "PlaybackManager_PlaybackStatusSubscriber",
+        "usedTypescriptType": "PlaybackManager_PlaybackStatusSubscriber",
+        "usedStructName": "playbackmanager.PlaybackStatusSubscriber",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Listener for playback status changes (can be nil)"
         ]
       }
     ],
@@ -61367,6 +61592,124 @@
         "required": false,
         "public": true,
         "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party_onlinestream.go",
+    "filename": "watch_party_onlinestream.go",
+    "name": "OnlineStreamStartedEventPayload",
+    "formattedName": "Nakama_OnlineStreamStartedEventPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Dubbed",
+        "jsonName": "dubbed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party_onlinestream.go",
+    "filename": "watch_party_onlinestream.go",
+    "name": "OnlineStreamCommand",
+    "formattedName": "Nakama_OnlineStreamCommand",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"start\"",
+        "\"play\"",
+        "\"pause\"",
+        "\"seek\"",
+        "\"seekTo\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/watch_party_onlinestream.go",
+    "filename": "watch_party_onlinestream.go",
+    "name": "OnlineStreamCommandPayload",
+    "formattedName": "Nakama_OnlineStreamCommandPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "OnlineStreamCommand",
+        "typescriptType": "Nakama_OnlineStreamCommand",
+        "usedTypescriptType": "Nakama_OnlineStreamCommand",
+        "usedStructName": "nakama.OnlineStreamCommand",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The command type"
+        ]
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Optional payload for the command"
+        ]
       }
     ],
     "comments": []
@@ -70123,6 +70466,24 @@
       {
         "name": "MpvSocket",
         "jsonName": "MpvSocket",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IinaPath",
+        "jsonName": "IinaPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IinaSocket",
+        "jsonName": "IinaSocket",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

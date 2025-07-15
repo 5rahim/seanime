@@ -2,10 +2,11 @@ package test_utils
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 var ConfigData = &Config{}
@@ -64,6 +65,8 @@ type (
 		VlcPath              string `mapstructure:"vlc_path"`
 		MpvPath              string `mapstructure:"mpv_path"`
 		MpvSocket            string `mapstructure:"mpv_socket"`
+		IinaPath             string `mapstructure:"iina_path"`
+		IinaSocket           string `mapstructure:"iina_socket"`
 		TorBoxApiKey         string `mapstructure:"torbox_api_key"`
 		RealDebridApiKey     string `mapstructure:"realdebrid_api_key"`
 	}

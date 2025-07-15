@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -72,6 +73,65 @@ func (h *Handler) HandleSendNakamaMessage(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, response)
+}
+
+// HandleGetNakamaAnimeLibrary
+//
+//	@summary shares the local anime collection with Nakama clients.
+//	@desc This creates a new LibraryCollection struct and returns it.
+//	@desc This is used to share the local anime collection with Nakama clients.
+//	@route /api/v1/nakama/host/anime/library/collection [GET]
+//	@returns nakama.NakamaAnimeLibrary
+func (h *Handler) HandleGetNakamaAnimeLibrary(c echo.Context) error {
+	if !h.App.Settings.GetNakama().HostShareLocalAnimeLibrary {
+		return h.RespondWithError(c, errors.New("host is not sharing its anime library"))
+	}
+
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if animeCollection == nil {
+		return h.RespondWithData(c, &anime.LibraryCollection{})
+	}
+
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
+	unsharedAnimeIdsMap := make(map[int]struct{})
+	for _, id := range unsharedAnimeIds {
+		unsharedAnimeIdsMap[id] = struct{}{}
+	}
+	if len(unsharedAnimeIds) > 0 {
+		lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+			_, ok := unsharedAnimeIdsMap[lf.MediaId]
+			return !ok
+		})
+	}
+
+	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
+		AnimeCollection:  animeCollection,
+		Platform:         h.App.AnilistPlatform,
+		LocalFiles:       lfs,
+		MetadataProvider: h.App.MetadataProvider,
+	})
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// Hydrate total library size
+	if libraryCollection != nil && libraryCollection.Stats != nil {
+		libraryCollection.Stats.TotalSize = util.Bytes(h.App.TotalLibrarySize)
+	}
+
+	return h.RespondWithData(c, &nakama.NakamaAnimeLibrary{
+		LocalFiles:      lfs,
+		AnimeCollection: animeCollection,
+	})
 }
 
 // HandleGetNakamaAnimeLibraryCollection
@@ -225,6 +285,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
+// Note: This is not used anymore. Each peer will independently stream the torrent.
 // route /api/v1/nakama/host/torrentstream/stream
 // Allows peers to stream the currently playing torrent.
 func (h *Handler) HandleNakamaHostTorrentstreamServeStream(c echo.Context) error {
@@ -288,6 +349,19 @@ func (h *Handler) HandleNakamaHostDebridstreamServeStream(c echo.Context) error 
 	return nil
 }
 
+// route /api/v1/nakama/host/debridstream/url
+// Returns the debrid stream URL for direct access by peers to avoid host bandwidth usage
+func (h *Handler) HandleNakamaHostGetDebridstreamURL(c echo.Context) error {
+	streamUrl, ok := h.App.DebridClientRepository.GetStreamURL()
+	if !ok {
+		return echo.NewHTTPError(http.StatusNotFound, "no stream url")
+	}
+
+	return h.RespondWithData(c, map[string]string{
+		"streamUrl": streamUrl,
+	})
+}
+
 // route /api/v1/nakama/host/anime/library/stream?path={base64_encoded_path}
 func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error {
 	filepath := c.QueryParam("path")
@@ -318,6 +392,7 @@ func (h *Handler) HandleNakamaHostAnimeLibraryServeStream(c echo.Context) error 
 // route /api/v1/nakama/stream
 // Proxies stream requests to the host. It inserts the Nakama password in the headers.
 // It checks if the password is valid.
+// For debrid streams, it redirects directly to the debrid service to avoid host bandwidth usage.
 func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 
 	streamType := c.QueryParam("type") // "file", "torrent", "debrid"
@@ -327,6 +402,95 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 
 	hostServerUrl := h.App.Settings.GetNakama().RemoteServerURL
 	hostServerUrl = strings.TrimSuffix(hostServerUrl, "/")
+
+	if streamType == "debrid" {
+		// Get the debrid stream URL from the host
+		urlEndpoint := hostServerUrl + "/api/v1/nakama/host/debridstream/url"
+
+		req, err := http.NewRequest(http.MethodGet, urlEndpoint, nil)
+		if err != nil {
+			h.App.Logger.Error().Err(err).Str("url", urlEndpoint).Msg("nakama: Failed to create debrid URL request")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
+		}
+
+		// Add Nakama password for authentication
+		req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
+
+		client := &http.Client{
+			Timeout: 30 * time.Second,
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			h.App.Logger.Error().Err(err).Str("url", urlEndpoint).Msg("nakama: Failed to get debrid stream URL")
+			return echo.NewHTTPError(http.StatusBadGateway, "failed to get stream URL")
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			h.App.Logger.Warn().Int("status", resp.StatusCode).Str("url", urlEndpoint).Msg("nakama: Failed to get debrid stream URL")
+			return echo.NewHTTPError(resp.StatusCode, "failed to get stream URL")
+		}
+
+		// Parse the response to get the stream URL
+		type urlResponse struct {
+			Data struct {
+				StreamUrl string `json:"streamUrl"`
+			} `json:"data"`
+		}
+
+		var urlResp urlResponse
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			h.App.Logger.Error().Err(err).Msg("nakama: Failed to read debrid URL response")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to read response")
+		}
+
+		if err := json.Unmarshal(body, &urlResp); err != nil {
+			h.App.Logger.Error().Err(err).Msg("nakama: Failed to parse debrid URL response")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to parse response")
+		}
+
+		if urlResp.Data.StreamUrl == "" {
+			h.App.Logger.Error().Msg("nakama: Empty debrid stream URL")
+			return echo.NewHTTPError(http.StatusNotFound, "no stream URL available")
+		}
+
+		req, err = http.NewRequest(c.Request().Method, urlResp.Data.StreamUrl, c.Request().Body)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create request")
+		}
+
+		// Copy original request headers to the proxied request
+		for key, values := range c.Request().Header {
+			for _, value := range values {
+				req.Header.Add(key, value)
+			}
+		}
+
+		resp, err = videoProxyClient.Do(req)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to proxy request")
+		}
+		defer resp.Body.Close()
+
+		// Copy response headers
+		for key, values := range resp.Header {
+			for _, value := range values {
+				c.Response().Header().Add(key, value)
+			}
+		}
+
+		// Set the status code
+		c.Response().WriteHeader(resp.StatusCode)
+
+		// Stream the response body
+		_, err = io.Copy(c.Response().Writer, resp.Body)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to stream response body")
+		}
+		return nil
+	}
 
 	requestUrl := ""
 	switch streamType {
@@ -339,8 +503,6 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		requestUrl = hostServerUrl + "/api/v1/nakama/host/anime/library/stream?path=" + filepath
 	case "torrent":
 		requestUrl = hostServerUrl + "/api/v1/nakama/host/torrentstream/stream"
-	case "debrid":
-		requestUrl = hostServerUrl + "/api/v1/nakama/host/debridstream/stream"
 	default:
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid type")
 	}

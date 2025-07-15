@@ -175,6 +175,9 @@ type MediaPlayerSettings struct {
 	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
 	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
 	MpvArgs     string `gorm:"column:mpv_args" json:"mpvArgs"`
+	IinaSocket  string `gorm:"column:iina_socket" json:"iinaSocket"`
+	IinaPath    string `gorm:"column:iina_path" json:"iinaPath"`
+	IinaArgs    string `gorm:"column:iina_args" json:"iinaArgs"`
 }
 
 type TorrentSettings struct {

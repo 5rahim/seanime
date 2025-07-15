@@ -17,6 +17,7 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
@@ -356,6 +357,7 @@ func (a *App) InitOrRefreshModules() {
 			Logger: a.Logger,
 		}
 		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
+		a.MediaPlayer.Iina = iina.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
 
 		// Set media player repository
 		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
@@ -364,6 +366,7 @@ func (a *App) InitOrRefreshModules() {
 			VLC:               a.MediaPlayer.VLC,
 			MpcHc:             a.MediaPlayer.MpcHc,
 			Mpv:               a.MediaPlayer.Mpv, // Socket
+			Iina:              a.MediaPlayer.Iina,
 			WSEventManager:    a.WSEventManager,
 			ContinuityManager: a.ContinuityManager,
 		})

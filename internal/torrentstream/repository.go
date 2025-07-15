@@ -103,8 +103,12 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return ret
 }
 
+func (r *Repository) IsEnabled() bool {
+	return r.settings.IsPresent() && r.settings.MustGet().Enabled && r.client != nil
+}
+
 func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
-	return r.previousStreamOptions.Get()
+	return r.previousStreamOptions.OrElse(nil), r.previousStreamOptions.IsPresent()
 }
 
 // SetMediaPlayerRepository sets the mediaplayer repository and listens to events.

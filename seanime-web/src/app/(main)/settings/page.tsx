@@ -335,6 +335,9 @@ export default function Page() {
                                         mpvSocket: data.mpvSocket || "",
                                         mpvPath: data.mpvPath || "",
                                         mpvArgs: data.mpvArgs || "",
+                                        iinaSocket: data.iinaSocket || "",
+                                        iinaPath: data.iinaPath || "",
+                                        iinaArgs: data.iinaArgs || "",
                                     },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,
@@ -392,6 +395,9 @@ export default function Page() {
                                 mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                                 mpvPath: status?.settings?.mediaPlayer?.mpvPath,
                                 mpvArgs: status?.settings?.mediaPlayer?.mpvArgs,
+                                iinaSocket: status?.settings?.mediaPlayer?.iinaSocket,
+                                iinaPath: status?.settings?.mediaPlayer?.iinaPath,
+                                iinaArgs: status?.settings?.mediaPlayer?.iinaArgs,
                                 defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
                                 // compatibility)
                                 hideTorrentList: status?.settings?.torrent?.hideTorrentList ?? false,

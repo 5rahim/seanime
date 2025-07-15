@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
-import { getDefaultMpcSocket } from "@/lib/server/settings"
+import { getDefaultMpvSocket } from "@/lib/server/settings"
 import React from "react"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
@@ -43,6 +43,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                         { label: "MPV", value: "mpv" },
                         { label: "VLC", value: "vlc" },
                         { label: "MPC-HC", value: "mpc-hc" },
+                        // { label: "IINA", value: "iina" },
                     ]}
                     help="Player that will be used to open files and track your progress automatically."
                 />
@@ -136,7 +137,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                 <Field.Text
                                     name="mpvSocket"
                                     label="Socket"
-                                    placeholder={`Default: '${getDefaultMpcSocket(serverStatus?.os ?? "")}'`}
+                                    placeholder={`Default: '${getDefaultMpvSocket(serverStatus?.os ?? "")}'`}
                                 />
                                 <Field.Text
                                     name="mpvPath"
@@ -156,6 +157,34 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                             </div>
                         </AccordionContent>
                     </AccordionItem>
+
+                    {/* <AccordionItem value="iina">
+                     <AccordionTrigger>
+                     <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-purple-100" /> IINA</h4>
+                     </AccordionTrigger>
+                     <AccordionContent>
+                     <div className="flex gap-4">
+                     <Field.Text
+                     name="iinaSocket"
+                     label="Socket"
+                     placeholder={`Default: '${getDefaultIinaSocket(serverStatus?.os ?? "")}'`}
+                     />
+                     <Field.Text
+                     name="iinaPath"
+                     label="CLI path"
+                     placeholder={"Path to the IINA CLI"}
+                     help="Leave empty to use the CLI."
+                     />
+                     </div>
+                     <div>
+                     <Field.Text
+                     name="iinaArgs"
+                     label="Options"
+                     placeholder="e.g. --mpv-mute=yes"
+                     />
+                     </div>
+                     </AccordionContent>
+                     </AccordionItem> */}
                 </Accordion>
             </SettingsCard>
 

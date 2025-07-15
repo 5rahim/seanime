@@ -29,6 +29,7 @@ type (
 	LibraryCollection struct {
 		ContinueWatchingList []*Episode               `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
+		NakamaEntries        []*Entry                 `json:"nakamaEntries"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`

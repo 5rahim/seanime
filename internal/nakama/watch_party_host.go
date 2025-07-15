@@ -247,13 +247,16 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 							}
 						}
 
+						optionalTorrentStreamStartOptions, _ := wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
+
 						streamPath := event.Status.Filepath
 						newCurrentMediaInfo := &WatchPartySessionMediaInfo{
-							MediaId:       event.State.MediaId,
-							EpisodeNumber: event.State.EpisodeNumber,
-							AniDBEpisode:  event.State.AniDbEpisode,
-							StreamType:    streamType,
-							StreamPath:    streamPath,
+							MediaId:                           event.State.MediaId,
+							EpisodeNumber:                     event.State.EpisodeNumber,
+							AniDBEpisode:                      event.State.AniDbEpisode,
+							StreamType:                        streamType,
+							StreamPath:                        streamPath,
+							OptionalTorrentStreamStartOptions: optionalTorrentStreamStartOptions,
 						}
 
 						wpm.mu.Lock()
@@ -363,6 +366,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerJoinedEvent(payload *WatchPart
 		return
 	}
 
+	session.mu.Lock()
 	// Add the peer to the session
 	session.Participants[payload.PeerId] = &WatchPartySessionParticipant{
 		ID:         payload.PeerId,
@@ -377,6 +381,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerJoinedEvent(payload *WatchPart
 		BufferHealth:   1.0,
 		PlaybackStatus: nil,
 	}
+	session.mu.Unlock()
 
 	// Send session state
 	go wpm.broadcastSessionStateToPeers()
@@ -479,6 +484,9 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerStatusEvent(payload *WatchPart
 	// Check if we should start/resume playback based on peer states (call after releasing mutex)
 	// Run this asynchronously to avoid blocking the event processing
 	go wpm.checkAndManageBuffering()
+
+	// Send session state to client to update the UI
+	wpm.sendSessionStateToClient()
 }
 
 // handleWatchPartyBufferUpdateEvent handles buffer state changes from peers
@@ -516,6 +524,9 @@ func (wpm *WatchPartyManager) handleWatchPartyBufferUpdateEvent(payload *WatchPa
 
 	// Broadcast updated session state
 	go wpm.broadcastSessionStateToPeers()
+
+	// Send session state to client to update the UI
+	wpm.sendSessionStateToClient()
 }
 
 // checkAndManageBuffering manages playback based on peer buffering states
@@ -720,8 +731,6 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
-	util.SpewMany("nakama: Relay mode origin stream started", payload)
-
 	wpm.logger.Debug().Str("filepath", payload.Filepath).Msg("nakama: Relay mode origin stream started")
 
 	session, ok := wpm.currentSession.Get()
@@ -823,4 +832,24 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginPlaybackStatusEvent
 		SequenceNumber: sequenceNum,
 		EpisodeNumber:  payload.State.EpisodeNumber,
 	})
+}
+
+// handleWatchPartyRelayModeOriginPlaybackStoppedEvent is called when the relay origin sends us (the host) a playback stopped event
+func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginPlaybackStoppedEvent() {
+	wpm.mu.Lock()
+	defer wpm.mu.Unlock()
+
+	wpm.logger.Debug().Msg("nakama: Relay mode origin playback stopped")
+
+	session, ok := wpm.currentSession.Get()
+	if !ok {
+		return
+	}
+
+	session.mu.Lock()
+	session.CurrentMediaInfo = nil
+	session.mu.Unlock()
+
+	wpm.broadcastSessionStateToPeers()
+	wpm.sendSessionStateToClient()
 }

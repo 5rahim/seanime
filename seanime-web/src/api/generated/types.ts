@@ -3345,6 +3345,9 @@ export type Models_MediaPlayerSettings = {
     mpvSocket: string
     mpvPath: string
     mpvArgs: string
+    iinaSocket: string
+    iinaPath: string
+    iinaArgs: string
 }
 
 /**

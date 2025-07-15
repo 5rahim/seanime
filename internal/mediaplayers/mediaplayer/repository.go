@@ -7,6 +7,7 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/events"
 	"seanime/internal/hook"
+	"seanime/internal/mediaplayers/iina"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	vlc2 "seanime/internal/mediaplayers/vlc"
@@ -36,6 +37,7 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
+		Iina                  *iina.Iina
 		wsEventManager        events.WSEventManagerInterface
 		continuityManager     *continuity.Manager
 		playerInUse           string
@@ -54,6 +56,7 @@ type (
 		VLC               *vlc2.VLC
 		MpcHc             *mpchc2.MpcHc
 		Mpv               *mpv.Mpv
+		Iina              *iina.Iina
 		WSEventManager    events.WSEventManagerInterface
 		ContinuityManager *continuity.Manager
 	}
@@ -144,6 +147,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		VLC:                   opts.VLC,
 		MpcHc:                 opts.MpcHc,
 		Mpv:                   opts.Mpv,
+		Iina:                  opts.Iina,
 		wsEventManager:        opts.WSEventManager,
 		continuityManager:     opts.ContinuityManager,
 		completionThreshold:   0.8,
@@ -206,6 +210,8 @@ func (m *Repository) GetExecutablePath() string {
 		return m.MpcHc.GetExecutablePath()
 	case "mpv":
 		return m.Mpv.GetExecutablePath()
+	case "iina":
+		return m.Iina.GetExecutablePath()
 	}
 	return ""
 }
@@ -304,6 +310,33 @@ func (m *Repository) Play(path string) error {
 		}
 
 		return nil
+	case "iina":
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			var args []string
+			if lastWatched.Found {
+				//args = append(args, "--mpv-no-resume-playback", fmt.Sprintf("--mpv-start=+%d", int(lastWatched.Item.CurrentTime)))
+				args = append(args, "--mpv-no-resume-playback")
+			}
+			err := m.Iina.OpenAndPlay(path, args...)
+			if err != nil {
+				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using IINA")
+				return fmt.Errorf("could not open and play video, %w", err)
+			}
+			if lastWatched.Found {
+				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+			}
+		} else {
+			err := m.Iina.OpenAndPlay(path)
+			if err != nil {
+				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using IINA")
+				return fmt.Errorf("could not open and play video, %w", err)
+			}
+			if lastWatched.Found {
+				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+			}
+		}
+
+		return nil
 	default:
 		return errors.New("no default media player set")
 	}
@@ -318,6 +351,8 @@ func (m *Repository) Pause() error {
 		return m.MpcHc.Pause()
 	case "mpv":
 		return m.Mpv.Pause()
+	case "iina":
+		return m.Iina.Pause()
 	default:
 		return errors.New("no default media player set")
 	}
@@ -331,6 +366,8 @@ func (m *Repository) Resume() error {
 		return m.MpcHc.Play()
 	case "mpv":
 		return m.Mpv.Resume()
+	case "iina":
+		return m.Iina.Resume()
 	default:
 		return errors.New("no default media player set")
 	}
@@ -344,6 +381,8 @@ func (m *Repository) Seek(seconds float64) error {
 		return m.MpcHc.Seek(int(seconds))
 	case "mpv":
 		return m.Mpv.Seek(seconds)
+	case "iina":
+		return m.Iina.Seek(seconds)
 	default:
 		return errors.New("no default media player set")
 	}
@@ -362,6 +401,8 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 	case "mpv":
 		// MPV does not need to be started
+	case "iina":
+		// IINA does not need to be started
 	default:
 		return errors.New("no default media player set")
 	}
@@ -414,6 +455,20 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 			}
 		} else {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
+		}
+
+	case "iina":
+		args := []string{}
+		if windowTitle != "" {
+			args = append(args, fmt.Sprintf("--mpv-title=%q", windowTitle))
+		}
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			err = m.Iina.OpenAndPlay(streamUrl, args...)
+			if lastWatched.Found {
+				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+			}
+		} else {
+			err = m.Iina.OpenAndPlay(streamUrl, args...)
 		}
 
 	}
@@ -828,6 +883,8 @@ func (m *Repository) getStatus() (interface{}, error) {
 		return m.MpcHc.GetVariables()
 	case "mpv":
 		return m.Mpv.GetPlaybackStatus()
+	case "iina":
+		return m.Iina.GetPlaybackStatus()
 	}
 	return nil, errors.New("unsupported media player")
 }
@@ -871,6 +928,23 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 	case "mpv":
 		// Process MPV status
 		st, ok := status.(*mpv.Playback)
+		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
+			return false
+		}
+
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = !st.Paused
+		m.currentPlaybackStatus.Filename = st.Filename
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration
+
+		return true
+	case "iina":
+		// Process IINA status
+		st, ok := status.(*iina.Playback)
 		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
 			return false
 		}
@@ -930,6 +1004,23 @@ func (m *Repository) processStreamStatus(player string, status interface{}) bool
 	case "mpv":
 		// Process MPV status
 		st, ok := status.(*mpv.Playback)
+		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
+			return false
+		}
+
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = !st.Paused
+		m.currentPlaybackStatus.Filename = st.Filename
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration
+
+		return true
+	case "iina":
+		// Process IINA status
+		st, ok := status.(*iina.Playback)
 		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
 			return false
 		}

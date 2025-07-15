@@ -362,10 +362,14 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	newPlayback := payload.Session.CurrentMediaInfo != nil && currentSession.CurrentMediaInfo == nil
 	playbackChanged := payload.Session.CurrentMediaInfo != nil && !payload.Session.CurrentMediaInfo.Equals(currentSession.CurrentMediaInfo)
 
-	if (newPlayback || playbackChanged) &&
+	// Check if peer is newly a participant - they should start playback even if media info hasn't changed
+	wasParticipant := currentSession.Participants != nil && currentSession.Participants[hostConn.PeerId] != nil
+	peerJoined := isParticipant && !wasParticipant && payload.Session.CurrentMediaInfo != nil
+
+	if (newPlayback || playbackChanged || peerJoined) &&
 		isParticipant &&
 		!participant.IsRelayOrigin {
-		wpm.logger.Debug().Bool("newPlayback", newPlayback).Bool("playbackChanged", playbackChanged).Msg("nakama: Starting playback due to new media info")
+		wpm.logger.Debug().Bool("newPlayback", newPlayback).Bool("playbackChanged", playbackChanged).Bool("peerJoined", peerJoined).Msg("nakama: Starting playback due to new media info")
 
 		// Reset buffering detection state for new media
 		wpm.resetBufferingState()
@@ -381,7 +385,20 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		wpm.logger.Debug().Int("mediaId", payload.Session.CurrentMediaInfo.MediaId).Msg("nakama: Playing watch party media")
 
 		switch payload.Session.CurrentMediaInfo.StreamType {
-		case "torrent", "debrid":
+		case "torrent":
+			if payload.Session.CurrentMediaInfo.OptionalTorrentStreamStartOptions == nil {
+				wpm.logger.Error().Msg("nakama: No torrent stream start options found")
+				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to play media: Host did not return torrent stream start options")
+				return
+			}
+			if !wpm.manager.torrentstreamRepository.IsEnabled() {
+				wpm.logger.Error().Msg("nakama: Torrent streaming is not enabled")
+				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to play media: Torrent streaming is not enabled")
+				return
+			}
+			// Start the torrent
+			err = wpm.manager.torrentstreamRepository.StartStream(wpm.sessionCtx, payload.Session.CurrentMediaInfo.OptionalTorrentStreamStartOptions)
+		case "debrid":
 			err = wpm.manager.PlayHostAnimeStream(payload.Session.CurrentMediaInfo.StreamType, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
 		case "file":
 			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
@@ -391,6 +408,33 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to play watch party media")
 			wpm.manager.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("Watch party: Failed to play media: %s", err.Error()))
+		}
+
+		// Auto-leave the watch party when playback stops
+		// The user will have to re-join to start the stream again
+		if payload.Session.CurrentMediaInfo.StreamType != "online" {
+			wpm.peerPlaybackListener = wpm.manager.playbackManager.SubscribeToPlaybackStatus("nakama_peer_playback_listener")
+			go func() {
+				defer util.HandlePanicInModuleThen("nakama/handleWatchPartyStateChangedEvent/autoLeaveWatchParty", func() {})
+
+				for {
+					select {
+					case <-wpm.sessionCtx.Done():
+						wpm.manager.playbackManager.UnsubscribeFromPlaybackStatus("nakama_peer_playback_listener")
+						return
+					case event, ok := <-wpm.peerPlaybackListener.EventCh:
+						if !ok {
+							return
+						}
+
+						switch event.(type) {
+						case playbackmanager.StreamStoppedEvent:
+							wpm.LeaveWatchParty()
+							return
+						}
+					}
+				}
+			}()
 		}
 	}
 
@@ -406,6 +450,12 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		wpm.logger.Debug().Msg("nakama: Removing peer from session due to new session state")
 		// Stop status reporting when removed from session
 		wpm.stopStatusReporting()
+		// Before stopping playback, unsubscribe from the playback listener
+		// This is to prevent the peer from auto-leaving the watch party when host stops playback
+		if wpm.peerPlaybackListener != nil {
+			wpm.manager.playbackManager.UnsubscribeFromPlaybackStatus("nakama_peer_playback_listener")
+			wpm.peerPlaybackListener = nil
+		}
 		_ = wpm.manager.playbackManager.Cancel()
 		canceledPlayback = true
 	}
@@ -417,6 +467,12 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 	// If the host stopped the session, we need to cancel playback
 	if payload.Session.CurrentMediaInfo == nil && currentSession.CurrentMediaInfo != nil && !canceledPlayback {
 		wpm.logger.Debug().Msg("nakama: Canceling playback due to host stopping session")
+		// Before stopping playback, unsubscribe from the playback listener
+		// This is to prevent the peer from auto-leaving the watch party when host stops playback
+		if wpm.peerPlaybackListener != nil {
+			wpm.manager.playbackManager.UnsubscribeFromPlaybackStatus("nakama_peer_playback_listener")
+			wpm.peerPlaybackListener = nil
+		}
 		_ = wpm.manager.playbackManager.Cancel()
 		canceledPlayback = true
 	}
@@ -595,6 +651,11 @@ func (wpm *WatchPartyManager) relayModeListenToPlaybackManager() {
 						State:     event.State,
 						Timestamp: time.Now().UnixNano(),
 					})
+
+				// 3. Stream stopped
+				case playbackmanager.StreamStoppedEvent:
+					wpm.logger.Debug().Msg("nakama: Relay mode origin stream stopped")
+					_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginPlaybackStopped, nil)
 				}
 				currentSession.mu.Unlock()
 			}

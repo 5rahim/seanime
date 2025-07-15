@@ -35,10 +35,47 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		return h.RespondWithData(c, &anime.LibraryCollection{})
 	}
 
+	originalAnimeCollection := animeCollection
+
 	var lfs []*anime.LocalFile
-	nakamaLfs, fromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles()
+	nakamaLibrary, fromNakama := h.App.NakamaManager.GetHostAnimeLibrary()
 	if fromNakama {
-		lfs = nakamaLfs
+		// Save the original anime collection to restore it later
+		originalAnimeCollection = animeCollection.Copy()
+		lfs = nakamaLibrary.LocalFiles
+		// Merge missing media entries into the collection
+		currentMediaIds := make(map[int]struct{})
+		for _, list := range animeCollection.MediaListCollection.GetLists() {
+			for _, entry := range list.GetEntries() {
+				currentMediaIds[entry.GetMedia().GetID()] = struct{}{}
+			}
+		}
+
+		nakamaMediaIds := make(map[int]struct{})
+		for _, lf := range lfs {
+			if lf.MediaId > 0 {
+				nakamaMediaIds[lf.MediaId] = struct{}{}
+			}
+		}
+
+		missingMediaIds := make(map[int]struct{})
+		for _, lf := range lfs {
+			if lf.MediaId > 0 {
+				if _, ok := currentMediaIds[lf.MediaId]; !ok {
+					missingMediaIds[lf.MediaId] = struct{}{}
+				}
+			}
+		}
+
+		for _, list := range nakamaLibrary.AnimeCollection.MediaListCollection.GetLists() {
+			for _, entry := range list.GetEntries() {
+				if _, ok := missingMediaIds[entry.GetMedia().GetID()]; ok {
+					entry.Status = &[]anilist.MediaListStatus{anilist.MediaListStatusPlanning}[0]
+					animeCollection.MediaListCollection.AddEntryToList(entry, anilist.MediaListStatusPlanning)
+				}
+			}
+		}
+
 	} else {
 		lfs, _, err = db_bridge.GetLocalFiles(h.App.Database)
 		if err != nil {
@@ -54,6 +91,11 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	// Restore the original anime collection if it was modified
+	if fromNakama {
+		*animeCollection = *originalAnimeCollection
 	}
 
 	if !fromNakama {

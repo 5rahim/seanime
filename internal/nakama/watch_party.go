@@ -25,12 +25,13 @@ const (
 	MessageTypeWatchPartyRelayModePeersReady    = "watch_party_relay_mode_peers_ready"    // Relay server signals to origin that all peers are ready
 	MessageTypeWatchPartyRelayModePeerBuffering = "watch_party_relay_mode_peer_buffering" // Relay server signals to origin the buffering status (tells origin to pause/unpause)
 	// Peer -> Host
-	MessageTypeWatchPartyJoin                          = "watch_party_join"                              // Peer joins a watch party
-	MessageTypeWatchPartyLeave                         = "watch_party_leave"                             // Peer leaves a watch party
-	MessageTypeWatchPartyPeerStatus                    = "watch_party_peer_status"                       // Peer reports their current status to host
-	MessageTypeWatchPartyBufferUpdate                  = "watch_party_buffer_update"                     // Peer reports buffering state to host
-	MessageTypeWatchPartyRelayModeOriginStreamStarted  = "watch_party_relay_mode_origin_stream_started"  // Relay origin sends is starting a stream, the host will start it too
-	MessageTypeWatchPartyRelayModeOriginPlaybackStatus = "watch_party_relay_mode_origin_playback_status" // Relay origin sends playback status to relay server
+	MessageTypeWatchPartyJoin                           = "watch_party_join"                               // Peer joins a watch party
+	MessageTypeWatchPartyLeave                          = "watch_party_leave"                              // Peer leaves a watch party
+	MessageTypeWatchPartyPeerStatus                     = "watch_party_peer_status"                        // Peer reports their current status to host
+	MessageTypeWatchPartyBufferUpdate                   = "watch_party_buffer_update"                      // Peer reports buffering state to host
+	MessageTypeWatchPartyRelayModeOriginStreamStarted   = "watch_party_relay_mode_origin_stream_started"   // Relay origin sends is starting a stream, the host will start it too
+	MessageTypeWatchPartyRelayModeOriginPlaybackStatus  = "watch_party_relay_mode_origin_playback_status"  // Relay origin sends playback status to relay server
+	MessageTypeWatchPartyRelayModeOriginPlaybackStopped = "watch_party_relay_mode_origin_playback_stopped" // Relay origin sends playback stopped to relay server
 )
 
 const (
@@ -116,6 +117,9 @@ type WatchPartyManager struct {
 	sequenceMu     sync.Mutex // Mutex for sequence number operations
 	sendSequence   uint64     // Current sequence number for outgoing messages
 	lastRxSequence uint64     // Latest received sequence number
+
+	// Peer
+	peerPlaybackListener *playbackmanager.PlaybackStatusSubscriber // Listener for playback status changes (can be nil)
 }
 
 type WatchPartySession struct {
@@ -151,7 +155,8 @@ type WatchPartySessionMediaInfo struct {
 	StreamType    string `json:"streamType"` // "file", "torrent", "debrid", "online"
 	StreamPath    string `json:"streamPath"` // URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
 
-	OnlineStreamParams *OnlineStreamParams `json:"onlineStreamParams,omitempty"`
+	OnlineStreamParams                *OnlineStreamParams               `json:"onlineStreamParams,omitempty"`
+	OptionalTorrentStreamStartOptions *torrentstream.StartStreamOptions `json:"optionalTorrentStreamStartOptions,omitempty"`
 }
 
 type OnlineStreamParams struct {
@@ -181,10 +186,6 @@ type (
 
 	WatchPartyLeavePayload struct {
 		PeerId string `json:"peerId"`
-	}
-
-	WatchPartyPlaybackInfoPayload struct {
-		MediaInfo *WatchPartySessionMediaInfo `json:"mediaInfo"`
 	}
 
 	WatchPartyPlaybackStatusPayload struct {
@@ -398,6 +399,10 @@ func (wpm *WatchPartyManager) handleMessage(message *Message, senderID string) e
 			return err
 		}
 		wpm.handleWatchPartyRelayModeOriginPlaybackStatusEvent(&payload)
+
+	case MessageTypeWatchPartyRelayModeOriginPlaybackStopped:
+		wpm.logger.Debug().Msg("nakama: Received relay mode origin playback stopped message")
+		wpm.handleWatchPartyRelayModeOriginPlaybackStoppedEvent()
 	}
 
 	return nil

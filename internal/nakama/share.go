@@ -24,6 +24,11 @@ type (
 		LibraryCollection *anime.LibraryCollection
 		MetadataProvider  metadata.Provider
 	}
+
+	NakamaAnimeLibrary struct {
+		LocalFiles      []*anime.LocalFile       `json:"localFiles"`
+		AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
+	}
 )
 
 // generateHMACToken generates an HMAC token for stream authentication
@@ -71,6 +76,38 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, 
 
 	var entryResponse struct {
 		Data []*anime.LocalFile `json:"data"`
+	}
+	err = json.Unmarshal(body, &entryResponse)
+	if err != nil {
+		return nil, false
+	}
+
+	return entryResponse.Data, true
+}
+
+func (m *Manager) GetHostAnimeLibrary() (ac *NakamaAnimeLibrary, hydrated bool) {
+	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+		return nil, false
+	}
+
+	var response *req.Response
+	var err error
+
+	response, err = m.reqClient.R().
+		SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library")
+	if err != nil {
+		return nil, false
+	}
+
+	if !response.IsSuccessState() {
+		return nil, false
+	}
+
+	body := response.Bytes()
+
+	var entryResponse struct {
+		Data *NakamaAnimeLibrary `json:"data"`
 	}
 	err = json.Unmarshal(body, &entryResponse)
 	if err != nil {

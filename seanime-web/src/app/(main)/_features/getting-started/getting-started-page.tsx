@@ -9,7 +9,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import {
     DEFAULT_TORRENT_PROVIDER,
-    getDefaultMpcSocket,
+    getDefaultMpvSocket,
     getDefaultSettings,
     gettingStartedSchema,
     TORRENT_PROVIDER,
@@ -676,7 +676,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
     const vlcDefaultPath = React.useMemo(() => getDefaultVlcPath(status.os), [status.os])
     const qbittorrentDefaultPath = React.useMemo(() => getDefaultQBittorrentPath(status.os), [status.os])
     const transmissionDefaultPath = React.useMemo(() => getDefaultTransmissionPath(status.os), [status.os])
-    const mpvSocketPath = React.useMemo(() => getDefaultMpcSocket(status.os), [status.os])
+    const mpvSocketPath = React.useMemo(() => getDefaultMpvSocket(status.os), [status.os])
 
     const nextStep = () => {
         if (currentStep < STEPS.length - 1) {

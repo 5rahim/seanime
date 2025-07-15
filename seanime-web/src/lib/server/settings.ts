@@ -43,6 +43,9 @@ export const settingsSchema = z.object({
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
     mpvArgs: z.string().optional().default(""),
+    iinaSocket: z.string().optional().default(""),
+    iinaPath: z.string().optional().default(""),
+    iinaArgs: z.string().optional().default(""),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
     hideTorrentList: z.boolean().optional().default(false),
     qbittorrentPath: z.string().optional().default(""),
@@ -156,6 +159,9 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         mpvSocket: data.mpvSocket || "",
         mpvPath: data.mpvPath || "",
         mpvArgs: "",
+        iinaSocket: data.iinaSocket || "",
+        iinaPath: data.iinaPath || "",
+        iinaArgs: "",
     },
     discord: {
         enableRichPresence: data.enableRichPresence,
@@ -242,7 +248,7 @@ export function useDefaultSettingsPaths() {
 
 }
 
-export function getDefaultMpcSocket(os: string) {
+export function getDefaultMpvSocket(os: string) {
     switch (os) {
         case "windows":
             return "\\\\.\\pipe\\mpv_ipc"
@@ -253,5 +259,8 @@ export function getDefaultMpcSocket(os: string) {
         default:
             return "/tmp/mpv_socket"
     }
+}
 
+export function getDefaultIinaSocket(os: string) {
+    return "/tmp/iina_socket"
 }

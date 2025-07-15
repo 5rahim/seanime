@@ -67,7 +67,6 @@ export function NakamaManager() {
         })
     }
 
-    // Listen for NAKAMA_STATUS messages to update the status
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_STATUS,
         onMessage: (data: Nakama_NakamaStatus | null) => {
@@ -621,15 +620,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                         <Badge intent="alert" className="text-xs">
                                             Buffering
                                         </Badge>
-                                    ) : participant.isReady ? (
-                                        <Badge intent="success" className="text-xs">
-                                            Ready
-                                        </Badge>
-                                    ) : (
-                                        <Badge intent="gray" className="text-xs">
-                                            Awaiting
-                                        </Badge>
-                                    )}
+                                    ) : null}
                                 </div>
                             </div>
                         )
