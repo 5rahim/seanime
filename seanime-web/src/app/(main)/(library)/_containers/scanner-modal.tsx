@@ -23,7 +23,7 @@ export function ScannerModal() {
     const serverStatus = useServerStatus()
     const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
     const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
-    const userMedia = useAtom(__anilist_userAnimeMediaAtom)
+    const [userMedia] = useAtom(__anilist_userAnimeMediaAtom)
     const anilistDataOnly = useBoolean(true)
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
@@ -33,7 +33,7 @@ export function ScannerModal() {
     })
 
     React.useEffect(() => {
-        if (!userMedia.length) anilistDataOnly.off()
+        if (!userMedia?.length) anilistDataOnly.off()
     }, [userMedia])
 
     React.useEffect(() => {
@@ -106,13 +106,18 @@ export function ScannerModal() {
                 />
 
                 {/* <div
-                    data-scanner-modal-top-pattern
-                    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
-                >
-                    <div
-                        className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                    />
+                 data-scanner-modal-top-pattern
+                 className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
+                 >
+                 <div
+                 className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
+                 />
                  </div> */}
+
+                {serverStatus?.user?.isSimulated && <div className="border border-dashed rounded-md py-2 px-4 !mt-5">
+                    Using this feature without an AniList account is not recommended if you have a large library, as it may lead to rate limits and
+                    slower scanning. Please consider using an account for a better experience.
+                </div>}
 
                 <div className="space-y-4" data-scanner-modal-content>
 
@@ -147,9 +152,12 @@ export function ScannerModal() {
                                 // className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
                                 // size="lg"
                                 help={!anilistDataOnly.active
-                                    ? "Caution: Slower for large libraries. For faster scanning, add the anime entries present in your library to your lists and re-enable this before scanning."
+                                    ? <span><span className="text-[--orange]">Slower for large libraries</span>. For faster scanning, add the anime
+                                                                                                               entries present in your library to your
+                                                                                                               lists and re-enable this before
+                                                                                                               scanning.</span>
                                     : ""}
-                                disabled={!userMedia.length}
+                                disabled={!userMedia?.length}
                             />
                         </AppLayoutStack>
 

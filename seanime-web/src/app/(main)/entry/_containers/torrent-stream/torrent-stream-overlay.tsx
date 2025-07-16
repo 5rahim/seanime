@@ -168,7 +168,7 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
 
                         <span
                             className={cn("text-green-300",
-                                { "text-[--muted] animate-pulse": status.progressPercentage < 5 })}
+                                { "text-[--muted] animate-pulse": status.progressPercentage < 70 })}
                         >{status.progressPercentage.toFixed(
                             2)}%</span>
 

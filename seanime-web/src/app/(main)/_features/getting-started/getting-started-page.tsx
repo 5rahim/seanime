@@ -3,12 +3,14 @@ import { useGettingStarted } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
+import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardProps } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import {
     DEFAULT_TORRENT_PROVIDER,
+    getDefaultIinaSocket,
     getDefaultMpvSocket,
     getDefaultSettings,
     gettingStartedSchema,
@@ -24,6 +26,7 @@ import { FaBook, FaDiscord } from "react-icons/fa"
 import { HiOutlineDesktopComputer } from "react-icons/hi"
 import { HiEye, HiGlobeAlt } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
+import { IoPlayForwardCircleSharp } from "react-icons/io5"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiMpv, SiQbittorrent, SiTransmission, SiVlcmediaplayer } from "react-icons/si"
@@ -134,7 +137,7 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
 
             <div className="text-center mb-8">
                 <p className="text-[--muted] text-sm ">
-                    These settings can be changed later in settings
+                    These settings can be changed later
                 </p>
             </div>
 
@@ -269,7 +272,7 @@ function LibraryStep({ form }: { form: any }) {
     )
 }
 
-function PlayerStep({ form }: { form: any }) {
+function PlayerStep({ form, status }: { form: any, status: Status }) {
     const { watch } = useFormContext()
     const defaultPlayer = useWatch({ name: "defaultPlayer" })
 
@@ -293,33 +296,71 @@ function PlayerStep({ form }: { form: any }) {
                     <Field.Select
                         name="defaultPlayer"
                         label="Media Player"
-                        help="MPV is recommended for torrent streaming."
+                        help={status?.os !== "darwin"
+                            ? "MPV is recommended for better subtitle rendering, torrent streaming."
+                            : "Both MPV and IINA are recommended for macOS."}
                         required
                         leftIcon={<BiPlay className="text-green-500" />}
                         options={[
                             { label: "MPV (Recommended)", value: "mpv" },
-                            { label: "VLC Media Player", value: "vlc" },
-                            { label: "MPC-HC", value: "mpc-hc" },
+                            { label: "VLC", value: "vlc" },
+                            ...(status?.os === "windows" ? [{ label: "MPC-HC", value: "mpc-hc" }] : []),
+                            ...(status?.os === "darwin" ? [{ label: "IINA", value: "iina" }] : []),
                         ]}
                     />
 
                     <AnimatePresence mode="wait">
                         {defaultPlayer === "mpv" && (
+                            <>
+                                <p>
+                                    On Windows, install MPV easily using Scoop or Chocolatey. On macOS, install MPV using Homebrew.
+                                </p>
+                                <motion.div
+                                    key="mpv"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-4 p-4 rounded-lg bg-gray-800/30"
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <SiMpv className="w-6 h-6 text-purple-400" />
+                                        <h4 className="font-semibold">MPV Configuration</h4>
+                                    </div>
+                                    <Field.Text
+                                        name="mpvSocket"
+                                        label="Socket / Pipe Path"
+                                        help="Path for MPV IPC communication"
+                                    />
+                                </motion.div>
+                            </>
+                        )}
+
+                        {defaultPlayer === "iina" && (
                             <motion.div
-                                key="mpv"
+                                key="iina"
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                                 className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <SiMpv className="w-6 h-6 text-purple-500" />
-                                    <h4 className="font-semibold">MPV Configuration</h4>
+                                    <IoPlayForwardCircleSharp className="w-6 h-6 text-blue-400" />
+                                    <h4 className="font-semibold">IINA Configuration</h4>
                                 </div>
                                 <Field.Text
-                                    name="mpvSocket"
+                                    name="iinaSocket"
                                     label="Socket / Pipe Path"
-                                    help="Path for MPV IPC communication"
+                                    help="Path for IINA IPC communication"
+                                />
+
+                                <Alert
+                                    intent="info-basic"
+                                    description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are
+                                                                                                               closed</strong> is <span
+                                        className="underline"
+                                    >checked</span> and <strong>Keep window open after playback
+                                                                finishes</strong> is <span className="underline">unchecked</span> in
+                                                    your IINA general settings.</p>}
                                 />
                             </motion.div>
                         )}
@@ -400,6 +441,9 @@ function TorrentStep({ form }: { form: any }) {
                             <RiFolderDownloadFill className="w-6 h-6 text-orange-500" />
                             <h3 className="text-xl font-semibold">Torrent Provider</h3>
                         </div>
+                        <p className="text-sm text-[--muted]">
+                            Extension for finding anime torrents
+                        </p>
                         <Field.Select
                             name="torrentProvider"
                             label="Provider"
@@ -407,11 +451,10 @@ function TorrentStep({ form }: { form: any }) {
                             options={[
                                 { label: "AnimeTosho (Recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
                                 { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
+                                { label: "Nyaa (Non-English)", value: TORRENT_PROVIDER.NYAA_NON_ENG },
                             ]}
+                            help="AnimeTosho search results are more precise in most cases."
                         />
-                        <p className="text-sm text-[--muted]">
-                            Extension for finding anime torrents
-                        </p>
                     </motion.div>
                 </StepCard>
 
@@ -421,6 +464,9 @@ function TorrentStep({ form }: { form: any }) {
                             <ImDownload className="w-6 h-6 text-blue-500" />
                             <h3 className="text-xl font-semibold">Torrent Client</h3>
                         </div>
+                        <p className="text-sm text-[--muted]">
+                            Client used to download anime torrents
+                        </p>
                         <Field.Select
                             name="defaultTorrentClient"
                             label="Client"
@@ -430,9 +476,6 @@ function TorrentStep({ form }: { form: any }) {
                                 { label: "None", value: "none" },
                             ]}
                         />
-                        <p className="text-sm text-[--muted]">
-                            Client used to download anime torrents
-                        </p>
                     </motion.div>
                 </StepCard>
             </div>
@@ -548,7 +591,7 @@ function FeaturesStep({ form }: { form: any }) {
         {
             name: "enableManga",
             icon: FaBook,
-            title: "Manga Support",
+            title: "Manga",
             description: "Read and download manga chapters",
             gradient: "from-orange-500 to-yellow-700",
         },
@@ -600,7 +643,7 @@ function FeaturesStep({ form }: { form: any }) {
             <motion.div variants={itemVariants} className="text-center space-y-4">
                 <h2 className="text-3xl font-bold">Additional Features</h2>
                 <p className="text-[--muted] text-sm max-w-lg mx-auto">
-                    Choose which additional features you'd like to enable. You can change these later in settings.
+                    Choose which additional features you'd like to enable. You can enable or disable these later in settings.
                 </p>
             </motion.div>
 
@@ -677,6 +720,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
     const qbittorrentDefaultPath = React.useMemo(() => getDefaultQBittorrentPath(status.os), [status.os])
     const transmissionDefaultPath = React.useMemo(() => getDefaultTransmissionPath(status.os), [status.os])
     const mpvSocketPath = React.useMemo(() => getDefaultMpvSocket(status.os), [status.os])
+    const iinaSocketPath = React.useMemo(() => getDefaultIinaSocket(status.os), [status.os])
 
     const nextStep = () => {
         if (currentStep < STEPS.length - 1) {
@@ -734,6 +778,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                         mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                         torrentProvider: DEFAULT_TORRENT_PROVIDER,
                         mpvSocket: mpvSocketPath,
+                        iinaSocket: iinaSocketPath,
                         enableRichPresence: false,
                         autoScan: false,
                         enableManga: true,
@@ -766,7 +811,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     className=""
                                 >
                                     {currentStep === 0 && <LibraryStep form={f} />}
-                                    {currentStep === 1 && <PlayerStep form={f} />}
+                                    {currentStep === 1 && <PlayerStep form={f} status={status} />}
                                     {currentStep === 2 && <TorrentStep form={f} />}
                                     {currentStep === 3 && <DebridStep form={f} />}
                                     {currentStep === 4 && <FeaturesStep form={f} />}

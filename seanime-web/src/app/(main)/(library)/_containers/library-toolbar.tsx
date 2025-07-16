@@ -107,7 +107,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         </Button>}
                     </>
                 )}
-                {(!isStreamingOnly && unmatchedLocalFiles.length > 0) && <Button
+                {(unmatchedLocalFiles.length > 0) && <Button
                     data-library-toolbar-unmatched-button
                     intent="alert"
                     leftIcon={<IoLibrarySharp />}
@@ -116,7 +116,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 >
                     Resolve unmatched ({unmatchedLocalFiles.length})
                 </Button>}
-                {(!isStreamingOnly && unknownGroups.length > 0) && <Button
+                {(unknownGroups.length > 0) && <Button
                     data-library-toolbar-unknown-button
                     intent="warning"
                     leftIcon={<IoLibrarySharp />}

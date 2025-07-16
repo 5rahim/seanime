@@ -18,6 +18,7 @@ export const enum TORRENT_CLIENT {
 export const enum TORRENT_PROVIDER {
     ANIMETOSHO = "animetosho",
     NYAA = "nyaa",
+    NYAA_NON_ENG = "nyaa-non-eng",
     NONE = "none",
 }
 

@@ -7,10 +7,12 @@ import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
-import { getDefaultMpvSocket } from "@/lib/server/settings"
+import { getDefaultIinaSocket, getDefaultMpvSocket } from "@/lib/server/settings"
 import React from "react"
+import { useWatch } from "react-hook-form"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
+import { IoPlayForwardCircleSharp } from "react-icons/io5"
 import { LuExternalLink, LuLaptop } from "react-icons/lu"
 import { RiSettings3Fill } from "react-icons/ri"
 
@@ -25,12 +27,13 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
     } = props
 
     const serverStatus = useServerStatus()
+    const selectedPlayer = useWatch({ name: "defaultPlayer" })
 
     return (
         <>
             <SettingsPageHeader
                 title="Desktop Media Player"
-                description="Seanime has built-in support for MPV, VLC, and MPC-HC."
+                description="Seanime has built-in support for MPV, VLC, IINA, and MPC-HC."
                 icon={LuLaptop}
             />
 
@@ -42,11 +45,18 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                     options={[
                         { label: "MPV", value: "mpv" },
                         { label: "VLC", value: "vlc" },
-                        { label: "MPC-HC", value: "mpc-hc" },
-                        // { label: "IINA", value: "iina" },
+                        { label: "MPC-HC (Windows)", value: "mpc-hc" },
+                        { label: "IINA (macOS)", value: "iina" },
                     ]}
                     help="Player that will be used to open files and track your progress automatically."
                 />
+                {selectedPlayer === "iina" && <Alert
+                    intent="info-basic"
+                    description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are closed</strong> is <span
+                        className="underline"
+                    >checked</span> and <strong>Keep window open after playback finishes</strong> is <span className="underline">unchecked</span> in
+                                    your IINA general settings.</p>}
+                />}
             </SettingsCard>
 
             <SettingsCard title="Playback">
@@ -158,33 +168,33 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                         </AccordionContent>
                     </AccordionItem>
 
-                    {/* <AccordionItem value="iina">
-                     <AccordionTrigger>
-                     <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-purple-100" /> IINA</h4>
-                     </AccordionTrigger>
-                     <AccordionContent>
-                     <div className="flex gap-4">
-                     <Field.Text
-                     name="iinaSocket"
-                     label="Socket"
-                     placeholder={`Default: '${getDefaultIinaSocket(serverStatus?.os ?? "")}'`}
-                     />
-                     <Field.Text
-                     name="iinaPath"
-                     label="CLI path"
-                     placeholder={"Path to the IINA CLI"}
-                     help="Leave empty to use the CLI."
-                     />
-                     </div>
-                     <div>
-                     <Field.Text
-                     name="iinaArgs"
-                     label="Options"
-                     placeholder="e.g. --mpv-mute=yes"
-                     />
-                     </div>
-                     </AccordionContent>
-                     </AccordionItem> */}
+                    <AccordionItem value="iina">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-purple-100" /> IINA</h4>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex gap-4">
+                                <Field.Text
+                                    name="iinaSocket"
+                                    label="Socket"
+                                    placeholder={`Default: '${getDefaultIinaSocket(serverStatus?.os ?? "")}'`}
+                                />
+                                <Field.Text
+                                    name="iinaPath"
+                                    label="CLI path"
+                                    placeholder={"Path to the IINA CLI"}
+                                    help="Leave empty to use the CLI."
+                                />
+                            </div>
+                            <div>
+                                <Field.Text
+                                    name="iinaArgs"
+                                    label="Options"
+                                    placeholder="e.g. --mpv-mute=yes"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </SettingsCard>
 
