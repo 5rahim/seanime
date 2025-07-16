@@ -1,6 +1,6 @@
 "use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { serverPasswordAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 import { useAtomValue } from "jotai"
@@ -34,7 +34,7 @@ export async function buildSeaQuery<T, D extends any = any>(
 
     axios.interceptors.request.use((request: InternalAxiosRequestConfig) => {
             if (password) {
-                request.headers.set("X-Seanime-Password", password)
+                request.headers.set("X-Seanime-Token", password)
             }
             return request
         },
@@ -67,7 +67,7 @@ export function useServerMutation<R = void, V = void>(
         ...options
     }: ServerMutationProps<R, V>) {
 
-    const password = useAtomValue(serverPasswordAtom)
+    const password = useAtomValue(serverAuthTokenAtom)
 
     return useMutation<R | undefined, SeaError, V>({
         onError: error => {
@@ -111,7 +111,7 @@ export function useServerQuery<R, V = any>(
     }: ServerQueryProps<R | undefined, V>) {
 
     const pathname = usePathname()
-    const password = useAtomValue(serverPasswordAtom)
+    const password = useAtomValue(serverAuthTokenAtom)
 
     const props = useQuery<R | undefined, SeaError>({
         queryFn: async () => {

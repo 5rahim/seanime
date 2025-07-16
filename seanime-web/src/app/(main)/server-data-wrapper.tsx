@@ -1,5 +1,5 @@
 import { useGetStatus } from "@/api/hooks/status.hooks"
-import { serverPasswordAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { GettingStartedPage } from "@/app/(main)/_features/getting-started/getting-started-page"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
@@ -35,7 +35,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     const router = useRouter()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
-    const password = useAtom(serverPasswordAtom)
+    const password = useAtom(serverAuthTokenAtom)
     const { data: _serverStatus, isLoading, refetch } = useGetStatus()
 
     React.useEffect(() => {

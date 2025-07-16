@@ -1,12 +1,19 @@
-import { serverPasswordAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { useAtom } from "jotai"
 import React, { useState } from "react"
 
+async function hashSHA256Hex(str: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(str)
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", data)
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("")
+}
+
 export function ServerAuth() {
 
-    const [, setPassword] = useAtom(serverPasswordAtom)
+    const [, setAuthToken] = useAtom(serverAuthTokenAtom)
     const [loading, setLoading] = useState(false)
 
     return (<>
@@ -23,9 +30,10 @@ export function ServerAuth() {
                 schema={defineSchema(({ z }) => z.object({
                     password: z.string().min(1, "Password is required"),
                 }))}
-                onSubmit={data => {
+                onSubmit={async data => {
                     setLoading(true)
-                    setPassword(data.password)
+                    const hash = await hashSHA256Hex(data.password)
+                    setAuthToken(hash)
                     React.startTransition(() => {
                         window.location.href = "/"
                         setLoading(false)

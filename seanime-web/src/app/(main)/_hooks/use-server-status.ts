@@ -1,4 +1,4 @@
-import { serverPasswordAtom, serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { serverAuthTokenAtom, serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { createNakamaHMACAuth, createServerPasswordHMACAuth } from "@/lib/server/hmac-auth"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useAtomValue } from "jotai"
@@ -37,7 +37,7 @@ export function useHasDebridService() {
 
 export function useServerPassword() {
     const serverStatus = useServerStatus()
-    const [password] = useAtom(serverPasswordAtom)
+    const [password] = useAtom(serverAuthTokenAtom)
     return {
         getServerPasswordQueryParam: (symbol?: string) => {
             if (!serverStatus?.serverHasPassword) return ""
@@ -48,7 +48,7 @@ export function useServerPassword() {
 
 export function useServerHMACAuth() {
     const serverStatus = useServerStatus()
-    const [password] = useAtom(serverPasswordAtom)
+    const [password] = useAtom(serverAuthTokenAtom)
 
     return {
         getHMACTokenQueryParam: async (endpoint: string, symbol?: string) => {

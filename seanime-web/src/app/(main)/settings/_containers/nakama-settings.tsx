@@ -85,10 +85,10 @@ export function NakamaSettings(props: Props) {
                     />
 
                     <Field.Text
-                        label="Nakama Password"
+                        label="Nakama Passcode"
                         name="nakamaRemoteServerPassword"
-                        placeholder="Password"
-                        help="The password to connect to the Nakama host."
+                        placeholder="Passcode"
+                        help="The passcode to connect to the Nakama host."
                     />
 
                     <Separator className="!my-6" />
@@ -123,10 +123,10 @@ export function NakamaSettings(props: Props) {
                 />
 
                 <Field.Text
-                    label="Host Password"
+                    label="Host Passcode"
                     name="nakamaHostPassword"
-                    placeholder="Password"
-                    help="Set a password to secure your host mode. This password should be different than your server password."
+                    placeholder="Passcode"
+                    help="Set a passcode to secure your host mode. This passcode should be different than your server password."
                 />
 
                 {/*<Field.Switch*/}

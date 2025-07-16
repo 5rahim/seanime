@@ -54,14 +54,14 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, 
 	var err error
 	if len(mId) > 0 {
 		response, err = m.reqClient.R().
-			SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files/" + strconv.Itoa(mId[0]))
 		if err != nil {
 			return nil, false
 		}
 	} else {
 		response, err = m.reqClient.R().
-			SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files")
 		if err != nil {
 			return nil, false
@@ -94,7 +94,7 @@ func (m *Manager) GetHostAnimeLibrary() (ac *NakamaAnimeLibrary, hydrated bool) 
 	var err error
 
 	response, err = m.reqClient.R().
-		SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+		SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library")
 	if err != nil {
 		return nil, false
@@ -144,7 +144,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 	// Send a HTTP request to the host to get the anime library
 	// If we can access it then the host is sharing its anime library
 	response, err := m.reqClient.R().
-		SetHeader("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword).
+		SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/collection")
 	if err != nil {
 		return fmt.Errorf("cannot access host's anime library: %w", err)

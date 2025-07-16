@@ -414,7 +414,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		}
 
 		// Add Nakama password for authentication
-		req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
+		req.Header.Set("X-Seanime-Nakama-Token", h.App.Settings.GetNakama().RemoteServerPassword)
 
 		client := &http.Client{
 			Timeout: 30 * time.Second,
@@ -526,7 +526,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 		}
 
 		// Add Nakama password for authentication
-		req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
+		req.Header.Set("X-Seanime-Nakama-Token", h.App.Settings.GetNakama().RemoteServerPassword)
 
 		// Add User-Agent from original request
 		if userAgent := c.Request().Header.Get("User-Agent"); userAgent != "" {
@@ -581,7 +581,7 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 	// req.Header.Set("Accept-Encoding", "identity") // Disable compression to avoid issues
 
 	// Add Nakama password for authentication
-	req.Header.Set("X-Seanime-Nakama-Password", h.App.Settings.GetNakama().RemoteServerPassword)
+	req.Header.Set("X-Seanime-Nakama-Token", h.App.Settings.GetNakama().RemoteServerPassword)
 
 	h.App.Logger.Debug().Str("url", requestUrl).Str("method", c.Request().Method).Msg("nakama: Proxying request")
 

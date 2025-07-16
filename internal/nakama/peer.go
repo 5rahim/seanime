@@ -175,7 +175,7 @@ func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 
 	// Set up headers for authentication
 	headers := http.Header{}
-	headers.Set("X-Seanime-Nakama-Password", m.settings.RemoteServerPassword)
+	headers.Set("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword)
 	headers.Set("X-Seanime-Nakama-Username", username)
 	headers.Set("X-Seanime-Nakama-Server-Version", constants.Version)
 	headers.Set("X-Seanime-Nakama-Peer-Id", peerID)

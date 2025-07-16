@@ -7,4 +7,4 @@ export const serverStatusAtom = atomWithImmer<Status | undefined>(undefined)
 
 export const isLoginModalOpenAtom = atom(false)
 
-export const serverPasswordAtom = atomWithStorage<string | undefined>("sea-server-password", undefined, undefined, { getOnInit: true })
+export const serverAuthTokenAtom = atomWithStorage<string | undefined>("sea-server-auth-token", undefined, undefined, { getOnInit: true })

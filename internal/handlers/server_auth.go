@@ -14,7 +14,7 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		}
 
 		path := c.Request().URL.Path
-		password := c.Request().Header.Get("X-Seanime-Password")
+		passwordHash := c.Request().Header.Get("X-Seanime-Token")
 
 		// Allow the following paths to be accessed by anyone
 		if path == "/api/v1/auth/login" || // for auth
@@ -36,7 +36,7 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			if path == "/api/v1/status" {
 				// allow status requests by anyone but mark as unauthenticated
 				// so we can filter out critical info like settings
-				if password != h.App.Config.Server.Password {
+				if passwordHash != h.App.ServerPasswordHash {
 					c.Set("unauthenticated", true)
 				}
 			}
@@ -44,8 +44,7 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			return next(c)
 		}
 
-		// Check server password header first
-		if password == h.App.Config.Server.Password {
+		if passwordHash == h.App.ServerPasswordHash {
 			return next(c)
 		}
 
@@ -64,7 +63,7 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		// Handle Nakama client connections
 		if h.App.Settings.GetNakama().Enabled && h.App.Settings.GetNakama().IsHost {
 			// Verify the Nakama host password in the client request
-			nakamaPasswordHeader := c.Request().Header.Get("X-Seanime-Nakama-Password")
+			nakamaPasswordHeader := c.Request().Header.Get("X-Seanime-Nakama-Token")
 
 			// Allow WebSocket connections for peer-to-host communication
 			if path == "/api/v1/nakama/ws" {
