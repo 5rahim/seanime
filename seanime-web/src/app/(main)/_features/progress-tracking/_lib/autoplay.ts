@@ -208,12 +208,12 @@ export function useAutoplay() {
 
 // get next episode from anime entry
 export function useNextEpisodeResolver(mediaId: number, currentEpisodeNumber: number) {
-    const { data: animeEntry } = useGetAnimeEntry(String(mediaId))
+    const { data: animeEntry } = useGetAnimeEntry(!!mediaId ? mediaId : null)
 
     return React.useMemo(() => {
         if (!animeEntry?.episodes) return null
 
         const mainEpisodes = animeEntry.episodes.filter(ep => ep.type === "main")
-        return mainEpisodes.find(ep => ep.episodeNumber === currentEpisodeNumber + 1) || null
+        return mainEpisodes.find(ep => ep.progressNumber === currentEpisodeNumber + 1) || null
     }, [animeEntry?.episodes, currentEpisodeNumber])
 }
