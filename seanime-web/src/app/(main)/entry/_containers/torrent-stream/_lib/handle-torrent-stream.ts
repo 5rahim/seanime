@@ -6,6 +6,7 @@ import {
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
+import { __autoplay_nextEpisodeAtom } from "@/app/(main)/_features/progress-tracking/_lib/autoplay"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
     __torrentstream__isLoadedAtom,
@@ -112,6 +113,7 @@ const __stream_autoplaySelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | n
 
 export function useTorrentStreamAutoplay() {
     const [info, setInfo] = useAtom(__stream_autoplayAtom)
+    const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
 
     const { handleAutoSelectTorrentStream, handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
@@ -143,6 +145,7 @@ export function useTorrentStreamAutoplay() {
                 aniDBEpisode: nextEpisode.aniDBEpisode,
                 type: "torrentstream",
             })
+            setNextEpisode(nextEpisode)
         } else {
             setInfo(null)
         }
@@ -165,6 +168,7 @@ export function useTorrentStreamAutoplay() {
 
 export function useDebridStreamAutoplay() {
     const [info, setInfo] = useAtom(__stream_autoplayAtom)
+    const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
 
     const { handleAutoSelectStream, handleStreamSelection } = useHandleStartDebridStream()
     const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
@@ -196,6 +200,7 @@ export function useDebridStreamAutoplay() {
                 aniDBEpisode: nextEpisode.aniDBEpisode,
                 type: "debridstream",
             })
+            setNextEpisode(nextEpisode)
         } else {
             setInfo(null)
         }
