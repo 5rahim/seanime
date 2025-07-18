@@ -215,7 +215,9 @@ export function AnimeEntryPage() {
                     }}
                 >
                     {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
-                        <div className="h-10 lg:h-10"></div>
+                        <>
+                            {/*{currentView !== "library" ? <div className="h-10 lg:h-0" /> : }*/}
+                        </>
                     )}
                     <AnimatePresence mode="wait" initial={false}>
 
@@ -232,6 +234,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
+                            <div className="h-10" />
                             <EpisodeSection
                                 entry={animeEntry}
                                 details={animeDetails}
@@ -273,6 +276,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
+                            <div className="h-10 lg:h-0" />
                             <div className="space-y-4" data-anime-entry-page-online-streaming-view-content>
                                 <div className="absolute right-0 top-[-3rem]" data-anime-entry-page-online-streaming-view-content-title-container>
                                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>

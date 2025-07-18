@@ -22,7 +22,6 @@ export function getServerBaseUrl(removeProtocol: boolean = false): string {
         if (removeProtocol) {
             ret = ret.replace("http://", "").replace("https://", "")
         }
-        12
         return ret
     }
     if (process.env.NODE_ENV === "development" && window.location.host.startsWith("192.168")) {

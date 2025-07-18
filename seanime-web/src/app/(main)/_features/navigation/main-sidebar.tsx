@@ -23,7 +23,7 @@ import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
-import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { VerticalMenu, VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { openTab } from "@/lib/helpers/browser"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
@@ -238,7 +238,7 @@ export function MainSidebar() {
     }, [items, ts.unpinnedMenuItems])
 
     const unpinnedMenuItems = React.useMemo(() => {
-        if (ts.unpinnedMenuItems?.length === 0) return []
+        if (ts.unpinnedMenuItems?.length === 0 || items.length === 0) return []
         return [
             {
                 iconType: BiChevronRight,
@@ -246,9 +246,9 @@ export function MainSidebar() {
                 subContent: <VerticalMenu
                     items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
                 />,
-            },
+            } as VerticalMenuItem,
         ]
-    }, [items, ts.unpinnedMenuItems])
+    }, [items, ts.unpinnedMenuItems, ts.hideTopNavbar])
 
     return (
         <>
@@ -283,6 +283,7 @@ export function MainSidebar() {
                             ...pinnedMenuItems,
                             ...unpinnedMenuItems,
                         ]}
+                        subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
 

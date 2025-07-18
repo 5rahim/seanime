@@ -314,7 +314,6 @@ func (i *Iina) listenForEvents(ctx context.Context) {
 		return
 	}
 
-	// Observe properties - these should work with iina's mpv backend
 	_, err = i.conn.Call("observe_property", 42, "time-pos")
 	if err != nil {
 		i.Logger.Error().Err(err).Msg("iina: Failed to observe time-pos")

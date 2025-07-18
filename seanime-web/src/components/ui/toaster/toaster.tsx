@@ -17,7 +17,7 @@ export const ToasterAnatomy = defineStyleAnatomy({
         "group-[.toaster]:py-4 group-[.toaster]:px-6 group-[.toaster]:gap-3",
         "group-[.toaster]:text-sm group-[.toaster]:font-medium",
         "group-[.toaster]:rounded-xl group-[.toaster]:border group-[.toaster]:backdrop-blur-sm",
-        "group-[.toaster]:ring-1 group-[.toaster]:ring-inset",
+        // "group-[.toaster]:ring-1 group-[.toaster]:ring-inset",
         "group-[.toaster]:transition-all group-[.toaster]:duration-200",
         // Default/Base style
         // "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-[--paper] group-[.toaster]:to-[--paper]/80",

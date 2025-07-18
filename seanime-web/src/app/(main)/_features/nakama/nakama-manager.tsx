@@ -25,7 +25,7 @@ import { BiCog } from "react-icons/bi"
 import { FaBroadcastTower } from "react-icons/fa"
 import { HiOutlinePlay } from "react-icons/hi2"
 import { LuPopcorn } from "react-icons/lu"
-import { MdAdd, MdCleaningServices, MdExitToApp, MdOutlineConnectWithoutContact, MdPlayArrow, MdRefresh, MdStop } from "react-icons/md"
+import { MdAdd, MdCleaningServices, MdOutlineConnectWithoutContact, MdPlayArrow, MdRefresh } from "react-icons/md"
 import { toast } from "sonner"
 
 export const nakamaModalOpenAtom = atom(false)
@@ -230,7 +230,7 @@ export function NakamaManager() {
             title={<div className="flex items-center gap-2 w-full justify-center">
                 <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
-                <AlphaBadge />
+                <AlphaBadge className="border-transparent" />
             </div>}
             contentClass="max-w-3xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
@@ -262,7 +262,7 @@ export function NakamaManager() {
                         onClick={handleReconnect}
                         disabled={isReconnecting}
                         size="sm"
-                        intent="gray-subtle"
+                        intent="gray-basic"
                         leftIcon={<MdRefresh />}
                     >
                         {isReconnecting ? "Reconnecting..." : "Reconnect"}
@@ -281,13 +281,13 @@ export function NakamaManager() {
                                     onClick={handleCleanupStaleConnections}
                                     disabled={isCleaningUp}
                                     size="sm"
-                                    intent="gray-subtle"
+                                    intent="gray-basic"
                                     leftIcon={<MdCleaningServices />}
                                 >
                                     {isCleaningUp ? "Cleaning up..." : "Remove stale connections"}
                                 </Button>
                             </div>
-                            <h4>Connected peers</h4>
+                            <h4>Connected peers ({nakamaStatus?.connectedPeers?.length ?? 0})</h4>
                             <div className="p-4 border rounded-lg bg-gray-950">
                                 {!nakamaStatus?.connectedPeers?.length &&
                                     <p className="text-center text-sm text-[--muted]">No connected peers</p>}
@@ -535,8 +535,8 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                         onClick={onLeave}
                         disabled={isLeaving}
                         size="sm"
-                        intent="alert-subtle"
-                        leftIcon={isHost ? <MdStop /> : <MdExitToApp />}
+                        intent="alert-basic"
+                        // leftIcon={isHost ? <MdStop /> : <MdExitToApp />}
                     >
                         {isLeaving ? "Leaving..." : isHost ? "Stop" : "Leave"}
                     </Button>
@@ -602,8 +602,9 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-[--muted]">
                                     {!participant.isHost && participant.bufferHealth !== undefined && (
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-xs">Buffer:</span>
+                                        <Tooltip
+                                            trigger={<div className="flex items-center gap-1">
+                                                <span className="text-xs">Buffer</span>
                                             <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
                                                 <div
                                                     className="h-full bg-green-500 transition-all duration-300"
@@ -611,13 +612,16 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                                 />
                                             </div>
                                             <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
-                                        </div>
+                                            </div>}
+                                        >
+                                            Synchronization buffer health
+                                        </Tooltip>
                                     )}
                                     {participant.latency > 0 && (
                                         <span>{participant.latency}ms</span>
                                     )}
                                     {participant.isBuffering ? (
-                                        <Badge intent="alert" className="text-xs">
+                                        <Badge intent="alert-solid" className="text-xs">
                                             Buffering
                                         </Badge>
                                     ) : null}

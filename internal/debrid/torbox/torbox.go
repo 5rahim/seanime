@@ -132,8 +132,18 @@ func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string)
 
 	var ret Response
 
-	if err := json.NewDecoder(resp.Body).Decode(&ret); err != nil {
-		t.logger.Error().Err(err).Msg("torbox: Failed to decode response")
+	bodyB, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.logger.Error().Err(err).Msg("torbox: Failed to read response body")
+		return nil, err
+	}
+
+	if err := json.Unmarshal(bodyB, &ret); err != nil {
+		trimmedBody := string(bodyB)
+		if len(trimmedBody) > 2000 {
+			trimmedBody = trimmedBody[:2000] + "..."
+		}
+		t.logger.Error().Err(err).Msg("torbox: Failed to decode response, response body: " + trimmedBody)
 		return nil, err
 	}
 

@@ -104,7 +104,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                     ? "the Nakama's"
                     : "your"} library</h4>
                 : <h5 className="text-yellow-50">Not yet released</h5>}
-            <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10">
+            <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10 overflow-x-hidden">
                 {!entry._isNakamaEntry && <UndownloadedEpisodeList
                     downloadInfo={entry.downloadInfo}
                     media={media}

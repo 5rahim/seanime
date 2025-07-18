@@ -39,6 +39,12 @@ type loadedPage struct {
 	page *hibikemanga.ChapterPage
 }
 
+// chapterEntry represents a potential chapter file or directory found during scanning
+type chapterEntry struct {
+	RelativePath string // Path relative to manga root (e.g., "mangaID/chapter1.cbz" or "mangaID/vol1/ch1.cbz")
+	IsDir        bool   // Whether this entry is a directory
+}
+
 func NewLocal(dir string, logger *zerolog.Logger) hibikemanga.Provider {
 	_ = os.MkdirAll(dir, 0755)
 
@@ -147,6 +153,7 @@ func cleanMangaTitle(title string) string {
 }
 
 // FindChapters scans the manga series directory and returns the chapters.
+// Supports nested folder structures up to 2 levels deep.
 //
 // Example:
 //
@@ -154,7 +161,10 @@ func cleanMangaTitle(title string) string {
 //	├── Chapter 1/
 //	│   ├── image_1.ext
 //	│   └── image_n.ext
-//	└── Chapter 2.pdf
+//	├── Chapter 2.pdf
+//	└── Ch 1-10/
+//	    ├── Ch 1/
+//	    └── Ch 2/
 func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails, err error) {
 	if p.dir == "" {
 		return make([]*hibikemanga.ChapterDetails, 0), nil
@@ -164,29 +174,30 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 
 	p.logger.Trace().Str("mangaPath", mangaPath).Msg("manga: Finding local chapters")
 
-	entries, err := os.ReadDir(mangaPath)
+	// Collect all potential chapter entries up to 2 levels deep
+	chapterEntries, err := p.collectChapterEntries(mangaPath, mangaID, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	res = make([]*hibikemanga.ChapterDetails, 0)
-	// Go through all entries.
-	for _, entry := range entries {
-		scannedEntry, ok := scanChapterFilename(entry.Name())
+	// Go through all collected entries.
+	for _, entry := range chapterEntries {
+		scannedEntry, ok := scanChapterFilename(filepath.Base(entry.RelativePath))
 		if !ok {
 			continue
 		}
 
 		if len(scannedEntry.Chapter) != 1 {
 			// Handle one-shots (no chapter number and only one entry)
-			if len(scannedEntry.Chapter) == 0 && len(entries) == 1 {
+			if len(scannedEntry.Chapter) == 0 && len(chapterEntries) == 1 {
 				chapterTitle := "Chapter 1"
 				if scannedEntry.ChapterTitle != "" {
 					chapterTitle += " - " + scannedEntry.ChapterTitle
 				}
 				res = append(res, &hibikemanga.ChapterDetails{
 					Provider:   LocalProvider,
-					ID:         filepath.ToSlash(filepath.Join(mangaID, entry.Name())), // ID is the filepath, e.g. "/series/chapter_1.cbz"
+					ID:         filepath.ToSlash(entry.RelativePath), // ID is the relative filepath, e.g. "/series/chapter_1.cbz" or "/series/vol1/ch1.cbz"
 					URL:        "",
 					Title:      chapterTitle,
 					Chapter:    "1",
@@ -201,7 +212,7 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 				}
 				res = append(res, &hibikemanga.ChapterDetails{
 					Provider: LocalProvider,
-					ID:       filepath.ToSlash(filepath.Join(mangaID, entry.Name())), // ID is the filepath, e.g. "/series/chapter_1.cbz"
+					ID:       filepath.ToSlash(entry.RelativePath), // ID is the relative filepath, e.g. "/series/chapter_1.cbz" or "/series/vol1/ch1.cbz"
 					URL:      "",
 					Title:    chapterTitle,
 					// Use the last chapter number as the chapter for progress tracking
@@ -221,7 +232,7 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 
 		res = append(res, &hibikemanga.ChapterDetails{
 			Provider:   LocalProvider,
-			ID:         filepath.ToSlash(filepath.Join(mangaID, entry.Name())), // ID is the filepath, e.g. "/series/chapter_1.cbz"
+			ID:         filepath.ToSlash(entry.RelativePath), // ID is the relative filepath, e.g. "/series/chapter_1.cbz" or "/series/vol1/ch1.cbz"
 			URL:        "",
 			Title:      chapterTitle,
 			Chapter:    ch,
@@ -243,6 +254,115 @@ func (p *Local) FindChapters(mangaID string) (res []*hibikemanga.ChapterDetails,
 	}
 
 	return res, nil
+}
+
+// collectChapterEntries walks the directory tree up to maxDepth levels deep and collects
+// all potential chapter files and directories.
+func (p *Local) collectChapterEntries(currentPath, mangaID string, currentDepth int) (entries []*chapterEntry, err error) {
+	const maxDepth = 2
+
+	if currentDepth > maxDepth {
+		return entries, nil
+	}
+
+	dirEntries, err := os.ReadDir(currentPath)
+	if err != nil {
+		return nil, err
+	}
+
+	entries = make([]*chapterEntry, 0)
+
+	for _, entry := range dirEntries {
+		entryPath := filepath.Join(currentPath, entry.Name())
+
+		// Calculate relative path from manga root
+		var relativePath string
+		if currentDepth == 0 {
+			// At manga root level
+			relativePath = filepath.Join(mangaID, entry.Name())
+		} else {
+			// Get the relative part from current path
+			relativeFromManga, err := filepath.Rel(filepath.Join(p.dir, mangaID), entryPath)
+			if err != nil {
+				continue
+			}
+			relativePath = filepath.Join(mangaID, relativeFromManga)
+		}
+
+		if entry.IsDir() {
+			// Check if this directory contains only images (making it a chapter directory)
+			isImageDirectory, _ := p.isImageOnlyDirectory(entryPath)
+
+			if isImageDirectory {
+				// Directory contains only images, treat it as a chapter
+				entries = append(entries, &chapterEntry{
+					RelativePath: relativePath,
+					IsDir:        true,
+				})
+			} else if currentDepth < maxDepth {
+				// Directory doesn't contain only images, recursively scan subdirectories
+				subEntries, err := p.collectChapterEntries(entryPath, mangaID, currentDepth+1)
+				if err != nil {
+					continue
+				}
+
+				// If subdirectory contains chapters, add them
+				if len(subEntries) > 0 {
+					entries = append(entries, subEntries...)
+				} else {
+					// If no sub-chapters found, treat directory itself as potential chapter
+					entries = append(entries, &chapterEntry{
+						RelativePath: relativePath,
+						IsDir:        true,
+					})
+				}
+			} else {
+				// At max depth, treat directory as potential chapter
+				entries = append(entries, &chapterEntry{
+					RelativePath: relativePath,
+					IsDir:        true,
+				})
+			}
+		} else {
+			// File entry - check if it's a potential chapter file
+			ext := strings.ToLower(filepath.Ext(entry.Name()))
+			if ext == ".cbz" || ext == ".cbr" || ext == ".pdf" || ext == ".zip" {
+				entries = append(entries, &chapterEntry{
+					RelativePath: relativePath,
+					IsDir:        false,
+				})
+			}
+		}
+	}
+
+	return entries, nil
+}
+
+// isImageOnlyDirectory checks if a directory contains only image files (no subdirectories or other files)
+func (p *Local) isImageOnlyDirectory(dirPath string) (bool, error) {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return false, err
+	}
+
+	if len(entries) == 0 {
+		return false, nil
+	}
+
+	hasImages := false
+	for _, entry := range entries {
+		if entry.IsDir() {
+			return false, nil
+		}
+
+		if isFileImage(entry.Name()) {
+			hasImages = true
+		} else {
+			return false, nil
+		}
+	}
+
+	return hasImages, nil
 }
 
 // "0001" -> "1", "0" -> "0"

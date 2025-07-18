@@ -70,9 +70,9 @@ export function useWebsocketSender() {
         })
         // const deduplicatedEvents = events
 
-        if (events.length !== deduplicatedEvents.length) {
-            logger("WebsocketSender").info(`Deduplicated ${events.length - deduplicatedEvents.length} events from batch of ${events.length}`)
-        }
+        // if (events.length !== deduplicatedEvents.length) {
+        //     logger("WebsocketSender").info(`Deduplicated ${events.length - deduplicatedEvents.length} events from batch of ${events.length}`)
+        // }
 
         // If only one event, send it directly without batching
         if (deduplicatedEvents.length === 1) {

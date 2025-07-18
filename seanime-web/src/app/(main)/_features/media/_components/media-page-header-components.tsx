@@ -103,7 +103,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 data-media-page-header-banner
                 className={cn(
                     "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem]",
-                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
+                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[36.5rem]",
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
                         ? "opacity-15"

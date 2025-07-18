@@ -63,8 +63,11 @@ type Announcement struct {
 }
 
 func (u *Updater) GetAnnouncements(version string, platform string, settings *models.Settings) []Announcement {
+	var filteredAnnouncements []Announcement
+	if !u.checkForUpdate {
+		return filteredAnnouncements
+	}
 	// filter out
-	filteredAnnouncements := []Announcement{}
 	for _, announcement := range u.announcements {
 		if announcement.Conditions == nil {
 			filteredAnnouncements = append(filteredAnnouncements, announcement)
@@ -109,7 +112,7 @@ func (u *Updater) GetAnnouncements(version string, platform string, settings *mo
 }
 
 func (u *Updater) FetchAnnouncements() []Announcement {
-	announcements := []Announcement{}
+	var announcements []Announcement
 
 	response, err := http.Get(constants.AnnouncementURL)
 	if err != nil {
@@ -131,7 +134,7 @@ func (u *Updater) FetchAnnouncements() []Announcement {
 	}
 
 	// Filter out announcements
-	filteredAnnouncements := []Announcement{}
+	var filteredAnnouncements []Announcement
 	for _, announcement := range announcements {
 		if announcement.Conditions == nil {
 			filteredAnnouncements = append(filteredAnnouncements, announcement)

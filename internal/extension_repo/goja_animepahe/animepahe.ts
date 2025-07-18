@@ -1,5 +1,5 @@
 /// <reference path="../goja_onlinestream_test/onlinestream-provider.d.ts" />
-/// <reference path="../../goja/goja_bindings/js/core.d.ts" />
+/// <reference path="../goja_plugin_types/core.d.ts" />
 
 type EpisodeData = {
     id: number; episode: number; title: string; snapshot: string; filler: number; session: string; created_at?: string

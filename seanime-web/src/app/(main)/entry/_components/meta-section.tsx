@@ -30,10 +30,11 @@ import { cn } from "@/components/ui/core/styling"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
-import { SiAnilist } from "react-icons/si"
-import { PluginAnimePageButtons } from "../../_features/plugin/actions/plugin-actions"
-import { useNakamaStatus } from "../../_features/nakama/nakama-manager"
+import { IoInformationCircle } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
+import { SiAnilist } from "react-icons/si"
+import { useNakamaStatus } from "../../_features/nakama/nakama-manager"
+import { PluginAnimePageButtons } from "../../_features/plugin/actions/plugin-actions"
 
 export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
     const ts = useThemeSettings()
@@ -183,7 +184,8 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         />
                     )}
 
-                    {entry._isNakamaEntry && <div className="flex items-center gap-2 h-10 px-4 border rounded-md">
+                    {entry._isNakamaEntry && currentView === "library" &&
+                        <div className="flex items-center gap-2 h-10 px-4 border rounded-md flex-none">
                         <MdOutlineConnectWithoutContact className="size-6 animate-pulse text-[--blue]" />
                         <span className="text-sm tracking-wide">Shared by {nakamaStatus?.hostConnectionStatus?.username}</span>
                     </div>}
@@ -218,12 +220,13 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 {(!entry.anidbId || entry.anidbId === 0) && (
                     <p
                         className={cn(
-                            "text-center text-red-300 opacity-50",
+                            "text-center text-gray-200 opacity-50 text-sm flex gap-1 items-center",
                             ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                         )}
                         data-anime-meta-section-no-metadata-message
                     >
-                        No metadata found on AniDB
+                        <IoInformationCircle />
+                        Episode metadata retrieval not available for this entry.
                     </p>
                 )}
 
