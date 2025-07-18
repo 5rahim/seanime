@@ -591,10 +591,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                 key: "s",
                                 label: "Switch page stretch",
                             }, {
-                                key: "+ or =",
+                                key: "shift+right",
                                 label: "Increment manga offset",
                             }, {
-                                key: "-",
+                                key: "shift+left",
                                 label: "Decrement manga offset",
                             }].map(item => {
                                 return (

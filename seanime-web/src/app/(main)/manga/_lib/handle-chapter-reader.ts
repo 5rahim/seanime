@@ -380,18 +380,16 @@ export function useSwitchSettingsWithKeys() {
         mousetrap.bind("d", () => switchValue(readingDirection, Object.values(MangaReadingDirection), setReadingDirection))
         mousetrap.bind("f", () => switchValue(pageFit, Object.values(MangaPageFit), setPageFit))
         mousetrap.bind("s", () => switchValue(pageStretch, Object.values(MangaPageStretch), setPageStretch))
-        mousetrap.bind("=", () => incrementOffset())
-        mousetrap.bind("+", () => incrementOffset())
-        mousetrap.bind("-", () => decrementOffset())
+        mousetrap.bind("shift+right", () => incrementOffset())
+        mousetrap.bind("shift+left", () => decrementOffset())
 
         return () => {
             mousetrap.unbind("m")
             mousetrap.unbind("d")
             mousetrap.unbind("f")
             mousetrap.unbind("s")
-            mousetrap.unbind("=")
-            mousetrap.unbind("+")
-            mousetrap.unbind("-")
+            mousetrap.unbind("shift+right")
+            mousetrap.unbind("shift+left")
         }
     }, [readingMode, readingDirection, pageFit, pageStretch, doublePageOffset])
 }
