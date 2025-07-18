@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.0
+
+- 🎉 New feature: Nakama - Communication between Seanime instances
+  - You can now communicate with other Seanime instances over the internet
+- 🎉 Nakama: Watch together (Alpha)
+  - Watch (local media, torrent or debrid streams) together with friends with playback syncing
+  - Peers will stream from the host with synchronized playback
+- 🎉 Nakama: Share your anime library (Alpha)
+  - Share your local anime library with other Seanime instances or consume your remote library
+- ✨ Local account
+  - By default, Seanime no longer requires an AniList account and stores everything locally
+- ✨ Server password
+  - Lock your exposed Seanime instance by adding a password in your config file
+- ✨ Manga: Local source extension (Alpha)
+  - New built-in extension for reading your local manga (CBZ, ZIP, Images)
+- ✨ New schedule calendar
+- ✨ macOS: Support for IINA media player
+- ✨ Toggle offline mode without restarting the server
+- ✨ New getting started screen
+- ⚡️ Discord: Pausing anime does not remove activity anymore
+- ⚡️ UI: New setting option to unpin menu items from the sidebar
+- ⚡️ UI: Added pagination for long episode lists
+- ⚡️ Online streaming: Episode number grid view
+- ⚡️ Performance: Plugins: Deduplicate and batch events
+- ⚡️ Discord: Added option to show media title in activity status (arRPC only) - @kyoruno
+- ⚡️ PWA support (HTTPS only) - @HyperKiko
+- ⚡️ MPV/IINA: Pass custom arguments
+- ⚡️ Discord: Keep activity when anime is paused
+- ⚡️ UI: Updated some animations
+- 🦺 Fixed multiple Plugin API issues
+- 🦺 Goja: Added OpenSSL support to CryptoJS binding
+- 🦺 Fixed filecache EOF error
+- 🦺 Fixed offline syncing
+
 ## v2.8.5
 
 - 🦺 Fixed scraping for manga extensions

@@ -122,8 +122,6 @@ func (mp *Manganato) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.
 			result.ID = "manganato$"
 		}
 
-		util.Spew(splitHref)
-
 		if len(splitHref) > 4 {
 			result.ID += splitHref[4]
 		}
