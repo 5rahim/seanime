@@ -412,7 +412,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 
 		// Auto-leave the watch party when playback stops
 		// The user will have to re-join to start the stream again
-		if payload.Session.CurrentMediaInfo.StreamType != "online" {
+		if payload.Session.CurrentMediaInfo.StreamType != "online" && !participant.IsRelayOrigin {
 			wpm.peerPlaybackListener = wpm.manager.playbackManager.SubscribeToPlaybackStatus("nakama_peer_playback_listener")
 			go func() {
 				defer util.HandlePanicInModuleThen("nakama/handleWatchPartyStateChangedEvent/autoLeaveWatchParty", func() {})
@@ -429,7 +429,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 
 						switch event.(type) {
 						case playbackmanager.StreamStoppedEvent:
-							wpm.LeaveWatchParty()
+							_ = wpm.LeaveWatchParty()
 							return
 						}
 					}

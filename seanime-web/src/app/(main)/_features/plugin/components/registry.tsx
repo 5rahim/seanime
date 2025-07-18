@@ -1,6 +1,7 @@
 "use client"
 
 import {
+    PluginAnchor,
     PluginButton,
     PluginCheckbox,
     PluginDiv,
@@ -25,6 +26,7 @@ export const registry: ComponentRegistry = new Map([
     ["stack", PluginStack],
     ["input", PluginInput],
     ["button", PluginButton],
+    ["anchor", PluginAnchor],
     ["form", PluginForm],
     ["switch", PluginSwitch],
     ["radio-group", PluginRadioGroup],

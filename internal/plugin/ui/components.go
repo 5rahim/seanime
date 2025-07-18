@@ -106,6 +106,23 @@ func (c *ComponentManager) jsButton(call goja.FunctionCall) goja.Value {
 	})
 }
 
+// jsAnchor
+//
+//	Example:
+//	const anchor = tray.anchor("Click here", { href: "https://example.com" })
+//	// or
+//	const anchor = tray.anchor({ text: "Click here", href: "https://example.com" })
+func (c *ComponentManager) jsAnchor(call goja.FunctionCall) goja.Value {
+	return defineComponent(c.ctx.vm, call, "anchor", []ComponentProp{
+		{Name: "text", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+		{Name: "href", Type: "string", Required: true, Validate: validateType("string")},
+		{Name: "target", Type: "string", Required: false, Default: "_blank", Validate: validateType("string")},
+		{Name: "onClick", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
+	})
+}
+
 ////////////////////////////////////////////
 // Fields
 ////////////////////////////////////////////

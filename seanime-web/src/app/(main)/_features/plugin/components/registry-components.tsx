@@ -71,6 +71,48 @@ export function PluginButton(props: PluginButtonProps) {
     )
 }
 
+///////////////////
+
+interface PluginAnchorProps {
+    text?: string
+    href?: string
+    target?: string
+    onClick?: string
+    style?: React.CSSProperties
+    className?: string
+}
+
+export function PluginAnchor(props: PluginAnchorProps) {
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+
+    function handleClick(e: React.MouseEvent) {
+        if (props.onClick) {
+            e.preventDefault()
+            sendEventHandlerTriggeredEvent({
+                handlerName: props.onClick,
+                event: {
+                    href: props.href,
+                    text: props.text,
+                },
+            }, trayIcon.extensionId)
+        }
+    }
+
+    return (
+        <a
+            href={props.href}
+            target={props.target || "_blank"}
+            rel="noopener noreferrer"
+            style={props.style}
+            onClick={handleClick}
+            className={cn("underline cursor-pointer", props.className)}
+        >
+            {props.text || "Link"}
+        </a>
+    )
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Fields
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -248,6 +248,7 @@ declare namespace $ui {
         stack: StackComponentFunction
         text: TextComponentFunction
         button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
         input: InputComponentFunction
         select: SelectComponentFunction
         checkbox: CheckboxComponentFunction
@@ -591,6 +592,7 @@ declare namespace $ui {
         stack: StackComponentFunction
         text: TextComponentFunction
         button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
 
         /** Sets the items in the command palette */
         setItems(items: CommandPaletteItem[]): void
@@ -711,6 +713,20 @@ declare namespace $ui {
         } & ComponentProps): void
         (label: string,
             props?: { onClick?: string, intent?: Intent, disabled?: boolean, loading?: boolean, size?: "xs" | "sm" | "md" | "lg" } & ComponentProps,
+        ): void
+    }
+    /**
+     * @default target="_blank"
+     */
+    type AnchorComponentFunction = {
+        (props: {
+            text: string,
+            href: string,
+            target?: string,
+            onClick?: string
+        } & ComponentProps): void
+        (text: string,
+            props: { href: string, target?: string, onClick?: string } & ComponentProps,
         ): void
     }
     /**

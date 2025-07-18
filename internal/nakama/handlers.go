@@ -30,6 +30,7 @@ func (m *Manager) registerDefaultHandlers() {
 	m.messageHandlers[MessageTypeWatchPartyRelayModeOriginPlaybackStatus] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyRelayModePeersReady] = m.handleWatchPartyMessage
 	m.messageHandlers[MessageTypeWatchPartyRelayModePeerBuffering] = m.handleWatchPartyMessage
+	m.messageHandlers[MessageTypeWatchPartyRelayModeOriginPlaybackStopped] = m.handleWatchPartyMessage
 }
 
 // handleMessage routes messages to the appropriate handler

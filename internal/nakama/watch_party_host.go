@@ -749,15 +749,17 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		// Do nothing, the file is already available
 	case "torrent":
 		// Start the torrent stream and wait for it to be ready
-		event.OptionalTorrentStreamStartOptions.PlaybackType = torrentstream.PlaybackTypeNoneAndAwait
-		err := wpm.manager.torrentstreamRepository.StartStream(context.Background(), event.OptionalTorrentStreamStartOptions)
+		options := *event.OptionalTorrentStreamStartOptions
+		options.PlaybackType = torrentstream.PlaybackTypeNoneAndAwait
+		err := wpm.manager.torrentstreamRepository.StartStream(context.Background(), &options)
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to start torrent stream")
 		}
 	case "debrid":
 		// Start the debrid stream and wait for it to be ready
-		event.OptionalDebridStreamStartOptions.PlaybackType = debrid_client.PlaybackTypeNoneAndAwait
-		err := wpm.manager.debridClientRepository.StartStream(context.Background(), event.OptionalDebridStreamStartOptions)
+		options := *event.OptionalDebridStreamStartOptions
+		options.PlaybackType = debrid_client.PlaybackTypeNoneAndAwait
+		err := wpm.manager.debridClientRepository.StartStream(context.Background(), &options)
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to start debrid stream")
 		}
@@ -770,11 +772,12 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		streamPath = event.OptionalLocalPath
 	}
 	newCurrentMediaInfo := &WatchPartySessionMediaInfo{
-		MediaId:       event.State.MediaId,
-		EpisodeNumber: event.State.EpisodeNumber,
-		AniDBEpisode:  event.State.AniDbEpisode,
-		StreamType:    event.StreamType,
-		StreamPath:    streamPath,
+		MediaId:                           event.State.MediaId,
+		EpisodeNumber:                     event.State.EpisodeNumber,
+		AniDBEpisode:                      event.State.AniDbEpisode,
+		StreamType:                        event.StreamType,
+		StreamPath:                        streamPath,
+		OptionalTorrentStreamStartOptions: event.OptionalTorrentStreamStartOptions,
 	}
 
 	// Video playback has started, send the media info to the peers
