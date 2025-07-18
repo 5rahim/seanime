@@ -1,0 +1,116 @@
+{
+  "name": "seanime-denshi",
+  "version": "2.9.0",
+  "description": "Electron-based Desktop client for Seanime",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder build",
+    "build:mac": "electron-builder build --mac",
+    "build:win": "electron-builder build --win",
+    "build:linux": "electron-builder build --linux"
+  },
+  "dependencies": {
+    "electron-log": "^5.0.0",
+    "electron-serve": "^1.3.0",
+    "electron-updater": "^6.1.7",
+    "strip-ansi": "^7.1.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^36.1.2",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "app.seanime.denshi",
+    "productName": "Seanime Denshi",
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "binaries",
+        "to": "binaries"
+      }
+    ],
+    "generateUpdatesFilesForAllChannels": true,
+    "publish": {
+      "provider": "generic",
+      "url": "https://github.com/5rahim/seanime/releases/latest/download",
+      "channel": "latest",
+      "publishAutoUpdate": true,
+      "useMultipleRangeRequest": false
+    },
+    "mac": {
+      "category": "public.app-category.entertainment",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "darkModeSupport": true,
+      "notarize": false,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "artifactName": "seanime-denshi-${version}_MacOS_${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "Entertainment",
+      "artifactName": "seanime-denshi-${version}_Linux_${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Seanime Denshi",
+      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}"
+    },
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "web-denshi/**/*",
+      "assets/**/*",
+      "package.json",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ]
+  },
+  "private": true
+}

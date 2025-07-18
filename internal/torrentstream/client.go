@@ -102,11 +102,7 @@ func (c *Client) initializeClient() error {
 	if settings.SlowSeeding {
 		cfg.DialRateLimiter = rate.NewLimiter(rate.Limit(1), 1)
 		cfg.UploadRateLimiter = rate.NewLimiter(rate.Limit(1<<20), 2<<20)
-		// cfg.DisableAggressiveUpload = true
 	}
-
-	//cfg.DisableAggressiveUpload = true
-	//cfg.Debug = true
 
 	if settings.TorrentClientHost != "" {
 		cfg.ListenHost = func(network string) string { return settings.TorrentClientHost }
@@ -139,26 +135,6 @@ func (c *Client) initializeClient() error {
 			case <-ctx.Done():
 				c.repository.logger.Debug().Msg("torrentstream: Context cancelled, stopping torrent client")
 				return
-			//case <-c.stopCh:
-			//	c.mu.Lock()
-			//	c.stopCh = make(chan struct{})
-			//	c.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
-			//	// This is to prevent the client from downloading the whole torrent when the user stops watching
-			//	// Also, the torrent might be a batch - so we don't want to download the whole thing
-			//	if c.currentTorrent.IsPresent() {
-			//		if c.currentTorrentStatus.ProgressPercentage < 70 {
-			//			c.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
-			//			c.dropTorrents()
-			//		}
-			//		c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
-			//	}
-			//	c.currentTorrent = mo.None[*torrent.Torrent]()                  // Reset the current torrent
-			//	c.currentFile = mo.None[*torrent.File]()                        // Reset the current file
-			//	c.currentTorrentStatus = TorrentStatus{}                        // Reset the torrent status
-			//	c.repository.serverManager.stopServer()                         // Stop streaming server
-			//	c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
-			//	c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
-			//	c.mu.Unlock()
 
 			case status := <-c.mediaPlayerPlaybackStatusCh:
 				// DEVNOTE: When this is received, "default" case is executed right after
@@ -168,7 +144,7 @@ func (c *Client) initializeClient() error {
 					if c.repository.playback.currentVideoDuration == 0 && status.Duration > 0 {
 						// The media player has started playing the video
 						c.repository.logger.Debug().Msg("torrentstream: Media player started playing the video, sending event")
-						c.repository.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
+						c.repository.sendStateEvent(eventTorrentStartedPlaying)
 						// Update the stored video duration
 						c.repository.playback.currentVideoDuration = status.Duration
 					}
@@ -213,12 +189,6 @@ func (c *Client) initializeClient() error {
 						c.currentTorrentStatus.Seeders = len(t.PeerConns())
 					}
 
-					//// If the torrent status went from 0% to > 0%, send an event, as the torrent has been loaded
-					//if c.currentTorrentStatus.ProgressPercentage == 0. && c.getTorrentPercentage(c.currentTorrent) > 0. {
-					//	c.repository.logger.Debug().Msg("torrentstream: Torrent loaded, sending event")
-					//	c.repository.wsEventManager.SendEvent(eventTorrentLoaded, nil)
-					//}
-
 					c.currentTorrentStatus = TorrentStatus{
 						Size:               size,
 						UploadProgress:     (&bytesWrittenData).Int64() - c.currentTorrentStatus.UploadProgress,
@@ -228,7 +198,7 @@ func (c *Client) initializeClient() error {
 						ProgressPercentage: c.getTorrentPercentage(c.currentTorrent, c.currentFile),
 						Seeders:            t.Stats().ConnectedSeeders,
 					}
-					c.repository.wsEventManager.SendEvent(eventTorrentStatus, c.currentTorrentStatus)
+					c.repository.sendStateEvent(eventTorrentStatus, c.currentTorrentStatus)
 					// Always log the progress so the user knows what's happening
 					c.repository.logger.Trace().Msgf("torrentstream: Progress: %.2f%%, Download speed: %s, Upload speed: %s, Size: %s",
 						c.currentTorrentStatus.ProgressPercentage,
@@ -268,37 +238,19 @@ func (c *Client) GetStreamingUrl() string {
 		return ""
 	}
 
-	if !settings.UseSeparateServer {
-		host := settings.Host
-		if host == "0.0.0.0" {
-			host = "127.0.0.1"
-		}
-		address := fmt.Sprintf("%s:%d", host, settings.Port)
-		if settings.StreamUrlAddress != "" {
-			address = settings.StreamUrlAddress
-		}
-		_url := fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
-		if strings.HasPrefix(_url, "http://http") {
-			_url = strings.Replace(_url, "http://http", "http", 1)
-		}
-		return _url
-	}
-
-	//if settings.StreamingServerHost == "0.0.0.0" {
-	//	return fmt.Sprintf("http://127.0.0.1:%d/stream/%s", settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
-	//}
-	host := settings.StreamingServerHost
-	if host == "" {
+	host := settings.Host
+	if host == "0.0.0.0" {
 		host = "127.0.0.1"
 	}
-	_url := fmt.Sprintf("http://%s:%d/stream/%s", host, settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	address := fmt.Sprintf("%s:%d", host, settings.Port)
 	if settings.StreamUrlAddress != "" {
-		_url = fmt.Sprintf("http://%s/stream/%s", settings.StreamUrlAddress, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
-		if strings.HasPrefix(_url, "http://http") {
-			_url = strings.Replace(_url, "http://http", "http", 1)
-		}
+		address = settings.StreamUrlAddress
 	}
-	return _url
+	ret := fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	if strings.HasPrefix(ret, "http://http") {
+		ret = strings.Replace(ret, "http://http", "http", 1)
+	}
+	return ret
 }
 
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {

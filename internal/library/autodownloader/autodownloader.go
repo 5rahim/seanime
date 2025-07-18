@@ -51,6 +51,7 @@ type (
 		startCh                 chan struct{}
 		debugTrace              bool
 		mu                      sync.Mutex
+		isOffline               *bool
 	}
 
 	NewAutoDownloaderOptions struct {
@@ -61,6 +62,7 @@ type (
 		Database                *db.Database
 		MetadataProvider        metadata.Provider
 		DebridClientRepository  *debrid_client.Repository
+		IsOffline               *bool
 	}
 
 	tmpTorrentToDownload struct {
@@ -91,6 +93,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		startCh:           make(chan struct{}, 1),
 		debugTrace:        true,
 		mu:                sync.Mutex{},
+		isOffline:         opts.IsOffline,
 	}
 }
 
@@ -230,6 +233,11 @@ func (ad *AutoDownloader) start() {
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
+	if ad.isOffline != nil && *ad.isOffline {
+		ad.logger.Debug().Msg("autodownloader: Skipping check for new episodes. AutoDownloader is in offline mode.")
+		return
+	}
+
 	ad.mu.Lock()
 	if ad == nil || ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. AutoDownloader is not enabled or provider is not set.")
@@ -344,6 +352,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				return // Skip rule
 			}
 
+			// DEVNOTE: This is bad, do not skip anime that are not releasing because dubs are delayed
 			// If the media is not releasing AND has more than one episode, skip the rule
 			// This is to avoid skipping movies and single-episode OVAs
 			//if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {

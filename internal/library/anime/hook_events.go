@@ -2,6 +2,7 @@ package anime
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/hook_resolver"
 )
 
@@ -97,7 +98,7 @@ type AnimeLibraryCollectionRequestedEvent struct {
 	LibraryCollection *LibraryCollection `json:"libraryCollection"`
 }
 
-// AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+// AnimeLibraryCollectionEvent is triggered when the user requests the library collection.
 type AnimeLibraryCollectionEvent struct {
 	hook_resolver.Event
 	LibraryCollection *LibraryCollection `json:"libraryCollection"`
@@ -115,4 +116,43 @@ type AnimeLibraryStreamCollectionRequestedEvent struct {
 type AnimeLibraryStreamCollectionEvent struct {
 	hook_resolver.Event
 	StreamCollection *StreamCollection `json:"streamCollection"`
+}
+
+////////////////////////////////////////
+
+// AnimeEntryDownloadInfoRequestedEvent is triggered when the app requests the download info for a media entry.
+// This is triggered before [AnimeEntryDownloadInfoEvent].
+type AnimeEntryDownloadInfoRequestedEvent struct {
+	hook_resolver.Event
+	LocalFiles    []*LocalFile `json:"localFiles"`
+	AnimeMetadata *metadata.AnimeMetadata
+	Media         *anilist.BaseAnime
+	Progress      *int
+	Status        *anilist.MediaListStatus
+	// Empty download info object, will be used if the hook prevents the default behavior
+	EntryDownloadInfo *EntryDownloadInfo `json:"entryDownloadInfo"`
+}
+
+// AnimeEntryDownloadInfoEvent is triggered when the download info is being returned.
+type AnimeEntryDownloadInfoEvent struct {
+	hook_resolver.Event
+	EntryDownloadInfo *EntryDownloadInfo `json:"entryDownloadInfo"`
+}
+
+/////////////////////////////////////
+
+// AnimeEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.
+// Prevent default to skip the default behavior and return your own data.
+type AnimeEpisodeCollectionRequestedEvent struct {
+	hook_resolver.Event
+	Media    *anilist.BaseAnime      `json:"media"`
+	Metadata *metadata.AnimeMetadata `json:"metadata"`
+	// Empty episode collection object, will be used if the hook prevents the default behavior
+	EpisodeCollection *EpisodeCollection `json:"episodeCollection"`
+}
+
+// AnimeEpisodeCollectionEvent is triggered when the episode collection is being returned.
+type AnimeEpisodeCollectionEvent struct {
+	hook_resolver.Event
+	EpisodeCollection *EpisodeCollection `json:"episodeCollection"`
 }

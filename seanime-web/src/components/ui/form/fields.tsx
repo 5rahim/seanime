@@ -1,6 +1,7 @@
 "use client"
 
 import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
+import { MediaExclusionSelector, MediaExclusionSelectorProps } from "@/components/shared/media-exclusion-selector"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -10,7 +11,6 @@ import { HexColorPicker } from "react-colorful"
 import { Controller, FormState, get, useController, useFormContext } from "react-hook-form"
 import { BiPlus, BiTrash } from "react-icons/bi"
 import { useUpdateEffect } from "react-use"
-import { AddressInput, AddressInputProps } from "../address-input"
 import { Autocomplete, AutocompleteProps } from "../autocomplete"
 import { BasicFieldOptions } from "../basic-field"
 import { Checkbox, CheckboxGroup, CheckboxGroupProps, CheckboxProps } from "../checkbox"
@@ -89,7 +89,7 @@ export function withControlledInput<T extends FieldBaseProps>(InputComponent: Re
                             onChange={callAllHandlers(inputProps.onChange, field.onChange)} // Default prop, can be overridden in Field component
                             onBlur={callAllHandlers(inputProps.onBlur, field.onBlur)} // Default prop, can be overridden in Field component
                             // required={required}
-                            {...inputProps} // Props passed in <FieldComponent /> then props passed in <Field.Component />
+                            {...inputProps as any} // Props passed in <FieldComponent /> then props passed in <Field.Component />
                             // The props below will not be overridden.
                             // e.g: <Field.ComponentField error="Error" /> will not work
                             error={getFormError(field.name, formState)?.message}
@@ -110,7 +110,7 @@ const withUncontrolledInput = <T extends FieldBaseProps>(InputComponent: React.F
 
             return (
                 <InputComponent
-                    {...props}
+                    {...props as any}
                     onChange={callAllHandlers(props.onChange, field.onChange)}
                     onBlur={callAllHandlers(props.onBlur, field.onBlur)}
                     error={getFormError(props.name, formState)?.message}
@@ -373,16 +373,6 @@ const AutocompleteField = React.memo(withControlledInput(forwardRef<HTMLInputEle
     },
 )))
 
-const AddressInputField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<AddressInputProps>>(
-    ({ onChange, ...props }, ref) => {
-        return <AddressInput
-            {...props}
-            onValueChange={onChange}
-            ref={ref}
-        />
-    },
-)))
-
 const SimpleDropzoneField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<SimpleDropzoneProps>>(
     ({ onChange, value, ...props }, ref) => {
 
@@ -489,6 +479,16 @@ const MultiDirectorySelectorField = React.memo(withControlledInput(forwardRef<HT
     },
 )))
 
+const MediaExclusionSelectorField = React.memo(withControlledInput(forwardRef<HTMLDivElement, FieldComponent<MediaExclusionSelectorProps>>(
+    ({ onChange, ...props }, ref) => {
+        return <MediaExclusionSelector
+            {...props}
+            onChange={onChange}
+            ref={ref}
+        />
+    },
+)))
+
 export const Field = createPolymorphicComponent<"div", FieldProps, {
     Text: typeof TextInputField,
     Textarea: typeof TextareaField,
@@ -504,12 +504,12 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     DateRangePicker: typeof DateRangePickerField
     Combobox: typeof ComboboxField
     Autocomplete: typeof AutocompleteField
-    Address: typeof AddressInputField
     SimpleDropzone: typeof SimpleDropzoneField
     DirectorySelector: typeof DirectorySelectorField
     MultiDirectorySelector: typeof MultiDirectorySelectorField
     RadioCards: typeof RadioCardsField
     ColorPicker: typeof ColorPickerField
+    MediaExclusionSelector: typeof MediaExclusionSelectorField
     Submit: typeof SubmitField
 }>({
     Text: TextInputField,
@@ -526,12 +526,12 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     DateRangePicker: DateRangePickerField,
     Combobox: ComboboxField,
     Autocomplete: AutocompleteField,
-    Address: AddressInputField,
     SimpleDropzone: SimpleDropzoneField,
     DirectorySelector: DirectorySelectorField,
     MultiDirectorySelector: MultiDirectorySelectorField,
     ColorPicker: ColorPickerField,
     RadioCards: RadioCardsField,
+    MediaExclusionSelector: MediaExclusionSelectorField,
     Submit: SubmitField,
 })
 

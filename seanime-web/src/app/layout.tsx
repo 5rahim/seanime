@@ -1,5 +1,7 @@
+import { ElectronManager } from "@/app/(main)/_electron/electron-manager"
 import { TauriManager } from "@/app/(main)/_tauri/tauri-manager"
 import { ClientProviders } from "@/app/client-providers"
+import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -14,6 +16,21 @@ export const metadata: Metadata = {
     description: "Self-hosted, user-friendly media server for anime and manga.",
     icons: {
         icon: "/icons/favicon.ico",
+        apple: "/icons/apple-icon.png",
+    },
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "black-translucent",
+        title: "Seanime",
+    },
+    formatDetection: {
+        telephone: false,
+    },
+    other: {
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "black-translucent",
+        "apple-mobile-web-app-title": "Seanime",
     },
 }
 
@@ -22,13 +39,14 @@ export default function RootLayout({ children }: {
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-        {/*<head>*/}
-        {/*    {process.env.NODE_ENV === "development" && <script src="https://unpkg.com/react-scan/dist/auto.global.js" async></script>}*/}
-        {/*</head>*/}
+        {/* {process.env.NODE_ENV === "development" && <head>
+            <script src="https://unpkg.com/react-scan/dist/auto.global.js" async></script>
+         </head>} */}
         <body className={inter.className} suppressHydrationWarning>
-        {/*{process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>}*/}
+        {/* {process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>} */}
         <ClientProviders>
-            {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <TauriManager />}
+            {__isTauriDesktop__ && <TauriManager />}
+            {__isElectronDesktop__ && <ElectronManager />}
             {children}
         </ClientProviders>
         </body>

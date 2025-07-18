@@ -142,12 +142,12 @@ export function useGetAnilistStudioDetails(id: number) {
     })
 }
 
-export function useGetAniListStats() {
+export function useGetAniListStats(enabled: boolean = true) {
     return useServerQuery<AL_Stats>({
         endpoint: API_ENDPOINTS.ANILIST.GetAniListStats.endpoint,
         method: API_ENDPOINTS.ANILIST.GetAniListStats.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.GetAniListStats.key],
-        enabled: true,
+        enabled: enabled,
     })
 }
 

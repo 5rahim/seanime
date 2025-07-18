@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_bindings"
@@ -79,7 +80,7 @@ func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {
 		}
 
 		// Get the user's anilist collection
-		animeCollection, err := anilistPlatform.GetAnimeCollection(false)
+		animeCollection, err := anilistPlatform.GetAnimeCollection(context.Background(), false)
 		if err != nil {
 			_ = reject(m.vm.ToValue(err.Error()))
 			return
@@ -91,7 +92,7 @@ func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {
 		}
 
 		// Create a new media entry
-		entry, err := anime.NewEntry(&anime.NewEntryOptions{
+		entry, err := anime.NewEntry(context.Background(), &anime.NewEntryOptions{
 			MediaId:          int(mediaId),
 			LocalFiles:       lfs,
 			AnimeCollection:  animeCollection,

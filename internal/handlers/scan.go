@@ -78,7 +78,7 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 	}
 
 	// Scan the library
-	allLfs, err := sc.Scan()
+	allLfs, err := sc.Scan(c.Request().Context())
 	if err != nil {
 		if errors.Is(err, scanner.ErrNoLocalFiles) {
 			return h.RespondWithData(c, []interface{}{})

@@ -30,6 +30,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { __isDesktop__ } from "@/types/constants"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
@@ -270,15 +271,15 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 "w-full inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             )}
             hideCloseButton
-            mangaReader
+            borderToBorder
         >
 
             <div
                 data-chapter-reader-drawer-progress-container
                 className={cn(
                     "fixed left-0 w-full z-[6] opacity-0 transition-opacity hidden duration-500",
-                    process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-0 justify-center",
-                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && cn(
+                    !__isDesktop__ && "top-0 justify-center",
+                    __isDesktop__ && cn(
                         "bottom-12",
                         hiddenBar && "bottom-0 justify-left",
                     ),
@@ -289,8 +290,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 <Button
                     onClick={() => handleUpdateProgress()}
                     className={cn(
-                        process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "rounded-tl-none rounded-tr-none",
-                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "rounded-bl-none rounded-br-none rounded-tl-none",
+                        !__isDesktop__ && "rounded-tl-none rounded-tr-none",
+                        __isDesktop__ && "rounded-bl-none rounded-br-none rounded-tl-none",
                     )}
                     size="md"
                     intent="success"

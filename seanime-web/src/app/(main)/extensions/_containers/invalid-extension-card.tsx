@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
-import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
 import { BiCog, BiInfoCircle } from "react-icons/bi"
@@ -147,10 +146,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                         {extension.extension?.lang?.toUpperCase?.()}
                     </Badge>}
                     <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {extension.extension?.author ?? "Unknown author"}
-                    </Badge>
-                    <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {capitalize(extension.extension?.author ?? "?")}
+                        {extension.extension?.author ?? "-"}
                     </Badge>
                 </div>
 
@@ -304,10 +300,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         {extension.extension?.lang?.toUpperCase?.()}
                     </Badge>}
                     <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {extension.extension?.author ?? "Unknown author"}
-                    </Badge>
-                    <Badge className="rounded-[--radius-md]" intent="unstyled">
-                        {capitalize(extension.extension?.author ?? "?")}
+                        {extension.extension?.author ?? "-"}
                     </Badge>
                 </div>
 

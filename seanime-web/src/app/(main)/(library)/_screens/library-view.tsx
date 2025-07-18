@@ -8,9 +8,9 @@ import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
+import { AnimatePresence } from "motion/react"
 import React from "react"
 
 
@@ -21,6 +21,7 @@ type LibraryViewProps = {
     continueWatchingList: Anime_Episode[]
     isLoading: boolean
     hasEntries: boolean
+    streamingMediaIds: number[]
 }
 
 export function LibraryView(props: LibraryViewProps) {
@@ -32,6 +33,7 @@ export function LibraryView(props: LibraryViewProps) {
         filteredCollectionList,
         isLoading,
         hasEntries,
+        streamingMediaIds,
         ...rest
     } = props
 
@@ -83,11 +85,13 @@ export function LibraryView(props: LibraryViewProps) {
                             key="library-collection-lists"
                             collectionList={collectionList}
                             isLoading={isLoading}
+                            streamingMediaIds={streamingMediaIds}
                         />
                         : <LibraryCollectionFilteredLists
                             key="library-filtered-lists"
                             collectionList={filteredCollectionList}
                             isLoading={isLoading}
+                            streamingMediaIds={streamingMediaIds}
                         />
                     }
                 </AnimatePresence>

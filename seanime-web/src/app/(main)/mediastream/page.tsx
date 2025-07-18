@@ -273,6 +273,7 @@ export default function Page() {
                                     onPlayFile(episode.localFile?.path || "")
                                 }
                             }}
+                            description={episode?.episodeMetadata?.summary || episode?.episodeMetadata?.overview}
                             isWatched={!!progress && progress >= episode?.progressNumber}
                             isFiller={episode.episodeMetadata?.isFiller}
                             isSelected={episode.localFile?.path === filePath}

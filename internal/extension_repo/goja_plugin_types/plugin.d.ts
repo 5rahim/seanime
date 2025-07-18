@@ -248,6 +248,7 @@ declare namespace $ui {
         stack: StackComponentFunction
         text: TextComponentFunction
         button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
         input: InputComponentFunction
         select: SelectComponentFunction
         checkbox: CheckboxComponentFunction
@@ -591,6 +592,7 @@ declare namespace $ui {
         stack: StackComponentFunction
         text: TextComponentFunction
         button: ButtonComponentFunction
+        anchor: AnchorComponentFunction
 
         /** Sets the items in the command palette */
         setItems(items: CommandPaletteItem[]): void
@@ -711,6 +713,20 @@ declare namespace $ui {
         } & ComponentProps): void
         (label: string,
             props?: { onClick?: string, intent?: Intent, disabled?: boolean, loading?: boolean, size?: "xs" | "sm" | "md" | "lg" } & ComponentProps,
+        ): void
+    }
+    /**
+     * @default target="_blank"
+     */
+    type AnchorComponentFunction = {
+        (props: {
+            text: string,
+            href: string,
+            target?: string,
+            onClick?: string
+        } & ComponentProps): void
+        (text: string,
+            props: { href: string, target?: string, onClick?: string } & ComponentProps,
         ): void
     }
     /**
@@ -1003,6 +1019,17 @@ declare namespace $ui {
         observe(selector: string, callback: (elements: DOMElement[]) => void, opts?: DOMQueryElementOptions): [() => void, () => void]
 
         /**
+         * Observes changes to the DOM in the viewport
+         * @param selector - The selector to observe
+         * @param callback - The callback to call when the DOM changes
+         * @returns A tuple containing a function to stop observing the DOM and a function to refetch observed elements
+         */
+        observeInView(selector: string,
+            callback: (elements: DOMElement[]) => void,
+            opts?: DOMQueryElementOptions & { margin?: string },
+        ): [() => void, () => void]
+
+        /**
          * Creates a new DOM element
          * @param tagName - The tag name of the element
          * @returns A promise that resolves to a DOM element
@@ -1156,7 +1183,7 @@ declare namespace $ui {
          * @returns The watch history item
          * @throws Error if something goes wrong
          */
-        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem
+        getWatchHistoryItem(mediaId: number): $app.Continuity_WatchHistoryItem | undefined
     }
 
     interface AutoScanner {

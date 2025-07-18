@@ -19,6 +19,7 @@ import {
     useThemeSettings,
 } from "@/lib/theme/hooks"
 import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
+import { __isDesktop__ } from "@/types/constants"
 import { colord } from "colord"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -68,6 +69,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     hideDownloadedEpisodeCardFilename: z.boolean().default(THEME_DEFAULT_VALUES.hideDownloadedEpisodeCardFilename),
     customCSS: z.string().default(THEME_DEFAULT_VALUES.customCSS),
     mobileCustomCSS: z.string().default(THEME_DEFAULT_VALUES.mobileCustomCSS),
+    unpinnedMenuItems: z.array(z.string()).default(THEME_DEFAULT_VALUES.unpinnedMenuItems),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -263,6 +265,7 @@ export function UISettings() {
                 hideDownloadedEpisodeCardFilename: themeSettings?.hideDownloadedEpisodeCardFilename,
                 customCSS: themeSettings?.customCSS,
                 mobileCustomCSS: themeSettings?.mobileCustomCSS,
+                unpinnedMenuItems: themeSettings?.unpinnedMenuItems ?? [],
             }}
             stackClass="space-y-4 relative"
         >
@@ -511,13 +514,77 @@ export function UISettings() {
                                     name="disableSidebarTransparency"
                                 />
 
+                                <Field.Combobox
+                                    label="Unpinned menu items"
+                                    name="unpinnedMenuItems"
+                                    emptyMessage="No items selected"
+                                    multiple
+                                    options={[
+                                        {
+                                            label: "Library",
+                                            textValue: "Library",
+                                            value: "library",
+                                        },
+                                        {
+                                            label: "Schedule",
+                                            textValue: "Schedule",
+                                            value: "schedule",
+                                        },
+                                        {
+                                            label: "Manga",
+                                            textValue: "Manga",
+                                            value: "manga",
+                                        },
+                                        {
+                                            label: "Discover",
+                                            textValue: "Discover",
+                                            value: "discover",
+                                        },
+                                        {
+                                            label: "AniList",
+                                            textValue: "AniList",
+                                            value: "anilist",
+                                        },
+                                        {
+                                            label: "Nakama",
+                                            textValue: "Nakama",
+                                            value: "nakama",
+                                        },
+                                        {
+                                            label: "Auto Downloader",
+                                            textValue: "Auto Downloader",
+                                            value: "auto-downloader",
+                                        },
+                                        {
+                                            label: "Torrent list",
+                                            textValue: "Torrent list",
+                                            value: "torrent-list",
+                                        },
+                                        {
+                                            label: "Debrid",
+                                            textValue: "Debrid",
+                                            value: "debrid",
+                                        },
+                                        {
+                                            label: "Scan summaries",
+                                            textValue: "Scan summaries",
+                                            value: "scan-summaries",
+                                        },
+                                        {
+                                            label: "Search",
+                                            textValue: "Search",
+                                            value: "search",
+                                        },
+                                    ]}
+                                />
+
                             </SettingsCard>
 
                             <SettingsCard title="Navbar">
 
                                 <Field.Switch
                                     side="right"
-                                    label={process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? "Hide top navbar (Web interface)" : "Hide top navbar"}
+                                    label={__isDesktop__ ? "Hide top navbar (Web interface)" : "Hide top navbar"}
                                     name="hideTopNavbar"
                                     help="Switches to sidebar-only mode."
                                 />

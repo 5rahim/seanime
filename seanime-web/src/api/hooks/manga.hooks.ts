@@ -96,6 +96,7 @@ export function useGetMangaEntryChapters(variables: Partial<GetMangaEntryChapter
         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key, String(variables.mediaId), variables.provider],
         data: variables as GetMangaEntryChapters_Variables,
         enabled: !!variables.mediaId && !!variables.provider,
+        muteError: true,
     })
 }
 

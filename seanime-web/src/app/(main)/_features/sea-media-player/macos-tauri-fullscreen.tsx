@@ -1,3 +1,4 @@
+import { __isDesktop__ } from "@/types/constants"
 import { MediaEnterFullscreenRequestEvent, MediaFullscreenRequestTarget, MediaPlayerInstance } from "@vidstack/react"
 import React from "react"
 
@@ -28,7 +29,7 @@ export function useFullscreenHandler(playerRef: React.RefObject<MediaPlayerInsta
     }, [])
 
     function onMediaEnterFullscreenRequest(detail: MediaFullscreenRequestTarget, nativeEvent: MediaEnterFullscreenRequestEvent) {
-        if (process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
+        if (__isDesktop__) {
             try {
                 if ((window as any)?.__TAURI__) {
                     const platform: string | undefined = (window as any)?.__TAURI__?.os?.platform?.()

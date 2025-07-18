@@ -37,18 +37,26 @@ export function useExternalPlayerLinkListener() {
             logger("EXTERNAL_PLAYER_LINK").info("External player URL", url)
             openTab(url)
 
-            logger("EXTERNAL_PLAYER_LINK").info("Starting manual tracking", {
-                mediaId: data.mediaId,
-                episodeNumber: data.episodeNumber,
-                clientId: clientId || "",
-            })
+            if (data.mediaId != 0) {
+                logger("EXTERNAL_PLAYER_LINK").info("Starting manual tracking", {
+                    mediaId: data.mediaId,
+                    episodeNumber: data.episodeNumber,
+                    clientId: clientId || "",
+                })
 
-            // Get the server to start asking the progress
-            startManualTracking({
-                mediaId: data.mediaId,
-                episodeNumber: data.episodeNumber,
-                clientId: clientId || "",
-            })
+                // Get the server to start asking the progress
+                startManualTracking({
+                    mediaId: data.mediaId,
+                    episodeNumber: data.episodeNumber,
+                    clientId: clientId || "",
+                })
+            } else {
+                logger("EXTERNAL_PLAYER_LINK").info("No manual tracking", {
+                    url: data.url,
+                    mediaId: data.mediaId,
+                    episodeNumber: data.episodeNumber,
+                })
+            }
         },
     })
 

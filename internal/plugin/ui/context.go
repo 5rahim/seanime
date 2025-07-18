@@ -19,6 +19,22 @@ import (
 	"github.com/samber/mo"
 )
 
+// Constants for event batching
+const (
+	maxEventBatchSize       = 20 // Maximum number of events in a batch
+	eventBatchFlushInterval = 10 // Flush interval in milliseconds
+)
+
+// BatchedPluginEvents represents a collection of plugin events to be sent together
+type BatchedPluginEvents struct {
+	Events []*ServerPluginEvent `json:"events"`
+}
+
+// BatchedEvents represents a collection of events to be sent together
+type BatchedEvents struct {
+	Events []events.WebsocketClientEvent `json:"events"`
+}
+
 // Context manages the entire plugin UI during its lifecycle
 type Context struct {
 	ui *UI
@@ -47,6 +63,12 @@ type Context struct {
 	updateBatchMu       sync.Mutex
 	pendingStateUpdates map[string]struct{} // Set of state IDs with pending updates
 	updateBatchTimer    *time.Timer         // Timer for flushing batched updates
+
+	// Event batching system
+	eventBatchMu        sync.Mutex
+	pendingClientEvents []*ServerPluginEvent // Queue of pending events to send to client
+	eventBatchTimer     *time.Timer          // Timer for flushing batched events
+	eventBatchSize      int                  // Current size of the event batch
 
 	// UI update rate limiting
 	lastUIUpdateAt time.Time
@@ -103,6 +125,8 @@ func NewContext(ui *UI) *Context {
 		onCleanupFns:                  result.NewResultMap[int64, func()](),
 		cron:                          mo.None[*plugin.Cron](),
 		registeredInlineEventHandlers: result.NewResultMap[string, *EventListener](),
+		pendingClientEvents:           make([]*ServerPluginEvent, 0, maxEventBatchSize),
+		eventBatchSize:                0,
 	}
 
 	ret.scheduler = ui.scheduler
@@ -118,6 +142,12 @@ func NewContext(ui *UI) *Context {
 	ret.commandPaletteManager = NewCommandPaletteManager(ret)
 	ret.domManager = NewDOMManager(ret)
 	ret.notificationManager = NewNotificationManager(ret)
+
+	// Initialize the event batch timer
+	ret.eventBatchTimer = time.AfterFunc(eventBatchFlushInterval*time.Millisecond, func() {
+		ret.flushEventBatch()
+	})
+	ret.eventBatchTimer.Stop()
 
 	return ret
 }
@@ -344,11 +374,7 @@ func (e *EventListener) processEvents() {
 // SendEventToClient sends an event to the client
 // It always passes the extension ID
 func (c *Context) SendEventToClient(eventType ServerEventType, payload interface{}) {
-	c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
-		ExtensionID: c.ext.ID,
-		Type:        eventType,
-		Payload:     payload,
-	})
+	c.queueEventToClient("", eventType, payload)
 }
 
 // SendEventToClientWithClientID sends an event to the client with a specific client ID
@@ -1050,14 +1076,13 @@ func (c *Context) triggerUIUpdate() {
 	}
 }
 
-// Cleanup stops the update batch timer and performs any necessary cleanup
+// Cleanup is called when the UI is being unloaded
 func (c *Context) Cleanup() {
-	if c.updateBatchTimer != nil {
-		c.updateBatchTimer.Stop()
-	}
-
-	// Flush any remaining updates
+	// Flush any pending state updates
 	c.flushStateUpdates()
+
+	// Flush any pending events
+	c.flushEventBatch()
 }
 
 // Stop is called when the UI is being unloaded
@@ -1067,6 +1092,11 @@ func (c *Context) Stop() {
 	if c.updateBatchTimer != nil {
 		c.logger.Trace().Msg("plugin: Stopping update batch timer")
 		c.updateBatchTimer.Stop()
+	}
+
+	if c.eventBatchTimer != nil {
+		c.logger.Trace().Msg("plugin: Stopping event batch timer")
+		c.eventBatchTimer.Stop()
 	}
 
 	// Stop the scheduler
@@ -1135,4 +1165,79 @@ func (c *Context) Stop() {
 	c.actionManager.renderAnimePageButtons()
 
 	c.logger.Debug().Msg("plugin: Stopped context")
+}
+
+// queueEventToClient adds an event to the batch queue for sending to the client
+func (c *Context) queueEventToClient(clientID string, eventType ServerEventType, payload interface{}) {
+	c.eventBatchMu.Lock()
+	defer c.eventBatchMu.Unlock()
+
+	// Create the plugin event
+	event := &ServerPluginEvent{
+		ExtensionID: c.ext.ID,
+		Type:        eventType,
+		Payload:     payload,
+	}
+
+	// Add to pending events
+	c.pendingClientEvents = append(c.pendingClientEvents, event)
+	c.eventBatchSize++
+
+	// If this is the first event, start the timer
+	if c.eventBatchSize == 1 {
+		c.eventBatchTimer.Reset(eventBatchFlushInterval * time.Millisecond)
+	}
+
+	// If we've reached max batch size, flush immediately
+	if c.eventBatchSize >= maxEventBatchSize {
+		// Use goroutine to avoid deadlock since we're already holding the lock
+		go c.flushEventBatch()
+	}
+}
+
+// flushEventBatch sends all pending events as a batch to the client
+func (c *Context) flushEventBatch() {
+	c.eventBatchMu.Lock()
+
+	// If there are no events, just unlock and return
+	if c.eventBatchSize == 0 {
+		c.eventBatchMu.Unlock()
+		return
+	}
+
+	// Stop the timer
+	c.eventBatchTimer.Stop()
+
+	// Create a copy of the pending events
+	allEvents := make([]*ServerPluginEvent, len(c.pendingClientEvents))
+	copy(allEvents, c.pendingClientEvents)
+
+	// Clear the pending events
+	c.pendingClientEvents = c.pendingClientEvents[:0]
+	c.eventBatchSize = 0
+
+	c.eventBatchMu.Unlock()
+
+	// If only one event, send it directly to maintain compatibility with current system
+	if len(allEvents) == 1 {
+		// c.wsEventManager.SendEvent("plugin", allEvents[0])
+		c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
+			ExtensionID: c.ext.ID,
+			Type:        allEvents[0].Type,
+			Payload:     allEvents[0].Payload,
+		})
+		return
+	}
+
+	// Send events as a batch
+	batchPayload := &BatchedPluginEvents{
+		Events: allEvents,
+	}
+
+	// Send the batch
+	c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
+		ExtensionID: c.ext.ID,
+		Type:        "plugin:batch-events",
+		Payload:     batchPayload,
+	})
 }

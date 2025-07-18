@@ -167,12 +167,6 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
                     </AppLayoutStack>
                 )}
-
-                {/*<div className="flex w-full justify-end gap-2">*/}
-
-                {/*    */}
-
-                {/*</div>*/}
             </AppLayoutStack>
         </Modal>
     )

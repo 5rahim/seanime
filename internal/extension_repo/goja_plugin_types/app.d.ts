@@ -1,6 +1,43 @@
 declare namespace $app {
 
     /**
+     * @package anilist
+     */
+
+    /**
+     * @event ListMissedSequelsRequestedEvent
+     * @file internal/api/anilist/hook_events.go
+     * @description
+     * ListMissedSequelsRequestedEvent is triggered when the list missed sequels request is requested.
+     * Prevent default to skip the default behavior and return your own data.
+     */
+    function onListMissedSequelsRequested(cb: (event: ListMissedSequelsRequestedEvent) => void): void;
+
+    interface ListMissedSequelsRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        animeCollectionWithRelations?: AL_AnimeCollectionWithRelations;
+        variables?: Record<string, any>;
+        query: string;
+        list?: Array<AL_BaseAnime>;
+    }
+
+    /**
+     * @event ListMissedSequelsEvent
+     * @file internal/api/anilist/hook_events.go
+     */
+    function onListMissedSequels(cb: (event: ListMissedSequelsEvent) => void): void;
+
+    interface ListMissedSequelsEvent {
+        next(): void;
+
+        list?: Array<AL_BaseAnime>;
+    }
+
+
+    /**
      * @package anilist_platform
      */
 
@@ -425,7 +462,7 @@ declare namespace $app {
      * @event AnimeLibraryCollectionEvent
      * @file internal/library/anime/hook_events.go
      * @description
-     * AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+     * AnimeLibraryCollectionEvent is triggered when the user requests the library collection.
      */
     function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void): void;
 
@@ -463,6 +500,111 @@ declare namespace $app {
         next(): void;
 
         streamCollection?: Anime_StreamCollection;
+    }
+
+    /**
+     * @event AnimeEntryDownloadInfoRequestedEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEntryDownloadInfoRequestedEvent is triggered when the app requests the download info for a media entry.
+     * This is triggered before [AnimeEntryDownloadInfoEvent].
+     */
+    function onAnimeEntryDownloadInfoRequested(cb: (event: AnimeEntryDownloadInfoRequestedEvent) => void): void;
+
+    interface AnimeEntryDownloadInfoRequestedEvent {
+        next(): void;
+
+        localFiles?: Array<Anime_LocalFile>;
+        AnimeMetadata?: Metadata_AnimeMetadata;
+        Media?: AL_BaseAnime;
+        Progress?: number;
+        Status?: AL_MediaListStatus;
+        entryDownloadInfo?: Anime_EntryDownloadInfo;
+    }
+
+    /**
+     * @event AnimeEntryDownloadInfoEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEntryDownloadInfoEvent is triggered when the download info is being returned.
+     */
+    function onAnimeEntryDownloadInfo(cb: (event: AnimeEntryDownloadInfoEvent) => void): void;
+
+    interface AnimeEntryDownloadInfoEvent {
+        next(): void;
+
+        entryDownloadInfo?: Anime_EntryDownloadInfo;
+    }
+
+    /**
+     * @event AnimeEpisodeCollectionRequestedEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEpisodeCollectionRequestedEvent is triggered when the episode collection is being requested.
+     * Prevent default to skip the default behavior and return your own data.
+     */
+    function onAnimeEpisodeCollectionRequested(cb: (event: AnimeEpisodeCollectionRequestedEvent) => void): void;
+
+    interface AnimeEpisodeCollectionRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        media?: AL_BaseAnime;
+        metadata?: Metadata_AnimeMetadata;
+        episodeCollection?: Anime_EpisodeCollection;
+    }
+
+    /**
+     * @event AnimeEpisodeCollectionEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeEpisodeCollectionEvent is triggered when the episode collection is being returned.
+     */
+    function onAnimeEpisodeCollection(cb: (event: AnimeEpisodeCollectionEvent) => void): void;
+
+    interface AnimeEpisodeCollectionEvent {
+        next(): void;
+
+        episodeCollection?: Anime_EpisodeCollection;
+    }
+
+
+    /**
+     * @package anizip
+     */
+
+    /**
+     * @event AnizipMediaRequestedEvent
+     * @file internal/api/anizip/hook_events.go
+     * @description
+     * AnizipMediaRequestedEvent is triggered when the AniZip media is requested.
+     * Prevent default to skip the default behavior and return your own data.
+     */
+    function onAnizipMediaRequested(cb: (event: AnizipMediaRequestedEvent) => void): void;
+
+    interface AnizipMediaRequestedEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        from: string;
+        id: number;
+        media?: Anizip_Media;
+    }
+
+    /**
+     * @event AnizipMediaEvent
+     * @file internal/api/anizip/hook_events.go
+     * @description
+     * AnizipMediaEvent is triggered after processing AnizipMedia.
+     */
+    function onAnizipMedia(cb: (event: AnizipMediaEvent) => void): void;
+
+    interface AnizipMediaEvent {
+        next(): void;
+
+        media?: Anizip_Media;
     }
 
 
@@ -581,8 +723,7 @@ declare namespace $app {
      * @file internal/continuity/hook_events.go
      * @description
      * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
-     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
-     *     or set it to nil to indicate that the watch history item was not found.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
      */
     function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void): void;
 
@@ -729,10 +870,10 @@ declare namespace $app {
      * @event DiscordPresenceAnimeActivityRequestedEvent
      * @file internal/discordrpc/presence/hook_events.go
      * @description
-     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right
-     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
-     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
-     *     stop the activity from being sent to discord.
+     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right before the activity is sent to queue.
+     * There is no guarantee as to when or if the activity will be successfully sent to discord.
+     * Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.
+     * Prevent default to stop the activity from being sent to discord.
      */
     function onDiscordPresenceAnimeActivityRequested(cb: (event: DiscordPresenceAnimeActivityRequestedEvent) => void): void;
 
@@ -742,6 +883,7 @@ declare namespace $app {
         preventDefault(): void;
 
         animeActivity?: DiscordRPC_AnimeActivity;
+        name: string;
         details: string;
         state: string;
         startTimestamp?: number;
@@ -759,10 +901,10 @@ declare namespace $app {
      * @event DiscordPresenceMangaActivityRequestedEvent
      * @file internal/discordrpc/presence/hook_events.go
      * @description
-     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right
-     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
-     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
-     *     stop the activity from being sent to discord.
+     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right before the activity is sent to queue.
+     * There is no guarantee as to when or if the activity will be successfully sent to discord.
+     * Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.
+     * Prevent default to stop the activity from being sent to discord.
      */
     function onDiscordPresenceMangaActivityRequested(cb: (event: DiscordPresenceMangaActivityRequestedEvent) => void): void;
 
@@ -772,6 +914,7 @@ declare namespace $app {
         preventDefault(): void;
 
         mangaActivity?: DiscordRPC_MangaActivity;
+        name: string;
         details: string;
         state: string;
         startTimestamp?: number;
@@ -1078,9 +1221,9 @@ declare namespace $app {
      * @file internal/api/metadata/hook_events.go
      * @description
      * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
-     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
-     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
-     *     metadata is nil, an empty EpisodeMetadata object will be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
+     * This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
+     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
      */
     function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void): void;
 
@@ -1158,8 +1301,8 @@ declare namespace $app {
      * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
      * This event is triggered right after the media player loads an episode.
      * The playback manager uses the local files details to track the progress, propose next episodes, etc.
-     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
-     *     and anime list entry. Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
+     * Prevent default to skip the default fetching and override the details.
      */
     function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void): void;
 
@@ -1181,8 +1324,7 @@ declare namespace $app {
      * @description
      * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
      * Prevent default to skip the default fetching and override the details.
-     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
-     *     still tracked.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
      */
     function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void): void;
 
@@ -2581,6 +2723,7 @@ declare namespace $app {
         localFiles?: Array<Anime_LocalFile>;
         anidbId: number;
         currentEpisodeCount: number;
+        _isNakamaEntry: boolean;
     }
 
     /**
@@ -2671,6 +2814,16 @@ declare namespace $app {
          */
         metadataIssue?: string;
         baseAnime?: AL_BaseAnime;
+        _isNakamaEpisode: boolean;
+    }
+
+    /**
+     * - Filepath: internal/library/anime/episode_collection.go
+     */
+    interface Anime_EpisodeCollection {
+        hasMappingError: boolean;
+        episodes?: Array<Anime_Episode>;
+        metadata?: Metadata_AnimeMetadata;
     }
 
     /**
@@ -2860,6 +3013,55 @@ declare namespace $app {
     }
 
     /**
+     * - Filepath: internal/api/anizip/anizip.go
+     */
+    interface Anizip_Episode {
+        tvdbEid?: number;
+        airdate?: string;
+        seasonNumber?: number;
+        episodeNumber?: number;
+        absoluteEpisodeNumber?: number;
+        title?: Record<string, string>;
+        image?: string;
+        summary?: string;
+        overview?: string;
+        runtime?: number;
+        length?: number;
+        episode?: string;
+        anidbEid?: number;
+        rating?: string;
+    }
+
+    /**
+     * - Filepath: internal/api/anizip/anizip.go
+     */
+    interface Anizip_Mappings {
+        animeplanet_id?: string;
+        kitsu_id?: number;
+        mal_id?: number;
+        type?: string;
+        anilist_id?: number;
+        anisearch_id?: number;
+        anidb_id?: number;
+        notifymoe_id?: string;
+        livechart_id?: number;
+        thetvdb_id?: number;
+        imdb_id?: string;
+        themoviedb_id?: string;
+    }
+
+    /**
+     * - Filepath: internal/api/anizip/anizip.go
+     */
+    interface Anizip_Media {
+        titles?: Record<string, string>;
+        episodes?: Record<string, Anizip_Episode>;
+        episodeCount: number;
+        specialCount: number;
+        mappings?: Anizip_Mappings;
+    }
+
+    /**
      * - Filepath: internal/library/autodownloader/autodownloader_torrent.go
      */
     interface AutoDownloader_NormalizedTorrent {
@@ -2992,6 +3194,7 @@ declare namespace $app {
         language?: string;
         rating?: number;
         updatedAt?: string;
+        localIsPDF?: boolean;
     }
 
     /**

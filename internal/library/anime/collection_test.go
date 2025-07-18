@@ -21,7 +21,7 @@ func TestNewLibraryCollection(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
-	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 
 	if assert.NoError(t, err) {
 
@@ -77,7 +77,7 @@ func TestNewLibraryCollection(t *testing.T) {
 			}),
 		)...)
 
-		libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
+		libraryCollection, err := anime.NewLibraryCollection(t.Context(), &anime.NewLibraryCollectionOptions{
 			AnimeCollection:  animeCollection,
 			LocalFiles:       lfs,
 			Platform:         anilistPlatform,

@@ -15,6 +15,7 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/c
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -102,6 +103,7 @@ export function ChapterList(props: ChapterListProps) {
     const {
         isChapterQueued,
         isChapterDownloaded,
+        isChapterLocal,
     } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
 
     const { inject, remove } = useSeaCommandInject()
@@ -168,7 +170,7 @@ export function ChapterList(props: ChapterListProps) {
             cell: ({ row }) => {
                 return (
                     <div className="flex justify-end gap-2 items-center w-full">
-                        {(!isChapterDownloaded(row.original) && !isChapterQueued(row.original)) && <IconButton
+                        {(!isChapterLocal(row.original) && !isChapterDownloaded(row.original) && !isChapterQueued(row.original)) && <IconButton
                             intent="gray-basic"
                             size="sm"
                             disabled={isSendingDownloadRequest}
@@ -200,9 +202,9 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Set "showUnreadChapter" state if there are unread chapters
      */
-    React.useEffect(() => {
+    useUpdateEffect(() => {
         setShowUnreadChapter(!!unreadChapters.length)
-    }, [unreadChapters])
+    }, [unreadChapters?.length])
 
     /**
      * Filter chapters based on state
@@ -214,9 +216,8 @@ export function ChapterList(props: ChapterListProps) {
         }
         return d
     }, [
-        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData, selectedExtension,
+        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, downloadData, selectedExtension,
     ])
-
 
     const {
         rowSelectedChapters,
@@ -228,7 +229,7 @@ export function ChapterList(props: ChapterListProps) {
 
     React.useEffect(() => {
         resetRowSelection()
-    }, [chapters])
+    }, [])
 
     // Inject chapter list command
     React.useEffect(() => {
@@ -386,7 +387,7 @@ export function ChapterList(props: ChapterListProps) {
             )}
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
-                chapterContainerError ? <LuffyError title="Oops!"><p>No chapters found</p></LuffyError> : (
+                chapterContainerError ? <LuffyError title="No chapters found"><p>Try another source</p></LuffyError> : (
                     <>
 
                         {chapterContainer?.chapters?.length === 0 && (
@@ -427,13 +428,13 @@ export function ChapterList(props: ChapterListProps) {
                                             fieldClass="w-fit"
                                             {...primaryPillCheckboxClasses}
                                         />
-                                        <Checkbox
+                                        {selectedProvider !== "local-manga" && <Checkbox
                                             label={<span className="flex gap-2 items-center"><IoLibrary /> Show downloaded</span>}
                                             value={showDownloadedChapters}
                                             onValueChange={v => setShowDownloadedChapters(v as boolean)}
                                             fieldClass="w-fit"
                                             {...primaryPillCheckboxClasses}
-                                        />
+                                        />}
                                     </div>
 
                                     <ChapterListBulkActions
@@ -479,14 +480,15 @@ export function ChapterList(props: ChapterListProps) {
                             </>
                         )}
 
-                        {chapterContainer && <ChapterReaderDrawer
-                            entry={entry}
-                            chapterContainer={chapterContainer}
-                            chapterIdToNumbersMap={chapterIdToNumbersMap}
-                        />}
                     </>
                 )
             )}
+
+            {chapterContainer && <ChapterReaderDrawer
+                entry={entry}
+                chapterContainer={chapterContainer}
+                chapterIdToNumbersMap={chapterIdToNumbersMap}
+            />}
 
             <DownloadedChapterList
                 entry={entry}

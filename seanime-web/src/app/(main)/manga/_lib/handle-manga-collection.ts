@@ -5,6 +5,7 @@ import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, f
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { MangaEntryFilters, useStoredMangaFilters, useStoredMangaProviders } from "./handle-manga-selected-provider"
@@ -14,6 +15,8 @@ export const MANGA_LIBRARY_DEFAULT_PARAMS: CollectionParams<"manga"> = {
     sorting: "TITLE",
     unreadOnly: false,
 }
+
+export const __mangaLibrary_unreadOnlyAtom = atomWithStorage("sea-manga-library-unread-only", false, undefined, { getOnInit: true })
 
 export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams<"manga">>(MANGA_LIBRARY_DEFAULT_PARAMS)
 
@@ -63,13 +66,31 @@ export function useHandleMangaCollection() {
     }, [storedProviders, storedFilters, latestChapterNumbers])
 
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
+    const [unreadOnly, setUnreadOnly] = useAtom(__mangaLibrary_unreadOnlyAtom)
+
+    const mountedRef = React.useRef(false)
+    React.useEffect(() => {
+        if (mountedRef.current) return
+        setParams(draft => {
+            draft.unreadOnly = unreadOnly
+            return
+        })
+        setTimeout(() => {
+            mountedRef.current = true
+        }, 500)
+    }, [])
+
+    React.useEffect(() => {
+        setUnreadOnly(params.unreadOnly)
+    }, [params.unreadOnly])
 
     // Reset params when data changes
     React.useEffect(() => {
         if (!!data) {
-            setParams(MANGA_LIBRARY_DEFAULT_PARAMS)
+            const defaultParams = { ...MANGA_LIBRARY_DEFAULT_PARAMS, unreadOnly }
+            setParams(defaultParams)
         }
-    }, [data])
+    }, [data, unreadOnly])
 
     const genres = React.useMemo(() => {
         const genresSet = new Set<string>()
@@ -150,6 +171,7 @@ export function useHandleMangaCollection() {
 
     return {
         genres,
+        hasManga: !!data?.lists?.some(l => !!l.entries?.length),
         mangaCollection: sortedCollection,
         filteredMangaCollection: filteredCollection,
         mangaCollectionGenres: libraryGenres,

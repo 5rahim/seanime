@@ -2,6 +2,7 @@ package extension_playground
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"runtime"
 	"seanime/internal/api/anilist"
@@ -156,7 +157,7 @@ func (r *PlaygroundRepository) getAnime(mediaId int) (anime *anilist.BaseAnime, 
 	var ok bool
 	anime, ok = r.baseAnimeCache.Get(mediaId)
 	if !ok {
-		anime, err = r.platform.GetAnime(mediaId)
+		anime, err = r.platform.GetAnime(context.Background(), mediaId)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -171,7 +172,7 @@ func (r *PlaygroundRepository) getManga(mediaId int) (manga *anilist.BaseManga, 
 	var ok bool
 	manga, ok = r.baseMangaCache.Get(mediaId)
 	if !ok {
-		manga, err = r.platform.GetManga(mediaId)
+		manga, err = r.platform.GetManga(context.Background(), mediaId)
 		if err != nil {
 			return nil, err
 		}

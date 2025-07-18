@@ -18,7 +18,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	metadataProvider := metadata.GetMockProvider(t)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
 	}

@@ -159,6 +159,7 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("stack", t.componentManager.jsStack)
 	_ = trayObj.Set("text", t.componentManager.jsText)
 	_ = trayObj.Set("button", t.componentManager.jsButton)
+	_ = trayObj.Set("anchor", t.componentManager.jsAnchor)
 	_ = trayObj.Set("input", t.componentManager.jsInput)
 	_ = trayObj.Set("radioGroup", t.componentManager.jsRadioGroup)
 	_ = trayObj.Set("switch", t.componentManager.jsSwitch)

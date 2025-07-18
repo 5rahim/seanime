@@ -30,7 +30,10 @@ import { cn } from "@/components/ui/core/styling"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
+import { IoInformationCircle } from "react-icons/io5"
+import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { SiAnilist } from "react-icons/si"
+import { useNakamaStatus } from "../../_features/nakama/nakama-manager"
 import { PluginAnimePageButtons } from "../../_features/plugin/actions/plugin-actions"
 
 export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
@@ -50,6 +53,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
     const serverStatus = useServerStatus()
     const { entry, details } = props
     const ts = useThemeSettings()
+    const nakamaStatus = useNakamaStatus()
 
     if (!entry.media) return null
 
@@ -86,7 +90,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
             <div className="flex items-center gap-4 justify-center w-full lg:w-fit" data-anime-meta-section-action-buttons-inner-container>
                 <AnimeAutoDownloaderButton entry={entry} size="md" />
 
-                {!!entry.libraryData && <>
+                {!entry._isNakamaEntry && !!entry.libraryData && <>
                     <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="md" />
                     <AnimeEntrySilenceToggle mediaId={entry.mediaId} size="md" />
                     <ToggleLockFilesButton
@@ -95,7 +99,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         size="md"
                     />
                 </>}
-                <AnimeEntryDropdownMenu entry={entry} />
+                {!entry._isNakamaEntry && <AnimeEntryDropdownMenu entry={entry} />}
             </div>
 
             <PluginAnimePageButtons media={entry.media!} />
@@ -173,11 +177,18 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                             serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
                             || hasDebridService
                         )
+                        && !entry._isNakamaEntry
                     ) && (
                         <TorrentSearchButton
                             entry={entry}
                         />
                     )}
+
+                    {entry._isNakamaEntry && currentView === "library" &&
+                        <div className="flex items-center gap-2 h-10 px-4 border rounded-md flex-none">
+                        <MdOutlineConnectWithoutContact className="size-6 animate-pulse text-[--blue]" />
+                        <span className="text-sm tracking-wide">Shared by {nakamaStatus?.hostConnectionStatus?.username}</span>
+                    </div>}
 
                     <TorrentStreamButton
                         entry={entry}
@@ -209,12 +220,13 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 {(!entry.anidbId || entry.anidbId === 0) && (
                     <p
                         className={cn(
-                            "text-center text-red-300 opacity-50",
+                            "text-center text-gray-200 opacity-50 text-sm flex gap-1 items-center",
                             ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                         )}
                         data-anime-meta-section-no-metadata-message
                     >
-                        No metadata found on AniDB
+                        <IoInformationCircle />
+                        Episode metadata retrieval not available for this entry.
                     </p>
                 )}
 

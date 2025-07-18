@@ -136,13 +136,19 @@ func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (
 
 	go func() {
 		for event := range sub.Events() {
-			callback(event, false)
+			p.playback.scheduler.ScheduleAsync(func() error {
+				callback(event, false)
+				return nil
+			})
 		}
 	}()
 
 	go func() {
 		for range sub.Closed() {
-			callback(nil, true)
+			p.playback.scheduler.ScheduleAsync(func() error {
+				callback(nil, true)
+				return nil
+			})
 		}
 	}()
 
@@ -192,120 +198,103 @@ func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (f
 	subscriber := playbackManager.SubscribeToPlaybackStatus(id)
 
 	go func() {
-		for ret := range subscriber.VideoStartedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsVideoStarted: true,
-					StartedEvent: &struct {
-						Filename string `json:"filename"`
-					}{
-						Filename: ret,
-					},
+		for event := range subscriber.EventCh {
+			switch e := event.(type) {
+			case playbackmanager.PlaybackStatusChangedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						Status: &e.Status,
+						State:  &e.State,
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.VideoStoppedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsVideoStopped: true,
-					StoppedEvent: &struct {
-						Reason string `json:"reason"`
-					}{
-						Reason: ret,
-					},
+			case playbackmanager.VideoStartedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsVideoStarted: true,
+						StartedEvent: &struct {
+							Filename string `json:"filename"`
+						}{
+							Filename: e.Filename,
+						},
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.VideoCompletedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsVideoCompleted: true,
-					CompletedEvent: &struct {
-						Filename string `json:"filename"`
-					}{
-						Filename: ret,
-					},
+			case playbackmanager.VideoStoppedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsVideoStopped: true,
+						StoppedEvent: &struct {
+							Reason string `json:"reason"`
+						}{
+							Reason: e.Reason,
+						},
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.StreamStartedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsStreamStarted: true,
-					StartedEvent: &struct {
-						Filename string `json:"filename"`
-					}{
-						Filename: ret,
-					},
+			case playbackmanager.VideoCompletedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsVideoCompleted: true,
+						CompletedEvent: &struct {
+							Filename string `json:"filename"`
+						}{
+							Filename: e.Filename,
+						},
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.StreamStoppedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsStreamStopped: true,
-					StoppedEvent: &struct {
-						Reason string `json:"reason"`
-					}{
-						Reason: ret,
-					},
+			case playbackmanager.StreamStateChangedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						State: &e.State,
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.StreamCompletedCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					IsStreamCompleted: true,
-					CompletedEvent: &struct {
-						Filename string `json:"filename"`
-					}{
-						Filename: ret,
-					},
+			case playbackmanager.StreamStatusChangedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						Status: &e.Status,
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.PlaybackStateCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					State: &ret,
+			case playbackmanager.StreamStartedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsStreamStarted: true,
+						StartedEvent: &struct {
+							Filename string `json:"filename"`
+						}{
+							Filename: e.Filename,
+						},
+					})
+					return nil
 				})
-				return nil
-			})
-		}
-	}()
-
-	go func() {
-		for ret := range subscriber.PlaybackStatusCh {
-			p.scheduler.ScheduleAsync(func() error {
-				callback(&PlaybackEvent{
-					Status: &ret,
+			case playbackmanager.StreamStoppedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsStreamStopped: true,
+						StoppedEvent: &struct {
+							Reason string `json:"reason"`
+						}{
+							Reason: e.Reason,
+						},
+					})
+					return nil
 				})
-				return nil
-			})
+			case playbackmanager.StreamCompletedEvent:
+				p.scheduler.ScheduleAsync(func() error {
+					callback(&PlaybackEvent{
+						IsStreamCompleted: true,
+						CompletedEvent: &struct {
+							Filename string `json:"filename"`
+						}{
+							Filename: e.Filename,
+						},
+					})
+					return nil
+				})
+			}
 		}
 	}()
 

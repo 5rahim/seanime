@@ -1,15 +1,20 @@
 import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
-import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
+import {
+    ElectronPlaybackMethod,
+    PlaybackTorrentStreaming,
+    useCurrentDevicePlaybackSettings,
+    useExternalPlayerLink,
+} from "@/app/(main)/_atoms/playback.atoms"
+import { __autoplay_nextEpisodeAtom } from "@/app/(main)/_features/progress-tracking/_lib/autoplay"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
+    __torrentstream__isLoadedAtom,
     __torrentstream__loadingStateAtom,
-    __torrentstream__stateAtom,
-    TorrentStreamState,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
-import { useAtomValue } from "jotai"
-import { atom } from "jotai/index"
+import { __isElectronDesktop__ } from "@/types/constants"
+import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"
@@ -32,21 +37,20 @@ export function useHandleStartTorrentStream() {
     const { mutate, isPending } = useTorrentstreamStartStream()
 
     const setLoadingState = useSetAtom(__torrentstream__loadingStateAtom)
-    const setState = useSetAtom(__torrentstream__stateAtom)
-
-    const { torrentStreamingPlayback } = useCurrentDevicePlaybackSettings()
+    const setIsLoaded = useSetAtom(__torrentstream__isLoadedAtom)
+    const { torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
     const clientId = useAtomValue(clientIdAtom)
 
     const playbackType = React.useMemo<Torrentstream_PlaybackType>(() => {
-        if (!externalPlayerLink?.length) {
-            return "default"
+        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+            return "nativeplayer"
         }
-        if (torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
+        if (!!externalPlayerLink?.length && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
             return "externalPlayerLink"
         }
         return "default"
-    }, [torrentStreamingPlayback, externalPlayerLink])
+    }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
 
     const handleManualTorrentStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
         mutate({
@@ -64,7 +68,7 @@ export function useHandleStartTorrentStream() {
             },
             onError: () => {
                 setLoadingState(null)
-                setState(TorrentStreamState.Stopped)
+                setIsLoaded(false)
             },
         })
     }, [playbackType, clientId])
@@ -81,7 +85,7 @@ export function useHandleStartTorrentStream() {
         }, {
             onError: () => {
                 setLoadingState(null)
-                setState(TorrentStreamState.Stopped)
+                setIsLoaded(false)
             },
         })
     }, [playbackType, clientId])
@@ -109,6 +113,7 @@ const __stream_autoplaySelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | n
 
 export function useTorrentStreamAutoplay() {
     const [info, setInfo] = useAtom(__stream_autoplayAtom)
+    const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
 
     const { handleAutoSelectTorrentStream, handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
@@ -140,6 +145,7 @@ export function useTorrentStreamAutoplay() {
                 aniDBEpisode: nextEpisode.aniDBEpisode,
                 type: "torrentstream",
             })
+            setNextEpisode(nextEpisode)
         } else {
             setInfo(null)
         }
@@ -162,6 +168,7 @@ export function useTorrentStreamAutoplay() {
 
 export function useDebridStreamAutoplay() {
     const [info, setInfo] = useAtom(__stream_autoplayAtom)
+    const [nextEpisode, setNextEpisode] = useAtom(__autoplay_nextEpisodeAtom)
 
     const { handleAutoSelectStream, handleStreamSelection } = useHandleStartDebridStream()
     const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
@@ -193,6 +200,7 @@ export function useDebridStreamAutoplay() {
                 aniDBEpisode: nextEpisode.aniDBEpisode,
                 type: "debridstream",
             })
+            setNextEpisode(nextEpisode)
         } else {
             setInfo(null)
         }

@@ -327,6 +327,7 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 	_ = cmdObj.Set("stack", c.componentManager.jsStack)
 	_ = cmdObj.Set("text", c.componentManager.jsText)
 	_ = cmdObj.Set("button", c.componentManager.jsButton)
+	_ = cmdObj.Set("anchor", c.componentManager.jsAnchor)
 
 	return cmdObj
 }

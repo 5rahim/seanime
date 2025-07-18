@@ -8,9 +8,12 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useInvalidateQueriesListener } from "@/app/(main)/_listeners/invalidate-queries.listeners"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
+import { NativePlayer } from "../native-player/native-player"
 import { SeaCommand } from "../sea-command/sea-command"
+import { TopIndefiniteLoader } from "../top-indefinite-loader"
 
 type OfflineLayoutProps = {
     children?: React.ReactNode
@@ -33,10 +36,6 @@ export function OfflineLayout(props: OfflineLayoutProps) {
     const [cont, setContinue] = React.useState(false)
 
     React.useEffect(() => {
-        if (!serverStatus?.isOffline) {
-            setContinue(false)
-            return
-        }
 
         if (
             pathname.startsWith("/offline") ||
@@ -49,7 +48,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
         }
 
         router.push("/offline")
-    }, [pathname])
+    }, [pathname, serverStatus?.isOffline])
 
     if (!cont) return <LoadingOverlayWithLogo />
 
@@ -61,6 +60,8 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
+            {__isElectronDesktop__ && <NativePlayer />}
+            <TopIndefiniteLoader />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

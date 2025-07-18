@@ -33,6 +33,7 @@ export type LibraryToolbarProps = {
     unknownGroups: Anime_UnknownGroup[]
     isLoading: boolean
     hasEntries: boolean
+    isStreamingOnly: boolean
 }
 
 export function LibraryToolbar(props: LibraryToolbarProps) {
@@ -43,6 +44,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         unmatchedLocalFiles,
         unknownGroups,
         hasEntries,
+        isStreamingOnly,
     } = props
 
     const ts = useThemeSettings()
@@ -75,7 +77,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-switch-view-button
-                                intent={libraryView === "base" ? "white-subtle" : "primary"}
+                                intent={libraryView === "base" ? "white-subtle" : "white"}
                                 icon={<IoLibrary className="text-2xl" />}
                                 onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
                             />}
@@ -83,18 +85,18 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             Switch view
                         </Tooltip>
 
-                        <Tooltip
+                        {!isStreamingOnly && <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-playlists-button
                                 intent={"white-subtle"}
                                 icon={<MdOutlineVideoLibrary className="text-2xl" />}
                                 onClick={() => setPlaylistsModalOpen(true)}
                             />}
-                        >Playlists</Tooltip>
+                        >Playlists</Tooltip>}
 
-                        <PlayRandomEpisodeButton />
+                        {!isStreamingOnly && <PlayRandomEpisodeButton />}
 
-                        <Button
+                        {!isStreamingOnly && <Button
                             data-library-toolbar-scan-button
                             intent={hasEntries ? "primary-subtle" : "primary"}
                             leftIcon={hasEntries ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
@@ -102,7 +104,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             hideTextOnSmallScreen
                         >
                             {hasEntries ? "Refresh library" : "Scan your library"}
-                        </Button>
+                        </Button>}
                     </>
                 )}
                 {(unmatchedLocalFiles.length > 0) && <Button
@@ -123,7 +125,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 >
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
-                {!!status?.settings?.library?.libraryPath &&
+                {(!isStreamingOnly && !!status?.settings?.library?.libraryPath) &&
                     <DropdownMenu
                         trigger={<IconButton
                             data-library-toolbar-dropdown-menu-trigger

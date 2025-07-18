@@ -1,5 +1,5 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
-import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
+import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -10,6 +10,7 @@ import {
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
 import { useHandleStartTorrentStream, useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
@@ -44,7 +45,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     /**
      * Get all episodes to watch
      */
-    const { data: episodeCollection, isLoading } = useGetTorrentstreamEpisodeCollection(entry.mediaId)
+    const { data: episodeCollection, isLoading } = useGetAnimeEpisodeCollection(entry.mediaId)
 
     React.useLayoutEffect(() => {
         // Set auto-select to the server status value
@@ -183,52 +184,67 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     return (
         <>
-            <AppLayoutStack data-torrent-stream-page>
-                <div className="absolute right-0 top-[-3rem]" data-torrent-stream-page-title-container>
-                    <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0" data-torrent-stream-page-content-actions-container>
-                    <Switch
-                        label="Auto-select"
-                        value={autoSelect}
-                        onValueChange={v => {
-                            setAutoSelect(v)
-                        }}
-                        // moreHelp="Automatically select the best torrent and file to stream"
-                        fieldClass="w-fit"
-                    />
-
-                    {!autoSelect && (
-                        <Switch
-                            label="Auto-select file"
-                            value={autoSelectFile}
-                            onValueChange={v => {
-                                setAutoSelectFile(v)
-                            }}
-                            moreHelp="The episode file will be automatically selected from your chosen batch torrent"
-                            fieldClass="w-fit"
-                        />
-                    )}
-                </div>
-
-                {episodeCollection?.hasMappingError && (
-                    <div data-torrent-stream-page-no-metadata-message-container>
-                        <p className="text-red-200 opacity-50">
-                            No metadata info available for this anime. You may need to manually select the file to stream.
-                        </p>
+            <PageWrapper
+                data-anime-entry-page-torrent-stream-view
+                key="torrent-streaming-episodes"
+                className="relative 2xl:order-first pb-10 lg:pt-0"
+                {...{
+                    initial: { opacity: 0, y: 60 },
+                    animate: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.99 },
+                    transition: {
+                        duration: 0.35,
+                    },
+                }}
+            >
+                <div className="h-10 lg:h-0" />
+                <AppLayoutStack data-torrent-stream-page>
+                    <div className="absolute right-0 top-[-3rem]" data-torrent-stream-page-title-container>
+                        <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
                     </div>
 
-                )}
+                    <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0" data-torrent-stream-page-content-actions-container>
+                        <Switch
+                            label="Auto-select"
+                            value={autoSelect}
+                            onValueChange={v => {
+                                setAutoSelect(v)
+                            }}
+                            // moreHelp="Automatically select the best torrent and file to stream"
+                            fieldClass="w-fit"
+                        />
 
-                <TorrentStreamEpisodeSection
-                    episodeCollection={episodeCollection}
-                    entry={entry}
-                    onEpisodeClick={handleEpisodeClick}
-                    onPlayNextEpisodeOnMount={handlePlayNextEpisodeOnMount}
-                    bottomSection={bottomSection}
-                />
-            </AppLayoutStack>
+                        {!autoSelect && (
+                            <Switch
+                                label="Auto-select file"
+                                value={autoSelectFile}
+                                onValueChange={v => {
+                                    setAutoSelectFile(v)
+                                }}
+                                moreHelp="The episode file will be automatically selected from your chosen batch torrent"
+                                fieldClass="w-fit"
+                            />
+                        )}
+                    </div>
+
+                    {episodeCollection?.hasMappingError && (
+                        <div data-torrent-stream-page-no-metadata-message-container>
+                            <p className="text-red-200 opacity-50">
+                                No metadata info available for this anime. You may need to manually select the file to stream.
+                            </p>
+                        </div>
+
+                    )}
+
+                    <TorrentStreamEpisodeSection
+                        episodeCollection={episodeCollection}
+                        entry={entry}
+                        onEpisodeClick={handleEpisodeClick}
+                        onPlayNextEpisodeOnMount={handlePlayNextEpisodeOnMount}
+                        bottomSection={bottomSection}
+                    />
+                </AppLayoutStack>
+            </PageWrapper>
         </>
     )
 }

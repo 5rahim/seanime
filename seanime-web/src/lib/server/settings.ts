@@ -1,3 +1,4 @@
+import { GettingStarted_Variables } from "@/api/generated/endpoint.types"
 import { z } from "zod"
 
 export const DEFAULT_TORRENT_PROVIDER = "animetosho"
@@ -17,6 +18,7 @@ export const enum TORRENT_CLIENT {
 export const enum TORRENT_PROVIDER {
     ANIMETOSHO = "animetosho",
     NYAA = "nyaa",
+    NYAA_NON_ENG = "nyaa-non-eng",
     NONE = "none",
 }
 
@@ -41,6 +43,10 @@ export const settingsSchema = z.object({
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
+    mpvArgs: z.string().optional().default(""),
+    iinaSocket: z.string().optional().default(""),
+    iinaPath: z.string().optional().default(""),
+    iinaArgs: z.string().optional().default(""),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
     hideTorrentList: z.boolean().optional().default(false),
     qbittorrentPath: z.string().optional().default(""),
@@ -61,6 +67,7 @@ export const settingsSchema = z.object({
     includeOnlineStreamingInLibrary: z.boolean().optional().default(false),
     disableAnimeCardTrailers: z.boolean().optional().default(false),
     enableManga: z.boolean().optional().default(true),
+    mangaLocalSourceDirectory: z.string().optional().default(""),
     enableRichPresence: z.boolean().optional().default(false),
     enableAnimeRichPresence: z.boolean().optional().default(false),
     enableMangaRichPresence: z.boolean().optional().default(false),
@@ -73,6 +80,7 @@ export const settingsSchema = z.object({
     richPresenceHideSeanimeRepositoryButton: z.boolean().optional().default(false),
     richPresenceShowAniListMediaButton: z.boolean().optional().default(false),
     richPresenceShowAniListProfileButton: z.boolean().optional().default(false),
+    richPresenceUseMediaTitleStatus: z.boolean().optional().default(true),
     disableNotifications: z.boolean().optional().default(false),
     disableAutoDownloaderNotifications: z.boolean().optional().default(false),
     disableAutoScannerNotifications: z.boolean().optional().default(false),
@@ -85,9 +93,118 @@ export const settingsSchema = z.object({
     autoSyncOfflineLocalData: z.boolean().optional().default(false),
     scannerMatchingThreshold: z.number().optional().default(0.5),
     scannerMatchingAlgorithm: z.string().optional().default(""),
+    autoSyncToLocalAccount: z.boolean().optional().default(false),
+    nakamaIsHost: z.boolean().optional().default(false),
+    nakamaHostPassword: z.string().optional().default(""),
+    nakamaRemoteServerURL: z.string().optional().default(""),
+    nakamaRemoteServerPassword: z.string().optional().default(""),
+    nakamaHostShareLocalAnimeLibrary: z.boolean().optional().default(false),
+    nakamaEnabled: z.boolean().optional().default(false),
+    nakamaHostEnablePortForwarding: z.boolean().optional().default(false),
+    nakamaUsername: z.string().optional().default(""),
+    includeNakamaAnimeLibrary: z.boolean().optional().default(false),
+    nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
+
+export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): GettingStarted_Variables => ({
+    library: {
+        libraryPath: data.libraryPath,
+        autoUpdateProgress: true,
+        disableUpdateCheck: false,
+        torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
+        autoScan: false,
+        disableAnimeCardTrailers: false,
+        enableManga: data.enableManga,
+        enableOnlinestream: data.enableOnlinestream,
+        dohProvider: DEFAULT_DOH_PROVIDER,
+        openTorrentClientOnStart: false,
+        openWebURLOnStart: false,
+        refreshLibraryOnStart: false,
+        autoPlayNextEpisode: false,
+        enableWatchContinuity: data.enableWatchContinuity,
+        libraryPaths: [],
+        autoSyncOfflineLocalData: false,
+        includeOnlineStreamingInLibrary: false,
+        scannerMatchingThreshold: 0,
+        scannerMatchingAlgorithm: "",
+        autoSyncToLocalAccount: false,
+    },
+    nakama: {
+        enabled: false,
+        isHost: false,
+        hostPassword: "",
+        remoteServerURL: "",
+        remoteServerPassword: "",
+        hostShareLocalAnimeLibrary: false,
+        username: data.nakamaUsername,
+        includeNakamaAnimeLibrary: false,
+        hostUnsharedAnimeIds: [],
+        hostEnablePortForwarding: false,
+    },
+    manga: {
+        defaultMangaProvider: "",
+        mangaAutoUpdateProgress: false,
+        mangaLocalSourceDirectory: "",
+    },
+    mediaPlayer: {
+        host: data.mediaPlayerHost,
+        defaultPlayer: data.defaultPlayer,
+        vlcPort: data.vlcPort,
+        vlcUsername: data.vlcUsername || "",
+        vlcPassword: data.vlcPassword,
+        vlcPath: data.vlcPath || "",
+        mpcPort: data.mpcPort,
+        mpcPath: data.mpcPath || "",
+        mpvSocket: data.mpvSocket || "",
+        mpvPath: data.mpvPath || "",
+        mpvArgs: "",
+        iinaSocket: data.iinaSocket || "",
+        iinaPath: data.iinaPath || "",
+        iinaArgs: "",
+    },
+    discord: {
+        enableRichPresence: data.enableRichPresence,
+        enableAnimeRichPresence: true,
+        enableMangaRichPresence: true,
+        richPresenceHideSeanimeRepositoryButton: false,
+        richPresenceShowAniListMediaButton: false,
+        richPresenceShowAniListProfileButton: false,
+        richPresenceUseMediaTitleStatus: true,
+    },
+    torrent: {
+        defaultTorrentClient: data.defaultTorrentClient,
+        qbittorrentPath: data.qbittorrentPath,
+        qbittorrentHost: data.qbittorrentHost,
+        qbittorrentPort: data.qbittorrentPort,
+        qbittorrentPassword: data.qbittorrentPassword,
+        qbittorrentUsername: data.qbittorrentUsername,
+        qbittorrentTags: "",
+        transmissionPath: data.transmissionPath,
+        transmissionHost: data.transmissionHost,
+        transmissionPort: data.transmissionPort,
+        transmissionUsername: data.transmissionUsername,
+        transmissionPassword: data.transmissionPassword,
+        showActiveTorrentCount: false,
+        hideTorrentList: false,
+    },
+    anilist: {
+        hideAudienceScore: false,
+        enableAdultContent: data.enableAdultContent,
+        blurAdultContent: false,
+    },
+    enableTorrentStreaming: data.enableTorrentStreaming,
+    enableTranscode: data.enableTranscode,
+    notifications: {
+        disableNotifications: false,
+        disableAutoDownloaderNotifications: false,
+        disableAutoScannerNotifications: false,
+    },
+    debridProvider: data.debridProvider,
+    debridApiKey: data.debridApiKey,
+})
+
 
 export function useDefaultSettingsPaths() {
 
@@ -132,7 +249,7 @@ export function useDefaultSettingsPaths() {
 
 }
 
-export function getDefaultMpcSocket(os: string) {
+export function getDefaultMpvSocket(os: string) {
     switch (os) {
         case "windows":
             return "\\\\.\\pipe\\mpv_ipc"
@@ -143,5 +260,8 @@ export function getDefaultMpcSocket(os: string) {
         default:
             return "/tmp/mpv_socket"
     }
+}
 
+export function getDefaultIinaSocket(os: string) {
+    return "/tmp/iina_socket"
 }

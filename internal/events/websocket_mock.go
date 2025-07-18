@@ -31,11 +31,29 @@ func (m *MockWSEventManager) SendEvent(t string, payload interface{}) {
 	m.Logger.Trace().Any("payload", payload).Str("type", t).Msg("ws: Sent message")
 }
 
-func (m *MockWSEventManager) SendEventTo(clientId string, t string, payload interface{}) {
-	m.Logger.Trace().Any("payload", payload).Str("type", t).Str("clientId", clientId).Msg("ws: Sent message to client")
+func (m *MockWSEventManager) SendEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
+	if len(noLog) == 0 || !noLog[0] {
+		m.Logger.Trace().Any("payload", payload).Str("type", t).Str("clientId", clientId).Msg("ws: Sent message to client")
+	}
 }
 
 func (m *MockWSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent),
+	}
+	m.ClientEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *MockWSEventManager) SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent),
+	}
+	m.ClientEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *MockWSEventManager) SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber {
 	subscriber := &ClientEventSubscriber{
 		Channel: make(chan *WebsocketClientEvent),
 	}

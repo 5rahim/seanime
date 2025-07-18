@@ -116,12 +116,12 @@ export function DebridSettings(props: DebridSettingsProps) {
                             Debrid Streaming
                         </h3>
 
-                        <SettingsCard title="Integration">
+                        <SettingsCard title="My library">
                             <Field.Switch
                                 side="right"
                                 name="includeDebridStreamInLibrary"
                                 label="Include in library"
-                                help="Shows that are currently being watched but haven't been downloaded will default to the streaming view and appear in your library."
+                                help="Add non-downloaded shows that are in your currently watching list to 'My library' for streaming"
                             />
                         </SettingsCard>
 

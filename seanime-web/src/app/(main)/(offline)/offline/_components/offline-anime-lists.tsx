@@ -15,6 +15,7 @@ export function OfflineAnimeLists() {
         filteredLibraryCollectionList,
         isLoading,
         continueWatchingList,
+        streamingMediaIds,
     } = useHandleLibraryCollection()
 
     return (
@@ -38,6 +39,7 @@ export function OfflineAnimeLists() {
                     continueWatchingList={continueWatchingList}
                     isLoading={isLoading}
                     hasEntries={true}
+                    streamingMediaIds={streamingMediaIds}
                 />
             </PageWrapper>
         </>

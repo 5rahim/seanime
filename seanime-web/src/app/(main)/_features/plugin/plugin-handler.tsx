@@ -5,6 +5,7 @@ import {
     Plugin_Server_DOMCreateEventPayload,
     Plugin_Server_DOMManipulateEventPayload,
     Plugin_Server_DOMObserveEventPayload,
+    Plugin_Server_DOMObserveInViewEventPayload,
     Plugin_Server_DOMQueryEventPayload,
     Plugin_Server_DOMQueryOneEventPayload,
     Plugin_Server_DOMStopObserveEventPayload,
@@ -17,6 +18,7 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         handleDOMQuery,
         handleDOMQueryOne,
         handleDOMObserve,
+        handleDOMObserveInView,
         handleDOMStopObserve,
         handleDOMCreate,
         handleDOMManipulate,
@@ -55,6 +57,14 @@ export function PluginHandler({ extensionId, onUnloaded }: { extensionId: string
         type: PluginServerEvents.DOMObserve,
         onMessage: (payload: Plugin_Server_DOMObserveEventPayload) => {
             handleDOMObserve(payload)
+        },
+    })
+
+    useWebsocketPluginMessageListener({
+        extensionId,
+        type: PluginServerEvents.DOMObserveInView,
+        onMessage: (payload: Plugin_Server_DOMObserveInViewEventPayload) => {
+            handleDOMObserveInView(payload)
         },
     })
 

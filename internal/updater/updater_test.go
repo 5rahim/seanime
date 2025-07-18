@@ -1,14 +1,15 @@
 package updater
 
 import (
-	"github.com/stretchr/testify/require"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestUpdater_GetLatestUpdate(t *testing.T) {
 
-	docsUrl = "https://seanime.rahim.app/api/releases" // simulate dead endpoint
+	fallbackGithubUrl = "https://seanime.app/api/releases" // simulate dead endpoint
 
 	u := New("2.0.2", util.NewLogger(), nil)
 

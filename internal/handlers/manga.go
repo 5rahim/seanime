@@ -1,10 +1,16 @@
 package handlers
 
 import (
+	"errors"
+	"net/http"
+	"net/url"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 	"seanime/internal/manga"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util/result"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -104,7 +110,7 @@ func (h *Handler) HandleGetMangaEntry(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	entry, err := manga.NewEntry(&manga.NewEntryOptions{
+	entry, err := manga.NewEntry(c.Request().Context(), &manga.NewEntryOptions{
 		MediaId:         id,
 		Logger:          h.App.Logger,
 		FileCacher:      h.App.FileCacher,
@@ -140,7 +146,7 @@ func (h *Handler) HandleGetMangaEntryDetails(c echo.Context) error {
 		return h.RespondWithData(c, detailsMedia)
 	}
 
-	details, err := h.App.AnilistPlatform.GetMangaDetails(id)
+	details, err := h.App.AnilistPlatform.GetMangaDetails(c.Request().Context(), id)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -242,7 +248,7 @@ func (h *Handler) HandleGetMangaEntryChapters(c echo.Context) error {
 	baseManga, found := baseMangaCache.Get(b.MediaId)
 	if !found {
 		var err error
-		baseManga, err = h.App.AnilistPlatform.GetManga(b.MediaId)
+		baseManga, err = h.App.AnilistPlatform.GetManga(c.Request().Context(), b.MediaId)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}
@@ -399,7 +405,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 		p.CountryOfOrigin,
 		&isAdult,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -434,6 +440,7 @@ func (h *Handler) HandleUpdateMangaProgress(c echo.Context) error {
 
 	// Update the progress on AniList
 	err := h.App.AnilistPlatform.UpdateEntryProgress(
+		c.Request().Context(),
 		b.MediaId,
 		b.ChapterNumber,
 		&b.TotalChapters,
@@ -551,4 +558,39 @@ func (h *Handler) HandleRemoveMangaMapping(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetLocalMangaPage
+//
+//	@summary returns a local manga page.
+//	@route /api/v1/manga/local-page/{path} [GET]
+//	@returns manga.PageContainer
+func (h *Handler) HandleGetLocalMangaPage(c echo.Context) error {
+
+	path := c.Param("path")
+	path, err := url.PathUnescape(path)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	path = strings.TrimPrefix(path, manga_providers.LocalServePath)
+
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](h.App.ExtensionRepository.GetExtensionBank(), manga_providers.LocalProvider)
+	if !ok {
+		return h.RespondWithError(c, errors.New("manga: Local provider not found"))
+	}
+
+	localProvider, ok := providerExtension.GetProvider().(*manga_providers.Local)
+	if !ok {
+		return h.RespondWithError(c, errors.New("manga: Local provider not found"))
+	}
+
+	reader, err := localProvider.ReadPage(path)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return c.Stream(http.StatusOK, "image/jpeg", reader)
 }

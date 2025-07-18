@@ -1,8 +1,10 @@
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Field } from "@/components/ui/form"
 import React from "react"
+import { FaBookReader } from "react-icons/fa"
+import { LuBook, LuBookDashed, LuBookKey } from "react-icons/lu"
 
 type MangaSettingsProps = {
     isPending: boolean
@@ -29,7 +31,11 @@ export function MangaSettings(props: MangaSettingsProps) {
 
     return (
         <>
-            <h3>Manga</h3>
+            <SettingsPageHeader
+                title="Manga"
+                description="Manage your manga library"
+                icon={FaBookReader}
+            />
 
             <SettingsCard>
                 <Field.Switch
@@ -52,6 +58,12 @@ export function MangaSettings(props: MangaSettingsProps) {
                     label="Default Provider"
                     help="Select the default provider for manga series."
                     options={options}
+                />
+
+                <Field.DirectorySelector
+                    name="mangaLocalSourceDirectory"
+                    label="Local Source Directory"
+                    help="The directory where your manga is stored. This is only used for local manga provider."
                 />
             </SettingsCard>
 

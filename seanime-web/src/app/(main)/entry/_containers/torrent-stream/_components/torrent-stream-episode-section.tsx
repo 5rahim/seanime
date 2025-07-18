@@ -1,10 +1,10 @@
-import { Anime_Entry, Anime_Episode, Torrentstream_EpisodeCollection } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode, Anime_EpisodeCollection } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
-import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
+import { EpisodeListPaginatedGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -13,7 +13,7 @@ import React, { useMemo } from "react"
 
 type TorrentStreamEpisodeSectionProps = {
     entry: Anime_Entry
-    episodeCollection: Torrentstream_EpisodeCollection | undefined
+    episodeCollection: Anime_EpisodeCollection | undefined
     onEpisodeClick: (episode: Anime_Episode) => void
     onPlayNextEpisodeOnMount: (episode: Anime_Episode) => void
     bottomSection?: React.ReactNode
@@ -102,40 +102,44 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                 </CarouselContent>
             </Carousel>
 
-            <EpisodeListGrid>
-                {episodeCollection?.episodes?.map(episode => (
-                    <EpisodeGridItem
-                        key={episode.episodeNumber + episode.displayTitle}
+            <EpisodeListPaginatedGrid
+                length={episodeCollection?.episodes?.length || 0}
+                shouldDefaultToPageWithEpisode={entry.listData?.progress ? entry.listData?.progress + 1 : undefined}
+                renderItem={(index) => {
+                    const episode = episodeCollection?.episodes?.[index]
+                    return (<EpisodeGridItem
+                            key={episode?.episodeNumber + (episode?.displayTitle || "")}
                         media={episode?.baseAnime as any}
                         title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
                         image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
                         episodeTitle={episode?.episodeTitle}
                         onClick={() => {
-                            onEpisodeClick(episode)
+                            onEpisodeClick(episode as Anime_Episode)
                         }}
                         description={episode?.episodeMetadata?.overview}
                         isFiller={episode?.episodeMetadata?.isFiller}
                         length={episode?.episodeMetadata?.length}
-                        isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
+                            isWatched={!!entry.listData?.progress && entry.listData.progress >= (episode?.progressNumber || 0)}
                         className="flex-none w-full"
-                        episodeNumber={episode.episodeNumber}
-                        progressNumber={episode.progressNumber}
+                            episodeNumber={episode?.episodeNumber}
+                            progressNumber={episode?.progressNumber}
                         action={<>
                             <MediaEpisodeInfoModal
-                                title={episode.displayTitle}
-                                image={episode.episodeMetadata?.image}
-                                episodeTitle={episode.episodeTitle}
-                                airDate={episode.episodeMetadata?.airDate}
-                                length={episode.episodeMetadata?.length}
-                                summary={episode.episodeMetadata?.overview}
-                                isInvalid={episode.isInvalid}
+                                title={episode?.displayTitle}
+                                image={episode?.episodeMetadata?.image}
+                                episodeTitle={episode?.episodeTitle}
+                                airDate={episode?.episodeMetadata?.airDate}
+                                length={episode?.episodeMetadata?.length}
+                                summary={episode?.episodeMetadata?.overview}
+                                isInvalid={episode?.isInvalid}
                             />
 
-                            <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="torrentstream" episode={episode} />
+                            <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="torrentstream" episode={episode as Anime_Episode} />
                         </>}
                     />
-                ))}
-            </EpisodeListGrid>
+                    )
+                }}
+            />
 
             {bottomSection}
         </>

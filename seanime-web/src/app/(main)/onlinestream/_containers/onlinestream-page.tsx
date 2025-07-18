@@ -2,9 +2,11 @@ import { Anime_Entry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { SeaMediaPlayer } from "@/app/(main)/_features/sea-media-player/sea-media-player"
 import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/sea-media-player-layout"
 import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
+import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import {
     OnlinestreamParametersButton,
     OnlinestreamProviderButton,
@@ -21,9 +23,12 @@ import { logger } from "@/lib/helpers/debug"
 import { isHLSProvider, MediaPlayerInstance, MediaProviderAdapter, MediaProviderChangeEvent, MediaProviderSetupEvent } from "@vidstack/react"
 import HLS from "hls.js"
 import { atom } from "jotai/index"
-import { useAtomValue } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
+import { AnimatePresence, motion } from "motion/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
+import { BsFillGrid3X3GapFill } from "react-icons/bs"
 import { FaSearch } from "react-icons/fa"
 import { useUpdateEffect } from "react-use"
 import "@/app/vidstack-theme.css"
@@ -41,6 +46,9 @@ type ProgressItem = {
 }
 const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 
+// Episode view mode atom
+const episodeViewModeAtom = atomWithStorage<"list" | "grid">("sea-onlinestream-episode-view-mode", "list")
+
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
@@ -50,6 +58,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const urlEpNumber = searchParams.get("episode")
 
     const ref = React.useRef<MediaPlayerInstance>(null)
+    const [episodeViewMode, setEpisodeViewMode] = useAtom(episodeViewModeAtom)
 
     const {
         episodes,
@@ -76,11 +85,16 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
     const progress = animeEntry?.listData?.progress ?? 0
 
+    const nakamaStatus = useNakamaStatus()
+
     /**
      * Set episode number on mount
      */
     const firstRenderRef = React.useRef(true)
     useUpdateEffect(() => {
+        // Do not auto set the episode number if the user is in a watch party and is not the host
+        if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
+
         if (!!media && firstRenderRef.current && !!episodes) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
@@ -209,6 +223,15 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         <div className="flex flex-1"></div>
                     </>}
+                    rightHeaderActions={<>
+                        <IconButton
+                            size="sm"
+                            intent={episodeViewMode === "list" ? "gray-basic" : "white-subtle"}
+                            icon={<BsFillGrid3X3GapFill />}
+                            onClick={() => setEpisodeViewMode(prev => prev === "list" ? "grid" : "list")}
+                            title={episodeViewMode === "list" ? "Switch to grid view" : "Switch to list view"}
+                        />
+                    </>}
                     mediaPlayer={!provider ? (
                         <div className="flex items-center flex-col justify-center w-full h-full">
                             <LuffyError title="No provider selected" />
@@ -254,38 +277,66 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         {(!episodes?.length && !loadPage) && <p>
                             No episodes found
                         </p>}
-                        {episodes?.filter(Boolean)?.sort((a, b) => a!.number - b!.number)?.map((episode, idx) => {
-                            return (
-                                <EpisodeGridItem
-                                    key={idx + (episode.title || "") + episode.number}
-                                    id={`episode-${String(episode.number)}`}
-                                    onClick={() => handleChangeEpisodeNumber(episode.number)}
-                                    title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
-                                    episodeTitle={episode.title}
-                                    description={episode.description ?? undefined}
-                                    image={episode.image}
-                                    media={media}
-                                    isSelected={episode.number === currentEpisodeNumber}
-                                    disabled={episodeLoading}
-                                    isWatched={progress ? episode.number <= progress : undefined}
-                                    className="flex-none w-full"
-                                    isFiller={episode.isFiller}
-                                    episodeNumber={episode.number}
-                                    progressNumber={episode.number}
-                                    action={<>
-                                        <MediaEpisodeInfoModal
-                                            title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
-                                            image={episode?.image}
-                                            episodeTitle={episode.title}
-                                            summary={episode?.description}
-                                        />
 
-                                        <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="onlinestream" episode={episode} />
-                                    </>}
+                        <AnimatePresence mode="wait" initial={false}>
+                            {episodeViewMode === "list" ? (
+                                <motion.div
+                                    key="list-view"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="space-y-3"
+                                >
+                                    {episodes?.filter(Boolean)?.sort((a, b) => a!.number - b!.number)?.map((episode, idx) => {
+                                        return (
+                                            <EpisodeGridItem
+                                                key={idx + (episode.title || "") + episode.number}
+                                                id={`episode-${String(episode.number)}`}
+                                                onClick={() => handleChangeEpisodeNumber(episode.number)}
+                                                title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
+                                                episodeTitle={episode.title}
+                                                description={episode.description ?? undefined}
+                                                image={episode.image}
+                                                media={media}
+                                                isSelected={episode.number === currentEpisodeNumber}
+                                                disabled={episodeLoading}
+                                                isWatched={progress ? episode.number <= progress : undefined}
+                                                className="flex-none w-full"
+                                                isFiller={episode.isFiller}
+                                                episodeNumber={episode.number}
+                                                progressNumber={episode.number}
+                                                action={<>
+                                                    <MediaEpisodeInfoModal
+                                                        title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
+                                                        image={episode?.image}
+                                                        episodeTitle={episode.title}
+                                                        summary={episode?.description}
+                                                    />
+
+                                                    <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="onlinestream" episode={episode} />
+                                                </>}
+                                            />
+                                        )
+                                    })}
+                                    <p className="text-center text-[--muted] py-2">End</p>
+                                </motion.div>
+                            ) : (
+                                <EpisodePillsGrid
+                                    key="grid-view"
+                                    episodes={episodes?.map(ep => ({
+                                        number: ep.number,
+                                        title: ep.title,
+                                        isFiller: ep.isFiller,
+                                    })) || []}
+                                    currentEpisodeNumber={currentEpisodeNumber}
+                                    onEpisodeSelect={handleChangeEpisodeNumber}
+                                    progress={progress}
+                                    disabled={episodeLoading}
+                                    getEpisodeId={(ep) => `episode-${ep.number}`}
                                 />
-                            )
-                        })}
-                        <p className="text-center text-[--muted] py-2">End</p>
+                            )}
+                        </AnimatePresence>
                     </>}
                 />
             </OnlinestreamManagerProvider>

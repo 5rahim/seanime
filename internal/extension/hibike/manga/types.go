@@ -75,6 +75,9 @@ type (
 		// It should be in the format "YYYY-MM-DD".
 		// Leave it empty if the date is not available.
 		UpdatedAt string `json:"updatedAt,omitempty"`
+
+		// LocalIsPDF is true if the chapter is a single, readable PDF file.
+		LocalIsPDF bool `json:"localIsPDF,omitempty"`
 	}
 
 	ChapterPage struct {
@@ -88,5 +91,7 @@ type (
 		Index int `json:"index"`
 		// Request headers for the page if proxying is required.
 		Headers map[string]string `json:"headers"`
+
+		Buf []byte `json:"-"`
 	}
 )

@@ -63,7 +63,7 @@ func TestScanner_Scan(t *testing.T) {
 				ScanSummaryLogger:  nil,
 			}
 
-			lfs, err := scanner.Scan()
+			lfs, err := scanner.Scan(t.Context())
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}

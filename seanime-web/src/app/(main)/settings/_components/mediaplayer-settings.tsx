@@ -1,16 +1,20 @@
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
-import { getDefaultMpcSocket } from "@/lib/server/settings"
+import { getDefaultIinaSocket, getDefaultMpvSocket } from "@/lib/server/settings"
 import React from "react"
+import { useWatch } from "react-hook-form"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
+import { IoPlayForwardCircleSharp } from "react-icons/io5"
+import { LuExternalLink, LuLaptop } from "react-icons/lu"
+import { RiSettings3Fill } from "react-icons/ri"
 
 type MediaplayerSettingsProps = {
     isPending: boolean
@@ -23,16 +27,15 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
     } = props
 
     const serverStatus = useServerStatus()
+    const selectedPlayer = useWatch({ name: "defaultPlayer" })
 
     return (
         <>
-            <div>
-                <h3>Desktop Media Player</h3>
-
-                <p className="text-[--muted]">
-                    Seanime has built-in support for MPV, VLC, and MPC-HC.
-                </p>
-            </div>
+            <SettingsPageHeader
+                title="Desktop Media Player"
+                description="Seanime has built-in support for MPV, VLC, IINA, and MPC-HC."
+                icon={LuLaptop}
+            />
 
             <SettingsCard>
                 <Field.Select
@@ -42,10 +45,18 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                     options={[
                         { label: "MPV", value: "mpv" },
                         { label: "VLC", value: "vlc" },
-                        { label: "MPC-HC", value: "mpc-hc" },
+                        { label: "MPC-HC (Windows)", value: "mpc-hc" },
+                        { label: "IINA (macOS)", value: "iina" },
                     ]}
                     help="Player that will be used to open files and track your progress automatically."
                 />
+                {selectedPlayer === "iina" && <Alert
+                    intent="info-basic"
+                    description={<p>For IINA to work correctly with Seanime, make sure <strong>Quit after all windows are closed</strong> is <span
+                        className="underline"
+                    >checked</span> and <strong>Keep window open after playback finishes</strong> is <span className="underline">unchecked</span> in
+                                    your IINA general settings.</p>}
+                />}
             </SettingsCard>
 
             <SettingsCard title="Playback">
@@ -136,7 +147,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                 <Field.Text
                                     name="mpvSocket"
                                     label="Socket"
-                                    placeholder={`Default: '${getDefaultMpcSocket(serverStatus?.os ?? "")}'`}
+                                    placeholder={`Default: '${getDefaultMpvSocket(serverStatus?.os ?? "")}'`}
                                 />
                                 <Field.Text
                                     name="mpvPath"
@@ -145,6 +156,41 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                                         ? "e.g. /Applications/mpv.app/Contents/MacOS/mpv"
                                         : "Defaults to CLI"}
                                     help="Leave empty to use the CLI."
+                                />
+                            </div>
+                            <div>
+                                <Field.Text
+                                    name="mpvArgs"
+                                    label="Options"
+                                    placeholder="e.g. --no-config --mute=yes"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="iina">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><IoPlayForwardCircleSharp className="mr-1 text-purple-100" /> IINA</h4>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex gap-4">
+                                <Field.Text
+                                    name="iinaSocket"
+                                    label="Socket"
+                                    placeholder={`Default: '${getDefaultIinaSocket(serverStatus?.os ?? "")}'`}
+                                />
+                                <Field.Text
+                                    name="iinaPath"
+                                    label="CLI path"
+                                    placeholder={"Path to the IINA CLI"}
+                                    help="Leave empty to use the CLI."
+                                />
+                            </div>
+                            <div>
+                                <Field.Text
+                                    name="iinaArgs"
+                                    label="Options"
+                                    placeholder="e.g. --mpv-mute=yes"
                                 />
                             </div>
                         </AccordionContent>
@@ -164,15 +210,11 @@ export function ExternalPlayerLinkSettings() {
 
     return (
         <>
-            <div>
-                <h3>
-                    External player link
-                </h3>
-                <p className="text-[--muted]">
-                    Enter a custom scheme format for opening files with an external player on this device.
-                    Ensure the player supports HTTP sources.
-                </p>
-            </div>
+            <SettingsPageHeader
+                title="External player link"
+                description="Send streams to an external player on this device."
+                icon={LuExternalLink}
+            />
 
             <Alert
                 intent="info" description={<>
@@ -200,9 +242,10 @@ export function ExternalPlayerLinkSettings() {
                 />
             </SettingsCard>
 
-            <p className="italic text-sm text-[--muted]">
-                Changes are saved automatically.
-            </p>
+            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+                <RiSettings3Fill className="text-base" />
+                <span>Settings are saved automatically</span>
+            </div>
         </>
     )
 }

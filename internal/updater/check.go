@@ -3,15 +3,18 @@ package updater
 import (
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
 	"io"
 	"runtime"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
+// We fetch the latest release from the website first, if it fails we fallback to GitHub API
+// This allows updates even if Seanime is removed from GitHub
 var (
-	docsUrl   = "https://seanime.rahim.app/api/release"
-	githubUrl = "https://api.github.com/repos/5rahim/seanime/releases/latest"
+	websiteUrl        = "https://seanime.app/api/release"
+	fallbackGithubUrl = "https://api.github.com/repos/5rahim/seanime/releases/latest"
 )
 
 type (
@@ -123,7 +126,7 @@ func (u *Updater) fetchLatestRelease() (*Release, error) {
 
 func (u *Updater) fetchLatestReleaseFromGitHub() (*Release, error) {
 
-	response, err := u.client.Get(githubUrl)
+	response, err := u.client.Get(fallbackGithubUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +174,7 @@ func (u *Updater) fetchLatestReleaseFromGitHub() (*Release, error) {
 
 func (u *Updater) fetchLatestReleaseFromDocs() (*Release, error) {
 
-	response, err := u.client.Get(docsUrl)
+	response, err := u.client.Get(websiteUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -196,14 +199,6 @@ func (u *Updater) fetchLatestReleaseFromDocs() (*Release, error) {
 	err = json.Unmarshal(byteArr, &res)
 	if err != nil {
 		return nil, err
-	}
-
-	// Additional security check
-	// Make sure the download url is from the GitHub release
-	for _, asset := range res.Release.Assets {
-		if !strings.HasPrefix(asset.BrowserDownloadUrl, "https://github.com") {
-			return nil, errors.New("invalid download url")
-		}
 	}
 
 	res.Release.Version = strings.TrimPrefix(res.Release.TagName, "v")

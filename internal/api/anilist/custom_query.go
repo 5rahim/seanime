@@ -55,7 +55,7 @@ func customQuery(body []byte, logger *zerolog.Logger, token ...string) (data int
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	if len(token) > 0 {
+	if len(token) > 0 && token[0] != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token[0]))
 	}
 

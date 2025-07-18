@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/mal"
@@ -44,7 +45,7 @@ type MediaFetcherOptions struct {
 // Calling this method will kickstart the fetch process
 // When enhancing is false, MediaFetcher.AllMedia will be all anilist.BaseAnime from the user's AniList collection.
 // When enhancing is true, MediaFetcher.AllMedia will be anilist.BaseAnime for each unique, parsed anime title and their relations.
-func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error) {
+func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error) {
 	defer util.HandlePanicInModuleWithError("library/scanner/NewMediaFetcher", &retErr)
 
 	if opts.Platform == nil ||
@@ -80,7 +81,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 	// +---------------------+
 
 	// Fetch latest user's AniList collection
-	animeCollectionWithRelations, err := opts.Platform.GetAnimeCollectionWithRelations()
+	animeCollectionWithRelations, err := opts.Platform.GetAnimeCollectionWithRelations(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -127,6 +128,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 	if opts.Enhanced {
 
 		_, ok := FetchMediaFromLocalFiles(
+			ctx,
 			opts.Platform,
 			opts.LocalFiles,
 			opts.CompleteAnimeCache, // CompleteAnimeCache will be populated on success
@@ -171,7 +173,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		AllMedia:        mf.AllMedia,
 		UnknownMediaIds: mf.UnknownMediaIds,
 	}
-	hook.GlobalHookManager.OnScanMediaFetcherCompleted().Trigger(completedEvent)
+	_ = hook.GlobalHookManager.OnScanMediaFetcherCompleted().Trigger(completedEvent)
 	mf.AllMedia = completedEvent.AllMedia
 	mf.UnknownMediaIds = completedEvent.UnknownMediaIds
 
@@ -188,6 +190,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 // It does not return an error if one of the steps fails.
 // It returns the scanned media and a boolean indicating whether the process was successful.
 func FetchMediaFromLocalFiles(
+	ctx context.Context,
 	platform platform.Platform,
 	localFiles []*anime.LocalFile,
 	completeAnime *anilist.CompleteAnimeCache,
@@ -279,7 +282,7 @@ func FetchMediaFromLocalFiles(
 	anilistMedia := make([]*anilist.CompleteAnime, 0)
 	lop.ForEach(anilistIds, func(id int, index int) {
 		anilistRateLimiter.Wait()
-		media, err := platform.GetAnimeWithRelations(id)
+		media, err := platform.GetAnimeWithRelations(ctx, id)
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
 			if scanLogger != nil {

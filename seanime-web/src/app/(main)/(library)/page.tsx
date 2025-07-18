@@ -13,8 +13,8 @@ import { EmptyLibraryView } from "@/app/(main)/(library)/_screens/empty-library-
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { AnimatePresence } from "framer-motion"
 import { useAtom } from "jotai/react"
+import { AnimatePresence } from "motion/react"
 import React from "react"
 
 export const dynamic = "force-static"
@@ -31,13 +31,14 @@ export default function Library() {
         ignoredLocalFiles,
         unmatchedGroups,
         unknownGroups,
+        streamingMediaIds,
+        hasEntries,
+        isStreamingOnly,
     } = useHandleLibraryCollection()
 
     const [view, setView] = useAtom(__library_viewAtom)
 
     const ts = useThemeSettings()
-
-    const hasEntries = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
 
     return (
         <div data-library-page-container>
@@ -51,6 +52,7 @@ export default function Library() {
                 unknownGroups={unknownGroups}
                 isLoading={isLoading}
                 hasEntries={hasEntries}
+                isStreamingOnly={isStreamingOnly}
             />
 
             <EmptyLibraryView isLoading={isLoading} hasEntries={hasEntries} />
@@ -75,6 +77,7 @@ export default function Library() {
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
                         hasEntries={hasEntries}
+                        streamingMediaIds={streamingMediaIds}
                     />
                 </PageWrapper>}
                 {view === "detailed" && <PageWrapper
@@ -94,6 +97,7 @@ export default function Library() {
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
                         hasEntries={hasEntries}
+                        streamingMediaIds={streamingMediaIds}
                     />
                 </PageWrapper>}
             </AnimatePresence>

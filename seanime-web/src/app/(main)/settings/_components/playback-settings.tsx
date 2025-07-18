@@ -1,23 +1,26 @@
 import {
+    ElectronPlaybackMethod,
     PlaybackDownloadedMedia,
-    playbackDownloadedMediaOptions,
     PlaybackTorrentStreaming,
-    playbackTorrentStreamingOptions,
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
-import { RadioGroup } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
-import { MdOutlineDevices } from "react-icons/md"
+import { BiDesktop, BiPlay } from "react-icons/bi"
+import { IoPlayBackCircleSharp } from "react-icons/io5"
+import { LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
+import { MdOutlineBroadcastOnHome } from "react-icons/md"
+import { RiSettings3Fill } from "react-icons/ri"
 import { toast } from "sonner"
 
 type PlaybackSettingsProps = {
@@ -38,144 +41,256 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
         setDownloadedMediaPlayback,
         torrentStreamingPlayback,
         setTorrentStreamingPlayback,
+        electronPlaybackMethod,
+        setElectronPlaybackMethod,
     } = useCurrentDevicePlaybackSettings()
 
     const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
     const { externalPlayerLink } = useExternalPlayerLink()
     const setTab = useSetAtom(__settings_tabAtom)
 
+    const usingNativePlayer = __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer
 
     return (
         <>
-            <div>
-                <h3>
-                    Playback
-                </h3>
-                <p className="text-[--muted]">
-                    Configure how anime is played on this device.
-                </p>
-                <p className="text-[--muted]">
-                    These settings do not apply to playlists.
-                </p>
-            </div>
+            <div className="space-y-4">
+                <SettingsPageHeader
+                    title="Video playback"
+                    description="Choose how anime is played on this device"
+                    icon={IoPlayBackCircleSharp}
+                />
 
-            <p className="">
-                Current client: {serverStatus?.clientDevice || "N/A"}, {serverStatus?.clientPlatform || "N/A"}.
-            </p>
+                <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-800">
+                    <BiDesktop className="text-lg text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Device:</span>
+                    <span className="font-medium">{serverStatus?.clientDevice || "-"}</span>
+                    <span className="text-gray-400">•</span>
+                    <span className="font-medium">{serverStatus?.clientPlatform || "-"}</span>
+                </div>
+            </div>
 
             {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
                 <Alert
-                    intent="alert" description={<>
-                    External player link is not set. <Button
-                    intent="white-link" className="h-5 px-1" onClick={() => {
-                    setTab("external-player-link")
-                }}
-                >Set external player link</Button>
-                </>}
+                    intent="alert-basic"
+                    description={
+                        <div className="flex items-center justify-between gap-3">
+                            <span>No external player custom scheme has been set</span>
+                            <Button
+                                intent="gray-outline"
+                                size="sm"
+                                onClick={() => setTab("external-player-link")}
+                            >
+                                Add
+                            </Button>
+                        </div>
+                    }
                 />
             )}
 
-            <SettingsCard title="Downloaded media" description="Player to use for downloaded media.">
+            {__isElectronDesktop__ && (
+                <SettingsCard
+                    title="Seanime Denshi"
+                    className="border-2 border-dashed dark:border-gray-700 bg-gradient-to-r from-indigo-50/50 to-pink-50/50 dark:from-gray-900/20 dark:to-gray-900/20"
+                >
+                    <div className="space-y-4">
 
-                {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
-                    <Alert
-                        intent="info" description={<>
-                        Using <span className="font-semibold">{(serverStatus?.mediastreamSettings?.transcodeEnabled && activeOnDevice)
-                        ? "integrated player (media streaming)"
-                        : "desktop media player"}</span> for downloaded media.
-                    </>}
-                    />
-                )}
-                {(downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink && !!externalPlayerLink) && (
-                    <Alert
-                        intent="info" description={<>
-                        Using <span className="font-semibold">external player link</span> for downloaded media.
-                    </>}
-                    />
-                )}
-
-                <RadioGroup
-                    // label="Downloaded media"
-                    // help="Player to use for downloaded media."
-                    value={downloadedMediaPlayback}
-                    onValueChange={v => {
-                        setDownloadedMediaPlayback(v)
-                        toast.success("Playback settings updated")
-                    }}
-                    options={playbackDownloadedMediaOptions}
-                    itemContainerClass={cn(
-                        "items-start cursor-pointer transition border-transparent rounded-[--radius] p-3 w-full",
-                        "bg-transparent dark:hover:bg-gray-900 dark:bg-transparent",
-                        "data-[state=checked]:bg-brand-500/5 dark:data-[state=checked]:bg-gray-900",
-                        "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-transparent transition",
-                        "dark:border dark:data-[state=checked]:border-[--border] data-[state=checked]:ring-offset-0",
-                    )}
-                    itemClass={cn(
-                        "absolute top-2 right-2",
-                    )}
-                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer w-full"
-                />
-
-                <>
-                    {serverStatus?.mediastreamSettings?.transcodeEnabled && <div className="flex gap-4 items-center rounded-[--radius-md]">
-                        <MdOutlineDevices className="text-4xl" />
-                        <div className="space-y-1">
-                            <Checkbox
-                                value={activeOnDevice ?? false}
-                                onValueChange={v => {
-                                    setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
-                                    if (v) {
-                                        toast.success("Media streaming is now active on this device.")
-                                    } else {
-                                        toast.info("Media streaming is now inactive on this device.")
-                                    }
-                                }}
-                                label="Use media streaming on this device"
-                            />
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 border border-indigo-500/20">
+                                <LuClapperboard className="text-2xl text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <div className="flex-1">
+                                <Switch
+                                    label="Use built-in player"
+                                    help="When enabled, all media will use the built-in player (overrides settings below)"
+                                    value={electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer}
+                                    onValueChange={v => {
+                                        setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Default)
+                                        toast.success("Playback settings updated")
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>}
-                </>
+                    </div>
+                </SettingsCard>
+            )}
+
+            <SettingsCard
+                title="Downloaded Media"
+                description="Choose how to play anime files stored on your device"
+                className={cn(
+                    "transition-all duration-200",
+                    usingNativePlayer && "opacity-50 pointer-events-none",
+                )}
+            >
+                <div className="space-y-4">
+
+                    {/* Option Comparison */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Desktop Player Option */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-lg border cursor-pointer transition-all",
+                                downloadedMediaPlayback === PlaybackDownloadedMedia.Default && !activeOnDevice
+                                    ? "border-[--brand] bg-brand-900/10"
+                                    : "border-gray-700 hover:border-gray-600",
+                            )}
+                            onClick={() => {
+                                setDownloadedMediaPlayback(PlaybackDownloadedMedia.Default)
+                                setActiveOnDevice(false)
+                                toast.success("Playback settings updated")
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <div className="flex-1 space-y-2">
+                                    <div>
+                                        <p className="font-medium">Desktop Media Player</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">Opens files in your system player with automatic
+                                                                                                tracking</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Web Player Option */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-lg border cursor-pointer transition-all",
+                                downloadedMediaPlayback === PlaybackDownloadedMedia.Default && activeOnDevice
+                                    ? "border-[--brand] bg-brand-900/10"
+                                    : "border-gray-700 hover:border-gray-600",
+                                !serverStatus?.mediastreamSettings?.transcodeEnabled && "opacity-50",
+                            )}
+                            onClick={() => {
+                                if (serverStatus?.mediastreamSettings?.transcodeEnabled) {
+                                    setDownloadedMediaPlayback(PlaybackDownloadedMedia.Default)
+                                    setActiveOnDevice(true)
+                                    toast.success("Playback settings updated")
+                                }
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <MdOutlineBroadcastOnHome className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <div className="flex-1 space-y-2">
+                                    <div>
+                                        <p className="font-medium">Transcoding / Direct Play</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                                            {serverStatus?.mediastreamSettings?.transcodeEnabled
+                                                ? "Plays in browser with transcoding"
+                                                : "Transcoding not enabled"
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* External Player Option */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-lg border cursor-pointer transition-all",
+                                downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink
+                                    ? "border-[--brand] bg-brand-900/10"
+                                    : "border-gray-700 hover:border-gray-600",
+                            )}
+                            onClick={() => {
+                                setDownloadedMediaPlayback(PlaybackDownloadedMedia.ExternalPlayerLink)
+                                toast.success("Playback settings updated")
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <div className="flex-1 space-y-2">
+                                    <div>
+                                        <p className="font-medium">External Player Link</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">Send stream URL to another application</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </SettingsCard>
 
-            <SettingsCard title="Torrent/Debrid streaming" description="Player to use for torrent and debrid streaming.">
+            <SettingsCard
+                title="Torrent & Debrid Streaming"
+                description="Choose how to play streamed content from torrents and debrid services"
+                className={cn(
+                    "transition-all duration-200",
+                    usingNativePlayer && "opacity-50 pointer-events-none",
+                )}
+            >
+                <div className="space-y-4">
 
-                <Alert
-                    intent="info" description={<>
-                    Using <span className="font-semibold">{(torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)
-                    ? "external player link"
-                    : "desktop media player"}</span> for torrent/debrid streaming.
-                </>}
-                />
+                    {/* Option Comparison */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Desktop Player Option */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-lg border cursor-pointer transition-all",
+                                torrentStreamingPlayback === PlaybackTorrentStreaming.Default
+                                    ? "border-[--brand] bg-brand-900/10"
+                                    : "border-gray-700 hover:border-gray-600",
+                            )}
+                            onClick={() => {
+                                setTorrentStreamingPlayback(PlaybackTorrentStreaming.Default)
+                                toast.success("Playback settings updated")
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <LuLaptop className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <div className="flex-1 space-y-2">
+                                    <div>
+                                        <p className="font-medium">Desktop Media Player</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">Opens streams in your system player with automatic
+                                                                                                tracking</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <RadioGroup
-                    // name="-"
-                    // label="Torrent/Debrid streaming"
-                    // help="Player to use for torrent or debrid streaming."
-                    value={torrentStreamingPlayback}
-                    onValueChange={v => {
-                        setTorrentStreamingPlayback(v)
-                        toast.success("Playback settings updated")
-                    }}
-                    options={playbackTorrentStreamingOptions}
-                    itemContainerClass={cn(
-                        "items-start cursor-pointer transition border-transparent rounded-[--radius] p-3 w-full",
-                        "bg-transparent dark:hover:bg-gray-900 dark:bg-transparent",
-                        "data-[state=checked]:bg-brand-500/5 dark:data-[state=checked]:bg-gray-900",
-                        "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-transparent transition",
-                        "dark:border dark:data-[state=checked]:border-[--border] data-[state=checked]:ring-offset-0",
-                    )}
-                    itemClass={cn(
-                        "absolute top-2 right-2",
-                    )}
-                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer w-full"
-                />
-
+                        {/* External Player Option */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-lg border cursor-pointer transition-all",
+                                torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink
+                                    ? "border-[--brand] bg-brand-900/10"
+                                    : "border-gray-700 hover:border-gray-600",
+                            )}
+                            onClick={() => {
+                                setTorrentStreamingPlayback(PlaybackTorrentStreaming.ExternalPlayerLink)
+                                toast.success("Playback settings updated")
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <LuExternalLink className="text-xl text-brand-600 dark:text-brand-400 mt-1" />
+                                <div className="flex-1 space-y-2">
+                                    <div>
+                                        <p className="font-medium">External Player Link</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">Send stream URL to another application</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </SettingsCard>
 
-            <p className="italic text-sm text-[--muted]">
-                Changes are saved automatically.
-            </p>
+            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-lg p-3 border border-gray-200 dark:border-gray-800 border-dashed">
+                <RiSettings3Fill className="text-base" />
+                <span>Settings are saved automatically</span>
+            </div>
 
+            {usingNativePlayer && (
+                <div className="text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
+                        <BiPlay className="text-indigo-600 dark:text-indigo-400" />
+                        <span className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+                            Native player is active - other settings are disabled
+                        </span>
+                    </div>
+                </div>
+            )}
         </>
     )
 }

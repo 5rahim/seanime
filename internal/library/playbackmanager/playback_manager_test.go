@@ -2,6 +2,7 @@ package playbackmanager_test
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
@@ -31,7 +32,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
+	metadataProvider := metadata.GetMockProvider(t)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
 		FileCacher: filecacher,
@@ -40,15 +42,16 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	})
 
 	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager: wsEventManager,
-		Logger:         logger,
-		Platform:       anilistPlatform,
-		Database:       database,
+		WSEventManager:   wsEventManager,
+		Logger:           logger,
+		Platform:         anilistPlatform,
+		MetadataProvider: metadataProvider,
+		Database:         database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
 		DiscordPresence:   nil,
-		IsOffline:         false,
+		IsOffline:         &[]bool{false}[0],
 		ContinuityManager: continuityManager,
 	}), animeCollection, nil
 }

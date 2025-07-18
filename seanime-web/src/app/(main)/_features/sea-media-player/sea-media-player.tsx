@@ -31,6 +31,7 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { logger } from "@/lib/helpers/debug"
+import { __isDesktop__ } from "@/types/constants"
 import {
     MediaCanPlayDetail,
     MediaCanPlayEvent,
@@ -324,6 +325,16 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         _onCanPlay?.(e, event)
 
         canPlayRef.current = true
+
+        if (__isDesktop__ && wentToNextEpisodeRef.current) {
+            logger("MEDIA PLAYER").info("Restoring fullscreen")
+            try {
+                playerRef.current?.enterFullscreen()
+                playerRef.current?.el?.focus()
+            }
+            catch {
+            }
+        }
 
         wentToNextEpisodeRef.current = false
 

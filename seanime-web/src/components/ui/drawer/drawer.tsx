@@ -1,9 +1,10 @@
 "use client"
 
+import { __isDesktop__ } from "@/types/constants"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva, VariantProps } from "class-variance-authority"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import * as React from "react"
 import { CloseButton } from "../button"
@@ -51,7 +52,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
         "fixed z-50 w-full gap-4 bg-[--background] p-6 shadow-lg overflow-y-auto",
         "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
         "focus:outline-none focus-visible:outline-none",
-        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "select-none",
+        __isDesktop__ && "select-none",
     ], {
         variants: {
             side: {
@@ -145,7 +146,7 @@ export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimi
      */
     portalContainer?: HTMLElement
 
-    mangaReader?: boolean
+    borderToBorder?: boolean
 }
 
 export function Drawer(props: DrawerProps) {
@@ -176,7 +177,7 @@ export function Drawer(props: DrawerProps) {
         onPointerDownCapture,
         onInteractOutside,
         portalContainer,
-        mangaReader,
+        borderToBorder: mangaReader,
         ...rest
     } = props
 
@@ -196,14 +197,14 @@ export function Drawer(props: DrawerProps) {
                 <DialogPrimitive.Content
                     className={cn(
                         DrawerAnatomy.content({ size, side: mangaReader ? "mangaReader" : side }),
-                        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-12",
+                        // __isDesktop__ && "pt-12",
                         !mangaReader && "lg:m-[10px] rounded-[--radius]",
                         contentClass,
                     )}
                     style={{
-                        marginTop: (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !mangaReader) ? "30px" : undefined,
+                        marginTop: (__isDesktop__ && !mangaReader) ? "30px" : undefined,
                         height: (
-                            process.env.NEXT_PUBLIC_PLATFORM === "desktop"
+                            __isDesktop__
                             && !mangaReader
                             && (side === "left" || side === "right")
                         ) ? "calc(100dvh - 50px)" : undefined,
@@ -224,7 +225,7 @@ export function Drawer(props: DrawerProps) {
                             <DialogPrimitive.Title
                                 className={cn(
                                     DrawerAnatomy.title(),
-                                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "relative",
+                                    __isDesktop__ && "relative",
                                     titleClass,
                                 )}
                             >
@@ -247,7 +248,7 @@ export function Drawer(props: DrawerProps) {
                     {!hideCloseButton && <DialogPrimitive.Close
                         className={cn(
                             DrawerAnatomy.close(),
-                            // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!top-10 !right-4",
+                            // __isDesktop__ && "!top-10 !right-4",
                             closeClass,
                         )}
                         asChild

@@ -1,7 +1,7 @@
 package discordrpc_presence
 
 import (
-	"seanime/internal/discordrpc/client"
+	discordrpc_client "seanime/internal/discordrpc/client"
 	"seanime/internal/hook_resolver"
 )
 
@@ -14,6 +14,8 @@ type DiscordPresenceAnimeActivityRequestedEvent struct {
 	// Anime activity object used to generate the activity
 	AnimeActivity *AnimeActivity `json:"animeActivity"`
 
+	// Name of the activity
+	Name string `json:"name"`
 	// Details of the activity
 	Details string `json:"details"`
 	// State of the activity
@@ -47,6 +49,8 @@ type DiscordPresenceMangaActivityRequestedEvent struct {
 	// Manga activity object used to generate the activity
 	MangaActivity *MangaActivity `json:"mangaActivity"`
 
+	// Name of the activity
+	Name string `json:"name"`
 	// Details of the activity
 	Details string `json:"details"`
 	// State of the activity

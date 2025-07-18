@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
-	"github.com/samber/lo"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -11,6 +9,9 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 )
 
 // HandleGetSettings
@@ -48,6 +49,7 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 		Discord                models.DiscordSettings      `json:"discord"`
 		Manga                  models.MangaSettings        `json:"manga"`
 		Notifications          models.NotificationSettings `json:"notifications"`
+		Nakama                 models.NakamaSettings       `json:"nakama"`
 		EnableTranscode        bool                        `json:"enableTranscode"`
 		EnableTorrentStreaming bool                        `json:"enableTorrentStreaming"`
 		DebridProvider         string                      `json:"debridProvider"`
@@ -77,6 +79,7 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 		Discord:       &b.Discord,
 		Manga:         &b.Manga,
 		Notifications: &b.Notifications,
+		Nakama:        &b.Nakama,
 		AutoDownloader: &models.AutoDownloaderSettings{
 			Provider:              b.Library.TorrentProvider,
 			Interval:              20,
@@ -154,6 +157,7 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 		Discord       models.DiscordSettings      `json:"discord"`
 		Manga         models.MangaSettings        `json:"manga"`
 		Notifications models.NotificationSettings `json:"notifications"`
+		Nakama        models.NakamaSettings       `json:"nakama"`
 	}
 	var b body
 
@@ -219,6 +223,7 @@ func (h *Handler) HandleSaveSettings(c echo.Context) error {
 		Manga:          &b.Manga,
 		Discord:        &b.Discord,
 		Notifications:  &b.Notifications,
+		Nakama:         &b.Nakama,
 		AutoDownloader: &autoDownloaderSettings,
 	})
 

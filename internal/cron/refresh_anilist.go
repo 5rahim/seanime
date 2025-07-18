@@ -35,5 +35,8 @@ func SyncLocalDataJob(c *JobCtx) {
 		return
 	}
 
-	_ = c.App.SyncManager.SynchronizeLocal()
+	// Only synchronize local data if the user is not simulated
+	if !c.App.GetUser().IsSimulated {
+		_ = c.App.LocalManager.SynchronizeLocal()
+	}
 }

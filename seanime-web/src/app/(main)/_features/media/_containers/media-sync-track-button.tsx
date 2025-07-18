@@ -1,4 +1,4 @@
-import { useSyncAddMedia, useSyncGetIsMediaTracked, useSyncRemoveMedia } from "@/api/hooks/sync.hooks"
+import { useLocalAddTrackedMedia, useLocalGetIsMediaTracked, useLocalRemoveTrackedMedia } from "@/api/hooks/local.hooks"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -20,9 +20,9 @@ export function MediaSyncTrackButton(props: MediaSyncTrackButtonProps) {
         ...rest
     } = props
 
-    const { data: isTracked, isLoading } = useSyncGetIsMediaTracked(mediaId, type)
-    const { mutate: addMedia, isPending: isAdding } = useSyncAddMedia()
-    const { mutate: removeMedia, isPending: isRemoving } = useSyncRemoveMedia()
+    const { data: isTracked, isLoading } = useLocalGetIsMediaTracked(mediaId, type)
+    const { mutate: addMedia, isPending: isAdding } = useLocalAddTrackedMedia()
+    const { mutate: removeMedia, isPending: isRemoving } = useLocalRemoveTrackedMedia()
 
     function handleToggle() {
         if (isTracked) {

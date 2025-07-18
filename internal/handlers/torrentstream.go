@@ -2,45 +2,16 @@ package handlers
 
 import (
 	"errors"
-	"net/http"
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
-	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
-	lop "github.com/samber/lo/parallel"
 )
-
-// HandleGetTorrentstreamEpisodeCollection
-//
-//	@summary get list of episodes
-//	@desc This returns a list of episodes.
-//	@returns torrentstream.EpisodeCollection
-//	@param id - int - true - "AniList anime media ID"
-//	@route /api/v1/torrentstream/episodes/{id} [GET]
-func (h *Handler) HandleGetTorrentstreamEpisodeCollection(c echo.Context) error {
-	mId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	ec, err := h.App.TorrentstreamRepository.NewEpisodeCollection(mId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
-		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
-	})
-
-	return h.RespondWithData(c, ec)
-}
 
 // HandleGetTorrentstreamSettings
 //
@@ -174,7 +145,7 @@ func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 
 	userAgent := c.Request().Header.Get("User-Agent")
 
-	err := h.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
+	err := h.App.TorrentstreamRepository.StartStream(c.Request().Context(), &torrentstream.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,
@@ -246,6 +217,7 @@ func (h *Handler) HandleGetTorrentstreamBatchHistory(c echo.Context) error {
 }
 
 // route /api/v1/torrentstream/stream/*
-func (h *Handler) HandleTorrentstreamServeStream() http.Handler {
-	return h.App.TorrentstreamRepository.HTTPStreamHandler()
+func (h *Handler) HandleTorrentstreamServeStream(c echo.Context) error {
+	h.App.TorrentstreamRepository.HTTPStreamHandler().ServeHTTP(c.Response().Writer, c.Request())
+	return nil
 }

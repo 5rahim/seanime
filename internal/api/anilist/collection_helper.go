@@ -1,6 +1,10 @@
 package anilist
 
-import "time"
+import (
+	"time"
+
+	"github.com/goccy/go-json"
+)
 
 type (
 	AnimeListEntry = AnimeCollection_MediaListCollection_Lists_Entries
@@ -176,4 +180,52 @@ func fuzzyDateToString(year *int, month *int, day *int) string {
 		_day = *day
 	}
 	return time.Date(_year, time.Month(_month), _day, 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
+}
+
+// AddEntryToList adds an entry to the appropriate list based on the provided status.
+// If no list exists with the given status, a new list is created.
+func (mc *AnimeCollection_MediaListCollection) AddEntryToList(entry *AnimeCollection_MediaListCollection_Lists_Entries, status MediaListStatus) {
+	if mc == nil || entry == nil {
+		return
+	}
+
+	// Initialize Lists slice if nil
+	if mc.Lists == nil {
+		mc.Lists = make([]*AnimeCollection_MediaListCollection_Lists, 0)
+	}
+
+	// Find existing list with the target status
+	for _, list := range mc.Lists {
+		if list.Status != nil && *list.Status == status {
+			// Found the list, add the entry
+			if list.Entries == nil {
+				list.Entries = make([]*AnimeCollection_MediaListCollection_Lists_Entries, 0)
+			}
+			list.Entries = append(list.Entries, entry)
+			return
+		}
+	}
+
+	// No list found with the target status, create a new one
+	newList := &AnimeCollection_MediaListCollection_Lists{
+		Status:  &status,
+		Entries: []*AnimeCollection_MediaListCollection_Lists_Entries{entry},
+	}
+	mc.Lists = append(mc.Lists, newList)
+}
+
+func (ac *AnimeCollection) Copy() *AnimeCollection {
+	if ac == nil {
+		return nil
+	}
+	marshaled, err := json.Marshal(ac)
+	if err != nil {
+		return nil
+	}
+	var copy AnimeCollection
+	err = json.Unmarshal(marshaled, &copy)
+	if err != nil {
+		return nil
+	}
+	return &copy
 }

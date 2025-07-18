@@ -6,17 +6,20 @@ import {
     Plugin_Server_DOMCreateEventPayload,
     Plugin_Server_DOMManipulateEventPayload,
     Plugin_Server_DOMObserveEventPayload,
+    Plugin_Server_DOMObserveInViewEventPayload,
     Plugin_Server_DOMQueryEventPayload,
     Plugin_Server_DOMQueryOneEventPayload,
     Plugin_Server_DOMStopObserveEventPayload,
     PluginClientEvents,
 } from "./generated/plugin-events"
 
-function uuidv4(): string {
-    // @ts-ignore
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
-    )
+// ID generation based on a counter for shorter, more consistent IDs
+let globalIdCounter = 0
+const ELEMENT_ID_PREFIX = "pe"
+
+function generateElementId(extensionId: string): string {
+    const counter = (globalIdCounter++).toString(36) // Convert to base-36 for shorter strings
+    return `${ELEMENT_ID_PREFIX}-${extensionId.substring(0, 4)}-${counter}`
 }
 
 type ElementToDOMElementOptions = {
@@ -32,6 +35,8 @@ type ElementToDOMElementOptions = {
 export function useDOMManager(extensionId: string) {
     const { sendPluginMessage } = useWebsocketSender()
 
+    // Store initial element IDs to ensure persistence across rerenders
+    const elementIdsMapRef = useRef<Map<Element, string>>(new Map())
     const elementObserversRef = useRef<Map<string, {
         selector: string;
         withInnerHTML?: boolean;
@@ -46,6 +51,28 @@ export function useDOMManager(extensionId: string) {
     const domReadySentRef = useRef<boolean>(false)
     // Track only elements created by this plugin
     const createdElementsRef = useRef<Set<string>>(new Set())
+    const intersectionObserversRef = useRef<Map<string, IntersectionObserver>>(new Map())
+
+    // Ensure element has a persistent ID
+    const ensureElementId = (element: Element): string => {
+        // If we already assigned an ID to this element, reuse it
+        if (elementIdsMapRef.current.has(element)) {
+            return elementIdsMapRef.current.get(element)!
+        }
+
+        // If element already has an ID, use it
+        if (element.id) {
+            // Store the existing ID in our map
+            elementIdsMapRef.current.set(element, element.id)
+            return element.id
+        }
+
+        // Generate and assign a new ID
+        const newId = generateElementId(extensionId)
+        element.id = newId
+        elementIdsMapRef.current.set(element, newId)
+        return newId
+    }
 
     const safeSendPluginMessage = (type: string, payload: any) => {
         if (disposedRef.current) return // Prevent sending messages if disposed
@@ -70,13 +97,8 @@ export function useDOMManager(extensionId: string) {
         }
 
         // Ensure the element has an ID
-        if (!element.id) {
-            const id = `plugin-element-${uuidv4()}`
-            element.setAttribute("id", id)
-            attributes.id = id
-        } else {
-            attributes.id = element.id
-        }
+        const id = ensureElementId(element)
+        attributes.id = id
 
         // Add dataset as attributes with data- prefix
         if (element instanceof HTMLElement) {
@@ -92,8 +114,7 @@ export function useDOMManager(extensionId: string) {
             // Get all descendants (not just direct children)
             element.querySelectorAll("*").forEach(child => {
                 if (!child.id) {
-                    const childId = `plugin-element-${uuidv4()}`
-                    child.setAttribute("id", childId)
+                    ensureElementId(child)
                 }
             })
         }
@@ -190,25 +211,18 @@ export function useDOMManager(extensionId: string) {
                 // Check if any of the processed elements match our selector
                 processedElements.forEach(element => {
                     if (element.matches(observer.selector)) {
-                        // Only assign ID if element matches the selector
-                        if (!element.id) {
-                            element.id = `plugin-element-${uuidv4()}`
-                        }
+                        // Ensure ID if element matches the selector
+                        ensureElementId(element)
                         matchedElements.push(element)
                     }
                 })
 
                 // Also do a general query to catch any elements that might match but weren't directly modified
                 document.querySelectorAll(observer.selector).forEach(element => {
-                    const id = element.id
-
-                    // If element matches and doesn't have an ID, assign one
-                    if (!id) {
-                        element.id = `plugin-element-${uuidv4()}`
-                    }
+                    const id = ensureElementId(element)
 
                     // If we haven't seen this element before, add it
-                    if (!observedSet.has(element.id) && !matchedElements.includes(element)) {
+                    if (!observedSet.has(id) && !matchedElements.includes(element)) {
                         matchedElements.push(element)
                     }
                 })
@@ -216,8 +230,6 @@ export function useDOMManager(extensionId: string) {
                 if (matchedElements.length > 0) {
                     // Convert to DOM elements
                     const domElements = matchedElements.map(e => {
-                        // Ensure ID
-                        if (!e.id) e.id = `plugin-element-${uuidv4()}`
                         return elementToDOMElement(e, {
                             withInnerHTML: observer.withInnerHTML,
                             withOuterHTML: observer.withOuterHTML,
@@ -300,9 +312,7 @@ export function useDOMManager(extensionId: string) {
         if (elements.length > 0) {
             // Ensure each element has an ID and add to matched set
             const matchedElements = Array.from(elements).map(element => {
-                if (!element.id) {
-                    element.id = `plugin-element-${uuidv4()}`
-                }
+                ensureElementId(element)
                 return element
             })
 
@@ -324,6 +334,89 @@ export function useDOMManager(extensionId: string) {
         }
     }
 
+    const handleDOMObserveInView = (payload: Plugin_Server_DOMObserveInViewEventPayload) => {
+        const { selector, observerId, withInnerHTML, identifyChildren, withOuterHTML, margin } = payload
+        if (disposedRef.current) return
+
+        // Stop any existing observer with the same ID
+        if (intersectionObserversRef.current.has(observerId)) {
+            intersectionObserversRef.current.get(observerId)?.disconnect()
+            intersectionObserversRef.current.delete(observerId)
+        }
+
+        // Initialize set to track observed elements for this observer
+        observedElementsRef.current.set(observerId, new Set())
+
+        // Store the observer configuration
+        elementObserversRef.current.set(observerId, {
+            selector,
+            withInnerHTML,
+            withOuterHTML,
+            identifyChildren,
+            callback: (elements) => {
+                // This callback is called when elements matching the selector are in view
+                // console.log(`InView Observer ${observerId} callback with ${elements.length} elements matching ${selector}`, elements.map(e =>
+                // e.id))
+            },
+        })
+
+        // First, find all elements matching the selector
+        const elements = document.querySelectorAll(selector)
+
+        // Create an array to track which elements are in view
+        const visibleElements: Element[] = []
+
+        // Create an IntersectionObserver to watch for elements in the viewport
+        const observer = new IntersectionObserver((entries) => {
+            // Filter for entries that are intersecting (visible)
+            const newlyVisibleElements = entries
+                .filter(entry => entry.isIntersecting)
+                .map(entry => entry.target)
+
+            if (newlyVisibleElements.length > 0) {
+                // Convert to DOM elements
+                const domElements = newlyVisibleElements.map(e => {
+                    return elementToDOMElement(e, {
+                        withInnerHTML,
+                        withOuterHTML,
+                        identifyChildren,
+                    })
+                })
+
+                // Track these elements as observed
+                const observedSet = observedElementsRef.current.get(observerId) || new Set()
+                domElements.forEach(elem => observedSet.add(elem.id))
+                observedElementsRef.current.set(observerId, observedSet)
+
+                // Call the callback
+                elementObserversRef.current.get(observerId)?.callback(newlyVisibleElements)
+
+                // Send matched elements to the plugin
+                safeSendPluginMessage(PluginClientEvents.DOMObserveResult, {
+                    observerId,
+                    elements: domElements,
+                })
+            }
+        }, {
+            root: null, // viewport
+            rootMargin: margin, // margin around the viewport (e.g., "10px" or "10px 20px 30px 40px")
+            threshold: 0.1, // trigger when at least 10% of the target is visible
+        })
+
+        // Store the observer for later cleanup
+        intersectionObserversRef.current.set(observerId, observer)
+
+        // Start observing all matching elements
+        if (elements.length > 0) {
+            elements.forEach(element => {
+                // Ensure element has an ID
+                ensureElementId(element)
+                // Start observing this element
+                observer.observe(element)
+            })
+        }
+    }
+
     const handleDOMStopObserve = (payload: Plugin_Server_DOMStopObserveEventPayload) => {
         const { observerId } = payload
         elementObserversRef.current.delete(observerId)
@@ -334,10 +427,14 @@ export function useDOMManager(extensionId: string) {
         const { tagName, requestId } = payload
         if (disposedRef.current) return
         const element = document.createElement(tagName)
-        element.id = `plugin-element-${uuidv4()}`
+        const elementId = generateElementId(extensionId)
+        element.id = elementId
+
+        // Store in our map for persistence
+        elementIdsMapRef.current.set(element, elementId)
 
         // Track this element as it was created by the plugin
-        createdElementsRef.current.add(element.id)
+        createdElementsRef.current.add(elementId)
 
         // Add to a hidden container for now
         let container = document.getElementById("plugin-dom-container")
@@ -483,15 +580,15 @@ export function useDOMManager(extensionId: string) {
                 (element as any)[params.name] = params.value
                 break
             case "addClass":
-                element.classList.add(params.className)
+                element.classList.add(...(params.classNames as string[]))
                 break
             case "removeClass":
-                // Store previous class presence
-                if (element instanceof HTMLElement && params.className) {
-                    storeOriginalValue(element, "class", params.className, element.classList.contains(params.className))
-                }
+                // // Store previous class presence
+                // if (element instanceof HTMLElement && params.classNames) {
+                //     storeOriginalValue(element, "class", params.className, element.classList.contains(params.className))
+                // }
 
-                element.classList.remove(params.className)
+                element.classList.remove(...(params.classNames as string[]))
                 break
             case "hasClass":
                 result = element.classList.contains(params.className)
@@ -684,8 +781,6 @@ export function useDOMManager(extensionId: string) {
                 console.warn(`Unknown DOM action: ${action}`)
         }
 
-        // console.log(`DOMElementUpdated: ${elementId} ${action} ${requestId}`)
-
         // Send the result back to the plugin
         safeSendPluginMessage(PluginClientEvents.DOMElementUpdated, {
             elementId,
@@ -706,6 +801,12 @@ export function useDOMManager(extensionId: string) {
             mutationObserverRef.current.disconnect()
             mutationObserverRef.current = null
         }
+
+        // Clean up intersection observers
+        intersectionObserversRef.current.forEach((observer) => {
+            observer.disconnect()
+        })
+        intersectionObserversRef.current.clear()
 
         // Remove all event listeners
         eventListenersRef.current.forEach((listener, listenerId) => {
@@ -735,6 +836,7 @@ export function useDOMManager(extensionId: string) {
         eventListenersRef.current.clear()
         observedElementsRef.current.clear()
         createdElementsRef.current.clear()
+        elementIdsMapRef.current.clear()
 
         // Remove plugin container if it exists and is empty
         const container = document.getElementById("plugin-dom-container")
@@ -771,6 +873,7 @@ export function useDOMManager(extensionId: string) {
         handleDOMQuery,
         handleDOMQueryOne,
         handleDOMObserve,
+        handleDOMObserveInView,
         handleDOMStopObserve,
         handleDOMCreate,
         handleDOMManipulate,

@@ -32,6 +32,7 @@ type (
 		Playback       *Playback
 		SocketName     string
 		AppPath        string
+		Args           string
 		mu             sync.Mutex
 		playbackMu     sync.RWMutex
 		cancel         context.CancelFunc               // Cancel function for the context
@@ -52,7 +53,7 @@ type (
 
 var cmdCtx, cmdCancel = context.WithCancel(context.Background())
 
-func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
+func New(logger *zerolog.Logger, socketName string, appPath string, optionalArgs ...string) *Mpv {
 	if cmdCancel != nil {
 		cmdCancel()
 	}
@@ -62,6 +63,11 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		sn = getDefaultSocketName()
 	}
 
+	additionalArgs := ""
+	if len(optionalArgs) > 0 {
+		additionalArgs = optionalArgs[0]
+	}
+
 	return &Mpv{
 		Logger:      logger,
 		Playback:    &Playback{},
@@ -69,6 +75,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		playbackMu:  sync.RWMutex{},
 		SocketName:  sn,
 		AppPath:     appPath,
+		Args:        additionalArgs,
 		subscribers: result.NewResultMap[string, *Subscriber](),
 		exitedCh:    make(chan struct{}),
 	}
@@ -312,15 +319,7 @@ func (m *Mpv) Seek(position float64) error {
 		return errors.New("mpv is not running")
 	}
 
-	// pause the player
-	_, err := m.conn.Call("set_property", "pause", true)
-	if err != nil {
-		return err
-	}
-
-	time.Sleep(100 * time.Millisecond)
-
-	_, err = m.conn.Call("set_property", "time-pos", position)
+	_, err := m.conn.Call("set_property", "time-pos", position)
 	if err != nil {
 		return err
 	}
@@ -528,6 +527,61 @@ func (s *Subscriber) Closed() <-chan struct{} {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// parseArgs parses a command line string into individual arguments, respecting quotes
+func parseArgs(s string) ([]string, error) {
+	args := make([]string, 0)
+	var current strings.Builder
+	var inQuotes bool
+	var quoteChar rune
+
+	runes := []rune(s)
+	for i := 0; i < len(runes); i++ {
+		char := runes[i]
+		switch {
+		case char == '"' || char == '\'':
+			if !inQuotes {
+				inQuotes = true
+				quoteChar = char
+			} else if char == quoteChar {
+				inQuotes = false
+				quoteChar = 0
+				// Add the current string even if it's empty (for empty quoted strings)
+				args = append(args, current.String())
+				current.Reset()
+			} else {
+				current.WriteRune(char)
+			}
+		case char == ' ' || char == '\t':
+			if inQuotes {
+				current.WriteRune(char)
+			} else if current.Len() > 0 {
+				args = append(args, current.String())
+				current.Reset()
+			}
+		case char == '\\' && i+1 < len(runes):
+			// Handle escaped characters
+			if inQuotes && (runes[i+1] == '"' || runes[i+1] == '\'') {
+				i++
+				current.WriteRune(runes[i])
+			} else {
+				current.WriteRune(char)
+			}
+		default:
+			current.WriteRune(char)
+		}
+	}
+
+	if inQuotes {
+		return nil, errors.New("unclosed quote in arguments")
+	}
+
+	if current.Len() > 0 {
+		args = append(args, current.String())
+	}
+
+	return args, nil
+}
+
 // getDefaultSocketName returns the default name of the socket/pipe.
 func getDefaultSocketName() string {
 	switch runtime.GOOS {
@@ -545,6 +599,16 @@ func getDefaultSocketName() string {
 // createCmd returns a new exec.Cmd instance.
 func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
+
+	// Add user-defined arguments
+	if m.Args != "" {
+		userArgs, err := parseArgs(m.Args)
+		if err != nil {
+			m.Logger.Warn().Err(err).Msg("mpv: Failed to parse user arguments, using simple split")
+			userArgs = strings.Fields(m.Args)
+		}
+		args = append(args, userArgs...)
+	}
 
 	if filePath != "" {
 		// escapedFilePath := url.PathEscape(filePath)

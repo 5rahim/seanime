@@ -1,7 +1,9 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
+import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
+import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { useOpenSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -18,26 +20,30 @@ import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
-import { VerticalMenu } from "@/components/ui/vertical-menu"
-import { useDisclosure } from "@/hooks/use-disclosure"
+import { VerticalMenu, VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { openTab } from "@/lib/helpers/browser"
-import { ANILIST_OAUTH_URL } from "@/lib/server/config"
+import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { useSetAtom } from "jotai"
+import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { useAtom, useSetAtom } from "jotai"
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
+import { MdOutlineConnectWithoutContact } from "react-icons/md"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill, PiListChecksFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
+import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 /**
@@ -77,8 +83,9 @@ export function MainSidebar() {
     }, [isPending, data])
 
     const setGlobalSearchIsOpen = useSetAtom(__globalSearch_isOpenAtom)
-
-    const loginModal = useDisclosure(false)
+    const [loginModal, setLoginModal] = useAtom(isLoginModalOpenAtom)
+    const [nakamaModalOpen, setNakamaModalOpen] = useAtom(nakamaModalOpenAtom)
+    const nakamaStatus = useNakamaStatus()
 
     const handleExpandSidebar = () => {
         if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
@@ -111,6 +118,138 @@ export function MainSidebar() {
 
     const { data: updateData } = useGetExtensionUpdateData()
 
+    const [loggingIn, setLoggingIn] = React.useState(false)
+
+    const items = [
+        {
+            id: "library",
+            iconType: IoLibrary,
+            name: "Library",
+            href: "/",
+            isCurrent: pathname === "/",
+        },
+        {
+            id: "schedule",
+            iconType: BiCalendarAlt,
+            name: "Schedule",
+            href: "/schedule",
+            isCurrent: pathname === "/schedule",
+            addon: missingEpisodeCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{missingEpisodeCount}</Badge> : undefined,
+        },
+        ...serverStatus?.settings?.library?.enableManga ? [{
+            id: "manga",
+            iconType: FaBookReader,
+            name: "Manga",
+            href: "/manga",
+            isCurrent: pathname.startsWith("/manga"),
+        }] : [],
+        {
+            id: "discover",
+            iconType: BiNews,
+            name: "Discover",
+            href: "/discover",
+            isCurrent: pathname === "/discover",
+        },
+        {
+            id: "anilist",
+            iconType: user?.isSimulated ? PiListChecksFill : SiAnilist,
+            name: user?.isSimulated ? "My lists" : "AniList",
+            href: "/anilist",
+            isCurrent: pathname === "/anilist",
+        },
+        ...serverStatus?.settings?.nakama?.enabled ? [{
+            id: "nakama",
+            iconType: MdOutlineConnectWithoutContact,
+            iconClass: "size-6",
+            name: "Nakama",
+            isCurrent: nakamaModalOpen,
+            onClick: () => setNakamaModalOpen(true),
+            addon: <>
+                {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                    className="absolute right-0 top-0" size="sm"
+                    intent="info"
+                >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                {nakamaStatus?.isConnectedToHost && <div
+                    className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                ></div>}
+            </>,
+        }] : [],
+        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+            id: "auto-downloader",
+            iconType: TbWorldDownload,
+            name: "Auto Downloader",
+            href: "/auto-downloader",
+            isCurrent: pathname === "/auto-downloader",
+            addon: autoDownloaderQueueCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{autoDownloaderQueueCount}</Badge> : undefined,
+        }] : [],
+        ...(
+            serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
+            && !serverStatus?.settings?.torrent?.hideTorrentList
+            && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
+            ? [{
+                id: "torrent-list",
+                iconType: BiDownload,
+                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                    ? "Torrent list"
+                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
+                href: "/torrent-list",
+                isCurrent: pathname === "/torrent-list",
+                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                    ? <Badge
+                        className="absolute right-0 top-0 bg-green-500" size="sm"
+                        intent="alert-solid"
+                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
+                    : undefined,
+            }] : [],
+        ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
+            id: "debrid",
+            iconType: HiOutlineServerStack,
+            name: "Debrid",
+            href: "/debrid",
+            isCurrent: pathname === "/debrid",
+        }] : [],
+        {
+            id: "scan-summaries",
+            iconType: PiClockCounterClockwiseFill,
+            name: "Scan summaries",
+            href: "/scan-summaries",
+            isCurrent: pathname === "/scan-summaries",
+        },
+        {
+            id: "search",
+            iconType: FiSearch,
+            name: "Search",
+            onClick: () => {
+                ctx.setOpen(false)
+                setGlobalSearchIsOpen(true)
+            },
+        },
+    ]
+
+    const pinnedMenuItems = React.useMemo(() => {
+        return items.filter(item => !ts.unpinnedMenuItems?.includes(item.id))
+    }, [items, ts.unpinnedMenuItems])
+
+    const unpinnedMenuItems = React.useMemo(() => {
+        if (ts.unpinnedMenuItems?.length === 0 || items.length === 0) return []
+        return [
+            {
+                iconType: BiChevronRight,
+                name: "More",
+                subContent: <VerticalMenu
+                    items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
+                />,
+            } as VerticalMenuItem,
+        ]
+    }, [items, ts.unpinnedMenuItems, ts.hideTopNavbar])
+
     return (
         <>
             <AppSidebar
@@ -138,107 +277,22 @@ export function MainSidebar() {
                         className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
-
+                        itemChevronClass="hidden"
+                        itemIconClass="transition-transform group-data-[state=open]/verticalMenu_parentItem:rotate-90"
                         items={[
-                            // ...[process.env.NEXT_PUBLIC_PLATFORM === "desktop" && {
-                            //     iconType: AiOutlineArrowLeft,
-                            //     name: "Back",
-                            //     onClick: () => {
-                            //         router.back()
-                            //     },
-                            // }],
-                            {
-                                iconType: IoLibrary,
-                                name: "Library",
-                                href: "/",
-                                isCurrent: pathname === "/",
-                            },
-                            {
-                                iconType: BiCalendarAlt,
-                                name: "Schedule",
-                                href: "/schedule",
-                                isCurrent: pathname === "/schedule",
-                                addon: missingEpisodeCount > 0 ? <Badge
-                                    className="absolute right-0 top-0" size="sm"
-                                    intent="alert-solid"
-                                >{missingEpisodeCount}</Badge> : undefined,
-                            },
-                            ...[serverStatus?.settings?.library?.enableManga && {
-                                iconType: FaBookReader,
-                                name: "Manga",
-                                href: "/manga",
-                                isCurrent: pathname.startsWith("/manga"),
-                            }],
-                            {
-                                iconType: BiNews,
-                                name: "Discover",
-                                href: "/discover",
-                                isCurrent: pathname === "/discover",
-                            },
-                            {
-                                iconType: SiAnilist,
-                                name: "AniList",
-                                href: "/anilist",
-                                isCurrent: pathname === "/anilist",
-                            },
-                            ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
-                                iconType: TbWorldDownload,
-                                name: "Auto Downloader",
-                                href: "/auto-downloader",
-                                isCurrent: pathname === "/auto-downloader",
-                                addon: autoDownloaderQueueCount > 0 ? <Badge
-                                    className="absolute right-0 top-0" size="sm"
-                                    intent="alert-solid"
-                                >{autoDownloaderQueueCount}</Badge> : undefined,
-                            }],
-                            ...[(
-                                serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-                                && !serverStatus?.settings?.torrent?.hideTorrentList
-                                && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
-                            && {
-                                iconType: BiDownload,
-                                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                    ? "Torrent list"
-                                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
-                                href: "/torrent-list",
-                                isCurrent: pathname === "/torrent-list",
-                                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                                    ? <Badge
-                                        className="absolute right-0 top-0 bg-green-500" size="sm"
-                                        intent="alert-solid"
-                                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
-                                    : undefined,
-                            }],
-                            ...[(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && {
-                                iconType: HiOutlineServerStack,
-                                name: "Debrid",
-                                href: "/debrid",
-                                isCurrent: pathname === "/debrid",
-                            }],
-                            {
-                                iconType: PiClockCounterClockwiseFill,
-                                name: "Scan summaries",
-                                href: "/scan-summaries",
-                                isCurrent: pathname === "/scan-summaries",
-                            },
-                            {
-                                iconType: FiSearch,
-                                name: "Search",
-                                onClick: () => {
-                                    ctx.setOpen(false)
-                                    setGlobalSearchIsOpen(true)
-                                },
-                            },
-                        ].filter(Boolean)}
+                            ...pinnedMenuItems,
+                            ...unpinnedMenuItems,
+                        ]}
+                        subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
 
                     <SidebarNavbar
                         isCollapsed={isCollapsed}
-                        handleExpandSidebar={() => {}}
-                        handleUnexpandedSidebar={() => {}}
+                        handleExpandSidebar={() => { }}
+                        handleUnexpandedSidebar={() => { }}
                     />
-                    {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="w-full flex justify-center px-4">
+                    {__isDesktop__ && <div className="w-full flex justify-center px-4">
                         <HoverCard
                             side="right"
                             sideOffset={-8}
@@ -267,14 +321,16 @@ export function MainSidebar() {
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
-                    {process.env.NEXT_PUBLIC_PLATFORM !== "desktop" ? <UpdateModal collapsed={isCollapsed} /> :
-                        <TauriUpdateModal collapsed={isCollapsed} />}
+                    {!__isDesktop__ ? <UpdateModal collapsed={isCollapsed} /> :
+                        __isTauriDesktop__ ? <TauriUpdateModal collapsed={isCollapsed} /> :
+                            __isElectronDesktop__ ? <ElectronUpdateModal collapsed={isCollapsed} /> :
+                                null}
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
-                            onMouseEnter={() => {}}
-                            onMouseLeave={() => {}}
+                            onMouseEnter={() => { }}
+                            onMouseLeave={() => { }}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 // {
@@ -320,9 +376,9 @@ export function MainSidebar() {
                                 },
                                 ...(ctx.isBelowBreakpoint ? [
                                     {
-                                        iconType: BiLogOut,
-                                        name: "Sign out",
-                                        onClick: confirmSignOut.open,
+                                        iconType: user?.isSimulated ? FiLogIn : BiLogOut,
+                                        name: user?.isSimulated ? "Sign in" : "Sign out",
+                                        onClick: user?.isSimulated ? () => setLoginModal(true) : confirmSignOut.open,
                                     },
                                 ] : []),
                             ]}
@@ -354,31 +410,69 @@ export function MainSidebar() {
                                     { "hidden": ctx.isBelowBreakpoint },
                                 )}
                             >
-                                <Avatar size="sm" className="cursor-pointer" src={user?.avatar?.medium || ""} />
-                                {expandedSidebar && <p className="truncate">{user?.name}</p>}
+                                <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
+                                {expandedSidebar && <p className="truncate">{user?.viewer?.name}</p>}
                             </div>}
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}
                         >
-                            <DropdownMenuItem onClick={confirmSignOut.open}>
+                            {!user.isSimulated ? <DropdownMenuItem onClick={confirmSignOut.open}>
                                 <BiLogOut /> Sign out
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> : <DropdownMenuItem onClick={() => setLoginModal(true)}>
+                                <BiLogIn /> Log in with AniList
+                            </DropdownMenuItem>}
                         </DropdownMenu>
                     </div>}
                 </div>
             </AppSidebar>
 
             <Modal
-                title="Login"
-                open={loginModal.isOpen}
-                onOpenChange={loginModal.close}
+                title="Log in with AniList"
+                description="Using an AniList account is recommended."
+                open={loginModal && user?.isSimulated}
+                onOpenChange={(v) => setLoginModal(v)}
+                overlayClass="bg-opacity-95 bg-gray-950"
+                contentClass="border"
             >
                 <div className="mt-5 text-center space-y-4">
-                    <Button
-                        onClick={() => {
-                            openTab(ANILIST_OAUTH_URL)
-                        }} intent="primary-outline"
-                    >Login with AniList</Button>
+
+                    <Link
+                        href={ANILIST_PIN_URL}
+                        target="_blank"
+                    >
+                        <Button
+                            leftIcon={<svg
+                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
+                                viewBox="0 0 24 24" role="img"
+                            >
+                                <path
+                                    d="M6.361 2.943 0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166zm2.324 5.948 1.688 5.018H7.144z"
+                                />
+                            </svg>}
+                            intent="white"
+                            size="md"
+                        >Get AniList token</Button>
+                    </Link>
+
+                    <Form
+                        schema={defineSchema(({ z }) => z.object({
+                            token: z.string().min(1, "Token is required"),
+                        }))}
+                        onSubmit={data => {
+                            setLoggingIn(true)
+                            router.push("/auth/callback#access_token=" + data.token.trim())
+                            setLoginModal(false)
+                            setLoggingIn(false)
+                        }}
+                    >
+                        <Field.Textarea
+                            name="token"
+                            label="Enter the token"
+                            fieldClass="px-4"
+                        />
+                        <Field.Submit showLoadingOverlayOnSuccess loading={loggingIn}>Continue</Field.Submit>
+                    </Form>
+
                 </div>
             </Modal>
 

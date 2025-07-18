@@ -2,7 +2,7 @@
 import { cn } from "@/components/ui/core/styling"
 import { getAssetUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import React from "react"
 
 type CustomBackgroundImageProps = React.ComponentPropsWithoutRef<"div"> & {}

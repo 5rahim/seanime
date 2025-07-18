@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -255,4 +256,18 @@ func RandomStringWithAlphabet(length int, alphabet string) string {
 	}
 
 	return string(b)
+}
+
+func FileExt(str string) string {
+	lastDotIndex := strings.LastIndex(str, ".")
+	if lastDotIndex == -1 {
+		return ""
+	}
+	return str[lastDotIndex:]
+}
+
+func HashSHA256Hex(s string) string {
+	h := sha256.New()
+	h.Write([]byte(s))
+	return hex.EncodeToString(h.Sum(nil))
 }

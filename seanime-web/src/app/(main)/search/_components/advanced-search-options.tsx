@@ -135,7 +135,7 @@ export function AdvancedSearchOptions() {
                 <Select
                     leftAddon={<LuCalendar className={cn((params.year !== null && !!params.year) && "text-indigo-300 font-bold text-xl")} />}
                     label="Year" placeholder="Timeless" className="w-full"
-                    options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({
+                    options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx + 2).map(year => ({
                         value: String(year),
                         label: String(year),
                     }))}

@@ -3,8 +3,6 @@ package debrid_client
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -18,6 +16,9 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 var (
@@ -40,6 +41,8 @@ type (
 		completeAnimeCache *anilist.CompleteAnimeCache
 		metadataProvider   metadata.Provider
 		platform           platform.Platform
+
+		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
 
 	NewRepositoryOptions struct {
@@ -63,12 +66,13 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		settings: &models.DebridSettings{
 			Enabled: false,
 		},
-		torrentRepository:  opts.TorrentRepository,
-		platform:           opts.Platform,
-		playbackManager:    opts.PlaybackManager,
-		metadataProvider:   opts.MetadataProvider,
-		completeAnimeCache: anilist.NewCompleteAnimeCache(),
-		ctxMap:             result.NewResultMap[string, context.CancelFunc](),
+		torrentRepository:     opts.TorrentRepository,
+		platform:              opts.Platform,
+		playbackManager:       opts.PlaybackManager,
+		metadataProvider:      opts.MetadataProvider,
+		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
+		ctxMap:                result.NewResultMap[string, context.CancelFunc](),
+		previousStreamOptions: mo.None[*StartStreamOptions](),
 	}
 
 	ret.streamManager = NewStreamManager(ret)
@@ -228,12 +232,20 @@ func (r *Repository) CancelDownload(itemID string) error {
 	return nil
 }
 
-func (r *Repository) StartStream(opts *StartStreamOptions) error {
-	return r.streamManager.startStream(opts)
+func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) error {
+	return r.streamManager.startStream(ctx, opts)
+}
+
+func (r *Repository) GetStreamURL() (string, bool) {
+	return r.streamManager.currentStreamUrl, r.streamManager.currentStreamUrl != ""
 }
 
 func (r *Repository) CancelStream(opts *CancelStreamOptions) {
 	r.streamManager.cancelStream(opts)
+}
+
+func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
+	return r.previousStreamOptions.Get()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

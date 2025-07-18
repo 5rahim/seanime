@@ -15,7 +15,7 @@ func TestScanLogger(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())
 	if err != nil {
 		t.Fatal(err.Error())
 	}

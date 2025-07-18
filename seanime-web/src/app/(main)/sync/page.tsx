@@ -1,13 +1,14 @@
 "use client"
-import { Sync_QueueState } from "@/api/generated/types"
+import { Local_QueueState } from "@/api/generated/types"
 import {
-    useSyncAnilistData,
-    useSyncGetHasLocalChanges,
-    useSyncGetLocalStorageSize,
-    useSyncGetTrackedMediaItems,
-    useSyncLocalData,
-    useSyncSetHasLocalChanges,
-} from "@/api/hooks/sync.hooks"
+    useLocalGetHasLocalChanges,
+    useLocalGetLocalStorageSize,
+    useLocalGetTrackedMediaItems,
+    useLocalSetHasLocalChanges,
+    useLocalSyncAnilistData,
+    useLocalSyncData,
+    useSetOfflineMode,
+} from "@/api/hooks/local.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -25,7 +26,7 @@ import { Separator } from "@/components/ui/separator"
 import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
 import { WSEvents } from "@/lib/server/ws-events"
 import React from "react"
-import { LuCloudDownload, LuCloudUpload, LuFolderSync } from "react-icons/lu"
+import { LuCloud, LuCloudDownload, LuCloudOff, LuCloudUpload, LuFolderSync } from "react-icons/lu"
 import { VscSyncIgnored } from "react-icons/vsc"
 import { toast } from "sonner"
 
@@ -36,16 +37,19 @@ export default function Page() {
 
     const [syncModalOpen, setSyncModalOpen] = React.useState(false)
 
-    const { data: trackedMediaItems, isLoading } = useSyncGetTrackedMediaItems()
+    const { data: trackedMediaItems, isLoading } = useLocalGetTrackedMediaItems()
 
-    const { mutate: syncLocal, isPending: isSyncingLocal } = useSyncLocalData()
+    const { mutate: syncLocal, isPending: isSyncingLocal } = useLocalSyncData()
 
-    const { mutate: syncAnilist, isPending: isSyncingAnilist } = useSyncAnilistData()
+    const { mutate: syncAnilist, isPending: isSyncingAnilist } = useLocalSyncAnilistData()
 
-    const { data: hasLocalChanges } = useSyncGetHasLocalChanges()
-    const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useSyncSetHasLocalChanges()
+    const { data: hasLocalChanges } = useLocalGetHasLocalChanges()
 
-    const { data: localStorageSize } = useSyncGetLocalStorageSize()
+    const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useLocalSetHasLocalChanges()
+
+    const { data: localStorageSize } = useLocalGetLocalStorageSize()
+
+    const { mutate: setOfflineMode, isPending: isSettingOfflineMode } = useSetOfflineMode()
 
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
@@ -55,8 +59,8 @@ export default function Page() {
         return trackedMediaItems?.filter(n => n.type === "manga" && !!n.mangaEntry?.media) ?? []
     }, [trackedMediaItems])
 
-    const [queueState, setQueueState] = React.useState<Sync_QueueState | null>(null)
-    useWebsocketMessageListener<Sync_QueueState>({
+    const [queueState, setQueueState] = React.useState<Local_QueueState | null>(null)
+    useWebsocketMessageListener<Local_QueueState>({
         type: WSEvents.SYNC_LOCAL_QUEUE_STATE,
         onMessage: data => {
             setQueueState(data)
@@ -92,11 +96,34 @@ export default function Page() {
 
     if (isLoading) return <LoadingSpinner />
 
+    if (serverStatus?.user?.isSimulated) {
+        return <LuffyError
+            title="Not authenticated"
+        >
+            This feature is only available for authenticated users.
+        </LuffyError>
+    }
 
     return (
         <PageWrapper
             className="p-4 sm:p-8 pt-4 relative space-y-8"
         >
+
+            <Button
+                intent={"white-outline"}
+                rounded
+                className=""
+                leftIcon={serverStatus?.isOffline ? <LuCloudOff className="text-2xl" /> : <LuCloud className="text-2xl" />}
+                loading={isSettingOfflineMode}
+                onClick={() => {
+                    setOfflineMode({
+                        enabled: !serverStatus?.isOffline,
+                    })
+                }}
+            >
+                {serverStatus?.isOffline ? "Disable offline mode" : "Enable offline mode"}
+            </Button>
+
             <div className="flex gap-2">
                 <div>
                     <h2 className="text-center lg:text-left">Synced media</h2>
@@ -274,3 +301,5 @@ function SyncingBadge() {
         </Badge>
     )
 }
+
+

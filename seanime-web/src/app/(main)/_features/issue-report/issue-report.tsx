@@ -1,6 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { Report_ClickLog, Report_ConsoleLog, Report_NetworkLog, Report_ReactQueryLog } from "@/api/generated/types"
 import { useSaveIssueReport } from "@/api/hooks/report.hooks"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
@@ -119,7 +120,7 @@ export function IssueReport() {
     React.useEffect(() => {
         if (!isRecording) return
 
-        queryClient.getQueryCache().subscribe(listener => {
+        const queryUnsubscribe = queryClient.getQueryCache().subscribe(listener => {
             if (listener.query.state.status === "pending") return
             setReactQueryLogs(prev => [...prev, {
                 type: "query",
@@ -135,22 +136,30 @@ export function IssueReport() {
             }])
         })
 
+        const mutationUnsubscribe = queryClient.getMutationCache().subscribe(listener => {
+            if (!listener.mutation) return
+            if (listener.mutation.state.status === "pending" || listener.mutation.state.status === "idle") return
+
+            // Don't log the save issue report mutation to prevent feedback loop
+            const mutationKey = listener.mutation.options.mutationKey
+            if (Array.isArray(mutationKey) && mutationKey.includes("REPORT-save-issue-report")) return
+
+            setReactQueryLogs(prev => [...prev, {
+                type: "mutation",
+                pageUrl: window.location.href.replace(window.location.host, "{client}"),
+                status: listener.mutation!.state.status,
+                hash: JSON.stringify(listener.mutation!.options.mutationKey),
+                error: listener.mutation!.state.error,
+                timestamp: new Date().toISOString(),
+                dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
+                    .slice(0, 200) : "",
+                dataType: typeof listener.mutation!.state.data,
+            }])
+        })
+
         return () => {
-            queryClient.getMutationCache().subscribe(listener => {
-                if (!listener.mutation) return
-                if (listener.mutation.state.status === "pending" || listener.mutation.state.status === "idle") return
-                setReactQueryLogs(prev => [...prev, {
-                    type: "mutation",
-                    pageUrl: window.location.href.replace(window.location.host, "{client}"),
-                    status: listener.mutation!.state.status,
-                    hash: JSON.stringify(listener.mutation!.options.mutationKey),
-                    error: listener.mutation!.state.error,
-                    timestamp: new Date().toISOString(),
-                    dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
-                        .slice(0, 200) : "",
-                    dataType: typeof listener.mutation!.state.data,
-                }])
-            })
+            queryUnsubscribe()
+            mutationUnsubscribe()
         }
     }, [isRecording])
 
@@ -210,26 +219,34 @@ export function IssueReport() {
         setRecording(true)
     }
 
-    function handleStopRecording() {
-        setRecording(false)
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
 
-        mutate({
+    async function handleStopRecording() {
+        const logsToSave = {
             clickLogs,
             consoleLogs,
             networkLogs,
             reactQueryLogs,
+        }
+
+        setRecording(false)
+
+        mutate({
+            ...logsToSave,
             isAnimeLibraryIssue: recordLocalFiles,
         }, {
-            onSuccess: () => {
-                setClickLogs([])
-                setConsoleLogs([])
-                setNetworkLogs([])
-                setReactQueryLogs([])
-
+            onSuccess: async () => {
                 toast.success("Issue report saved successfully")
 
-                setTimeout(() => {
-                    openTab(getServerBaseUrl() + "/api/v1/report/issue/download")
+                setTimeout(async () => {
+                    try {
+                        const endpoint = "/api/v1/report/issue/download"
+                        const tokenQuery = await getHMACTokenQueryParam(endpoint)
+                        openTab(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
+                    }
+                    catch (error) {
+                        toast.error("Failed to generate download token")
+                    }
                 }, 1000)
             },
         })

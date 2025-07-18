@@ -1,14 +1,15 @@
 package updater
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/constants"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"strings"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUpdater_getReleaseName(t *testing.T) {
@@ -20,7 +21,7 @@ func TestUpdater_getReleaseName(t *testing.T) {
 
 func TestUpdater_FetchLatestRelease(t *testing.T) {
 
-	docsUrl = "https://seanime.rahim.app/api/releases" // simulate dead endpoint
+	fallbackGithubUrl = "https://seanimedud.app/api/releases" // simulate dead endpoint
 	//githubUrl = "https://api.github.com/repos/zbonfo/seanime-desktop/releases/latest"
 
 	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))

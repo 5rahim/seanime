@@ -38,41 +38,30 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     const [headerEpisode, setHeaderEpisode] = useAtom(__libraryHeaderEpisodeAtom)
 
     const [episodeRefs, setEpisodeRefs] = React.useState<React.RefObject<any>[]>([])
-    const [inViewEpisodes, setInViewEpisodes] = React.useState<any>([])
+    const [inViewEpisodes, setInViewEpisodes] = React.useState<number[]>([])
     const debouncedInViewEpisodes = useDebounce(inViewEpisodes, 500)
 
-    const debounceTimeout = React.useRef<NodeJS.Timeout | null>(null)
-
     const { width } = useWindowSize()
-    const numberOfDisplayedEpisodesRef = React.useRef(0)
-
-    React.useEffect(() => {
-        numberOfDisplayedEpisodesRef.current = 0
-    }, [width])
 
     // Create refs for each episode
     React.useEffect(() => {
         setEpisodeRefs(episodes.map(() => React.createRef()))
     }, [episodes])
 
-    React.useEffect(() => {
-        if (numberOfDisplayedEpisodesRef.current === 0) {
-            numberOfDisplayedEpisodesRef.current = inViewEpisodes.length
-        }
-    }, [inViewEpisodes, numberOfDisplayedEpisodesRef.current])
-
     // Observe each episode
     React.useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 const index = episodeRefs.findIndex(ref => ref.current === entry.target)
-                if (entry.isIntersecting) {
-                    setInViewEpisodes((prev: any) => [...prev, index])
-                } else {
-                    setInViewEpisodes((prev: any) => prev.filter((idx: number) => idx !== index))
+                if (index !== -1) {
+                    if (entry.isIntersecting) {
+                        setInViewEpisodes(prev => prev.includes(index) ? prev : [...prev, index])
+                    } else {
+                        setInViewEpisodes(prev => prev.filter((idx) => idx !== index))
+                    }
                 }
             })
-        })
+        }, { threshold: 0.5 })  // Trigger callback when 50% of the element is visible
 
         episodeRefs.forEach((ref) => {
             if (ref.current) {
@@ -81,68 +70,48 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         })
 
         return () => {
-            if (episodeRefs.length > 0) {
-                episodeRefs.forEach((ref) => {
-                    if (ref.current) {
-                        observer.unobserve(ref.current)
-                    }
-                })
-            }
+            episodeRefs.forEach((ref) => {
+                if (ref.current) {
+                    observer.unobserve(ref.current)
+                }
+            })
         }
-    }, [episodeRefs])
+    }, [episodeRefs, width])
 
     const prevSelectedEpisodeRef = React.useRef<Anime_Episode | null>(null)
 
     // Set header image when new episode is in view
     React.useEffect(() => {
-        if (debounceTimeout.current) {
-            clearTimeout(debounceTimeout.current)
+        if (debouncedInViewEpisodes.length === 0) return
+
+        let candidateIndices = debouncedInViewEpisodes
+        // Exclude previously selected episode if possible
+        if (prevSelectedEpisodeRef.current && debouncedInViewEpisodes.length > 1) {
+            candidateIndices = debouncedInViewEpisodes.filter(idx => episodes[idx]?.baseAnime?.id !== prevSelectedEpisodeRef.current?.baseAnime?.id)
         }
+        if (candidateIndices.length === 0) candidateIndices = debouncedInViewEpisodes
 
-        debounceTimeout.current = setTimeout(() => {
-            if (inViewEpisodes.length > 0) {
-                if (inViewEpisodes.length !== numberOfDisplayedEpisodesRef.current) {
-                    return
-                }
+        const randomCandidateIdx = candidateIndices[Math.floor(Math.random() * candidateIndices.length)]
+        const selectedEpisode = episodes[randomCandidateIdx]
 
-                let episode: Anime_Episode | null = null
-                let attempts = 0
-                let availableIndices = Array.from({ length: inViewEpisodes.length }, (_, i) => i)
-                let idx = availableIndices[Math.floor(Math.random() * availableIndices.length)]
-                episode = episodes[inViewEpisodes[idx]]
-
-                if (episode?.baseAnime?.id === prevSelectedEpisodeRef.current?.baseAnime?.id) {
-                    availableIndices = availableIndices.filter(i => i !== idx)
-                    idx = availableIndices[Math.floor(Math.random() * availableIndices.length)]
-                    episode = episodes[inViewEpisodes[idx]]
-                }
-
-                if (episode) {
-                    setHeaderImage({
-                        bannerImage: episode.baseAnime?.bannerImage || null,
-                        episodeImage: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge || null,
-                    })
-                    prevSelectedEpisodeRef.current = episode
-                }
-            }
-        }, 500)
-        return () => {
-            if (debounceTimeout.current) {
-                clearTimeout(debounceTimeout.current)
-            }
+        if (selectedEpisode) {
+            setHeaderImage({
+                bannerImage: selectedEpisode.baseAnime?.bannerImage || null,
+                episodeImage: selectedEpisode.baseAnime?.bannerImage || selectedEpisode.baseAnime?.coverImage?.extraLarge || null,
+            })
+            prevSelectedEpisodeRef.current = selectedEpisode
         }
-    }, [inViewEpisodes, episodes])
+    }, [debouncedInViewEpisodes, episodes, setHeaderImage])
 
     const { setPlayNext } = usePlayNext()
 
     const { inject, remove } = useSeaCommandInject()
 
     React.useEffect(() => {
-
         inject("continue-watching", {
             items: episodes.map(episode => ({
                 data: episode,
-                id: `${episode.localFile?.path || ""}-${episode.episodeNumber || 1}`,
+                id: `${episode.localFile?.path || episode.baseAnime?.title?.userPreferred || ""}-${episode.episodeNumber || 1}`,
                 value: `${episode.episodeNumber || 1}`,
                 heading: "Continue Watching",
                 priority: 100,
@@ -180,12 +149,11 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         })
 
         return () => remove("continue-watching")
-    }, [episodes])
+    }, [episodes, inject, remove, router, setPlayNext])
 
     if (episodes.length > 0) return (
         <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]" data-continue-watching-container>
             <h2 data-continue-watching-title>Continue watching</h2>
-            {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.baseAnime?.title?.userPreferred}</h1>*/}
             {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime) && <TextGenerateEffect
                 data-continue-watching-media-title
                 words={headerEpisode?.baseAnime?.title?.userPreferred || ""}
@@ -220,6 +188,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
             </Carousel>
         </PageWrapper>
     )
+    return null
 }
 
 const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: {
@@ -260,7 +229,6 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
             topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
             title={episode.displayTitle}
-            // meta={episode.episodeMetadata?.airDate ?? undefined}
             isInvalid={episode.isInvalid}
             progressTotal={episode.baseAnime?.episodes}
             progressNumber={episode.progressNumber}

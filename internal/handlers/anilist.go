@@ -87,6 +87,7 @@ func (h *Handler) HandleEditAnilistListEntry(c echo.Context) error {
 	}
 
 	err := h.App.AnilistPlatform.UpdateEntry(
+		c.Request().Context(),
 		*p.MediaId,
 		p.Status,
 		p.Score,
@@ -111,7 +112,7 @@ func (h *Handler) HandleEditAnilistListEntry(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 var (
 	detailsCache = result.NewCache[int, *anilist.AnimeDetailsById_Media]()
@@ -134,7 +135,7 @@ func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 	if details, ok := detailsCache.Get(mId); ok {
 		return h.RespondWithData(c, details)
 	}
-	details, err := h.App.AnilistPlatform.GetAnimeDetails(mId)
+	details, err := h.App.AnilistPlatform.GetAnimeDetails(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -143,7 +144,7 @@ func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 	return h.RespondWithData(c, details)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 var studioDetailsMap = result.NewResultMap[int, *anilist.StudioDetails]()
 
@@ -164,7 +165,7 @@ func (h *Handler) HandleGetAnilistStudioDetails(c echo.Context) error {
 	if details, ok := studioDetailsMap.Get(mId); ok {
 		return h.RespondWithData(c, details)
 	}
-	details, err := h.App.AnilistPlatform.GetStudioDetails(mId)
+	details, err := h.App.AnilistPlatform.GetStudioDetails(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -178,7 +179,7 @@ func (h *Handler) HandleGetAnilistStudioDetails(c echo.Context) error {
 	return h.RespondWithData(c, details)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 // HandleDeleteAnilistListEntry
 //
@@ -234,7 +235,7 @@ func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 	}
 
 	// Delete the list entry
-	err := h.App.AnilistPlatform.DeleteEntry(listEntryID)
+	err := h.App.AnilistPlatform.DeleteEntry(c.Request().Context(), listEntryID)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -249,7 +250,7 @@ func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
 	anilistListAnimeCache       = result.NewCache[string, *anilist.ListAnime]()
@@ -325,7 +326,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.Format,
 		&isAdult,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -382,7 +383,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 		p.NotYetAired,
 		p.Sort,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -395,7 +396,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
+var anilistMissedSequelsCache = result.NewCache[int, []*anilist.BaseAnime]()
 
 // HandleAnilistListMissedSequels
 //
@@ -405,15 +406,13 @@ var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
 //	@returns []anilist.BaseAnime
 func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 
-	cacheKey := "missed_sequels"
-
-	cached, ok := anilistMissedSequelsCache.Get(cacheKey)
+	cached, ok := anilistMissedSequelsCache.Get(1)
 	if ok {
 		return h.RespondWithData(c, cached)
 	}
 
 	// Get complete anime collection
-	animeCollection, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollection, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations(c.Request().Context())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -421,13 +420,13 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 	ret, err := anilist.ListMissedSequels(
 		animeCollection,
 		h.App.Logger,
-		h.App.GetAccountToken(),
+		h.App.GetUserAnilistToken(),
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	anilistMissedSequelsCache.SetT(cacheKey, ret, time.Hour*4)
+	anilistMissedSequelsCache.SetT(1, ret, time.Hour*4)
 
 	return h.RespondWithData(c, ret)
 }
@@ -448,9 +447,14 @@ func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 		return h.RespondWithData(c, cached)
 	}
 
+	stats, err := h.App.AnilistPlatform.GetViewerStats(c.Request().Context())
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	ret, err := anilist.GetStats(
 		c.Request().Context(),
-		h.App.AnilistClient,
+		stats,
 	)
 	if err != nil {
 		return h.RespondWithError(c, err)

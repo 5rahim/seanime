@@ -115,6 +115,19 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/anilist/stats",
         },
     },
+    ANIME: {
+        /**
+         *  @description
+         *  Route gets list of main episodes
+         *  This returns a list of main episodes for the given AniList anime media id.
+         *  It also loads the episode list into the different modules.
+         */
+        GetAnimeEpisodeCollection: {
+            key: "ANIME-get-anime-episode-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/anime/episode-collection/{id}",
+        },
+    },
     ANIME_COLLECTION: {
         /**
          *  @description
@@ -128,6 +141,16 @@ export const API_ENDPOINTS = {
             key: "ANIME-COLLECTION-get-library-collection",
             methods: ["GET", "POST"],
             endpoint: "/api/v1/library/collection",
+        },
+        /**
+         *  @description
+         *  Route returns anime collection schedule
+         *  This is used by the "Schedule" page to display the anime schedule.
+         */
+        GetAnimeCollectionSchedule: {
+            key: "ANIME-COLLECTION-get-anime-collection-schedule",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/schedule",
         },
         /**
          *  @description
@@ -520,6 +543,18 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/directory-selector",
         },
     },
+    DIRECTSTREAM: {
+        /**
+         *  @description
+         *  Route request local file stream.
+         *  This requests a local file stream and returns the media container to start the playback.
+         */
+        DirectstreamPlayLocalFile: {
+            key: "DIRECTSTREAM-directstream-play-local-file",
+            methods: ["POST"],
+            endpoint: "/api/v1/directstream/play/localfile",
+        },
+    },
     DISCORD: {
         SetDiscordMangaActivity: {
             key: "DISCORD-set-discord-manga-activity",
@@ -739,6 +774,83 @@ export const API_ENDPOINTS = {
             key: "FILECACHE-clear-file-cache-mediastream-video-files",
             methods: ["DELETE"],
             endpoint: "/api/v1/filecache/mediastream/videofiles",
+        },
+    },
+    LOCAL: {
+        /**
+         *  @description
+         *  Route sets the offline mode.
+         *  Returns true if the offline mode is active, false otherwise.
+         */
+        SetOfflineMode: {
+            key: "LOCAL-set-offline-mode",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/offline",
+        },
+        LocalGetTrackedMediaItems: {
+            key: "LOCAL-local-get-tracked-media-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/track",
+        },
+        LocalAddTrackedMedia: {
+            key: "LOCAL-local-add-tracked-media",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/track",
+        },
+        /**
+         *  @description
+         *  Route remove media from being tracked for offline sync.
+         *  This will remove anime from being tracked for offline sync and delete any associated data.
+         */
+        LocalRemoveTrackedMedia: {
+            key: "LOCAL-local-remove-tracked-media",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/local/track",
+        },
+        LocalGetIsMediaTracked: {
+            key: "LOCAL-local-get-is-media-tracked",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/track/{id}/{type}",
+        },
+        LocalSyncData: {
+            key: "LOCAL-local-sync-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/local",
+        },
+        /**
+         *  @description
+         *  Route gets the current sync queue state.
+         *  This will return the list of media that are currently queued for syncing.
+         */
+        LocalGetSyncQueueState: {
+            key: "LOCAL-local-get-sync-queue-state",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/queue",
+        },
+        LocalSyncAnilistData: {
+            key: "LOCAL-local-sync-anilist-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/anilist",
+        },
+        LocalSetHasLocalChanges: {
+            key: "LOCAL-local-set-has-local-changes",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/updated",
+        },
+        LocalGetHasLocalChanges: {
+            key: "LOCAL-local-get-has-local-changes",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/updated",
+        },
+        LocalGetLocalStorageSize: {
+            key: "LOCAL-local-get-local-storage-size",
+            methods: ["GET"],
+            endpoint: "/api/v1/local/storage/size",
+        },
+        LocalSyncSimulatedDataToAnilist: {
+            key: "LOCAL-local-sync-simulated-data-to-anilist",
+            methods: ["POST"],
+            endpoint: "/api/v1/local/sync-simulated-to-anilist",
         },
     },
     LOCALFILES: {
@@ -997,6 +1109,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/manga/remove-mapping",
         },
+        GetLocalMangaPage: {
+            key: "MANGA-get-local-manga-page",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/local-page/{path}",
+        },
     },
     MANGA_DOWNLOAD: {
         DownloadMangaChapters: {
@@ -1198,6 +1315,114 @@ export const API_ENDPOINTS = {
             key: "METADATA-remove-filler-data",
             methods: ["DELETE"],
             endpoint: "/api/v1/metadata-provider/filler",
+        },
+    },
+    NAKAMA: {
+        /**
+         *  @description
+         *  Route handles WebSocket connections for Nakama peers.
+         *  This endpoint handles WebSocket connections from Nakama peers when this instance is acting as a host.
+         */
+        NakamaWebSocket: {
+            key: "NAKAMA-nakama-web-socket",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/ws",
+        },
+        /**
+         *  @description
+         *  Route sends a custom message through Nakama.
+         *  This allows sending custom messages to connected peers or the host.
+         */
+        SendNakamaMessage: {
+            key: "NAKAMA-send-nakama-message",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/message",
+        },
+        /**
+         *  @description
+         *  Route shares the local anime collection with Nakama clients.
+         *  This creates a new LibraryCollection struct and returns it.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
+        GetNakamaAnimeLibraryCollection: {
+            key: "NAKAMA-get-nakama-anime-library-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/host/anime/library/collection",
+        },
+        /**
+         *  @description
+         *  Route return the local files for the given AniList anime media id.
+         *  This is used by the anime media entry pages to get all the data about the anime.
+         */
+        GetNakamaAnimeLibraryFiles: {
+            key: "NAKAMA-get-nakama-anime-library-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/host/anime/library/files/{id}",
+        },
+        /**
+         *  @description
+         *  Route return all the local files for the host.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
+        GetNakamaAnimeAllLibraryFiles: {
+            key: "NAKAMA-get-nakama-anime-all-library-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/host/anime/library/files",
+        },
+        NakamaPlayVideo: {
+            key: "NAKAMA-nakama-play-video",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/play",
+        },
+        /**
+         *  @description
+         *  Route reconnects to the Nakama host.
+         *  This attempts to reconnect to the configured Nakama host if the connection was lost.
+         */
+        NakamaReconnectToHost: {
+            key: "NAKAMA-nakama-reconnect-to-host",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/reconnect",
+        },
+        /**
+         *  @description
+         *  Route removes stale peer connections.
+         *  This removes peer connections that haven't responded to ping messages for a while.
+         */
+        NakamaRemoveStaleConnections: {
+            key: "NAKAMA-nakama-remove-stale-connections",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/cleanup",
+        },
+        /**
+         *  @description
+         *  Route creates a new watch party session.
+         *  This creates a new watch party that peers can join to watch content together in sync.
+         */
+        NakamaCreateWatchParty: {
+            key: "NAKAMA-nakama-create-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/create",
+        },
+        /**
+         *  @description
+         *  Route joins an existing watch party.
+         *  This allows a peer to join an active watch party session.
+         */
+        NakamaJoinWatchParty: {
+            key: "NAKAMA-nakama-join-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/join",
+        },
+        /**
+         *  @description
+         *  Route leaves the current watch party.
+         *  This removes the user from the active watch party session.
+         */
+        NakamaLeaveWatchParty: {
+            key: "NAKAMA-nakama-leave-watch-party",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/leave",
         },
     },
     ONLINESTREAM: {
@@ -1563,67 +1788,15 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/logs/latest",
         },
-    },
-    SYNC: {
-        SyncGetTrackedMediaItems: {
-            key: "SYNC-sync-get-tracked-media-items",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/track",
-        },
-        SyncAddMedia: {
-            key: "SYNC-sync-add-media",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/track",
-        },
         /**
          *  @description
-         *  Route remove media from being tracked for offline sync.
-         *  This will remove anime from being tracked for offline sync and delete any associated data.
+         *  Route returns the server announcements.
+         *  This returns the announcements for the server.
          */
-        SyncRemoveMedia: {
-            key: "SYNC-sync-remove-media",
-            methods: ["DELETE"],
-            endpoint: "/api/v1/sync/track",
-        },
-        SyncGetIsMediaTracked: {
-            key: "SYNC-sync-get-is-media-tracked",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/track/{id}/{type}",
-        },
-        SyncLocalData: {
-            key: "SYNC-sync-local-data",
+        GetAnnouncements: {
+            key: "STATUS-get-announcements",
             methods: ["POST"],
-            endpoint: "/api/v1/sync/local",
-        },
-        /**
-         *  @description
-         *  Route gets the current sync queue state.
-         *  This will return the list of media that are currently queued for syncing.
-         */
-        SyncGetQueueState: {
-            key: "SYNC-sync-get-queue-state",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/queue",
-        },
-        SyncAnilistData: {
-            key: "SYNC-sync-anilist-data",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/anilist",
-        },
-        SyncSetHasLocalChanges: {
-            key: "SYNC-sync-set-has-local-changes",
-            methods: ["POST"],
-            endpoint: "/api/v1/sync/updated",
-        },
-        SyncGetHasLocalChanges: {
-            key: "SYNC-sync-get-has-local-changes",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/updated",
-        },
-        SyncGetLocalStorageSize: {
-            key: "SYNC-sync-get-local-storage-size",
-            methods: ["GET"],
-            endpoint: "/api/v1/sync/storage/size",
+            endpoint: "/api/v1/announcements",
         },
     },
     THEME: {
@@ -1702,16 +1875,6 @@ export const API_ENDPOINTS = {
         },
     },
     TORRENTSTREAM: {
-        /**
-         *  @description
-         *  Route get list of episodes
-         *  This returns a list of episodes.
-         */
-        GetTorrentstreamEpisodeCollection: {
-            key: "TORRENTSTREAM-get-torrentstream-episode-collection",
-            methods: ["GET"],
-            endpoint: "/api/v1/torrentstream/episodes/{id}",
-        },
         /**
          *  @description
          *  Route get torrentstream settings.

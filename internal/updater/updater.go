@@ -1,13 +1,14 @@
 package updater
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"net/http"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 const (
@@ -25,6 +26,7 @@ type (
 		logger              *zerolog.Logger
 		client              *http.Client
 		wsEventManager      mo.Option[events.WSEventManagerInterface]
+		announcements       []Announcement
 	}
 
 	Update struct {
@@ -97,6 +99,7 @@ func (u *Updater) ShouldRefetchReleases() {
 	u.hasCheckedForUpdate = false
 
 	if u.wsEventManager.IsPresent() {
+		// Tell the client to send a request to fetch the latest release
 		u.wsEventManager.MustGet().SendEvent(events.CheckForUpdates, nil)
 	}
 }

@@ -166,6 +166,13 @@ func (m *Manager) DeleteWatchHistoryItem(mediaId int) (err error) {
 func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream bool, episode, mediaId int) (ret *WatchHistoryItemResponse) {
 	defer util.HandlePanicInModuleThen("continuity/GetExternalPlayerEpisodeWatchHistoryItem", func() {})
 
+	if mediaId == 0 {
+		return &WatchHistoryItemResponse{
+			Item:  nil,
+			Found: false,
+		}
+	}
+
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -345,7 +352,6 @@ func (m *Manager) UpdateExternalPlayerEpisodeWatchHistoryItem(currentTime, durat
 		_ = m.trimWatchHistoryItems()
 	}
 
-	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

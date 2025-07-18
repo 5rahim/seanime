@@ -1,11 +1,13 @@
 import { Nullish } from "@/api/generated/types"
 import { IconButton } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
+import { Modal, ModalProps } from "@/components/ui/modal"
+import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
 import React from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { MdInfo } from "react-icons/md"
+import { useWindowSize } from "react-use"
 
 type MediaEpisodeInfoModalProps = {
     title?: Nullish<string>
@@ -16,6 +18,29 @@ type MediaEpisodeInfoModalProps = {
     summary?: Nullish<string>
     isInvalid?: Nullish<boolean>
     filename?: Nullish<string>
+}
+
+function IsomorphicPopover(props: PopoverProps & ModalProps) {
+    const { title, children, ...rest } = props
+    const { width } = useWindowSize()
+
+    if (width && width > 1024) {
+        return <Popover
+            {...rest}
+            className="max-w-xl !w-full overflow-hidden"
+        >
+            {children}
+        </Popover>
+    }
+
+    return <Modal
+        {...rest}
+        title={title}
+        titleClass="text-xl"
+        contentClass="max-w-2xl overflow-hidden"
+    >
+        {children}
+    </Modal>
 }
 
 export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
@@ -34,7 +59,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
 
     return (
         <>
-            <Modal
+            <IsomorphicPopover
                 data-media-episode-info-modal
                 trigger={<IconButton
                     icon={<MdInfo />}
@@ -42,14 +67,14 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                     intent="gray-basic"
                     size="xs"
                 />}
-                title={title}
-                contentClass="max-w-2xl"
-                titleClass="text-xl"
+                title={title || "Episode"}
+                // contentClass="max-w-2xl"
+                // titleClass="text-xl"
             >
 
                 {image && <div
                     data-media-episode-info-modal-image-container
-                    className="h-[8rem] rounded-t-md w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+                    className="h-[8rem] rounded-t-md w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
                 >
                     <Image
                         data-media-episode-info-modal-image
@@ -67,7 +92,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                     />
                 </div>}
 
-                <div data-media-episode-info-modal-content className="space-y-4">
+                <div data-media-episode-info-modal-content className="space-y-4 z-[5] relative">
                     <p data-media-episode-info-modal-content-title className="text-lg line-clamp-2 font-semibold">
                         {episodeTitle?.replaceAll("`", "'")}
                         {isInvalid && <AiFillWarning />}
@@ -87,7 +112,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                     </>}
                 </div>
 
-            </Modal>
+            </IsomorphicPopover>
         </>
     )
 }

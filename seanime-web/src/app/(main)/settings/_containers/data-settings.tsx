@@ -1,12 +1,14 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { useImportLocalFiles } from "@/api/hooks/localfiles.hooks"
-import { SeaLink } from "@/components/shared/sea-link"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { TextInput } from "@/components/ui/text-input"
+import { openTab } from "@/lib/helpers/browser"
 import React from "react"
 import { CgImport } from "react-icons/cg"
 import { TbDatabaseExport } from "react-icons/tb"
+import { toast } from "sonner"
 
 type DataSettingsProps = {
     children?: React.ReactNode
@@ -32,6 +34,19 @@ export function DataSettings(props: DataSettingsProps) {
         })
     }
 
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
+
+    const handleExportLocalFiles = React.useCallback(async () => {
+        try {
+            const endpoint = "/api/v1/library/local-files/dump"
+            const tokenQuery = await getHMACTokenQueryParam(endpoint)
+            openTab(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
+        }
+        catch (error) {
+            toast.error("Failed to generate export token")
+        }
+    }, [getHMACTokenQueryParam])
+
     return (
         <div className="space-y-4">
 
@@ -44,16 +59,15 @@ export function DataSettings(props: DataSettingsProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-                <SeaLink href={`${getServerBaseUrl()}/api/v1/library/local-files/dump`} target="_blank" className="block">
-                    <Button
-                        intent="primary-subtle"
-                        leftIcon={<TbDatabaseExport className="text-xl" />}
-                        size="md"
-                        disabled={isImportingLocalFiles}
-                    >
-                        Export local file data
-                    </Button>
-                </SeaLink>
+                <Button
+                    intent="primary-subtle"
+                    leftIcon={<TbDatabaseExport className="text-xl" />}
+                    size="md"
+                    disabled={isImportingLocalFiles}
+                    onClick={handleExportLocalFiles}
+                >
+                    Export local file data
+                </Button>
 
                 <Modal
                     title="Import local files"

@@ -33,6 +33,14 @@ export function DebridStreamOverlay() {
 
     const [showMediaPlayerLoading, setShowMediaPlayerLoading] = React.useState(false)
 
+    // Reset showMediaPlayerLoading after 3 minutes
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            setShowMediaPlayerLoading(false)
+        }, 2 * 60 * 1000)
+        return () => clearTimeout(timeout)
+    }, [showMediaPlayerLoading])
+
     useWebsocketMessageListener<DebridClient_StreamState>({
         type: WSEvents.DEBRID_STREAM_STATE,
         onMessage: data => {

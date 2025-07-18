@@ -1,4 +1,5 @@
 import { Anime_Entry } from "@/api/generated/types"
+import { useNakamaPlayVideo } from "@/api/hooks/nakama.hooks"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import React from "react"
@@ -12,7 +13,7 @@ export function useHandleEpisodeSection(props: { entry: Anime_Entry }) {
     usePlayNextVideoOnMount({
         onPlay: () => {
             if (entry.nextEpisode) {
-                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId })
+                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId, episode: entry.nextEpisode })
             }
         },
     }, !!entry.nextEpisode)

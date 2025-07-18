@@ -13,9 +13,9 @@ import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
-import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
+import { AnimatePresence } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { useUnmount } from "react-use"
@@ -88,6 +88,21 @@ export function AnimeEntryPage() {
     React.useLayoutEffect(() => {
         if (!animeEntryLoading &&
             animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+            searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
+            !switchedView.current // View has not been switched yet
+        ) {
+            switchedView.current = true
+            if (serverStatus?.debridSettings?.enabled && searchParams.get("tab") === "debridstream") {
+                setView("debridstream")
+            } else if (serverStatus?.torrentstreamSettings?.enabled && searchParams.get("tab") === "torrentstream") {
+                setView("torrentstream")
+            } else if (serverStatus?.settings?.library?.enableOnlinestream && searchParams.get("tab") === "onlinestream") {
+                setView("onlinestream")
+            }
+        }
+
+        if (!animeEntryLoading &&
+            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (
@@ -107,6 +122,7 @@ export function AnimeEntryPage() {
                 setView("onlinestream")
             }
         }
+
     }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
 
     React.useEffect(() => {
@@ -185,7 +201,7 @@ export function AnimeEntryPage() {
             <div className="px-4 md:px-8 relative z-[8]" data-anime-entry-page-content-container>
                 <PageWrapper
                     data-anime-entry-page-content
-                    className="relative 2xl:order-first pb-10"
+                    className="relative 2xl:order-first pb-10 lg:min-h-[calc(100vh-10rem)]"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -199,7 +215,9 @@ export function AnimeEntryPage() {
                     }}
                 >
                     {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
-                        <div className="h-10 lg:h-10"></div>
+                        <>
+                            {/*{currentView !== "library" ? <div className="h-10 lg:h-0" /> : }*/}
+                        </>
                     )}
                     <AnimatePresence mode="wait" initial={false}>
 
@@ -216,6 +234,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
+                            <div className="h-10" />
                             <EpisodeSection
                                 entry={animeEntry}
                                 details={animeDetails}
@@ -226,49 +245,23 @@ export function AnimeEntryPage() {
                             />
                         </PageWrapper>}
 
-                        {currentView === "torrentstream" && <PageWrapper
-                            data-anime-entry-page-torrent-stream-view
-                            key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10 lg:pt-0"
-                            {...{
-                                initial: { opacity: 0, y: 60 },
-                                animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
-                                transition: {
-                                    duration: 0.35,
-                                },
-                            }}
-                        >
+                        {currentView === "torrentstream" &&
                             <TorrentStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
-                            />
-                        </PageWrapper>}
+                            />}
 
-                        {currentView === "debridstream" && <PageWrapper
-                            data-anime-entry-page-debrid-stream-view
-                            key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10 lg:pt-0"
-                            {...{
-                                initial: { opacity: 0, y: 60 },
-                                animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
-                                transition: {
-                                    duration: 0.35,
-                                },
-                            }}
-                        >
+                        {currentView === "debridstream" &&
                             <DebridStreamPage
                                 entry={animeEntry}
                                 bottomSection={<>
                                     <MediaEntryCharactersSection details={animeDetails} />
                                     <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                                 </>}
-                            />
-                        </PageWrapper>}
+                            />}
 
                         {currentView === "onlinestream" && <PageWrapper
                             data-anime-entry-page-online-streaming-view
@@ -283,6 +276,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
+                            <div className="h-10 lg:h-0" />
                             <div className="space-y-4" data-anime-entry-page-online-streaming-view-content>
                                 <div className="absolute right-0 top-[-3rem]" data-anime-entry-page-online-streaming-view-content-title-container>
                                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>

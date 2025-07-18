@@ -34,13 +34,14 @@ type (
 	}
 
 	RouteHandlerParam struct {
-		Name           string   `json:"name"`
-		JsonName       string   `json:"jsonName"`
-		GoType         string   `json:"goType"`         // e.g., []models.User
-		UsedStructType string   `json:"usedStructType"` // e.g., models.User
-		TypescriptType string   `json:"typescriptType"` // e.g., Array<User>
-		Required       bool     `json:"required"`
-		Descriptions   []string `json:"descriptions"`
+		Name             string   `json:"name"`
+		JsonName         string   `json:"jsonName"`
+		GoType           string   `json:"goType"`                     // e.g., []models.User
+		InlineStructType string   `json:"inlineStructType,omitempty"` // e.g., struct{Test string `json:"test"`}
+		UsedStructType   string   `json:"usedStructType"`             // e.g., models.User
+		TypescriptType   string   `json:"typescriptType"`             // e.g., Array<User>
+		Required         bool     `json:"required"`
+		Descriptions     []string `json:"descriptions"`
 	}
 )
 
@@ -97,7 +98,7 @@ func GenerateHandlers(dir string, outDir string) {
 			params := make([]*RouteHandlerParam, 0)
 			summary := ""
 			descriptions := make([]string, 0)
-			returns := "boolean"
+			returns := "bool"
 
 			for _, comment := range comments {
 				cmt := strings.TrimSpace(strings.TrimPrefix(comment, "//"))
@@ -235,6 +236,24 @@ func GenerateHandlers(dir string, outDir string) {
 							Required:       required,
 							Descriptions:   fieldComments,
 						})
+
+						// Check if it's an inline struct and capture its definition
+						if structType, ok := fieldType.(*ast.StructType); ok {
+							bodyFields[len(bodyFields)-1].InlineStructType = formatInlineStruct(structType)
+						} else {
+							// Check if it's a slice of inline structs
+							if arrayType, ok := fieldType.(*ast.ArrayType); ok {
+								if structType, ok := arrayType.Elt.(*ast.StructType); ok {
+									bodyFields[len(bodyFields)-1].InlineStructType = "[]" + formatInlineStruct(structType)
+								}
+							}
+							// Check if it's a map with inline struct values
+							if mapType, ok := fieldType.(*ast.MapType); ok {
+								if structType, ok := mapType.Value.(*ast.StructType); ok {
+									bodyFields[len(bodyFields)-1].InlineStructType = "map[" + fieldTypeString(mapType.Key) + "]" + formatInlineStruct(structType)
+								}
+							}
+						}
 					}
 				}
 			}

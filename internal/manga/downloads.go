@@ -6,9 +6,11 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/hook"
 	chapter_downloader "seanime/internal/manga/downloader"
+	manga_providers "seanime/internal/manga/providers"
 	"slices"
 
 	"github.com/goccy/go-json"
@@ -182,6 +184,30 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		}
 
 		ret = append(ret, downloadedContainer)
+	}
+
+	// Add chapter containers from local provider
+	localProviderB, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, manga_providers.LocalProvider)
+	if ok {
+		_, ok := localProviderB.GetProvider().(*manga_providers.Local)
+		if ok {
+			for _, list := range mangaCollection.MediaListCollection.GetLists() {
+				for _, entry := range list.GetEntries() {
+					media := entry.GetMedia()
+					opts := GetMangaChapterContainerOptions{
+						Provider: manga_providers.LocalProvider,
+						MediaId:  media.GetID(),
+						Titles:   media.GetAllTitles(),
+						Year:     media.GetStartYearSafe(),
+					}
+					container, err := r.GetMangaChapterContainer(&opts)
+					if err != nil {
+						continue
+					}
+					ret = append(ret, container)
+				}
+			}
+		}
 	}
 
 	// Event

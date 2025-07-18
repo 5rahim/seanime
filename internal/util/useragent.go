@@ -36,23 +36,9 @@ func GetClientInfo(userAgent string) ClientInfo {
 		device = DeviceDesktop
 	}
 
-	switch ua.OS {
-	case "Android":
-		platform = PlatformAndroid
-	case "iOS":
-		platform = PlatformIOS
-	case "Linux":
-		platform = PlatformLinux
-	case "Mac":
-		platform = PlatformMac
-	case "Windows":
-		platform = PlatformWindows
-	case "ChromeOS":
-		platform = PlatformChromeOS
-	}
-
+	platform = ua.OS
 	if platform == "" {
-		platform = "N/A"
+		platform = "-"
 	}
 
 	return ClientInfo{

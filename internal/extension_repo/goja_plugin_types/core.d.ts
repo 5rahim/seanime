@@ -1,4 +1,9 @@
 /**
+ * Is offline
+ */
+declare const __isOffline__: boolean
+
+/**
  * Fetch
  */
 declare function fetch(url: string, options?: FetchOptions): Promise<FetchResponse>
@@ -312,19 +317,6 @@ declare function LoadDoc(html: string): DocSelectionFunction;
 declare interface DocSelectionFunction {
     (selector: string): DocSelection;
 }
-
-
-/**
- * Torrent
- */
-
-/**
- * Get a magnet link from a base64 encoded torrent data
- * @param b64 - The base64 encoded torrent data
- * @returns The magnet link
- * @deprecated This function will be removed soon, use $torrentUtils.getMagnetLinkFromTorrentData instead
- */
-declare function getMagnetLinkFromTorrentData(b64: string): string
 
 /**
  * Torrent utils

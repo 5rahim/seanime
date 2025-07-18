@@ -390,7 +390,7 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Second)
-		_, err := anilistPlatform.GetAnime(178022)
+		_, err := anilistPlatform.GetAnime(t.Context(), 178022)
 		if err != nil {
 			t.Errorf("GetAnime returned error: %v", err)
 		}
@@ -437,7 +437,7 @@ func TestGojaPluginStore(t *testing.T) {
 	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
-	m, err := anilistPlatform.GetAnime(178022)
+	m, err := anilistPlatform.GetAnime(t.Context(), 178022)
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}
@@ -445,7 +445,7 @@ func TestGojaPluginStore(t *testing.T) {
 	util.Spew(m.Title)
 	util.Spew(m.Synonyms)
 
-	m, err = anilistPlatform.GetAnime(177709)
+	m, err = anilistPlatform.GetAnime(t.Context(), 177709)
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}
@@ -481,13 +481,103 @@ func TestGojaPluginJsonFieldNames(t *testing.T) {
 	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
-	err = anilistPlatform.UpdateEntryProgress(178022, 1, lo.ToPtr(1))
+	err = anilistPlatform.UpdateEntryProgress(t.Context(), 178022, 1, lo.ToPtr(1))
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}
 
 	mediaId := plugin.store.Get("mediaId")
 	require.NotNil(t, mediaId)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginAnilistCustomQuery(t *testing.T) {
+	payload := `
+	function init() {
+		$ui.register((ctx) => {
+		const token = $database.anilist.getToken()
+			try {
+				const res = $anilist.customQuery({ query:` + "`" + `
+					query GetOnePiece {
+						Media(id: 21) {
+							title {
+								romaji
+								english
+								native
+								userPreferred
+							}
+							airingSchedule(perPage: 1, page: 1) {
+								nodes {
+									episode
+									airingAt
+								}
+							}
+							id
+						}
+					}
+				` + "`" + `, variables: {}}, token);
+
+				console.log("res", res)
+			} catch (e) {
+				console.error("Error fetching anime list", e);
+			}
+		});
+	}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionAnilist,
+			extension.PluginPermissionAnilistToken,
+			extension.PluginPermissionDatabase,
+		},
+	}
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	_ = plugin
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginAnilistListAnime(t *testing.T) {
+	payload := `
+	function init() {
+
+		$ui.register((ctx) => {
+		
+		try {
+			const res = $anilist.listRecentAnime(1, 15, undefined, undefined, undefined)
+			console.log("res", res)
+		} catch (e) {
+			console.error("Error fetching anime list", e)
+		}
+
+        })
+	}
+	`
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionAnilist,
+		},
+	}
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	_ = plugin
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 }
@@ -555,7 +645,7 @@ func TestGojaPluginStorage(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
-	_, err = anilistPlatform.GetAnime(178022)
+	_, err = anilistPlatform.GetAnime(t.Context(), 178022)
 	require.NoError(t, err)
 
 	expectedValue1 := plugin.store.Get("expectedValue1")
@@ -645,7 +735,7 @@ func TestGojaSharedMemory(t *testing.T) {
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
-	_, err = anilistPlatform.GetAnime(178022)
+	_, err = anilistPlatform.GetAnime(t.Context(), 178022)
 	require.NoError(t, err)
 
 	time.Sleep(2 * time.Second)
@@ -669,7 +759,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
+	metadataProvider := metadata.GetMockProvider(t)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
 		FileCacher: filecacher,
@@ -678,15 +769,16 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	})
 
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager: wsEventManager,
-		Logger:         logger,
-		Platform:       anilistPlatform,
-		Database:       database,
+		WSEventManager:   wsEventManager,
+		Logger:           logger,
+		Platform:         anilistPlatform,
+		MetadataProvider: metadataProvider,
+		Database:         database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
 		DiscordPresence:   nil,
-		IsOffline:         false,
+		IsOffline:         lo.ToPtr(false),
 		ContinuityManager: continuityManager,
 	})
 

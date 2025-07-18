@@ -13,6 +13,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Separator } from "@/components/ui/separator/separator"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -41,7 +42,7 @@ export function TopNavbar(props: TopNavbarProps) {
                 data-top-navbar
                 className={cn(
                     "w-full h-[5rem] relative overflow-hidden flex items-center",
-                    (ts.hideTopNavbar || process.env.NEXT_PUBLIC_PLATFORM === "desktop") && "lg:hidden",
+                    (ts.hideTopNavbar || __isDesktop__) && "lg:hidden",
                 )}
             >
                 <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">

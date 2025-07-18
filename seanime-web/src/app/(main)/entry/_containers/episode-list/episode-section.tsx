@@ -1,11 +1,11 @@
 "use client"
-import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
+import { EpisodeListGrid, EpisodeListPaginatedGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
@@ -75,6 +75,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                 onSelect: () => playMediaFile({
                     path: episode.localFile?.path ?? "",
                     mediaId: entry.mediaId,
+                    episode: episode as Anime_Episode,
                 }),
             })),
             filter: ({ item, input }) => {
@@ -90,16 +91,24 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
     if (!media) return null
 
-    if (!!media && (!entry.listData || !entry.libraryData) && !serverStatus?.isOffline) {
+    // if (!!media && entry._isNakamaEntry && !entry.listData && !!entry.libraryData) {
+    //     return <div className="space-y-10">
+    //         <h4 className="text-yellow-50 flex items-center gap-2"><IoLibrarySharp /> Add this anime to your library to see its episodes</h4>
+    //     </div>
+    // }
+
+    if (!!media && ((!entry.listData && !entry._isNakamaEntry) || !entry.libraryData) && !serverStatus?.isOffline) {
         return <div className="space-y-10">
             {media?.status !== "NOT_YET_RELEASED"
-                ? <h4 className="text-yellow-50 flex items-center gap-2"><IoLibrarySharp /> Not in your library</h4>
+                ? <h4 className="text-yellow-50 flex items-center gap-2"><IoLibrarySharp /> Not in {entry._isNakamaEntry
+                    ? "the Nakama's"
+                    : "your"} library</h4>
                 : <h5 className="text-yellow-50">Not yet released</h5>}
-            <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10">
-                <UndownloadedEpisodeList
+            <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10 overflow-x-hidden">
+                {!entry._isNakamaEntry && <UndownloadedEpisodeList
                     downloadInfo={entry.downloadInfo}
                     media={media}
-                />
+                />}
                 {bottomSection}
             </div>
         </div>
@@ -145,7 +154,11 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                             length={episode.episodeMetadata?.length}
                                             percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
-                                            onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
+                                            onClick={() => playMediaFile({
+                                                path: episode.localFile?.path ?? "",
+                                                mediaId: entry.mediaId,
+                                                episode: episode,
+                                            })}
                                             anime={{
                                                 id: entry.mediaId,
                                                 image: episode.baseAnime?.coverImage?.medium,
@@ -161,21 +174,22 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
 
                 <div className="space-y-10" data-episode-list-stack>
-                    <EpisodeListGrid data-episode-list-main>
-                        {mainEpisodes.map(episode => (
+                    <EpisodeListPaginatedGrid
+                        length={mainEpisodes.length}
+                        renderItem={(index) => (
                             <EpisodeItem
-                                key={episode.localFile?.path || ""}
-                                episode={episode}
+                                key={mainEpisodes[index].localFile?.path || ""}
+                                episode={mainEpisodes[index]}
                                 media={media}
-                                isWatched={!!entry.listData?.progress && entry.listData.progress >= episode.progressNumber}
-                                onPlay={playMediaFile}
-                                percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
-                                minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                isWatched={!!entry.listData?.progress && entry.listData.progress >= mainEpisodes[index].progressNumber}
+                                onPlay={({ path, mediaId }) => playMediaFile({ path, mediaId, episode: mainEpisodes[index] })}
+                                percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, mainEpisodes[index].episodeNumber)}
+                                minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, mainEpisodes[index].episodeNumber)}
                             />
-                        ))}
-                    </EpisodeListGrid>
+                        )}
+                    />
 
-                    {!serverStatus?.isOffline && <UndownloadedEpisodeList
+                    {!serverStatus?.isOffline && !entry._isNakamaEntry && <UndownloadedEpisodeList
                         downloadInfo={entry.downloadInfo}
                         media={media}
                     />}
@@ -188,7 +202,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                     key={episode.localFile?.path || ""}
                                     episode={episode}
                                     media={media}
-                                    onPlay={playMediaFile}
+                                    onPlay={({ path, mediaId }) => playMediaFile({ path, mediaId, episode: episode })}
                                 />
                             ))}
                         </EpisodeListGrid>
@@ -202,7 +216,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                     key={episode.localFile?.path || ""}
                                     episode={episode}
                                     media={media}
-                                    onPlay={playMediaFile}
+                                    onPlay={({ path, mediaId }) => playMediaFile({ path, mediaId, episode: episode })}
                                 />
                             ))}
                         </EpisodeListGrid>

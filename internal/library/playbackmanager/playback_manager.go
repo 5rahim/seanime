@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -17,6 +18,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -37,11 +39,10 @@ var playbackStatePool = sync.Pool{
 type (
 	PlaybackType string
 
-	// PlaybackManager is used as an interface between the video playback and progress tracking.
-	// It can receive progress updates and dispatch appropriate events for:
-	//  - syncing progress with AniList, MAL, etc.
-	//  - sending notifications to the client
-	//  - DEVNOTE: in the future, it could also be used to implement w2g, handle built-in player or allow multiple watchers
+	// PlaybackManager manages video playback (local and stream) and progress tracking for desktop media players.
+	// It receives and dispatch appropriate events for:
+	//  - Syncing progress with AniList, etc.
+	//  - Sending notifications to the client
 	PlaybackManager struct {
 		Logger                *zerolog.Logger
 		Database              *db.Database
@@ -54,9 +55,10 @@ type (
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
 		platform                   platform.Platform
+		metadataProvider           metadata.Provider
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
-		eventMu                    sync.Mutex
+		eventMu                    sync.RWMutex
 		cancel                     context.CancelFunc
 
 		// historyMap stores a PlaybackState whose state is "completed"
@@ -80,14 +82,11 @@ type (
 		currentLocalFileWrapperEntry mo.Option[*anime.LocalFileWrapperEntry] // This contains the current media entry local file data
 
 		// \/ Stream playback
-		// DEVNOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
-		// we will just not track the progress in that case
-		// This is set by [SetStreamEpisodeCollection]
-		currentStreamEpisodeCollection mo.Option[*anime.EpisodeCollection]
 		// The current episode being streamed, set in [StartStreamingUsingMediaPlayer] by finding the episode in currentStreamEpisodeCollection
 		currentStreamEpisode mo.Option[*anime.Episode]
 		// The current media being streamed, set in [StartStreamingUsingMediaPlayer]
-		currentStreamMedia mo.Option[*anilist.BaseAnime]
+		currentStreamMedia        mo.Option[*anilist.BaseAnime]
+		currentStreamAniDbEpisode mo.Option[string]
 
 		// \/ Manual progress tracking (non-integrated external player)
 		manualTrackingCtx           context.Context
@@ -99,24 +98,72 @@ type (
 		// \/ Playlist
 		playlistHub *playlistHub // The playlist hub
 
-		isOffline       bool
+		isOffline       *bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
 
 		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
 	}
 
+	// PlaybackStatusSubscriber provides a single event channel for all playback events
 	PlaybackStatusSubscriber struct {
-		PlaybackStateCh  chan PlaybackState
-		PlaybackStatusCh chan mediaplayer.PlaybackStatus
-		VideoStartedCh   chan string
-		VideoStoppedCh   chan string
-		VideoCompletedCh chan string
+		EventCh  chan PlaybackEvent
+		canceled atomic.Bool
+	}
 
-		StreamStateCh     chan PlaybackState
-		StreamStatusCh    chan mediaplayer.PlaybackStatus
-		StreamStartedCh   chan string
-		StreamStoppedCh   chan string
-		StreamCompletedCh chan string
+	// PlaybackEvent is the base interface for all playback events
+	PlaybackEvent interface {
+		Type() string
+	}
+
+	PlaybackStartingEvent struct {
+		Filepath      string
+		PlaybackType  PlaybackType
+		Media         *anilist.BaseAnime
+		AniDbEpisode  string
+		EpisodeNumber int
+		WindowTitle   string
+	}
+
+	// Local file playback events
+
+	PlaybackStatusChangedEvent struct {
+		Status mediaplayer.PlaybackStatus
+		State  PlaybackState
+	}
+
+	VideoStartedEvent struct {
+		Filename string
+		Filepath string
+	}
+
+	VideoStoppedEvent struct {
+		Reason string
+	}
+
+	VideoCompletedEvent struct {
+		Filename string
+	}
+
+	// Stream playback events
+	StreamStateChangedEvent struct {
+		State PlaybackState
+	}
+
+	StreamStatusChangedEvent struct {
+		Status mediaplayer.PlaybackStatus
+	}
+
+	StreamStartedEvent struct {
+		Filename string
+		Filepath string
+	}
+
+	StreamStoppedEvent struct {
+		Reason string
+	}
+
+	StreamCompletedEvent struct {
+		Filename string
 	}
 
 	PlaybackStateType string
@@ -125,6 +172,7 @@ type (
 	// It is sent to the client each time the video playback state is picked up -- this is used to update the client's UI
 	PlaybackState struct {
 		EpisodeNumber        int     `json:"episodeNumber"`        // The episode number
+		AniDbEpisode         string  `json:"aniDbEpisode"`         // The AniDB episode number
 		MediaTitle           string  `json:"mediaTitle"`           // The title of the media
 		MediaCoverImage      string  `json:"mediaCoverImage"`      // The cover image of the media
 		MediaTotalEpisodes   int     `json:"mediaTotalEpisodes"`   // The total number of episodes
@@ -139,10 +187,11 @@ type (
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
 		Platform                   platform.Platform
+		MetadataProvider           metadata.Provider
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
-		IsOffline                  bool
+		IsOffline                  *bool
 		ContinuityManager          *continuity.Manager
 	}
 
@@ -151,50 +200,49 @@ type (
 	}
 )
 
+// Event type implementations
+func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_changed" }
+func (e VideoStartedEvent) Type() string          { return "video_started" }
+func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
+func (e VideoCompletedEvent) Type() string        { return "video_completed" }
+func (e StreamStateChangedEvent) Type() string    { return "stream_state_changed" }
+func (e StreamStatusChangedEvent) Type() string   { return "stream_status_changed" }
+func (e StreamStartedEvent) Type() string         { return "stream_started" }
+func (e StreamStoppedEvent) Type() string         { return "stream_stopped" }
+func (e StreamCompletedEvent) Type() string       { return "stream_completed" }
+func (e PlaybackStartingEvent) Type() string      { return "playback_starting" }
+
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	pm := &PlaybackManager{
-		Logger:                         opts.Logger,
-		Database:                       opts.Database,
-		settings:                       &Settings{},
-		discordPresence:                opts.DiscordPresence,
-		wsEventManager:                 opts.WSEventManager,
-		platform:                       opts.Platform,
-		refreshAnimeCollectionFunc:     opts.RefreshAnimeCollectionFunc,
-		mu:                             sync.Mutex{},
-		autoPlayMu:                     sync.Mutex{},
-		eventMu:                        sync.Mutex{},
-		historyMap:                     make(map[string]PlaybackState),
-		isOffline:                      opts.IsOffline,
-		nextEpisodeLocalFile:           mo.None[*anime.LocalFile](),
-		currentStreamEpisodeCollection: mo.None[*anime.EpisodeCollection](),
-		currentStreamEpisode:           mo.None[*anime.Episode](),
-		currentStreamMedia:             mo.None[*anilist.BaseAnime](),
-		animeCollection:                mo.None[*anilist.AnimeCollection](),
-		currentManualTrackingState:     mo.None[*ManualTrackingState](),
-		currentLocalFile:               mo.None[*anime.LocalFile](),
-		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
-		currentMediaListEntry:          mo.None[*anilist.AnimeListEntry](),
-		continuityManager:              opts.ContinuityManager,
-		playbackStatusSubscribers:      result.NewResultMap[string, *PlaybackStatusSubscriber](),
+		Logger:                       opts.Logger,
+		Database:                     opts.Database,
+		settings:                     &Settings{},
+		discordPresence:              opts.DiscordPresence,
+		wsEventManager:               opts.WSEventManager,
+		platform:                     opts.Platform,
+		metadataProvider:             opts.MetadataProvider,
+		refreshAnimeCollectionFunc:   opts.RefreshAnimeCollectionFunc,
+		mu:                           sync.Mutex{},
+		autoPlayMu:                   sync.Mutex{},
+		eventMu:                      sync.RWMutex{},
+		historyMap:                   make(map[string]PlaybackState),
+		isOffline:                    opts.IsOffline,
+		nextEpisodeLocalFile:         mo.None[*anime.LocalFile](),
+		currentStreamEpisode:         mo.None[*anime.Episode](),
+		currentStreamMedia:           mo.None[*anilist.BaseAnime](),
+		currentStreamAniDbEpisode:    mo.None[string](),
+		animeCollection:              mo.None[*anilist.AnimeCollection](),
+		currentManualTrackingState:   mo.None[*ManualTrackingState](),
+		currentLocalFile:             mo.None[*anime.LocalFile](),
+		currentLocalFileWrapperEntry: mo.None[*anime.LocalFileWrapperEntry](),
+		currentMediaListEntry:        mo.None[*anilist.AnimeListEntry](),
+		continuityManager:            opts.ContinuityManager,
+		playbackStatusSubscribers:    result.NewResultMap[string, *PlaybackStatusSubscriber](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
 
 	return pm
-}
-
-func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.Episode) {
-	// DEVNOTE: This is called from the torrentstream repository instance
-
-	// Commented to fix potential deadlock
-	//pm.mu.Lock()
-	//defer pm.mu.Unlock()
-
-	pm.Logger.Trace().Msg("playback manager: Setting stream episode collection")
-
-	pm.currentStreamEpisodeCollection = mo.Some(&anime.EpisodeCollection{
-		Episodes: ec,
-	})
 }
 
 func (pm *PlaybackManager) SetAnimeCollection(ac *anilist.AnimeCollection) {
@@ -293,6 +341,44 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	return nil
 }
 
+// StartUntrackedStreamingUsingMediaPlayer starts a stream using the media player without any tracking.
+func (pm *PlaybackManager) StartUntrackedStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartUntrackedStreamingUsingMediaPlayer", &err)
+
+	event := &StreamPlaybackRequestedEvent{
+		WindowTitle:  windowTitle,
+		Payload:      opts.Payload,
+		Media:        nil,
+		AniDbEpisode: "",
+	}
+	err = hook.GlobalHookManager.OnStreamPlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Stream playback prevented by hook")
+		return nil
+	}
+
+	pm.Logger.Trace().Msg("playback manager: Starting the media player")
+
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	episodeNumber := 0
+
+	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, 0, windowTitle)
+	if err != nil {
+		pm.Logger.Error().Err(err).Msg("playback manager: Failed to start streaming")
+		return err
+	}
+
+	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
+
+	return nil
+}
+
 // StartStreamingUsingMediaPlayer starts streaming a video using the media player.
 // This sets PlaybackManager.currentStreamMedia and PlaybackManager.currentStreamEpisode used for progress tracking.
 // Note that PlaybackManager.currentStreamEpisodeCollection is not required to start streaming but is needed for progress tracking.
@@ -316,7 +402,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.playlistHub.reset()
-	if pm.isOffline {
+	if *pm.isOffline {
 		return errors.New("cannot stream when offline")
 	}
 
@@ -336,22 +422,23 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.currentStreamMedia = mo.Some(media)
-
 	episodeNumber := 0
 
-	// Set the current episode being streamed
-	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
-	if pm.currentStreamEpisodeCollection.IsPresent() {
-		for _, episode := range pm.currentStreamEpisodeCollection.MustGet().Episodes {
-			if episode.AniDBEpisode == aniDbEpisode {
-				episodeNumber = episode.EpisodeNumber
-				pm.currentStreamEpisode = mo.Some(episode)
-				break
-			}
-		}
+	// Find the current episode being stream
+	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
+		AnimeMetadata:    nil,
+		Media:            media,
+		MetadataProvider: pm.metadataProvider,
+		Logger:           pm.Logger,
+	})
+
+	pm.currentStreamAniDbEpisode = mo.Some(aniDbEpisode)
+
+	if episode, ok := episodeCollection.FindEpisodeByAniDB(aniDbEpisode); ok {
+		episodeNumber = episode.EpisodeNumber
+		pm.currentStreamEpisode = mo.Some(episode)
 	} else {
-		//DEVNOTE: This will happen if the server is restarted and the stream page is not reloaded
-		pm.Logger.Warn().Msg("playback manager: Stream episode collection is not set, no tracking will be done. Please refresh the page and try again if this shouldn't happen")
+		pm.Logger.Warn().Str("episode", aniDbEpisode).Msg("playback manager: Failed to find episode in episode collection")
 	}
 
 	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID, windowTitle)
@@ -466,16 +553,24 @@ func (pm *PlaybackManager) AutoPlayNextEpisode() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Pause pauses the current media player playback.
 func (pm *PlaybackManager) Pause() error {
 	return pm.MediaPlayerRepository.Pause()
 }
 
+// Resume resumes the current media player playback.
 func (pm *PlaybackManager) Resume() error {
 	return pm.MediaPlayerRepository.Resume()
 }
 
+// Seek seeks to the specified time in the current media.
 func (pm *PlaybackManager) Seek(seconds float64) error {
 	return pm.MediaPlayerRepository.Seek(seconds)
+}
+
+// PullStatus pulls the current media player playback status at the time of the call.
+func (pm *PlaybackManager) PullStatus() (*mediaplayer.PlaybackStatus, bool) {
+	return pm.MediaPlayerRepository.PullStatus()
 }
 
 // Cancel stops the current media player playback and publishes a "normal" event.
@@ -560,7 +655,6 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 				go pm.MediaPlayerRepository.Stop()
 				pm.playlistHub.cancel()
 				return
-			default:
 			}
 		}
 	}()
@@ -585,7 +679,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 	if pm.animeCollection.IsAbsent() {
 		// If the anime collection is not present, we retrieve it from the platform
-		collection, err := pm.platform.GetAnimeCollection(false)
+		collection, err := pm.platform.GetAnimeCollection(context.Background(), false)
 		if err != nil {
 			return err
 		}
@@ -596,17 +690,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusSubscriber {
 	subscriber := &PlaybackStatusSubscriber{
-		PlaybackStateCh:  make(chan PlaybackState),
-		PlaybackStatusCh: make(chan mediaplayer.PlaybackStatus),
-		VideoStartedCh:   make(chan string),
-		VideoStoppedCh:   make(chan string),
-		VideoCompletedCh: make(chan string),
-
-		StreamStateCh:     make(chan PlaybackState),
-		StreamStatusCh:    make(chan mediaplayer.PlaybackStatus),
-		StreamStartedCh:   make(chan string),
-		StreamStoppedCh:   make(chan string),
-		StreamCompletedCh: make(chan string),
+		EventCh: make(chan PlaybackEvent, 100),
 	}
 	pm.playbackStatusSubscribers.Set(id, subscriber)
 	return subscriber
@@ -622,15 +706,7 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 	if !ok {
 		return
 	}
-	close(subscriber.PlaybackStateCh)
-	close(subscriber.PlaybackStatusCh)
-	close(subscriber.VideoStartedCh)
-	close(subscriber.VideoStoppedCh)
-	close(subscriber.VideoCompletedCh)
-	close(subscriber.StreamStateCh)
-	close(subscriber.StreamStatusCh)
-	close(subscriber.StreamStartedCh)
-	close(subscriber.StreamStoppedCh)
-	close(subscriber.StreamCompletedCh)
+	subscriber.canceled.Store(true)
 	pm.playbackStatusSubscribers.Delete(id)
+	close(subscriber.EventCh)
 }

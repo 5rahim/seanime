@@ -18,9 +18,10 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { AnimatePresence, motion } from "framer-motion"
+import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
+import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -67,8 +68,10 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
             data-discover-page-header-carousel-dots
             className={cn(
                 "absolute hidden lg:flex items-center justify-center gap-2 z-[10] pl-8",
-                ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-[4rem]",
-                process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[2rem]",
+                ts.hideTopNavbar && !__isDesktop__ && "top-[4rem]",
+                __isDesktop__ && "top-[2rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && !__isDesktop__ && "top-[4.2rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && __isDesktop__ && "top-[0.6rem]",
                 pathname === "/" && "hidden lg:hidden",
                 className,
             )}
@@ -148,8 +151,8 @@ export function DiscoverPageHeader() {
                 ts.hideTopNavbar && "lg:h-[32rem]",
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
                 (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",
-                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "lg:h-[32rem]",
-                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "lg:h-[33rem]",
+                // (__isDesktop__ && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "lg:h-[32rem]",
+                // (__isDesktop__ && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "lg:h-[33rem]",
             )}
             {...{
                 initial: { opacity: 0 },
@@ -164,9 +167,9 @@ export function DiscoverPageHeader() {
             <div
                 data-discover-page-header-banner-image-container
                 className={cn(
-                    "lg:h-[35rem] w-full overflow-hidden flex-none object-cover object-center absolute top-0 bg-[--background]",
+                    "lg:h-[35rem] w-full  flex-none object-cover object-center absolute top-0 bg-[--background]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
-                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[-2rem]",
+                    __isDesktop__ && "top-[-2rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
                 )}
             >
@@ -189,23 +192,25 @@ export function DiscoverPageHeader() {
                     )}
                 />
                 <AnimatePresence>
-                    {(!!bannerImage) && (
-                        <MotionImage
-                            data-discover-page-header-banner-image
-                            src={bannerImage}
-                            alt="banner image"
-                            fill
-                            quality={100}
-                            priority
-                            className={cn(
-                                "object-cover object-center z-[1] transition-all duration-1000",
-                                isTransitioning && "scale-[1.01] -translate-x-0.5",
-                                !isTransitioning && "scale-100 translate-x-0",
-                                !randomTrending?.bannerImage && "opacity-35",
-                                trailerLoaded && "opacity-0",
-                            )}
-                        />
-                    )}
+                    <div className="w-full h-full absolute z-[1] overflow-hidden">
+                        {(!!bannerImage) && (
+                            <MotionImage
+                                data-discover-page-header-banner-image
+                                src={bannerImage}
+                                alt="banner image"
+                                fill
+                                quality={100}
+                                priority
+                                className={cn(
+                                    "object-cover object-center z-[1] transition-all duration-1000",
+                                    isTransitioning && "scale-[1.01] -translate-x-0.5",
+                                    !isTransitioning && "scale-100 translate-x-0",
+                                    !randomTrending?.bannerImage && "opacity-35",
+                                    trailerLoaded && "opacity-0",
+                                )}
+                            />
+                        )}
+                    </div>
                 </AnimatePresence>
 
                 {/* Trailer */}
@@ -280,8 +285,8 @@ export function DiscoverPageHeader() {
                             ts.hideTopNavbar && "top-[4rem]",
                             ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "top-[4rem]",
                             (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "top-[2rem]",
-                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
-                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
+                            (__isDesktop__ && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
+                            (__isDesktop__ && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
                         )}
                         data-media-id={randomTrending?.id}
                         data-media-mal-id={randomTrending?.idMal}
@@ -294,8 +299,8 @@ export function DiscoverPageHeader() {
                         >
                             <motion.div
                                 className="flex-none"
-                                initial={{ opacity: 0, scale: 0.7, skew: 5 }}
-                                animate={{ opacity: 1, scale: 1, skew: 0 }}
+                                initial={{ opacity: 0, scale: 0.7, skew: 5 } as any}
+                                animate={{ opacity: 1, scale: 1, skew: 0 } as any}
                                 exit={{ opacity: 1, scale: 1, skewY: 1 }}
                                 transition={{ duration: 0.5 }}
                                 data-discover-page-header-metadata-media-image-container

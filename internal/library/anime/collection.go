@@ -2,6 +2,7 @@ package anime
 
 import (
 	"cmp"
+	"context"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -28,6 +29,7 @@ type (
 	LibraryCollection struct {
 		ContinueWatchingList []*Episode               `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
+		NakamaEntries        []*Entry                 `json:"nakamaEntries"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
@@ -93,14 +95,15 @@ type (
 )
 
 // NewLibraryCollection creates a new LibraryCollection.
-func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
+func NewLibraryCollection(ctx context.Context, opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
 	lc = new(LibraryCollection)
 
-	reqEvent := new(AnimeLibraryCollectionRequestedEvent)
-	reqEvent.AnimeCollection = opts.AnimeCollection
-	reqEvent.LocalFiles = opts.LocalFiles
-	reqEvent.LibraryCollection = lc
+	reqEvent := &AnimeLibraryCollectionRequestedEvent{
+		AnimeCollection:   opts.AnimeCollection,
+		LocalFiles:        opts.LocalFiles,
+		LibraryCollection: lc,
+	}
 	err = hook.GlobalHookManager.OnAnimeLibraryCollectionRequested().Trigger(reqEvent)
 	if err != nil {
 		return nil, err
@@ -110,8 +113,9 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	lc = reqEvent.LibraryCollection                 // Override the library collection
 
 	if reqEvent.DefaultPrevented {
-		event := new(AnimeLibraryCollectionEvent)
-		event.LibraryCollection = lc
+		event := &AnimeLibraryCollectionEvent{
+			LibraryCollection: lc,
+		}
 		err = hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
 		if err != nil {
 			return nil, err
@@ -133,6 +137,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 
 	// Add Continue Watching list
 	lc.hydrateContinueWatchingList(
+		ctx,
 		opts.LocalFiles,
 		opts.AnimeCollection,
 		opts.Platform,
@@ -154,8 +159,9 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	lc.hydrateUnmatchedGroups()
 
 	// Event
-	event := new(AnimeLibraryCollectionEvent)
-	event.LibraryCollection = lc
+	event := &AnimeLibraryCollectionEvent{
+		LibraryCollection: lc,
+	}
 	hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
 	lc = event.LibraryCollection
 
@@ -341,6 +347,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 // hydrateContinueWatchingList creates a list of Episode for the "continue watching" feature.
 // This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
+	ctx context.Context,
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
 	platform platform.Platform,
@@ -367,7 +374,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	mEntryPool := pool.NewWithResults[*Entry]()
 	for _, mId := range mIds {
 		mEntryPool.Go(func() *Entry {
-			me, _ := NewEntry(&NewEntryOptions{
+			me, _ := NewEntry(ctx, &NewEntryOptions{
 				MediaId:          mId,
 				LocalFiles:       localFiles,
 				AnimeCollection:  animeCollection,
@@ -417,8 +424,6 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	})
 
 	lc.ContinueWatchingList = mEpisodes
-
-	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -448,8 +453,6 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 
 	// Assign the created groups
 	lc.UnmatchedGroups = groups
-
-	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------

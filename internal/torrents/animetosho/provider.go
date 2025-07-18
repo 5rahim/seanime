@@ -457,10 +457,10 @@ func (at *Provider) fetchTorrents(suffix string) (torrents []*Torrent, err error
 	}
 
 	for _, t := range ret {
-		if t.Seeders > 30000 {
+		if t.Seeders > 100000 {
 			t.Seeders = 0
 		}
-		if t.Leechers > 30000 {
+		if t.Leechers > 100000 {
 			t.Leechers = 0
 		}
 	}

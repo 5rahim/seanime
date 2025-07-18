@@ -119,7 +119,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     data-episode-grid-item-image-container
                     className={cn(
                         "w-36 h-28 lg:w-44 lg:h-32",
-                        !description && "w-36 h-28 lg:w-40 lg:h-28",
+                        (ts.hideEpisodeCardDescription) && "w-36 h-28 lg:w-40 lg:h-28",
                         "flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
                         onClick && "cursor-pointer",

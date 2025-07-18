@@ -9,7 +9,7 @@ import (
 	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/database/models"
-	"seanime/internal/library/anime"
+	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
@@ -27,7 +27,7 @@ type Status struct {
 	ClientPlatform        string                        `json:"clientPlatform"`
 	ClientUserAgent       string                        `json:"clientUserAgent"`
 	DataDir               string                        `json:"dataDir"`
-	User                  *anime.User                   `json:"user"`
+	User                  *user.User                    `json:"user"`
 	Settings              *models.Settings              `json:"settings"`
 	Version               string                        `json:"version"`
 	VersionName           string                        `json:"versionName"`
@@ -41,6 +41,7 @@ type Status struct {
 	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
 	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 	ServerReady           bool                          `json:"serverReady"`
+	ServerHasPassword     bool                          `json:"serverHasPassword"`
 }
 
 var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
@@ -49,16 +50,20 @@ var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
 // It uses the RouteCtx to get the App instance containing the Database instance.
 func (h *Handler) NewStatus(c echo.Context) *Status {
 	var dbAcc *models.Account
-	var user *anime.User
+	var currentUser *user.User
 	var settings *models.Settings
 	var theme *models.Theme
 	//var mal *models.Mal
 
+	// Get the user from the database (if logged in)
 	if dbAcc, _ = h.App.Database.GetAccount(); dbAcc != nil {
-		user, _ = anime.NewUser(dbAcc)
-		if user != nil {
-			user.Token = "HIDDEN"
+		currentUser, _ = user.NewUser(dbAcc)
+		if currentUser != nil {
+			currentUser.Token = "HIDDEN"
 		}
+	} else {
+		// If the user is not logged in, create a simulated user
+		currentUser = user.NewSimulatedUser()
 	}
 
 	if settings, _ = h.App.Database.GetSettings(); settings != nil {
@@ -75,13 +80,13 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 
 	theme, _ = h.App.Database.GetTheme()
 
-	return &Status{
+	status := &Status{
 		OS:                    runtime.GOOS,
 		ClientDevice:          clientInfo.Device,
 		ClientPlatform:        clientInfo.Platform,
 		DataDir:               h.App.Config.Data.AppDataDir,
 		ClientUserAgent:       c.Request().UserAgent(),
-		User:                  user,
+		User:                  currentUser,
 		Settings:              settings,
 		Version:               h.App.Version,
 		VersionName:           constants.VersionName,
@@ -95,7 +100,23 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		IsDesktopSidecar:      h.App.IsDesktopSidecar,
 		FeatureFlags:          h.App.FeatureFlags,
 		ServerReady:           h.App.ServerReady,
+		ServerHasPassword:     h.App.Config.Server.Password != "",
 	}
+
+	if c.Get("unauthenticated") != nil && c.Get("unauthenticated").(bool) {
+		// If the user is unauthenticated, return a status with no user data
+		status.OS = ""
+		status.DataDir = ""
+		status.User = user.NewSimulatedUser()
+		status.ThemeSettings = nil
+		status.MediastreamSettings = nil
+		status.TorrentstreamSettings = nil
+		status.Settings = &models.Settings{}
+		status.DebridSettings = nil
+		status.FeatureFlags = core.FeatureFlags{}
+	}
+
+	return status
 }
 
 // HandleGetStatus
@@ -290,4 +311,28 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, string(contentB))
+}
+
+// HandleGetAnnouncements
+//
+//	@summary returns the server announcements.
+//	@desc This returns the announcements for the server.
+//	@route /api/v1/announcements [POST]
+//	@returns []updater.Announcement
+func (h *Handler) HandleGetAnnouncements(c echo.Context) error {
+	type body struct {
+		Platform string `json:"platform"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	settings, _ := h.App.Database.GetSettings()
+
+	announcements := h.App.Updater.GetAnnouncements(h.App.Version, b.Platform, settings)
+
+	return h.RespondWithData(c, announcements)
+
 }

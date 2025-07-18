@@ -2,13 +2,14 @@ package filecache
 
 import (
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/samber/lo"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/samber/lo"
 )
 
 // CacheStore represents a single-process, file-based, key/value cache store.
@@ -332,8 +333,11 @@ func (cs *CacheStore) loadFromFile() error {
 	defer file.Close()
 
 	if err := json.NewDecoder(file).Decode(&cs.data); err != nil {
-		return fmt.Errorf("filecache: failed to decode cache data: %w", err)
+		// If decode fails (empty or corrupted file), initialize with empty data
+		cs.data = make(map[string]*cacheItem)
+		return nil
 	}
+
 	return nil
 }
 

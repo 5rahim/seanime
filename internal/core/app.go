@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
+	"seanime/internal/directstream"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/doh"
 	"seanime/internal/events"
@@ -21,23 +22,28 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/library/scanner"
+	"seanime/internal/local"
 	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/nakama"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
-	"seanime/internal/platforms/local_platform"
+	"seanime/internal/platforms/offline_platform"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/platforms/simulated_platform"
 	"seanime/internal/plugin"
 	"seanime/internal/report"
-	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/updater"
+	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"sync"
@@ -56,41 +62,45 @@ type (
 		Watcher                       *scanner.Watcher
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
-		LocalPlatform                 platform.Platform
-		SyncManager                   sync2.Manager
+		OfflinePlatform               platform.Platform
+		LocalManager                  local.Manager
 		FillerManager                 *fillermanager.FillerManager
 		WSEventManager                *events.WSEventManager
 		AutoDownloader                *autodownloader.AutoDownloader
 		ExtensionRepository           *extension_repo.Repository
 		ExtensionPlaygroundRepository *extension_playground.PlaygroundRepository
+		DirectStreamManager           *directstream.Manager
+		NativePlayer                  *nativeplayer.NativePlayer
 		MediaPlayer                   struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
+			Iina  *iina.Iina
 		}
-		MediaPlayerRepository   *mediaplayer.Repository
-		Version                 string
-		Updater                 *updater.Updater
-		AutoScanner             *autoscanner.AutoScanner
-		PlaybackManager         *playbackmanager.PlaybackManager
-		FileCacher              *filecache.Cacher
-		OnlinestreamRepository  *onlinestream.Repository
-		MangaRepository         *manga.Repository
-		MetadataProvider        metadata.Provider
-		DiscordPresence         *discordrpc_presence.Presence
-		MangaDownloader         *manga.Downloader
-		ContinuityManager       *continuity.Manager
-		Cleanups                []func()
-		OnFlushLogs             func()
-		MediastreamRepository   *mediastream.Repository
-		TorrentstreamRepository *torrentstream.Repository
-		FeatureFlags            FeatureFlags
-		Settings                *models.Settings
-		SecondarySettings       struct {
+		MediaPlayerRepository           *mediaplayer.Repository
+		Version                         string
+		Updater                         *updater.Updater
+		AutoScanner                     *autoscanner.AutoScanner
+		PlaybackManager                 *playbackmanager.PlaybackManager
+		FileCacher                      *filecache.Cacher
+		OnlinestreamRepository          *onlinestream.Repository
+		MangaRepository                 *manga.Repository
+		MetadataProvider                metadata.Provider
+		DiscordPresence                 *discordrpc_presence.Presence
+		MangaDownloader                 *manga.Downloader
+		ContinuityManager               *continuity.Manager
+		Cleanups                        []func()
+		OnRefreshAnilistCollectionFuncs map[string]func()
+		OnFlushLogs                     func()
+		MediastreamRepository           *mediastream.Repository
+		TorrentstreamRepository         *torrentstream.Repository
+		FeatureFlags                    FeatureFlags
+		Settings                        *models.Settings
+		SecondarySettings               struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
-		} // Struct for other settings sent to client
+		} // Struct for other settings sent to clientN
 		SelfUpdater        *updater.SelfUpdater
 		ReportRepository   *report.Repository
 		TotalLibrarySize   uint64 // Initialized in modules.go
@@ -100,11 +110,14 @@ type (
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection
 		rawMangaCollection *anilist.MangaCollection // (retains custom lists)
-		account            *models.Account
+		user               *user.User
 		previousVersion    string
 		moduleMu           sync.Mutex
 		HookManager        hook.Manager
 		ServerReady        bool // Whether the Anilist data from the first request has been fetched
+		isOffline          *bool
+		NakamaManager      *nakama.Manager
+		ServerPasswordHash string // SHA-256 hash of the server password
 	}
 )
 
@@ -139,6 +152,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	cfg, err := NewConfig(configOpts, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
+	}
+
+	// Compute SHA-256 hash of the server password
+	serverPasswordHash := ""
+	if cfg.Server.Password != "" {
+		serverPasswordHash = util.HashSHA256Hex(cfg.Server.Password)
 	}
 
 	// Create logs directory if it doesn't exist
@@ -178,7 +197,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Get Anilist token from database if available
 	anilistToken := database.GetAnilistToken()
 
-	// Initialize Anilist API client
+	// Initialize Anilist API client with the token
+	// If the token is empty, the client will not be authenticated
 	anilistCW := anilist.NewAnilistClient(anilistToken)
 
 	// Initialize WebSocket event manager for real-time communication
@@ -207,7 +227,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager:    hookManager,
 	})
 	// Load extensions in background
-	go LoadExtensions(extensionRepository, logger)
+	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize metadata provider for media information
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
@@ -240,7 +260,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Initialize sync manager for offline/online synchronization
-	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
+	localManager, err := local.NewManager(&local.NewManagerOptions{
 		LocalDir:         cfg.Offline.Dir,
 		AssetDir:         cfg.Offline.AssetDir,
 		Logger:           logger,
@@ -257,19 +277,28 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Use local metadata provider if in offline mode
 	if cfg.Server.Offline {
-		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
+		activeMetadataProvider = localManager.GetOfflineMetadataProvider()
 	}
 
-	// Initialize local platform for offline operation
-	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
+	// Initialize local platform for offline operations
+	offlinePlatform, err := offline_platform.NewOfflinePlatform(localManager, anilistCW, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
+	}
+
+	// Initialize simulated platform for unauthenticated operations
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize simulated platform")
 	}
 
 	// Change active platform if offline mode is enabled
 	activePlatform := anilistPlatform
 	if cfg.Server.Offline {
-		activePlatform = localPlatform
+		activePlatform = offlinePlatform
+	} else if !anilistCW.IsAuthenticated() {
+		logger.Warn().Msg("app: Anilist client is not authenticated, using simulated platform")
+		activePlatform = simulatedPlatform
 	}
 
 	// Initialize online streaming repository
@@ -284,14 +313,16 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize extension playground for testing extensions
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
+	isOffline := cfg.Server.Offline
+
 	// Create the main app instance with initialized components
 	app := &App{
 		Config:                        cfg,
 		Database:                      database,
 		AnilistClient:                 anilistCW,
 		AnilistPlatform:               activePlatform,
-		LocalPlatform:                 localPlatform,
-		SyncManager:                   syncManager,
+		OfflinePlatform:               offlinePlatform,
+		LocalManager:                  localManager,
 		WSEventManager:                wsEventManager,
 		Logger:                        logger,
 		Version:                       constants.Version,
@@ -313,6 +344,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
 		ContinuityManager:             nil, // Initialized in App.initModulesOnce
 		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
+		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
+		NativePlayer:                  nil, // Initialized in App.initModulesOnce
+		NakamaManager:                 nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
@@ -324,9 +358,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
 		}{Mediastream: nil, Torrentstream: nil},
-		SelfUpdater: selfupdater,
-		moduleMu:    sync.Mutex{},
-		HookManager: hookManager,
+		SelfUpdater:                     selfupdater,
+		moduleMu:                        sync.Mutex{},
+		OnRefreshAnilistCollectionFuncs: make(map[string]func()),
+		HookManager:                     hookManager,
+		isOffline:                       &isOffline,
+		ServerPasswordHash:              serverPasswordHash,
 	}
 
 	// Run database migrations if version has changed
@@ -336,6 +373,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.initModulesOnce()
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		IsOffline:               app.IsOffline(),
 		ContinuityManager:       app.ContinuityManager,
 		AutoScanner:             app.AutoScanner,
 		AutoDownloader:          app.AutoDownloader,
@@ -345,6 +383,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		TorrentstreamRepository: app.TorrentstreamRepository,
 	})
 
+	if !*app.IsOffline() {
+		go app.Updater.FetchAnnouncements()
+	}
+
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
 
@@ -352,7 +394,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.AddExtensionBankToConsumers()
 
 	// Initialize Anilist data if not in offline mode
-	if !app.IsOffline() {
+	if !*app.IsOffline() {
 		app.InitOrRefreshAnilistData()
 	} else {
 		app.ServerReady = true
@@ -367,22 +409,27 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize debrid settings (for debrid services)
 	app.InitOrRefreshDebridSettings()
 
+	// Register Nakama manager cleanup
+	app.AddCleanupFunction(app.NakamaManager.Cleanup)
+
 	// Run one-time initialization actions
 	app.performActionsOnce()
 
 	return app
 }
 
-func (a *App) IsOffline() bool {
-	if a.Config == nil {
-		return false
-	}
-
-	return a.Config.Server.Offline
+func (a *App) IsOffline() *bool {
+	return a.isOffline
 }
 
 func (a *App) AddCleanupFunction(f func()) {
 	a.Cleanups = append(a.Cleanups, f)
+}
+func (a *App) AddOnRefreshAnilistCollectionFunc(key string, f func()) {
+	if key == "" {
+		return
+	}
+	a.OnRefreshAnilistCollectionFuncs[key] = f
 }
 
 func (a *App) Cleanup() {

@@ -2,8 +2,6 @@ package torrentstream
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -11,23 +9,28 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
 	Repository struct {
-		client                   *Client
-		serverManager            *serverManager
-		playback                 playback
-		settings                 mo.Option[Settings]           // None by default, set and refreshed by [SetSettings]
-		currentEpisodeCollection mo.Option[*EpisodeCollection] // Refreshed in [list.go] when the user opens the streaming page for a media
+		client   *Client
+		handler  *handler
+		playback playback
+		settings mo.Option[Settings] // None by default, set and refreshed by [SetSettings]
 
 		selectionHistoryMap *result.Map[int, *hibiketorrent.AnimeTorrent] // Key: AniList media ID
 
@@ -41,27 +44,35 @@ type (
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
+		nativePlayerSubscriber          *nativeplayer.Subscriber
+		directStreamManager             *directstream.Manager
+		nativePlayer                    *nativeplayer.NativePlayer
 		logger                          *zerolog.Logger
 		db                              *db.Database
+
+		onEpisodeCollectionChanged func(ec *anime.EpisodeCollection)
+
+		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
 
 	Settings struct {
 		models.TorrentstreamSettings
-		Host              string
-		Port              int
-		UseSeparateServer bool
+		Host string
+		Port int
 	}
 
 	NewRepositoryOptions struct {
-		Logger             *zerolog.Logger
-		TorrentRepository  *torrent.Repository
-		BaseAnimeCache     *anilist.BaseAnimeCache
-		CompleteAnimeCache *anilist.CompleteAnimeCache
-		Platform           platform.Platform
-		MetadataProvider   metadata.Provider
-		PlaybackManager    *playbackmanager.PlaybackManager
-		WSEventManager     events.WSEventManagerInterface
-		Database           *db.Database
+		Logger              *zerolog.Logger
+		TorrentRepository   *torrent.Repository
+		BaseAnimeCache      *anilist.BaseAnimeCache
+		CompleteAnimeCache  *anilist.CompleteAnimeCache
+		Platform            platform.Platform
+		MetadataProvider    metadata.Provider
+		PlaybackManager     *playbackmanager.PlaybackManager
+		WSEventManager      events.WSEventManagerInterface
+		Database            *db.Database
+		DirectStreamManager *directstream.Manager
+		NativePlayer        *nativeplayer.NativePlayer
 	}
 )
 
@@ -69,9 +80,8 @@ type (
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
 		client:                          nil,
-		serverManager:                   nil,
+		handler:                         nil,
 		settings:                        mo.Option[Settings]{},
-		currentEpisodeCollection:        mo.Option[*EpisodeCollection]{},
 		selectionHistoryMap:             result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
 		torrentRepository:               opts.TorrentRepository,
 		baseAnimeCache:                  opts.BaseAnimeCache,
@@ -84,27 +94,21 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		mediaPlayerRepositorySubscriber: nil,
 		logger:                          opts.Logger,
 		db:                              opts.Database,
+		directStreamManager:             opts.DirectStreamManager,
+		nativePlayer:                    opts.NativePlayer,
+		previousStreamOptions:           mo.None[*StartStreamOptions](),
 	}
 	ret.client = NewClient(ret)
-	ret.serverManager = newServerManager(ret)
+	ret.handler = newHandler(ret)
 	return ret
 }
 
-// setEpisodeCollection sets the current episode collection in the repository.
-//
-// Note: This is also used for Debrid streaming
-func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
-	if ec == nil {
-		r.currentEpisodeCollection = mo.None[*EpisodeCollection]()
-		return
-	}
+func (r *Repository) IsEnabled() bool {
+	return r.settings.IsPresent() && r.settings.MustGet().Enabled && r.client != nil
+}
 
-	r.currentEpisodeCollection = mo.Some(ec)
-
-	// Notify the playback manager
-	if r.playbackManager != nil {
-		go r.playbackManager.SetStreamEpisodeCollection(ec.Episodes)
-	}
+func (r *Repository) GetPreviousStreamOptions() (*StartStreamOptions, bool) {
+	return r.previousStreamOptions.OrElse(nil), r.previousStreamOptions.IsPresent()
 }
 
 // SetMediaPlayerRepository sets the mediaplayer repository and listens to events.
@@ -118,9 +122,8 @@ func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer
 
 // InitModules sets the settings for the torrentstream module.
 // It should be called before any other method, to ensure the module is active.
-func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int, isMainServer bool) (err error) {
+func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int) (err error) {
 	r.client.Shutdown()
-	useSeparateServer := false
 
 	defer util.HandlePanicInModuleWithError("torrentstream/InitModules", &err)
 
@@ -164,7 +167,6 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		TorrentstreamSettings: s,
 		Host:                  host,
 		Port:                  port,
-		UseSeparateServer:     useSeparateServer,
 	})
 
 	// Initialize the torrent client
@@ -173,17 +175,15 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		return err
 	}
 
-	if useSeparateServer {
-		// Initialize the streaming server
-		r.serverManager.initializeServer()
-	}
+	// Start listening to native player events
+	r.listenToNativePlayerEvents()
 
 	r.logger.Info().Msg("torrentstream: Module initialized")
 	return nil
 }
 
 func (r *Repository) HTTPStreamHandler() http.Handler {
-	return r.serverManager
+	return r.handler
 }
 
 func (r *Repository) FailIfNoSettings() error {
@@ -196,15 +196,8 @@ func (r *Repository) FailIfNoSettings() error {
 // Shutdown closes the torrent client and streaming server
 // TEST-ONLY
 func (r *Repository) Shutdown() {
-	settings, ok := r.settings.Get()
-	if !ok {
-		return
-	}
 	r.logger.Debug().Msg("torrentstream: Shutting down module")
 	r.client.Shutdown()
-	if settings.UseSeparateServer {
-		r.serverManager.stopServer()
-	}
 }
 
 //// Cleanup shuts down the module and removes the download directory

@@ -6,6 +6,7 @@ import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-c
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
 import { cn } from "@/components/ui/core/styling"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { __isDesktop__ } from "@/types/constants"
 import React from "react"
 
 export const dynamic = "force-static"
@@ -18,6 +19,7 @@ export default function Page() {
         storedFilters,
         storedProviders,
         mangaCollectionGenres,
+        hasManga,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -47,9 +49,9 @@ export default function Page() {
                     <div
                         data-manga-page-dynamic-banner-spacer
                         className={cn(
-                            process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "h-28",
-                            (process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && ts.hideTopNavbar) && "h-40",
-                            process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "h-40",
+                            !__isDesktop__ && "h-28",
+                            (!__isDesktop__ && ts.hideTopNavbar) && "h-40",
+                            __isDesktop__ && "h-40",
                         )}
                     ></div>
                 </>
@@ -60,6 +62,7 @@ export default function Page() {
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
                 storedProviders={storedProviders}
+                hasManga={hasManga}
             />
         </div>
     )

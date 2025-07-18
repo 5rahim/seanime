@@ -8,7 +8,7 @@ import { AiFillWarning } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
 import { BsFileEarmarkPlayFill } from "react-icons/bs"
 import { FcFolder } from "react-icons/fc"
-import { MdVerified } from "react-icons/md"
+import { LuCircleCheckBig } from "react-icons/lu"
 
 type TorrentPreviewItemProps = {
     link?: string
@@ -67,7 +67,8 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             data-is-selected={isSelected}
             data-link={link}
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/torrent-preview-item overflow-hidden",
+                "border p-3 pr-12 rounded-lg relative transition group/torrent-preview-item overflow-hidden",
+                // !__isElectronDesktop__ && "lg:hover:scale-[1.01]",
                 "max-w-full bg-[--background]",
                 {
                     "border-brand-200": isSelected,
@@ -82,15 +83,15 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             {addon}
 
             {confirmed && <div className="absolute left-2 top-2" data-torrent-preview-item-confirmed-badge>
-                <MdVerified
+                <LuCircleCheckBig
                     className={cn(
-                        "text-[--gray] text-lg",
-                        isBestRelease ? "text-[--pink]" : "opacity-30",
+                        "text-[--gray] text-sm",
+                        isBestRelease ? "text-[--pink] opacity-70" : "opacity-30",
                     )}
                 />
             </div>}
 
-            <div className="absolute left-0 top-0 w-full h-full max-w-[180px]" data-torrent-preview-item-image-container>
+            <div className="absolute left-0 top-0 w-full h-full max-w-[160px]" data-torrent-preview-item-image-container>
                 {(image || fallbackImage) && <Image
                     data-torrent-preview-item-image
                     src={image || fallbackImage!}

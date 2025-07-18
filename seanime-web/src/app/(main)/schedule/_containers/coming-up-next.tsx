@@ -2,7 +2,7 @@ import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { MonthCalendar } from "@/app/(main)/schedule/_components/month-calendar"
+import { ScheduleCalendar } from "@/app/(main)/schedule/_components/schedule-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"
@@ -49,8 +49,7 @@ export function ComingUpNext() {
                 <p className="text-[--muted]">Based on your anime list</p>
             </div>
 
-            <MonthCalendar
-                media={media}
+            <ScheduleCalendar
                 missingEpisodes={missingEpisodes}
             />
 

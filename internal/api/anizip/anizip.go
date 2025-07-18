@@ -2,11 +2,13 @@ package anizip
 
 import (
 	"errors"
-	"github.com/goccy/go-json"
 	"io"
 	"net/http"
+	"seanime/internal/hook"
 	"seanime/internal/util/result"
 	"strconv"
+
+	"github.com/goccy/go-json"
 )
 
 // AniZip is the API used for fetching anime metadata and mappings.
@@ -71,7 +73,26 @@ func GetCacheKey(from string, id int) string {
 
 // FetchAniZipMedia fetches anizip.Media from the AniZip API.
 func FetchAniZipMedia(from string, id int) (*Media, error) {
-	// Construct the API URL
+
+	// Event
+	reqEvent := &AnizipMediaRequestedEvent{
+		From:  from,
+		Id:    id,
+		Media: &Media{},
+	}
+	err := hook.GlobalHookManager.OnAnizipMediaRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the hook prevented the default behavior, return the data
+	if reqEvent.DefaultPrevented {
+		return reqEvent.Media, nil
+	}
+
+	from = reqEvent.From
+	id = reqEvent.Id
+
 	apiUrl := "https://api.ani.zip/mappings?" + from + "_id=" + strconv.Itoa(id)
 
 	// Send an HTTP GET request
@@ -97,7 +118,21 @@ func FetchAniZipMedia(from string, id int) (*Media, error) {
 		return nil, err
 	}
 
-	return &media, nil
+	// Event
+	event := &AnizipMediaEvent{
+		Media: &media,
+	}
+	err = hook.GlobalHookManager.OnAnizipMedia().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the hook prevented the default behavior, return the data
+	if event.DefaultPrevented {
+		return event.Media, nil
+	}
+
+	return event.Media, nil
 }
 
 // FetchAniZipMediaC is the same as FetchAniZipMedia but uses a cache.

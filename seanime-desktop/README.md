@@ -14,8 +14,8 @@ Desktop app for Seanime. Embeds server and web interface.
 
 ## Prerequisites
 
-- Go 1.23
-- Node.js 18+ and npm
+- Go 1.24+
+- Node.js 20+ and npm
 - Rust 1.75+
 
 ---

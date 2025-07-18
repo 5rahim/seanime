@@ -8,6 +8,7 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
+	"seanime/internal/directstream"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
@@ -16,11 +17,14 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/nakama"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
 	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
@@ -28,6 +32,7 @@ import (
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
+	"seanime/internal/user"
 
 	"github.com/cli/browser"
 	"github.com/rs/zerolog"
@@ -38,7 +43,7 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	a.SyncManager.SetRefreshAnilistCollectionsFunc(func() {
+	a.LocalManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()
 		_, _ = a.RefreshMangaCollection()
 	})
@@ -97,6 +102,7 @@ func (a *App) initModulesOnce() {
 		Logger:            a.Logger,
 		WSEventManager:    a.WSEventManager,
 		Platform:          a.AnilistPlatform,
+		MetadataProvider:  a.MetadataProvider,
 		Database:          a.Database,
 		DiscordPresence:   a.DiscordPresence,
 		IsOffline:         a.IsOffline(),
@@ -141,12 +147,11 @@ func (a *App) initModulesOnce() {
 		WSEventManager:          a.WSEventManager,
 		MetadataProvider:        a.MetadataProvider,
 		DebridClientRepository:  a.DebridClientRepository,
+		IsOffline:               a.IsOffline(),
 	})
 
-	if !a.IsOffline() {
-		// This is run in a goroutine
-		a.AutoDownloader.Start()
-	}
+	// This is run in a goroutine
+	a.AutoDownloader.Start()
 
 	// +---------------------+
 	// |   Auto Scanner      |
@@ -176,12 +181,10 @@ func (a *App) initModulesOnce() {
 		WSEventManager: a.WSEventManager,
 		DownloadDir:    a.Config.Manga.DownloadDir,
 		Repository:     a.MangaRepository,
+		IsOffline:      a.IsOffline(),
 	})
 
-	if !a.IsOffline() {
-		// This is run in a goroutine
-		a.MangaDownloader.Start()
-	}
+	a.MangaDownloader.Start()
 
 	// +---------------------+
 	// |    Media Stream     |
@@ -198,25 +201,69 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |    Native Player    |
+	// +---------------------+
+
+	a.NativePlayer = nativeplayer.New(nativeplayer.NewNativePlayerOptions{
+		WsEventManager: a.WSEventManager,
+		Logger:         a.Logger,
+	})
+
+	// +---------------------+
+	// |   Direct Stream     |
+	// +---------------------+
+
+	a.DirectStreamManager = directstream.NewManager(directstream.NewManagerOptions{
+		Logger:            a.Logger,
+		WSEventManager:    a.WSEventManager,
+		ContinuityManager: a.ContinuityManager,
+		MetadataProvider:  a.MetadataProvider,
+		DiscordPresence:   a.DiscordPresence,
+		Platform:          a.AnilistPlatform,
+		RefreshAnimeCollectionFunc: func() {
+			_, _ = a.RefreshAnimeCollection()
+		},
+		IsOffline:    a.IsOffline(),
+		NativePlayer: a.NativePlayer,
+	})
+
+	// +---------------------+
 	// |   Torrent Stream    |
 	// +---------------------+
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
-		Logger:             a.Logger,
-		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
-		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
-		MetadataProvider:   a.MetadataProvider,
-		TorrentRepository:  a.TorrentRepository,
-		Platform:           a.AnilistPlatform,
-		PlaybackManager:    a.PlaybackManager,
-		WSEventManager:     a.WSEventManager,
-		Database:           a.Database,
+		Logger:              a.Logger,
+		BaseAnimeCache:      anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache:  anilist.NewCompleteAnimeCache(),
+		MetadataProvider:    a.MetadataProvider,
+		TorrentRepository:   a.TorrentRepository,
+		Platform:            a.AnilistPlatform,
+		PlaybackManager:     a.PlaybackManager,
+		WSEventManager:      a.WSEventManager,
+		Database:            a.Database,
+		DirectStreamManager: a.DirectStreamManager,
+		NativePlayer:        a.NativePlayer,
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		MediaPlayerRepository: a.MediaPlayerRepository,
 		PlaybackManager:       a.PlaybackManager,
 		MangaRepository:       a.MangaRepository,
+	})
+
+	// +---------------------+
+	// |       Nakama        |
+	// +---------------------+
+
+	a.NakamaManager = nakama.NewManager(&nakama.NewManagerOptions{
+		Logger:                  a.Logger,
+		WSEventManager:          a.WSEventManager,
+		PlaybackManager:         a.PlaybackManager,
+		TorrentstreamRepository: a.TorrentstreamRepository,
+		DebridClientRepository:  a.DebridClientRepository,
+		Platform:                a.AnilistPlatform,
+		ServerHost:              a.Config.Server.Host,
+		ServerPort:              a.Config.Server.Port,
 	})
 
 }
@@ -309,7 +356,8 @@ func (a *App) InitOrRefreshModules() {
 			Path:   settings.MediaPlayer.MpcPath,
 			Logger: a.Logger,
 		}
-		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
+		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
+		a.MediaPlayer.Iina = iina.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath, settings.MediaPlayer.MpvArgs)
 
 		// Set media player repository
 		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
@@ -318,6 +366,7 @@ func (a *App) InitOrRefreshModules() {
 			VLC:               a.MediaPlayer.VLC,
 			MpcHc:             a.MediaPlayer.MpcHc,
 			Mpv:               a.MediaPlayer.Mpv, // Socket
+			Iina:              a.MediaPlayer.Iina,
 			WSEventManager:    a.WSEventManager,
 			ContinuityManager: a.ContinuityManager,
 		})
@@ -325,6 +374,11 @@ func (a *App) InitOrRefreshModules() {
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
 		a.PlaybackManager.SetSettings(&playbackmanager.Settings{
 			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
+		})
+
+		a.DirectStreamManager.SetSettings(&directstream.Settings{
+			AutoPlayNextEpisode: a.Settings.GetLibrary().AutoPlayNextEpisode,
+			AutoUpdateProgress:  a.Settings.GetLibrary().AutoUpdateProgress,
 		})
 
 		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
@@ -437,6 +491,18 @@ func (a *App) InitOrRefreshModules() {
 		})
 	}
 
+	if settings.Manga != nil {
+		a.MangaRepository.SetSettings(settings)
+	}
+
+	// +---------------------+
+	// |       Nakama        |
+	// +---------------------+
+
+	if settings.Nakama != nil {
+		a.NakamaManager.SetSettings(settings.Nakama)
+	}
+
 	runtime.GC()
 
 	a.Logger.Info().Msg("app: Refreshed modules")
@@ -518,7 +584,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		}
 	}
 
-	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port, a.FeatureFlags.IsMainServerTorrentStreamingEnabled())
+	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port)
 	if err != nil && settings.Enabled {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
 		//_, _ = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{
@@ -575,22 +641,24 @@ func (a *App) InitOrRefreshDebridSettings() {
 func (a *App) InitOrRefreshAnilistData() {
 	a.Logger.Debug().Msg("app: Fetching Anilist data")
 
+	var currUser *user.User
 	acc, err := a.Database.GetAccount()
-	if err != nil {
+	if err != nil || acc.Username == "" {
 		a.ServerReady = true
-		return
+		currUser = user.NewSimulatedUser() // Create a simulated user if no account is found
+	} else {
+		currUser, err = user.NewUser(acc)
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to create user from account")
+			return
+		}
 	}
 
-	if acc.Token == "" || acc.Username == "" {
-		a.ServerReady = true
-		return
-	}
+	a.user = currUser
 
 	// Set username to Anilist platform
-	a.AnilistPlatform.SetUsername(acc.Username)
+	a.AnilistPlatform.SetUsername(currUser.Viewer.Name)
 
-	// Set account
-	a.account = acc
 	a.Logger.Info().Msg("app: Authenticated to AniList")
 
 	go func() {
@@ -610,7 +678,7 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	go func(username string) {
 		a.DiscordPresence.SetUsername(username)
-	}(a.account.Username)
+	}(currUser.Viewer.Name)
 
 	a.Logger.Info().Msg("app: Fetched Anilist data")
 }

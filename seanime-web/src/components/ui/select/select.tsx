@@ -1,6 +1,7 @@
 "use client"
 
 import * as SelectPrimitive from "@radix-ui/react-select"
+import { SelectItem, SelectItemIndicator, SelectItemText } from "@radix-ui/react-select"
 import { cva } from "class-variance-authority"
 import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
@@ -234,19 +235,19 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
                             <SelectPrimitive.Viewport className={cn(SelectAnatomy.viewport(), viewportClass)}>
 
                                 {(!!placeholder && !basicFieldProps.required) && (
-                                    <SelectPrimitive.Item
+                                    <SelectItem
                                         className={cn(
                                             SelectAnatomy.item(),
                                             itemClass,
                                         )}
                                         value="__placeholder__"
                                     >
-                                        <SelectPrimitive.ItemText className="flex-none whitespace-nowrap truncate">{placeholder}</SelectPrimitive.ItemText>
-                                    </SelectPrimitive.Item>
+                                        <SelectItemText className="flex-none whitespace-nowrap truncate">{placeholder}</SelectItemText>
+                                    </SelectItem>
                                 )}
 
                                 {options?.map(option => (
-                                    <SelectPrimitive.Item
+                                    <SelectItem
                                         key={option.value}
                                         className={cn(
                                             SelectAnatomy.item(),
@@ -256,8 +257,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
                                         disabled={option.disabled}
                                         data-disabled={option.disabled}
                                     >
-                                        <SelectPrimitive.ItemText className="flex-none whitespace-nowrap truncate">{option.label}</SelectPrimitive.ItemText>
-                                        <SelectPrimitive.ItemIndicator asChild>
+                                        <SelectItemText className="flex-none whitespace-nowrap truncate">{option.label}</SelectItemText>
+                                        <SelectItemIndicator asChild>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24"
@@ -273,8 +274,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
                                             >
                                                 <path d="M20 6 9 17l-5-5" />
                                             </svg>
-                                        </SelectPrimitive.ItemIndicator>
-                                    </SelectPrimitive.Item>
+                                        </SelectItemIndicator>
+                                    </SelectItem>
                                 ))}
 
                             </SelectPrimitive.Viewport>

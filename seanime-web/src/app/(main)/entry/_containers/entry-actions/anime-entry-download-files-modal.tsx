@@ -1,6 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Entry } from "@/api/generated/types"
 import { FilepathSelector } from "@/app/(main)/_features/media/_components/filepath-selector"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
@@ -40,10 +41,13 @@ function Content({ entry }: { entry: Anime_Entry }) {
 
     const [open, setOpen] = useAtom(__animeEntryDownloadFilesModalIsOpenAtom)
     const [filepaths, setFilepaths] = React.useState<string[]>([])
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
 
-    function handleDownload() {
+    async function handleDownload() {
         for (const filepath of filepaths) {
-            const url = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filepath)
+            const endpoint = "/api/v1/mediastream/file?path=" + encodeURIComponent(filepath)
+            const tokenQueryParam = await getHMACTokenQueryParam("/api/v1/mediastream/file", "&")
+            const url = getServerBaseUrl() + endpoint + tokenQueryParam
             openTab(url)
         }
         setOpen(false)

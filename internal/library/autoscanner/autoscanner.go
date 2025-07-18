@@ -1,8 +1,8 @@
 package autoscanner
 
 import (
+	"context"
 	"errors"
-	"github.com/rs/zerolog"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -16,6 +16,8 @@ import (
 	"seanime/internal/util"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -231,7 +233,7 @@ func (as *AutoScanner) scan() {
 		MatchingAlgorithm:  as.settings.ScannerMatchingAlgorithm,
 	}
 
-	allLfs, err := sc.Scan()
+	allLfs, err := sc.Scan(context.Background())
 	if err != nil {
 		if errors.Is(err, scanner.ErrNoLocalFiles) {
 			return

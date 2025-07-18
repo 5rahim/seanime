@@ -239,39 +239,48 @@ func TestValueContainsBatchKeywords(t *testing.T) {
 
 func TestValueContainsNC(t *testing.T) {
 	tests := []struct {
-		name     string
 		input    string
 		expected bool
 	}{
 		{
-			name:     "Contains 'NCOP' in uppercase",
 			input:    "NCOP",
 			expected: true,
 		},
 		{
-			name:     "Contains 'ncop' in lowercase",
 			input:    "ncop",
 			expected: true,
 		},
 		{
-			name:     "Does not contain NC keywords",
+			input:    "One Piece - 1000 - NCOP",
+			expected: true,
+		},
+		{
+			input:    "One Piece ED 2",
+			expected: true,
+		},
+		{
+			input:    "This is a test",
+			expected: false,
+		}, {
 			input:    "This is a test",
 			expected: false,
 		},
 		{
-			name:     "Does not contain NC keywords 2",
 			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.Opus2.0.x265-smol",
 			expected: false,
 		},
 		{
-			name:     "Does not contain NC keywords 2",
 			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.x265-smol",
+			expected: false,
+		},
+		{
+			input:    "One Piece - 1000 - Operation something something",
 			expected: false,
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.input, func(t *testing.T) {
 			result := ValueContainsNC(test.input)
 			if result != test.expected {
 				t.Errorf("ValueContainsNC() with args %v, expected %v, but got %v.", test.input, test.expected, result)

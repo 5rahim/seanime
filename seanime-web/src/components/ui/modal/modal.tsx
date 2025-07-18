@@ -1,5 +1,6 @@
 "use client"
 
+import { __isDesktop__ } from "@/types/constants"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva } from "class-variance-authority"
@@ -27,8 +28,8 @@ export const ModalAnatomy = defineStyleAnatomy({
         // "data-[state=open]:slide-in-from-top-[40%] data-[state=closed]:slide-out-to-bottom-[40%]",
         // "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "mt-10",
-        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "select-none",
+        // __isDesktop__ && "mt-10",
+        // __isDesktop__ && "select-none",
         "sm:rounded-xl",
     ]),
     close: cva([
@@ -130,7 +131,7 @@ export function Modal(props: ModalProps) {
                 <div
                     className={cn(
                         "overflow-y-auto absolute inset-0 grid place-items-center p-0 md:p-4",
-                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "md:p-8",
+                        __isDesktop__ && "md:p-8",
                     )}
                 >
                     <DialogPrimitive.Content

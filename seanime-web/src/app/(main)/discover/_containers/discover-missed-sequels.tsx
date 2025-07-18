@@ -2,7 +2,7 @@ import { useAnilistListMissedSequels } from "@/api/hooks/anilist.hooks"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
-import { useInView } from "framer-motion"
+import { useInView } from "motion/react"
 import React from "react"
 
 

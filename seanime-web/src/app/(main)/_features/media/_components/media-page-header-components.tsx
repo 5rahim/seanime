@@ -1,6 +1,7 @@
 import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -10,8 +11,8 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
-import { motion } from "framer-motion"
 import capitalize from "lodash/capitalize"
+import { motion } from "motion/react"
 import Image from "next/image"
 import React from "react"
 import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
@@ -19,6 +20,7 @@ import { MdOutlineSegment } from "react-icons/md"
 import { RiSignalTowerFill } from "react-icons/ri"
 import { useWindowScroll } from "react-use"
 
+const MotionImage = motion(Image)
 
 type MediaPageHeaderProps = {
     children?: React.ReactNode
@@ -60,7 +62,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 1, ease: "easeOut" }}
             className="__meta-page-header relative group/media-page-header"
             data-media-page-header
         >
@@ -101,14 +103,17 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 data-media-page-header-banner
                 className={cn(
                     "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem]",
-                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
+                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[36.5rem]",
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
                         ? "opacity-15"
-                        : "opacity-5"),
+                        : (y > 300 ? "opacity-5" : "opacity-15")),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     shouldHideBanner && "bg-transparent",
                 )}
+                // style={{
+                //     opacity: !ts.libraryScreenCustomBackgroundImage && y > 100 ? (ts.enableMediaPageBlurredBackground ? 0 : shouldDimBanner ? 0.15
+                // : 1  - Math.min(y * 0.005, 0.9) ) : 1, }}
             >
                 {/*TOP FADE*/}
                 <div
@@ -128,15 +133,22 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     )}
                 />
 
-                <div
+                <motion.div
                     data-media-page-header-banner-image-container
                     className={cn(
-                        "absolute top-0 left-0 scroll-locked-offset w-full h-full",
+                        "absolute top-0 left-0 scroll-locked-offset w-full h-full overflow-hidden",
                         // shouldBlurBanner && "blur-xl",
                         shouldHideBanner && "hidden",
                     )}
+                    initial={{ scale: 1, y: 0 }}
+                    animate={{
+                        scale: !ts.libraryScreenCustomBackgroundImage ? Math.min(1 + y * 0.0002, 1.03) : 1,
+                        y: Math.max(y * -0.9, -10),
+                    }}
+                    exit={{ scale: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                 >
-                    {(!!bannerImage) && <Image
+                    {(!!bannerImage) && <MotionImage
                         data-media-page-header-banner-image
                         src={getImageUrl(bannerImage || "")}
                         alt="banner image"
@@ -146,8 +158,11 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         sizes="100vw"
                         className={cn(
                             "object-cover object-center scroll-locked-offset z-[1]",
-                            shouldDimBanner && "opacity-30",
+                            // shouldDimBanner && "!opacity-30",
                         )}
+                        initial={{ scale: 1.05, x: 0, y: -10, opacity: 0 }}
+                        animate={{ scale: 1, x: 0, y: 1, opacity: shouldDimBanner ? 0.3 : 1 }}
+                        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                     />}
 
                     {shouldBlurBanner && <div
@@ -171,7 +186,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                             "opacity-50 duration-500",
                         )}
                     />
-                </div>
+                </motion.div>
 
                 {/*BOTTOM FADE*/}
                 <div
@@ -209,48 +224,59 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
     } = props
 
     const ts = useThemeSettings()
+    const { y } = useWindowScroll()
 
     return (
         <>
             <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.7, delay: 0.4 }}
+                initial={{ opacity: 1, y: 0 }}
+                animate={{
+                    opacity: y > 400 ? Math.max(1 - y * 0.006, 0.1) : 1,
+                    y: y > 50 ? Math.max(y * -0.1, -40) : 0,
+                }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 className="relative z-[4]"
-                data-media-page-header-details-container
             >
-                <div
-                    data-media-page-header-details-inner-container
-                    className={cn(
-                        "space-y-8 p-6 sm:p-8 relative",
-                        ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
-                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid
-                            ? "w-full"
-                            : "lg:max-w-[100%] xl:max-w-[80%] 2xl:max-w-[65rem] 5xl:max-w-[80rem]",
-                    )}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.7, delay: 0.4 }}
+                    className="relative z-[4]"
+                    data-media-page-header-details-container
                 >
-                    <motion.div
-                        {...{
-                            initial: { opacity: 0 },
-                            animate: { opacity: 1 },
-                            exit: { opacity: 0 },
-                            transition: {
-                                type: "spring",
-                                damping: 20,
-                                stiffness: 100,
-                                delay: 0.1,
-                            },
-                        }}
-                        className="space-y-4"
-                        data-media-page-header-details-motion-container
+                    <div
+                        data-media-page-header-details-inner-container
+                        className={cn(
+                            "space-y-8 p-6 sm:p-8 relative",
+                            ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
+                            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid
+                                ? "w-full"
+                                : "lg:max-w-[100%] xl:max-w-[80%] 2xl:max-w-[65rem] 5xl:max-w-[80rem]",
+                        )}
                     >
+                        <motion.div
+                            {...{
+                                initial: { opacity: 0 },
+                                animate: { opacity: 1 },
+                                exit: { opacity: 0 },
+                                transition: {
+                                    type: "spring",
+                                    damping: 20,
+                                    stiffness: 100,
+                                    delay: 0.1,
+                                },
+                            }}
+                            className="space-y-4"
+                            data-media-page-header-details-motion-container
+                        >
 
-                        {children}
+                            {children}
 
-                    </motion.div>
+                        </motion.div>
 
-                </div>
+                    </div>
+                </motion.div>
             </motion.div>
         </>
     )
@@ -304,12 +330,20 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
     } = props
 
     const ts = useThemeSettings()
+    const { y } = useWindowScroll()
 
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-8" data-media-page-header-entry-details>
 
-                {!!coverImage && <div
+                {!!coverImage && <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                        opacity: 1,
+                        // scale: Math.max(1 - y * 0.0002, 0.96),
+                        // y: Math.max(y * -0.1, -10)
+                    }}
+                    transition={{ duration: 0.3 }}
                     data-media-page-header-entry-details-cover-image-container
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md block",
@@ -318,15 +352,26 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && "lg:max-w-[220px]",
                     )}
                 >
-                    <Image
-                        data-media-page-header-entry-details-cover-image
-                        src={getImageUrl(coverImage)}
-                        alt="cover image"
-                        fill
-                        priority
-                        className="object-cover object-center"
-                    />
-                </div>}
+                    <motion.div
+                        initial={{ scale: 1.1, x: -10 }}
+                        animate={{ scale: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                        className="w-full h-full"
+                    >
+                        <MotionImage
+                            data-media-page-header-entry-details-cover-image
+                            src={getImageUrl(coverImage)}
+                            alt="cover image"
+                            fill
+                            priority
+                            placeholder={imageShimmer(700, 475)}
+                            className="object-cover object-center"
+                            initial={{ scale: 1.1, x: 0 }}
+                            animate={{ scale: Math.min(1 + y * 0.0002, 1.05), x: 0 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                        />
+                    </motion.div>
+                </motion.div>}
 
 
                 <div

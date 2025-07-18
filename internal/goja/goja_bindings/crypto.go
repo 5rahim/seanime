@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/dop251/goja"
 	"io"
+
+	"github.com/dop251/goja"
 )
 
 type wordArray struct {
@@ -177,12 +179,15 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 		encryptedMessage := call.Argument(0).String()
 
 		var keyBytes []byte
+		var originalPassword []byte
 		switch call.Argument(1).Export().(type) {
 		case string:
 			key := call.Argument(1).String()
+			originalPassword = []byte(key)
 			keyBytes = adjustKeyLength([]byte(key))
 		case []byte:
 			keyBytes = call.Argument(1).Export().([]byte)
+			originalPassword = keyBytes
 			keyBytes = adjustKeyLength(keyBytes)
 		default:
 			panic(vm.ToValue("TypeError: key parameter must be a string or an ArrayBuffer"))
@@ -216,9 +221,18 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 				panic(vm.ToValue(fmt.Sprintf("Failed to decode ciphertext: %v", err)))
 			}
 
-			// Extract the IV from the beginning of the message
-			ivBytes = decodedMessage[:aes.BlockSize]
-			cipherText = decodedMessage[aes.BlockSize:]
+			// Check if openssl
+			if len(decodedMessage) >= 16 && string(decodedMessage[:8]) == "Salted__" {
+				salt := decodedMessage[8:16]
+				cipherText = decodedMessage[16:]
+				derivedKey, derivedIV := evpBytesToKey(originalPassword, salt, 32, aes.BlockSize)
+				keyBytes = derivedKey
+				ivBytes = derivedIV
+			} else {
+				// Extract the IV from the beginning of the message
+				ivBytes = decodedMessage[:aes.BlockSize]
+				cipherText = decodedMessage[aes.BlockSize:]
+			}
 		}
 
 		// Decrypt the message
@@ -297,4 +311,20 @@ func pkcs7Trimming(data []byte) []byte {
 	length := len(data)
 	up := int(data[length-1])
 	return data[:(length - up)]
+}
+
+func evpBytesToKey(password []byte, salt []byte, keyLen, ivLen int) ([]byte, []byte) {
+	d := make([]byte, 0)
+	dI := make([]byte, 0)
+
+	for len(d) < (keyLen + ivLen) {
+		h := md5.New()
+		h.Write(dI)
+		h.Write(password)
+		h.Write(salt)
+		dI = h.Sum(nil)
+		d = append(d, dI...)
+	}
+
+	return d[:keyLen], d[keyLen : keyLen+ivLen]
 }

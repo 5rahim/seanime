@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"errors"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_bindings"
@@ -100,7 +101,7 @@ func (m *Manga) getDownloadedChapterContainers() ([]*manga.ChapterContainer, err
 		return nil, errors.New("anilist platform not found")
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(false)
+	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func (m *Manga) getCollection() (*manga.Collection, error) {
 		return nil, errors.New("anilist platform not found")
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(false)
+	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,7 @@ func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) goj
 		return m.vm.ToValue(promise)
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(false)
+	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
 	if err != nil {
 		reject(err.Error())
 		return m.vm.ToValue(promise)

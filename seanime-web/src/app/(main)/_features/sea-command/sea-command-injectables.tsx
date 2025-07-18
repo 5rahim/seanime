@@ -1,4 +1,4 @@
-import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
+import { SeaCommandInjectableItem, useSeaCommandInjectables } from "@/app/(main)/_features/sea-command/use-inject"
 import { CommandGroup, CommandItem } from "@/components/ui/command"
 import React from "react"
 import { useSeaCommandContext } from "./sea-command"
@@ -6,7 +6,7 @@ import { useSeaCommandContext } from "./sea-command"
 export function SeaCommandInjectables() {
     const ctx = useSeaCommandContext()
     const { input, select, scrollToTop } = ctx
-    const { injectables } = useSeaCommandInject()
+    const injectables = useSeaCommandInjectables()
 
     // Group items by heading and sort by priority
     const groupedItems = React.useMemo(() => {

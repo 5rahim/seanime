@@ -1,6 +1,6 @@
 import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Manga_Collection, Manga_CollectionEntry } from "@/api/generated/types"
+import { useLocalAddTrackedMedia, useLocalRemoveTrackedMedia } from "@/api/hooks/local.hooks"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
-import { useSyncAddMedia, useSyncRemoveMedia } from "@/api/hooks/sync.hooks"
 import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
@@ -25,7 +25,7 @@ export function SyncAddMediaModal(props: SyncAddMediaModalProps) {
 
     const [selectedMedia, setSelectedMedia] = React.useState<{ mediaId: number, type: "manga" | "anime" }[]>([])
 
-    const { mutate: addMedia, isPending: isAdding } = useSyncAddMedia()
+    const { mutate: addMedia, isPending: isAdding } = useLocalAddTrackedMedia()
 
     function handleSave() {
         addMedia({
@@ -87,14 +87,14 @@ function MediaSelector(props: MediaSelectorProps) {
 
     const { data: mangaLibraryCollection } = useGetMangaCollection()
 
-    const { mutate: removeMedia, isPending: isRemoving } = useSyncRemoveMedia()
+    const { mutate: removeMedia, isPending: isRemoving } = useLocalRemoveTrackedMedia()
 
     function handleToggleAnime(mediaId: number) {
         setSelectedMedia(prev => {
             if (prev.find(n => n.mediaId === mediaId)) {
                 return prev.filter(n => n.mediaId !== mediaId)
             } else {
-                return [...prev, { mediaId, type: "anime" }]
+                return [...prev, { mediaId, type: "anime" as const }]
             }
         })
     }
@@ -104,7 +104,7 @@ function MediaSelector(props: MediaSelectorProps) {
             if (prev.find(n => n.mediaId === mediaId)) {
                 return prev.filter(n => n.mediaId !== mediaId)
             } else {
-                return [...prev, { mediaId, type: "manga" }]
+                return [...prev, { mediaId, type: "manga" as const }]
             }
         })
     }

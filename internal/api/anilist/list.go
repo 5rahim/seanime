@@ -2,6 +2,8 @@ package anilist
 
 import (
 	"fmt"
+	"seanime/internal/hook"
+
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -73,9 +75,26 @@ func ListMissedSequels(
 	variables["inCollection"] = false
 	variables["sort"] = MediaSortStartDateDesc
 
+	// Event
+	reqEvent := &ListMissedSequelsRequestedEvent{
+		AnimeCollectionWithRelations: animeCollectionWithRelations,
+		Variables:                    variables,
+		List:                         make([]*BaseAnime, 0),
+		Query:                        SearchBaseAnimeByIdsDocument,
+	}
+	err = hook.GlobalHookManager.OnListMissedSequelsRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the hook prevented the default behavior, return the data
+	if reqEvent.DefaultPrevented {
+		return reqEvent.List, nil
+	}
+
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"query":     SearchBaseAnimeByIdsDocument,
-		"variables": variables,
+		"query":     reqEvent.Query,
+		"variables": reqEvent.Variables,
 	})
 	if err != nil {
 		return nil, err
@@ -99,7 +118,16 @@ func ListMissedSequels(
 		return nil, fmt.Errorf("no data found")
 	}
 
-	return searchRes.Page.Media, nil
+	// Event
+	event := &ListMissedSequelsEvent{
+		List: searchRes.Page.Media,
+	}
+	err = hook.GlobalHookManager.OnListMissedSequels().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event.List, nil
 }
 
 func ListAnimeM(
@@ -499,32 +527,3 @@ fragment baseAnime on Media {
 	}
 }
   `
-
-func ListRecentAiringAnimeCacheKey(
-	Page *int,
-	Search *string,
-	PerPage *int,
-	AiringAtGreater *int,
-	AiringAtLesser *int,
-) string {
-
-	key := "ListRecentAnime"
-	if Page != nil {
-		key += fmt.Sprintf("_%d", *Page)
-	}
-	if Search != nil {
-		key += fmt.Sprintf("_%s", *Search)
-	}
-	if PerPage != nil {
-		key += fmt.Sprintf("_%d", *PerPage)
-	}
-	if AiringAtGreater != nil {
-		key += fmt.Sprintf("_%d", *AiringAtGreater)
-	}
-	if AiringAtLesser != nil {
-		key += fmt.Sprintf("_%d", *AiringAtLesser)
-	}
-
-	return key
-
-}

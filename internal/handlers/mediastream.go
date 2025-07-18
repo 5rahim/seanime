@@ -173,6 +173,7 @@ func (h *Handler) HandleMediastreamShutdownTranscodeStream(c echo.Context) error
 
 func (h *Handler) HandleMediastreamFile(c echo.Context) error {
 	client := "1"
-	fp := c.Param("*")
-	return h.App.MediastreamRepository.ServeEchoFile(c, fp, client)
+	fp := c.QueryParam("path")
+	libraryPaths := h.App.Settings.GetLibrary().GetLibraryPaths()
+	return h.App.MediastreamRepository.ServeEchoFile(c, fp, client, libraryPaths)
 }

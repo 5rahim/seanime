@@ -95,19 +95,21 @@ export function PluginTray(props: TrayPluginProps) {
         }
     }, [open])
 
+    // Handle unpinned tray icon click to open the tray
     const unpinnedTrayIconClickedOpenedRef = React.useRef(false)
     React.useEffect(() => {
         if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId) {
             if (!unpinnedTrayIconClickedOpenedRef.current) {
                 const timeout = setTimeout(() => {
-                    unpinnedTrayIconClickedOpenedRef.current = true
                     setOpen(true)
+                    unpinnedTrayIconClickedOpenedRef.current = true
                 }, 100)
                 return () => clearTimeout(timeout)
             }
         }
     }, [unpinnedTrayIconClicked])
 
+    // Reset unpinned tray icon click state when closing the tray
     React.useEffect(() => {
         if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId && !open && unpinnedTrayIconClickedOpenedRef.current) {
             setUnpinnedTrayIconClicked(null)
@@ -121,9 +123,16 @@ export function PluginTray(props: TrayPluginProps) {
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayOpenEvent((data) => {
-        if (hasNavigated && props.isPinned) {
+        // Set as pinned if not pinned when opening
+        if (props.isPinned) {
             setOpen(true)
+            return
         }
+        setUnpinnedTrayIconClicked(props.trayIcon)
+        setTimeout(() => {
+            setOpen(true)
+            unpinnedTrayIconClickedOpenedRef.current = true
+        }, 100)
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayCloseEvent((data) => {

@@ -4,12 +4,15 @@ import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
+import { useNakamaHMACAuth, useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
-import { Modal } from "@/components/ui/modal"
+import { Modal, ModalProps } from "@/components/ui/modal"
+import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { getImageUrl } from "@/lib/server/assets"
+import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
 import Image from "next/image"
@@ -39,6 +42,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
     const [_, copyToClipboard] = useCopyToClipboard()
 
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
+    const { getHMACTokenQueryParam: getNakamaHMACTokenQueryParam } = useNakamaHMACAuth()
+
     const { encodePath } = useExternalPlayerLink()
 
     function encodeFilePath(filePath: string) {
@@ -67,7 +73,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                 progressNumber={episode.progressNumber}
                 description={episode.episodeMetadata?.summary || episode.episodeMetadata?.overview}
                 action={<>
-                    <IconButton
+                    {!episode._isNakamaEpisode && <IconButton
                         icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}
                         intent={episode.localFile?.locked ? "success-basic" : "warning-basic"}
                         size="md"
@@ -80,7 +86,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                 })
                             }
                         }}
-                    />
+                    />}
 
                     <DropdownMenu
                         trigger={
@@ -91,10 +97,18 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                             />
                         }
                     >
-                        <MetadataModalButton />
+                        {!episode._isNakamaEpisode && <MetadataModalButton />}
                         {episode.localFile && <DropdownMenuItem
-                            onClick={() => {
-                                copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(episode.localFile!.path))
+                            onClick={async () => {
+                                if (!episode._isNakamaEpisode) {
+                                    const endpoint = "/api/v1/mediastream/file?path=" + encodeFilePath(episode.localFile!.path)
+                                    const tokenQuery = await getHMACTokenQueryParam("/api/v1/mediastream/file", "&")
+                                    copyToClipboard(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
+                                } else {
+                                    const endpoint = "/api/v1/nakama/stream?type=file&path=" + Buffer.from(episode.localFile!.path).toString("base64")
+                                    const tokenQuery = await getNakamaHMACTokenQueryParam("/api/v1/nakama/stream", "&")
+                                    copyToClipboard(`${getServerBaseUrl()}${endpoint}${tokenQuery}`)
+                                }
                                 toast.info("Stream URL copied")
                             }}
                         >
@@ -102,23 +116,25 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                             Copy stream URL
                         </DropdownMenuItem>}
 
-                        <PluginEpisodeGridItemMenuItems isDropdownMenu={false} type="library" episode={episode} />
+                        {!episode._isNakamaEpisode && <>
+                            <PluginEpisodeGridItemMenuItems isDropdownMenu={false} type="library" episode={episode} />
 
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className="text-[--orange]"
-                            onClick={() => {
-                                if (episode.localFile) {
-                                    updateLocalFile(episode.localFile, {
-                                        mediaId: 0,
-                                        locked: false,
-                                        ignored: false,
-                                    })
-                                }
-                            }}
-                        >
-                            <MdOutlineRemoveDone /> Unmatch
-                        </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-[--orange]"
+                                onClick={() => {
+                                    if (episode.localFile) {
+                                        updateLocalFile(episode.localFile, {
+                                            mediaId: 0,
+                                            locked: false,
+                                            ignored: false,
+                                        })
+                                    }
+                                }}
+                            >
+                                <MdOutlineRemoveDone /> Unmatch
+                            </DropdownMenuItem>
+                        </>}
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.anidbId &&
@@ -212,11 +228,32 @@ function MetadataModalButton() {
     </DropdownMenuItem>
 }
 
-export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
+function IsomorphicPopover(props: PopoverProps & ModalProps) {
+    const { title, children, ...rest } = props
+    const { width } = useWindowSize()
+
+    if (width && width > 1024) {
+        return <Popover
+            {...rest}
+            className="max-w-xl !w-full overflow-hidden"
+        >
+            {children}
+        </Popover>
+    }
+
     return <Modal
-        title={episode.displayTitle}
-        contentClass="max-w-2xl overflow-hidden"
+        {...rest}
+        title={title}
         titleClass="text-xl"
+        contentClass="max-w-2xl overflow-hidden"
+    >
+        {children}
+    </Modal>
+}
+
+export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
+    return <IsomorphicPopover
+        title={episode.displayTitle}
         trigger={<IconButton
             icon={<MdInfo />}
             className="opacity-30 hover:opacity-100 transform-opacity"
@@ -226,7 +263,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
     >
 
         {episode.episodeMetadata?.image && <div
-            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0] rounded-t-lg"
         >
             <Image
                 src={getImageUrl(episode.episodeMetadata?.image)}
@@ -242,7 +279,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
             />
         </div>}
 
-        <div className="space-y-4">
+        <div className="space-y-4 z-[5] relative">
             <p className="text-lg line-clamp-2 font-semibold">
                 {episode.episodeTitle?.replaceAll("`", "'")}
                 {episode.isInvalid && <AiFillWarning />}
@@ -254,7 +291,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
                 {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'")?.replace(/source:.*/gi, "") || "No summary"}
             </p>
             <Separator />
-            <p className="text-[--muted] line-clamp-2">
+            <p className="text-[--muted] line-clamp-2 tracking-wide text-sm">
                 {episode.localFile?.parsedInfo?.original}
             </p>
             {
@@ -273,5 +310,5 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
 
         </div>
 
-    </Modal>
+    </IsomorphicPopover>
 }

@@ -1,7 +1,10 @@
 "use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
-import axios, { AxiosError } from "axios"
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
+import { useAtomValue } from "jotai"
+import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { toast } from "sonner"
 
@@ -12,6 +15,7 @@ type SeaQuery<D> = {
     method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT"
     data?: D
     params?: D
+    password?: string
 }
 
 /**
@@ -25,7 +29,17 @@ export async function buildSeaQuery<T, D extends any = any>(
         method,
         data,
         params,
+        password,
     }: SeaQuery<D>): Promise<T | undefined> {
+
+    axios.interceptors.request.use((request: InternalAxiosRequestConfig) => {
+            if (password) {
+                request.headers.set("X-Seanime-Token", password)
+            }
+            return request
+        },
+    )
+
     const res = await axios<T>({
         url: getServerBaseUrl() + endpoint,
         method,
@@ -52,6 +66,9 @@ export function useServerMutation<R = void, V = void>(
         method,
         ...options
     }: ServerMutationProps<R, V>) {
+
+    const password = useAtomValue(serverAuthTokenAtom)
+
     return useMutation<R | undefined, SeaError, V>({
         onError: error => {
             console.log("Mutation error", error)
@@ -62,6 +79,7 @@ export function useServerMutation<R = void, V = void>(
                 endpoint: endpoint,
                 method: method,
                 data: variables,
+                password: password,
             })
         },
         ...options,
@@ -91,6 +109,10 @@ export function useServerQuery<R, V = any>(
         muteError,
         ...options
     }: ServerQueryProps<R | undefined, V>) {
+
+    const pathname = usePathname()
+    const password = useAtomValue(serverAuthTokenAtom)
+
     const props = useQuery<R | undefined, SeaError>({
         queryFn: async () => {
             return buildSeaQuery<R, V>({
@@ -98,6 +120,7 @@ export function useServerQuery<R, V = any>(
                 method: method,
                 params: params,
                 data: data,
+                password: password,
             })
         },
         ...options,
@@ -105,6 +128,10 @@ export function useServerQuery<R, V = any>(
 
     useEffect(() => {
         if (!muteError && props.isError) {
+            if (props.error?.response?.data?.error === "UNAUTHENTICATED" && pathname !== "/public/auth") {
+                window.location.href = "/public/auth"
+                return
+            }
             console.log("Server error", props.error)
             toast.error(_handleSeaError(props.error?.response?.data))
         }

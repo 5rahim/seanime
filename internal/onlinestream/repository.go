@@ -1,19 +1,22 @@
 package onlinestream
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
+	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
@@ -113,9 +116,9 @@ func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) fileca
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMedia(mId int) (*anilist.BaseAnime, error) {
+func (r *Repository) getMedia(ctx context.Context, mId int) (*anilist.BaseAnime, error) {
 	media, err := r.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
-		media, err := r.platform.GetAnime(mId)
+		media, err := r.platform.GetAnime(ctx, mId)
 		if err != nil {
 			return nil, err
 		}
@@ -127,8 +130,8 @@ func (r *Repository) getMedia(mId int) (*anilist.BaseAnime, error) {
 	return media, nil
 }
 
-func (r *Repository) GetMedia(mId int) (*anilist.BaseAnime, error) {
-	return r.getMedia(mId)
+func (r *Repository) GetMedia(ctx context.Context, mId int) (*anilist.BaseAnime, error) {
+	return r.getMedia(ctx, mId)
 }
 
 func (r *Repository) EmptyCache(mediaId int) error {
@@ -141,8 +144,6 @@ func (r *Repository) EmptyCache(mediaId int) error {
 func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime, dubbed bool) ([]*Episode, error) {
 	episodes := make([]*Episode, 0)
 
-	mId := media.GetID()
-
 	if provider == "" {
 		return episodes, nil
 	}
@@ -151,10 +152,17 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	// |       Anizip        |
 	// +---------------------+
 
-	animeMetadata, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mId)
-	foundAnimeMetadata := err == nil && animeMetadata != nil
+	//animeMetadata, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mId)
+	//	//foundAnimeMetadata := err == nil && animeMetadata != nil
+	//aw := r.metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
-	aw := r.metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
+	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
+		AnimeMetadata:    nil,
+		Media:            media,
+		MetadataProvider: r.metadataProvider,
+		Logger:           r.logger,
+	})
+	foundEpisodeCollection := err == nil && episodeCollection != nil
 
 	// +---------------------+
 	// |    Episode list     |
@@ -183,22 +191,14 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 
 		} else {
 
-			if foundAnimeMetadata {
-				episodeMetadata, found := animeMetadata.Episodes[strconv.Itoa(episodeDetails.Number)]
+			if foundEpisodeCollection {
+				episode, found := episodeCollection.FindEpisodeByNumber(episodeDetails.Number)
 				if found {
-					img := episodeMetadata.Image
-					if img == "" {
-						epMetadata := aw.GetEpisodeMetadata(episodeDetails.Number)
-						img = epMetadata.Image
-						if img == "" {
-							img = media.GetCoverImageSafe()
-						}
-					}
 					episodes = append(episodes, &Episode{
 						Number:      episodeDetails.Number,
-						Title:       episodeMetadata.GetTitle(),
-						Image:       img,
-						Description: episodeMetadata.Summary,
+						Title:       episode.EpisodeTitle,
+						Image:       episode.EpisodeMetadata.Image,
+						Description: episode.EpisodeMetadata.Summary,
 					})
 				} else {
 					episodes = append(episodes, &Episode{
@@ -225,13 +225,13 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	return episodes, nil
 }
 
-func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
+func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
 
 	// +---------------------+
 	// |        Media        |
 	// +---------------------+
 
-	media, err := r.getMedia(mId)
+	media, err := r.getMedia(ctx, mId)
 	if err != nil {
 		return nil, err
 	}

@@ -38,6 +38,8 @@ type GoStructField struct {
 	JsonName string `json:"jsonName"`
 	// e.g. map[string]models.User
 	GoType string `json:"goType"`
+	// e.g. []struct{Test string `json:"test"`, Test2 string `json:"test2"`}
+	InlineStructType string `json:"inlineStructType,omitempty"`
 	// e.g. User
 	TypescriptType string `json:"typescriptType"`
 	// e.g. TypescriptType = Array<Models_User> => UsedTypescriptType = Models_User
@@ -107,13 +109,17 @@ var typePrefixesByPackage = map[string]string{
 	"hibikemediaplayer":  "HibikeMediaPlayer_",
 	"hibikeextension":    "HibikeExtension_",
 	"continuity":         "Continuity_",
-	"sync":               "Sync_",
+	"local":              "Local_",
 	"debrid":             "Debrid_",
 	"debrid_client":      "DebridClient_",
 	"report":             "Report_",
 	"habari":             "Habari_",
 	"vendor_habari":      "Habari_",
 	"discordrpc_client":  "DiscordRPC_",
+	"directstream":       "Directstream_",
+	"nativeplayer":       "NativePlayer_",
+	"mkvparser":          "MKVParser_",
+	"nakama":             "Nakama_",
 }
 
 func getTypePrefix(packageName string) string {
@@ -380,6 +386,27 @@ func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, nam
 			UsedStructType:     usedStructType,
 			Comments:           comments,
 		}
+
+		// If it's an inline struct, capture the full definition as a string
+		if goStructField.GoType == "__STRUCT__" {
+			if structType, ok := field.Type.(*ast.StructType); ok {
+				goStructField.InlineStructType = formatInlineStruct(structType)
+			}
+		} else {
+			// Check if it's a slice of inline structs
+			if arrayType, ok := field.Type.(*ast.ArrayType); ok {
+				if structType, ok := arrayType.Elt.(*ast.StructType); ok {
+					goStructField.InlineStructType = "[]" + formatInlineStruct(structType)
+				}
+			}
+			// Check if it's a map with inline struct values
+			if mapType, ok := field.Type.(*ast.MapType); ok {
+				if structType, ok := mapType.Value.(*ast.StructType); ok {
+					goStructField.InlineStructType = "map[" + fieldTypeString(mapType.Key) + "]" + formatInlineStruct(structType)
+				}
+			}
+		}
+
 		goStruct.Fields = append(goStruct.Fields, goStructField)
 	}
 	return goStruct
@@ -754,4 +781,29 @@ func fieldTypeToUsedTypescriptType(tsType string) string {
 	}
 
 	return tsType
+}
+
+// formatInlineStruct formats an inline struct definition as a string
+// e.g. struct{Test string `json:"test"`, Test2 string `json:"test2"`}
+func formatInlineStruct(structType *ast.StructType) string {
+	result := "struct{\n"
+
+	for i, field := range structType.Fields.List {
+		if i > 0 {
+			result += "\n"
+		}
+
+		if field.Names != nil && len(field.Names) > 0 {
+			result += field.Names[0].Name + " " + fieldTypeString(field.Type)
+
+			if field.Tag != nil {
+				result += " " + field.Tag.Value
+			}
+		} else {
+			result += fieldTypeString(field.Type)
+		}
+	}
+
+	result += "}"
+	return result
 }

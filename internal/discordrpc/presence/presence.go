@@ -222,12 +222,13 @@ func (p *Presence) check() (proceed bool) {
 
 var (
 	defaultActivity = discordrpc_client.Activity{
+		Name:    "Seanime",
 		Details: "",
 		State:   "",
 		Assets: &discordrpc_client.Assets{
 			LargeImage: "",
 			LargeText:  "",
-			SmallImage: "https://seanime.rahim.app/images/circular-logo.png",
+			SmallImage: "https://seanime.app/images/circular-logo.png",
 			SmallText:  "Seanime v" + constants.Version,
 		},
 		Timestamps: &discordrpc_client.Timestamps{
@@ -296,6 +297,11 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 
+	// Set status using the Anime title
+	if p.settings.RichPresenceUseMediaTitleStatus {
+		activity.Name = a.Title
+	}
+
 	// Calculate the start time
 	startTime := time.Now()
 	if a.Progress > 0 {
@@ -309,6 +315,13 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 		Time: endTime,
 	}
 	event.EndTimestamp = lo.ToPtr(endTime.Unix())
+
+	// Hide the end timestamp if the anime is paused
+	if a.Paused {
+		activity.Timestamps.End = nil
+		event.EndTimestamp = nil
+	}
+
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
 	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
@@ -337,6 +350,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	p.animeActivity = a
 
 	event.AnimeActivity = a
+	event.Name = activity.Name
 	event.Details = a.Title
 	event.State = state
 	event.LargeImage = a.Image
@@ -354,6 +368,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	}
 
 	// Update the activity
+	activity.Name = event.Name
 	activity.Details = event.Details
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage
@@ -429,7 +444,10 @@ func (p *Presence) UpdateAnimeActivity(progress int, duration int, paused bool) 
 			// p.logger.Debug().Msgf("discordrpc: Stopping activity for %s", p.animeActivity.Title)
 			// Stop the current activity if paused
 			// but do not erase the current activity
-			p.close()
+			// p.close()
+
+			// edit: just switch to default timestamp
+			p.SetAnimeActivity(p.animeActivity)
 		} else {
 			// p.logger.Debug().Msgf("discordrpc: Restarting activity for %s", p.animeActivity.Title)
 			// Restart the current activity if unpaused
@@ -547,6 +565,12 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
+
+	// Set status using the Manga title
+	if p.settings.RichPresenceUseMediaTitleStatus {
+		activity.Name = a.Title
+	}
+
 	now := time.Now()
 	activity.Timestamps.Start.Time = now
 	event.StartTimestamp = lo.ToPtr(now.Unix())
@@ -576,6 +600,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	event.MangaActivity = a
+	event.Name = activity.Name
 	event.Details = a.Title
 	event.State = activity.State
 	event.LargeImage = activity.Assets.LargeImage
@@ -593,6 +618,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	}
 
 	// Update the activity
+	activity.Name = event.Name
 	activity.Details = event.Details
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage

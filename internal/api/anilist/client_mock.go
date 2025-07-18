@@ -2,13 +2,14 @@ package anilist
 
 import (
 	"context"
-	"github.com/Yamashou/gqlgenc/clientv2"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"log"
 	"os"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
+
+	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
 )
 
 // This file contains helper functions for testing the anilist package
@@ -30,6 +31,10 @@ func NewMockAnilistClient() *MockAnilistClientImpl {
 		realAnilistClient: NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt),
 		logger:            util.NewLogger(),
 	}
+}
+
+func (ac *MockAnilistClientImpl) IsAuthenticated() bool {
+	return ac.realAnilistClient.IsAuthenticated()
 }
 
 func (ac *MockAnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
@@ -551,4 +556,9 @@ func (ac *MockAnilistClientImpl) ViewerStats(ctx context.Context, interceptors .
 func (ac *MockAnilistClientImpl) SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error) {
 	ac.logger.Debug().Msg("anilist: Searching anime by ids")
 	return ac.realAnilistClient.SearchBaseAnimeByIds(ctx, ids, page, perPage, status, inCollection, sort, season, year, genre, format, interceptors...)
+}
+
+func (ac *MockAnilistClientImpl) AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error) {
+	ac.logger.Debug().Msg("anilist: Fetching schedule")
+	return ac.realAnilistClient.AnimeAiringSchedule(ctx, ids, season, seasonYear, previousSeason, previousSeasonYear, nextSeason, nextSeasonYear, interceptors...)
 }

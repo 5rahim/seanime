@@ -27,9 +27,9 @@ import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getYear } from "date-fns"
-import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import { AnimatePresence } from "motion/react"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaSortAmountDown } from "react-icons/fa"
@@ -59,7 +59,7 @@ export function AnilistCollectionLists() {
         customLists,
     } = useHandleUserAnilistLists(debouncedSearchInput)
 
-    const { data: stats, isLoading: statsLoading } = useGetAniListStats()
+    const { data: stats, isLoading: statsLoading } = useGetAniListStats(!!serverStatus?.user && !serverStatus?.user?.isSimulated)
 
     const setParams = useSetAtom(__myListsSearch_paramsAtom)
 
@@ -91,7 +91,11 @@ export function AnilistCollectionLists() {
                             isCurrent: pageType === "manga",
                             onClick: () => setPageType("manga"),
                         }],
-                        { name: "Stats", isCurrent: pageType === "stats", onClick: () => setPageType("stats") },
+                        ...[!serverStatus?.user?.isSimulated && {
+                            name: "Stats",
+                            isCurrent: pageType === "stats",
+                            onClick: () => setPageType("stats"),
+                        }],
                     ].filter(Boolean)}
                 />
             </div>
@@ -149,7 +153,7 @@ export function AnilistCollectionLists() {
                     </div>
                 </PageWrapper>}
 
-                {pageType === "stats" && <PageWrapper
+                {pageType === "stats" && !serverStatus?.user?.isSimulated && <PageWrapper
                     key="stats"
                     className="space-y-6"
                     {...{

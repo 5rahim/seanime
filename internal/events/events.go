@@ -3,7 +3,9 @@ package events
 type WebsocketClientEventType string
 
 const (
-	PluginEvent WebsocketClientEventType = "plugin"
+	NativePlayerEventType WebsocketClientEventType = "native-player"
+	NakamaEventType       WebsocketClientEventType = "nakama"
+	PluginEvent           WebsocketClientEventType = "plugin"
 )
 
 type WebsocketClientEvent struct {
@@ -42,7 +44,8 @@ const (
 	WarningToast = "warning-toast"
 	SuccessToast = "success-toast"
 
-	CheckForUpdates = "check-for-updates"
+	CheckForUpdates       = "check-for-updates"
+	CheckForAnnouncements = "check-for-announcements"
 
 	RefreshedMangaDownloadData  = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated = "chapter-download-queue-updated"
@@ -61,10 +64,35 @@ const (
 	SyncLocalFinished   = "sync-local-finished"
 	SyncAnilistFinished = "sync-anilist-finished"
 
+	TorrentStreamState = "torrentstream-state"
+
 	DebridDownloadProgress = "debrid-download-progress"
 	DebridStreamState      = "debrid-stream-state"
 
 	InvalidateQueries = "invalidate-queries"
 	ConsoleLog        = "console-log"
 	ConsoleWarn       = "console-warn"
+
+	ShowIndefiniteLoader = "show-indefinite-loader"
+	HideIndefiniteLoader = "hide-indefinite-loader"
+
+	// Nakama events
+	NakamaHostStarted          = "nakama-host-started"
+	NakamaHostStopped          = "nakama-host-stopped"
+	NakamaPeerConnected        = "nakama-peer-connected"
+	NakamaPeerDisconnected     = "nakama-peer-disconnected"
+	NakamaHostConnected        = "nakama-host-connected"
+	NakamaHostDisconnected     = "nakama-host-disconnected"
+	NakamaError                = "nakama-error"
+	NakamaAnimeLibraryReceived = "nakama-anime-library-received"
+	NakamaCustomMessage        = "nakama-custom-message"
+	NakamaStatusRequested      = "nakama-status-requested"
+	NakamaStatus               = "nakama-status"
+
+	NakamaOnlineStreamEvent = "nakama-online-stream-event"
+
+	// Nakama Watch Party events
+	NakamaWatchPartyState                                 = "nakama-watch-party-state"
+	NakamaWatchPartyEnableRelayMode                       = "nakama-watch-party-enable-relay-mode"
+	NakamaWatchPartyRelayModeToggleShareLibraryWithOrigin = "nakama-watch-party-relay-mode-toggle-share-library-with-origin"
 )

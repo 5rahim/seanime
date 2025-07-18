@@ -3,11 +3,12 @@ package playbackmanager
 import (
 	"context"
 	"fmt"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"time"
+
+	"github.com/samber/mo"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,8 @@ func (pm *PlaybackManager) CancelManualProgressTracking() {
 func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgressTrackingOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartManualProgressTracking", &err)
 
+	ctx := context.Background()
+
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
@@ -54,7 +57,7 @@ func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgress
 
 	// Get the media
 	// - Find the media in the collection
-	animeCollection, err := pm.platform.GetAnimeCollection(false)
+	animeCollection, err := pm.platform.GetAnimeCollection(ctx, false)
 	if err != nil {
 		return err
 	}
@@ -69,7 +72,7 @@ func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgress
 		media = listEntry.Media
 	} else {
 		// Fetch the media from AniList
-		media, err = pm.platform.GetAnime(opts.MediaId)
+		media, err = pm.platform.GetAnime(ctx, opts.MediaId)
 	}
 	if media == nil {
 		pm.Logger.Error().Msg("playback manager: Media not found for manual tracking")

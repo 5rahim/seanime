@@ -1,7 +1,9 @@
 import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -21,6 +23,7 @@ export function ScannerModal() {
     const serverStatus = useServerStatus()
     const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
     const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
+    const [userMedia] = useAtom(__anilist_userAnimeMediaAtom)
     const anilistDataOnly = useBoolean(true)
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
@@ -28,6 +31,10 @@ export function ScannerModal() {
     const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles(() => {
         setOpen(false)
     })
+
+    React.useEffect(() => {
+        if (!userMedia?.length) anilistDataOnly.off()
+    }, [userMedia])
 
     React.useEffect(() => {
         setScannerIsScanning(isScanning)
@@ -85,19 +92,34 @@ export function ScannerModal() {
                 }}
                 // title="Library scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl overflow-hidden"
+                contentClass="space-y-4 max-w-2xl bg-gray-950 bg-opacity-70 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none rounded-xl"
+                overlayClass="bg-gray-950/70 backdrop-blur-sm"
             >
+                <GlowingEffect
+                    spread={50}
+                    glow={true}
+                    disabled={false}
+                    proximity={100}
+                    inactiveZone={0.01}
+                    // movementDuration={4}
+                    className="!mt-0 opacity-30"
+                />
 
-                <div
-                    data-scanner-modal-top-pattern
-                    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
-                >
-                    <div
-                        className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                    />
-                </div>
+                {/* <div
+                 data-scanner-modal-top-pattern
+                 className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
+                 >
+                 <div
+                 className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
+                 />
+                 </div> */}
 
-                <div className="space-y-4 mt-6" data-scanner-modal-content>
+                {serverStatus?.user?.isSimulated && <div className="border border-dashed rounded-md py-2 px-4 !mt-5">
+                    Using this feature without an AniList account is not recommended if you have a large library, as it may lead to rate limits and
+                    slower scanning. Please consider using an account for a better experience.
+                </div>}
+
+                <div className="space-y-4" data-scanner-modal-content>
 
                     <AppLayoutStack className="space-y-2">
                         <h5 className="text-[--muted]">Local files</h5>
@@ -123,13 +145,19 @@ export function ScannerModal() {
                             <Switch
                                 side="right"
                                 label="Use my AniList lists only"
-                                moreHelp="Disabling this will cause Seanime to use more requests which may lead to rate limits and slower scanning"
+                                moreHelp="Disabling this will cause Seanime to send more API requests which may lead to rate limits and slower scanning"
                                 // label="Enhanced scanning"
                                 value={anilistDataOnly.active}
                                 onValueChange={v => anilistDataOnly.set(v as boolean)}
                                 // className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
                                 // size="lg"
-                                help={!anilistDataOnly.active ? "Caution: Slower for large libraries" : ""}
+                                help={!anilistDataOnly.active
+                                    ? <span><span className="text-[--orange]">Slower for large libraries</span>. For faster scanning, add the anime
+                                                                                                               entries present in your library to your
+                                                                                                               lists and re-enable this before
+                                                                                                               scanning.</span>
+                                    : ""}
+                                disabled={!userMedia?.length}
                             />
                         </AppLayoutStack>
 

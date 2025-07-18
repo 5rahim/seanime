@@ -9,7 +9,6 @@ import (
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
-
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 
 	"github.com/labstack/echo/v4"
@@ -364,7 +363,7 @@ func (h *Handler) HandleDebridStartStream(c echo.Context) error {
 		b.Torrent.MagnetLink = magnet
 	}
 
-	err := h.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
+	err := h.App.DebridClientRepository.StartStream(c.Request().Context(), &debrid_client.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,

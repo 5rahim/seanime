@@ -14,21 +14,45 @@ import (
 
 type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
-	SendEventTo(clientId string, t string, payload interface{})
+	SendEventTo(clientId string, t string, payload interface{}, noLog ...bool)
 	SubscribeToClientEvents(id string) *ClientEventSubscriber
+	SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber
+	SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber
 	UnsubscribeFromClientEvents(id string)
+}
+
+type GlobalWSEventManagerWrapper struct {
+	WSEventManager WSEventManagerInterface
+}
+
+var GlobalWSEventManager *GlobalWSEventManagerWrapper
+
+func (w *GlobalWSEventManagerWrapper) SendEvent(t string, payload interface{}) {
+	if w.WSEventManager == nil {
+		return
+	}
+	w.WSEventManager.SendEvent(t, payload)
+}
+
+func (w *GlobalWSEventManagerWrapper) SendEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
+	if w.WSEventManager == nil {
+		return
+	}
+	w.WSEventManager.SendEventTo(clientId, t, payload, noLog...)
 }
 
 type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
-		Conns                  []*WSConn
-		Logger                 *zerolog.Logger
-		hasHadConnection       bool
-		mu                     sync.Mutex
-		eventMu                sync.RWMutex
-		clientEventSubscribers *result.Map[string, *ClientEventSubscriber]
+		Conns                              []*WSConn
+		Logger                             *zerolog.Logger
+		hasHadConnection                   bool
+		mu                                 sync.Mutex
+		eventMu                            sync.RWMutex
+		clientEventSubscribers             *result.Map[string, *ClientEventSubscriber]
+		clientNativePlayerEventSubscribers *result.Map[string, *ClientEventSubscriber]
+		nakamaEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 	}
 
 	ClientEventSubscriber struct {
@@ -50,11 +74,17 @@ type (
 
 // NewWSEventManager creates a new WSEventManager instance for App.
 func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
-	return &WSEventManager{
-		Logger:                 logger,
-		Conns:                  make([]*WSConn, 0),
-		clientEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
+	ret := &WSEventManager{
+		Logger:                             logger,
+		Conns:                              make([]*WSConn, 0),
+		clientEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
+		clientNativePlayerEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
+		nakamaEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
 	}
+	GlobalWSEventManager = &GlobalWSEventManagerWrapper{
+		WSEventManager: ret,
+	}
+	return ret
 }
 
 // ExitIfNoConnsAsDesktopSidecar monitors the websocket connection as a desktop sidecar.
@@ -148,14 +178,20 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 }
 
 // SendEventTo sends a websocket event to the specified client.
-func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}) {
+func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	for _, conn := range m.Conns {
 		if conn.ID == clientId {
 			if t != "pong" {
-				m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+				if len(noLog) == 0 || !noLog[0] {
+					truncated := spew.Sprint(payload)
+					if len(truncated) > 500 {
+						truncated = truncated[:500] + "..."
+					}
+					m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", truncated).Msg("ws: Sending message")
+				}
 			}
 			_ = conn.Conn.WriteJSON(WSEvent{
 				Type:    t,
@@ -179,9 +215,10 @@ func (m *WSEventManager) SendStringTo(clientId string, s string) {
 func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 	m.eventMu.RLock()
 	defer m.eventMu.RUnlock()
-	m.clientEventSubscribers.Range(func(key string, subscriber *ClientEventSubscriber) bool {
+
+	onEvent := func(key string, subscriber *ClientEventSubscriber) bool {
 		go func() {
-			defer util.HandlePanicInModuleThen("events/OnClientEvent", func() {})
+			defer util.HandlePanicInModuleThen("events/OnClientEvent/clientNativePlayerEventSubscribers", func() {})
 			subscriber.mu.RLock()
 			defer subscriber.mu.RUnlock()
 			if !subscriber.closed {
@@ -189,19 +226,44 @@ func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 				case subscriber.Channel <- event:
 				default:
 					// Channel is blocked, skip sending
-					m.Logger.Warn().Msg("ws: Client event channel is blocked, skipping send")
+					m.Logger.Warn().Msg("ws: Client event channel is blocked, event dropped")
 				}
 			}
 		}()
 		return true
-	})
+	}
+
+	switch event.Type {
+	case NativePlayerEventType:
+		m.clientNativePlayerEventSubscribers.Range(onEvent)
+	case NakamaEventType:
+		m.nakamaEventSubscribers.Range(onEvent)
+	default:
+		m.clientEventSubscribers.Range(onEvent)
+	}
 }
 
 func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscriber {
 	subscriber := &ClientEventSubscriber{
-		Channel: make(chan *WebsocketClientEvent, 100),
+		Channel: make(chan *WebsocketClientEvent, 900),
 	}
 	m.clientEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.clientNativePlayerEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.nakamaEventSubscribers.Set(id, subscriber)
 	return subscriber
 }
 
@@ -214,6 +276,9 @@ func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
 		}
 	}()
 	subscriber, ok := m.clientEventSubscribers.Get(id)
+	if !ok {
+		subscriber, ok = m.clientNativePlayerEventSubscribers.Get(id)
+	}
 	if ok {
 		subscriber.mu.Lock()
 		defer subscriber.mu.Unlock()

@@ -63,6 +63,8 @@ export type PluginDOMManipulateOptions = {
     | "setProperty"
         | "query"
         | "queryOne"
+        | "setCssText"
+        | "observeInView"
     params: Record<string, any>
 }
 

@@ -90,7 +90,7 @@ export function ExtensionList(props: ExtensionListProps) {
 
                 <div className="flex flex-1"></div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     {!!allExtensions?.hasUpdate?.length && (
                         <Button
                             className="rounded-full animate-pulse"

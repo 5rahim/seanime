@@ -18,6 +18,8 @@ export default function Page() {
                 <iframe
                     src={`http://${settings.torrent?.qbittorrentHost}:${String(settings.torrent?.qbittorrentPort)}`}
                     className="w-full h-full"
+                    sandbox="allow-forms allow-fullscreen allow-same-origin allow-scripts allow-popups"
+                    referrerPolicy="no-referrer"
                 />
             </div>
         </>

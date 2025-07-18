@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -49,6 +50,7 @@ type Settings struct {
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
 	Discord        *DiscordSettings        `gorm:"embedded" json:"discord"`
 	Notifications  *NotificationSettings   `gorm:"embedded" json:"notifications"`
+	Nakama         *NakamaSettings         `gorm:"embedded;embeddedPrefix:nakama_" json:"nakama"`
 }
 
 type AnilistSettings struct {
@@ -81,6 +83,8 @@ type LibrarySettings struct {
 	// v2.6+
 	ScannerMatchingThreshold float64 `gorm:"column:scanner_matching_threshold" json:"scannerMatchingThreshold"`
 	ScannerMatchingAlgorithm string  `gorm:"column:scanner_matching_algorithm" json:"scannerMatchingAlgorithm"`
+	// v2.9+
+	AutoSyncToLocalAccount bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -109,9 +113,54 @@ func (o LibraryPaths) Value() (driver.Value, error) {
 	return strings.Join(o, ","), nil
 }
 
+type NakamaSettings struct {
+	Enabled bool `gorm:"column:enabled" json:"enabled"`
+	// Username is the name used to identify a peer or host.
+	Username string `gorm:"column:username" json:"username"`
+	// IsHost allows the server to act as a host for other clients. This requires a password to be set.
+	IsHost               bool   `gorm:"column:is_host" json:"isHost"`
+	HostPassword         string `gorm:"column:host_password" json:"hostPassword"`
+	RemoteServerURL      string `gorm:"column:remote_server_url" json:"remoteServerURL"`
+	RemoteServerPassword string `gorm:"column:remote_server_password" json:"remoteServerPassword"`
+	// IncludeNakamaAnimeLibrary adds the local anime library of the host to the connected clients.
+	IncludeNakamaAnimeLibrary bool `gorm:"column:include_nakama_anime_library" json:"includeNakamaAnimeLibrary"`
+	// HostShareLocalAnimeLibrary shares the local anime library to connected clients
+	HostShareLocalAnimeLibrary bool `gorm:"column:host_share_local_anime_library" json:"hostShareLocalAnimeLibrary"`
+	// HostUnsharedAnimeIds is a list of anime IDs that should not be shared with connected clients.
+	HostUnsharedAnimeIds IntSlice `gorm:"column:host_unshared_anime_ids;type:text" json:"hostUnsharedAnimeIds"`
+	// HostEnablePortForwarding enables port forwarding.
+	HostEnablePortForwarding bool `gorm:"column:host_enable_port_forwarding" json:"hostEnablePortForwarding"`
+}
+
+type IntSlice []int
+
+func (o *IntSlice) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	ids := strings.Split(str, ",")
+	*o = make(IntSlice, len(ids))
+	for i, id := range ids {
+		(*o)[i], _ = strconv.Atoi(id)
+	}
+	return nil
+}
+func (o IntSlice) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return nil, nil
+	}
+	strs := make([]string, len(o))
+	for i, id := range o {
+		strs[i] = strconv.Itoa(id)
+	}
+	return strings.Join(strs, ","), nil
+}
+
 type MangaSettings struct {
-	DefaultProvider    string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
-	AutoUpdateProgress bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
+	DefaultProvider      string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
+	AutoUpdateProgress   bool   `gorm:"column:manga_auto_update_progress" json:"mangaAutoUpdateProgress"`
+	LocalSourceDirectory string `gorm:"column:manga_local_source_directory" json:"mangaLocalSourceDirectory"`
 }
 
 type MediaPlayerSettings struct {
@@ -125,6 +174,10 @@ type MediaPlayerSettings struct {
 	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
 	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
 	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
+	MpvArgs     string `gorm:"column:mpv_args" json:"mpvArgs"`
+	IinaSocket  string `gorm:"column:iina_socket" json:"iinaSocket"`
+	IinaPath    string `gorm:"column:iina_path" json:"iinaPath"`
+	IinaArgs    string `gorm:"column:iina_args" json:"iinaArgs"`
 }
 
 type TorrentSettings struct {
@@ -158,6 +211,7 @@ type DiscordSettings struct {
 	RichPresenceHideSeanimeRepositoryButton bool `gorm:"column:rich_presence_hide_seanime_repository_button" json:"richPresenceHideSeanimeRepositoryButton"`
 	RichPresenceShowAniListMediaButton      bool `gorm:"column:rich_presence_show_anilist_media_button" json:"richPresenceShowAniListMediaButton"`
 	RichPresenceShowAniListProfileButton    bool `gorm:"column:rich_presence_show_anilist_profile_button" json:"richPresenceShowAniListProfileButton"`
+	RichPresenceUseMediaTitleStatus         bool `gorm:"column:rich_presence_use_media_title_status;default:true" json:"richPresenceUseMediaTitleStatus"`
 }
 
 type NotificationSettings struct {
@@ -274,12 +328,13 @@ type Theme struct {
 	ShowMangaUnreadCount                 bool   `gorm:"column:show_manga_unread_count" json:"showMangaUnreadCount"`
 
 	// v2.8+
-	HideEpisodeCardDescription        bool `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
-	HideDownloadedEpisodeCardFilename bool `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
+	HideEpisodeCardDescription        bool   `gorm:"column:hide_episode_card_description" json:"hideEpisodeCardDescription"`
+	HideDownloadedEpisodeCardFilename bool   `gorm:"column:hide_downloaded_episode_card_filename" json:"hideDownloadedEpisodeCardFilename"`
+	CustomCSS                         string `gorm:"column:custom_css" json:"customCSS"`
+	MobileCustomCSS                   string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
 
 	// v2.9+
-	CustomCSS       string `gorm:"column:custom_css" json:"customCSS"`
-	MobileCustomCSS string `gorm:"column:mobile_custom_css" json:"mobileCustomCSS"`
+	UnpinnedMenuItems StringSlice `gorm:"column:unpinned_menu_items;type:text" json:"unpinnedMenuItems"`
 }
 
 // +---------------------+
@@ -433,4 +488,23 @@ type PluginData struct {
 	BaseModel
 	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
 	Data     []byte `gorm:"column:data" json:"data"`
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+type StringSlice []string
+
+func (o *StringSlice) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	*o = strings.Split(str, ",")
+	return nil
+}
+func (o StringSlice) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return nil, nil
+	}
+	return strings.Join(o, ","), nil
 }

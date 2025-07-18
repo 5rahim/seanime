@@ -637,7 +637,7 @@ declare namespace $osExtra {
      * @param arg The arguments to pass to the command
      * @returns A new AsyncCmd instance
      */
-    function asyncCmd(name: string, arg: string[]): $os.AsyncCmd
+    function asyncCmd(name: string, ...args: string[]): $os.AsyncCmd
 }
 
 /**

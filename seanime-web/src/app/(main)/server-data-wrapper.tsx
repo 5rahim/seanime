@@ -1,4 +1,5 @@
 import { useGetStatus } from "@/api/hooks/status.hooks"
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { GettingStartedPage } from "@/app/(main)/_features/getting-started/getting-started-page"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
@@ -10,6 +11,8 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
+import { __isDesktop__ } from "@/types/constants"
+import { useAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -32,6 +35,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     const router = useRouter()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
+    const password = useAtom(serverAuthTokenAtom)
     const { data: _serverStatus, isLoading, refetch } = useGetStatus()
 
     React.useEffect(() => {
@@ -48,6 +52,12 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
             refetch()
         },
     })
+
+    React.useEffect(() => {
+        if (!!serverStatus && serverStatus?.serverHasPassword && !password && pathname !== "/public/auth") {
+            window.location.href = "/public/auth"
+        }
+    }, [serverStatus?.serverHasPassword, password, pathname])
 
     // Refetch the server status every 2 seconds if serverReady is false
     // This is a fallback to the websocket
@@ -108,7 +118,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         return <LuffyError title="Transcoding not enabled" />
     }
 
-    if (!serverStatus?.user && host === "127.0.0.1:43211" && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") {
+    if (!serverStatus?.user && host === "127.0.0.1:43211" && !__isDesktop__) {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>

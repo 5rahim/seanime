@@ -5,6 +5,7 @@ import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-p
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
@@ -13,6 +14,7 @@ import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { FiSearch } from "react-icons/fi"
+import { LuCog } from "react-icons/lu"
 
 type EmptyLibraryViewProps = {
     isLoading: boolean
@@ -54,32 +56,35 @@ export function EmptyLibraryView(props: EmptyLibraryViewProps) {
                             </Button>
                         </> : (
                             <LuffyError
-                                title="Nothing to see"
+                                title="Your library is empty"
                                 className=""
                             >
-                                <div className="text-center">
-                                    <p>
-                                        Set your <span className="">library path under <span className="text-[--muted]">Settings {`>`} Anime
-                                                                                                                        library</span> to start
-                                                                    scanning your library</span>.
-                                    </p>
+                                <div className="text-center space-y-4">
+                                    <SeaLink href="/settings?tab=library">
+                                        <Button intent="primary-subtle" leftIcon={<LuCog className="text-xl" />}>
+                                            Set the path to your local library and scan it
+                                        </Button>
+                                    </SeaLink>
                                     {serverStatus?.settings?.library?.enableOnlinestream && <p>
-                                        Or, enable <span className="text-[--muted] text-base">Include in
-                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Online
-                                                                                                                                                    Streaming</span> to
-                                        show non-downloaded anime here.
+                                        <SeaLink href="/settings?tab=onlinestream">
+                                            <Button intent="primary-subtle" leftIcon={<LuCog className="text-xl" />}>
+                                                Include online streaming in your library
+                                            </Button>
+                                        </SeaLink>
                                     </p>}
                                     {serverStatus?.torrentstreamSettings?.enabled && <p>
-                                        Or, enable <span className="text-[--muted] text-base">Include in
-                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Torrent
-                                                                                                                                                    Streaming</span> to
-                                        show non-downloaded anime here.
+                                        <SeaLink href="/settings?tab=torrentstream">
+                                            <Button intent="primary-subtle" leftIcon={<LuCog className="text-xl" />}>
+                                                Include torrent streaming in your library
+                                            </Button>
+                                        </SeaLink>
                                     </p>}
                                     {serverStatus?.debridSettings?.enabled && <p>
-                                        Or, enable <span className="text-[--muted] text-base">Include in
-                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Debrid
-                                                                                                                                                    Service</span> to
-                                        show non-downloaded anime here.
+                                        <SeaLink href="/settings?tab=debrid">
+                                            <Button intent="primary-subtle" leftIcon={<LuCog className="text-xl" />}>
+                                                Include debrid streaming in your library
+                                            </Button>
+                                        </SeaLink>
                                     </p>}
                                 </div>
                             </LuffyError>

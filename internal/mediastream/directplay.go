@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"seanime/internal/events"
 	"seanime/internal/util"
 
@@ -16,7 +17,7 @@ import (
 // Direct
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string) error {
+func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string, libraryPaths []string) error {
 	// Unescape the file path, ignore errors
 	filePath, _ := url.PathUnescape(rawFilePath)
 
@@ -30,7 +31,24 @@ func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId 
 		}
 	}
 
+	// Make sure the file is in the library directories
+	inLibrary := false
+	for _, libraryPath := range libraryPaths {
+		if util.IsFileUnderDir(filePath, libraryPath) {
+			inLibrary = true
+			break
+		}
+	}
+
+	if !inLibrary {
+		return c.NoContent(http.StatusForbidden)
+	}
+
 	r.logger.Trace().Str("filepath", filePath).Str("payload", rawFilePath).Msg("mediastream: Served file")
+	// Content disposition
+	filename := filepath.Base(filePath)
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", filename))
+
 	return c.File(filePath)
 }
 
@@ -62,7 +80,8 @@ func (r *Repository) ServeEchoDirectPlay(c echo.Context, clientId string) error 
 		c.Response().Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 		c.Response().Header().Set("Content-Type", "video/mp4")
 		c.Response().Header().Set("Accept-Ranges", "bytes")
-		c.Response().Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", mediaContainer.Filepath))
+		filename := filepath.Base(mediaContainer.Filepath)
+		c.Response().Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", filename))
 		return c.NoContent(http.StatusOK)
 	}
 

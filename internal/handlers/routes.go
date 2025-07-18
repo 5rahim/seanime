@@ -22,8 +22,9 @@ type Handler struct {
 func InitRoutes(app *core.App, e *echo.Echo) {
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization"},
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Cookie", "Authorization",
+			"X-Seanime-Token", "X-Seanime-Nakama-Token", "X-Seanime-Nakama-Username", "X-Seanime-Nakama-Server-Version", "X-Seanime-Nakama-Peer-Id"},
 		AllowCredentials: true,
 	}))
 
@@ -109,6 +110,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
 
+	//
+	// Auth middleware
+	//
+	v1.Use(h.OptionalAuthMiddleware)
+
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
 
@@ -120,6 +126,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/logs/filenames", h.HandleGetLogFilenames)
 	v1.DELETE("/logs", h.HandleDeleteLogs)
 	v1.GET("/logs/latest", h.HandleGetLatestLogContent)
+
+	v1.POST("/announcements", h.HandleGetAnnouncements)
+
 	// Auth
 	v1.POST("/auth/login", h.HandleLogin)
 	v1.POST("/auth/logout", h.HandleLogout)
@@ -206,6 +215,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
 
 	v1Library.GET("/collection", h.HandleGetLibraryCollection)
+	v1Library.GET("/schedule", h.HandleGetAnimeCollectionSchedule)
 
 	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 
@@ -222,6 +232,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.POST("/anime-entry/silence", h.HandleToggleAnimeEntrySilenceStatus)
 
 	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
+
+	//
+	// Anime
+	//
+	v1.GET("/anime/episode-collection/:id", h.HandleGetAnimeEpisodeCollection)
 
 	//
 	// Torrent / Torrent Client
@@ -340,6 +355,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.POST("/get-mapping", h.HandleGetMangaMapping)
 	v1Manga.POST("/remove-mapping", h.HandleRemoveMangaMapping)
 
+	v1Manga.GET("/local-page/:path", h.HandleGetLocalMangaPage)
+
 	//
 	// File Cache
 	//
@@ -375,12 +392,19 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/mediastream/att/*", h.HandleMediastreamGetAttachments)
 	v1.GET("/mediastream/direct", h.HandleMediastreamDirectPlay)
 	v1.HEAD("/mediastream/direct", h.HandleMediastreamDirectPlay)
-	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
+	v1.GET("/mediastream/file", h.HandleMediastreamFile)
+
+	//
+	// Direct Stream
+	//
+	v1.POST("/directstream/play/localfile", h.HandleDirectstreamPlayLocalFile)
+	v1.GET("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
+	v1.HEAD("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
+	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
 
 	//
 	// Torrent stream
 	//
-	v1.GET("/torrentstream/episodes/:id", h.HandleGetTorrentstreamEpisodeCollection)
 	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)
 	v1.PATCH("/torrentstream/settings", h.HandleSaveTorrentstreamSettings)
 	v1.POST("/torrentstream/start", h.HandleTorrentstreamStartStream)
@@ -388,7 +412,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/torrentstream/drop", h.HandleTorrentstreamDropTorrent)
 	v1.POST("/torrentstream/torrent-file-previews", h.HandleGetTorrentstreamTorrentFilePreviews)
 	v1.POST("/torrentstream/batch-history", h.HandleGetTorrentstreamBatchHistory)
-	v1.GET("/torrentstream/stream/*", echo.WrapHandler(h.HandleTorrentstreamServeStream()))
+	v1.GET("/torrentstream/stream/*", h.HandleTorrentstreamServeStream)
 
 	//
 	// Extensions
@@ -428,17 +452,20 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	// Sync
 	//
-	v1Sync := v1.Group("/sync")
-	v1Sync.GET("/track", h.HandleSyncGetTrackedMediaItems)
-	v1Sync.POST("/track", h.HandleSyncAddMedia)
-	v1Sync.DELETE("/track", h.HandleSyncRemoveMedia)
-	v1Sync.GET("/track/:id/:type", h.HandleSyncGetIsMediaTracked)
-	v1Sync.POST("/local", h.HandleSyncLocalData)
-	v1Sync.GET("/queue", h.HandleSyncGetQueueState)
-	v1Sync.POST("/anilist", h.HandleSyncAnilistData)
-	v1Sync.POST("/updated", h.HandleSyncSetHasLocalChanges)
-	v1Sync.GET("/updated", h.HandleSyncGetHasLocalChanges)
-	v1Sync.GET("/storage/size", h.HandleSyncGetLocalStorageSize)
+	v1Local := v1.Group("/local")
+	v1Local.GET("/track", h.HandleLocalGetTrackedMediaItems)
+	v1Local.POST("/track", h.HandleLocalAddTrackedMedia)
+	v1Local.DELETE("/track", h.HandleLocalRemoveTrackedMedia)
+	v1Local.GET("/track/:id/:type", h.HandleLocalGetIsMediaTracked)
+	v1Local.POST("/local", h.HandleLocalSyncData)
+	v1Local.GET("/queue", h.HandleLocalGetSyncQueueState)
+	v1Local.POST("/anilist", h.HandleLocalSyncAnilistData)
+	v1Local.POST("/updated", h.HandleLocalSetHasLocalChanges)
+	v1Local.GET("/updated", h.HandleLocalGetHasLocalChanges)
+	v1Local.GET("/storage/size", h.HandleLocalGetLocalStorageSize)
+	v1Local.POST("/sync-simulated-to-anilist", h.HandleLocalSyncSimulatedDataToAnilist)
+
+	v1Local.POST("/offline", h.HandleSetOfflineMode)
 
 	//
 	// Debrid
@@ -462,6 +489,30 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1.POST("/report/issue", h.HandleSaveIssueReport)
 	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
+
+	//
+	// Nakama
+	//
+
+	v1Nakama := v1.Group("/nakama")
+	v1Nakama.GET("/ws", h.HandleNakamaWebSocket)
+	v1Nakama.POST("/message", h.HandleSendNakamaMessage)
+	v1Nakama.POST("/reconnect", h.HandleNakamaReconnectToHost)
+	v1Nakama.POST("/cleanup", h.HandleNakamaRemoveStaleConnections)
+	v1Nakama.GET("/host/anime/library", h.HandleGetNakamaAnimeLibrary)
+	v1Nakama.GET("/host/anime/library/collection", h.HandleGetNakamaAnimeLibraryCollection)
+	v1Nakama.GET("/host/anime/library/files/:id", h.HandleGetNakamaAnimeLibraryFiles)
+	v1Nakama.GET("/host/anime/library/files", h.HandleGetNakamaAnimeAllLibraryFiles)
+	v1Nakama.POST("/play", h.HandleNakamaPlayVideo)
+	v1Nakama.GET("/host/torrentstream/stream", h.HandleNakamaHostTorrentstreamServeStream)
+	v1Nakama.GET("/host/anime/library/stream", h.HandleNakamaHostAnimeLibraryServeStream)
+	v1Nakama.GET("/host/debridstream/stream", h.HandleNakamaHostDebridstreamServeStream)
+	v1Nakama.GET("/host/debridstream/url", h.HandleNakamaHostGetDebridstreamURL)
+	v1Nakama.GET("/stream", h.HandleNakamaProxyStream)
+	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
+	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
+	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
+
 }
 
 func (h *Handler) JSON(c echo.Context, code int, i interface{}) error {
@@ -478,6 +529,11 @@ func (h *Handler) RespondWithError(c echo.Context, err error) error {
 
 func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// Skip directstream route
+		if strings.Contains(c.Request().URL.Path, "/directstream/stream") {
+			return next(c)
+		}
+
 		if c.Request().Method == http.MethodHead {
 			// Set the method to GET temporarily to reuse the handler
 			c.Request().Method = http.MethodGet

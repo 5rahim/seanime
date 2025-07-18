@@ -1,6 +1,8 @@
 "use client"
+import { useSetOfflineMode } from "@/api/hooks/local.hooks"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/components/ui/core/styling"
@@ -10,7 +12,7 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { FaBookReader } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi"
-import { IoLibrary } from "react-icons/io5"
+import { IoCloudyOutline, IoLibrary } from "react-icons/io5"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 
@@ -21,6 +23,8 @@ export function OfflineSidebar() {
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
+
+    const { mutate: setOfflineMode, isPending: isSettingOfflineMode } = useSetOfflineMode()
 
     const pathname = usePathname()
 
@@ -34,6 +38,16 @@ export function OfflineSidebar() {
             setExpandSidebar(false)
         }
     }
+
+    const confirmDialog = useConfirmationDialog({
+        title: "Disable offline mode",
+        description: "Are you sure you want to disable offline mode?",
+        actionText: "Yes",
+        actionIntent: "primary",
+        onConfirm: () => {
+            setOfflineMode({ enabled: false })
+        },
+    })
 
     return (
         <>
@@ -96,6 +110,13 @@ export function OfflineSidebar() {
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {
+                                    iconType: IoCloudyOutline,
+                                    name: "Disable offline mode",
+                                    onClick: () => {
+                                        confirmDialog.open()
+                                    },
+                                },
+                                {
                                     iconType: FiSettings,
                                     name: "Settings",
                                     href: "/settings",
@@ -120,6 +141,9 @@ export function OfflineSidebar() {
                     </div>
                 </div>
             </AppSidebar>
+            <ConfirmationDialog
+                {...confirmDialog}
+            />
         </>
     )
 

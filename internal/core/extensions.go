@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zerolog.Logger) {
+func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zerolog.Logger, config *Config) {
 
 	//
 	// Built-in manga providers
@@ -92,6 +92,18 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	//	Lang:        "en",
 	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
 	//}, manga_providers.NewManganato(logger))
+
+	extensionRepository.ReloadBuiltInExtension(extension.Extension{
+		ID:          manga_providers.LocalProvider,
+		Name:        "Local",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
+		Lang:        "multi",
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/local-manga.png",
+	}, manga_providers.NewLocal(config.Manga.LocalDir, logger))
 
 	//
 	// Built-in online stream providers
