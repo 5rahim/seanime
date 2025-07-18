@@ -1,11 +1,12 @@
 name: Build Electron App
 
-on:
-  workflow_call:
-    outputs:
-      appVersion:
-        description: "The version of the app"
-        value: ${{ jobs.build-electron.outputs.app_version }}
+# Workflow deactivated - uncomment the 'on:' section below to reactivate
+# on:
+#   workflow_call:
+#     outputs:
+#       appVersion:
+#         description: "The version of the app"
+#         value: ${{ jobs.build-electron.outputs.app_version }}
 
 jobs:
   build-electron:
