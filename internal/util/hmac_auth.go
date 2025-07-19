@@ -86,7 +86,7 @@ func (h *HMACAuth) ValidateToken(token string, endpoint string) (*TokenClaims, e
 	expectedSignature := base64URLEncode(mac.Sum(nil))
 
 	if !hmac.Equal([]byte(signature), []byte(expectedSignature)) {
-		return nil, fmt.Errorf("invalid token signature - expected %s, got %s", expectedSignature, signature)
+		return nil, fmt.Errorf("invalid token signature, the password hashes may not match")
 	}
 
 	// Decode claims

@@ -1,10 +1,10 @@
 name: Release Draft
 
-#on:
-#  workflow_dispatch:
-#  push:
-#    tags:
-#      - 'v*'
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -391,11 +391,11 @@ jobs:
           if [ -f ./seanime-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz ]; then
               mv ./seanime-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz ./seanime-desktop-darwin-arm.app.tar.gz
               mv ./seanime-desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz.sig ./seanime-desktop-darwin-arm.app.tar.gz.sig
-          
+
           elif [ -f ./seanime-desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz ]; then
               mv ./seanime-desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz ./seanime-desktop-darwin-intel.app.tar.gz
               mv ./seanime-desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Seanime\ Desktop.app.tar.gz.sig ./seanime-desktop-darwin-intel.app.tar.gz.sig
-          
+
           elif [ -f ./seanime-desktop/src-tauri/target/release/bundle/appimage/Seanime\ Desktop_${{ steps.tauri-action.outputs.appVersion }}_amd64.AppImage ]; then
               mv ./seanime-desktop/src-tauri/target/release/bundle/appimage/Seanime\ Desktop_${{ steps.tauri-action.outputs.appVersion }}_amd64.AppImage ./seanime-desktop-linux.AppImage
               mv ./seanime-desktop/src-tauri/target/release/bundle/appimage/Seanime\ Desktop_${{ steps.tauri-action.outputs.appVersion }}_amd64.AppImage.sig ./seanime-desktop-linux.AppImage.sig
@@ -455,7 +455,7 @@ jobs:
 
   build-electron:
     needs: build-server
-    uses: ./.github/workflows/electron-build.yml
+    uses: electron-build.yml.new
 
   release:
     runs-on: ubuntu-latest
@@ -527,37 +527,37 @@ jobs:
           if [ -f ./artifacts/binaries-seanime-server-darwin.tar ]; then
             # Extract binaries
             tar -xf ./artifacts/binaries-seanime-server-darwin.tar -C ./artifacts
-          
+
             # Rename & compress binaries
             mv ./artifacts/seanime-server-darwin-amd64 ./seanime
             tar czf ./seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz ./seanime
             rm -rf ./seanime
-          
-          
+
+
             mv ./artifacts/seanime-server-darwin-arm64 ./seanime
             tar czf ./seanime-${{ env.VERSION }}_MacOS_arm64.tar.gz ./seanime
             rm -rf ./seanime
           fi
-          
+
           if [ -f ./artifacts/binaries-seanime-server-linux.tar ]; then
             # Extract binaries
             tar -xf ./artifacts/binaries-seanime-server-linux.tar -C ./artifacts
-          
-            # Rename & compress binaries  
+
+            # Rename & compress binaries
             mv ./artifacts/seanime-server-linux-amd64 ./seanime
             tar czf ./seanime-${{ env.VERSION }}_Linux_x86_64.tar.gz ./seanime
             rm -rf ./seanime
-          
-          
+
+
             mv ./artifacts/seanime-server-linux-arm64 ./seanime
             tar czf ./seanime-${{ env.VERSION }}_Linux_arm64.tar.gz ./seanime
             rm -rf ./seanime
           fi
-          
+
           if [ -f ./artifacts/binaries-seanime-server-systray-windows.tar ]; then
             # Extract binaries
             tar -xf ./artifacts/binaries-seanime-server-systray-windows.tar -C ./artifacts
-          
+
             # Rename & compress binaries
             mv ./artifacts/seanime-server-systray-windows.exe ./seanime.exe
             7z a ./seanime-${{ env.VERSION }}_Windows_x86_64.zip ./seanime.exe
@@ -616,7 +616,7 @@ jobs:
           if [ -f ./artifacts/seanime-denshi-windows-x64.exe ]; then
               mv ./artifacts/seanime-denshi-windows-x64.exe ./seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
           fi
-          
+
           # Copy electron-builder YML files if they exist
           find ./artifacts -name "*.yml" -exec cp {} ./ \;
 
