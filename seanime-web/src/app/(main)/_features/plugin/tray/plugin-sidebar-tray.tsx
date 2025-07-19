@@ -20,7 +20,12 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
 import { TbPinned, TbPinnedFilled } from "react-icons/tb"
-import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
+import {
+    usePluginListenTrayCloseEvent,
+    usePluginListenTrayIconEvent,
+    usePluginListenTrayOpenEvent,
+    usePluginSendListTrayIconsEvent,
+} from "../generated/plugin-events"
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
 
@@ -57,6 +62,22 @@ const ExtensionList = ({
     const [trayIconListOpen, setTrayIconListOpen] = React.useState(false)
 
     const pinnedTrayIcons = trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
+
+    usePluginListenTrayOpenEvent((data) => {
+        if (!data.extensionId) return
+
+        if (!isPinned(data.extensionId)) {
+            setUnpinnedTrayIconClicked(trayIcons.find(t => t.extensionId === data.extensionId) || null)
+        }
+    }, "")
+
+    usePluginListenTrayCloseEvent((data) => {
+        if (!data.extensionId) return
+
+        if (!isPinned(data.extensionId)) {
+            setUnpinnedTrayIconClicked(null)
+        }
+    }, "")
 
     return (
         <>

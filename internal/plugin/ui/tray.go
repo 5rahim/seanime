@@ -207,7 +207,9 @@ func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
 //	Example:
 //	tray.open()
 func (t *Tray) jsOpen(call goja.FunctionCall) goja.Value {
-	t.trayManager.ctx.SendEventToClient(ServerTrayOpenEvent, ServerTrayOpenEventPayload{})
+	t.trayManager.ctx.SendEventToClient(ServerTrayOpenEvent, ServerTrayOpenEventPayload{
+		ExtensionID: t.trayManager.ctx.ext.ID,
+	})
 	return goja.Undefined()
 }
 
@@ -216,7 +218,9 @@ func (t *Tray) jsOpen(call goja.FunctionCall) goja.Value {
 //	Example:
 //	tray.close()
 func (t *Tray) jsClose(call goja.FunctionCall) goja.Value {
-	t.trayManager.ctx.SendEventToClient(ServerTrayCloseEvent, ServerTrayCloseEventPayload{})
+	t.trayManager.ctx.SendEventToClient(ServerTrayCloseEvent, ServerTrayCloseEventPayload{
+		ExtensionID: t.trayManager.ctx.ext.ID,
+	})
 	return goja.Undefined()
 }
 

@@ -123,16 +123,7 @@ export function PluginTray(props: TrayPluginProps) {
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayOpenEvent((data) => {
-        // Set as pinned if not pinned when opening
-        if (props.isPinned) {
-            setOpen(true)
-            return
-        }
-        setUnpinnedTrayIconClicked(props.trayIcon)
-        setTimeout(() => {
-            setOpen(true)
-            unpinnedTrayIconClickedOpenedRef.current = true
-        }, 100)
+        setOpen(true)
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayCloseEvent((data) => {
