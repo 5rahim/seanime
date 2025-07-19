@@ -96,6 +96,7 @@
     "jotai-scope": "^0.7.3",
     "js-cookies": "^1.0.4",
     "js-levenshtein": "^1.1.6",
+    "js-sha256": "^0.11.1",
     "json2toml": "^6.1.1",
     "libphonenumber-js": "^1.12.9",
     "media-chrome": "^4.11.1",
