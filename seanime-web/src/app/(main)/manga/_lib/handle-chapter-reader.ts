@@ -359,6 +359,7 @@ export function useSwitchSettingsWithKeys() {
     const [readingDirection, setReadingDirection] = useAtom(__manga_readingDirectionAtom)
     const [pageFit, setPageFit] = useAtom(__manga_pageFitAtom)
     const [pageStretch, setPageStretch] = useAtom(__manga_pageStretchAtom)
+    const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
 
     const switchValue = (currentValue: string, possibleValues: string[], setValue: (v: any) => void) => {
         const currentIndex = possibleValues.indexOf(currentValue)
@@ -366,19 +367,31 @@ export function useSwitchSettingsWithKeys() {
         setValue(possibleValues[nextIndex])
     }
 
+    const incrementOffset = () => {
+        setDoublePageOffset(prev => Math.max(0, prev + 1))
+    }
+
+    const decrementOffset = () => {
+        setDoublePageOffset(prev => Math.max(0, prev - 1))
+    }
+
     React.useEffect(() => {
         mousetrap.bind("m", () => switchValue(readingMode, Object.values(MangaReadingMode), setReadingMode))
         mousetrap.bind("d", () => switchValue(readingDirection, Object.values(MangaReadingDirection), setReadingDirection))
         mousetrap.bind("f", () => switchValue(pageFit, Object.values(MangaPageFit), setPageFit))
         mousetrap.bind("s", () => switchValue(pageStretch, Object.values(MangaPageStretch), setPageStretch))
+        mousetrap.bind("shift+right", () => incrementOffset())
+        mousetrap.bind("shift+left", () => decrementOffset())
 
         return () => {
             mousetrap.unbind("m")
             mousetrap.unbind("d")
             mousetrap.unbind("f")
             mousetrap.unbind("s")
+            mousetrap.unbind("shift+right")
+            mousetrap.unbind("shift+left")
         }
-    }, [readingMode, readingDirection, pageFit, pageStretch])
+    }, [readingMode, readingDirection, pageFit, pageStretch, doublePageOffset])
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
