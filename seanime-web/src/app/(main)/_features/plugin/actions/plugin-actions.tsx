@@ -22,8 +22,8 @@ import {
     usePluginSendActionRenderMediaCardContextMenuItemsEvent,
 } from "../generated/plugin-events"
 
-function sortItems<T extends { extensionId: string }>(items: T[]) {
-    return items.sort((a, b) => a.extensionId.localeCompare(b.extensionId, undefined, { numeric: true }))
+function sortItems<T extends { label: string }>(items: T[]) {
+    return items.sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))
 }
 
 type PluginAnimePageButton = {
@@ -162,10 +162,11 @@ export function PluginMediaCardContextMenuItems(props: PluginMediaCardContextMen
     // Listen for the action to render the media card context menu items
     usePluginListenActionRenderMediaCardContextMenuItemsEvent((event, extensionId) => {
         setItems(p => {
-            const newItems = event.items
+            const otherItems = p.filter(b => b.extensionId !== extensionId)
+            const extItems = event.items
                 .filter((i: PluginMediaCardContextMenuItem) => i.for === props.for || i.for === "both")
-                .map((i: Record<string, any>) => ({ ...i, extensionId } as PluginMediaCardContextMenuItem))
-            return sortItems([...newItems])
+                .map((b: Record<string, any>) => ({ ...b, extensionId } as PluginMangaPageButton))
+            return sortItems([...otherItems, ...extItems])
         })
     }, "")
 
@@ -356,6 +357,7 @@ export function PluginEpisodeGridItemMenuItems(props: {
         ))}
     </>
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type PluginAnimePageDropdownMenuItem = {
@@ -378,7 +380,6 @@ export function PluginAnimePageDropdownItems(props: { media: AL_BaseAnime }) {
 
     // Listen for the action to render the anime page dropdown items
     usePluginListenActionRenderAnimePageDropdownItemsEvent((event, extensionId) => {
-        console.log(event)
         setItems(p => {
             const otherItems = p.filter(i => i.extensionId !== extensionId)
             const extItems = event.items.map((i: Record<string, any>) => ({ ...i, extensionId } as PluginAnimePageDropdownMenuItem))
