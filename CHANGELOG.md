@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.1
+
+- 🦺 Server Password: Fixed token validation on public endpoints
+- 🦺 Server Password: Fixed login from non-localhost, HTTP clients #350
+- ⚡️ Release calendar: Option to disable image transitions
+- ⚡️ Manga: Double page offset keybindings - @Ari-03
+- 🦺 Plugin: Fixed newMediaCardContextMenuItem and other APIs
+- 🏗️ Downgraded Next.js and React Compiler
+  - Potential solution for client-side rendering errors #349
+
 ## v2.9.0
 
 - 🎉 New feature: Nakama - Communication between Seanime instances
