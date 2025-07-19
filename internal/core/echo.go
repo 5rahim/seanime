@@ -82,11 +82,30 @@ func (j *CustomJSONSerializer) Deserialize(c echo.Context, i interface{}) error 
 }
 
 func RunEchoServer(app *App, e *echo.Echo) {
-	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
+	serverAddr := app.Config.GetServerAddr()
+	app.Logger.Info().Msgf("app: Server Address: %s", serverAddr)
 
 	// Start the server
 	go func() {
-		log.Fatal(e.Start(app.Config.GetServerAddr()))
+		if app.Config.Server.Tls.Enabled {
+			certFile := app.Config.Server.Tls.CertPath
+			keyFile := app.Config.Server.Tls.KeyPath
+
+			// Generate certs if they don't exist
+			if err := generateSelfSignedCert(certFile, keyFile, app.Logger); err != nil {
+				app.Logger.Fatal().Err(err).Msg("app: Could not generate TLS certificates")
+			}
+
+			app.Logger.Info().Msg("app: Starting server with TLS enabled")
+			if err := e.StartTLS(serverAddr, certFile, keyFile); err != nil && err != http.ErrServerClosed {
+				app.Logger.Fatal().Err(err).Msg("app: Could not start TLS server")
+			}
+		} else {
+			app.Logger.Info().Msg("app: Starting server without TLS")
+			if err := e.Start(serverAddr); err != nil && err != http.ErrServerClosed {
+				app.Logger.Fatal().Err(err).Msg("app: Could not start server")
+			}
+		}
 	}()
 
 	time.Sleep(100 * time.Millisecond)
