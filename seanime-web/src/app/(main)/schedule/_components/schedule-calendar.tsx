@@ -29,6 +29,7 @@ type CalendarParams = {
 const MAX_EVENT_COUNT = 4
 
 export const weekStartsOnAtom = atomWithStorage("sea-calendar-week-starts-on", 1)
+export const calendarDisableAnimations = atomWithStorage("sea-calendar-disable-animations", false)
 export const calendarParamsAtom = atomWithStorage("sea-release-calendar-params", {
     indicateWatchedEpisodes: true,
     listStatuses: ["PLANNING", "CURRENT", "COMPLETED", "PAUSED"] as AL_MediaListStatus[],
@@ -55,6 +56,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
     const [currentDate, setCurrentDate] = React.useState(new Date())
 
     const [calendarParams, setCalendarParams] = useImmerAtom(calendarParamsAtom)
+    const [animationsDisabled, setAnimationDisabled] = useAtom(calendarDisableAnimations)
 
     const [weekStartsOn, setWeekStartsOn] = useAtom(weekStartsOnAtom)
 
@@ -180,6 +182,13 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                                 return
                             })}
                         />
+                        <Separator />
+                        <Switch
+                            label="Disable image transitions"
+                            side="right"
+                            value={animationsDisabled}
+                            onValueChange={v => setAnimationDisabled(v)}
+                        />
                     </Popover>
                 </header>
                 <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-[--radius-md] rounded-bl-[--radius-md] overflow-hidden">
@@ -285,7 +294,12 @@ interface CalendarDayBackgroundProps {
 function CalendarDayBackground({ events, isToday, hoveredEventId }: CalendarDayBackgroundProps) {
 
     const [focusedEventIndex, setFocusedEventIndex] = React.useState<number | null>(null)
+    const transitionDisabled = useAtomValue(calendarDisableAnimations)
     React.useEffect(() => {
+        if (transitionDisabled) {
+            setFocusedEventIndex(0)
+            return
+        }
         // carousel
         const interval = setInterval(() => {
             setFocusedEventIndex(prev => {
@@ -295,7 +309,7 @@ function CalendarDayBackground({ events, isToday, hoveredEventId }: CalendarDayB
             })
         }, 5000)
         return () => clearInterval(interval)
-    }, [events])
+    }, [events, transitionDisabled])
 
     const displayedEvent = React.useMemo(() => {
         if (hoveredEventId) {

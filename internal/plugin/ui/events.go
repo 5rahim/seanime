@@ -204,9 +204,13 @@ type ServerCommandPaletteUpdatedEventPayload struct {
 	Items       interface{} `json:"items"`
 }
 
-type ServerTrayOpenEventPayload struct{}
+type ServerTrayOpenEventPayload struct {
+	ExtensionID string `json:"extensionId"`
+}
 
-type ServerTrayCloseEventPayload struct{}
+type ServerTrayCloseEventPayload struct {
+	ExtensionID string `json:"extensionId"`
+}
 
 type ServerTrayIconEventPayload struct {
 	ExtensionID   string `json:"extensionId"`
