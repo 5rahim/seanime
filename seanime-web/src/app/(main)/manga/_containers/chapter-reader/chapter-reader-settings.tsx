@@ -592,10 +592,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                 label: "Switch page stretch",
                             }, {
                                 key: "shift+right",
-                                label: "Increment manga offset",
+                                label: "Increment double page offset",
                             }, {
                                 key: "shift+left",
-                                label: "Decrement manga offset",
+                                label: "Decrement double page offset",
                             }].map(item => {
                                 return (
                                     <div className="flex gap-2 items-center" key={item.key}>
