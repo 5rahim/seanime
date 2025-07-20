@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"seanime/internal/constants"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/util"
 	"slices"
@@ -151,7 +152,7 @@ func (t *TorBox) doQueryWithRetry(ctx context.Context, method, uri string, body 
 		}
 		req.Header.Add("Content-Type", contentType)
 		req.Header.Add("Authorization", "Bearer "+apiKey)
-		req.Header.Add("User-Agent", "Seanime/2.9.1")
+		req.Header.Add("User-Agent", "Seanime/"+constants.Version)
 
 		resp, err := t.client.Do(req)
 		if err != nil {
