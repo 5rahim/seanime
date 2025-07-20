@@ -97,20 +97,16 @@ type (
 )
 
 func NewTorBox(logger *zerolog.Logger) debrid.Provider {
-	// Configure HTTP transport for better performance
-	transport := &http.Transport{
-		MaxIdleConns:        10,
-		MaxIdleConnsPerHost: 5,
-		IdleConnTimeout:     90 * time.Second,
-		DisableCompression:  false,
-	}
-
 	return &TorBox{
 		baseUrl: "https://api.torbox.app/v1/api",
 		apiKey:  mo.None[string](),
 		client: &http.Client{
 			Timeout:   30 * time.Second,
-			Transport: transport,
+			Transport: &http.Transport{
+				MaxIdleConns:        10,
+				MaxIdleConnsPerHost: 5,
+				IdleConnTimeout:     90 * time.Second,
+			},
 		},
 		logger: logger,
 	}
@@ -124,14 +120,10 @@ func (t *TorBox) GetSettings() debrid.Settings {
 }
 
 func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string) (*Response, error) {
-	return t.doQueryWithContext(context.Background(), method, uri, body, contentType)
+	return t.doQueryCtx(context.Background(), method, uri, body, contentType)
 }
 
-func (t *TorBox) doQueryWithContext(ctx context.Context, method, uri string, body io.Reader, contentType string) (*Response, error) {
-	return t.doQueryWithRetry(ctx, method, uri, body, contentType, 3)
-}
-
-func (t *TorBox) doQueryWithRetry(ctx context.Context, method, uri string, body io.Reader, contentType string, maxRetries int) (*Response, error) {
+func (t *TorBox) doQueryCtx(ctx context.Context, method, uri string, body io.Reader, contentType string, maxRetries int) (*Response, error) {
 	apiKey, found := t.apiKey.Get()
 	if !found {
 		return nil, debrid.ErrNotAuthenticated
@@ -139,7 +131,6 @@ func (t *TorBox) doQueryWithRetry(ctx context.Context, method, uri string, body 
 
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		// Reset body reader for retries if it's a bytes.Buffer or similar
 		if body != nil && attempt > 0 {
 			if seeker, ok := body.(io.Seeker); ok {
 				seeker.Seek(0, io.SeekStart)
@@ -158,7 +149,6 @@ func (t *TorBox) doQueryWithRetry(ctx context.Context, method, uri string, body 
 		if err != nil {
 			lastErr = err
 			if attempt < maxRetries {
-				// Exponential backoff
 				backoff := time.Duration(attempt+1) * time.Second
 				t.logger.Warn().Err(err).Int("attempt", attempt+1).Dur("backoff", backoff).Msg("torbox: Request failed, retrying")
 				time.Sleep(backoff)
@@ -168,13 +158,11 @@ func (t *TorBox) doQueryWithRetry(ctx context.Context, method, uri string, body 
 		}
 		defer resp.Body.Close()
 
-		// Handle HTTP status codes
 		if resp.StatusCode >= 500 && attempt < maxRetries {
-			// Retry on server errors
 			bodyB, _ := io.ReadAll(resp.Body)
 			lastErr = fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(bodyB))
 			backoff := time.Duration(attempt+1) * time.Second
-			t.logger.Warn().Int("status", resp.StatusCode).Int("attempt", attempt+1).Dur("backoff", backoff).Msg("torbox: Server error, retrying")
+			t.logger.Warn().Int("status", resp.StatusCode).Int("attempt", attempt+1).Dur("backoff", backoff).Msg("torbox: Request failed, retrying")
 			time.Sleep(backoff)
 			continue
 		} else if resp.StatusCode >= 400 {
@@ -472,22 +460,18 @@ func (t *TorBox) getTorrent(id string) (ret *Torrent, err error) {
 func (t *TorBox) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *debrid.TorrentInfo, err error) {
 
 	if opts.InfoHash == "" {
-		return nil, fmt.Errorf("torbox: Info hash is required to retrieve torrent info")
+		return nil, fmt.Errorf("torbox: No info hash provided")
 	}
 
-	// First, try to get cached torrent info using the faster /checkcached endpoint
 	resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/checkcached?hash=%s&format=object&list_files=true", opts.InfoHash), nil, "application/json")
 	if err != nil {
 		return nil, fmt.Errorf("torbox: Failed to check cached torrent: %w", err)
 	}
 
-	// Check if the torrent is cached
+	// If the torrent is cached
 	if resp.Data != nil {
-		// Parse cached torrent data
 		data := resp.Data.(map[string]interface{})
 		
-		// The response format is: {"hash": {"name": "...", "size": ..., "hash": "...", "files": [...]}}
-		// We need to get the torrent data for our specific hash
 		if torrentData, exists := data[opts.InfoHash]; exists {
 			marshaledData, _ := json.Marshal(torrentData)
 			
@@ -502,7 +486,7 @@ func (t *TorBox) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *debrid.
 		}
 	}
 
-	// If not cached, fall back to the original /torrentinfo endpoint
+	// If not cached, fall back
 	resp, err = t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/torrentinfo?hash=%s&timeout=15", opts.InfoHash), nil, "application/json")
 	if err != nil {
 		return nil, fmt.Errorf("torbox: Failed to get torrent info: %w", err)
