@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "2.9.1"
+	Version              = "2.9.2"
 	VersionName          = "Natsu"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

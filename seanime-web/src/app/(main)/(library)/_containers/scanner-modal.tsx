@@ -34,6 +34,7 @@ export function ScannerModal() {
 
     React.useEffect(() => {
         if (!userMedia?.length) anilistDataOnly.off()
+        else anilistDataOnly.on()
     }, [userMedia])
 
     React.useEffect(() => {
