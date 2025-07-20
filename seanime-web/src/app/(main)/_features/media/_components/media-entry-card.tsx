@@ -268,7 +268,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             {(type === "anime" && !!libraryData) &&
                                 <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
 
-                            {!hideAnilistEntryEditButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
+                            {!hideAnilistEntryEditButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} forceModal />}
 
                             {withAudienceScore &&
                                 <MediaEntryAudienceScore
