@@ -1,5 +1,7 @@
 import { Models_Theme } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import React from "react"
+import { useWindowSize } from "react-use"
 
 export const enum ThemeLibraryScreenBannerType {
     Dynamic = "dynamic",
@@ -118,7 +120,6 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     mobileCustomCSS: "",
     unpinnedMenuItems: [],
 }
-
 
 export type ThemeSettingsHook = {
     hasCustomBackgroundColor: boolean
@@ -239,4 +240,9 @@ function getThemeValue(key: string, settings: ThemeSettings | undefined | null):
             // For any other type, return the value
             return val
     }
+}
+
+export function useIsMobile(): { isMobile: boolean } {
+    const { width } = useWindowSize()
+    return { isMobile: React.useMemo(() => width < 1024, [width < 1024]) }
 }

@@ -55,7 +55,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 />}
             >
 
-                {inLibrary && <>
+                {(inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuItem
                         onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
                     >
@@ -77,7 +77,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 </DropdownMenuItem>
 
 
-                {inLibrary && <>
+                {(inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                     <DropdownMenuItem
