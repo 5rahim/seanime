@@ -618,7 +618,9 @@ export function usePluginListenTrayBadgeUpdatedEvent(cb: (payload: Plugin_Server
     })
 }
 
-export type Plugin_Server_TrayOpenEventPayload = {}
+export type Plugin_Server_TrayOpenEventPayload = {
+    extensionId: string
+}
 
 export function usePluginListenTrayOpenEvent(cb: (payload: Plugin_Server_TrayOpenEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayOpenEventPayload>({
@@ -628,7 +630,9 @@ export function usePluginListenTrayOpenEvent(cb: (payload: Plugin_Server_TrayOpe
     })
 }
 
-export type Plugin_Server_TrayCloseEventPayload = {}
+export type Plugin_Server_TrayCloseEventPayload = {
+    extensionId: string
+}
 
 export function usePluginListenTrayCloseEvent(cb: (payload: Plugin_Server_TrayCloseEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayCloseEventPayload>({
