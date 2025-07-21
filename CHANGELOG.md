@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.2
+
+- ⚡️ Discover: Added 'Top of the Season', genre filters to more sections
+- ⚡️ Nakama: Detailed library view now available for shared library
+- ⚡️ TorBox: Optimized TorBox file list query - @MidnightKittenCat
+- ⚡️ Episode pagination: Bumped number of items per page to 24
+- 🦺 Nakama: Fixed dropdown menu not showing up for shared anime
+- 🦺 Nakama: Base unwatched count on shared episodes
+- 🦺 Scanner: Fixed modal having 'Use anilist data' checked off by default
+- 🦺 UI: Revert to modal for AniList entry editor on media cards
+- 🦺 Plugins: Allow programmatic tray opening on mobile
+- 🦺 Fixed incorrect dates in AniList entry editor #356
+- 🦺 My Library: Include repeating entries for 'include in library'
+- 🦺 UI: Revert incorrect video element CSS causing pixelation #355
+
 ## v2.9.1
 
 - 🦺 Server Password: Fixed token validation on public endpoints
