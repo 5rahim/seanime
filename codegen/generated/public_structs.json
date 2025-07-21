@@ -27820,6 +27820,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ServerPasswordHash",
+        "jsonName": "ServerPasswordHash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " SHA-256 hash of the server password"
+        ]
       }
     ],
     "comments": []
@@ -41646,6 +41657,19 @@
         ]
       },
       {
+        "name": "NakamaEntryLibraryData",
+        "jsonName": "nakamaLibraryData",
+        "goType": "NakamaEntryLibraryData",
+        "typescriptType": "Anime_NakamaEntryLibraryData",
+        "usedTypescriptType": "Anime_NakamaEntryLibraryData",
+        "usedStructName": "anime.NakamaEntryLibraryData",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Library data from Nakama"
+        ]
+      },
+      {
         "name": "EntryListData",
         "jsonName": "listData",
         "goType": "EntryListData",
@@ -41903,6 +41927,17 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NakamaLibraryData",
+        "jsonName": "nakamaLibraryData",
+        "goType": "NakamaEntryLibraryData",
+        "typescriptType": "Anime_NakamaEntryLibraryData",
+        "usedTypescriptType": "Anime_NakamaEntryLibraryData",
+        "usedStructName": "anime.NakamaEntryLibraryData",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -42269,6 +42304,34 @@
         "public": true,
         "comments": []
       },
+      {
+        "name": "UnwatchedCount",
+        "jsonName": "unwatchedCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MainFileCount",
+        "jsonName": "mainFileCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/entry_library_data.go",
+    "filename": "entry_library_data.go",
+    "name": "NakamaEntryLibraryData",
+    "formattedName": "Anime_NakamaEntryLibraryData",
+    "package": "anime",
+    "fields": [
       {
         "name": "UnwatchedCount",
         "jsonName": "unwatchedCount",
@@ -60395,6 +60458,38 @@
     "comments": []
   },
   {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "NakamaAnimeLibrary",
+    "formattedName": "Nakama_NakamaAnimeLibrary",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/nakama/watch_party.go",
     "filename": "watch_party.go",
     "name": "WatchPartyManager",
@@ -61032,6 +61127,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "OptionalTorrentStreamStartOptions",
+        "jsonName": "optionalTorrentStreamStartOptions",
+        "goType": "torrentstream.StartStreamOptions",
+        "typescriptType": "Torrentstream_StartStreamOptions",
+        "usedTypescriptType": "Torrentstream_StartStreamOptions",
+        "usedStructName": "torrentstream.StartStreamOptions",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -61198,29 +61304,6 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " Events"
-    ]
-  },
-  {
-    "filepath": "../internal/nakama/watch_party.go",
-    "filename": "watch_party.go",
-    "name": "WatchPartyPlaybackInfoPayload",
-    "formattedName": "Nakama_WatchPartyPlaybackInfoPayload",
-    "package": "nakama",
-    "fields": [
-      {
-        "name": "MediaInfo",
-        "jsonName": "mediaInfo",
-        "goType": "WatchPartySessionMediaInfo",
-        "typescriptType": "Nakama_WatchPartySessionMediaInfo",
-        "usedTypescriptType": "Nakama_WatchPartySessionMediaInfo",
-        "usedStructName": "nakama.WatchPartySessionMediaInfo",
-        "required": false,
         "public": true,
         "comments": []
       }
@@ -67975,7 +68058,17 @@
     "name": "ServerTrayOpenEventPayload",
     "formattedName": "ServerTrayOpenEventPayload",
     "package": "plugin_ui",
-    "fields": [],
+    "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -67984,7 +68077,17 @@
     "name": "ServerTrayCloseEventPayload",
     "formattedName": "ServerTrayCloseEventPayload",
     "package": "plugin_ui",
-    "fields": [],
+    "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
