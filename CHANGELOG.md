@@ -14,7 +14,6 @@ All notable changes to this project will be documented in this file.
 - 🦺 UI: Revert to modal for AniList entry editor on media cards
 - 🦺 Plugins: Allow programmatic tray opening on mobile
 - 🦺 Fixed incorrect dates in AniList entry editor #356
-- 🦺 My Library: Include repeating entries for 'include in library'
 - 🦺 UI: Revert incorrect video element CSS causing pixelation #355
 
 ## v2.9.1
@@ -24,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Release calendar: Option to disable image transitions
 - ⚡️ Manga: Double page offset keybindings - @Ari-03
 - 🦺 Plugin: Fixed newMediaCardContextMenuItem and other APIs
+- 🦺 Fixed IINA settings not being applied
 - 🏗️ Downgraded Next.js and React Compiler
   - Potential solution for client-side rendering errors #349
 
