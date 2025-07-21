@@ -117,7 +117,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		}
 		for _, list := range libraryCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.EntryLibraryData != nil {
+				if entry.EntryLibraryData == nil {
 					continue
 				}
 				entry.NakamaEntryLibraryData = &anime.NakamaEntryLibraryData{

@@ -2,7 +2,7 @@ import { AL_BaseAnime, AL_BaseManga } from "@/api/generated/types"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
-import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
+import { __discover_clickedCarouselDotAtom, __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
@@ -26,6 +26,7 @@ export function DiscoverTrending() {
     const { data, isLoading } = useDiscoverTrendingAnime()
     const setRandomTrendingAtom = useSetAtom(__discover_randomTrendingAtom)
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
+    const clickedHeaderDot = useAtomValue(__discover_clickedCarouselDotAtom) // clears interval
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
     const setAnimeTotalItems = useSetAtom(__discover_animeTotalItemsAtom)
     const [animeRandomNumber, setAnimeRandomNumber] = useAtom(__discover_animeRandomNumberAtom)
@@ -39,7 +40,6 @@ export function DiscoverTrending() {
     }, [randomNumber])
 
     useEffect(() => {
-        console.log(isHoveringHeader, "isHoveringHeader")
         const t = setInterval(() => {
             setHeaderIsTransitioning(true)
             setTimeout(() => {
@@ -53,7 +53,7 @@ export function DiscoverTrending() {
             clearInterval(t)
         }
         return () => clearInterval(t)
-    }, [isHoveringHeader])
+    }, [isHoveringHeader, clickedHeaderDot])
 
     // Update randomNumber when animeRandomNumber changes from outside
     useEffect(() => {

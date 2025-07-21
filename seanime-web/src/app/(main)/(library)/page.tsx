@@ -34,6 +34,7 @@ export default function Library() {
         streamingMediaIds,
         hasEntries,
         isStreamingOnly,
+        isNakamaLibrary,
     } = useHandleLibraryCollection()
 
     const [view, setView] = useAtom(__library_viewAtom)
@@ -53,6 +54,7 @@ export default function Library() {
                 isLoading={isLoading}
                 hasEntries={hasEntries}
                 isStreamingOnly={isStreamingOnly}
+                isNakamaLibrary={isNakamaLibrary}
             />
 
             <EmptyLibraryView isLoading={isLoading} hasEntries={hasEntries} />
@@ -98,6 +100,7 @@ export default function Library() {
                         isLoading={isLoading}
                         hasEntries={hasEntries}
                         streamingMediaIds={streamingMediaIds}
+                        isNakamaLibrary={isNakamaLibrary}
                     />
                 </PageWrapper>}
             </AnimatePresence>

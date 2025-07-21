@@ -33,7 +33,7 @@ export function RecentReleases() {
 
     return (
         <AppLayoutStack className="pb-6">
-            <h2>Recent episodes</h2>
+            <h2>Aired Recently</h2>
             <Carousel
                 className="w-full max-w-full"
                 gap="md"

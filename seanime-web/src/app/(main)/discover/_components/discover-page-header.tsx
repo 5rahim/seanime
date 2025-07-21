@@ -30,6 +30,7 @@ import { __discover_mangaRandomNumberAtom, __discover_setMangaRandomNumberAtom }
 
 
 export const __discover_hoveringHeaderAtom = atom(false)
+export const __discover_clickedCarouselDotAtom = atom(0)
 
 const MotionImage = motion.create(Image)
 const MotionIframe = motion.create("iframe")
@@ -43,7 +44,8 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
     const [pageType] = useAtom(__discord_pageTypeAtom)
     const pathname = usePathname()
 
-    // Get the appropriate atoms based on the page type
+    const setClickedCarouselDot = useSetAtom(__discover_clickedCarouselDotAtom)
+
     const animeRandomNumber = useAtomValue(__discover_animeRandomNumberAtom)
     const animeTotalItems = useAtomValue(__discover_animeTotalItemsAtom)
     const setAnimeRandomNumber = useSetAtom(__discover_setAnimeRandomNumberAtom)
@@ -52,7 +54,6 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
     const mangaTotalItems = useAtomValue(__discover_mangaTotalItemsAtom)
     const setMangaRandomNumber = useSetAtom(__discover_setMangaRandomNumberAtom)
 
-    // Use the appropriate values based on the page type
     const currentIndex = pageType === "anime" ? animeRandomNumber : mangaRandomNumber
     const totalItems = pageType === "anime" ? animeTotalItems : mangaTotalItems
     const setCurrentIndex = pageType === "anime" ? setAnimeRandomNumber : setMangaRandomNumber
@@ -60,7 +61,6 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
     // Don't render if there are no items or only one item
     if (totalItems <= 1) return null
 
-    // Limit to a maximum of 10 dots
     const maxDots = Math.min(totalItems, 12)
 
     return (
@@ -83,7 +83,10 @@ function HeaderCarouselDots({ className }: HeaderCarouselDotsProps) {
                         "h-1.5 rounded-sm transition-all duration-300 cursor-pointer",
                         index === currentIndex ? "w-6 bg-[--muted]" : "w-3 bg-[--subtle] hover:bg-gray-300",
                     )}
-                    onClick={() => setCurrentIndex(index)}
+                    onClick={() => {
+                        setCurrentIndex(index)
+                        setClickedCarouselDot(n => n + 1)
+                    }}
                     aria-label={`Go to slide ${index + 1}`}
                 />
             ))}
