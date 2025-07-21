@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"seanime/internal/constants"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/util"
 	"slices"
@@ -99,8 +100,15 @@ func NewTorBox(logger *zerolog.Logger) debrid.Provider {
 	return &TorBox{
 		baseUrl: "https://api.torbox.app/v1/api",
 		apiKey:  mo.None[string](),
-		client:  &http.Client{},
-		logger:  logger,
+		client: &http.Client{
+			Timeout: 30 * time.Second,
+			Transport: &http.Transport{
+				MaxIdleConns:        10,
+				MaxIdleConnsPerHost: 5,
+				IdleConnTimeout:     90 * time.Second,
+			},
+		},
+		logger: logger,
 	}
 }
 
@@ -112,17 +120,22 @@ func (t *TorBox) GetSettings() debrid.Settings {
 }
 
 func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string) (*Response, error) {
+	return t.doQueryCtx(context.Background(), method, uri, body, contentType)
+}
+
+func (t *TorBox) doQueryCtx(ctx context.Context, method, uri string, body io.Reader, contentType string) (*Response, error) {
 	apiKey, found := t.apiKey.Get()
 	if !found {
 		return nil, debrid.ErrNotAuthenticated
 	}
 
-	req, err := http.NewRequest(method, uri, body)
+	req, err := http.NewRequestWithContext(ctx, method, uri, body)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Content-Type", contentType)
 	req.Header.Add("Authorization", "Bearer "+apiKey)
+	req.Header.Add("User-Agent", "Seanime/"+constants.Version)
 
 	resp, err := t.client.Do(req)
 	if err != nil {
@@ -130,7 +143,10 @@ func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string)
 	}
 	defer resp.Body.Close()
 
-	var ret Response
+	if resp.StatusCode >= 400 {
+		bodyB, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("request failed: code %d, body: %s", resp.StatusCode, string(bodyB))
+	}
 
 	bodyB, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -138,6 +154,7 @@ func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string)
 		return nil, err
 	}
 
+	var ret Response
 	if err := json.Unmarshal(bodyB, &ret); err != nil {
 		trimmedBody := string(bodyB)
 		if len(trimmedBody) > 2000 {
@@ -182,7 +199,7 @@ func (t *TorBox) GetInstantAvailability(hashes []string) map[string]debrid.Torre
 	}
 
 	for _, batch := range hashBatches {
-		resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/checkcached?hash=%s&format=list&list_files=false", strings.Join(batch, ",")), nil, "application/json")
+		resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/checkcached?hash=%s&format=list&list_files=true", strings.Join(batch, ",")), nil, "application/json")
 		if err != nil {
 			return availability
 		}
@@ -215,8 +232,9 @@ func (t *TorBox) GetInstantAvailability(hashes []string) map[string]debrid.Torre
 
 func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 
-	// Check if the torrent is already added
+	// Check if the torrent is already added by checking existing torrents
 	if opts.InfoHash != "" {
+		// First check if it's already in our account using a more efficient approach
 		torrents, err := t.getTorrents()
 		if err == nil {
 			for _, torrent := range torrents {
@@ -225,7 +243,8 @@ func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 				}
 			}
 		}
-		time.Sleep(1 * time.Second)
+		// Small delay to avoid rate limiting
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	var body bytes.Buffer
@@ -283,6 +302,7 @@ func (t *TorBox) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamTorr
 		defer func() {
 			close(doneCh)
 		}()
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -397,14 +417,40 @@ func (t *TorBox) getTorrent(id string) (ret *Torrent, err error) {
 	return ret, nil
 }
 
-// GetTorrentInfo uses the info hash to return the torrent's data, retrieved from the Bittorrent network without adding it to the user's account.
+// GetTorrentInfo uses the info hash to return the torrent's data.
+// For cached torrents, it uses the /checkcached endpoint for faster response.
+// For uncached torrents, it falls back to /torrentinfo endpoint.
 func (t *TorBox) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *debrid.TorrentInfo, err error) {
 
 	if opts.InfoHash == "" {
-		return nil, fmt.Errorf("torbox: Info hash is required to retrieve torrent info")
+		return nil, fmt.Errorf("torbox: No info hash provided")
 	}
 
-	resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/torrentinfo?hash=%s&timeout=15", opts.InfoHash), nil, "application/json")
+	resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/checkcached?hash=%s&format=object&list_files=true", opts.InfoHash), nil, "application/json")
+	if err != nil {
+		return nil, fmt.Errorf("torbox: Failed to check cached torrent: %w", err)
+	}
+
+	// If the torrent is cached
+	if resp.Data != nil {
+		data := resp.Data.(map[string]interface{})
+
+		if torrentData, exists := data[opts.InfoHash]; exists {
+			marshaledData, _ := json.Marshal(torrentData)
+
+			var torrent TorrentInfo
+			err = json.Unmarshal(marshaledData, &torrent)
+			if err != nil {
+				return nil, fmt.Errorf("torbox: Failed to parse cached torrent: %w", err)
+			}
+
+			ret = toDebridTorrentInfo(&torrent)
+			return ret, nil
+		}
+	}
+
+	// If not cached, fall back
+	resp, err = t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/torrentinfo?hash=%s&timeout=15", opts.InfoHash), nil, "application/json")
 	if err != nil {
 		return nil, fmt.Errorf("torbox: Failed to get torrent info: %w", err)
 	}

@@ -10,6 +10,7 @@ import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.ato
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
+import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_SEASONS, ADVANCED_SEARCH_STATUS } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -43,6 +44,7 @@ type LibraryViewProps = {
     isLoading: boolean
     hasEntries: boolean
     streamingMediaIds: number[]
+    isNakamaLibrary: boolean
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -53,11 +55,13 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         isLoading,
         hasEntries,
         streamingMediaIds,
+        isNakamaLibrary,
         ...rest
     } = props
 
     const ts = useThemeSettings()
     const setView = useSetAtom(__library_viewAtom)
+    const nakamaStatus = useNakamaStatus()
 
     const {
         stats,
@@ -88,20 +92,25 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                         size="sm"
                         onClick={() => setView("base")}
                     />
-                    <h3 className="text-ellipsis truncate">Library</h3>
+                    {!isNakamaLibrary && <h3 className="text-ellipsis truncate">Library</h3>}
+                    {isNakamaLibrary &&
+                        <h3 className="text-ellipsis truncate">{nakamaStatus?.hostConnectionStatus?.username || "Host"}'s Library</h3>}
                 </div>
 
                 <SearchInput />
             </div>
 
             <div
-                className="grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]"
+                className={cn(
+                    "grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]",
+                    isNakamaLibrary && "lg:grid-cols-5",
+                )}
                 data-detailed-library-view-stats-container
             >
-                <div>
+                {!isNakamaLibrary && <div>
                     <h3>{stats?.totalSize}</h3>
                     <p>Library</p>
-                </div>
+                </div>}
                 <div>
                     <h3>{stats?.totalFiles}</h3>
                     <p>Files</p>

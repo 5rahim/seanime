@@ -17,7 +17,7 @@ export function DiscoverMissedSequelsSection() {
 
     return (
         <div className="space-y-2 z-[5] relative" data-discover-missed-sequels-container>
-            <h2>You might have missed</h2>
+            <h2>You Might Have Missed</h2>
             <Carousel
                 className="w-full max-w-full"
                 gap="xl"

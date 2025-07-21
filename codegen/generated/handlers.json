@@ -6444,6 +6444,38 @@
     }
   },
   {
+    "name": "HandleGetNakamaAnimeLibrary",
+    "trimmedName": "GetNakamaAnimeLibrary",
+    "comments": [
+      "HandleGetNakamaAnimeLibrary",
+      "",
+      "\t@summary shares the local anime collection with Nakama clients.",
+      "\t@desc This creates a new LibraryCollection struct and returns it.",
+      "\t@desc This is used to share the local anime collection with Nakama clients.",
+      "\t@route /api/v1/nakama/host/anime/library/collection [GET]",
+      "\t@returns nakama.NakamaAnimeLibrary",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "shares the local anime collection with Nakama clients.",
+      "descriptions": [
+        "This creates a new LibraryCollection struct and returns it.",
+        "This is used to share the local anime collection with Nakama clients."
+      ],
+      "endpoint": "/api/v1/nakama/host/anime/library/collection",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nakama.NakamaAnimeLibrary",
+      "returnGoType": "nakama.NakamaAnimeLibrary",
+      "returnTypescriptType": "Nakama_NakamaAnimeLibrary"
+    }
+  },
+  {
     "name": "HandleGetNakamaAnimeLibraryCollection",
     "trimmedName": "GetNakamaAnimeLibraryCollection",
     "comments": [
@@ -6607,6 +6639,7 @@
     "name": "HandleNakamaHostTorrentstreamServeStream",
     "trimmedName": "NakamaHostTorrentstreamServeStream",
     "comments": [
+      "Note: This is not used anymore. Each peer will independently stream the torrent.",
       "route /api/v1/nakama/host/torrentstream/stream",
       "Allows peers to stream the currently playing torrent.",
       ""
@@ -6631,6 +6664,28 @@
     "comments": [
       "route /api/v1/nakama/host/debridstream/stream",
       "Allows peers to stream the currently playing torrent.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaHostGetDebridstreamURL",
+    "trimmedName": "NakamaHostGetDebridstreamURL",
+    "comments": [
+      "route /api/v1/nakama/host/debridstream/url",
+      "Returns the debrid stream URL for direct access by peers to avoid host bandwidth usage",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",
@@ -6675,6 +6730,7 @@
       "route /api/v1/nakama/stream",
       "Proxies stream requests to the host. It inserts the Nakama password in the headers.",
       "It checks if the password is valid.",
+      "For debrid streams, it redirects directly to the debrid service to avoid host bandwidth usage.",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",

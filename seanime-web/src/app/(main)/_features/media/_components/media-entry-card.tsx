@@ -1,4 +1,11 @@
-import { AL_BaseAnime, AL_BaseManga, Anime_EntryLibraryData, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
+import {
+    AL_BaseAnime,
+    AL_BaseManga,
+    Anime_EntryLibraryData,
+    Anime_EntryListData,
+    Anime_NakamaEntryLibraryData,
+    Manga_EntryListData,
+} from "@/api/generated/types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { AnimeEntryCardUnwatchedBadge } from "@/app/(main)/_features/anime/_containers/anime-entry-card-unwatched-badge"
@@ -55,6 +62,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     showLibraryBadge?: T extends "anime" ? boolean : never
     showTrailer?: T extends "anime" ? boolean : never
     libraryData?: T extends "anime" ? Anime_EntryLibraryData : never
+    nakamaLibraryData?: T extends "anime" ? Anime_NakamaEntryLibraryData : never
     hideUnseenCountBadge?: boolean
     hideAnilistEntryEditButton?: boolean
 } & MediaEntryCardBaseProps
@@ -65,6 +73,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         media,
         listData: _listData,
         libraryData: _libraryData,
+        nakamaLibraryData,
         overlay,
         showListDataButton,
         showTrailer: _showTrailer,
@@ -268,7 +277,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             {(type === "anime" && !!libraryData) &&
                                 <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
 
-                            {!hideAnilistEntryEditButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
+                            {!hideAnilistEntryEditButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} forceModal />}
 
                             {withAudienceScore &&
                                 <MediaEntryAudienceScore
@@ -310,6 +319,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                     progress={listData?.progress || 0}
                                     media={media}
                                     libraryData={libraryData}
+                                    nakamaLibraryData={nakamaLibraryData}
                                 />
                             )}
                             {type === "manga" &&

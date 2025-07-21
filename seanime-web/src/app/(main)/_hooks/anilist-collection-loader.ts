@@ -26,10 +26,10 @@ export function useAnimeCollectionLoader() {
                     status: n.status,
                     progress: n.progress || 0,
                     score: n.score || 0,
-                    startedAt: n.startedAt ? new Date(n.startedAt.year || 0,
+                    startedAt: (n.startedAt?.year && n.startedAt?.month) ? new Date(n.startedAt.year || 0,
                         (n.startedAt.month || 1) - 1,
                         n.startedAt.day || 1).toISOString() : undefined,
-                    completedAt: n.completedAt ? new Date(n.completedAt.year || 0,
+                    completedAt: (n.completedAt?.year && n.completedAt?.month) ? new Date(n.completedAt.year || 0,
                         (n.completedAt.month || 1) - 1,
                         n.completedAt.day || 1).toISOString() : undefined,
                 }

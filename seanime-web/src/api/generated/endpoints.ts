@@ -1344,6 +1344,17 @@ export const API_ENDPOINTS = {
          *  This creates a new LibraryCollection struct and returns it.
          *  This is used to share the local anime collection with Nakama clients.
          */
+        GetNakamaAnimeLibrary: {
+            key: "NAKAMA-get-nakama-anime-library",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/host/anime/library/collection",
+        },
+        /**
+         *  @description
+         *  Route shares the local anime collection with Nakama clients.
+         *  This creates a new LibraryCollection struct and returns it.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
         GetNakamaAnimeLibraryCollection: {
             key: "NAKAMA-get-nakama-anime-library-collection",
             methods: ["GET"],

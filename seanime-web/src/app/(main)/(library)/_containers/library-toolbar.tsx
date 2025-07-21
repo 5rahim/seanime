@@ -34,6 +34,7 @@ export type LibraryToolbarProps = {
     isLoading: boolean
     hasEntries: boolean
     isStreamingOnly: boolean
+    isNakamaLibrary: boolean
 }
 
 export function LibraryToolbar(props: LibraryToolbarProps) {
@@ -45,6 +46,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         unknownGroups,
         hasEntries,
         isStreamingOnly,
+        isNakamaLibrary,
     } = props
 
     const ts = useThemeSettings()
@@ -61,6 +63,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     const { mutate: openInExplorer } = useOpenInExplorer()
 
+    const hasLibraryPath = !!status?.settings?.library?.libraryPath
+
     return (
         <>
             {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasEntries) && <div
@@ -72,7 +76,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
             ></div>}
             <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]" data-library-toolbar-container>
                 <div className="flex flex-1" data-library-toolbar-spacer></div>
-                {(!!status?.settings?.library?.libraryPath && hasEntries) && (
+                {(hasEntries) && (
                     <>
                         <Tooltip
                             trigger={<IconButton
@@ -85,7 +89,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             Switch view
                         </Tooltip>
 
-                        {!isStreamingOnly && <Tooltip
+                        {!(isStreamingOnly || isNakamaLibrary) && <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-playlists-button
                                 intent={"white-subtle"}
@@ -94,9 +98,9 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             />}
                         >Playlists</Tooltip>}
 
-                        {!isStreamingOnly && <PlayRandomEpisodeButton />}
+                        {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
 
-                        {!isStreamingOnly && <Button
+                        {!(isStreamingOnly || isNakamaLibrary) && hasLibraryPath && <Button
                             data-library-toolbar-scan-button
                             intent={hasEntries ? "primary-subtle" : "primary"}
                             leftIcon={hasEntries ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
@@ -125,7 +129,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 >
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
-                {(!isStreamingOnly && !!status?.settings?.library?.libraryPath) &&
+
+                {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) &&
                     <DropdownMenu
                         trigger={<IconButton
                             data-library-toolbar-dropdown-menu-trigger
@@ -135,8 +140,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                         <DropdownMenuItem
                             data-library-toolbar-open-directory-button
-                            disabled={!status?.settings?.library?.libraryPath}
-                            className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                            disabled={!hasLibraryPath}
+                            className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}
                             onClick={() => {
                                 openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
                             }}
