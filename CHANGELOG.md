@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.3
+
+- ⚡️ Plugins: Added Textarea component, 'onSelect' event for input/textarea
+- 🦺 Fixed release calendar missing long-running series
+- 🦺 Include in Library: Fixed 'repeating' entries not showing up
+
 ## v2.9.2
 
 - ⚡️ Discover: Added 'Top of the Season', genre filters to more sections

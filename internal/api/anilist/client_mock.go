@@ -562,3 +562,8 @@ func (ac *MockAnilistClientImpl) AnimeAiringSchedule(ctx context.Context, ids []
 	ac.logger.Debug().Msg("anilist: Fetching schedule")
 	return ac.realAnilistClient.AnimeAiringSchedule(ctx, ids, season, seasonYear, previousSeason, previousSeasonYear, nextSeason, nextSeasonYear, interceptors...)
 }
+
+func (ac *MockAnilistClientImpl) AnimeAiringScheduleRaw(ctx context.Context, ids []*int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringScheduleRaw, error) {
+	ac.logger.Debug().Msg("anilist: Fetching schedule")
+	return ac.realAnilistClient.AnimeAiringScheduleRaw(ctx, ids, interceptors...)
+}

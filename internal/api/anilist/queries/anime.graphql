@@ -428,6 +428,14 @@ query AnimeAiringSchedule($ids: [Int],$season: MediaSeason, $seasonYear: Int, $p
   }
 }
 
+query AnimeAiringScheduleRaw($ids: [Int]) {
+  Page {
+    media(id_in: $ids, type: ANIME, onList: true) {
+      ...animeSchedule
+    }
+  }
+}
+
 fragment animeSchedule on Media {
   id,
   idMal

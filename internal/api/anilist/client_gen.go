@@ -20,6 +20,7 @@ type GithubGraphQLClient interface {
 	ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error)
 	ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error)
 	AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error)
+	AnimeAiringScheduleRaw(ctx context.Context, ids []*int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringScheduleRaw, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
@@ -5264,6 +5265,89 @@ func (t *AnimeAiringSchedule_Preceding) GetMedia() []*AnimeSchedule {
 	return t.Media
 }
 
+type AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous struct {
+	Nodes []*AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous) GetNodes() []*AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes) GetEpisode() int {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes{}
+	}
+	return t.Episode
+}
+
+type AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming struct {
+	Nodes []*AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming) GetNodes() []*AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming{}
+	}
+	return t.Nodes
+}
+
+type AnimeAiringScheduleRaw_Page struct {
+	Media []*AnimeSchedule "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeAiringScheduleRaw_Page) GetMedia() []*AnimeSchedule {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw_Page{}
+	}
+	return t.Media
+}
+
 type UpdateMediaListEntry_SaveMediaListEntry struct {
 	ID int "json:\"id\" graphql:\"id\""
 }
@@ -7322,6 +7406,17 @@ func (t *AnimeAiringSchedule) GetPreceding() *AnimeAiringSchedule_Preceding {
 	return t.Preceding
 }
 
+type AnimeAiringScheduleRaw struct {
+	Page *AnimeAiringScheduleRaw_Page "json:\"Page,omitempty\" graphql:\"Page\""
+}
+
+func (t *AnimeAiringScheduleRaw) GetPage() *AnimeAiringScheduleRaw_Page {
+	if t == nil {
+		t = &AnimeAiringScheduleRaw{}
+	}
+	return t.Page
+}
+
 type UpdateMediaListEntry struct {
 	SaveMediaListEntry *UpdateMediaListEntry_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
 }
@@ -8550,6 +8645,50 @@ func (c *Client) AnimeAiringSchedule(ctx context.Context, ids []*int, season *Me
 	return &res, nil
 }
 
+const AnimeAiringScheduleRawDocument = `query AnimeAiringScheduleRaw ($ids: [Int]) {
+	Page {
+		media(id_in: $ids, type: ANIME, onList: true) {
+			... animeSchedule
+		}
+	}
+}
+fragment animeSchedule on Media {
+	id
+	idMal
+	previous: airingSchedule(notYetAired: false, perPage: 30) {
+		nodes {
+			airingAt
+			timeUntilAiring
+			episode
+		}
+	}
+	upcoming: airingSchedule(notYetAired: true, perPage: 30) {
+		nodes {
+			airingAt
+			timeUntilAiring
+			episode
+		}
+	}
+}
+`
+
+func (c *Client) AnimeAiringScheduleRaw(ctx context.Context, ids []*int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringScheduleRaw, error) {
+	vars := map[string]any{
+		"ids": ids,
+	}
+
+	var res AnimeAiringScheduleRaw
+	if err := c.Client.Post(ctx, "AnimeAiringScheduleRaw", AnimeAiringScheduleRawDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const UpdateMediaListEntryDocument = `mutation UpdateMediaListEntry ($mediaId: Int, $status: MediaListStatus, $scoreRaw: Int, $progress: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput) {
 	SaveMediaListEntry(mediaId: $mediaId, status: $status, scoreRaw: $scoreRaw, progress: $progress, startedAt: $startedAt, completedAt: $completedAt) {
 		id
@@ -9387,6 +9526,7 @@ var DocumentOperationNames = map[string]string{
 	ListAnimeDocument:                    "ListAnime",
 	ListRecentAnimeDocument:              "ListRecentAnime",
 	AnimeAiringScheduleDocument:          "AnimeAiringSchedule",
+	AnimeAiringScheduleRawDocument:       "AnimeAiringScheduleRaw",
 	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
 	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
 	DeleteEntryDocument:                  "DeleteEntry",
