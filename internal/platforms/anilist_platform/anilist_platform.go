@@ -683,5 +683,66 @@ func (ap *AnilistPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist
 		return nil, err
 	}
 
+	type animeScheduleMedia interface {
+		GetMedia() []*anilist.AnimeSchedule
+	}
+
+	foundIds := make(map[int]struct{})
+	addIds := func(n animeScheduleMedia) {
+		for _, m := range n.GetMedia() {
+			if m == nil {
+				continue
+			}
+			foundIds[m.GetID()] = struct{}{}
+		}
+	}
+	addIds(ret.GetOngoing())
+	addIds(ret.GetOngoingNext())
+	addIds(ret.GetPreceding())
+	addIds(ret.GetUpcoming())
+	addIds(ret.GetUpcomingNext())
+
+	missingIds := make([]*int, 0)
+	for _, list := range collection.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			if _, found := foundIds[entry.GetMedia().GetID()]; found {
+				continue
+			}
+			endDate := entry.GetMedia().GetEndDate()
+			// Ignore if ended more than 2 months ago
+			if endDate == nil || endDate.GetYear() == nil || endDate.GetMonth() == nil {
+				missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
+				continue
+			}
+			endTime := time.Date(*endDate.GetYear(), time.Month(*endDate.GetMonth()), 1, 0, 0, 0, 0, time.UTC)
+			if endTime.Before(now.AddDate(0, -2, 0)) {
+				continue
+			}
+			missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
+		}
+	}
+
+	if len(missingIds) > 0 {
+		retB, err := ap.anilistClient.AnimeAiringScheduleRaw(ctx, missingIds)
+		if err != nil {
+			return nil, err
+		}
+		if len(retB.GetPage().GetMedia()) > 0 {
+			// Add to ongoing next
+			for _, m := range retB.Page.GetMedia() {
+				if ret.OngoingNext == nil {
+					ret.OngoingNext = &anilist.AnimeAiringSchedule_OngoingNext{
+						Media: make([]*anilist.AnimeSchedule, 0),
+					}
+				}
+				if m == nil {
+					continue
+				}
+
+				ret.OngoingNext.Media = append(ret.OngoingNext.Media, m)
+			}
+		}
+	}
+
 	return ret, nil
 }

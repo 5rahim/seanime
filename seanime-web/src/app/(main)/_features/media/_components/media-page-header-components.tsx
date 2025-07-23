@@ -10,7 +10,7 @@ import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
-import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useIsMobile, useThemeSettings } from "@/lib/theme/hooks"
 import capitalize from "lodash/capitalize"
 import { motion } from "motion/react"
 import Image from "next/image"
@@ -39,6 +39,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
     const ts = useThemeSettings()
     const { y } = useWindowScroll()
+    const { isMobile } = useIsMobile()
 
     const bannerImage = backgroundImage || coverImage
     const shouldHideBanner = (
@@ -143,7 +144,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     initial={{ scale: 1, y: 0 }}
                     animate={{
                         scale: !ts.libraryScreenCustomBackgroundImage ? Math.min(1 + y * 0.0002, 1.03) : 1,
-                        y: Math.max(y * -0.9, -10),
+                        y: isMobile ? 0 : Math.max(y * -0.9, -10),
                     }}
                     exit={{ scale: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}

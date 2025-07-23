@@ -26,6 +26,7 @@ type AnilistMediaEntryModalProps = {
     media?: AL_BaseAnime | AL_BaseManga
     hideButton?: boolean
     type?: "anime" | "manga"
+    forceModal?: boolean
 }
 
 export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
@@ -36,11 +37,11 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     completedAt: presets.datePicker.nullish(),
 }))
 
-function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseAnime | AL_BaseManga }) {
+function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseAnime | AL_BaseManga, forceModal?: boolean }) {
     const { title, children, media, ...rest } = props
     const { width } = useWindowSize()
 
-    if (width && width > 1024) {
+    if ((width && width > 1024) && !props.forceModal) {
         return <Popover
             {...rest}
             className="max-w-5xl !w-full overflow-hidden bg-gray-950/95 backdrop-blur-sm rounded-xl"
@@ -82,10 +83,10 @@ function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseA
 }
 
 
-export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
+export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
     const [open, toggle] = useToggle(false)
 
-    const { children, media, listData, hideButton, type = "anime", ...rest } = props
+    const { children, media, listData, hideButton, type = "anime", forceModal, ...rest } = props
 
     const user = useCurrentUser()
 
@@ -132,6 +133,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
             </>}
 
             {!!listData && <IsomorphicPopover
+                forceModal={forceModal}
                 open={open}
                 onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}

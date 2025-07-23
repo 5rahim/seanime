@@ -1373,6 +1373,7 @@ export type Anime_Entry = {
     anidbId: number
     currentEpisodeCount: number
     _isNakamaEntry: boolean
+    nakamaLibraryData?: Anime_NakamaEntryLibraryData
 }
 
 /**
@@ -1534,6 +1535,10 @@ export type Anime_LibraryCollectionEntry = {
      */
     libraryData?: Anime_EntryLibraryData
     /**
+     * Library data from Nakama
+     */
+    nakamaLibraryData?: Anime_NakamaEntryLibraryData
+    /**
      * AniList list data
      */
     listData?: Anime_EntryListData
@@ -1628,6 +1633,16 @@ export type Anime_LocalFileType = "main" | "special" | "nc"
 export type Anime_MissingEpisodes = {
     episodes?: Array<Anime_Episode>
     silencedEpisodes?: Array<Anime_Episode>
+}
+
+/**
+ * - Filepath: internal/library/anime/entry_library_data.go
+ * - Filename: entry_library_data.go
+ * - Package: anime
+ */
+export type Anime_NakamaEntryLibraryData = {
+    unwatchedCount: number
+    mainFileCount: number
 }
 
 /**
@@ -3574,6 +3589,16 @@ export type Nakama_MessageResponse = {
 }
 
 /**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaAnimeLibrary = {
+    localFiles?: Array<Anime_LocalFile>
+    animeCollection?: AL_AnimeCollection
+}
+
+/**
  * - Filepath: internal/nakama/nakama.go
  * - Filename: nakama.go
  * - Package: nakama
@@ -3640,6 +3665,7 @@ export type Nakama_WatchPartySessionMediaInfo = {
      */
     streamPath: string
     onlineStreamParams?: Nakama_OnlineStreamParams
+    optionalTorrentStreamStartOptions?: Torrentstream_StartStreamOptions
 }
 
 /**
@@ -4115,6 +4141,38 @@ export type Torrentstream_FilePreview = {
  * - Package: torrentstream
  */
 export type Torrentstream_PlaybackType = "default" | "externalPlayerLink" | "nativeplayer" | "none" | "noneAndAwait"
+
+/**
+ * - Filepath: internal/torrentstream/stream.go
+ * - Filename: stream.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_StartStreamOptions = {
+    MediaId: number
+    /**
+     * RELATIVE Episode number to identify the file
+     */
+    EpisodeNumber: number
+    /**
+     * Anizip episode
+     */
+    AniDBEpisode: string
+    /**
+     * Automatically select the best file to stream
+     */
+    AutoSelect: boolean
+    /**
+     * Selected torrent (Manual selection)
+     */
+    Torrent?: HibikeTorrent_AnimeTorrent
+    /**
+     * Index of the file to stream (Manual selection)
+     */
+    FileIndex?: number
+    UserAgent: string
+    ClientId: string
+    PlaybackType: Torrentstream_PlaybackType
+}
 
 /**
  * - Filepath: internal/torrentstream/client.go

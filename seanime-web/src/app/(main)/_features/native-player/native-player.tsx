@@ -14,7 +14,6 @@ import {
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
-import SquareBg from "@/components/shared/square-bg"
 import { IconButton } from "@/components/ui/button"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
@@ -27,7 +26,6 @@ import { useAtom, useAtomValue } from "jotai"
 import {
     MediaControlBar,
     MediaController,
-    MediaErrorDialog,
     MediaFullscreenButton,
     MediaLoadingIndicator,
     MediaMuteButton,
@@ -1100,7 +1098,7 @@ export function NativePlayer() {
                                         imageRendering: "auto",
                                     }}
                                     tabIndex={0}
-                                    className="outline-none"
+                                    className="outline-none native-player-video"
                                 >
                                     {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
                                         <track

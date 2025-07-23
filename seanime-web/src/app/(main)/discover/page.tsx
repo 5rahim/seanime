@@ -3,7 +3,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discover-airing-schedule"
 import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
-import { DiscoverPastSeason } from "@/app/(main)/discover/_containers/discover-popular"
+import { DiscoverPastSeason, DiscoverThisSeason } from "@/app/(main)/discover/_containers/discover-popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { DiscoverTrendingCountry } from "@/app/(main)/discover/_containers/discover-trending-country"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-trending-movies"
@@ -92,21 +92,25 @@ export default function Page() {
                         data-discover-page-anime-container
                     >
                         <div className="space-y-2 z-[5] relative" data-discover-page-anime-trending-container>
-                            <h2>Trending this season</h2>
+                            <h2>Trending Right Now</h2>
                             <DiscoverTrending />
                         </div>
                         <RecentReleases />
                         <div className="space-y-2 z-[5] relative" data-discover-page-anime-highest-rated-container>
-                            <h2>Highest rated last season</h2>
+                            <h2>Top of the Season</h2>
+                            <DiscoverThisSeason />
+                        </div>
+                        <div className="space-y-2 z-[5] relative" data-discover-page-anime-highest-rated-container>
+                            <h2>Best of Last Season</h2>
                             <DiscoverPastSeason />
                         </div>
                         <DiscoverMissedSequelsSection />
                         <div className="space-y-2 z-[5] relative" data-discover-page-anime-upcoming-container>
-                            <h2>Upcoming</h2>
+                            <h2>Coming Soon</h2>
                             <DiscoverUpcoming />
                         </div>
                         <div className="space-y-2 z-[5] relative" data-discover-page-anime-trending-movies-container>
-                            <h2>Trending movies</h2>
+                            <h2>Trending Movies</h2>
                             <DiscoverTrendingMovies />
                         </div>
                         {/*<div className="space-y-2 z-[5] relative">*/}

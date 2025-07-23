@@ -99,7 +99,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         size="md"
                     />
                 </>}
-                {!entry._isNakamaEntry && <AnimeEntryDropdownMenu entry={entry} />}
+                <AnimeEntryDropdownMenu entry={entry} />
             </div>
 
             <PluginAnimePageButtons media={entry.media!} />

@@ -464,7 +464,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                     {hoveredEvent && (
                         <div className="bg-gray-900/70 backdrop-blur-sm rounded-md px-2 py-1.5 border">
                             <p className="text-xs font-medium text-gray-100 line-clamp-2 leading-tight">
-                                <span className="text-[--muted] font-normal">{hoveredEvent.name.slice(0, 30) + (hoveredEvent.name.length > 20
+                                <span className="text-[--muted] font-normal">{hoveredEvent.name.slice(0, 20) + (hoveredEvent.name.length > 20
                                     ? "..."
                                     : "")}</span>
                                 {hoveredEvent.isSeasonFinale && <span className="text-[--blue] ml-1">Finale</span>}

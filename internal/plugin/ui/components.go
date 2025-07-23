@@ -143,9 +143,11 @@ func (c *ComponentManager) jsInput(call goja.FunctionCall) goja.Value {
 		{Name: "placeholder", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "value", Type: "string", Required: false, Default: "", Validate: validateType("string")},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "onSelect", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "textarea", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
 	})

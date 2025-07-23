@@ -733,8 +733,8 @@ declare namespace $ui {
      * @default size="md"
      */
     type InputComponentFunction = {
-        (props: { label?: string, placeholder?: string } & FieldComponentProps): void
-        (label: string, props?: { placeholder?: string } & FieldComponentProps): void
+        (props: { label?: string, placeholder?: string, textarea?: boolean, onSelect?: string } & FieldComponentProps): void
+        (label: string, props?: { placeholder?: string, textarea?: boolean, onSelect?: string } & FieldComponentProps): void
     }
     /**
      * @default size="md"

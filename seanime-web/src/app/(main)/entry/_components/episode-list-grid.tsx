@@ -40,7 +40,7 @@ export function EpisodeListPaginatedGrid(props: EpisodeListPaginatedGridProps) {
     const {
         length,
         renderItem,
-        itemsPerPage = 12,
+        itemsPerPage = 24,
         minLengthBeforePagination = 29,
         shouldDefaultToPageWithEpisode,
     } = props
