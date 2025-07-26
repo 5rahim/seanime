@@ -38,6 +38,7 @@ type (
 		Summary  string `json:"summary,omitempty"`
 		Overview string `json:"overview,omitempty"`
 		IsFiller bool   `json:"isFiller,omitempty"`
+		HasImage bool   `json:"hasImage,omitempty"` // Indicates if the episode has a real image
 	}
 )
 
@@ -273,6 +274,7 @@ func NewEpisodeMetadata(
 		md.Length = epMetadata.Length
 		md.Summary = epMetadata.Summary
 		md.Overview = epMetadata.Overview
+		md.HasImage = epMetadata.HasImage
 		md.IsFiller = false
 	} else {
 		md.Image = media.GetBannerImageSafe()

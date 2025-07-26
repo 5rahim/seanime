@@ -124,7 +124,7 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 	ret.Mappings.ImdbId = ""
 	ret.Mappings.ThemoviedbId = m.Mappings.TheMovieDbID
 
-	for key, anizipEp := range m.Episodes {
+	for key, ep := range m.Episodes {
 		firstChar := key[0]
 		if firstChar == 'S' {
 			ret.SpecialCount++
@@ -134,28 +134,29 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 			}
 		}
 		em := &EpisodeMetadata{
-			AnidbId:               anizipEp.AnidbId,
-			TvdbId:                anizipEp.TvdbId,
-			Title:                 anizipEp.AnidbTitle,
-			Image:                 anizipEp.Image,
-			AirDate:               anizipEp.AirDate,
-			Length:                anizipEp.Runtime,
-			Summary:               strings.ReplaceAll(anizipEp.Overview, "`", "'"),
-			Overview:              strings.ReplaceAll(anizipEp.Overview, "`", "'"),
-			EpisodeNumber:         anizipEp.Number,
+			AnidbId:               ep.AnidbId,
+			TvdbId:                ep.TvdbId,
+			Title:                 ep.AnidbTitle,
+			Image:                 ep.Image,
+			AirDate:               ep.AirDate,
+			Length:                ep.Runtime,
+			Summary:               strings.ReplaceAll(ep.Overview, "`", "'"),
+			Overview:              strings.ReplaceAll(ep.Overview, "`", "'"),
+			EpisodeNumber:         ep.Number,
 			Episode:               key,
-			SeasonNumber:          anizipEp.SeasonNumber,
-			AbsoluteEpisodeNumber: anizipEp.AbsoluteNumber,
-			AnidbEid:              anizipEp.AnidbId,
+			SeasonNumber:          ep.SeasonNumber,
+			AbsoluteEpisodeNumber: ep.AbsoluteNumber,
+			AnidbEid:              ep.AnidbId,
+			HasImage:              ep.Image != "",
 		}
-		if em.Length == 0 && anizipEp.Runtime > 0 {
-			em.Length = anizipEp.Runtime
+		if em.Length == 0 && ep.Runtime > 0 {
+			em.Length = ep.Runtime
 		}
-		if em.Summary == "" && anizipEp.Overview != "" {
-			em.Summary = anizipEp.Overview
+		if em.Summary == "" && ep.Overview != "" {
+			em.Summary = ep.Overview
 		}
-		if em.Overview == "" && anizipEp.Overview != "" {
-			em.Overview = anizipEp.Overview
+		if em.Overview == "" && ep.Overview != "" {
+			em.Overview = ep.Overview
 		}
 		ret.Episodes[key] = em
 	}
@@ -247,30 +248,31 @@ func (p *ProviderImpl) AnizipFallback(platform Platform, mId int) (ret *AnimeMet
 	ret.Mappings.ImdbId = anizipMedia.Mappings.ImdbID
 	ret.Mappings.ThemoviedbId = anizipMedia.Mappings.ThemoviedbID
 
-	for key, anizipEp := range anizipMedia.Episodes {
+	for key, ep := range anizipMedia.Episodes {
 		em := &EpisodeMetadata{
-			AnidbId:               anizipEp.AnidbEid,
-			TvdbId:                anizipEp.TvdbEid,
-			Title:                 anizipEp.GetTitle(),
-			Image:                 anizipEp.Image,
-			AirDate:               anizipEp.AirDate,
-			Length:                anizipEp.Runtime,
-			Summary:               strings.ReplaceAll(anizipEp.Summary, "`", "'"),
-			Overview:              strings.ReplaceAll(anizipEp.Overview, "`", "'"),
-			EpisodeNumber:         anizipEp.EpisodeNumber,
-			Episode:               anizipEp.Episode,
-			SeasonNumber:          anizipEp.SeasonNumber,
-			AbsoluteEpisodeNumber: anizipEp.AbsoluteEpisodeNumber,
-			AnidbEid:              anizipEp.AnidbEid,
+			AnidbId:               ep.AnidbEid,
+			TvdbId:                ep.TvdbEid,
+			Title:                 ep.GetTitle(),
+			Image:                 ep.Image,
+			AirDate:               ep.AirDate,
+			Length:                ep.Runtime,
+			Summary:               strings.ReplaceAll(ep.Summary, "`", "'"),
+			Overview:              strings.ReplaceAll(ep.Overview, "`", "'"),
+			EpisodeNumber:         ep.EpisodeNumber,
+			Episode:               ep.Episode,
+			SeasonNumber:          ep.SeasonNumber,
+			AbsoluteEpisodeNumber: ep.AbsoluteEpisodeNumber,
+			AnidbEid:              ep.AnidbEid,
+			HasImage:              ep.Image != "",
 		}
-		if em.Length == 0 && anizipEp.Length > 0 {
-			em.Length = anizipEp.Length
+		if em.Length == 0 && ep.Length > 0 {
+			em.Length = ep.Length
 		}
-		if em.Summary == "" && anizipEp.Overview != "" {
-			em.Summary = anizipEp.Overview
+		if em.Summary == "" && ep.Overview != "" {
+			em.Summary = ep.Overview
 		}
-		if em.Overview == "" && anizipEp.Summary != "" {
-			em.Overview = anizipEp.Summary
+		if em.Overview == "" && ep.Summary != "" {
+			em.Overview = ep.Summary
 		}
 		ret.Episodes[key] = em
 	}
