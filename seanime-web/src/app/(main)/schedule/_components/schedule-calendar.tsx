@@ -117,7 +117,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                 }
             }) ?? []
             events = sortBy(events, (e) => e.episode)
-            events = sortBy(events, (e) => e.time)
+            events = sortBy(events, (e) => e.datetime)
 
             daysArray.push({
                 date: format(day, "yyyy-MM-dd"),

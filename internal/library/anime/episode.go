@@ -101,10 +101,10 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		}
 
 		// Get the AniZip episode
-		foundAnizipEpisode := false
+		foundAnimapEpisode := false
 		var episodeMetadata *metadata.EpisodeMetadata
 		if opts.AnimeMetadata != nil {
-			episodeMetadata, foundAnizipEpisode = opts.AnimeMetadata.FindEpisode(aniDBEp)
+			episodeMetadata, foundAnimapEpisode = opts.AnimeMetadata.FindEpisode(aniDBEp)
 		}
 
 		entryEp.IsDownloaded = true
@@ -117,7 +117,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		case LocalFileTypeMain:
 			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
 			entryEp.ProgressNumber = opts.LocalFile.GetEpisodeNumber() + opts.ProgressOffset
-			if foundAnizipEpisode {
+			if foundAnimapEpisode {
 				entryEp.AniDBEpisode = aniDBEp
 				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnimeMetadata.GetOffset()
 			}
@@ -133,7 +133,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		if len(entryEp.DisplayTitle) == 0 {
 			switch opts.LocalFile.Metadata.Type {
 			case LocalFileTypeMain:
-				if foundAnizipEpisode {
+				if foundAnimapEpisode {
 					entryEp.AniDBEpisode = aniDBEp
 					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
 						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
@@ -153,7 +153,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 				}
 				hydrated = true // Hydrated
 			case LocalFileTypeSpecial:
-				if foundAnizipEpisode {
+				if foundAnimapEpisode {
 					entryEp.AniDBEpisode = aniDBEp
 					episodeInt, found := metadata.ExtractEpisodeInteger(aniDBEp)
 					if found {
@@ -167,7 +167,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 				}
 				hydrated = true // Hydrated
 			case LocalFileTypeNC:
-				if foundAnizipEpisode {
+				if foundAnimapEpisode {
 					entryEp.AniDBEpisode = aniDBEp
 					entryEp.DisplayTitle = episodeMetadata.GetTitle()
 					entryEp.EpisodeTitle = ""
@@ -188,7 +188,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 		// No LocalFile, but AniDB episode is provided
 
 		// Get the AniZip episode
-		if episodeMetadata, foundAnizipEpisode := opts.AnimeMetadata.FindEpisode(opts.OptionalAniDBEpisode); foundAnizipEpisode {
+		if episodeMetadata, foundAnimapEpisode := opts.AnimeMetadata.FindEpisode(opts.OptionalAniDBEpisode); foundAnimapEpisode {
 
 			entryEp.IsDownloaded = false
 			entryEp.Type = LocalFileTypeMain

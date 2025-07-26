@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/animap"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/tvdb"
 	"seanime/internal/hook"
@@ -22,6 +23,7 @@ type (
 		fileCacher         *filecache.Cacher
 		animeMetadataCache *result.Cache[string, *AnimeMetadata]
 		anizipCache        *anizip.Cache
+		animapCache        *animap.Cache
 	}
 
 	NewProviderImplOptions struct {
@@ -41,6 +43,7 @@ func NewProvider(options *NewProviderImplOptions) Provider {
 		fileCacher:         options.FileCacher,
 		animeMetadataCache: result.NewCache[string, *AnimeMetadata](),
 		anizipCache:        anizip.NewCache(),
+		animapCache:        animap.NewCache(),
 	}
 }
 
@@ -51,6 +54,130 @@ func (p *ProviderImpl) GetCache() *result.Cache[string, *AnimeMetadata] {
 
 // GetAnimeMetadata fetches anime metadata from api.ani.zip.
 func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeMetadata, err error) {
+	ret, ok := p.animeMetadataCache.Get(GetAnimeMetadataCacheKey(platform, mId))
+	if ok {
+		return ret, nil
+	}
+
+	ret = &AnimeMetadata{
+		Titles:       make(map[string]string),
+		Episodes:     make(map[string]*EpisodeMetadata),
+		EpisodeCount: 0,
+		SpecialCount: 0,
+		Mappings:     &AnimeMappings{},
+	}
+
+	// Invoke AnimeMetadataRequested hook
+	reqEvent := &AnimeMetadataRequestedEvent{
+		MediaId:       mId,
+		AnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadataRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	mId = reqEvent.MediaId
+
+	// Default prevented by hook, return the metadata
+	if reqEvent.DefaultPrevented {
+		// Override the metadata
+		ret = reqEvent.AnimeMetadata
+
+		// Trigger the event
+		event := &AnimeMetadataEvent{
+			MediaId:       mId,
+			AnimeMetadata: ret,
+		}
+		err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		ret = event.AnimeMetadata
+		mId = event.MediaId
+
+		if ret == nil {
+			return nil, errors.New("no metadata was returned")
+		}
+		p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
+		return ret, nil
+	}
+
+	m, err := animap.FetchAnimapMediaC(string(platform), mId, p.animapCache)
+	if err != nil || m == nil {
+		//return p.AnizipFallback(platform, mId)
+		return nil, err
+	}
+
+	ret.Titles = m.Titles
+	ret.EpisodeCount = 0
+	ret.SpecialCount = 0
+	ret.Mappings.AnimeplanetId = m.Mappings.AnimePlanetID
+	ret.Mappings.KitsuId = m.Mappings.KitsuID
+	ret.Mappings.MalId = m.Mappings.MalID
+	ret.Mappings.Type = m.Mappings.Type
+	ret.Mappings.AnilistId = m.Mappings.AnilistID
+	ret.Mappings.AnisearchId = m.Mappings.AnisearchID
+	ret.Mappings.AnidbId = m.Mappings.AnidbID
+	ret.Mappings.NotifymoeId = m.Mappings.NotifyMoeID
+	ret.Mappings.LivechartId = m.Mappings.LivechartID
+	ret.Mappings.ThetvdbId = m.Mappings.TheTvdbID
+	ret.Mappings.ImdbId = ""
+	ret.Mappings.ThemoviedbId = m.Mappings.TheMovieDbID
+
+	for key, anizipEp := range m.Episodes {
+		firstChar := key[0]
+		if firstChar == 'S' {
+			ret.SpecialCount++
+		} else {
+			if firstChar >= '0' && firstChar <= '9' {
+				ret.EpisodeCount++
+			}
+		}
+		em := &EpisodeMetadata{
+			AnidbId:               anizipEp.AnidbId,
+			TvdbId:                anizipEp.TvdbId,
+			Title:                 anizipEp.AnidbTitle,
+			Image:                 anizipEp.Image,
+			AirDate:               anizipEp.AirDate,
+			Length:                anizipEp.Runtime,
+			Summary:               strings.ReplaceAll(anizipEp.Overview, "`", "'"),
+			Overview:              strings.ReplaceAll(anizipEp.Overview, "`", "'"),
+			EpisodeNumber:         anizipEp.Number,
+			Episode:               key,
+			SeasonNumber:          anizipEp.SeasonNumber,
+			AbsoluteEpisodeNumber: anizipEp.AbsoluteNumber,
+			AnidbEid:              anizipEp.AnidbId,
+		}
+		if em.Length == 0 && anizipEp.Runtime > 0 {
+			em.Length = anizipEp.Runtime
+		}
+		if em.Summary == "" && anizipEp.Overview != "" {
+			em.Summary = anizipEp.Overview
+		}
+		if em.Overview == "" && anizipEp.Overview != "" {
+			em.Overview = anizipEp.Overview
+		}
+		ret.Episodes[key] = em
+	}
+
+	// Event
+	event := &AnimeMetadataEvent{
+		MediaId:       mId,
+		AnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+	ret = event.AnimeMetadata
+	mId = event.MediaId
+
+	p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
+
+	return ret, nil
+}
+
+func (p *ProviderImpl) AnizipFallback(platform Platform, mId int) (ret *AnimeMetadata, err error) {
 	ret, ok := p.animeMetadataCache.Get(GetAnimeMetadataCacheKey(platform, mId))
 	if ok {
 		return ret, nil

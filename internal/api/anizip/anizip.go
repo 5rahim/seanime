@@ -93,7 +93,7 @@ func FetchAniZipMedia(from string, id int) (*Media, error) {
 	from = reqEvent.From
 	id = reqEvent.Id
 
-	apiUrl := "https://api.ani.zip/mappings?" + from + "_id=" + strconv.Itoa(id)
+	apiUrl := "https://api.ani.zip/v1/episodes?" + from + "_id=" + strconv.Itoa(id)
 
 	// Send an HTTP GET request
 	response, err := http.Get(apiUrl)

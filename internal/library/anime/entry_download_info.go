@@ -76,7 +76,11 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 	if opts.AnimeMetadata == nil {
 		return nil, errors.New("could not get anime metadata")
 	}
-	if opts.Media.GetCurrentEpisodeCount() == -1 {
+	currentEpisodeCount := opts.Media.GetCurrentEpisodeCount()
+	if currentEpisodeCount == -1 && opts.AnimeMetadata != nil {
+		currentEpisodeCount = opts.AnimeMetadata.GetCurrentEpisodeCount()
+	}
+	if currentEpisodeCount == -1 {
 		return nil, errors.New("could not get current media episode count")
 	}
 
@@ -88,7 +92,7 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 	discrepancy := FindDiscrepancy(opts.Media, opts.AnimeMetadata)
 
 	// AniList is the source of truth for episode numbers
-	epSlice := newEpisodeSlice(opts.Media.GetCurrentEpisodeCount())
+	epSlice := newEpisodeSlice(currentEpisodeCount)
 
 	// Handle discrepancies
 	if discrepancy != DiscrepancyNone {
@@ -102,10 +106,10 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 
 		// If AniList includes specials, but AniDB does not
 		if discrepancy == DiscrepancyAniListCountsSpecials {
-			diff := opts.Media.GetCurrentEpisodeCount() - opts.AnimeMetadata.GetMainEpisodeCount()
+			diff := currentEpisodeCount - opts.AnimeMetadata.GetMainEpisodeCount()
 			epSlice.trimEnd(diff)
 			for i := 0; i < diff; i++ {
-				epSlice.add(opts.Media.GetCurrentEpisodeCount()-i, "S"+strconv.Itoa(i+1))
+				epSlice.add(currentEpisodeCount-i, "S"+strconv.Itoa(i+1))
 			}
 		}
 

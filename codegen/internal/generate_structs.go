@@ -73,6 +73,7 @@ var typePrefixesByPackage = map[string]string{
 	"discordrpc":             "DiscordRPC_",
 	"discordrpc_presence":    "DiscordRPC_",
 	"anizip":                 "Anizip_",
+	"animap":                 "Animap_",
 	"onlinestream":           "Onlinestream_",
 	"onlinestream_providers": "Onlinestream_",
 	"onlinestream_sources":   "Onlinestream_",
