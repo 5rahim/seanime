@@ -1,9 +1,7 @@
 import { AutoplayState } from "@/app/(main)/_features/progress-tracking/_lib/autoplay"
-import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { logger } from "@/lib/helpers/debug"
-import Image from "next/image"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
 
 interface AutoplayCountdownModalProps {
@@ -83,35 +81,35 @@ export function AutoplayCountdownModal({
                      </p> */}
                 </div>
 
-                <div className="space-y-2">
-                    {episodeInfo.image && (
-                        <div className="size-16 rounded-full relative mx-auto overflow-hidden">
-                            <Image
-                                src={episodeInfo.image}
-                                alt="episode thumbnail"
-                                fill
-                                className="object-cover object-center"
-                                placeholder={imageShimmer(64, 64)}
-                            />
-                        </div>
-                    )}
+                {/*<div className="space-y-2">*/}
+                {/*    {episodeInfo.image && (*/}
+                {/*        <div className="size-16 rounded-full relative mx-auto overflow-hidden">*/}
+                {/*            <Image*/}
+                {/*                src={episodeInfo.image}*/}
+                {/*                alt="episode thumbnail"*/}
+                {/*                fill*/}
+                {/*                className="object-cover object-center"*/}
+                {/*                placeholder={imageShimmer(64, 64)}*/}
+                {/*            />*/}
+                {/*        </div>*/}
+                {/*    )}*/}
 
-                    <div>
-                        <h4 className="font-medium text-lg line-clamp-1">
-                            {episodeInfo.title}
-                        </h4>
+                {/*    <div>*/}
+                {/*        <h4 className="font-medium text-lg line-clamp-1">*/}
+                {/*            {episodeInfo.title}*/}
+                {/*        </h4>*/}
 
-                        {episodeInfo.episodeTitle && (
-                            <p className="text-[--muted] text-sm line-clamp-2">
-                                {episodeInfo.episodeTitle}
-                            </p>
-                        )}
+                {/*        {episodeInfo.episodeTitle && (*/}
+                {/*            <p className="text-[--muted] text-sm line-clamp-2">*/}
+                {/*                {episodeInfo.episodeTitle}*/}
+                {/*            </p>*/}
+                {/*        )}*/}
 
-                        <p className="text-xs text-[--muted] mt-1">
-                            {getStreamingTypeLabel()}
-                        </p>
-                    </div>
-                </div>
+                {/*        <p className="text-xs text-[--muted] mt-1">*/}
+                {/*            {getStreamingTypeLabel()}*/}
+                {/*        </p>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
 
                 <div className="flex gap-2 pt-2">
                     <Button
