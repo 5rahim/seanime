@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"seanime/internal/constants"
 	"seanime/internal/hook"
-	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strconv"
 
@@ -113,10 +112,6 @@ func FetchAnimapMedia(from string, id int) (*Anime, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
-
-	if id == 21 {
-		util.Spew(response.StatusCode)
-	}
 
 	if response.StatusCode != 200 {
 		return nil, errors.New("not found on Animap")

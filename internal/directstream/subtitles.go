@@ -80,7 +80,7 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 	subtitleStreamId := uuid.New().String()
 	s.activeSubtitleStreams.Set(subtitleStreamId, subtitleStream)
 
-	subtitleCh, errCh, startedCh := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset)
+	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset)
 
 	firstEventSentCh := make(chan struct{})
 	closeFirstEventSentOnce := sync.Once{}
@@ -191,21 +191,21 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 		}
 	}()
 
-	// Then wait for first subtitle event or timeout to prevent indefinite stalling
-	if offset > 0 {
-		// Wait for cluster to be found first
-		<-startedCh
-
-		select {
-		case <-firstEventSentCh:
-			s.logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event received, continuing")
-		case <-time.After(3 * time.Second):
-			s.logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle timeout reached (3s), continuing without waiting")
-		case <-ctx.Done():
-			s.logger.Debug().Int64("offset", offset).Msg("directstream: Context cancelled while waiting for first subtitle")
-			return
-		}
-	}
+	//// Then wait for first subtitle event or timeout to prevent indefinite stalling
+	//if offset > 0 {
+	//	// Wait for cluster to be found first
+	//	<-startedCh
+	//
+	//	select {
+	//	case <-firstEventSentCh:
+	//		s.logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event received, continuing")
+	//	case <-time.After(3 * time.Second):
+	//		s.logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle timeout reached (3s), continuing without waiting")
+	//	case <-ctx.Done():
+	//		s.logger.Debug().Int64("offset", offset).Msg("directstream: Context cancelled while waiting for first subtitle")
+	//		return
+	//	}
+	//}
 }
 
 // streamSubtitles starts the subtitle stream.
