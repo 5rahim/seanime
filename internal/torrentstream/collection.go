@@ -46,7 +46,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			continue
 		}
 		if *list.Status == anilist.MediaListStatusCurrent {
-			currentlyWatching = list
+			currentlyWatching = list.CopyT()
 			continue
 		}
 	}

@@ -8,6 +8,7 @@ import (
 
 type (
 	AnimeListEntry = AnimeCollection_MediaListCollection_Lists_Entries
+	AnimeList      = AnimeCollection_MediaListCollection_Lists
 
 	EntryDate struct {
 		Year  *int `json:"year,omitempty"`
@@ -223,6 +224,22 @@ func (ac *AnimeCollection) Copy() *AnimeCollection {
 		return nil
 	}
 	var copy AnimeCollection
+	err = json.Unmarshal(marshaled, &copy)
+	if err != nil {
+		return nil
+	}
+	return &copy
+}
+
+func (ac *AnimeList) CopyT() *AnimeCollection_MediaListCollection_Lists {
+	if ac == nil {
+		return nil
+	}
+	marshaled, err := json.Marshal(ac)
+	if err != nil {
+		return nil
+	}
+	var copy AnimeCollection_MediaListCollection_Lists
 	err = json.Unmarshal(marshaled, &copy)
 	if err != nil {
 		return nil

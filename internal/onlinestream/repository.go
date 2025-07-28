@@ -103,7 +103,7 @@ func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 //
 //	e.g., onlinestream_zoro_episode-data_123
 func (r *Repository) getFcEpisodeDataBucket(provider string, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*2)
 }
 
 // getFcEpisodeListBucket returns a episode data bucket for the provider and mediaId.
