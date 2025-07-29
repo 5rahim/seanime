@@ -38,7 +38,12 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
 
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h4>Playlists</h4>
+                        <div>
+                            <h4>Playlists</h4>
+                            <p className="text-[--muted] text-sm">
+                                Playlists only work with system media players and local files.
+                            </p>
+                        </div>
                         <div className="flex gap-2 items-center md:pr-8">
                             <PlaylistModal
                                 trigger={

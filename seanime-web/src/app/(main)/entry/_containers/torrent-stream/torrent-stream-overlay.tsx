@@ -187,7 +187,7 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                             <span>{status.seeders}</span>
                         </div>
 
-                        <div className="space-x-1 mb-0.5">
+                        <div className="space-x-1">
                             <BiDownArrow className="inline-block mr-2" />
                             {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
                         </div>
