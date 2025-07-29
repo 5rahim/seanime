@@ -35,7 +35,7 @@ export const __torrentstream__isLoadedAtom = atom<boolean>(false)
 // export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>("SEARCHING_TORRENTS")
 // export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Loaded)
 
-export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNativePlayerComponent?: boolean }) {
+export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNativePlayerComponent?: boolean | string }) {
 
     const [nativePlayerState, setNativePlayerState] = useAtom(nativePlayer_stateAtom)
 
@@ -100,30 +100,41 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                 {/* Native player is fullscreen */}
                 {/* It's integrated into the media controller */}
                 {nativePlayerState.active && !nativePlayerState.miniPlayer && status &&
-                    <div className="absolute left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
-                        <div className={cn(inter.className, "flex-wrap w-fit h-14 flex gap-3 items-center text-sm lg:text-base pointer-events-auto")}>
-
-                            <span
-                                className={cn("text-green-300",
-                                    { "text-[--muted] animate-pulse": status.progressPercentage < 5 })}
-                            >{status.progressPercentage.toFixed(
-                                2)}%</span>
+                    <div
+                        className={cn(
+                            "absolute left-0 top-8 w-full flex justify-center z-[100] pointer-events-none",
+                            isNativePlayerComponent === "info" && "relative justify-left w-fit top-0 items-center text-white/90",
+                            isNativePlayerComponent === "control-bar" && "relative justify-left w-fit top-0 h-full flex items-center px-2 truncate",
+                        )}
+                    >
+                        <div
+                            className={cn(
+                                "flex-wrap w-fit h-14 flex gap-3 items-center text-sm pointer-events-auto",
+                                isNativePlayerComponent === "info" && "!font-medium h-auto py-1",
+                            )}
+                        >
 
                             <div className="space-x-1"><BiGroup className="inline-block text-lg" />
                                 <span>{status.seeders}</span>
                             </div>
 
-                            <div className="space-x-1 mb-0.5">
+                            <div className="space-x-1">
                                 <BiDownArrow className="inline-block mr-2" />
                                 {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
                             </div>
+
+                            <span
+                                className={cn("text-[--muted]",
+                                    { "text-[--muted] animate-pulse": status.progressPercentage < 5 })}
+                            >{status.progressPercentage.toFixed(
+                                2)}%</span>
 
                             <div className="space-x-1">
                                 <BiUpArrow className="inline-block mr-2" />
                                 {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
                             </div>
 
-                            <Tooltip
+                            {isNativePlayerComponent !== "control-bar" && isNativePlayerComponent !== "info" && <Tooltip
                                 trigger={<IconButton
                                     onClick={() => stop()}
                                     loading={isPending}
@@ -132,7 +143,7 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                                 />}
                             >
                                 Stop stream
-                            </Tooltip>
+                            </Tooltip>}
                         </div>
                     </div>}
 

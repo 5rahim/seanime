@@ -54,6 +54,7 @@ import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } f
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
+import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { toast } from "sonner"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
 import { useServerStatus } from "../../_hooks/use-server-status"
@@ -940,6 +941,7 @@ export function NativePlayer() {
     return (
         <>
             <NativePlayerKeybindingsModal />
+            {state.active && !state.miniPlayer && <RemoveScrollBar />}
 
             <NativePlayerDrawer
                 open={state.active}
@@ -1033,8 +1035,6 @@ export function NativePlayer() {
                                 />
 
                                 <FlashNotificationDisplay />
-
-                                <TorrentStreamOverlay isNativePlayerComponent />
 
                                 {/* Buffer Loading Indicator */}
                                 <MediaLoadingIndicator
@@ -1137,6 +1137,7 @@ export function NativePlayer() {
                                             {state.playbackInfo?.episode?.episodeTitle}
                                         </p>
                                     </div>
+                                    {/*<TorrentStreamOverlay isNativePlayerComponent="info" />*/}
                                 </div>}
 
                                 <MediaSettingsMenu hidden anchor="auto">
@@ -1208,6 +1209,8 @@ export function NativePlayer() {
                                     <MediaTimeDisplay showDuration />
 
                                     <span className="control-spacer" />
+
+                                    <TorrentStreamOverlay isNativePlayerComponent="control-bar" />
 
                                     <MediaAudioTrackMenuButton
                                         className="native-player-button" data-mini-player={state.miniPlayer}
