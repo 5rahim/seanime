@@ -3,11 +3,13 @@ package playbackmanager
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"sync"
+	"sync/atomic"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -24,7 +26,7 @@ type (
 
 		playingLf             *anime.LocalFile        // The currently playing local file
 		playingMediaListEntry *anilist.AnimeListEntry // The currently playing media entry
-		completedCurrent      bool                    // Whether the current episode has been completed
+		completedCurrent      atomic.Bool             // Whether the current episode has been completed
 
 		currentState *PlaylistState // This is sent to the client to show the current playlist state
 
@@ -44,13 +46,18 @@ type (
 )
 
 func newPlaylistHub(pm *PlaybackManager) *playlistHub {
-	return &playlistHub{
+	ret := &playlistHub{
 		logger:           pm.Logger,
 		wsEventManager:   pm.wsEventManager,
 		playbackManager:  pm,
 		requestNewFileCh: make(chan string, 1),
 		endOfPlaylistCh:  make(chan struct{}, 1),
+		completedCurrent: atomic.Bool{},
 	}
+
+	ret.completedCurrent.Store(false)
+
+	return ret
 }
 
 func (h *playlistHub) loadPlaylist(playlist *anime.Playlist) {
@@ -110,7 +117,7 @@ func (h *playlistHub) playNextFile() (*anime.LocalFile, bool) {
 
 	h.logger.Debug().Str("path", h.nextLocalFile.Path).Str("cmd", "playNextFile").Msg("playlist hub: Requesting next file")
 	h.requestNewFileCh <- h.nextLocalFile.Path
-	h.completedCurrent = false
+	h.completedCurrent.Store(false)
 
 	return nil, false
 }
@@ -120,7 +127,6 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.AnimeListEntry, currLf
 		return
 	}
 
-	h.completedCurrent = false
 	h.playingLf = currLf
 	h.playingMediaListEntry = currListEntry
 
@@ -154,6 +160,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.AnimeListEntry, currLf
 	}
 	playlistState.Remaining = remaining
 	h.currentState = playlistState
+	h.completedCurrent.Store(false)
 
 	h.logger.Debug().Str("path", currLf.Path).Msgf("playlist hub: Video started")
 
@@ -165,7 +172,8 @@ func (h *playlistHub) onVideoCompleted(currListEntry *anilist.AnimeListEntry, cu
 		return
 	}
 
-	h.completedCurrent = true
+	h.logger.Debug().Str("path", currLf.Path).Msgf("playlist hub: Video completed")
+	h.completedCurrent.Store(true)
 
 	return
 }
@@ -194,7 +202,9 @@ func (h *playlistHub) onTrackingStopped() {
 	//	h.endOfPlaylistCh <- struct{}{}
 	//}
 
-	if !h.completedCurrent {
+	h.logger.Debug().Msgf("playlist hub: Tracking stopped, completed current: %v", h.completedCurrent.Load())
+
+	if !h.completedCurrent.Load() {
 		h.reset()
 	}
 
@@ -207,15 +217,17 @@ func (h *playlistHub) onTrackingError() {
 	}
 
 	// When tracking has stopped, request next file
-	if h.completedCurrent {
+	h.logger.Debug().Msgf("playlist hub: Tracking error, completed current: %v", h.completedCurrent.Load())
+	if h.completedCurrent.Load() {
+		h.logger.Debug().Msg("playlist hub: Assuming current episode is completed")
 		if h.nextLocalFile != nil {
 			h.logger.Debug().Str("path", h.nextLocalFile.Path).Msg("playlist hub: Requesting next file")
 			h.requestNewFileCh <- h.nextLocalFile.Path
-			h.completedCurrent = false
+			//h.completedCurrent.Store(false) do not reset completedCurrent here
 		} else {
 			h.logger.Debug().Msg("playlist hub: End of playlist")
 			h.endOfPlaylistCh <- struct{}{}
-			h.completedCurrent = false
+			h.completedCurrent.Store(false)
 		}
 	}
 

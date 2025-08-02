@@ -134,7 +134,10 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                                         { "opacity-5": dimmed },
                                     )}
                                     initial={{ scale: 1.01, y: 0 }}
-                                    animate={{ scale: Math.min(1 + y * 0.0002, 1.03), y: Math.max(y * -0.9, -10) }}
+                                    animate={{
+                                        scale: Math.min(1 + y * 0.0002, 1.03),
+                                        // y: Math.max(y * -0.9, -10)
+                                    }}
                                     exit={{ scale: 1.01, y: 0 }}
                                     transition={{ duration: 0.6, ease: "easeOut" }}
                                 />
@@ -142,17 +145,17 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         )}
                     </AnimatePresence>
                     {/* {prevImage && <MotionImage
-                        data-library-header-banner-previous-image
-                        src={getImageUrl(prevImage)}
-                        alt="banner image"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className={cn(
-                            "object-cover object-center z-[1] opacity-50 transition-opacity scroll-locked-offset",
-                            { "opacity-5": dimmed },
-                        )}
+                     data-library-header-banner-previous-image
+                     src={getImageUrl(prevImage)}
+                     alt="banner image"
+                     fill
+                     quality={100}
+                     priority
+                     sizes="100vw"
+                     className={cn(
+                     "object-cover object-center z-[1] opacity-50 transition-opacity scroll-locked-offset",
+                     { "opacity-5": dimmed },
+                     )}
                      initial={{ scale: 1, y: 0 }}
                      animate={{ scale: Math.min(1 + y * 0.0002, 1.03), y: Math.max(y * -0.9, -10) }}
                      exit={{ scale: 1, y: 0 }}

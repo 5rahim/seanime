@@ -304,9 +304,6 @@ func (m *Repository) Play(path string) error {
 				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPV")
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
-			if lastWatched.Found {
-				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
-			}
 		}
 
 		return nil
@@ -330,9 +327,6 @@ func (m *Repository) Play(path string) error {
 			if err != nil {
 				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using IINA")
 				return fmt.Errorf("could not open and play video, %w", err)
-			}
-			if lastWatched.Found {
-				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
 			}
 		}
 

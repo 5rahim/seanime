@@ -117,7 +117,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                 }
             }) ?? []
             events = sortBy(events, (e) => e.episode)
-            events = sortBy(events, (e) => e.time)
+            events = sortBy(events, (e) => e.datetime)
 
             daysArray.push({
                 date: format(day, "yyyy-MM-dd"),
@@ -404,7 +404,16 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                         {events.slice(MAX_EVENT_COUNT).map((event) => (
                             <li key={event.id}>
                                 <SeaLink className="group flex gap-2" href={event.href}>
-                                    <p className="flex-1 truncate font-medium">
+                                    <p
+                                        className={cn("flex-auto truncate font-medium text-gray-100 flex items-center gap-2",
+                                            event.isWatched && calendarParams.indicateWatchedEpisodes
+                                                ? "text-[--muted]"
+                                                : "group-hover:text-gray-200")}
+                                    >
+                                        {event.isSeasonFinale && !event.isWatched &&
+                                            <FaFlag className="size-3 text-[--blue] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
+                                        {event.isWatched && calendarParams.indicateWatchedEpisodes &&
+                                            <FaCheck className="size-3 text-[--muted] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
                                         {event.name}
                                     </p>
                                     <p className="flex-none">

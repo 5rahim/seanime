@@ -136,6 +136,10 @@ type Manager interface {
 	// Anizip events
 	OnAnizipMediaRequested() *Hook[hook_resolver.Resolver]
 	OnAnizipMedia() *Hook[hook_resolver.Resolver]
+
+	// Animap events
+	OnAnimapMediaRequested() *Hook[hook_resolver.Resolver]
+	OnAnimapMedia() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -247,6 +251,9 @@ type ManagerImpl struct {
 	// Anizip events
 	onAnizipMediaRequested *Hook[hook_resolver.Resolver]
 	onAnizipMedia          *Hook[hook_resolver.Resolver]
+	// Animap events
+	onAnimapMediaRequested *Hook[hook_resolver.Resolver]
+	onAnimapMedia          *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -379,6 +386,9 @@ func (m *ManagerImpl) initHooks() {
 	// Anizip events
 	m.onAnizipMediaRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnizipMedia = &Hook[hook_resolver.Resolver]{}
+	// Animap events
+	m.onAnimapMediaRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimapMedia = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -1043,4 +1053,20 @@ func (m *ManagerImpl) OnAnizipMedia() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAnizipMedia
+}
+
+// Animap events
+
+func (m *ManagerImpl) OnAnimapMediaRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimapMediaRequested
+}
+
+func (m *ManagerImpl) OnAnimapMedia() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimapMedia
 }

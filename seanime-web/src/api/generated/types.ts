@@ -1501,6 +1501,10 @@ export type Anime_EpisodeMetadata = {
     summary?: string
     overview?: string
     isFiller?: boolean
+    /**
+     * Indicates if the episode has a real image
+     */
+    hasImage?: boolean
 }
 
 /**
@@ -2948,6 +2952,10 @@ export type Metadata_EpisodeMetadata = {
     seasonNumber: number
     absoluteEpisodeNumber: number
     anidbEid: number
+    /**
+     * Indicates if the episode has a real image
+     */
+    hasImage: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

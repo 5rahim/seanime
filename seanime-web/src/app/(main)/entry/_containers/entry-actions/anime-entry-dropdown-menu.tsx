@@ -19,13 +19,13 @@ import {
 } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-unmatch-files-modal"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { openTab } from "@/lib/helpers/browser"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi"
-import { FiDownload, FiTrash } from "react-icons/fi"
-import { LuImage } from "react-icons/lu"
+import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
+import { LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
-import { PiVideoFill } from "react-icons/pi"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
@@ -62,13 +62,21 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                         <BiFolder /> Open directory
                     </DropdownMenuItem>
 
-                    {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
-                        onClick={() => startDefaultMediaPlayer()}
-                    >
-                        <PiVideoFill /> Start external media player
-                    </DropdownMenuItem>}
-                    <DropdownMenuSeparator />
+                    {/*{serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem*/}
+                    {/*    onClick={() => startDefaultMediaPlayer()}*/}
+                    {/*>*/}
+                    {/*    <PiVideoFill /> Start external media player*/}
+                    {/*</DropdownMenuItem>}*/}
+                    {/*<DropdownMenuSeparator />*/}
                 </>}
+
+                {!!entry.anidbId && <DropdownMenuItem
+                    onClick={() => openTab(`https://anidb.net/anime/${entry.anidbId}`)}
+                    className="flex justify-between items-center"
+                >
+                    <span className="flex items-center gap-2"><LuGlobe className="text-lg" /> Open on AniDB</span>
+                    <FiArrowUpRight className="text-[--muted] text-sm" />
+                </DropdownMenuItem>}
 
                 <DropdownMenuItem
                     onClick={() => setIsMetadataManagerOpen(p => !p)}

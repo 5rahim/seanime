@@ -119,7 +119,8 @@
         --media-card-popup-background: theme('colors.gray.950');
         --hover-from-background-color: theme('colors.gray.900');
 
-        --media-accent-color: theme('colors.brand.400');
+        /*--media-accent-color: theme('colors.brand.400');*/
+        --media-accent-color: #fff;
         --media-menu-item-hover-background: rgba(255, 255, 255, 0.1);
     }
 
@@ -347,8 +348,8 @@ Player
 media-controller {
     --base: 1rem;
     font-size: calc(0.95 * var(--base));
-    font-family: Roboto, Arial, sans-serif;
-    --media-font-family: Roboto, helvetica neue, segoe ui, arial, sans-serif;
+    font-family: Inter, Inter Fallback, Roboto, Arial, sans-serif;
+    --media-font-family: Inter, Inter Fallback, Roboto, helvetica neue, segoe ui, arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     --media-secondary-color: transparent;
     --media-menu-background: rgba(21, 21, 21, 0.9);
@@ -360,6 +361,7 @@ media-controller {
     --media-preview-thumbnail-border: 2px solid #fff;
     --media-preview-thumbnail-border-radius: 2px;
     --media-tooltip-display: none;
+    /*--media-font-family: inherit;*/
 }
 
 /* The biggest size controller is tied to going fullscreen

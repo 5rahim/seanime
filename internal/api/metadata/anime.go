@@ -83,7 +83,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 		}
 	}
 
-	// If we don't have AniZip metadata, just return the metadata containing the image
+	// If we don't have Animap metadata, just return the metadata containing the image
 	if episode.IsAbsent() {
 		return ret
 	}
@@ -99,13 +99,13 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 		}
 	}
 
-	// If TVDB image is not set, use AniZip image, if that is not set, use the AniList banner image
+	// If TVDB image is not set, use Animap image, if that is not set, use the AniList banner image
 	if ret.Image == "" {
-		// Set AniZip image if TVDB image is not set
+		// Set Animap image if TVDB image is not set
 		if episode.MustGet().Image != "" {
 			ret.Image = episode.MustGet().Image
 		} else {
-			// If AniZip image is not set, use the base media image
+			// If Animap image is not set, use the base media image
 			ret.Image = aw.baseAnime.GetBannerImageSafe()
 		}
 	}

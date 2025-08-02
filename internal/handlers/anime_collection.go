@@ -222,7 +222,7 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 		for _, m := range m.GetMedia() {
 			entry, ok := animeEntryMap[m.GetID()]
 			if !ok || entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped {
-				return nil, false
+				continue
 			}
 			for _, n := range m.GetPrevious().GetNodes() {
 				ret = append(ret, formatNodeItem(n, entry))

@@ -295,6 +295,44 @@ declare namespace $app {
 
 
     /**
+     * @package animap
+     */
+
+    /**
+     * @event AnimapMediaRequestedEvent
+     * @file internal/api/animap/hook_events.go
+     * @description
+     * AnimapMediaRequestedEvent is triggered when the Animap media is requested.
+     * Prevent default to skip the default behavior and return your own data.
+     */
+    function onAnimapMediaRequested(cb: (event: AnimapMediaRequestedEvent) => void): void;
+
+    interface AnimapMediaRequestedEvent {
+        from: string;
+        id: number;
+        media?: Animap_Anime;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event AnimapMediaEvent
+     * @file internal/api/animap/hook_events.go
+     * @description
+     * AnimapMediaEvent is triggered after processing AnimapMedia.
+     */
+    function onAnimapMedia(cb: (event: AnimapMediaEvent) => void): void;
+
+    interface AnimapMediaEvent {
+        media?: Animap_Anime;
+
+        next(): void;
+    }
+
+
+    /**
      * @package anime
      */
 
@@ -2682,6 +2720,100 @@ declare namespace $app {
     }
 
     /**
+     * - Filepath: internal/api/animap/animap.go
+     */
+    interface Animap_Anime {
+        title: string;
+        titles?: Record<string, string>;
+        /**
+         * YYYY-MM-DD
+         */
+        startDate?: string;
+        /**
+         * YYYY-MM-DD
+         */
+        endDate?: string;
+        /**
+         * Finished, Airing, Upcoming, etc.
+         */
+        status: string;
+        /**
+         * TV, OVA, Movie, etc.
+         */
+        type: string;
+        /**
+         * Indexed by AniDB episode number, "1", "S1", etc.
+         */
+        episodes?: Record<string, Animap_Episode>;
+        mappings?: Animap_AnimeMapping;
+    }
+
+    /**
+     * - Filepath: internal/api/animap/animap.go
+     */
+    interface Animap_AnimeMapping {
+        anidb_id?: number;
+        anilist_id?: number;
+        kitsu_id?: number;
+        thetvdb_id?: number;
+        /**
+         * Can be int or string, forced to string
+         */
+        themoviedb_id?: string;
+        mal_id?: number;
+        livechart_id?: number;
+        /**
+         * Can be int or string, forced to string
+         */
+        anime
+        -
+        planet_id?: string;
+        anisearch_id?: number;
+        simkl_id?: number;
+        notify
+        .
+        moe_id?: string;
+        animecountdown_id?: number;
+        type?: string;
+    }
+
+    /**
+     * - Filepath: internal/api/animap/animap.go
+     */
+    interface Animap_Episode {
+        anidbEpisode: string;
+        anidbEid: number;
+        tvdbEid?: number;
+        tvdbShowId?: number;
+        /**
+         * YYYY-MM-DD
+         */
+        airDate?: string;
+        /**
+         * Title of the episode from AniDB
+         */
+        anidbTitle?: string;
+        /**
+         * Title of the episode from TVDB
+         */
+        tvdbTitle?: string;
+        overview?: string;
+        image?: string;
+        /**
+         * minutes
+         */
+        runtime?: number;
+        /**
+         * Xm
+         */
+        length?: string;
+        seasonNumber?: number;
+        seasonName?: string;
+        number: number;
+        absoluteNumber?: number;
+    }
+
+    /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
      */
     interface Anime_AutoDownloaderRule {
@@ -2840,6 +2972,10 @@ declare namespace $app {
         summary?: string;
         overview?: string;
         isFiller?: boolean;
+        /**
+         * Indicates if the episode has a real image
+         */
+        hasImage?: boolean;
     }
 
     /**
@@ -3368,6 +3504,10 @@ declare namespace $app {
         seasonNumber: number;
         absoluteEpisodeNumber: number;
         anidbEid: number;
+        /**
+         * Indicates if the episode has a real image
+         */
+        hasImage: boolean;
     }
 
     /**

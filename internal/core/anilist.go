@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/events"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/user"
 )
@@ -73,6 +74,9 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 			go f()
 		}
 	}()
+
+	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
+	a.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 
 	return ret, nil
 }

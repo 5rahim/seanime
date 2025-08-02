@@ -5,6 +5,7 @@ import (
 	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
 	"strings"
+	"time"
 )
 
 const (
@@ -77,6 +78,7 @@ type (
 		SeasonNumber          int    `json:"seasonNumber"`
 		AbsoluteEpisodeNumber int    `json:"absoluteEpisodeNumber"`
 		AnidbEid              int    `json:"anidbEid"`
+		HasImage              bool   `json:"hasImage"` // Indicates if the episode has a real image
 	}
 )
 
@@ -114,6 +116,28 @@ func (m *AnimeMetadata) GetMainEpisodeCount() int {
 		return 0
 	}
 	return m.EpisodeCount
+}
+
+func (m *AnimeMetadata) GetCurrentEpisodeCount() int {
+	if m == nil {
+		return 0
+	}
+	count := 0
+	for _, ep := range m.Episodes {
+		firstChar := ep.Episode[0]
+		if firstChar >= '0' && firstChar <= '9' {
+			// Check if aired
+			if ep.AirDate != "" {
+				date, err := time.Parse("2006-01-02", ep.AirDate)
+				if err == nil {
+					if date.Before(time.Now()) || date.Equal(time.Now()) {
+						count++
+					}
+				}
+			}
+		}
+	}
+	return count
 }
 
 // GetOffset returns the offset of the first episode relative to the absolute episode number.

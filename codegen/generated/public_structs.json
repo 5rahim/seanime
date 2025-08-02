@@ -7898,6 +7898,143 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes",
+    "formattedName": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous",
+    "formattedName": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes",
+        "usedStructName": "anilist.AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Previous_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes",
+    "formattedName": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming",
+    "formattedName": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes",
+        "typescriptType": "Array\u003cAL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes\u003e",
+        "usedTypescriptType": "AL_AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes",
+        "usedStructName": "anilist.AnimeAiringScheduleRaw_Page_Media_AnimeSchedule_Upcoming_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw_Page",
+    "formattedName": "AL_AnimeAiringScheduleRaw_Page",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]AnimeSchedule",
+        "typescriptType": "Array\u003cAL_AnimeSchedule\u003e",
+        "usedTypescriptType": "AL_AnimeSchedule",
+        "usedStructName": "anilist.AnimeSchedule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "UpdateMediaListEntry_SaveMediaListEntry",
     "formattedName": "AL_UpdateMediaListEntry_SaveMediaListEntry",
     "package": "anilist",
@@ -11048,6 +11185,27 @@
         "typescriptType": "AL_AnimeAiringSchedule_Preceding",
         "usedTypescriptType": "AL_AnimeAiringSchedule_Preceding",
         "usedStructName": "anilist.AnimeAiringSchedule_Preceding",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeAiringScheduleRaw",
+    "formattedName": "AL_AnimeAiringScheduleRaw",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Page",
+        "jsonName": "Page",
+        "goType": "AnimeAiringScheduleRaw_Page",
+        "typescriptType": "AL_AnimeAiringScheduleRaw_Page",
+        "usedTypescriptType": "AL_AnimeAiringScheduleRaw_Page",
+        "usedStructName": "anilist.AnimeAiringScheduleRaw_Page",
         "required": false,
         "public": true,
         "comments": []
@@ -23574,6 +23732,471 @@
     "comments": []
   },
   {
+    "filepath": "../internal/api/animap/animap.go",
+    "filename": "animap.go",
+    "name": "Anime",
+    "formattedName": "Animap_Anime",
+    "package": "animap",
+    "fields": [
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Titles",
+        "jsonName": "titles",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " YYYY-MM-DD"
+        ]
+      },
+      {
+        "name": "EndDate",
+        "jsonName": "endDate",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " YYYY-MM-DD"
+        ]
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Finished, Airing, Upcoming, etc."
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " TV, OVA, Movie, etc."
+        ]
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "map[string]Episode",
+        "typescriptType": "Record\u003cstring, Animap_Episode\u003e",
+        "usedTypescriptType": "Animap_Episode",
+        "usedStructName": "animap.Episode",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Indexed by AniDB episode number, \"1\", \"S1\", etc."
+        ]
+      },
+      {
+        "name": "Mappings",
+        "jsonName": "mappings",
+        "goType": "AnimeMapping",
+        "typescriptType": "Animap_AnimeMapping",
+        "usedTypescriptType": "Animap_AnimeMapping",
+        "usedStructName": "animap.AnimeMapping",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/animap/animap.go",
+    "filename": "animap.go",
+    "name": "AnimeMapping",
+    "formattedName": "Animap_AnimeMapping",
+    "package": "animap",
+    "fields": [
+      {
+        "name": "AnidbID",
+        "jsonName": "anidb_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistID",
+        "jsonName": "anilist_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "KitsuID",
+        "jsonName": "kitsu_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TheTvdbID",
+        "jsonName": "thetvdb_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TheMovieDbID",
+        "jsonName": "themoviedb_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Can be int or string, forced to string"
+        ]
+      },
+      {
+        "name": "MalID",
+        "jsonName": "mal_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LivechartID",
+        "jsonName": "livechart_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimePlanetID",
+        "jsonName": "anime-planet_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Can be int or string, forced to string"
+        ]
+      },
+      {
+        "name": "AnisearchID",
+        "jsonName": "anisearch_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SimklID",
+        "jsonName": "simkl_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NotifyMoeID",
+        "jsonName": "notify.moe_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimecountdownID",
+        "jsonName": "animecountdown_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/animap/animap.go",
+    "filename": "animap.go",
+    "name": "Episode",
+    "formattedName": "Animap_Episode",
+    "package": "animap",
+    "fields": [
+      {
+        "name": "AnidbEpisode",
+        "jsonName": "anidbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnidbId",
+        "jsonName": "anidbEid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TvdbId",
+        "jsonName": "tvdbEid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TvdbShowId",
+        "jsonName": "tvdbShowId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AirDate",
+        "jsonName": "airDate",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " YYYY-MM-DD"
+        ]
+      },
+      {
+        "name": "AnidbTitle",
+        "jsonName": "anidbTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Title of the episode from AniDB"
+        ]
+      },
+      {
+        "name": "TvdbTitle",
+        "jsonName": "tvdbTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Title of the episode from TVDB"
+        ]
+      },
+      {
+        "name": "Overview",
+        "jsonName": "overview",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Runtime",
+        "jsonName": "runtime",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " minutes"
+        ]
+      },
+      {
+        "name": "Length",
+        "jsonName": "length",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Xm"
+        ]
+      },
+      {
+        "name": "SeasonNumber",
+        "jsonName": "seasonNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeasonName",
+        "jsonName": "seasonName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AbsoluteNumber",
+        "jsonName": "absoluteNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/animap/animap.go",
+    "filename": "animap.go",
+    "name": "Cache",
+    "formattedName": "Animap_Cache",
+    "package": "animap",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
+  },
+  {
+    "filepath": "../internal/api/animap/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimapMediaRequestedEvent",
+    "formattedName": "Animap_AnimapMediaRequestedEvent",
+    "package": "animap",
+    "fields": [
+      {
+        "name": "From",
+        "jsonName": "from",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Id",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "Anime",
+        "typescriptType": "Animap_Anime",
+        "usedTypescriptType": "Animap_Anime",
+        "usedStructName": "animap.Anime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimapMediaRequestedEvent is triggered when the Animap media is requested.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/api/animap/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimapMediaEvent",
+    "formattedName": "Animap_AnimapMediaEvent",
+    "package": "animap",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "Anime",
+        "typescriptType": "Animap_Anime",
+        "usedTypescriptType": "Animap_Anime",
+        "usedStructName": "animap.Anime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimapMediaEvent is triggered after processing AnimapMedia."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/api/anizip/anizip.go",
     "filename": "anizip.go",
     "name": "Episode",
@@ -25615,6 +26238,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "animapCache",
+        "jsonName": "animapCache",
+        "goType": "animap.Cache",
+        "typescriptType": "Animap_Cache",
+        "usedTypescriptType": "Animap_Cache",
+        "usedStructName": "animap.Cache",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -25968,6 +26602,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HasImage",
+        "jsonName": "hasImage",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Indicates if the episode has a real image"
+        ]
       }
     ],
     "comments": []
@@ -41130,6 +41775,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "onAnimapMediaRequested",
+        "jsonName": "onAnimapMediaRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimapMedia",
+        "jsonName": "onAnimapMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -42839,6 +43502,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HasImage",
+        "jsonName": "hasImage",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Indicates if the episode has a real image"
+        ]
       }
     ],
     "comments": []

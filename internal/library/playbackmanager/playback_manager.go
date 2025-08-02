@@ -8,7 +8,6 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
-	"seanime/internal/database/db_bridge"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/hook"
@@ -659,15 +658,15 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 		}
 	}()
 
-	// Delete playlist in goroutine
-	go func() {
-		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
-		if err != nil {
-			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
-			return
-		}
-		pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
-	}()
+	//// Delete playlist in goroutine
+	//go func() {
+	//	err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
+	//	if err != nil {
+	//		pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
+	//		return
+	//	}
+	//	pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
+	//}()
 
 	return nil
 }

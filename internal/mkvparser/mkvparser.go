@@ -872,24 +872,12 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 }
 
 func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64, headPos int64) {
-	// Handle content encoding (compression)
 	if track.contentEncodings != nil {
-		for _, encoding := range track.contentEncodings.ContentEncoding {
-			if encoding.ContentCompression != nil && encoding.ContentCompression.ContentCompAlgo == 0 {
-				zlibReader, err := zlib.NewReader(bytes.NewReader(subtitleData))
-				if err != nil {
-					h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to create zlib reader for subtitle frame")
-					continue
-				}
-				decompressedData, err := io.ReadAll(zlibReader)
-				_ = zlibReader.Close()
-				if err != nil {
-					h.logger.Error().Err(err).Uint64("trackNum", trackNum).Msg("mkvparser: Failed to decompress zlib subtitle frame")
-					continue
-				}
-				subtitleData = decompressedData
-				break
+		if zr, err := zlib.NewReader(bytes.NewReader(subtitleData)); err == nil {
+			if buf, err := io.ReadAll(zr); err == nil {
+				subtitleData = buf
 			}
+			_ = zr.Close()
 		}
 	}
 
@@ -1204,4 +1192,30 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 
 		currentReadEndPos = readStartPos + int64(lenOverlapCarried)
 	}
+}
+
+// looksLikeZlib returns true if the first two bytes look like a valid zlib wrapper header.
+func looksLikeZlib(b []byte) bool {
+	if len(b) < 2 {
+		return false
+	}
+	cmf, flg := b[0], b[1]
+
+	// 1) Check compression method = DEFLATE (CM bits = 8)
+	if cmf&0x0F != 8 {
+		return false
+	}
+
+	// 2) Full 16‑bit header must be a multiple of 31
+	hdr := (uint16(cmf) << 8) | uint16(flg)
+	if hdr%31 != 0 {
+		return false
+	}
+
+	// 3) No preset dictionary (FDICT flag must be zero, bit 5)
+	if flg&0x20 != 0 {
+		return false
+	}
+
+	return true
 }
