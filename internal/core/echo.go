@@ -27,6 +27,11 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 		log.Fatal(err)
 	}
 
+	if app.Config.Server.Tls.Enabled {
+		app.Logger.Info().Msg("app: TLS is enabled, adding security middleware (HSTS).")
+		e.Use(middleware.Secure())
+	}
+
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Filesystem: http.FS(distFS),
 		Browse:     true,
