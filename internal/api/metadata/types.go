@@ -47,6 +47,8 @@ type (
 		EpisodeCount int                         `json:"episodeCount"`
 		SpecialCount int                         `json:"specialCount"`
 		Mappings     *AnimeMappings              `json:"mappings"`
+
+		currentEpisodeCount int `json:"-"`
 	}
 
 	AnimeMappings struct {
@@ -122,6 +124,9 @@ func (m *AnimeMetadata) GetCurrentEpisodeCount() int {
 	if m == nil {
 		return 0
 	}
+	if m.currentEpisodeCount > 0 {
+		return m.currentEpisodeCount
+	}
 	count := 0
 	for _, ep := range m.Episodes {
 		firstChar := ep.Episode[0]
@@ -137,6 +142,7 @@ func (m *AnimeMetadata) GetCurrentEpisodeCount() int {
 			}
 		}
 	}
+	m.currentEpisodeCount = count
 	return count
 }
 

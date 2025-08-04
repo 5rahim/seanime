@@ -126,7 +126,7 @@ func (p *NativePlayer) Unsubscribe(id string) {
 	p.subscribers.Delete(id)
 }
 
-func (p *NativePlayer) NotifySubscribers(event VideoEvent) {
+func (p *NativePlayer) notifySubscribers(event VideoEvent) {
 	p.subscribers.Range(func(id string, subscriber *Subscriber) bool {
 		select {
 		case subscriber.eventCh <- event:
@@ -158,7 +158,7 @@ func (p *NativePlayer) setPlaybackStatus(do func()) {
 	p.playbackStatusMu.Lock()
 	defer p.playbackStatusMu.Unlock()
 	do()
-	p.NotifySubscribers(&VideoStatusEvent{
+	p.notifySubscribers(&VideoStatusEvent{
 		BaseVideoEvent: BaseVideoEvent{
 			ClientId: p.playbackStatus.ClientId,
 		},

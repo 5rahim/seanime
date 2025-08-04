@@ -65,7 +65,7 @@ type (
 		Previews                  []*Preview                                       `json:"previews"`                  // TorrentPreview for each torrent
 		TorrentMetadata           map[string]*TorrentMetadata                      `json:"torrentMetadata"`           // Torrent metadata
 		DebridInstantAvailability map[string]debrid.TorrentItemInstantAvailability `json:"debridInstantAvailability"` // Debrid instant availability
-		AnimeMetadata             *metadata.AnimeMetadata                          `json:"animeMetadata"`             // AniZip media
+		AnimeMetadata             *metadata.AnimeMetadata                          `json:"animeMetadata"`             // Animap media
 	}
 )
 
@@ -90,7 +90,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 
 	var torrents []*hibiketorrent.AnimeTorrent
 
-	// Fetch Anizip media
+	// Fetch Animap media
 	animeMetadata := mo.None[*metadata.AnimeMetadata]()
 	animeMetadataF, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
 	if err == nil {
@@ -115,7 +115,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 		},
 	}
 
-	//// Force simple search if AniZip media is absent
+	//// Force simple search if Animap media is absent
 	//if opts.Type == AnimeSearchTypeSmart && animeMetadata.IsAbsent() {
 	//	opts.Type = AnimeSearchTypeSimple
 	//}
@@ -135,7 +135,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 			if animeMetadata.MustGet().GetMappings() != nil {
 
 				anidbAID = animeMetadata.MustGet().GetMappings().AnidbId
-				// Find Anizip Episode based on inputted episode number
+				// Find Animap Episode based on inputted episode number
 				episodeMetadata, found := animeMetadata.MustGet().FindEpisode(strconv.Itoa(opts.EpisodeNumber))
 				if found {
 					anidbEID = episodeMetadata.AnidbEid
@@ -420,7 +420,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 			if len(parsedData.EpisodeNumber) == 1 && parsedData.EpisodeNumber[0] != strconv.Itoa(opts.searchOpts.EpisodeNumber) {
 				displayTitle = fmt.Sprintf("Episode %s", parsedData.EpisodeNumber[0])
 			}
-			// If the episode number could not be found in the AniZip media, create a new episode
+			// If the episode number could not be found in the Animap media, create a new episode
 			episode = &anime.Episode{
 				Type:                  anime.LocalFileTypeMain,
 				DisplayTitle:          displayTitle,

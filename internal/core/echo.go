@@ -9,10 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4/middleware"
-
 	"github.com/goccy/go-json"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {

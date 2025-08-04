@@ -308,13 +308,13 @@ declare namespace $app {
     function onAnimapMediaRequested(cb: (event: AnimapMediaRequestedEvent) => void): void;
 
     interface AnimapMediaRequestedEvent {
-        from: string;
-        id: number;
-        media?: Animap_Anime;
-
         next(): void;
 
         preventDefault(): void;
+
+        from: string;
+        id: number;
+        media?: Animap_Anime;
     }
 
     /**
@@ -326,9 +326,9 @@ declare namespace $app {
     function onAnimapMedia(cb: (event: AnimapMediaEvent) => void): void;
 
     interface AnimapMediaEvent {
-        media?: Animap_Anime;
-
         next(): void;
+
+        media?: Animap_Anime;
     }
 
 
@@ -2765,14 +2765,10 @@ declare namespace $app {
         /**
          * Can be int or string, forced to string
          */
-        anime
-        -
-        planet_id?: string;
+        animeplanet_id?: string;
         anisearch_id?: number;
         simkl_id?: number;
-        notify
-        .
-        moe_id?: string;
+        notifymoe_id?: string;
         animecountdown_id?: number;
         type?: string;
     }

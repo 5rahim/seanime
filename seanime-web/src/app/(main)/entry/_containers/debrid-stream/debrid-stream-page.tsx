@@ -53,7 +53,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
         if (!episodeCollection?.hasMappingError) {
             setAutoSelect(serverStatus?.debridSettings?.streamAutoSelect)
         } else {
-            // Fall back to manual select if no download info (no AniZip data)
+            // Fall back to manual select if no download info (no Animap data)
             setAutoSelect(false)
         }
     }, [serverStatus?.torrentstreamSettings?.autoSelect, episodeCollection])

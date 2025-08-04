@@ -76,7 +76,7 @@ func (p *NativePlayer) AddSubtitleTrack(clientId string, track *mkvparser.TrackI
 // It should only be called by a module.
 func (p *NativePlayer) Stop() {
 	p.logger.Debug().Msg("nativeplayer: Stopping playback, notifying subscribers")
-	p.NotifySubscribers(&VideoTerminatedEvent{
+	p.notifySubscribers(&VideoTerminatedEvent{
 		BaseVideoEvent: BaseVideoEvent{ClientId: p.playbackStatus.ClientId},
 	})
 	p.sendPlayerEvent(string(ServerEventTerminate), nil)
@@ -227,7 +227,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 					// 	p.setPlaybackStatus(func() {
 					// 		event := &videoStartedPayload{}
 					// 		if err := playerEvent.UnmarshalAs(&event); err != nil {
-					// 			p.NotifySubscribers(&VideoStartedEvent{
+					// 			p.notifySubscribers(&VideoStartedEvent{
 					// 				BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 					// 			})
 					// 		}
@@ -241,12 +241,12 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
 							})
-							p.NotifySubscribers(&VideoPausedEvent{
+							p.notifySubscribers(&VideoPausedEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
 							})
-							p.NotifySubscribers(&VideoStatusEvent{
+							p.notifySubscribers(&VideoStatusEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								Status:         *p.playbackStatus,
 							})
@@ -260,12 +260,12 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
 							})
-							p.NotifySubscribers(&VideoResumedEvent{
+							p.notifySubscribers(&VideoResumedEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
 							})
-							p.NotifySubscribers(&VideoStatusEvent{
+							p.notifySubscribers(&VideoStatusEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								Status:         *p.playbackStatus,
 							})
@@ -278,7 +278,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
 							})
-							p.NotifySubscribers(&VideoCompletedEvent{
+							p.notifySubscribers(&VideoCompletedEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
@@ -290,7 +290,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							p.setPlaybackStatus(func() {
 								p.playbackStatus.ClientId = playerEvent.ClientId
 							})
-							p.NotifySubscribers(&VideoEndedEvent{
+							p.notifySubscribers(&VideoEndedEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								AutoNext:       payload.AutoNext,
 							})
@@ -301,7 +301,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							p.setPlaybackStatus(func() {
 								p.playbackStatus.ClientId = playerEvent.ClientId
 							})
-							p.NotifySubscribers(&VideoErrorEvent{
+							p.notifySubscribers(&VideoErrorEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								Error:          payload.Error,
 							})
@@ -334,7 +334,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 										p.playbackStatus.CurrentTime = payload.CurrentTime
 										p.playbackStatus.Duration = payload.Duration
 									})
-									p.NotifySubscribers(&VideoSeekedEvent{
+									p.notifySubscribers(&VideoSeekedEvent{
 										BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 										CurrentTime:    payload.CurrentTime,
 										Duration:       payload.Duration,
@@ -353,7 +353,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
 							})
-							p.NotifySubscribers(&VideoLoadedMetadataEvent{
+							p.notifySubscribers(&VideoLoadedMetadataEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								CurrentTime:    payload.CurrentTime,
 								Duration:       payload.Duration,
@@ -365,7 +365,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							p.setPlaybackStatus(func() {
 								p.playbackStatus.ClientId = playerEvent.ClientId
 							})
-							p.NotifySubscribers(&SubtitleFileUploadedEvent{
+							p.notifySubscribers(&SubtitleFileUploadedEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								Filename:       payload.Filename,
 								Content:        payload.Content,
@@ -375,7 +375,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 						p.setPlaybackStatus(func() {
 							p.playbackStatus.ClientId = playerEvent.ClientId
 						})
-						p.NotifySubscribers(&VideoTerminatedEvent{
+						p.notifySubscribers(&VideoTerminatedEvent{
 							BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 						})
 					case PlayerEventVideoTimeUpdate:
@@ -387,7 +387,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.Duration = payload.Duration
 								p.playbackStatus.Paused = payload.Paused
 							})
-							p.NotifySubscribers(&VideoStatusEvent{
+							p.notifySubscribers(&VideoStatusEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
 								Status:         *p.playbackStatus,
 							})

@@ -922,7 +922,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 
 	// Handle ABSOLUTE episode numbers
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
-		// Fetch the AniZip media in order to normalize the episode number
+		// Fetch the Animap media in order to normalize the episode number
 		ad.mu.Lock()
 		animeMetadata, err := ad.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
 		// If the media is found and the offset is greater than 0
