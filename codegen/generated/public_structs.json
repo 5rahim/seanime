@@ -11579,6 +11579,22 @@
   {
     "filepath": "../internal/api/anilist/collection_helper.go",
     "filename": "collection_helper.go",
+    "name": "AnimeList",
+    "formattedName": "AL_AnimeList",
+    "package": "anilist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "AnimeCollection_MediaListCollection_Lists",
+      "typescriptType": "AL_AnimeCollection_MediaListCollection_Lists",
+      "usedTypescriptType": "AL_AnimeCollection_MediaListCollection_Lists",
+      "declaredValues": [],
+      "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists"
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/collection_helper.go",
+    "filename": "collection_helper.go",
     "name": "EntryDate",
     "formattedName": "AL_EntryDate",
     "package": "anilist",
@@ -23901,7 +23917,7 @@
       },
       {
         "name": "AnimePlanetID",
-        "jsonName": "anime-planet_id",
+        "jsonName": "animeplanet_id",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -23930,7 +23946,7 @@
       },
       {
         "name": "NotifyMoeID",
-        "jsonName": "notify.moe_id",
+        "jsonName": "notifymoe_id",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -32074,6 +32090,17 @@
         "comments": []
       },
       {
+        "name": "directStreamManager",
+        "jsonName": "directStreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playbackManager",
         "jsonName": "playbackManager",
         "goType": "playbackmanager.PlaybackManager",
@@ -32198,6 +32225,17 @@
         "typescriptType": "PlaybackManager_PlaybackManager",
         "usedTypescriptType": "PlaybackManager_PlaybackManager",
         "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DirectStreamManager",
+        "jsonName": "DirectStreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -33969,6 +34007,287 @@
         "typescriptType": "Array\u003c{ name: string; size: number; }\u003e",
         "usedTypescriptType": "{ name: string; size: number; }",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/directstream/debridstream.go",
+    "filename": "debridstream.go",
+    "name": "SharedSubtitleReader",
+    "formattedName": "Directstream_SharedSubtitleReader",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "io.ReadSeekCloser",
+        "typescriptType": "ReadSeekCloser",
+        "usedTypescriptType": "ReadSeekCloser",
+        "usedStructName": "io.ReadSeekCloser",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "offset",
+        "jsonName": "offset",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " SharedSubtitleReader wraps an HttpReadSeeker to provide thread-safe seeking",
+      " for multiple subtitle streams without creating multiple HTTP connections"
+    ]
+  },
+  {
+    "filepath": "../internal/directstream/debridstream.go",
+    "filename": "debridstream.go",
+    "name": "DebridStream",
+    "formattedName": "Directstream_DebridStream",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "streamUrl",
+        "jsonName": "streamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "contentLength",
+        "jsonName": "contentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrent",
+        "jsonName": "torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamReadyCh",
+        "jsonName": "streamReadyCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed by the initiator when the stream is ready"
+        ]
+      },
+      {
+        "name": "subtitleReader",
+        "jsonName": "subtitleReader",
+        "goType": "SharedSubtitleReader",
+        "typescriptType": "Directstream_SharedSubtitleReader",
+        "usedTypescriptType": "Directstream_SharedSubtitleReader",
+        "usedStructName": "directstream.SharedSubtitleReader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subtitleReaderOnce",
+        "jsonName": "subtitleReaderOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subtitleReaderErr",
+        "jsonName": "subtitleReaderErr",
+        "goType": "error",
+        "typescriptType": "Directstream_error",
+        "usedTypescriptType": "Directstream_error",
+        "usedStructName": "directstream.error",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DebridStream is a stream that is a torrent."
+    ],
+    "embeddedStructNames": [
+      "directstream.BaseStream"
+    ]
+  },
+  {
+    "filepath": "../internal/directstream/debridstream.go",
+    "filename": "debridstream.go",
+    "name": "PlayDebridStreamOptions",
+    "formattedName": "Directstream_PlayDebridStreamOptions",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "StreamUrl",
+        "jsonName": "StreamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AnidbEpisode",
+        "jsonName": "AnidbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Selected torrent"
+        ]
+      },
+      {
+        "name": "FileId",
+        "jsonName": "FileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " File ID or index"
+        ]
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "AutoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/directstream/debridstream.go",
+    "filename": "debridstream.go",
+    "name": "StreamInfo",
+    "formattedName": "Directstream_StreamInfo",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "ContentType",
+        "jsonName": "ContentType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentLength",
+        "jsonName": "ContentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }

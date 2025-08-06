@@ -79,6 +79,7 @@ function Content() {
         actionIntent: "warning",
         onConfirm: () => {
             for (const torrent of data ?? []) {
+                if (torrent.status !== "seeding") continue
                 handleTorrentAction({
                     hash: torrent.hash,
                     action: "pause",

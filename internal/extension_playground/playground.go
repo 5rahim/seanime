@@ -264,7 +264,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 				if animeMetadata.GetMappings() != nil {
 
 					anidbAID = animeMetadata.GetMappings().AnidbId
-					// Find Anizip Episode based on inputted episode number
+					// Find Animap Episode based on inputted episode number
 					anizipEpisode, found := animeMetadata.FindEpisode(strconv.Itoa(options.EpisodeNumber))
 					if found {
 						anidbEID = anizipEpisode.AnidbEid

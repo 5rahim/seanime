@@ -251,10 +251,10 @@ func FetchMediaFromLocalFiles(
 	}
 
 	// +---------------------+
-	// |       AniZip        |
+	// |       Animap        |
 	// +---------------------+
 
-	// Get AniZip mappings for each MAL ID and store them in `metadataProvider`
+	// Get Animap mappings for each MAL ID and store them in `metadataProvider`
 	// This step is necessary because MAL doesn't provide AniList IDs and some MAL media don't exist on AniList
 	lop.ForEach(malIds, func(id int, index int) {
 		rateLimiter2.Wait()
@@ -269,7 +269,7 @@ func FetchMediaFromLocalFiles(
 	// |       AniList       |
 	// +---------------------+
 
-	// Retrieve the AniList IDs from the AniZip mappings stored in the cache
+	// Retrieve the AniList IDs from the Animap mappings stored in the cache
 	anilistIds := make([]int, 0)
 	metadataProvider.GetCache().Range(func(key string, value *metadata.AnimeMetadata) bool {
 		if value != nil {

@@ -652,7 +652,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 // - The context is canceled
 // - The entire stream is processed
 // - An unrecoverable error occurs (which is also returned in the error channel)
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64, clusterPadding int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
 	startedCh := make(chan struct{})
@@ -675,7 +675,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 	if offset > 0 {
 		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
 
-		clusterSeekOffset, err := findNextClusterOffset(newReader, offset)
+		clusterSeekOffset, err := findNextClusterOffset(newReader, offset, clusterPadding)
 		if err != nil {
 			if !errors.Is(err, io.EOF) {
 				mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
@@ -749,10 +749,10 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		// Parse the stream for subtitles
 		err := gomkv.Parse(newReader, handler)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
-			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
+			//mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
 			closeChannels(err)
 		} else {
-			mp.logger.Info().Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
+			mp.logger.Debug().Err(err).Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
 			closeChannels(nil)
 		}
 	}()
@@ -872,6 +872,10 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 }
 
 func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64, headPos int64) {
+	if getSubtitleTrackType(track.CodecID) == "PGS" || getSubtitleTrackType(track.CodecID) == "unknown" {
+		return
+	}
+
 	if track.contentEncodings != nil {
 		if zr, err := zlib.NewReader(bytes.NewReader(subtitleData)); err == nil {
 			if buf, err := io.ReadAll(zr); err == nil {
@@ -1051,11 +1055,12 @@ func (h *subtitleHandler) HandleBinary(id gomkv.ElementID, value []byte, info go
 // findNextClusterOffset searches for the Matroska Cluster ID in the ReadSeeker rs,
 // starting from seekOffset. It returns the absolute file offset of the found Cluster ID,
 // or an error. If found, the ReadSeeker's position is set to the start of the Cluster ID.
-func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
+func findNextClusterOffset(rs io.ReadSeeker, seekOffset, clusterPadding int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
 	// however it's not ideal so we'll offset the offset by 1MB to avoid missing a cluster
-	toRemove := int64(1 * 1024 * 1024) // 1MB
+	//toRemove := int64(1 * 1024 * 1024) // 1MB
+	toRemove := clusterPadding
 	if seekOffset > toRemove {
 		seekOffset -= toRemove
 	} else {

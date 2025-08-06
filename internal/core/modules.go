@@ -122,20 +122,6 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
-	// |  Debrid Client Repo |
-	// +---------------------+
-
-	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
-		Logger:            a.Logger,
-		WSEventManager:    a.WSEventManager,
-		Database:          a.Database,
-		MetadataProvider:  a.MetadataProvider,
-		Platform:          a.AnilistPlatform,
-		PlaybackManager:   a.PlaybackManager,
-		TorrentRepository: a.TorrentRepository,
-	})
-
-	// +---------------------+
 	// |   Auto Downloader   |
 	// +---------------------+
 
@@ -243,6 +229,21 @@ func (a *App) initModulesOnce() {
 		Database:            a.Database,
 		DirectStreamManager: a.DirectStreamManager,
 		NativePlayer:        a.NativePlayer,
+	})
+
+	// +---------------------+
+	// |  Debrid Client Repo |
+	// +---------------------+
+
+	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
+		Logger:              a.Logger,
+		WSEventManager:      a.WSEventManager,
+		Database:            a.Database,
+		MetadataProvider:    a.MetadataProvider,
+		Platform:            a.AnilistPlatform,
+		PlaybackManager:     a.PlaybackManager,
+		TorrentRepository:   a.TorrentRepository,
+		DirectStreamManager: a.DirectStreamManager,
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{

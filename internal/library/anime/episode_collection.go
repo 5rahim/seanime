@@ -56,7 +56,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	}
 
 	if ec, ok := episodeCollectionCache.Get(opts.Media.ID); ok {
-		opts.Logger.Debug().Msg("torrentstream: using cached episode collection")
+		opts.Logger.Debug().Msg("torrentstream: Using cached episode collection")
 		return ec, nil
 	}
 

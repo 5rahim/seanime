@@ -11,6 +11,7 @@ import (
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/debrid/realdebrid"
 	"seanime/internal/debrid/torbox"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
@@ -35,6 +36,7 @@ type (
 		ctxMap                 *result.Map[string, context.CancelFunc]
 		downloadLoopCancelFunc context.CancelFunc
 		torrentRepository      *torrent.Repository
+		directStreamManager    *directstream.Manager
 
 		playbackManager    *playbackmanager.PlaybackManager
 		streamManager      *StreamManager
@@ -50,10 +52,11 @@ type (
 		WSEventManager events.WSEventManagerInterface
 		Database       *db.Database
 
-		TorrentRepository *torrent.Repository
-		PlaybackManager   *playbackmanager.PlaybackManager
-		MetadataProvider  metadata.Provider
-		Platform          platform.Platform
+		TorrentRepository   *torrent.Repository
+		PlaybackManager     *playbackmanager.PlaybackManager
+		DirectStreamManager *directstream.Manager
+		MetadataProvider    metadata.Provider
+		Platform            platform.Platform
 	}
 )
 
@@ -73,6 +76,7 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
 		ctxMap:                result.NewResultMap[string, context.CancelFunc](),
 		previousStreamOptions: mo.None[*StartStreamOptions](),
+		directStreamManager:   opts.DirectStreamManager,
 	}
 
 	ret.streamManager = NewStreamManager(ret)

@@ -3,9 +3,6 @@ package tvdb
 import (
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"io"
 	"math"
 	"net/http"
@@ -14,6 +11,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
@@ -32,8 +33,8 @@ type (
 	FilterEpisodeMediaInfo struct {
 		Year           *int
 		Month          *int
-		TotalEp        int // from anizip
-		AbsoluteOffset int // from anizip
+		TotalEp        int // from Animap
+		AbsoluteOffset int // from Animap
 	}
 )
 

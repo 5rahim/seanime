@@ -29,7 +29,7 @@ type (
 	}
 
 	// EpisodeMetadata represents the metadata of an Episode.
-	// Metadata is fetched from AniZip (AniDB) and, optionally, AniList (if AniZip is not available).
+	// Metadata is fetched from Animap (AniDB) and, optionally, AniList (if Animap is not available).
 	EpisodeMetadata struct {
 		AnidbId  int    `json:"anidbId,omitempty"`
 		Image    string `json:"image,omitempty"`
@@ -58,7 +58,7 @@ type (
 	}
 
 	// NewSimpleEpisodeOptions hold data used to create a new Episode.
-	// Unlike NewEpisodeOptions, this struct does not require AniZip data. It is used to list episodes without AniDB metadata.
+	// Unlike NewEpisodeOptions, this struct does not require Animap data. It is used to list episodes without AniDB metadata.
 	NewSimpleEpisodeOptions struct {
 		LocalFile    *LocalFile
 		Media        *anilist.BaseAnime
@@ -101,7 +101,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			entryEp.MetadataIssue = "forced_remapping"
 		}
 
-		// Get the AniZip episode
+		// Get the Animap episode
 		foundAnimapEpisode := false
 		var episodeMetadata *metadata.EpisodeMetadata
 		if opts.AnimeMetadata != nil {
@@ -188,7 +188,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 	} else if len(opts.OptionalAniDBEpisode) > 0 && opts.AnimeMetadata != nil {
 		// No LocalFile, but AniDB episode is provided
 
-		// Get the AniZip episode
+		// Get the Animap episode
 		if episodeMetadata, foundAnimapEpisode := opts.AnimeMetadata.FindEpisode(opts.OptionalAniDBEpisode); foundAnimapEpisode {
 
 			entryEp.IsDownloaded = false
@@ -228,7 +228,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			// Set episode metadata
 			entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.AnimeMetadata, episodeMetadata, opts.Media, opts.MetadataProvider)
 		} else {
-			// No Local file, no AniZip data
+			// No Local file, no Animap data
 			// DEVNOTE: Non-downloaded, without any AniDB data. Don't handle this case.
 			// Non-downloaded episodes are determined from AniDB data either way.
 		}
@@ -248,8 +248,8 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 	return entryEp
 }
 
-// NewEpisodeMetadata creates a new EpisodeMetadata from an AniZip episode and AniList media.
-// If the AniZip episode is nil, it will just set the image from the media.
+// NewEpisodeMetadata creates a new EpisodeMetadata from an Animap episode and AniList media.
+// If the Animap episode is nil, it will just set the image from the media.
 func NewEpisodeMetadata(
 	animeMetadata *metadata.AnimeMetadata,
 	episode *metadata.EpisodeMetadata,
@@ -258,7 +258,7 @@ func NewEpisodeMetadata(
 ) *EpisodeMetadata {
 	md := new(EpisodeMetadata)
 
-	// No AniZip data
+	// No Animap data
 	if episode == nil {
 		md.Image = media.GetCoverImageSafe()
 		return md

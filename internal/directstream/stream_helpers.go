@@ -60,7 +60,6 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 		// Check if context is done before each read
 		select {
 		case <-ctx.Done():
-			fmt.Println("directstream > Context done")
 			return written, ctx.Err()
 		default:
 		}
@@ -154,8 +153,8 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 }
 
 func copyWithFlush(ctx context.Context, w http.ResponseWriter, rdr io.Reader, totalBytes int64) {
-	const flushThreshold = 1 * 1024 * 1024 // 1 MiB
-	buf := make([]byte, 32*1024)           // 32 KiB buffer
+	const flushThreshold = 1 * 1024 * 1024 // 1MiB
+	buf := make([]byte, 32*1024)           // 32KiB buffer
 	var written int64
 	var sinceLastFlush int64
 	flusher, _ := w.(http.Flusher)

@@ -569,7 +569,13 @@ export function NativePlayer() {
             logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
             if (lastWatchedTime > 0) {
                 logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                seekTo(lastWatchedTime)
+                videoRef.current?.pause?.()
+                setTimeout(() => {
+                    seekTo(lastWatchedTime)
+                    setTimeout(() => {
+                        videoRef.current?.play?.()
+                    }, 200)
+                }, 200)
             }
         }
     }

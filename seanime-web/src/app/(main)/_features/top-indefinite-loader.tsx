@@ -11,6 +11,7 @@ export function TopIndefiniteLoader() {
     const [showStack, setShowStack] = React.useState<string[]>([])
 
     // Empty after 3 minutes
+    // timeout resets each time a new loader is shown
     React.useEffect(() => {
         const timeout = setTimeout(() => {
             setShowStack([])

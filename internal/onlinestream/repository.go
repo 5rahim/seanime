@@ -149,7 +149,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	}
 
 	// +---------------------+
-	// |       Anizip        |
+	// |       Animap        |
 	// +---------------------+
 
 	//animeMetadata, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mId)

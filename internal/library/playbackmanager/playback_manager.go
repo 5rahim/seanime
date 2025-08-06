@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
+	"seanime/internal/database/db_bridge"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/hook"
@@ -19,6 +20,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 )
@@ -658,15 +660,15 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 		}
 	}()
 
-	//// Delete playlist in goroutine
-	//go func() {
-	//	err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
-	//	if err != nil {
-	//		pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
-	//		return
-	//	}
-	//	pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
-	//}()
+	// Delete playlist in goroutine
+	go func() {
+		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
+		if err != nil {
+			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
+			return
+		}
+		pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
+	}()
 
 	return nil
 }
@@ -693,6 +695,21 @@ func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusS
 	}
 	pm.playbackStatusSubscribers.Set(id, subscriber)
 	return subscriber
+}
+
+func (pm *PlaybackManager) RegisterMediaPlayerCallback(callback func(event PlaybackEvent, cancelFunc func())) (cancel func()) {
+	id := uuid.NewString()
+	playbackSubscriber := pm.SubscribeToPlaybackStatus(id)
+	cancel = func() {
+		pm.UnsubscribeFromPlaybackStatus(id)
+	}
+	go func(playbackSubscriber *PlaybackStatusSubscriber) {
+		for event := range playbackSubscriber.EventCh {
+			callback(event, cancel)
+		}
+	}(playbackSubscriber)
+
+	return cancel
 }
 
 func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {

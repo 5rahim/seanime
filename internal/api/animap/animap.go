@@ -32,10 +32,10 @@ type (
 		TheMovieDbID     string `json:"themoviedb_id,omitempty"` // Can be int or string, forced to string
 		MalID            int    `json:"mal_id,omitempty"`
 		LivechartID      int    `json:"livechart_id,omitempty"`
-		AnimePlanetID    string `json:"anime-planet_id,omitempty"` // Can be int or string, forced to string
+		AnimePlanetID    string `json:"animeplanet_id,omitempty"` // Can be int or string, forced to string
 		AnisearchID      int    `json:"anisearch_id,omitempty"`
 		SimklID          int    `json:"simkl_id,omitempty"`
-		NotifyMoeID      string `json:"notify.moe_id,omitempty"`
+		NotifyMoeID      string `json:"notifymoe_id,omitempty"`
 		AnimecountdownID int    `json:"animecountdown_id,omitempty"`
 		Type             string `json:"type,omitempty"`
 	}

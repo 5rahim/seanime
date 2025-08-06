@@ -31,7 +31,7 @@ const (
 type StartStreamOptions struct {
 	MediaId       int
 	EpisodeNumber int                         // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                      // Anizip episode
+	AniDBEpisode  string                      // Animap episode
 	AutoSelect    bool                        // Automatically select the best file to stream
 	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
 	FileIndex     *int                        // Index of the file to stream (Manual selection)
@@ -54,6 +54,10 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
 	r.sendStateEvent(eventLoading)
+	r.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "torrentstream")
+	defer func() {
+		r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
+	}()
 
 	if opts.PlaybackType == PlaybackTypeNativePlayer {
 		r.directStreamManager.PrepareNewStream(opts.ClientId, "Selecting torrent...")
@@ -187,6 +191,11 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 
 	baseAnime := completeAnime.ToBaseAnime()
 
+	r.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "torrentstream")
+	defer func() {
+		r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
+	}()
+
 	// Make sure the client is ready and the torrent is partially downloaded
 	for {
 		if r.client.readyToStream() {
@@ -241,6 +250,20 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 			r.wsEventManager.SendEventTo(opts.ClientId, events.ErrorToast, err.Error())
 		}
+
+		r.wsEventManager.SendEvent(events.ShowIndefiniteLoader, "torrentstream")
+		defer func() {
+			r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
+		}()
+
+		r.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancelFunc func()) {
+			switch event.(type) {
+			case playbackmanager.StreamStartedEvent:
+				r.logger.Debug().Msg("torrentstream: Media player started playing")
+				r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
+				cancelFunc()
+			}
+		})
 
 	//
 	// External player link
