@@ -1,18 +1,23 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
+import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { isApple } from "@/lib/utils/browser-detection"
 import JASSUB, { ASS_Event, JassubOptions } from "jassub"
 import { toast } from "sonner"
-import { NativePlayerSettings } from "./native-player.atoms"
 
 const subtitleLog = logger("SUBTITLE")
 const audioLog = logger("AUDIO")
 
 const NO_TRACK_NUMBER = -1
 
-const DEFAULT_SUBTITLE_HEADER = `[Script Info]
+export class VideoCoreSubtitleManager {
+    private readonly videoElement: HTMLVideoElement
+    private readonly jassubOffscreenRender: boolean
+    private libassRenderer: JASSUB | null = null
+    private settings: VideoCoreSettings
+    private defaultSubtitleHeader = `[Script Info]
 Title: English (US)
 ScriptType: v4.00+
 WrapStyle: 0
@@ -26,12 +31,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 [Events]
 
 `
-
-export class StreamSubtitleManager {
-    private readonly videoElement: HTMLVideoElement
-    private readonly jassubOffscreenRender: boolean
-    private libassRenderer: JASSUB | null = null
-    private settings: NativePlayerSettings
 
     private tracks: Record<string, {
         info: MKVParser_TrackInfo
@@ -52,7 +51,7 @@ export class StreamSubtitleManager {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
         playbackInfo: NativePlayer_PlaybackInfo
-        settings: NativePlayerSettings
+        settings: VideoCoreSettings
     }) {
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
@@ -86,7 +85,7 @@ export class StreamSubtitleManager {
     // Sets the track to no track.
     setNoTrack() {
         this.currentTrackNumber = NO_TRACK_NUMBER
-        this.libassRenderer?.setTrack(DEFAULT_SUBTITLE_HEADER)
+        this.libassRenderer?.setTrack(this.defaultSubtitleHeader)
         this.libassRenderer?.resize?.()
     }
 
@@ -127,7 +126,7 @@ export class StreamSubtitleManager {
             return
         }
 
-        const codecPrivate = track.info.codecPrivate?.slice?.(0, -1) || DEFAULT_SUBTITLE_HEADER
+        const codecPrivate = track.info.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
 
         this.currentTrackNumber = track.info.number // update the current track number
 
@@ -251,7 +250,7 @@ export class StreamSubtitleManager {
     private _storeTrackStyles() {
         if (!this.playbackInfo?.mkvMetadata?.subtitleTracks) return
         for (const track of this.playbackInfo.mkvMetadata.subtitleTracks) {
-            const codecPrivate = track.codecPrivate?.slice?.(0, -1) || DEFAULT_SUBTITLE_HEADER
+            const codecPrivate = track.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
             const lines = codecPrivate.replaceAll("\r\n", "\n").split("\n").filter(line => line.startsWith("Style:"))
             let index = 1
             const s: Record<string, number> = {}
@@ -288,7 +287,7 @@ export class StreamSubtitleManager {
 
         this.libassRenderer = new JASSUB({
             video: this.videoElement,
-            subContent: DEFAULT_SUBTITLE_HEADER, // needed
+            subContent: this.defaultSubtitleHeader, // needed
             // subUrl: new URL("/jassub/test.ass", window.location.origin).toString(),
             wasmUrl: wasmUrl,
             workerUrl: workerUrl,
@@ -360,11 +359,11 @@ export class StreamSubtitleManager {
     }
 }
 
-export class StreamAudioManager {
+export class VideoCoreAudioManager {
 
     onError: (error: string) => void
     private videoElement: HTMLVideoElement
-    private settings: NativePlayerSettings
+    private settings: VideoCoreSettings
     // Playback info
     private playbackInfo: NativePlayer_PlaybackInfo
 
@@ -375,7 +374,7 @@ export class StreamAudioManager {
         onError,
     }: {
         videoElement: HTMLVideoElement
-        settings: NativePlayerSettings
+        settings: VideoCoreSettings
         playbackInfo: NativePlayer_PlaybackInfo
         onError: (error: string) => void
     }) {

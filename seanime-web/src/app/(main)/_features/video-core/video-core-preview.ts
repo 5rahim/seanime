@@ -1,7 +1,7 @@
 export const StreamPreviewThumbnailSize = 200
 export const StreamPreviewCaptureIntervalSeconds = 12
 
-export class StreamPreviewManager {
+export class VideoCorePreviewManager {
     private previewCache: Map<number, string> = new Map()
     private jobs: { current: Job | undefined, pending: Job | undefined } = { current: undefined, pending: undefined }
     private currentMediaSource?: string

@@ -1,26 +1,6 @@
-import { NativePlayer_PlaybackInfo } from "@/api/generated/types"
-import { atomWithImmer } from "jotai-immer"
 import { atomWithStorage } from "jotai/utils"
 
-export type NativePlayerState = {
-    active: boolean
-    playbackInfo: NativePlayer_PlaybackInfo | null
-    playbackError: string | null
-    loadingState: string | null
-}
-
-export const nativePlayer_initialState: NativePlayerState = {
-    active: false,
-    playbackInfo: null,
-    playbackError: null,
-    loadingState: null,
-}
-
-export const nativePlayer_stateAtom = atomWithImmer<NativePlayerState>(nativePlayer_initialState)
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export type NativePlayerSettings = {
+export type VideoCoreSettings = {
     preferredSubtitleLanguage: string
     preferredAudioLanguage: string
     // Video enhancement settings
@@ -32,7 +12,7 @@ export type NativePlayerSettings = {
     }
 }
 
-export const nativePlayer_initialSettings: NativePlayerSettings = {
+export const vc_initialSettings: VideoCoreSettings = {
     preferredSubtitleLanguage: "eng",
     preferredAudioLanguage: "jpn",
     videoEnhancement: {
@@ -43,14 +23,14 @@ export const nativePlayer_initialSettings: NativePlayerSettings = {
     },
 }
 
-export const nativePlayer_settingsAtom = atomWithStorage<NativePlayerSettings>("sea-native-player-settings",
-    nativePlayer_initialSettings,
+export const vc_settings = atomWithStorage<VideoCoreSettings>("sea-video-core-settings",
+    vc_initialSettings,
     undefined,
     { getOnInit: true })
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export interface NativePlayerKeybindings {
+export interface VideoCoreKeybindings {
     seekForward: { key: string; value: number }
     seekBackward: { key: string; value: number }
     seekForwardFine: { key: string; value: number }
@@ -70,7 +50,7 @@ export interface NativePlayerKeybindings {
     decreaseSpeed: { key: string; value: number }
 }
 
-export const defaultKeybindings: NativePlayerKeybindings = {
+export const vc_defaultKeybindings: VideoCoreKeybindings = {
     seekForward: { key: "KeyD", value: 30 },
     seekBackward: { key: "KeyA", value: 30 },
     seekForwardFine: { key: "ArrowRight", value: 2 },
@@ -90,4 +70,4 @@ export const defaultKeybindings: NativePlayerKeybindings = {
     decreaseSpeed: { key: "BracketLeft", value: 0.1 },
 }
 
-export const nativePlayerKeybindingsAtom = atomWithStorage("sea-native-player-keybindings", defaultKeybindings)
+export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings)

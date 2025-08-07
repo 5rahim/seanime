@@ -80,6 +80,10 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 			}
 			written += int64(nr)
 
+			if ok := dst.(http.Flusher); ok != nil {
+				ok.Flush() // Flush the response writer if it supports flushing
+			}
+
 			// Handle write error
 			if writeErr != nil {
 				return written, writeErr

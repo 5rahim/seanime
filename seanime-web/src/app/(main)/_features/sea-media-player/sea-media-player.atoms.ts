@@ -11,3 +11,5 @@ export const __seaMediaPlayer_discreteControlsAtom = atomWithStorage("sea-media-
 export const __seaMediaPlayer_volumeAtom = atomWithStorage("sea-media-player-volume", 1)
 
 export const __seaMediaPlayer_mutedAtom = atomWithStorage("sea-media-player-muted", false)
+
+export const __seaMediaPlayer_playbackRateAtom = atomWithStorage("sea-media-playback-rate", 1)
