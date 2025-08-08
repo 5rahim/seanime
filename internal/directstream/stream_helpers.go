@@ -7,20 +7,40 @@ import (
 	"io"
 	"net/http"
 	httputil "seanime/internal/util/http"
+	"time"
 
 	"github.com/neilotoole/streamcache"
 )
 
-func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
+func handleRange(w http.ResponseWriter, r *http.Request, reader io.ReadSeekCloser, name string, size int64) (httputil.Range, bool) {
+	// No Range header → let Go handle it
+	rangeHdr := r.Header.Get("Range")
+	if rangeHdr == "" {
+		http.ServeContent(w, r, name, time.Now(), reader)
+		return httputil.Range{}, false
+	}
+
+	// Parse the range header
+	ranges, err := httputil.ParseRange(rangeHdr, size)
+	if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
+		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
+		http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
+		return httputil.Range{}, false
+	} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
+		// Let Go handle overlap
+		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
+		http.ServeContent(w, r, name, time.Now(), reader)
+		return httputil.Range{}, false
+	}
+
+	return ranges[0], true
+}
+
+func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ra httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Type", contentType)
-	//w.Header().Set("Content-Type", "video/webm")
-	//w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Cache-Control", "no-store")
-
-	// Only handle the first range for now (multiples are rare)
-	ra := ranges[0]
 
 	// Validate range
 	if ra.Start >= size || ra.Start < 0 || ra.Length <= 0 {
@@ -31,7 +51,7 @@ func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Conte
 
 	// Set response headers for partial content
 	w.Header().Set("Content-Range", ra.ContentRange(size))
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", size))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", ra.Length))
 	w.WriteHeader(http.StatusPartialContent)
 
 	// Seek to the requested position
@@ -41,13 +61,7 @@ func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Conte
 		return
 	}
 
-	written, err := copyWithContext(ctx, w, reader, ra.Length)
-
-	if err != nil && err != io.EOF && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
-		//log.Error().Msgf("ERR - directstream > Error copying data: %v (wrote %d of %d bytes)",
-		//	err, written, ra.Length)
-		_ = written
-	}
+	_, _ = copyWithContext(ctx, w, reader, ra.Length)
 }
 
 // copyWithContext copies n bytes from src to dst, respecting context cancellation
@@ -80,9 +94,9 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 			}
 			written += int64(nr)
 
-			if ok := dst.(http.Flusher); ok != nil {
-				ok.Flush() // Flush the response writer if it supports flushing
-			}
+			//if ok := dst.(http.Flusher); ok != nil {
+			//	ok.Flush() // Flush the response writer if it supports flushing
+			//}
 
 			// Handle write error
 			if writeErr != nil {
@@ -107,8 +121,6 @@ func copyWithContext(ctx context.Context, dst io.Writer, src io.Reader, n int64)
 func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, reader io.ReadSeekCloser, name string, size int64, contentType string, ranges []httputil.Range) {
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Type", contentType)
-	//w.Header().Set("Content-Type", "video/webm")
-	//w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Cache-Control", "no-store")
 
@@ -121,20 +133,6 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 		http.Error(w, "Range Not Satisfiable", http.StatusRequestedRangeNotSatisfiable)
 		return
 	}
-
-	//if ra.Start == 0 {
-	//	// Treat “bytes=0-” exactly like “no Range” => 200 OK
-	//	w.Header().Set("Content-Length", fmt.Sprintf("%d", size))
-	//	w.WriteHeader(http.StatusOK)
-	//
-	//	// Seek back to 0
-	//	if _, seekErr := reader.Seek(0, io.SeekStart); seekErr != nil {
-	//		http.Error(w, seekErr.Error(), http.StatusInternalServerError)
-	//		return
-	//	}
-	//	copyWithFlush(ctx, w, reader, size)
-	//	return
-	//}
 
 	// Set response headers for partial content
 	w.Header().Set("Content-Range", ra.ContentRange(size))
@@ -152,8 +150,11 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 		fmt.Printf("directstream > Served content range: %s\n", ra.ContentRange(size))
 	}()
 
-	//http.ServeContent(w, r, name, time.Now(), reader)
-	copyWithContext(ctx, w, reader, ra.Length)
+	_, _ = copyWithContext(ctx, w, reader, ra.Length)
+}
+
+func isThumbnailRequest(r *http.Request) bool {
+	return r.URL.Query().Get("thumbnail") == "true"
 }
 
 func copyWithFlush(ctx context.Context, w http.ResponseWriter, rdr io.Reader, totalBytes int64) {

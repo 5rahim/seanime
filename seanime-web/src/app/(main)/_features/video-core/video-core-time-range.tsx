@@ -3,6 +3,7 @@ import {
     vc_currentTime,
     vc_dispatchAction,
     vc_duration,
+    vc_miniPlayer,
     vc_previewManager,
     vc_previousPausedState,
     vc_seeking,
@@ -11,12 +12,13 @@ import {
     VIDEOCORE_DEBUG_ELEMENTS,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
-import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS } from "@/app/(main)/_features/video-core/video-core-preview"
+import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
+import Image from "next/image"
 import React from "react"
 import { FaDiamond } from "react-icons/fa6"
 
@@ -105,7 +107,6 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
 
     // stop seeking
     function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
-        console.log(e)
         if (e.button !== 0) return
         e.currentTarget.releasePointerCapture(e.pointerId)
         setSeeking(false)
@@ -284,7 +285,7 @@ function VideoCoreTimeRangeSegment(props: {
                     aria-label={`Seek to end of chapter ${idx + 1}`}
                     tabIndex={-1}
                 >
-                    <FaDiamond className="size-2.5 text-white/20 hover:text-white/80 transition-colors duration-100" />
+                    <FaDiamond className="size-2.5 text-white/20 hover:text-white/100 transition-colors duration-100" />
                 </button>
             )}
         </div>
@@ -298,9 +299,8 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
 
     const videoElement = useAtomValue(vc_videoElement)
 
-    const currentTime = useAtomValue(vc_currentTime)
     const duration = useAtomValue(vc_duration)
-    const buffered = useAtomValue(vc_closestBufferedTime)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const seekingTargetProgress = useAtomValue(vc_seekingTargetProgress)
     const seeking = useAtomValue(vc_seeking)
     const action = useSetAtom(vc_dispatchAction)
@@ -313,9 +313,9 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
 
     const chapterLabel = React.useMemo(() => {
         // returns chapter name at the current target
-        const chapter = chapters.find(chapter => chapter.percentageOffset <= targetTime && chapter.percentageOffset + chapter.width >= targetTime)
+        const chapter = chapters.find(chapter => chapter.percentageOffset <= seekingTargetProgress && chapter.percentageOffset + chapter.width >= seekingTargetProgress)
         return chapter?.label
-    }, [targetTime])
+    }, [seekingTargetProgress, chapters])
 
     const formatTime = (seconds: number) => {
         const hours = Math.floor(seconds / 3600)
@@ -332,6 +332,9 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         if (!previewManager || !duration || !timeRangeElement) {
             return
         }
+
+        setPreviewThumbnail(null)
+        timeRangeElement.removeAttribute("data-preview-image")
 
         // Calculate preview time based on mouse position
         const rect = timeRangeElement.getBoundingClientRect()
@@ -374,5 +377,49 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         }
     }, [handleTimeRangePreview, timeRangeElement])
 
-    return <></>
+    const showThumbnail = (!isMiniPlayer && previewManager && (seeking || !!targetTime)) &&
+        targetTime <= previewManager.getLastestCachedIndex() * VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS
+
+    return <>
+
+        {showThumbnail && <div
+            className={cn(
+                "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50",
+            )}
+            style={{
+                left: `clamp(${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px, ${(targetTime / duration) * 100}%, calc(100% - ${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px))`,
+                width: VIDEOCORE_PREVIEW_THUMBNAIL_SIZE + "px",
+                transform: "translateX(-50%) translateY(-54%)",
+            }}
+        >
+            {!!previewThumbnail && <Image
+                src={previewThumbnail || ""}
+                alt="Preview"
+                fill
+                sizes={VIDEOCORE_PREVIEW_THUMBNAIL_SIZE + "px"}
+                className="object-cover rounded-md"
+                decoding="async"
+                loading="lazy"
+            />}
+        </div>}
+
+        {(seeking || !!targetTime) && <div
+            className={cn(
+                "absolute bottom-full mb-3 px-2 py-1 bg-black/70 text-white text-center text-sm rounded-md",
+                "whitespace-nowrap z-20 pointer-events-none",
+                "",
+            )}
+            style={{
+                left: `${(targetTime / duration) * 100}%`,
+                transform: "translateX(-50%)",
+            }}
+        >
+            {chapterLabel && <p className="text-xs font-medium max-w-2xl truncate">{chapterLabel}</p>}
+            <p>{formatTime(targetTime)}</p>
+
+            <div
+                className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/70"
+            />
+        </div>}
+    </>
 }

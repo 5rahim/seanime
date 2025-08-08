@@ -3,12 +3,14 @@ export const VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS = 12
 
 export class VideoCorePreviewManager {
     private previewCache: Map<number, string> = new Map()
+    private inFlightPromises: Map<number, Promise<string | undefined>> = new Map()
     private jobs: { current: Job | undefined, pending: Job | undefined } = { current: undefined, pending: undefined }
     private currentMediaSource?: string
     private videoSyncController = new AbortController()
     private videoElement: HTMLVideoElement
     private lastCapturedSegment: number = -1
     private captureThrottleTimeout: number | null = null
+    private highestCachedIndex: number = -1
 
     private readonly _dummyVideoElement = document.createElement("video")
     private readonly _offscreenCanvas = new OffscreenCanvas(0, 0)
@@ -17,7 +19,7 @@ export class VideoCorePreviewManager {
     constructor(videoElement: HTMLVideoElement, mediaSource?: string) {
         this.initializeDummyVideoElement()
         if (mediaSource) {
-            this.loadMediaSource(mediaSource)
+            this.loadMediaSource(mediaSource + "&thumbnail=true")
         }
         this.videoElement = videoElement
         this._bindToVideoPlayer()
@@ -69,7 +71,18 @@ export class VideoCorePreviewManager {
         const cachedPreview = this.previewCache.get(segmentIndex)
         if (cachedPreview) return cachedPreview
 
+        const inFlight = this.inFlightPromises.get(segmentIndex)
+        if (inFlight) return inFlight
+
         return await this.schedulePreviewGeneration(segmentIndex)
+    }
+
+    getLastestCachedIndex(): number {
+        return this.highestCachedIndex
+    }
+
+    calculateTimeFromIndex(segmentIndex: number): number {
+        return segmentIndex * VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS
     }
 
     private throttledCaptureFrame(segmentIndex: number): void {
@@ -80,29 +93,14 @@ export class VideoCorePreviewManager {
 
         // Throttle captures to avoid spamming
         this.captureThrottleTimeout = window.setTimeout(() => {
-            if (!this.previewCache.has(segmentIndex)) {
-                this.captureFrameFromCurrentVideo(segmentIndex)
+            if (!this.previewCache.has(segmentIndex) && !this.inFlightPromises.has(segmentIndex)) {
+                const promise = this.captureFrameFromCurrentVideo(segmentIndex)
+                this.inFlightPromises.set(segmentIndex, promise)
+                promise.finally(() => this.inFlightPromises.delete(segmentIndex))
                 this.lastCapturedSegment = segmentIndex
             }
             this.captureThrottleTimeout = null
         }, 500) // Wait 500ms before capturing
-    }
-
-    private async captureFrameFromCurrentVideo(segmentIndex: number): Promise<void> {
-        if (this.videoElement.readyState < 2) return // Not enough data loaded
-
-        const frameWidth = this.videoElement.videoWidth
-        const frameHeight = this.videoElement.videoHeight
-
-        if (!frameWidth || !frameHeight) return
-
-        this.configureRenderingSurface(frameWidth, frameHeight)
-        this._drawingContext.drawImage(this.videoElement, 0, 0, this._offscreenCanvas.width, this._offscreenCanvas.height)
-
-        const imageBlob = await this._offscreenCanvas.convertToBlob({ type: "image/webp", quality: 0.8 })
-        const previewUrl = URL.createObjectURL(imageBlob)
-
-        this.previewCache.set(segmentIndex, previewUrl)
     }
 
     private initializeDummyVideoElement(): void {
@@ -129,6 +127,27 @@ export class VideoCorePreviewManager {
 
     private calculateSegmentIndex(currentTime: number): number {
         return Math.floor(currentTime / VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS)
+    }
+
+    private async captureFrameFromCurrentVideo(segmentIndex: number): Promise<string | undefined> {
+        if (this.videoElement.readyState < 2) return // Not enough data loaded
+
+        const frameWidth = this.videoElement.videoWidth
+        const frameHeight = this.videoElement.videoHeight
+
+        if (!frameWidth || !frameHeight) return
+
+        this.configureRenderingSurface(frameWidth, frameHeight)
+        this._drawingContext.drawImage(this.videoElement, 0, 0, this._offscreenCanvas.width, this._offscreenCanvas.height)
+
+        const imageBlob = await this._offscreenCanvas.convertToBlob({ type: "image/webp", quality: 0.8 })
+        const previewUrl = URL.createObjectURL(imageBlob)
+
+        this.previewCache.set(segmentIndex, previewUrl)
+        if (segmentIndex > this.highestCachedIndex) {
+            this.highestCachedIndex = segmentIndex
+        }
+        return previewUrl
     }
 
     private addJob(segmentIndex: number): Job {
@@ -198,6 +217,9 @@ export class VideoCorePreviewManager {
         const previewUrl = URL.createObjectURL(imageBlob)
 
         this.previewCache.set(segmentIndex, previewUrl)
+        if (segmentIndex > this.highestCachedIndex) {
+            this.highestCachedIndex = segmentIndex
+        }
         return previewUrl
     }
 
@@ -209,6 +231,7 @@ export class VideoCorePreviewManager {
     private clearPreviewCache(): void {
         this.previewCache.forEach(previewUrl => URL.revokeObjectURL(previewUrl))
         this.previewCache.clear()
+        this.inFlightPromises.clear()
     }
 
     private resetOperationQueue(): void {

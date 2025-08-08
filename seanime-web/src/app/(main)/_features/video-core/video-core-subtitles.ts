@@ -341,10 +341,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         const eventKey = this.__eventMapKey(event)
 
-        if (event.text.includes("never imagined something")) {
-            subtitleLog.info("KEY", eventKey, "isNew", !trackEventMap.has(eventKey))
-        }
-
         // Check if the event is already in the record
         // If it is, return false
         if (trackEventMap.has(eventKey)) {

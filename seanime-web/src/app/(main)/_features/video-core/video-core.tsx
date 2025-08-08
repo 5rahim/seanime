@@ -372,7 +372,7 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         // Initialize thumbnailer
-        if (state.playbackInfo?.streamUrl && state.playbackInfo.streamType === "localfile") {
+        if (state.playbackInfo?.streamUrl) {
             const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
             log.info("Initializing thumbnailer with URL:", streamUrl)
             setPreviewManager(new VideoCorePreviewManager(videoRef.current, streamUrl))
@@ -611,54 +611,6 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [handleUpload, state.active])
 
-
-    const FloatingButtons = () => {
-        if (fullscreen) return null
-        return (
-            <>
-                {!isMiniPlayer && <>
-                    <IconButton
-                        icon={<FiMinimize2 className="text-2xl" />}
-                        intent="gray-basic"
-                        className="rounded-full absolute top-0 flex-none right-4"
-                        onClick={() => {
-                            setIsMiniPlayer(true)
-                        }}
-                    />
-                </>}
-
-                {isMiniPlayer && <>
-                    <IconButton
-                        type="button"
-                        intent="gray"
-                        size="sm"
-                        className={cn(
-                            "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto bg-black/30 hover:bg-black/40",
-                            isMiniPlayer && "text-xl",
-                        )}
-                        icon={<BiExpand />}
-                        onClick={() => {
-                            setIsMiniPlayer(false)
-                        }}
-                    />
-                    <IconButton
-                        type="button"
-                        intent="alert-subtle"
-                        size="sm"
-                        className={cn(
-                            "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
-                            isMiniPlayer && "text-xl",
-                        )}
-                        icon={<BiX />}
-                        onClick={() => {
-                            onTerminateStream()
-                        }}
-                    />
-                </>}
-            </>
-        )
-    }
-
     return (
         <>
             <VideoCoreKeybindingsModal />
@@ -831,7 +783,7 @@ export function VideoCore(props: VideoCoreProps) {
                                         (busy || paused) && "opacity-100",
                                     )}
                                 >
-                                    <FloatingButtons />
+                                    <FloatingButtons part="video" onTerminateStream={onTerminateStream} />
                                 </div>
                                 {/*<TorrentStreamOverlay isNativePlayerComponent="info" />*/}
                             </VideoCoreTopSection>
@@ -851,7 +803,7 @@ export function VideoCore(props: VideoCoreProps) {
                         >
 
                             {/* {!state.miniPlayer && <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />} */}
-                            <FloatingButtons />
+                            <FloatingButtons part="loading" onTerminateStream={onTerminateStream} />
 
                             <LoadingSpinner
                                 title={state.loadingState || "Loading..."}
@@ -866,4 +818,69 @@ export function VideoCore(props: VideoCoreProps) {
             </NativePlayerDrawer>
         </>
     )
+}
+
+function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: () => void }) {
+    const { part, onTerminateStream } = props
+    const fullscreen = useAtomValue(vc_isFullscreen)
+    const [isMiniPlayer, setIsMiniPlayer] = useAtom(vc_miniPlayer)
+    if (fullscreen) return null
+    const Content = () => (
+        <>
+            {!isMiniPlayer && <>
+                <IconButton
+                    icon={<FiMinimize2 className="text-2xl" />}
+                    intent="gray-basic"
+                    className="rounded-full absolute top-0 flex-none right-4"
+                    onClick={() => {
+                        setIsMiniPlayer(true)
+                    }}
+                />
+            </>}
+
+            {isMiniPlayer && <>
+                <IconButton
+                    type="button"
+                    intent="gray"
+                    size="sm"
+                    className={cn(
+                        "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto bg-black/30 hover:bg-black/40",
+                        isMiniPlayer && "text-xl",
+                    )}
+                    icon={<BiExpand />}
+                    onClick={() => {
+                        setIsMiniPlayer(false)
+                    }}
+                />
+                <IconButton
+                    type="button"
+                    intent="alert-subtle"
+                    size="sm"
+                    className={cn(
+                        "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
+                        isMiniPlayer && "text-xl",
+                    )}
+                    icon={<BiX />}
+                    onClick={() => {
+                        onTerminateStream()
+                    }}
+                />
+            </>}
+        </>
+    )
+
+    if (part === "loading") {
+        return (
+            <div
+                className={cn(
+                    "absolute top-8 w-full z-[100]",
+                    isMiniPlayer && "top-0",
+                )}
+            >
+                <Content />
+            </div>
+        )
+    }
+
+    return <Content />
 }

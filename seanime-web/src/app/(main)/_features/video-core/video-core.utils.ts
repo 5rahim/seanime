@@ -70,7 +70,7 @@ export const vc_createChapterCues = (chapters: Array<MKVParser_ChapterInfo> | un
     return chapters.map((chapter, index) => ({
         startTime: chapter.start / 1e6,
         endTime: chapter.end ? chapter.end / 1e6 : (chapters[index + 1]?.start ? chapters[index + 1].start / 1e6 : duration),
-        text: chapter.text || `Chapter ${index + 1}`,
+        text: chapter.text || ``,
     }))
 }
 
@@ -94,7 +94,7 @@ export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | und
 
         vttContent += `${index + 1}\n`
         vttContent += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`
-        vttContent += `${chapter.text || `Chapter ${index + 1}`}\n\n`
+        vttContent += `${chapter.text || ``}\n\n`
     })
 
     return vttContent
