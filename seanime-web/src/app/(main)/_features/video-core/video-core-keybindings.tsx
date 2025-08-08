@@ -1,7 +1,7 @@
 import { __seaMediaPlayer_mutedAtom, __seaMediaPlayer_volumeAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import {
     vc_audioManager,
-    vc_doAction,
+    vc_dispatchAction,
     vc_isFullscreen,
     vc_isMuted,
     vc_pip,
@@ -355,7 +355,7 @@ export function VideoCoreKeybindingController(props: {
     const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
     const { showFlash } = useFlashNotification()
 
-    const action = useSetAtom(vc_doAction)
+    const action = useSetAtom(vc_dispatchAction)
 
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const audioManager = useAtomValue(vc_audioManager)

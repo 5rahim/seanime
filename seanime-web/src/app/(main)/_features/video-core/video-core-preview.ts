@@ -1,5 +1,5 @@
-export const StreamPreviewThumbnailSize = 200
-export const StreamPreviewCaptureIntervalSeconds = 12
+export const VIDEOCORE_PREVIEW_THUMBNAIL_SIZE = 200
+export const VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS = 12
 
 export class VideoCorePreviewManager {
     private previewCache: Map<number, string> = new Map()
@@ -128,7 +128,7 @@ export class VideoCorePreviewManager {
     }
 
     private calculateSegmentIndex(currentTime: number): number {
-        return Math.floor(currentTime / StreamPreviewCaptureIntervalSeconds)
+        return Math.floor(currentTime / VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS)
     }
 
     private addJob(segmentIndex: number): Job {
@@ -141,7 +141,7 @@ export class VideoCorePreviewManager {
                 resolve(preview)
                 this.processNextJob()
             })
-            this._dummyVideoElement.currentTime = segmentIndex * StreamPreviewCaptureIntervalSeconds
+            this._dummyVideoElement.currentTime = segmentIndex * VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS
         }
 
         return { segmentIndex, execute, promise }
@@ -202,8 +202,8 @@ export class VideoCorePreviewManager {
     }
 
     private configureRenderingSurface(sourceWidth: number, sourceHeight: number): void {
-        this._offscreenCanvas.width = StreamPreviewThumbnailSize
-        this._offscreenCanvas.height = (sourceHeight / sourceWidth) * StreamPreviewThumbnailSize
+        this._offscreenCanvas.width = VIDEOCORE_PREVIEW_THUMBNAIL_SIZE
+        this._offscreenCanvas.height = (sourceHeight / sourceWidth) * VIDEOCORE_PREVIEW_THUMBNAIL_SIZE
     }
 
     private clearPreviewCache(): void {

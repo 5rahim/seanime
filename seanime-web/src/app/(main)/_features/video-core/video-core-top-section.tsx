@@ -16,6 +16,7 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
     return (
         <>
             <div
+                data-vc-control-bar-top-section
                 className={cn(
                     "top-8 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[5]",
                     (busy || paused || hoveringControlBar) && "opacity-100",

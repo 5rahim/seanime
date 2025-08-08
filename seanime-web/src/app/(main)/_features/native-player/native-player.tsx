@@ -3,7 +3,7 @@ import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { __seaMediaPlayer_autoNextAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
-import { vc_doAction, vc_miniPlayer, vc_subtitleManager, vc_videoRef, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoRef, VideoCore } from "@/app/(main)/_features/video-core/video-core"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -44,7 +44,7 @@ export function NativePlayer() {
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
     const subtitleManager = useAtomValue(vc_subtitleManager)
-    const dispatchEvent = useSetAtom(vc_doAction)
+    const dispatchEvent = useSetAtom(vc_dispatchAction)
 
     // Continuity
     const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
@@ -383,59 +383,6 @@ export function NativePlayer() {
             },
         })
     }
-
-
-    // const handleTimeRangePreview = useCallback(async (event: MouseEvent) => {
-    //     if (!previewManagerRef.current || !duration) {
-    //         return
-    //     }
-    //
-    //     const timeRange = timeRangeRef.current
-    //     if (!timeRange) return
-    //
-    //     // Calculate preview time based on mouse position
-    //     const rect = timeRange.getBoundingClientRect()
-    //     const x = event.clientX - rect.left
-    //     const percentage = Math.max(0, Math.min(1, x / rect.width))
-    //     const previewTime = percentage * duration
-    //
-    //     if (previewTime >= 0 && previewTime <= duration) {
-    //         const thumbnailIndex = Math.floor(previewTime / StreamPreviewCaptureIntervalSeconds)
-    //
-    //         try {
-    //             const thumbnail = await previewManagerRef.current.retrievePreviewForSegment(thumbnailIndex)
-    //             if (thumbnail) {
-    //                 timeRange.setAttribute("mediapreviewimage", thumbnail)
-    //                 setPreviewThumbnail(thumbnail)
-    //             }
-    //         }
-    //         catch (error) {
-    //             log.error("Failed to get thumbnail", error)
-    //         }
-    //     }
-    // }, [duration])
-    //
-    // // Add event listener for preview events
-    // useEffect(() => {
-    //     const timeRange = timeRangeRef.current
-    //     if (!timeRange) {
-    //         log.info("TimeRange ref not available")
-    //         return
-    //     }
-    //
-    //     const handleMouseLeave = () => {
-    //         timeRange.removeAttribute("mediapreviewimage")
-    //         setPreviewThumbnail(undefined)
-    //     }
-    //
-    //     timeRange.addEventListener("mouseleave", handleMouseLeave)
-    //     timeRange.addEventListener("mousemove", handleTimeRangePreview)
-    //
-    //     return () => {
-    //         timeRange.removeEventListener("mouseleave", handleMouseLeave)
-    //         timeRange.removeEventListener("mousemove", handleTimeRangePreview)
-    //     }
-    // }, [handleTimeRangePreview])
 
     return (
         <>

@@ -14,7 +14,7 @@ import { useWindowScroll } from "react-use"
 export const __mangaLibraryHeaderImageAtom = atom<string | null>(null)
 export const __mangaLibraryHeaderMangaAtom = atom<AL_BaseManga | null>(null)
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
 

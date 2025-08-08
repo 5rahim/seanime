@@ -195,7 +195,7 @@ export function vc_createChaptersFromAniSkip(
             start: 0,
             end: aniSkipData.op.interval.startTime,
             // text: aniSkipData.op.interval.startTime > 1.5 * 60 ? "Intro" : "Recap",
-            text: "Intro",
+            text: "Prologue",
         })
     }
 
@@ -213,7 +213,7 @@ export function vc_createChaptersFromAniSkip(
             uid: 94,
             start: aniSkipData.ed.interval.endTime,
             end: duration,
-            text: ((duration) - aniSkipData.ed.interval.endTime) > 0.5 * 60 ? "Outro" : "Preview",
+            text: ((duration) - aniSkipData.ed.interval.endTime) > 0.5 * 60 ? "Ending" : "Preview",
         })
     }
 

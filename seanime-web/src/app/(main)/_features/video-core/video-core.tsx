@@ -10,14 +10,16 @@ import {
     __seaMediaPlayer_playbackRateAtom,
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
-import { VideoCoreControlBar, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-control-bar"
+import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
+import { VideoCoreControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import {
     FlashNotificationDisplay,
     VideoCoreKeybindingController,
     VideoCoreKeybindingsModal,
 } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
-import { VideoCoreAudioManager, VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
+import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
+import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
 import { vc_settings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
@@ -29,7 +31,7 @@ import {
 } from "@/app/(main)/_features/video-core/video-core.utils"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -68,8 +70,20 @@ export const vc_pip = atom(false)
 export const vc_seeking = atom(false)
 export const vc_seekingTargetProgress = atom(0) // 0-100
 export const vc_timeRanges = atom<TimeRanges | null>(null)
-export const vc_lastTimeRange = derive([vc_timeRanges], (tr) => {
-    return !!tr?.length ? tr.end(tr.length - 1) : 0
+export const vc_closestBufferedTime = derive([vc_timeRanges, vc_currentTime], (tr, currentTime) => {
+    if (!tr) return 0
+    let closest = 0
+    for (let i = 0; i < tr.length; i++) {
+        const start = tr.start(i)
+        const end = tr.end(i)
+        if (currentTime >= start && currentTime <= end) {
+            return end
+        }
+        if (end >= currentTime && closest > end) {
+            closest = end
+        }
+    }
+    return closest
 })
 export const vc_ended = atom(false)
 export const vc_paused = atom(true)
@@ -89,10 +103,12 @@ export const vc_previewManager = atom<VideoCorePreviewManager | null>(null)
 
 export const vc_previousPausedState = atom(false)
 
-export const vc_doAction = atom(null, (get, set, action: { type: string; payload: any }) => {
+export const vc_dispatchAction = atom(null, (get, set, action: { type: string; payload: any }) => {
     const videoElement = get(vc_videoElement)
     if (videoElement) {
         switch (action.type) {
+            // for smooth seeking, we don't want to peg the current time to the actual video time
+            // instead act like the target time is instantly reached
             case "seekTo":
                 videoElement.currentTime = action.payload.time
                 set(vc_currentTime, action.payload.time)
@@ -173,7 +189,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [, setVideoElement] = useAtom(vc_videoElement)
     const setVideoSize = useSetAtom(vc_videoSize)
     useVideoBindings(videoRef)
-    const action = useSetAtom(vc_doAction)
+    const action = useSetAtom(vc_dispatchAction)
 
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
@@ -481,7 +497,7 @@ export function VideoCore(props: VideoCoreProps) {
         const { x, y } = e.nativeEvent
         const dx = x - lastPointerPosition.current.x
         const dy = y - lastPointerPosition.current.y
-        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return
+        if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return
         if (setNotBusyTimeout?.current) {
             clearTimeout(setNotBusyTimeout.current)
         }
@@ -604,7 +620,7 @@ export function VideoCore(props: VideoCoreProps) {
                     <IconButton
                         icon={<FiMinimize2 className="text-2xl" />}
                         intent="gray-basic"
-                        className="rounded-full absolute top-8 flex-none right-4"
+                        className="rounded-full absolute top-0 flex-none right-4"
                         onClick={() => {
                             setIsMiniPlayer(true)
                         }}
@@ -729,27 +745,39 @@ export function VideoCore(props: VideoCoreProps) {
                             {/*/>*/}
 
                             {/* Skip Intro/Ending Buttons */}
-                            {showSkipIntroButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
-                                <div className="absolute left-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
-                                    <button
-                                        className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
-                                        onClick={() => action({ type: "seekTo", payload: { time: aniSkipData?.op?.interval?.endTime || 0 } })}
-                                    >
-                                        Skip Intro
-                                    </button>
-                                </div>
-                            )}
+                            {busy && <>
+                                {showSkipIntroButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
+                                    <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                        <Button
+                                            size="sm"
+                                            intent="gray-basic"
+                                            onClick={e => {
+                                                e.stopPropagation()
+                                                action({ type: "seekTo", payload: { time: aniSkipData?.op?.interval?.endTime || 0 } })
+                                            }}
+                                            onPointerMove={e => e.stopPropagation()}
+                                        >
+                                            Skip Opening
+                                        </Button>
+                                    </div>
+                                )}
 
-                            {showSkipEndingButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
-                                <div className="absolute right-8 bottom-24 z-[60] native-player-hide-on-fullscreen">
-                                    <button
-                                        className="bg-white/90 hover:bg-white text-black px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 shadow-lg"
-                                        onClick={() => action({ type: "seekTo", payload: { time: aniSkipData?.ed?.interval?.endTime || 0 } })}
-                                    >
-                                        Skip Ending
-                                    </button>
-                                </div>
-                            )}
+                                {showSkipEndingButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
+                                    <div className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                        <Button
+                                            size="sm"
+                                            intent="gray-basic"
+                                            onClick={e => {
+                                                e.stopPropagation()
+                                                action({ type: "seekTo", payload: { time: aniSkipData?.ed?.interval?.endTime || 0 } })
+                                            }}
+                                            onPointerMove={e => e.stopPropagation()}
+                                        >
+                                            Skip Ending
+                                        </Button>
+                                    </div>
+                                )}
+                            </>}
 
                             <video
                                 data-video-core-element
