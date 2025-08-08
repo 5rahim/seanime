@@ -10,13 +10,10 @@ import {
     __seaMediaPlayer_playbackRateAtom,
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
+import { vc_doFlashAction, VideoCoreActionDisplay } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
 import { VideoCoreControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
-import {
-    FlashNotificationDisplay,
-    VideoCoreKeybindingController,
-    VideoCoreKeybindingsModal,
-} from "@/app/(main)/_features/video-core/video-core-keybindings"
+import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
@@ -28,6 +25,7 @@ import {
     useVideoBindings,
     vc_createChapterCues,
     vc_createChaptersFromAniSkip,
+    vc_formatTime,
 } from "@/app/(main)/_features/video-core/video-core.utils"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -105,19 +103,28 @@ export const vc_previousPausedState = atom(false)
 
 export const vc_dispatchAction = atom(null, (get, set, action: { type: string; payload: any }) => {
     const videoElement = get(vc_videoElement)
+    const duration = get(vc_duration)
+    let t = 0
     if (videoElement) {
         switch (action.type) {
             // for smooth seeking, we don't want to peg the current time to the actual video time
             // instead act like the target time is instantly reached
             case "seekTo":
-                videoElement.currentTime = action.payload.time
-                set(vc_currentTime, action.payload.time)
+                t = Math.min(duration, Math.max(0, action.payload.time))
+                videoElement.currentTime = t
+                set(vc_currentTime, t)
+                if (action.payload.flashTime) {
+                    set(vc_doFlashAction, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                }
                 break
             case "seek":
                 const currentTime = get(vc_currentTime)
-                const newTime = currentTime + action.payload.time
-                videoElement.currentTime = newTime
-                set(vc_currentTime, newTime)
+                t = Math.min(duration, Math.max(0, currentTime + action.payload.time))
+                videoElement.currentTime = t
+                set(vc_currentTime, t)
+                if (action.payload.flashTime) {
+                    set(vc_doFlashAction, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                }
                 break
         }
     }
@@ -688,7 +695,7 @@ export function VideoCore(props: VideoCoreProps) {
                                 introEndTime={aniSkipData?.op?.interval?.endTime}
                             />
 
-                            <FlashNotificationDisplay />
+                            <VideoCoreActionDisplay />
 
                             {/*<MediaLoadingIndicator*/}
                             {/*    slot="centered-chrome"*/}

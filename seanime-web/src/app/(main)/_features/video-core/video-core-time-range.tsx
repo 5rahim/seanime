@@ -13,6 +13,7 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
+import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
@@ -317,17 +318,6 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         return chapter?.label
     }, [seekingTargetProgress, chapters])
 
-    const formatTime = (seconds: number) => {
-        const hours = Math.floor(seconds / 3600)
-        const minutes = Math.floor((seconds % 3600) / 60)
-        const secs = Math.floor(seconds % 60)
-
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
-        }
-        return `${minutes}:${secs.toString().padStart(2, "0")}`
-    }
-
     const handleTimeRangePreview = React.useCallback(async (event: MouseEvent) => {
         if (!previewManager || !duration || !timeRangeElement) {
             return
@@ -415,7 +405,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
             }}
         >
             {chapterLabel && <p className="text-xs font-medium max-w-2xl truncate">{chapterLabel}</p>}
-            <p>{formatTime(targetTime)}</p>
+            <p>{vc_formatTime(targetTime)}</p>
 
             <div
                 className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/70"

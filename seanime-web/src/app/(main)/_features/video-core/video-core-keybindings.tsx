@@ -9,6 +9,7 @@ import {
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_defaultKeybindings, vc_keybindingsAtom, VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -16,54 +17,10 @@ import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
-import { atomWithImmer } from "jotai-immer"
 import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
 export const videoCoreKeybindingsModalAtom = atom(false)
-
-// Flash notification system
-type FlashNotification = {
-    id: string
-    message: string
-    timestamp: number
-}
-
-const flashNotificationAtom = atomWithImmer<FlashNotification | null>(null)
-
-export function FlashNotificationDisplay() {
-    const [notification] = useAtom(flashNotificationAtom)
-
-    if (!notification) return null
-
-    return (
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-            <div className="text-white px-4 py-2 !text-xl font-bold" style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}>
-                {notification.message}
-            </div>
-        </div>
-    )
-}
-
-export function useFlashNotification() {
-    const [, setNotification] = useAtom(flashNotificationAtom)
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    const showFlash = useCallback((message: string) => {
-        const id = Date.now().toString()
-        setNotification({ id, message, timestamp: Date.now() })
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current)
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            setNotification(null)
-            timeoutRef.current = null
-        }, 1000)
-    }, [])
-
-    return { showFlash }
-}
 
 export function VideoCoreKeybindingsModal() {
     const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
@@ -353,7 +310,7 @@ export function VideoCoreKeybindingController(props: {
     const setVolume = useSetAtom(__seaMediaPlayer_volumeAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
-    const { showFlash } = useFlashNotification()
+    const { flashAction } = useVideoCoreFlashAction()
 
     const action = useSetAtom(vc_dispatchAction)
 
@@ -365,11 +322,11 @@ export function VideoCoreKeybindingController(props: {
     const SEEK_THROTTLE_MS = 100 // Minimum time between seek operations
 
     function seek(seconds: number) {
-        action({ type: "seek", payload: { time: seconds } })
+        action({ type: "seek", payload: { time: seconds, flashTime: true } })
     }
 
     function seekTo(to: number) {
-        action({ type: "seekTo", payload: { time: to } })
+        action({ type: "seekTo", payload: { time: to, flashTime: true } })
     }
 
     //
@@ -414,7 +371,7 @@ export function VideoCoreKeybindingController(props: {
 
             if (props.introEndTime && props.introStartTime && video.currentTime < props.introEndTime && video.currentTime >= props.introStartTime) {
                 seekTo(props.introEndTime)
-                showFlash("Skipped intro")
+                flashAction({ message: "Skipped intro" })
                 return
             }
             seek(keybindings.seekForward.value)
@@ -475,14 +432,14 @@ export function VideoCoreKeybindingController(props: {
             e.preventDefault()
             const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
             video.playbackRate = newRate
-            showFlash(`Speed: ${newRate.toFixed(2)}x`)
+            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
         } else if (e.code === keybindings.decreaseSpeed.key) {
             e.preventDefault()
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
-            showFlash(`Speed: ${newRate.toFixed(2)}x`)
+            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
         }
-    }, [keybindings, volume, muted, seek, active, fullscreen, pip, showFlash, introEndTime, introStartTime])
+    }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {
@@ -499,16 +456,16 @@ export function VideoCoreKeybindingController(props: {
             seekTo(nextChapter.startTime)
             // Try to get chapter name from video track cues
             const chapterName = nextChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}`)
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}` })
         } else {
             // If no next chapter, go to the end
             const lastChapter = sortedChapters[sortedChapters.length - 1]
             if (lastChapter && lastChapter.endTime) {
                 seekTo(lastChapter.endTime)
-                showFlash("End of chapters")
+                flashAction({ message: "End of chapters" })
             }
         }
-    }, [chapterCues, seekTo, showFlash])
+    }, [chapterCues, seekTo, flashAction])
 
     const handlePreviousChapter = useCallback(() => {
         if (!videoRef.current || !chapterCues) return
@@ -529,19 +486,19 @@ export function VideoCoreKeybindingController(props: {
             const previousChapter = sortedChapters[currentChapterIndex - 1]
             seekTo(previousChapter.startTime)
             const chapterName = previousChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}`)
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}` })
         } else if (currentChapterIndex === 0) {
             // Already in first chapter, go to the beginning
             seekTo(0)
             const firstChapter = sortedChapters[0]
             const chapterName = firstChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : "Chapter 1")
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : "Chapter 1" })
         } else {
             // If we can't determine current chapter, just go to the beginning
             seekTo(0)
-            showFlash("Beginning")
+            flashAction({ message: "Beginning" })
         }
-    }, [chapterCues, seekTo, showFlash])
+    }, [chapterCues, seekTo, flashAction])
 
 
     const handleCycleSubtitles = useCallback(() => {
@@ -549,7 +506,7 @@ export function VideoCoreKeybindingController(props: {
 
         const textTracks = Array.from(videoRef.current.textTracks).filter(track => track.kind === "subtitles")
         if (textTracks.length === 0) {
-            showFlash("No subtitle tracks")
+            flashAction({ message: "No subtitle tracks" })
             return
         }
 
@@ -575,11 +532,11 @@ export function VideoCoreKeybindingController(props: {
             textTracks[nextIndex].mode = "showing"
             subtitleManager?.selectTrack(Number(textTracks[nextIndex].id))
             const trackName = textTracks[nextIndex].label || `Track ${nextIndex + 1}`
-            showFlash(`Subtitles: ${trackName}`)
+            flashAction({ message: `Subtitles: ${trackName}` })
         } else {
             // If we've cycled through all, disable subtitles
             subtitleManager?.setNoTrack()
-            showFlash("Subtitles: Off")
+            flashAction({ message: "Subtitles: Off" })
         }
     }, [subtitleManager])
 
@@ -588,7 +545,7 @@ export function VideoCoreKeybindingController(props: {
 
         const audioTracks = videoRef.current.audioTracks
         if (!audioTracks || audioTracks.length <= 1) {
-            showFlash("No additional audio tracks")
+            flashAction({ message: "No additional audio tracks" })
             return
         }
 
@@ -614,7 +571,7 @@ export function VideoCoreKeybindingController(props: {
         audioManager?.selectTrack(nextIndex)
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
-        showFlash(`Audio: ${trackName}`)
+        flashAction({ message: `Audio: ${trackName}` })
     }, [])
 
     const log = logger("VideoCoreKeybindings")

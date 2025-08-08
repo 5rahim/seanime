@@ -49,7 +49,6 @@ export function VideoCoreControlBar(props: {
 
     const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar
 
-
     function handleVideoContainerPointerMove(e: Event) {
         if (!containerElement) {
             setCursorPosition("outside")
@@ -97,11 +96,8 @@ export function VideoCoreControlBar(props: {
                     isMiniPlayer && "h-20",
                     !hideShadow && "opacity-100",
                 )}
-                style={{
-                    // "--tw-translate-y": (showOnlyTimeRange || bottom !== 0) && "-100%"
-                } as React.CSSProperties}
             />
-            <div
+            {!isMiniPlayer && <div
                 className={cn(
                     "vc-control-bar-bottom-gradient-time-range-only pointer-events-none",
                     "absolute bottom-0 left-0 right-0 w-full z-[1] h-14 transition-opacity duration-400 opacity-0",
@@ -110,10 +106,7 @@ export function VideoCoreControlBar(props: {
                     isMiniPlayer && "h-10",
                     (showOnlyTimeRange && paused) && "opacity-100",
                 )}
-                style={{
-                    // "--tw-translate-y": (showOnlyTimeRange || bottom !== 0) && "-100%"
-                } as React.CSSProperties}
-            />
+            />}
             <div
                 data-vc-control-bar-section
                 className={cn(

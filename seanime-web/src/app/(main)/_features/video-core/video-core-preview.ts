@@ -1,5 +1,5 @@
 export const VIDEOCORE_PREVIEW_THUMBNAIL_SIZE = 200
-export const VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS = 12
+export const VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS = 4
 
 export class VideoCorePreviewManager {
     private previewCache: Map<number, string> = new Map()
