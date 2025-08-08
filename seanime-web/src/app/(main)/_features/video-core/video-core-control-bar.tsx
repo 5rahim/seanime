@@ -28,23 +28,31 @@ export function VideoCoreControlBar(props: {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const [cursorBusy, setCursorBusy] = useAtom(vc_cursorBusy)
     const [hoveringControlBar, setHoveringControlBar] = useAtom(vc_hoveringControlBar)
-    const [bottom, setBottom] = React.useState(-300)
-    const seeking = useAtomValue(vc_seeking)
-
-    const [showOnlyTimeRange, setShowOnlyTimeRange] = React.useState(false)
-
-    // gradually show the control bar as cursor moves down
-    // display it completely after a certain threshold or when the video is paused
     const containerElement = useAtomValue(vc_containerElement)
+    const seeking = useAtomValue(vc_seeking)
 
     const mainSectionHeight = isMiniPlayer ? VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI : VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT
 
-    function handleVideoContainerPointerMove(e: Event) {
-        if (!containerElement) return
+    // when the user is approaching the control bar
+    const [cursorPosition, setCursorPosition] = React.useState<"outside" | "approaching" | "hover">("outside")
+    const showOnlyTimeRange =
+        (!paused && cursorPosition === "approaching") // when cursor is approaching and video is not paused
+        || (paused && cursorPosition === "outside") || (paused && cursorPosition === "approaching") // when cursor not hovering and video is paused
 
-        if (seeking || paused || hoveringControlBar) {
-            setBottom(0)
-            setShowOnlyTimeRange(false)
+    const controlBarBottomPx = (cursorBusy || hoveringControlBar) ? 0 : (
+        showOnlyTimeRange ? -(mainSectionHeight) : (
+            cursorPosition === "hover" ? 0 : -300
+        )
+    )
+
+    const hideShadow = cursorPosition !== "hover" && !cursorBusy && !hoveringControlBar
+
+    const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar
+
+
+    function handleVideoContainerPointerMove(e: Event) {
+        if (!containerElement) {
+            setCursorPosition("outside")
             return
         }
 
@@ -53,26 +61,18 @@ export function VideoCoreControlBar(props: {
         const registerThreshold = !isMiniPlayer ? 150 : 100 // pixels from the bottom to start registering position
         const showOnlyTimeRangeOffset = !isMiniPlayer ? 50 : 50
 
-        console.log(y >= rect.height - registerThreshold, y < rect.height - registerThreshold + showOnlyTimeRangeOffset)
-
         if ((y >= rect.height - registerThreshold && y < rect.height - registerThreshold + showOnlyTimeRangeOffset)) {
-            setShowOnlyTimeRange(true)
-            setBottom(0)
-        } else if (y < rect.height - registerThreshold && !paused) {
-            setBottom(-100)
-            setShowOnlyTimeRange(false)
+            setCursorPosition("approaching")
+        } else if (y < rect.height - registerThreshold) {
+            setCursorPosition("outside")
         } else {
-            setBottom(0)
-            setShowOnlyTimeRange(false)
+            setCursorPosition("hover")
         }
     }
 
     React.useEffect(() => {
         if (!containerElement) return
         containerElement.addEventListener("pointermove", handleVideoContainerPointerMove)
-        if (paused) {
-            setBottom(0)
-        }
         return () => {
             containerElement.removeEventListener("pointermove", handleVideoContainerPointerMove)
         }
@@ -87,7 +87,7 @@ export function VideoCoreControlBar(props: {
                     "bg-gradient-to-t to-transparent",
                     !isMiniPlayer ? "from-black/80 via-black/50" : "from-black/80 via-black/40",
                     isMiniPlayer && "h-20",
-                    ((showOnlyTimeRange || bottom != 0) && !paused) ? "opacity-0" : (cursorBusy || paused || showOnlyTimeRange) ? "opacity-100" : "",
+                    !hideShadow && "opacity-100",
                 )}
                 style={{
                     // "--tw-translate-y": (showOnlyTimeRange || bottom !== 0) && "-100%"
@@ -100,11 +100,11 @@ export function VideoCoreControlBar(props: {
                     "absolute left-0 bottom-0 right-0 flex flex-col",
                     "transition-all duration-300 opacity-0",
                     "z-[100] h-28",
-                    (cursorBusy || paused || showOnlyTimeRange) && "opacity-100",
+                    !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
                 )}
                 style={{
-                    bottom: (showOnlyTimeRange && !paused) ? `-${mainSectionHeight}px` : bottom,
+                    bottom: `${controlBarBottomPx}px`,
                 }}
                 onPointerEnter={() => {
                     setCursorBusy(true)
@@ -135,7 +135,7 @@ export function VideoCoreControlBar(props: {
                         )}
                         style={{
                             height: `${mainSectionHeight}px`,
-                            "--tw-translate-y": (showOnlyTimeRange && !paused) ? `-${mainSectionHeight}px` : 0,
+                            "--tw-translate-y": showOnlyTimeRange ? `-${mainSectionHeight}px` : 0,
                         } as React.CSSProperties}
                     >
                         {children}
