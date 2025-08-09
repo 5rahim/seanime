@@ -1,4 +1,4 @@
-import { MKVParser_ChapterInfo } from "@/api/generated/types"
+import { MKVParser_ChapterInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
 import {
     vc_currentTime,
     vc_duration,
@@ -8,12 +8,14 @@ import {
     vc_playbackRate,
     vc_readyState,
     vc_timeRanges,
+    vc_videoElement,
     vc_videoSize,
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 
 export type VideoCoreChapter = {
     start: number
@@ -21,8 +23,9 @@ export type VideoCoreChapter = {
     title: string
 }
 
-export function useVideoBindings(ref: React.RefObject<HTMLVideoElement> | undefined | null) {
+export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | null | undefined) {
 
+    const v = useAtomValue(vc_videoElement)
     const setVideoSize = useSetAtom(vc_videoSize)
     const setDuration = useSetAtom(vc_duration)
     const setCurrentTime = useSetAtom(vc_currentTime)
@@ -35,7 +38,6 @@ export function useVideoBindings(ref: React.RefObject<HTMLVideoElement> | undefi
     const setPaused = useSetAtom(vc_paused)
 
     useEffect(() => {
-        const v = ref?.current
         if (!v) return
         const handler = () => {
             setVideoSize({
@@ -56,10 +58,12 @@ export function useVideoBindings(ref: React.RefObject<HTMLVideoElement> | undefi
         events.forEach(e => v.addEventListener(e, handler))
         handler() // initialize state once
 
-        return () => events.forEach(e => v.removeEventListener(e, handler))
-    }, [ref?.current])
+        return () => {
+            console.log("Removing video event listeners")
+            events.forEach(e => v.removeEventListener(e, handler))
+        }
+    }, [v, playbackInfo])
 
-    return { ref }
 }
 
 export const vc_createChapterCues = (chapters: Array<MKVParser_ChapterInfo> | undefined, duration: number): VideoCoreChapterCue[] => {
@@ -241,4 +245,44 @@ export const vc_formatTime = (seconds: number) => {
         return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
     return `${minutes}:${secs.toString().padStart(2, "0")}`
+}
+
+export const vc_logGeneralInfo = (video: HTMLVideoElement | null) => {
+    if (!video) return
+    // MP4 container codec tests
+    console.log("HEVC main ->", video.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\"") || "❌")
+    console.log("HEVC main 10 ->", video.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\"") || "❌")
+    console.log("HEVC main still-picture ->", video.canPlayType("video/mp4;codecs=\"hev1.3.E.L120.90\"") || "❌")
+    console.log("HEVC range extensions ->", video.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\"") || "❌")
+
+    // Audio codec tests
+    console.log("Dolby AC3 ->", video.canPlayType("audio/mp4; codecs=\"ac-3\"") || "❌")
+    console.log("Dolby EC3 ->", video.canPlayType("audio/mp4; codecs=\"ec-3\"") || "❌")
+
+    // GPU and hardware acceleration status
+    const canvas = document.createElement("canvas")
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl")
+    if (gl) {
+        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info")
+        if (debugInfo) {
+            console.log("GPU Vendor ->", gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL))
+            console.log("GPU Renderer ->", gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
+        }
+    }
+    console.log("Hardware concurrency ->", navigator.hardwareConcurrency)
+    console.log("User agent ->", navigator.userAgent)
+
+    // Web GPU
+    if (navigator.gpu) {
+        navigator.gpu.requestAdapter().then(adapter => {
+            if (adapter) {
+                console.log("WebGPU adapter ->", adapter)
+                console.log("WebGPU adapter features ->", adapter.features)
+            } else {
+                console.log("⚠️ No WebGPU adapter found.")
+            }
+        })
+    } else {
+        console.log("❌ WebGPU not supported.")
+    }
 }

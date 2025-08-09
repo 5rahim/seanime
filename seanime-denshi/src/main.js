@@ -58,6 +58,7 @@ function setupChromiumFlags() {
         'UseSkiaRenderer',
         'WebAssemblyLazyCompilation',
         'RawDraw',
+        // "Vulkan",
         // 'MediaFoundationHEVC',
         'PlatformHEVCDecoderSupport',
     ].join(','));

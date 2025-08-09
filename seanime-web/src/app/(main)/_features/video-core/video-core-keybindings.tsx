@@ -294,6 +294,8 @@ export function VideoCoreKeybindingController(props: {
     chapterCues: VideoCoreChapterCue[],
     introEndTime: number | undefined,
     introStartTime: number | undefined
+    endingEndTime: number | undefined,
+    endingStartTime: number | undefined
 }) {
     const {
         active,
@@ -301,6 +303,8 @@ export function VideoCoreKeybindingController(props: {
         chapterCues,
         introEndTime,
         introStartTime,
+        endingEndTime,
+        endingStartTime,
     } = props
 
     const [keybindings] = useAtom(vc_keybindingsAtom)
@@ -371,7 +375,12 @@ export function VideoCoreKeybindingController(props: {
 
             if (props.introEndTime && props.introStartTime && video.currentTime < props.introEndTime && video.currentTime >= props.introStartTime) {
                 seekTo(props.introEndTime)
-                flashAction({ message: "Skipped intro" })
+                flashAction({ message: "Skipped Opening" })
+                return
+            }
+            if (props.endingEndTime && props.endingStartTime && video.currentTime < props.endingEndTime && video.currentTime >= props.endingStartTime) {
+                seekTo(props.endingEndTime)
+                flashAction({ message: "Skipped Ending" })
                 return
             }
             seek(keybindings.seekForward.value)

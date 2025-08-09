@@ -22,10 +22,11 @@ import { vc_settings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
     detectSubtitleType,
     isSubtitleFile,
-    useVideoBindings,
+    useVideoCoreBindings,
     vc_createChapterCues,
     vc_createChaptersFromAniSkip,
     vc_formatTime,
+    vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -56,6 +57,7 @@ export const VIDEOCORE_DEBUG_ELEMENTS = false
 const DELAY_BEFORE_NOT_BUSY = 1_000 //ms
 
 export const vc_videoSize = atom({ width: 1, height: 1 })
+export const vc_realVideoSize = atom({ width: 1, height: 1 })
 export const vc_duration = atom(1)
 export const vc_currentTime = atom(0)
 export const vc_playbackRate = atom(1)
@@ -91,9 +93,7 @@ export const vc_cursorPosition = atom({ x: 0, y: 0 })
 export const vc_busy = atom(true)
 
 export const vc_videoElement = atom<HTMLVideoElement | null>(null)
-export const vc_videoRef = atom(() => React.createRef<HTMLVideoElement>())
 export const vc_containerElement = atom<HTMLDivElement | null>(null)
-export const vc_containerRef = atom(() => React.createRef<HTMLDivElement>())
 
 export const vc_subtitleManager = atom<VideoCoreSubtitleManager | null>(null)
 export const vc_audioManager = atom<VideoCoreAudioManager | null>(null)
@@ -167,8 +167,6 @@ export interface VideoCoreProps {
     onFileUploaded: (data: { name: string, content: string }) => void
 }
 
-// VideoCore augments the native video element.
-// External states should be synced by listening to the video element's events.
 export function VideoCore(props: VideoCoreProps) {
     const {
         state,
@@ -190,18 +188,19 @@ export function VideoCore(props: VideoCoreProps) {
         ...rest
     } = props
 
+    const videoRef = useRef<HTMLVideoElement | null>(null)
+    const containerRef = useRef<HTMLDivElement | null>(null)
 
-    // Ref
-    const videoRef = useAtomValue(vc_videoRef)
-    const [, setVideoElement] = useAtom(vc_videoElement)
-    const setVideoSize = useSetAtom(vc_videoSize)
-    useVideoBindings(videoRef)
+    const setVideoElement = useSetAtom(vc_videoElement)
+    const setRealVideoSize = useSetAtom(vc_realVideoSize)
+    useVideoCoreBindings(state.playbackInfo)
+    // useVideoCoreAnime4K()
     const action = useSetAtom(vc_dispatchAction)
+
 
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
 
-    const containerRef = useAtomValue(vc_containerRef)
     const [, setContainerElement] = useAtom(vc_containerElement)
 
     const [subtitleManager, setSubtitleManager] = useAtom(vc_subtitleManager)
@@ -228,7 +227,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
     React.useEffect(() => {
-        setVideoSize({
+        setRealVideoSize({
             width,
             height,
         })
@@ -245,14 +244,12 @@ export function VideoCore(props: VideoCoreProps) {
     }, [state.active])
 
     const combineRef = (instance: HTMLVideoElement | null) => {
-        if (videoRef as unknown instanceof Function) (videoRef as any)(instance)
-        else if (videoRef) (videoRef as any).current = instance
+        videoRef.current = instance
         if (instance) measureRef(instance)
         setVideoElement(instance)
     }
     const combineContainerRef = (instance: HTMLDivElement | null) => {
-        if (containerRef as unknown instanceof Function) (containerRef as any)(instance)
-        else if (containerRef) (containerRef as any).current = instance
+        containerRef.current = instance
         setContainerElement(instance)
     }
 
@@ -299,43 +296,25 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     useUpdateEffect(() => {
-        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
-            if (videoRef.current) {
-                // MP4 container codec tests
-                console.log("MP4 HEVC HVC1 main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hvc1\""))
-                console.log("MP4 HEVC main profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.1.6.L120.90\""))
-                console.log("MP4 HEVC main 10 profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.2.4.L120.90\""))
-                console.log("MP4 HEVC main still-picture profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.3.E.L120.90\""))
-                console.log("MP4 HEVC range extensions profile support ->", videoRef.current.canPlayType("video/mp4;codecs=\"hev1.4.10.L120.90\""))
-
-                // Audio codec tests
-                console.log("Dolby AC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ac-3\""))
-                console.log("Dolby EC3 support ->", videoRef.current.canPlayType("audio/mp4; codecs=\"ec-3\""))
-
-                // GPU and hardware acceleration status
-                const canvas = document.createElement("canvas")
-                const gl = canvas.getContext("webgl2") || canvas.getContext("webgl")
-                if (gl) {
-                    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info")
-                    if (debugInfo) {
-                        console.log("GPU Vendor:", gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL))
-                        console.log("GPU Renderer:", gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
-                    }
-                }
-                console.log("Hardware concurrency:", navigator.hardwareConcurrency)
-                console.log("User agent:", navigator.userAgent)
-            }
+        if (!state.playbackInfo) {
+            log.info("Cleaning up")
+            setVideoElement(null)
+            subtitleManager?.destroy?.()
+            setSubtitleManager(null)
+            previewManager?.cleanup?.()
+            setPreviewManager(null)
+            setAudioManager(null)
+            currentPlaybackRef.current = null
+            videoRef.current = null
         }
 
-
-        if (!state.playbackInfo && currentPlaybackRef.current) {
-            log.info("Stream unloaded")
-            subtitleManager?.terminate()
-            previewManager?.cleanup()
-            // setPreviewThumbnail(undefined)
-            currentPlaybackRef.current = null
+        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
+            log.info("New stream loaded")
+            vc_logGeneralInfo(videoRef.current)
         }
     }, [state.playbackInfo, videoRef.current])
+
+    const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
     // events
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -352,7 +331,7 @@ export function VideoCore(props: VideoCoreProps) {
 
         videoCompletedRef.current = false
 
-        if (!state.playbackInfo || !videoRef.current) return // shouldn't happen
+        if (!state.playbackInfo) return // shouldn't happen
 
         // setHasUpdatedProgress(false)
 
@@ -360,15 +339,18 @@ export function VideoCore(props: VideoCoreProps) {
 
         // Initialize the subtitle manager if the stream is MKV
         if (!!state.playbackInfo?.mkvMetadata) {
-            setSubtitleManager(new VideoCoreSubtitleManager({
-                videoElement: videoRef.current,
-                playbackInfo: state.playbackInfo,
-                jassubOffscreenRender: true,
-                settings: settings,
-            }))
+            setSubtitleManager(p => {
+                if (p) p.destroy()
+                return new VideoCoreSubtitleManager({
+                    videoElement: v!,
+                    playbackInfo: state.playbackInfo!,
+                    jassubOffscreenRender: true,
+                    settings: settings,
+                })
+            })
 
             setAudioManager(new VideoCoreAudioManager({
-                videoElement: videoRef.current,
+                videoElement: v!,
                 playbackInfo: state.playbackInfo,
                 settings: settings,
                 onError: (error) => {
@@ -378,15 +360,11 @@ export function VideoCore(props: VideoCoreProps) {
             }))
         }
 
-        // Initialize thumbnailer
-        if (state.playbackInfo?.streamUrl) {
-            const streamUrl = state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())
-            log.info("Initializing thumbnailer with URL:", streamUrl)
-            setPreviewManager(new VideoCorePreviewManager(videoRef.current, streamUrl))
-            log.info("Thumbnailer initialized successfully")
-        } else {
-            log.info("No stream URL available for thumbnailer")
-        }
+        log.info("Initializing preview manager")
+        setPreviewManager(p => {
+            if (p) p.cleanup()
+            return new VideoCorePreviewManager(v!, streamUrl)
+        })
     }
 
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -688,11 +666,13 @@ export function VideoCore(props: VideoCoreProps) {
                         <>
 
                             <VideoCoreKeybindingController
-                                active={state.active}
                                 videoRef={videoRef}
+                                active={state.active}
                                 chapterCues={chapterCues ?? []}
                                 introStartTime={aniSkipData?.op?.interval?.startTime}
                                 introEndTime={aniSkipData?.op?.interval?.endTime}
+                                endingStartTime={aniSkipData?.ed?.interval?.startTime}
+                                endingEndTime={aniSkipData?.ed?.interval?.endTime}
                             />
 
                             <VideoCoreActionDisplay />
@@ -703,7 +683,6 @@ export function VideoCore(props: VideoCoreProps) {
                             {/*    className="native-player-loading-indicator"*/}
                             {/*/>*/}
 
-                            {/* Skip Intro/Ending Buttons */}
                             {busy && <>
                                 {showSkipIntroButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
                                     <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
@@ -738,47 +717,48 @@ export function VideoCore(props: VideoCoreProps) {
                                 )}
                             </>}
 
-                            <video
-                                data-video-core-element
-                                crossOrigin="anonymous"
-                                preload="auto"
-                                src={state.playbackInfo.streamUrl.replace("{{SERVER_URL}}", getServerBaseUrl())}
-                                ref={combineRef}
-                                onLoadedMetadata={handleLoadedMetadata}
-                                onTimeUpdate={handleTimeUpdate}
-                                onEnded={handleEnded}
-                                onPlay={handlePlay}
-                                onPause={handlePause}
-                                onClick={handleClick}
-                                onDoubleClick={() => {}}
-                                onLoadedData={handleLoadedData}
-                                onVolumeChange={handleVolumeChange}
-                                onRateChange={handleRateChange}
-                                onError={handleError}
-                                autoPlay={autoPlay}
-                                muted={muted}
-                                playsInline
-                                controls={false}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    border: "none",
-                                    filter: settings.videoEnhancement.enabled
-                                        ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
-                                        : "none",
-                                    imageRendering: "auto",
-                                }}
-                            >
-                                {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
-                                    <track
-                                        id={track.number.toString()}
-                                        key={track.number}
-                                        kind="subtitles"
-                                        srcLang={track.language || "eng"}
-                                        label={track.name}
-                                    />
-                                ))}
-                            </video>
+                            <div className="relative w-full h-full flex items-center justify-center">
+                                <video
+                                    data-video-core-element
+                                    crossOrigin="anonymous"
+                                    preload="auto"
+                                    src={streamUrl!}
+                                    ref={combineRef}
+                                    onLoadedMetadata={handleLoadedMetadata}
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onEnded={handleEnded}
+                                    onPlay={handlePlay}
+                                    onPause={handlePause}
+                                    onClick={handleClick}
+                                    onDoubleClick={() => {}}
+                                    onLoadedData={handleLoadedData}
+                                    onVolumeChange={handleVolumeChange}
+                                    onRateChange={handleRateChange}
+                                    onError={handleError}
+                                    autoPlay={autoPlay}
+                                    muted={muted}
+                                    playsInline
+                                    controls={false}
+                                    style={{
+                                        border: "none",
+                                        width: "100%",
+                                        filter: settings.videoEnhancement.enabled
+                                            ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
+                                            : "none",
+                                        imageRendering: "crisp-edges",
+                                    }}
+                                >
+                                    {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
+                                        <track
+                                            id={track.number.toString()}
+                                            key={track.number}
+                                            kind="subtitles"
+                                            srcLang={track.language || "eng"}
+                                            label={track.name}
+                                        />
+                                    ))}
+                                </video>
+                            </div>
 
                             <VideoCoreTopSection>
                                 <VideoCoreTopPlaybackInfo state={state} />
@@ -812,11 +792,11 @@ export function VideoCore(props: VideoCoreProps) {
                             {/* {!state.miniPlayer && <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />} */}
                             <FloatingButtons part="loading" onTerminateStream={onTerminateStream} />
 
-                            <LoadingSpinner
+                            {state.loadingState && <LoadingSpinner
                                 title={state.loadingState || "Loading..."}
                                 spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
                                 containerClass="z-[1]"
-                            />
+                            />}
                         </div>
                     )}
 

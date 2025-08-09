@@ -62,6 +62,7 @@
     "@vidstack/react": "^1.10.9",
     "@zag-js/number-input": "^1.15.7",
     "@zag-js/react": "^1.15.7",
+    "anime4k-webgpu": "^1.0.0",
     "artplayer": "^5.2.3",
     "autoprefixer": "^10",
     "axios": "^1.11.0",

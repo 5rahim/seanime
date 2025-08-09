@@ -179,7 +179,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     }
 
-    terminate() {
+    destroy() {
+        subtitleLog.info("Destroying subtitle manager")
         this.libassRenderer?.destroy()
         this.libassRenderer = null
         for (const trackNumber in this.tracks) {

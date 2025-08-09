@@ -3,7 +3,7 @@ import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { __seaMediaPlayer_autoNextAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
-import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoRef, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -40,7 +40,7 @@ export function NativePlayer() {
     const { sendMessage } = useWebsocketSender()
 
     const autoPlayNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
-    const videoRef = useAtomValue(vc_videoRef)
+    const videoElement = useAtomValue(vc_videoElement)
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
     const subtitleManager = useAtomValue(vc_subtitleManager)
@@ -70,16 +70,16 @@ export function NativePlayer() {
     )
 
     const handleTimeInterval = () => {
-        if (videoRef.current) {
+        if (videoElement) {
             sendMessage({
                 type: WSEvents.NATIVE_PLAYER,
                 payload: {
                     clientId: clientId,
                     type: VideoPlayerEvents.VIDEO_TIME_UPDATE,
                     payload: {
-                        currentTime: videoRef.current.currentTime,
-                        duration: videoRef.current.duration,
-                        paused: videoRef.current.paused,
+                        currentTime: videoElement.currentTime,
+                        duration: videoElement.duration,
+                        paused: videoElement.paused,
                     },
                 },
             })
@@ -90,14 +90,14 @@ export function NativePlayer() {
     React.useEffect(() => {
         const interval = setInterval(handleTimeInterval, 2000)
         return () => clearInterval(interval)
-    }, [videoRef.current])
+    }, [videoElement])
 
     //
     // Event Handlers
     //
 
     const handleCompleted = () => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
         sendMessage({
             type: WSEvents.NATIVE_PLAYER,
@@ -113,7 +113,7 @@ export function NativePlayer() {
     }
 
     const handleTimeUpdate = () => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
     }
@@ -135,7 +135,7 @@ export function NativePlayer() {
     }
 
     const handleError = (value: string) => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
         const error = value || v.error
@@ -186,7 +186,7 @@ export function NativePlayer() {
     }
 
     const handleSeeked = (currentTime: number) => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
         log.info("Video seeked to", currentTime)
@@ -209,7 +209,7 @@ export function NativePlayer() {
      * - Initialize the thumbnailer if the stream is local file
      */
     const handleLoadedMetadata = () => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
 
@@ -227,18 +227,18 @@ export function NativePlayer() {
 
         if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
             const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
-                videoRef.current?.currentTime,
-                videoRef.current?.duration)
+                videoElement?.currentTime,
+                videoElement?.duration)
             logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
             if (lastWatchedTime > 0) {
                 logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                const isPaused = videoRef.current?.paused
-                videoRef.current?.pause?.()
+                const isPaused = videoElement?.paused
+                videoElement?.pause?.()
                 setTimeout(() => {
                     dispatchEvent({ type: "seekTo", payload: { time: lastWatchedTime } })
                     if (!isPaused) {
                         setTimeout(() => {
-                            videoRef.current?.play?.()
+                            videoElement?.play?.()
                         }, 200)
                     }
                 }, 200)
@@ -247,7 +247,7 @@ export function NativePlayer() {
     }
 
     const handlePause = () => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
         sendMessage({
@@ -264,7 +264,7 @@ export function NativePlayer() {
     }
 
     const handlePlay = () => {
-        const v = videoRef.current
+        const v = videoElement
         if (!v) return
 
         sendMessage({
@@ -355,9 +355,9 @@ export function NativePlayer() {
 
     function handleTerminateStream() {
         // Clean up player first
-        if (videoRef.current) {
+        if (videoElement) {
             log.info("Cleaning up media")
-            videoRef.current.pause()
+            videoElement.pause()
         }
 
         setMiniPlayer(true)
