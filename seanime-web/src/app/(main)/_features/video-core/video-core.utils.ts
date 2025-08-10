@@ -1,5 +1,6 @@
 import { MKVParser_ChapterInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
 import {
+    vc_buffering,
     vc_currentTime,
     vc_duration,
     vc_ended,
@@ -31,6 +32,7 @@ export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | n
     const setCurrentTime = useSetAtom(vc_currentTime)
     const setPlaybackRate = useSetAtom(vc_playbackRate)
     const setReadyState = useSetAtom(vc_readyState)
+    const setBuffering = useSetAtom(vc_buffering)
     const setIsMuted = useSetAtom(vc_isMuted)
     const setVolume = useSetAtom(vc_volume)
     const setBuffered = useSetAtom(vc_timeRanges)
@@ -48,13 +50,16 @@ export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | n
             setCurrentTime(v.currentTime)
             setPlaybackRate(v.playbackRate)
             setReadyState(v.readyState)
+            // Set buffering to true if readyState is less than HAVE_ENOUGH_DATA (3) and video is not paused
+            setBuffering(v.readyState < 3 && !v.paused)
             setIsMuted(v.muted)
             setVolume(v.volume)
             setBuffered(v.buffered.length > 0 ? v.buffered : null)
             setEnded(v.ended)
             setPaused(v.paused)
         }
-        const events = ["timeupdate", "loadedmetadata", "progress", "play", "pause", "ratechange", "volumechange", "ended", "loadeddata", "resize"]
+        const events = ["timeupdate", "loadedmetadata", "progress", "play", "pause", "ratechange", "volumechange", "ended", "loadeddata", "resize",
+            "waiting", "canplay", "stalled"]
         events.forEach(e => v.addEventListener(e, handler))
         handler() // initialize state once
 
@@ -237,14 +242,16 @@ export function vc_createChaptersFromAniSkip(
 }
 
 export const vc_formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = Math.floor(seconds % 60)
+    const sign = seconds < 0 ? "-" : ""
+    const absSeconds = Math.abs(seconds)
+    const hours = Math.floor(absSeconds / 3600)
+    const minutes = Math.floor((absSeconds % 3600) / 60)
+    const secs = Math.floor(absSeconds % 60)
 
     if (hours > 0) {
-        return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+        return `${sign}${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
-    return `${minutes}:${secs.toString().padStart(2, "0")}`
+    return `${sign}${minutes}:${secs.toString().padStart(2, "0")}`
 }
 
 export const vc_logGeneralInfo = (video: HTMLVideoElement | null) => {

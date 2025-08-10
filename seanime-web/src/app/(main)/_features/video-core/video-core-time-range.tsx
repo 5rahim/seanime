@@ -94,6 +94,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
 
     // start seeking
     function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+        e.stopPropagation()
         if (!videoElement) return
         if (e.button !== 0) return
         e.currentTarget.setPointerCapture(e.pointerId) // capture movement outside
@@ -108,6 +109,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
 
     // stop seeking
     function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
+        e.stopPropagation()
         if (e.button !== 0) return
         e.currentTarget.releasePointerCapture(e.pointerId)
         setSeeking(false)
@@ -135,6 +137,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
         const target = getPointerProgress(e)
         if (seeking) {
+            e.stopPropagation()
             setProgressPercentage(target)
         }
         setSeekingTargetProgress(target)
@@ -202,6 +205,7 @@ function VideoCoreTimeRangeSegment(props: {
 
     const focused = !!seekingTargetProgress && chapter.percentageOffset <= seekingTargetProgress && chapter.percentageOffset + chapter.width >= seekingTargetProgress
 
+    // returns x position of the bar in percentage
     function getChapterBarPosition(chapter: VideoCoreTimeRangeChapter, percentage: number) {
         const ret = (percentage - chapter.percentageOffset) * (100 / chapter.width)
         return (ret <= 0 ? -CHAPTER_GAP : ret >= 100 ? 100 : ret) - 100

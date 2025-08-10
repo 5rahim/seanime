@@ -22,6 +22,30 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 
 export const videoCoreKeybindingsModalAtom = atom(false)
 
+const KeybindingValueInput = React.memo(({
+    actionKey,
+    value,
+    onValueChange,
+}: {
+    actionKey: keyof VideoCoreKeybindings
+    value: number
+    onValueChange: (value: number) => void
+}) => {
+    return (
+        <NumberInput
+            value={value}
+            onValueChange={onValueChange}
+            size="sm"
+            fieldClass="w-16"
+            hideControls
+            min={0}
+            step={actionKey.includes("Speed") ? 0.25 : 1}
+            onKeyDown={(e) => e.stopPropagation()}
+            onInput={(e) => e.stopPropagation()}
+        />
+    )
+})
+
 export function VideoCoreKeybindingsModal() {
     const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
     const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
@@ -41,6 +65,7 @@ export function VideoCoreKeybindingsModal() {
         const handleKeyDown = (e: KeyboardEvent) => {
             e.preventDefault()
             e.stopPropagation()
+            e.stopImmediatePropagation()
 
             setEditedKeybindings(prev => ({
                 ...prev,
@@ -51,10 +76,10 @@ export function VideoCoreKeybindingsModal() {
             }))
 
             setRecordingKey(null)
-            document.removeEventListener("keydown", handleKeyDown)
+            document.removeEventListener("keydown", handleKeyDown, true)
         }
 
-        document.addEventListener("keydown", handleKeyDown)
+        document.addEventListener("keydown", handleKeyDown, true)
     }
 
     const handleSave = () => {
@@ -80,7 +105,7 @@ export function VideoCoreKeybindingsModal() {
         return keyMap[keyCode] || keyCode
     }
 
-    const KeybindingRow = ({
+    const KeybindingRow = React.useCallback(({
         action,
         description,
         actionKey,
@@ -99,17 +124,13 @@ export function VideoCoreKeybindingsModal() {
                 {hasValue && (
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">{valueLabel}:</span>
-                        <NumberInput
+                        <KeybindingValueInput
+                            actionKey={actionKey}
                             value={("value" in editedKeybindings[actionKey]) ? (editedKeybindings[actionKey] as any).value : 0}
-                            onChange={(value) => setEditedKeybindings(prev => ({
+                            onValueChange={(value) => setEditedKeybindings(prev => ({
                                 ...prev,
                                 [actionKey]: { ...prev[actionKey], value: value || 0 },
                             }))}
-                            size="sm"
-                            fieldClass="w-16"
-                            hideControls
-                            min={0}
-                            step={actionKey.includes("Speed") ? 0.25 : 1}
                         />
                     </div>
                 )}
@@ -128,7 +149,7 @@ export function VideoCoreKeybindingsModal() {
                 </Button>
             </div>
         </div>
-    )
+    ), [editedKeybindings, recordingKey, formatKeyDisplay, setEditedKeybindings, handleKeyRecord])
 
     return (
         <Modal
@@ -136,7 +157,7 @@ export function VideoCoreKeybindingsModal() {
             description="Customize the keyboard shortcuts for the player"
             open={open}
             onOpenChange={setOpen}
-            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none"
+            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm"
         >
             <div className="grid grid-cols-3 gap-8">
                 {/* Playback Column */}
@@ -308,6 +329,7 @@ export function VideoCoreKeybindingController(props: {
     } = props
 
     const [keybindings] = useAtom(vc_keybindingsAtom)
+    const isKeybindingsModalOpen = useAtomValue(videoCoreKeybindingsModalAtom)
     const fullscreen = useAtomValue(vc_isFullscreen)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)
@@ -338,8 +360,8 @@ export function VideoCoreKeybindingController(props: {
     //
 
     const handleKeyboardShortcuts = useCallback((e: KeyboardEvent) => {
-        // Don't handle shortcuts if we're in an input field or modal is open
-        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        // Don't handle shortcuts if in an input/textarea or while keybindings modal is open
+        if (isKeybindingsModalOpen || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
             return
         }
 
@@ -349,12 +371,65 @@ export function VideoCoreKeybindingController(props: {
 
         const video = videoRef.current
 
-        // Handle escape key to exit fullscreen
+
+        if (e.code === "Space" || e.code === "Enter") {
+            e.preventDefault()
+            if (video.paused) {
+                video.play()
+                flashAction({ message: "PLAY", type: "icon" })
+            } else {
+                video.pause()
+                flashAction({ message: "PAUSE", type: "icon" })
+            }
+            return
+        }
+
+        // Home, go to beginning
+        if (e.code === "Home") {
+            e.preventDefault()
+            seekTo(0)
+            flashAction({ message: "Beginning" })
+            return
+        }
+
+        // End, go to end
+        if (e.code === "End") {
+            e.preventDefault()
+            seekTo(video.duration)
+            flashAction({ message: "End" })
+            return
+        }
+
+        // Escape - Exit fullscreen
         if (e.code === "Escape" && fullscreen) {
             e.preventDefault()
-            // mediaStore.dispatch({
-            //     type: "mediaexitfullscreenrequest",
-            // })
+            document.exitFullscreen()
+            return
+        }
+
+        // Number keys 0-9, seek to percentage (0%, 10%, 20%, ..., 90%)
+        if (e.code.startsWith("Digit") && e.code.length === 6) {
+            e.preventDefault()
+            const digit = parseInt(e.code.slice(-1))
+            const percentage = digit * 10
+            const seekTime = Math.max(0, Math.min(video.duration, (video.duration * percentage) / 100))
+            seekTo(seekTime)
+            // flashAction({ message: `${percentage}%` })
+            return
+        }
+
+        // frame-by-frame seeking, assuming 24fps
+        if (e.code === "Comma") {
+            e.preventDefault()
+            seek(-1 / 24)
+            flashAction({ message: "Previous Frame" })
+            return
+        }
+
+        if (e.code === "Period") {
+            e.preventDefault()
+            seek(1 / 24)
+            flashAction({ message: "Next Frame" })
             return
         }
 
@@ -448,7 +523,7 @@ export function VideoCoreKeybindingController(props: {
             video.playbackRate = newRate
             flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
         }
-    }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime])
+    }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime, isKeybindingsModalOpen])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {

@@ -158,6 +158,10 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 		if em.Overview == "" && ep.Overview != "" {
 			em.Overview = ep.Overview
 		}
+		if ep.TvdbTitle != "" && ep.AnidbTitle == "Episode "+ep.AnidbEpisode {
+			em.Title = ep.TvdbTitle
+
+		}
 		ret.Episodes[key] = em
 	}
 

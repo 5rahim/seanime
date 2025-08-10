@@ -3,6 +3,7 @@ import { vc_busy, vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-
 import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { cn } from "@/components/ui/core/styling"
 import { useAtomValue } from "jotai"
+import { motion } from "motion/react"
 import React from "react"
 
 export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
@@ -18,7 +19,8 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
             <div
                 data-vc-control-bar-top-section
                 className={cn(
-                    "top-8 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[5]",
+                    "vc-control-bar-top-section",
+                    "top-8 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[999]",
                     (busy || paused || hoveringControlBar) && "opacity-100",
                     isMiniPlayer && "top-0",
                 )}
@@ -26,15 +28,15 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
                 {children}
             </div>
 
-            {(isMiniPlayer && paused) && <div
-                data-vc-control-bar-top-gradient
+            <div
                 className={cn(
-                    "absolute top-0 left-0 right-0 w-full z-[1]",
+                    "vc-control-bar-top-gradient pointer-events-none",
+                    "absolute top-0 left-0 right-0 w-full z-[5] transition-opacity duration-300 opacity-0",
                     "bg-gradient-to-b from-black/60 to-transparent",
-                    "via-black/20",
-                    "h-16",
+                    "h-20",
+                    (isMiniPlayer && paused) && "opacity-100",
                 )}
-            />}
+            />
         </>
     )
 }

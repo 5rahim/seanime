@@ -1,5 +1,4 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { NativePlayerDrawer } from "@/app/(main)/_features/native-player/native-player-drawer"
 import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
@@ -11,8 +10,23 @@ import {
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { vc_doFlashAction, VideoCoreActionDisplay } from "@/app/(main)/_features/video-core/video-core-action-display"
+import { useVideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
-import { VideoCoreControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
+import {
+    vc_hoveringControlBar,
+    VideoCoreAudioButton,
+    VideoCoreControlBar,
+    VideoCoreFullscreenButton,
+    VideoCoreNextButton,
+    VideoCorePipButton,
+    VideoCorePlayButton,
+    VideoCorePreviousButton,
+    VideoCoreSettingsButton,
+    VideoCoreSubtitleButton,
+    VideoCoreTimestamp,
+    VideoCoreVolumeButton,
+} from "@/app/(main)/_features/video-core/video-core-control-bar"
+import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
@@ -62,6 +76,7 @@ export const vc_duration = atom(1)
 export const vc_currentTime = atom(0)
 export const vc_playbackRate = atom(1)
 export const vc_readyState = atom(0)
+export const vc_buffering = atom(false)
 export const vc_isMuted = atom(false)
 export const vc_volume = atom(1)
 export const vc_subtitleDelay = atom(0)
@@ -88,7 +103,10 @@ export const vc_closestBufferedTime = derive([vc_timeRanges, vc_currentTime], (t
 export const vc_ended = atom(false)
 export const vc_paused = atom(true)
 export const vc_miniPlayer = atom(false)
-export const vc_cursorBusy = atom(false)
+export const vc_menuOpen = atom(false)
+export const vc_cursorBusy = derive([vc_hoveringControlBar, vc_menuOpen], (f1, f2) => {
+    return f1 || f2
+})
 export const vc_cursorPosition = atom({ x: 0, y: 0 })
 export const vc_busy = atom(true)
 
@@ -101,7 +119,9 @@ export const vc_previewManager = atom<VideoCorePreviewManager | null>(null)
 
 export const vc_previousPausedState = atom(false)
 
-export const vc_dispatchAction = atom(null, (get, set, action: { type: string; payload: any }) => {
+type VideoCoreAction = "seekTo" | "seek" | "togglePlay"
+
+export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCoreAction; payload?: any }) => {
     const videoElement = get(vc_videoElement)
     const duration = get(vc_duration)
     let t = 0
@@ -125,6 +145,9 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: string; p
                 if (action.payload.flashTime) {
                     set(vc_doFlashAction, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
                 }
+                break
+            case "togglePlay":
+                videoElement.paused ? videoElement.play() : videoElement.pause()
                 break
         }
     }
@@ -194,7 +217,7 @@ export function VideoCore(props: VideoCoreProps) {
     const setVideoElement = useSetAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
     useVideoCoreBindings(state.playbackInfo)
-    // useVideoCoreAnime4K()
+    useVideoCoreAnime4K()
     const action = useSetAtom(vc_dispatchAction)
 
 
@@ -211,9 +234,11 @@ export function VideoCore(props: VideoCoreProps) {
     const settings = useAtomValue(vc_settings)
     const [isMiniPlayer, setIsMiniPlayer] = useAtom(vc_miniPlayer)
     const [busy, setBusy] = useAtom(vc_busy)
+    const [buffering, setBuffering] = useAtom(vc_buffering)
     const duration = useAtomValue(vc_duration)
     const fullscreen = useAtomValue(vc_isFullscreen)
     const paused = useAtomValue(vc_paused)
+    const readyState = useAtomValue(vc_readyState)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
@@ -361,10 +386,11 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         log.info("Initializing preview manager")
-        setPreviewManager(p => {
-            if (p) p.cleanup()
-            return new VideoCorePreviewManager(v!, streamUrl)
-        })
+        // TODO uncomment
+        // setPreviewManager(p => {
+        //     if (p) p.cleanup()
+        //     return new VideoCorePreviewManager(v!, streamUrl)
+        // })
     }
 
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -456,6 +482,18 @@ export function VideoCore(props: VideoCoreProps) {
         onError?.("")
     }
 
+    const handleWaiting = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        setBuffering(true)
+    }
+
+    const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        setBuffering(false)
+    }
+
+    const handleStalled = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        setBuffering(true)
+    }
+
     // external state
 
     // Handle volume changes
@@ -463,19 +501,26 @@ export function VideoCore(props: VideoCoreProps) {
         if (videoRef.current && volume !== undefined && volume !== videoRef.current.volume) {
             videoRef.current.volume = volume
         }
-    }, [volume])
+    }, [volume, videoRef.current])
 
     // Handle mute changes
     React.useEffect(() => {
         if (videoRef.current && muted !== undefined && muted !== videoRef.current.muted) {
             videoRef.current.muted = muted
         }
-    }, [muted])
+    }, [muted, videoRef.current])
+
+    // Handle playback rate changes
+    React.useEffect(() => {
+        if (videoRef.current && playbackRate !== undefined && playbackRate !== videoRef.current.playbackRate) {
+            videoRef.current.playbackRate = playbackRate
+        }
+    }, [playbackRate, videoRef.current])
 
     //
 
     // container events
-    const [cursorBusy, setCursorBusy] = useAtom(vc_cursorBusy)
+    const cursorBusy = useAtomValue(vc_cursorBusy)
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)
     const lastPointerPosition = React.useRef({ x: 0, y: 0 })
     const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -601,7 +646,7 @@ export function VideoCore(props: VideoCoreProps) {
             <VideoCoreKeybindingsModal />
             {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
-            <NativePlayerDrawer
+            <VideoCoreDrawer
                 open={state.active}
                 onOpenChange={(v) => {
                     if (!v) {
@@ -635,11 +680,14 @@ export function VideoCore(props: VideoCoreProps) {
                     isMiniPlayer && "left-4",
                 )}
                 data-native-player-drawer
+                onMiniPlayerClick={() => {
+                    togglePlay()
+                }}
             >
                 {!(!!state.playbackInfo?.streamUrl && !state.loadingState) && <TorrentStreamOverlay isNativePlayerComponent />}
 
                 {(state?.playbackError) && (
-                    <div className="h-full w-full bg-black/80 flex items-center justify-center z-[50] absolute p-4">
+                    <div className="h-full w-full bg-black/80 flex items-center justify-center z-[200] absolute p-4">
                         <div className="text-white text-center">
                             {!isMiniPlayer ? (
                                 <LuffyError title="Playback Error" />
@@ -657,9 +705,11 @@ export function VideoCore(props: VideoCoreProps) {
                     ref={combineContainerRef}
                     className={cn(
                         "relative w-full h-full bg-black overflow-clip flex items-center justify-center",
-                        !busy && "cursor-none", // show cursor when not busy
+                        (!busy && !isMiniPlayer) && "cursor-none", // show cursor when not busy
                     )}
                     onPointerMove={handleContainerPointerMove}
+                    // onPointerLeave={() => setBusy(false)}
+                    // onPointerCancel={() => setBusy(false)}
                 >
 
                     {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
@@ -677,11 +727,13 @@ export function VideoCore(props: VideoCoreProps) {
 
                             <VideoCoreActionDisplay />
 
-                            {/*<MediaLoadingIndicator*/}
-                            {/*    slot="centered-chrome"*/}
-                            {/*    loadingDelay={300}*/}
-                            {/*    className="native-player-loading-indicator"*/}
-                            {/*/>*/}
+                            {buffering && (
+                                <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
+                                    <div className="bg-black/20 backdrop-blur-sm rounded-full p-4">
+                                        <PiSpinnerDuotone className="size-12 text-white animate-spin" />
+                                    </div>
+                                </div>
+                            )}
 
                             {busy && <>
                                 {showSkipIntroButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
@@ -735,6 +787,9 @@ export function VideoCore(props: VideoCoreProps) {
                                     onVolumeChange={handleVolumeChange}
                                     onRateChange={handleRateChange}
                                     onError={handleError}
+                                    onWaiting={handleWaiting}
+                                    onCanPlay={handleCanPlay}
+                                    onStalled={handleStalled}
                                     autoPlay={autoPlay}
                                     muted={muted}
                                     playsInline
@@ -781,6 +836,28 @@ export function VideoCore(props: VideoCoreProps) {
                                 />}
                             >
 
+                                <VideoCorePlayButton />
+
+                                <VideoCorePreviousButton onClick={() => {}} />
+                                <VideoCoreNextButton onClick={() => {}} />
+
+                                <VideoCoreVolumeButton />
+
+                                <VideoCoreTimestamp />
+
+                                <div className="flex flex-1" />
+
+                                <VideoCoreSettingsButton />
+
+                                <VideoCoreAudioButton />
+
+                                <VideoCoreSubtitleButton />
+
+                                <VideoCorePipButton />
+
+                                <VideoCoreFullscreenButton />
+
+
                             </VideoCoreControlBar>
 
                         </>
@@ -802,7 +879,7 @@ export function VideoCore(props: VideoCoreProps) {
 
 
                 </div>
-            </NativePlayerDrawer>
+            </VideoCoreDrawer>
         </>
     )
 }
@@ -818,7 +895,7 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
                 <IconButton
                     icon={<FiMinimize2 className="text-2xl" />}
                     intent="gray-basic"
-                    className="rounded-full absolute top-0 flex-none right-4"
+                    className="rounded-full absolute top-0 flex-none right-4 z-[999]"
                     onClick={() => {
                         setIsMiniPlayer(true)
                     }}
@@ -831,7 +908,7 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
                     intent="gray"
                     size="sm"
                     className={cn(
-                        "rounded-full text-2xl flex-none absolute z-[99] right-4 top-4 pointer-events-auto bg-black/30 hover:bg-black/40",
+                        "rounded-full text-2xl flex-none absolute z-[999] right-4 top-4 pointer-events-auto bg-black/30 hover:bg-black/40",
                         isMiniPlayer && "text-xl",
                     )}
                     icon={<BiExpand />}
@@ -844,7 +921,7 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
                     intent="alert-subtle"
                     size="sm"
                     className={cn(
-                        "rounded-full text-2xl flex-none absolute z-[99] left-4 top-4 pointer-events-auto",
+                        "rounded-full text-2xl flex-none absolute z-[999] left-4 top-4 pointer-events-auto",
                         isMiniPlayer && "text-xl",
                     )}
                     icon={<BiX />}
