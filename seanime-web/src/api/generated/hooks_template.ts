@@ -1593,28 +1593,6 @@
 // metadata
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// export function usePopulateTVDBEpisodes() {
-//     return useServerMutation<Array<TVDB_Episode>, PopulateTVDBEpisodes_Variables>({
-//         endpoint: API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.endpoint,
-//         method: API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.methods[0],
-//         mutationKey: [API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useEmptyTVDBEpisodes() {
-//     return useServerMutation<boolean, EmptyTVDBEpisodes_Variables>({
-//         endpoint: API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.endpoint,
-//         method: API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.methods[0],
-//         mutationKey: [API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
 // export function usePopulateFillerData() {
 //     return useServerMutation<true, PopulateFillerData_Variables>({
 //         endpoint: API_ENDPOINTS.METADATA.PopulateFillerData.endpoint,

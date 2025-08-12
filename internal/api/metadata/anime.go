@@ -1,17 +1,12 @@
 package metadata
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/mappings"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strconv"
-	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -23,8 +18,6 @@ type (
 		baseAnime  *anilist.BaseAnime
 		fileCacher *filecache.Cacher
 		logger     *zerolog.Logger
-		// TVDB
-		tvdbEpisodes []*tvdb.Episode
 	}
 )
 
@@ -55,7 +48,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	reqEvent.MediaId = aw.baseAnime.GetID()
 	reqEvent.EpisodeNumber = epNum
 	reqEvent.EpisodeMetadata = &ret
-	hook.GlobalHookManager.OnAnimeEpisodeMetadataRequested().Trigger(reqEvent)
+	_ = hook.GlobalHookManager.OnAnimeEpisodeMetadataRequested().Trigger(reqEvent)
 	epNum = reqEvent.EpisodeNumber
 
 	// Default prevented by hook, return the metadata
@@ -69,9 +62,6 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	//
 	// Process
 	//
-
-	// Get TVDB metadata
-	hasTVDBMetadata := aw.tvdbEpisodes != nil && len(aw.tvdbEpisodes) > 0
 
 	episode := mo.None[*EpisodeMetadata]()
 	if aw.metadata.IsAbsent() {
@@ -90,15 +80,6 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 
 	ret = *episode.MustGet()
 
-	// If TVDB metadata is available, use it to populate the image
-	if hasTVDBMetadata {
-		tvdbEpisode, found := aw.GetTVDBEpisodeByNumber(epNum)
-		if found {
-			ret.Image = tvdbEpisode.Image
-			ret.TvdbId = int(tvdbEpisode.ID)
-		}
-	}
-
 	// If TVDB image is not set, use Animap image, if that is not set, use the AniList banner image
 	if ret.Image == "" {
 		// Set Animap image if TVDB image is not set
@@ -116,117 +97,13 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 		EpisodeNumber:   epNum,
 		MediaId:         aw.baseAnime.GetID(),
 	}
-	hook.GlobalHookManager.OnAnimeEpisodeMetadata().Trigger(event)
+	_ = hook.GlobalHookManager.OnAnimeEpisodeMetadata().Trigger(event)
 	if event.EpisodeMetadata == nil {
 		return ret
 	}
 	ret = *event.EpisodeMetadata
 
 	return ret
-}
-
-func getTvdbIDFromAnimeLists(anidbID int) (tvdbID int, ok bool) {
-	res, err := mappings.GetReducedAnimeLists()
-	if err != nil {
-		return 0, false
-	}
-	return res.FindTvdbIDFromAnidbID(anidbID)
-}
-
-func (aw *AnimeWrapperImpl) EmptyTVDBEpisodesBucket(mediaId int) error {
-
-	if aw.metadata.IsAbsent() {
-		return nil
-	}
-
-	// Get TVDB ID
-	var tvdbId int
-	tvdbId = aw.metadata.MustGet().Mappings.ThetvdbId
-	if tvdbId == 0 {
-		if aw.metadata.MustGet().Mappings.AnidbId > 0 {
-			// Try to get it from the mappings
-			tvdbId, _ = getTvdbIDFromAnimeLists(aw.metadata.MustGet().Mappings.AnidbId)
-		}
-	}
-
-	if tvdbId == 0 {
-		return errors.New("metadata: could not find tvdb id")
-	}
-
-	return aw.fileCacher.Remove(fmt.Sprintf("tvdb_episodes_%d", mediaId))
-}
-
-func (aw *AnimeWrapperImpl) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
-	key := aw.baseAnime.GetID()
-
-	if aw.metadata.IsAbsent() {
-		return nil, errors.New("metadata: anime metadata is absent")
-	}
-
-	// Get TVDB ID
-	var tvdbId int
-	tvdbId = aw.metadata.MustGet().Mappings.ThetvdbId
-	if tvdbId == 0 {
-		if aw.metadata.MustGet().Mappings.AnidbId > 0 {
-			// Try to get it from the mappings
-			tvdbId, _ = getTvdbIDFromAnimeLists(aw.metadata.MustGet().Mappings.AnidbId)
-		}
-	}
-
-	if tvdbId == 0 {
-		return nil, errors.New("metadata: could not find tvdb id")
-	}
-
-	bucket := filecache.NewBucket(fmt.Sprintf("tvdb_episodes_%d", aw.baseAnime.GetID()), time.Hour*24*7*365)
-
-	// Find episodes in cache
-	var episodes []*tvdb.Episode
-	found, _ := aw.fileCacher.Get(bucket, strconv.Itoa(key), &episodes)
-	if !populate && found && episodes != nil {
-		return episodes, nil
-	}
-
-	// Fetch episodes only if we need to populate
-	if populate {
-		var err error
-
-		tv := tvdb.NewTVDB(&tvdb.NewTVDBOptions{
-			ApiKey: "", // Empty
-			Logger: aw.logger,
-		})
-
-		episodes, err = tv.FetchSeriesEpisodes(tvdbId, tvdb.FilterEpisodeMediaInfo{
-			Year:           aw.baseAnime.GetStartDate().GetYear(),
-			Month:          aw.baseAnime.GetStartDate().GetMonth(),
-			TotalEp:        aw.metadata.MustGet().GetMainEpisodeCount(),
-			AbsoluteOffset: aw.metadata.MustGet().GetOffset(),
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		err = aw.fileCacher.Set(bucket, strconv.Itoa(key), episodes)
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return episodes, nil
-}
-
-func (aw *AnimeWrapperImpl) GetTVDBEpisodeByNumber(number int) (*tvdb.Episode, bool) {
-	if aw == nil || aw.tvdbEpisodes == nil {
-		return nil, false
-	}
-
-	for _, e := range aw.tvdbEpisodes {
-		if e.Number == number {
-			return e, true
-		}
-	}
-
-	return nil, false
 }
 
 func ExtractEpisodeInteger(s string) (int, bool) {

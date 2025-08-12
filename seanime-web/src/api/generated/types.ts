@@ -2122,7 +2122,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  * @description
  *  PluginAllowlist is a list of system permissions that the plugin is asking for.
- *
+ *  
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
@@ -4195,22 +4195,6 @@ export type Torrentstream_TorrentStatus = {
     uploadSpeed: string
     size: string
     seeders: number
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Tvdb
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/api/tvdb/types.go
- * - Filename: types.go
- * - Package: tvdb
- */
-export type TVDB_Episode = {
-    id: number
-    image: string
-    number: number
-    airedAt: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

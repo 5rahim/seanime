@@ -2,7 +2,6 @@ package metadata
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
 	"strings"
 	"time"
@@ -31,10 +30,6 @@ type (
 	AnimeMetadataWrapper interface {
 		// GetEpisodeMetadata combines metadata from multiple sources to create a single EpisodeMetadata object.
 		GetEpisodeMetadata(episodeNumber int) EpisodeMetadata
-
-		EmptyTVDBEpisodesBucket(mediaId int) error
-		GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error)
-		GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool)
 	}
 )
 

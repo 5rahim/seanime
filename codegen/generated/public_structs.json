@@ -25905,75 +25905,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/api/mappings/animelists.go",
-    "filename": "animelists.go",
-    "name": "ReducedAnimeListResponse",
-    "formattedName": "Mappings_ReducedAnimeListResponse",
-    "package": "mappings",
-    "fields": [
-      {
-        "name": "items",
-        "jsonName": "items",
-        "goType": "[]ReducedAnimeListItem",
-        "typescriptType": "Array\u003cMappings_ReducedAnimeListItem\u003e",
-        "usedTypescriptType": "Mappings_ReducedAnimeListItem",
-        "usedStructName": "mappings.ReducedAnimeListItem",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "itemsByAnidbID",
-        "jsonName": "itemsByAnidbID",
-        "goType": "map[int]ReducedAnimeListItem",
-        "typescriptType": "Record\u003cnumber, Mappings_ReducedAnimeListItem\u003e",
-        "usedTypescriptType": "Mappings_ReducedAnimeListItem",
-        "usedStructName": "mappings.ReducedAnimeListItem",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "Count",
-        "jsonName": "Count",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/mappings/animelists.go",
-    "filename": "animelists.go",
-    "name": "ReducedAnimeListItem",
-    "formattedName": "Mappings_ReducedAnimeListItem",
-    "package": "mappings",
-    "fields": [
-      {
-        "name": "TheTvdbID",
-        "jsonName": "thetvdb_id",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnidbID",
-        "jsonName": "anidb_id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/api/metadata/anime.go",
     "filename": "anime.go",
     "name": "AnimeWrapperImpl",
@@ -26018,17 +25949,6 @@
         "typescriptType": "Logger",
         "usedTypescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "tvdbEpisodes",
-        "jsonName": "tvdbEpisodes",
-        "goType": "[]tvdb.Episode",
-        "typescriptType": "Array\u003cTVDB_Episode\u003e",
-        "usedTypescriptType": "TVDB_Episode",
-        "usedStructName": "tvdb.Episode",
         "required": false,
         "public": false,
         "comments": []
@@ -26373,6 +26293,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "currentEpisodeCount",
+        "jsonName": "",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -26631,704 +26560,6 @@
         ]
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeriesResponse_Season",
-    "formattedName": "TVDB_ExtendedSeriesResponse_Season",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ImageType",
-        "jsonName": "imageType",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LastUpdated",
-        "jsonName": "lastUpdated",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NameTranslations",
-        "jsonName": "nameTranslations",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OverviewTranslations",
-        "jsonName": "overviewTranslations",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Companies",
-        "jsonName": "companies",
-        "goType": "TVDB_ExtendedSeriesResponse_Season_Companies",
-        "inlineStructType": "struct{\nStudio []__STRUCT__ `json:\"studio,omitempty\"`\nNetwork []__STRUCT__ `json:\"network,omitempty\"`\nProduction []__STRUCT__ `json:\"production,omitempty\"`\nDistributor []__STRUCT__ `json:\"distributor,omitempty\"`\nSpecialEffects []__STRUCT__ `json:\"special_effects,omitempty\"`}",
-        "typescriptType": "TVDB_ExtendedSeriesResponse_Season_Companies",
-        "usedTypescriptType": "{ studio: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; network: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; production: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; distributor: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; special_effects: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; }",
-        "usedStructName": "tvdb.ExtendedSeriesResponse_Season_Companies",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SeriesId",
-        "jsonName": "seriesId",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "TVDB_ExtendedSeriesResponse_Season_Type",
-        "inlineStructType": "struct{\nAlternateName string `json:\"alternateName,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nName string `json:\"name,omitempty\"`\nType string `json:\"type,omitempty\"`}",
-        "typescriptType": "TVDB_ExtendedSeriesResponse_Season_Type",
-        "usedTypescriptType": "{ alternateName: string; id: number; name: string; type: string; }",
-        "usedStructName": "tvdb.ExtendedSeriesResponse_Season_Type",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      "goland:noinspection GoSnakeCaseUsage"
-    ]
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeriesResponse_Season_Companies",
-    "formattedName": "TVDB_ExtendedSeriesResponse_Season_Companies",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "Studio",
-        "jsonName": "studio",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nActiveDate string `json:\"activeDate,omitempty\"`\nAliases []__STRUCT__ `json:\"aliases,omitempty\"`\nCountry string `json:\"country,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nInactiveDate string `json:\"inactiveDate,omitempty\"`\nName string `json:\"name,omitempty\"`\nNameTranslations []string `json:\"nameTranslations,omitempty\"`\nOverviewTranslations []string `json:\"overviewTranslations,omitempty\"`\nPrimaryCompanyType int64 `json:\"primaryCompanyType,omitempty\"`\nSlug string `json:\"slug,omitempty\"`\nParentCompany __STRUCT__ `json:\"parentCompany,omitempty\"`\nTagOptions []__STRUCT__ `json:\"tagOptions,omitempty\"`}",
-        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
-        "usedTypescriptType": "{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Network",
-        "jsonName": "network",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nActiveDate string `json:\"activeDate,omitempty\"`\nAliases []__STRUCT__ `json:\"aliases,omitempty\"`\nCountry string `json:\"country,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nInactiveDate string `json:\"inactiveDate,omitempty\"`\nName string `json:\"name,omitempty\"`\nNameTranslations []string `json:\"nameTranslations,omitempty\"`\nOverviewTranslations []string `json:\"overviewTranslations,omitempty\"`\nPrimaryCompanyType int64 `json:\"primaryCompanyType,omitempty\"`\nSlug string `json:\"slug,omitempty\"`\nParentCompany __STRUCT__ `json:\"parentCompany,omitempty\"`\nTagOptions []__STRUCT__ `json:\"tagOptions,omitempty\"`}",
-        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
-        "usedTypescriptType": "{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Production",
-        "jsonName": "production",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nActiveDate string `json:\"activeDate,omitempty\"`\nAliases []__STRUCT__ `json:\"aliases,omitempty\"`\nCountry string `json:\"country,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nInactiveDate string `json:\"inactiveDate,omitempty\"`\nName string `json:\"name,omitempty\"`\nNameTranslations []string `json:\"nameTranslations,omitempty\"`\nOverviewTranslations []string `json:\"overviewTranslations,omitempty\"`\nPrimaryCompanyType int64 `json:\"primaryCompanyType,omitempty\"`\nSlug string `json:\"slug,omitempty\"`\nParentCompany __STRUCT__ `json:\"parentCompany,omitempty\"`\nTagOptions []__STRUCT__ `json:\"tagOptions,omitempty\"`}",
-        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
-        "usedTypescriptType": "{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Distributor",
-        "jsonName": "distributor",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nActiveDate string `json:\"activeDate,omitempty\"`\nAliases []__STRUCT__ `json:\"aliases,omitempty\"`\nCountry string `json:\"country,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nInactiveDate string `json:\"inactiveDate,omitempty\"`\nName string `json:\"name,omitempty\"`\nNameTranslations []string `json:\"nameTranslations,omitempty\"`\nOverviewTranslations []string `json:\"overviewTranslations,omitempty\"`\nPrimaryCompanyType int64 `json:\"primaryCompanyType,omitempty\"`\nSlug string `json:\"slug,omitempty\"`\nParentCompany __STRUCT__ `json:\"parentCompany,omitempty\"`\nTagOptions []__STRUCT__ `json:\"tagOptions,omitempty\"`}",
-        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
-        "usedTypescriptType": "{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SpecialEffects",
-        "jsonName": "special_effects",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nActiveDate string `json:\"activeDate,omitempty\"`\nAliases []__STRUCT__ `json:\"aliases,omitempty\"`\nCountry string `json:\"country,omitempty\"`\nID int64 `json:\"id,omitempty\"`\nInactiveDate string `json:\"inactiveDate,omitempty\"`\nName string `json:\"name,omitempty\"`\nNameTranslations []string `json:\"nameTranslations,omitempty\"`\nOverviewTranslations []string `json:\"overviewTranslations,omitempty\"`\nPrimaryCompanyType int64 `json:\"primaryCompanyType,omitempty\"`\nSlug string `json:\"slug,omitempty\"`\nParentCompany __STRUCT__ `json:\"parentCompany,omitempty\"`\nTagOptions []__STRUCT__ `json:\"tagOptions,omitempty\"`}",
-        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
-        "usedTypescriptType": "{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      "goland:noinspection GoSnakeCaseUsage"
-    ]
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeriesResponse_Season_Type",
-    "formattedName": "TVDB_ExtendedSeriesResponse_Season_Type",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "AlternateName",
-        "jsonName": "alternateName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      "goland:noinspection GoSnakeCaseUsage"
-    ]
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeriesResponse",
-    "formattedName": "TVDB_ExtendedSeriesResponse",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "Data",
-        "jsonName": "data",
-        "goType": "__STRUCT__",
-        "typescriptType": "{ seasons: Array\u003cExtendedSeriesResponse_Season\u003e; }",
-        "usedTypescriptType": "{ seasons: Array\u003cExtendedSeriesResponse_Season\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeasonsResponse_Episode",
-    "formattedName": "TVDB_ExtendedSeasonsResponse_Episode",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "Aired",
-        "jsonName": "aired",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AirsAfterSeason",
-        "jsonName": "airsAfterSeason",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AirsBeforeEpisode",
-        "jsonName": "airsBeforeEpisode",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AirsBeforeSeason",
-        "jsonName": "airsBeforeSeason",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FinaleType",
-        "jsonName": "finaleType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ImageType",
-        "jsonName": "imageType",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsMovie",
-        "jsonName": "isMovie",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LastUpdated",
-        "jsonName": "lastUpdated",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LinkedMovie",
-        "jsonName": "linkedMovie",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NameTranslations",
-        "jsonName": "nameTranslations",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Overview",
-        "jsonName": "overview",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OverviewTranslations",
-        "jsonName": "overviewTranslations",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Runtime",
-        "jsonName": "runtime",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SeasonNumber",
-        "jsonName": "seasonNumber",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seasons",
-        "jsonName": "seasons",
-        "goType": "[]__STRUCT__",
-        "inlineStructType": "[]struct{\nID int64 `json:\"id\"`\nImage string `json:\"image\"`\nImageType int64 `json:\"imageType\"`\nLastUpdated string `json:\"lastUpdated\"`\nName string `json:\"name\"`\nNameTranslations []string `json:\"nameTranslations\"`\nNumber int64 `json:\"number\"`\nOverviewTranslations []string `json:\"overviewTranslations\"`\nCompanies __STRUCT__ `json:\"companies\"`\nSeriesID int64 `json:\"seriesId\"`\nType __STRUCT__ `json:\"type\"`\nYear string `json:\"year\"`}",
-        "typescriptType": "Array\u003c{ id: number; image: string; imageType: number; lastUpdated: string; name: string; nameTranslations: Array\u003cstring\u003e; number: number; overviewTranslations: Array\u003cstring\u003e; companies: { studio: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; network: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; production: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; distributor: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; special_effects: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; }; seriesId: number; type: { alternateName: string; id: number; name: string; type: string; }; year: string; }\u003e",
-        "usedTypescriptType": "{ id: number; image: string; imageType: number; lastUpdated: string; name: string; nameTranslations: Array\u003cstring\u003e; number: number; overviewTranslations: Array\u003cstring\u003e; companies: { studio: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; network: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; production: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; distributor: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; special_effects: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; }; seriesId: number; type: { alternateName: string; id: number; name: string; type: string; }; year: string; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SeriesID",
-        "jsonName": "seriesId",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SeasonName",
-        "jsonName": "seasonName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      "goland:noinspection GoSnakeCaseUsage"
-    ]
-  },
-  {
-    "filepath": "../internal/api/tvdb/responses.go",
-    "filename": "responses.go",
-    "name": "ExtendedSeasonsResponse",
-    "formattedName": "TVDB_ExtendedSeasonsResponse",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "Data",
-        "jsonName": "data",
-        "goType": "__STRUCT__",
-        "typescriptType": "{ episodes: Array\u003cExtendedSeasonsResponse_Episode\u003e; }",
-        "usedTypescriptType": "{ episodes: Array\u003cExtendedSeasonsResponse_Episode\u003e; }",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/tvdb.go",
-    "filename": "tvdb.go",
-    "name": "TVDB",
-    "formattedName": "TVDB_TVDB",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "apiKey",
-        "jsonName": "apiKey",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "client",
-        "jsonName": "client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "currentToken",
-        "jsonName": "currentToken",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": [
-          " Hydrated by getTokenWithKey"
-        ]
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/tvdb.go",
-    "filename": "tvdb.go",
-    "name": "NewTVDBOptions",
-    "formattedName": "TVDB_NewTVDBOptions",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "ApiKey",
-        "jsonName": "ApiKey",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/tvdb.go",
-    "filename": "tvdb.go",
-    "name": "FilterEpisodeMediaInfo",
-    "formattedName": "TVDB_FilterEpisodeMediaInfo",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "Year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "Month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TotalEp",
-        "jsonName": "TotalEp",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " from anizip"
-        ]
-      },
-      {
-        "name": "AbsoluteOffset",
-        "jsonName": "AbsoluteOffset",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " from anizip"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/types.go",
-    "filename": "types.go",
-    "name": "Episode",
-    "formattedName": "TVDB_Episode",
-    "package": "tvdb",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AiredAt",
-        "jsonName": "airedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/tvdb/types.go",
-    "filename": "types.go",
-    "name": "Chapter",
-    "formattedName": "TVDB_Chapter",
-    "package": "tvdb",
-    "fields": [],
     "comments": []
   },
   {
@@ -34016,59 +33247,6 @@
   {
     "filepath": "../internal/directstream/debridstream.go",
     "filename": "debridstream.go",
-    "name": "SharedSubtitleReader",
-    "formattedName": "Directstream_SharedSubtitleReader",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "reader",
-        "jsonName": "reader",
-        "goType": "io.ReadSeekCloser",
-        "typescriptType": "ReadSeekCloser",
-        "usedTypescriptType": "ReadSeekCloser",
-        "usedStructName": "io.ReadSeekCloser",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedTypescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "offset",
-        "jsonName": "offset",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "closed",
-        "jsonName": "closed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " SharedSubtitleReader wraps an HttpReadSeeker to provide thread-safe seeking",
-      " for multiple subtitle streams without creating multiple HTTP connections"
-    ]
-  },
-  {
-    "filepath": "../internal/directstream/debridstream.go",
-    "filename": "debridstream.go",
     "name": "DebridStream",
     "formattedName": "Directstream_DebridStream",
     "package": "directstream",
@@ -34114,37 +33292,30 @@
         ]
       },
       {
-        "name": "subtitleReader",
-        "jsonName": "subtitleReader",
-        "goType": "SharedSubtitleReader",
-        "typescriptType": "Directstream_SharedSubtitleReader",
-        "usedTypescriptType": "Directstream_SharedSubtitleReader",
-        "usedStructName": "directstream.SharedSubtitleReader",
+        "name": "httpStream",
+        "jsonName": "httpStream",
+        "goType": "httputil.FileStream",
+        "typescriptType": "FileStream",
+        "usedTypescriptType": "FileStream",
+        "usedStructName": "httputil.FileStream",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Shared file-backed cache for multiple readers"
+        ]
       },
       {
-        "name": "subtitleReaderOnce",
-        "jsonName": "subtitleReaderOnce",
-        "goType": "sync.Once",
-        "typescriptType": "Once",
-        "usedTypescriptType": "Once",
-        "usedStructName": "sync.Once",
+        "name": "cacheMu",
+        "jsonName": "cacheMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
-        "comments": []
-      },
-      {
-        "name": "subtitleReaderErr",
-        "jsonName": "subtitleReaderErr",
-        "goType": "error",
-        "typescriptType": "Directstream_error",
-        "usedTypescriptType": "Directstream_error",
-        "usedStructName": "directstream.error",
-        "required": true,
-        "public": false,
-        "comments": []
+        "comments": [
+          " Protects httpStream access"
+        ]
       }
     ],
     "comments": [
@@ -77624,7 +76795,7 @@
         "required": false,
         "public": true,
         "comments": [
-          " AniZip media"
+          " Animap media"
         ]
       }
     ],
@@ -78696,7 +77867,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Anizip episode"
+          " Animap episode"
         ]
       },
       {
@@ -80988,6 +80159,126 @@
     "comments": []
   },
   {
+    "filepath": "../internal/util/http/filestream.go",
+    "filename": "filestream.go",
+    "name": "FileStream",
+    "formattedName": "FileStream",
+    "package": "httputil",
+    "fields": [
+      {
+        "name": "length",
+        "jsonName": "length",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "file",
+        "jsonName": "file",
+        "goType": "os.File",
+        "typescriptType": "File",
+        "usedTypescriptType": "File",
+        "usedStructName": "os.File",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "pieces",
+        "jsonName": "pieces",
+        "goType": "map[int64]piece",
+        "typescriptType": "Record\u003cnumber, piece\u003e",
+        "usedTypescriptType": "piece",
+        "usedStructName": "httputil.piece",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "readers",
+        "jsonName": "readers",
+        "goType": "[]FileStreamReader",
+        "typescriptType": "Array\u003cFileStreamReader\u003e",
+        "usedTypescriptType": "FileStreamReader",
+        "usedStructName": "httputil.FileStreamReader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "readersMu",
+        "jsonName": "readersMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " FileStream saves a HTTP file being streamed to disk.",
+      " It allows multiple readers to read the file concurrently.",
+      " It works by being fed the stream from the HTTP response body. It will simultaneously write to disk and to the HTTP writer."
+    ]
+  },
+  {
     "filepath": "../internal/util/http/http_range.go",
     "filename": "http_range.go",
     "name": "Range",
@@ -81117,6 +80408,17 @@
         "comments": [
           " Mutex for thread safety"
         ]
+      },
+      {
+        "name": "rateLimiter",
+        "jsonName": "rateLimiter",
+        "goType": "limiter.Limiter",
+        "typescriptType": "Limiter",
+        "usedTypescriptType": "Limiter",
+        "usedStructName": "limiter.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [

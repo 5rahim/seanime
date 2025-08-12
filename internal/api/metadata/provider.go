@@ -6,7 +6,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/animap"
 	"seanime/internal/api/anizip"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/hook"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
@@ -306,20 +305,14 @@ func (p *ProviderImpl) AnizipFallback(platform Platform, mId int) (ret *AnimeMet
 //	metadataProvider.GetAnimeMetadataWrapper(media, nil)
 func (p *ProviderImpl) GetAnimeMetadataWrapper(media *anilist.BaseAnime, metadata *AnimeMetadata) AnimeMetadataWrapper {
 	aw := &AnimeWrapperImpl{
-		metadata:     mo.None[*AnimeMetadata](),
-		baseAnime:    media,
-		fileCacher:   p.fileCacher,
-		logger:       p.logger,
-		tvdbEpisodes: make([]*tvdb.Episode, 0),
+		metadata:   mo.None[*AnimeMetadata](),
+		baseAnime:  media,
+		fileCacher: p.fileCacher,
+		logger:     p.logger,
 	}
 
 	if metadata != nil {
 		aw.metadata = mo.Some(metadata)
-	}
-
-	episodes, err := aw.GetTVDBEpisodes(false)
-	if err == nil {
-		aw.tvdbEpisodes = episodes
 	}
 
 	return aw

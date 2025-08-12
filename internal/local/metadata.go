@@ -3,7 +3,6 @@ package local
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
 	"strconv"
 
@@ -91,16 +90,4 @@ func (mw *OfflineAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (re
 		ret = *episodeMetadata
 	}
 	return
-}
-
-func (mw *OfflineAnimeMetadataWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
-	return nil
-}
-
-func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
-	return make([]*tvdb.Episode, 0), nil
-}
-
-func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool) {
-	return nil, false
 }
