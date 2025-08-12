@@ -107,7 +107,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         const track = this._getTracks()?.find?.(t => t.info.number === trackNumber)
         subtitleLog.info("Selecting track", trackNumber, track)
 
-        // Update video element's textTracks to reflect the selection in media-chrome
         if (this.videoElement.textTracks) {
             subtitleLog.info("Updating video element's textTracks", this.videoElement.textTracks)
             for (const textTrack of this.videoElement.textTracks) {
@@ -117,6 +116,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                     textTrack.mode = "disabled"
                 }
             }
+            this.videoElement.textTracks.dispatchEvent(new Event("change"))
         }
 
         if (!track) {
@@ -242,6 +242,18 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     private _getTracks() {
         return Object.values(this.tracks).sort((a, b) => a.info.number - b.info.number)
+    }
+
+    getSelectedTrack(): number | null {
+        if (!this.videoElement.textTracks) return null
+
+        for (let i = 0; i < this.videoElement.textTracks.length; i++) {
+            if (this.videoElement.textTracks[i].mode === "showing") {
+                return Number(this.videoElement.textTracks[i].id)
+            }
+        }
+
+        return null
     }
 
     //

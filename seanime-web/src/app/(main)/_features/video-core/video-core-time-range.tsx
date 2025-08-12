@@ -13,6 +13,7 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
+import { vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
@@ -51,6 +52,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const [seeking, setSeeking] = useAtom(vc_seeking)
     const [previouslyPaused, setPreviouslyPaused] = useAtom(vc_previousPausedState)
     const action = useSetAtom(vc_dispatchAction)
+    const [showChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
 
     const bufferedPercentage = React.useMemo(() => {
         return (buffered / duration) * 100
@@ -182,7 +184,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
                     progressPercentage={progressPercentage}
                     bufferedPercentage={bufferedPercentage}
                     chapter={chapter}
-                    showMarker={i < chapters.length - 1}
+                    showMarker={i < chapters.length - 1 && showChapterMarkers}
                 />
             })}
 
@@ -202,6 +204,7 @@ function VideoCoreTimeRangeSegment(props: {
     const duration = useAtomValue(vc_duration)
     const seekingTargetProgress = useAtomValue(vc_seekingTargetProgress)
     const action = useSetAtom(vc_dispatchAction)
+    const highlightOPEDChapters = useAtomValue(vc_highlightOPEDChaptersAtom)
 
     const focused = !!seekingTargetProgress && chapter.percentageOffset <= seekingTargetProgress && chapter.percentageOffset + chapter.width >= seekingTargetProgress
 
@@ -267,7 +270,8 @@ function VideoCoreTimeRangeSegment(props: {
                     className={cn(
                         "vc-time-range-chapter-bar",
                         "bg-white/20 absolute left-0 w-full h-full z-[1]",
-                        ["intro", "opening", "op", "ending", "outro"].includes(chapter.label?.toLowerCase?.() || "") && "bg-blue-300/50",
+                        (["intro", "opening", "op", "ending", "outro",
+                            "ed"].includes(chapter.label?.toLowerCase?.() || "") && highlightOPEDChapters) && "bg-blue-300/50",
                     )}
                 />
             </div>

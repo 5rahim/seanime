@@ -71,10 +71,21 @@ export class VideoCoreAudioManager {
             }
         }
 
-        // Dispatch change event to notify media-chrome
         if (trackChanged && this.videoElement.audioTracks.dispatchEvent) {
             this.videoElement.audioTracks.dispatchEvent(new Event("change"))
         }
+    }
+
+    getSelectedTrack(): number | null {
+        if (!this.videoElement.audioTracks) return null
+
+        for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
+            if (this.videoElement.audioTracks[i].enabled) {
+                return Number(this.videoElement.audioTracks[i].id)
+            }
+        }
+
+        return null
     }
 
 }

@@ -327,8 +327,11 @@ export const useVideoCoreAnime4K = () => {
                     renderLoopRef.current = requestAnimationFrame(frameDetectionLoop)
                 }
             }
-            catch (error) {
-                console.error("Anime4K initialization failed:", error)
+            catch (error: unknown) {
+                console.warn("Anime4K initialization failed:", error)
+                if (error instanceof Error) {
+                    flashAction({ message: `Anime4K: Initialization failed: ${error.message}`, duration: 2000 })
+                }
                 // fallback to off on failure
                 setAnime4kOption("off")
             }

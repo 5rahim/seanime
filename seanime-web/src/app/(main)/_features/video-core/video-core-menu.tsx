@@ -1,9 +1,11 @@
 import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core"
 import { Popover } from "@/components/ui/popover"
+import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { motion } from "motion/react"
 import React, { useRef } from "react"
+import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCheck, LuChevronLeft, LuChevronRight } from "react-icons/lu"
 
 const vc_menuSectionOpen = atom<string | null>(null)
@@ -47,7 +49,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             sideOffset={4}
             align="center"
             modal={false}
-            className="bg-black/85 rounded-xl p-3 overflow-hidden backdrop-blur-sm"
+            className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem]"
         >
             <div className="h-auto">
                 {children}
@@ -61,7 +63,7 @@ export function VideoCoreMenuTitle(props: { children: React.ReactNode }) {
 
     const { children, ...rest } = props
     return (
-        <div className="text-white/70 font-bold text-sm pb-3 text-center" {...rest}>
+        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3" {...rest}>
             {children}
         </div>
     )
@@ -74,7 +76,7 @@ export function VideoCoreMenuSectionBody(props: { children: React.ReactNode }) {
     const [openSection, setOpen] = useAtom(vc_menuSectionOpen)
 
     return (
-        <div className="vc-menu-section-body overflow-hidden">
+        <div className="vc-menu-section-body">
             {/*<AnimatePresence mode="wait">*/}
             {!openSection && (
                 <motion.div
@@ -93,13 +95,23 @@ export function VideoCoreMenuSectionBody(props: { children: React.ReactNode }) {
     )
 }
 
+export function VideoCoreMenuBody(props: { children: React.ReactNode }) {
+    const { children, ...rest } = props
+
+    return (
+        <div className="max-h-[18rem] overflow-y-auto">
+            {children}
+        </div>
+    )
+}
+
 export function VideoCoreMenuSubmenuBody(props: { children: React.ReactNode }) {
     const { children, ...rest } = props
 
     const [openSection, setOpen] = useAtom(vc_menuSectionOpen)
 
     return (
-        <div className="vc-menu-submenu-body overflow-hidden">
+        <div className="vc-menu-submenu-body">
             {/*<AnimatePresence mode="wait">*/}
             {openSection && (
                 <motion.div
@@ -175,9 +187,9 @@ export function VideoCoreMenuOption(props: {
                         </span>
                     </button>
 
-                    <div className="max-h-[18rem] overflow-y-auto">
+                    <VideoCoreMenuBody>
                         {children}
-                    </div>
+                    </VideoCoreMenuBody>
                 </div>
             )}
         </>
@@ -208,15 +220,20 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                         onValueChange(option.value)
                     }}
                 >
-                    <span className="w-8 flex justify-start items-center h-full">
+                    <span className="w-8 flex justify-start items-center h-full flex-none">
                         {value === option.value && <LuCheck className="text-lg" />}
                     </span>
-                    <span className="w-full flex flex-1 text-sm font-medium">
+                    <span className="w-full flex flex-1 text-sm font-medium line-clamp-2">
                         {option.label}
                     </span>
-                    {option.moreInfo && <span className="text-sm font-medium tracking-wide text-[--muted] mr-2">
-                        {option.moreInfo}
-                    </span>}
+                    {(option.moreInfo || option.description) && <div className="w-fit flex-none ml-2 flex gap-2 items-center">
+                        {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
+                            {option.moreInfo}
+                        </span>}
+                        {option.description && <Tooltip trigger={<AiFillInfoCircle className="text-sm" />}>
+                            {option.description}
+                        </Tooltip>}
+                    </div>}
 
                 </div>
             ))}

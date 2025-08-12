@@ -70,4 +70,8 @@ export const vc_defaultKeybindings: VideoCoreKeybindings = {
     decreaseSpeed: { key: "BracketLeft", value: 0.1 },
 }
 
-export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings)
+export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings, undefined, { getOnInit: true })
+
+export const vc_showChapterMarkersAtom = atomWithStorage("sea-video-core-chapter-markers", true, undefined, { getOnInit: true })
+export const vc_highlightOPEDChaptersAtom = atomWithStorage("sea-video-core-highlight-op-ed-chapters", true, undefined, { getOnInit: true })
+export const vc_beautifyImageAtom = atomWithStorage("sea-video-core-beautify-image", true, undefined, { getOnInit: true })

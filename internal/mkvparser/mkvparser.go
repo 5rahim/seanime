@@ -565,7 +565,10 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		})
 		for _, group := range groups {
 			for _, track := range group {
-				track.Name = fmt.Sprintf("%s [%s]", track.Name, getSubtitleTrackType(track.CodecID))
+				track.Name = fmt.Sprintf("%s", track.Name)
+				if track.Language == "" {
+					track.Language = getLanguageCode(track)
+				}
 			}
 		}
 

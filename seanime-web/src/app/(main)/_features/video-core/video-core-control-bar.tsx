@@ -5,6 +5,7 @@ import {
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import {
+    vc_audioManager,
     vc_containerElement,
     vc_currentTime,
     vc_cursorBusy,
@@ -15,6 +16,8 @@ import {
     vc_paused,
     vc_playbackRate,
     vc_seeking,
+    vc_subtitleManager,
+    vc_videoElement,
     vc_volume,
     VIDEOCORE_DEBUG_ELEMENTS,
 } from "@/app/(main)/_features/video-core/video-core"
@@ -22,14 +25,17 @@ import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app
 import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import {
     VideoCoreMenu,
+    VideoCoreMenuBody,
     VideoCoreMenuOption,
     VideoCoreMenuSectionBody,
     VideoCoreMenuSubmenuBody,
     VideoCoreMenuTitle,
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
+import { vc_beautifyImageAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
+import { Switch } from "@/components/ui/switch"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -475,8 +481,32 @@ export function VideoCoreAudioButton() {
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const state = useAtomValue(nativePlayer_stateAtom)
+    const audioManager = useAtomValue(vc_audioManager)
+    const videoElement = useAtomValue(vc_videoElement)
+    const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
-    if (isMiniPlayer || !state.playbackInfo?.mkvMetadata?.audioTracks?.length) return null
+    const audioTracks = state.playbackInfo?.mkvMetadata?.audioTracks
+
+    function onAudioChange() {
+        setSelectedTrack(audioManager?.getSelectedTrack?.() ?? null)
+
+        console.log(audioManager?.getSelectedTrack?.() ?? null)
+    }
+
+    React.useEffect(() => {
+        if (!videoElement || !audioManager) return
+
+        videoElement?.audioTracks?.addEventListener?.("change", onAudioChange)
+        return () => {
+            videoElement?.audioTracks?.removeEventListener?.("change", onAudioChange)
+        }
+    }, [videoElement, audioManager])
+
+    React.useEffect(() => {
+        onAudioChange()
+    }, [audioManager])
+
+    if (isMiniPlayer || !audioTracks?.length || audioTracks.length === 1) return null
 
     return (
         <VideoCoreMenu
@@ -492,6 +522,20 @@ export function VideoCoreAudioButton() {
             />}
         >
             <VideoCoreMenuTitle>Audio</VideoCoreMenuTitle>
+            <VideoCoreMenuBody>
+                <VideoCoreSettingSelect
+                    options={audioTracks.map(track => ({
+                        label: `${track.name}`,
+                        value: track.number,
+                        moreInfo: track.language?.toUpperCase(),
+                    }))}
+                    onValueChange={(value) => {
+                        audioManager?.selectTrack(value)
+                        action({ type: "seek", payload: { time: -1 } })
+                    }}
+                    value={selectedTrack || 0}
+                />
+            </VideoCoreMenuBody>
         </VideoCoreMenu>
     )
 }
@@ -499,19 +543,78 @@ export function VideoCoreAudioButton() {
 export function VideoCoreSubtitleButton() {
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const state = useAtomValue(nativePlayer_stateAtom)
+    const subtitleManager = useAtomValue(vc_subtitleManager)
+    const videoElement = useAtomValue(vc_videoElement)
+    const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
-    if (isMiniPlayer) return null
+    const subtitleTracks = state.playbackInfo?.mkvMetadata?.subtitleTracks
+
+    function onAudioChange() {
+        setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
+
+        console.log(subtitleManager?.getSelectedTrack?.() ?? null)
+    }
+
+    React.useEffect(() => {
+        if (!videoElement || !subtitleManager) return
+
+        videoElement?.textTracks?.addEventListener?.("change", onAudioChange)
+        return () => {
+            videoElement?.textTracks?.removeEventListener?.("change", onAudioChange)
+        }
+    }, [videoElement, subtitleManager])
+
+    React.useEffect(() => {
+        onAudioChange()
+    }, [subtitleManager])
+
+    if (isMiniPlayer || !subtitleTracks?.length) return null
 
     return (
-        <VideoCoreControlButtonIcon
-            icons={[
-                ["default", LuCaptions],
-            ]}
-            state="default"
-            onClick={() => {
-            }}
-        />
+        <VideoCoreMenu
+            trigger={<VideoCoreControlButtonIcon
+                icons={[
+                    ["default", LuCaptions],
+                ]}
+                state="default"
+                onClick={() => {
+
+                }}
+            />}
+        >
+            <VideoCoreMenuTitle>Subtitles</VideoCoreMenuTitle>
+            <VideoCoreMenuBody>
+                <VideoCoreSettingSelect
+                    options={subtitleTracks.map(track => ({
+                        label: `${track.name}`,
+                        value: track.number,
+                        moreInfo: track.language
+                            ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
+                            : undefined,
+                    }))}
+                    onValueChange={(value) => {
+                        subtitleManager?.selectTrack(value)
+                    }}
+                    value={selectedTrack || 0}
+                />
+            </VideoCoreMenuBody>
+        </VideoCoreMenu>
     )
+}
+
+function getSubtitleTrackType(codecID: string) {
+    switch (codecID) {
+        case "S_TEXT/ASS":
+            return "SSA"
+        case "S_TEXT/SSA":
+            return "SSA"
+        case "S_TEXT/UTF8":
+            return "TEXT"
+        case "S_HDMV/PGS":
+            return "PGS"
+    }
+    return "unknown"
 }
 
 export function VideoCoreSettingsButton() {
@@ -524,6 +627,10 @@ export function VideoCoreSettingsButton() {
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
 
     const [, setKeybindingsModelOpen] = useAtom(videoCoreKeybindingsModalAtom)
+
+    const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
+    const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)
+    const [beautifyImage, setBeautifyImage] = useAtom(vc_beautifyImageAtom)
 
     if (isMiniPlayer) return null
 
@@ -563,11 +670,14 @@ export function VideoCoreSettingsButton() {
                     />
                 </VideoCoreMenuOption>
                 <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
+                    <p className="text-[--muted] text-sm mb-2">
+                        Real-time upscaling. Do not enable if you have a low-end GPU or none.
+                    </p>
                     <VideoCoreSettingSelect
                         options={anime4kOptions.map(option => ({
                             label: `${option.label}`,
                             value: option.value,
-                            moreInfo: option.performance === "medium" ? "Medium" : option.performance === "heavy" ? "Heavy" : undefined,
+                            moreInfo: option.performance === "heavy" ? "Heavy" : undefined,
                             description: option.description,
                         }))}
                         onValueChange={(value) => {
@@ -577,7 +687,30 @@ export function VideoCoreSettingsButton() {
                     />
                 </VideoCoreMenuOption>
                 <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush}>
-                    Filters
+                    <Switch
+                        label="Show Chapter Markers"
+                        side="right"
+                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                        size="sm"
+                        value={showChapterMarkers}
+                        onValueChange={setShowChapterMarkers}
+                    />
+                    <Switch
+                        label="Highlight OP/ED Chapters"
+                        side="right"
+                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                        size="sm"
+                        value={highlightOPEDChapters}
+                        onValueChange={setHighlightOPEDChapters}
+                    />
+                    <Switch
+                        label="Apply enhancement filters"
+                        side="right"
+                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                        size="sm"
+                        value={beautifyImage}
+                        onValueChange={setBeautifyImage}
+                    />
                 </VideoCoreMenuOption>
             </VideoCoreMenuSubmenuBody>
         </VideoCoreMenu>

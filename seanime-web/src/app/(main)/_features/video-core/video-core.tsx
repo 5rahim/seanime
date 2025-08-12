@@ -32,7 +32,7 @@ import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
-import { vc_settings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_beautifyImageAtom, vc_settings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
     detectSubtitleType,
     isSubtitleFile,
@@ -239,6 +239,7 @@ export function VideoCore(props: VideoCoreProps) {
     const fullscreen = useAtomValue(vc_isFullscreen)
     const paused = useAtomValue(vc_paused)
     const readyState = useAtomValue(vc_readyState)
+    const beautifyImage = useAtomValue(vc_beautifyImageAtom)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
@@ -797,7 +798,7 @@ export function VideoCore(props: VideoCoreProps) {
                                     style={{
                                         border: "none",
                                         width: "100%",
-                                        filter: settings.videoEnhancement.enabled
+                                        filter: (settings.videoEnhancement.enabled && beautifyImage)
                                             ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
                                             : "none",
                                         imageRendering: "crisp-edges",
