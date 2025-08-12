@@ -10,6 +10,7 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
+import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { vc_defaultKeybindings, vc_keybindingsAtom, VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -19,6 +20,7 @@ import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
 export const videoCoreKeybindingsModalAtom = atom(false)
 
@@ -157,12 +159,11 @@ export function VideoCoreKeybindingsModal() {
             description="Customize the keyboard shortcuts for the player"
             open={open}
             onOpenChange={setOpen}
-            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm"
+            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
         >
             <div className="grid grid-cols-3 gap-8">
-                {/* Playback Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Seek Forward"
@@ -209,9 +210,8 @@ export function VideoCoreKeybindingsModal() {
                     </div>
                 </div>
 
-                {/* Navigation Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Next Chapter"
@@ -248,12 +248,16 @@ export function VideoCoreKeybindingsModal() {
                             description="Toggle picture in picture"
                             actionKey="pictureInPicture"
                         />
+                        <KeybindingRow
+                            action="Take Screenshot"
+                            description="Take screenshot"
+                            actionKey="takeScreenshot"
+                        />
                     </div>
                 </div>
 
-                {/* Controls Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Volume Up"
@@ -342,6 +346,7 @@ export function VideoCoreKeybindingController(props: {
 
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const audioManager = useAtomValue(vc_audioManager)
+    const fullscreenManager = useAtomValue(vc_fullscreenManager)
 
     // Rate limiting for seeking operations
     const lastSeekTime = useRef(0)
@@ -354,6 +359,8 @@ export function VideoCoreKeybindingController(props: {
     function seekTo(to: number) {
         action({ type: "seekTo", payload: { time: to, flashTime: true } })
     }
+
+    const { takeScreenshot } = useVideoCoreScreenshot()
 
     //
     // Keyboard shortcuts
@@ -522,6 +529,9 @@ export function VideoCoreKeybindingController(props: {
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
             flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
+        } else if (e.code === keybindings.takeScreenshot.key) {
+            e.preventDefault()
+            takeScreenshot()
         }
     }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime, isKeybindingsModalOpen])
 
@@ -671,16 +681,14 @@ export function VideoCoreKeybindingController(props: {
     }, [])
 
     const handleToggleFullscreen = useCallback(() => {
-        // mediaStore.dispatch({
-        //     type: fullscreen ? "mediaexitfullscreenrequest" : "mediaenterfullscreenrequest",
-        // })
+        fullscreenManager?.toggleFullscreen()
 
         React.startTransition(() => {
             setTimeout(() => {
                 videoRef.current?.focus()
             }, 100)
         })
-    }, [fullscreen])
+    }, [fullscreenManager])
 
     const handleTogglePictureInPicture = useCallback(() => {
         // mediaStore.dispatch({

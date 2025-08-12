@@ -1,4 +1,4 @@
-import { vc_miniPlayer, vc_realVideoSize, vc_seeking, vc_videoElement } from "@/app/(main)/_features/video-core/video-core"
+import { vc_miniPlayer, vc_pip, vc_realVideoSize, vc_seeking, vc_videoElement } from "@/app/(main)/_features/video-core/video-core"
 import {
     Anime4KPipeline,
     CNNx2M,
@@ -51,17 +51,18 @@ const frameDropDetectionAtom = atom({
 
 // maintain a single canvas
 // destroy when window resizes
-const canvasAtom = atom<HTMLCanvasElement | null>(null)
+export const vc_anime4kCanvas = atom<HTMLCanvasElement | null>(null)
 
 export const useVideoCoreAnime4K = () => {
     const video = useAtomValue(vc_videoElement)
     const realVideoSize = useAtomValue(vc_realVideoSize)
     const seeking = useAtomValue(vc_seeking)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const isPip = useAtomValue(vc_pip)
 
     const flashAction = useSetAtom(vc_doFlashAction)
 
-    const [canvas, setCanvas] = useAtom(canvasAtom)
+    const [canvas, setCanvas] = useAtom(vc_anime4kCanvas)
     const [frameDropState, setFrameDropState] = useAtom(frameDropDetectionAtom)
 
     const [selectedOption, setAnime4kOption] = useAtom(vc_anime4kOption)
@@ -160,14 +161,14 @@ export const useVideoCoreAnime4K = () => {
             }
 
             // if already created, destroy the canvas
-            if (canvasCreated || seeking || selectedOption === "off" || isMiniPlayer) {
+            if (canvasCreated || seeking || selectedOption === "off" || isMiniPlayer || isPip) {
                 destroyCanvas()
             }
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current)
             }
 
-            if (!video || seeking || selectedOption === "off" || isMiniPlayer) return
+            if (!video || seeking || selectedOption === "off" || isMiniPlayer || isPip) return
 
             initializingRef.current = true
             abortControllerRef.current = new AbortController()
@@ -186,7 +187,6 @@ export const useVideoCoreAnime4K = () => {
                     originalOptionRef.current = selectedOption
                 }
 
-                // Check if aborted
                 if (abortControllerRef.current?.signal.aborted) return
 
                 // get gpu info, if not available, fallback to off
@@ -237,7 +237,7 @@ export const useVideoCoreAnime4K = () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current)
             destroyCanvas()
         }
-    }, [selectedOption, video, realVideoSize, seeking, isMiniPlayer])
+    }, [selectedOption, video, realVideoSize, seeking, isMiniPlayer, isPip])
 
     useUpdateEffect(() => {
         // clean up any existing frame detection loop

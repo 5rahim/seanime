@@ -123,7 +123,7 @@ func (fs *FileStream) WriteAndFlush(src io.Reader, dst io.Writer, offset int64) 
 	// Sync file to ensure data is written
 	fs.mu.Lock()
 	if !fs.closed {
-		_ = fs.file.Sync() // Ignore sync error as it's not critical
+		_ = fs.file.Sync()
 	}
 	fs.mu.Unlock()
 

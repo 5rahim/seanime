@@ -11,9 +11,11 @@ import {
     vc_cursorBusy,
     vc_dispatchAction,
     vc_duration,
+    vc_isFullscreen,
     vc_isMuted,
     vc_miniPlayer,
     vc_paused,
+    vc_pip,
     vc_playbackRate,
     vc_seeking,
     vc_subtitleManager,
@@ -22,6 +24,7 @@ import {
     VIDEOCORE_DEBUG_ELEMENTS,
 } from "@/app/(main)/_features/video-core/video-core"
 import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app/(main)/_features/video-core/video-core-anime-4k"
+import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import {
     VideoCoreMenu,
@@ -32,6 +35,7 @@ import {
     VideoCoreMenuTitle,
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
+import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { vc_beautifyImageAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
@@ -67,7 +71,7 @@ const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI = 28
 export const vc_hoveringControlBar = atom(false)
 
 type VideoCoreControlBarType = "default" | "classic"
-const VIDEOCORE_CONTROL_BAR_TYPE: VideoCoreControlBarType = "classic" // TODO: Change to default
+const VIDEOCORE_CONTROL_BAR_TYPE: VideoCoreControlBarType = "default"
 
 // VideoControlBar sits on the bottom of the video container
 // shows up when cursor hovers bottom of the player or video is paused
@@ -375,6 +379,7 @@ export function VideoCoreVolumeButton() {
                             volume > 0.1 ? "mid" :
                                 "low"
                 }
+                className={isMiniPlayer ? "text-[1.3rem]" : "text-2xl"}
                 onClick={() => {
                     setMuted(p => {
                         if (p && volume === 0) setVolume(0.1)
@@ -489,8 +494,6 @@ export function VideoCoreAudioButton() {
 
     function onAudioChange() {
         setSelectedTrack(audioManager?.getSelectedTrack?.() ?? null)
-
-        console.log(audioManager?.getSelectedTrack?.() ?? null)
     }
 
     React.useEffect(() => {
@@ -718,7 +721,8 @@ export function VideoCoreSettingsButton() {
 }
 
 export function VideoCorePipButton() {
-    const action = useSetAtom(vc_dispatchAction)
+    const pipManager = useAtomValue(vc_pipManager)
+    const isPip = useAtomValue(vc_pip)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
 
     if (isMiniPlayer) return null
@@ -729,24 +733,27 @@ export function VideoCorePipButton() {
                 ["default", TbPictureInPicture],
                 ["pip", TbPictureInPictureOff],
             ]}
-            state="default"
+            state={isPip ? "pip" : "default"}
             onClick={() => {
+                pipManager?.togglePip()
             }}
         />
     )
 }
 
 export function VideoCoreFullscreenButton() {
-    const action = useSetAtom(vc_dispatchAction)
+    const fullscreenManager = useAtomValue(vc_fullscreenManager)
+    const isFullscreen = useAtomValue(vc_isFullscreen)
 
     return (
         <VideoCoreControlButtonIcon
             icons={[
                 ["default", RxEnterFullScreen],
-                ["pip", RxExitFullScreen],
+                ["fullscreen", RxExitFullScreen],
             ]}
-            state="default"
+            state={isFullscreen ? "fullscreen" : "default"}
             onClick={() => {
+                fullscreenManager?.toggleFullscreen()
             }}
         />
     )

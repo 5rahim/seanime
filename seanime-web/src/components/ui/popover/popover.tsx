@@ -35,7 +35,11 @@ export type PopoverProps =
         /**
          * Additional props for the trigger element
          */
-        triggerProps?: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>
+        triggerProps?: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>,
+        /**
+         * Portal container for custom mounting (useful for fullscreen mode)
+         */
+        portalContainer?: HTMLElement
     }
 
 export const Popover = React.forwardRef<HTMLDivElement, PopoverProps>((props, ref) => {
@@ -51,6 +55,8 @@ export const Popover = React.forwardRef<HTMLDivElement, PopoverProps>((props, re
         className,
         align = "center",
         sideOffset = 8,
+        // Portal
+        portalContainer,
         ...contentProps
     } = props
 
@@ -67,7 +73,7 @@ export const Popover = React.forwardRef<HTMLDivElement, PopoverProps>((props, re
             >
                 {trigger}
             </PopoverPrimitive.Trigger>
-            <PopoverPrimitive.Portal>
+            <PopoverPrimitive.Portal container={portalContainer}>
                 <PopoverPrimitive.Content
                     ref={ref}
                     align={align}

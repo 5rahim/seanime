@@ -157,7 +157,7 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			// Start a subtitle stream from the current position
 			subReader := s.file.NewReader()
 			subReader.SetResponsive()
-			go s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
+			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
 		}
 
 		serveContentRange(w, r, s.manager.playbackCtx, tr, name, size, s.LoadContentType(), ra)

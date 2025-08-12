@@ -1,8 +1,8 @@
-import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core"
+import { vc_containerElement, vc_isFullscreen, vc_menuOpen } from "@/app/(main)/_features/video-core/video-core"
 import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import { motion } from "motion/react"
 import React, { useRef } from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
@@ -23,6 +23,10 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
     const [open, setOpen] = React.useState(false)
 
     const [openSection, setOpenSection] = useAtom(vc_menuSectionOpen)
+
+    // Get fullscreen state and container element for proper portal mounting
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
 
     const t = useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
@@ -49,7 +53,8 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             sideOffset={4}
             align="center"
             modal={false}
-            className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem]"
+            className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]"
+            portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
             <div className="h-auto">
                 {children}
@@ -205,10 +210,12 @@ type VideoCoreSettingSelectProps<T extends string | number> = {
     }[]
     value: T
     onValueChange: (value: T) => void
+    isFullscreen?: boolean
+    containerElement?: HTMLElement | null
 }
 
 export function VideoCoreSettingSelect<T extends string | number>(props: VideoCoreSettingSelectProps<T>) {
-    const { options, value, onValueChange } = props
+    const { options, value, onValueChange, isFullscreen, containerElement } = props
     return (
         <div className="block">
             {options.map(option => (
@@ -230,7 +237,10 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                         {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
                             {option.moreInfo}
                         </span>}
-                        {option.description && <Tooltip trigger={<AiFillInfoCircle className="text-sm" />}>
+                        {option.description && <Tooltip
+                            trigger={<AiFillInfoCircle className="text-sm" />}
+                            portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                        >
                             {option.description}
                         </Tooltip>}
                     </div>}

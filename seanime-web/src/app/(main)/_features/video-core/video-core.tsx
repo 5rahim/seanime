@@ -27,7 +27,9 @@ import {
     VideoCoreVolumeButton,
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
+import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
+import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
@@ -81,7 +83,7 @@ export const vc_isMuted = atom(false)
 export const vc_volume = atom(1)
 export const vc_subtitleDelay = atom(0)
 export const vc_isFullscreen = atom(false)
-export const vc_pip = atom(false)
+export const vc_pip = derive([vc_pipElement], (pipElement) => pipElement !== null)
 export const vc_seeking = atom(false)
 export const vc_seekingTargetProgress = atom(0) // 0-100
 export const vc_timeRanges = atom<TimeRanges | null>(null)
@@ -229,6 +231,10 @@ export function VideoCore(props: VideoCoreProps) {
     const [subtitleManager, setSubtitleManager] = useAtom(vc_subtitleManager)
     const [audioManager, setAudioManager] = useAtom(vc_audioManager)
     const [previewManager, setPreviewManager] = useAtom(vc_previewManager)
+    const [pipManager, setPipManager] = useAtom(vc_pipManager)
+    const setPipElement = useSetAtom(vc_pipElement)
+    const [fullscreenManager, setFullscreenManager] = useAtom(vc_fullscreenManager)
+    const setIsFullscreen = useSetAtom(vc_isFullscreen)
 
     // States
     const settings = useAtomValue(vc_settings)
@@ -240,6 +246,8 @@ export function VideoCore(props: VideoCoreProps) {
     const paused = useAtomValue(vc_paused)
     const readyState = useAtomValue(vc_readyState)
     const beautifyImage = useAtomValue(vc_beautifyImageAtom)
+    const isPip = useAtomValue(vc_pip)
+    const flashAction = useSetAtom(vc_doFlashAction)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
@@ -330,6 +338,12 @@ export function VideoCore(props: VideoCoreProps) {
             previewManager?.cleanup?.()
             setPreviewManager(null)
             setAudioManager(null)
+            pipManager?.destroy?.()
+            setPipManager(null)
+            setPipElement(null)
+            fullscreenManager?.destroy?.()
+            setFullscreenManager(null)
+            setIsFullscreen(false)
             currentPlaybackRef.current = null
             videoRef.current = null
         }
@@ -385,6 +399,25 @@ export function VideoCore(props: VideoCoreProps) {
                 },
             }))
         }
+
+        // Initialize PIP manager
+        setPipManager(p => {
+            if (p) p.destroy()
+            const manager = new VideoCorePipManager((element) => {
+                setPipElement(element)
+            })
+            manager.setVideo(v!)
+            return manager
+        })
+
+        // Initialize fullscreen manager
+        setFullscreenManager(p => {
+            if (p) p.destroy()
+            const manager = new VideoCoreFullscreenManager((isFullscreen: boolean) => {
+                setIsFullscreen(isFullscreen)
+            })
+            return manager
+        })
 
         log.info("Initializing preview manager")
         // TODO uncomment
@@ -517,6 +550,21 @@ export function VideoCore(props: VideoCoreProps) {
             videoRef.current.playbackRate = playbackRate
         }
     }, [playbackRate, videoRef.current])
+
+    // Update PIP manager
+    React.useEffect(() => {
+        if (pipManager && videoRef.current) {
+            pipManager.setVideo(videoRef.current)
+            if (subtitleManager) pipManager.setSubtitleManager(subtitleManager)
+        }
+    }, [pipManager, subtitleManager, videoRef.current])
+
+    // Update fullscreen manager
+    React.useEffect(() => {
+        if (fullscreenManager && containerRef.current) {
+            fullscreenManager.setContainer(containerRef.current)
+        }
+    }, [fullscreenManager, containerRef.current])
 
     //
 
@@ -774,6 +822,7 @@ export function VideoCore(props: VideoCoreProps) {
                                 <video
                                     data-video-core-element
                                     crossOrigin="anonymous"
+                                    // preload="metadata"
                                     preload="auto"
                                     src={streamUrl!}
                                     ref={combineRef}
@@ -783,7 +832,7 @@ export function VideoCore(props: VideoCoreProps) {
                                     onPlay={handlePlay}
                                     onPause={handlePause}
                                     onClick={handleClick}
-                                    onDoubleClick={() => {}}
+                                    onDoubleClick={() => { }}
                                     onLoadedData={handleLoadedData}
                                     onVolumeChange={handleVolumeChange}
                                     onRateChange={handleRateChange}
@@ -831,6 +880,16 @@ export function VideoCore(props: VideoCoreProps) {
                                 {/*<TorrentStreamOverlay isNativePlayerComponent="info" />*/}
                             </VideoCoreTopSection>
 
+                            {isPip && <div className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center">
+                                <Button
+                                    intent="gray-outline" size="xl" onClick={() => {
+                                    pipManager?.togglePip()
+                                }}
+                                >
+                                    Exit PiP
+                                </Button>
+                            </div>}
+
                             <VideoCoreControlBar
                                 timeRange={<VideoCoreTimeRange
                                     chapterCues={chapterCues ?? []}
@@ -839,14 +898,16 @@ export function VideoCore(props: VideoCoreProps) {
 
                                 <VideoCorePlayButton />
 
-                                <VideoCorePreviousButton onClick={() => {}} />
-                                <VideoCoreNextButton onClick={() => {}} />
+                                <VideoCorePreviousButton onClick={() => { }} />
+                                <VideoCoreNextButton onClick={() => { }} />
 
                                 <VideoCoreVolumeButton />
 
                                 <VideoCoreTimestamp />
 
                                 <div className="flex flex-1" />
+
+                                {!isMiniPlayer && <TorrentStreamOverlay isNativePlayerComponent="control-bar" />}
 
                                 <VideoCoreSettingsButton />
 

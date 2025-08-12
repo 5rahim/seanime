@@ -14,7 +14,7 @@ const NO_TRACK_NUMBER = -1
 export class VideoCoreSubtitleManager {
     private readonly videoElement: HTMLVideoElement
     private readonly jassubOffscreenRender: boolean
-    private libassRenderer: JASSUB | null = null
+    libassRenderer: JASSUB | null = null
     private settings: VideoCoreSettings
     private defaultSubtitleHeader = `[Script Info]
 Title: English (US)

@@ -48,6 +48,7 @@ export interface VideoCoreKeybindings {
     pictureInPicture: { key: string }
     increaseSpeed: { key: string; value: number }
     decreaseSpeed: { key: string; value: number }
+    takeScreenshot: { key: string }
 }
 
 export const vc_defaultKeybindings: VideoCoreKeybindings = {
@@ -68,6 +69,7 @@ export const vc_defaultKeybindings: VideoCoreKeybindings = {
     pictureInPicture: { key: "KeyP" },
     increaseSpeed: { key: "BracketRight", value: 0.1 },
     decreaseSpeed: { key: "BracketLeft", value: 0.1 },
+    takeScreenshot: { key: "KeyI" },
 }
 
 export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings, undefined, { getOnInit: true })

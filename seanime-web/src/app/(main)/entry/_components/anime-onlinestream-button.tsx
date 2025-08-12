@@ -27,8 +27,7 @@ export function AnimeOnlinestreamButton(props: AnimeOnlinestreamButtonProps) {
     if (
         !entry ||
         entry.media?.status === "NOT_YET_RELEASED" ||
-        !status?.settings?.library?.enableOnlinestream ||
-        entry.media?.isAdult
+        !status?.settings?.library?.enableOnlinestream
     ) return null
 
     if (!isLibraryView && !isOnlineStreamingView) return null
