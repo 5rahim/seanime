@@ -1,5 +1,6 @@
 // Flash notification system
-import { vc_paused } from "@/app/(main)/_features/video-core/video-core"
+import { vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
+import { cn } from "@/components/ui/core/styling"
 import { atom } from "jotai"
 import { useAtom } from "jotai/index"
 import { motion } from "motion/react"
@@ -32,6 +33,7 @@ export const vc_doFlashAction = atom(null, (get, set, payload: { message: string
 
 export function VideoCoreActionDisplay() {
     const [notification] = useAtom(vc_flashAction)
+    const isMiniPlayer = useAtom(vc_miniPlayer)
 
     if (!notification) return null
 
@@ -54,7 +56,12 @@ export function VideoCoreActionDisplay() {
 
     return (
         <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-            <div className="text-white px-2 py-1 !text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide">
+            <div
+                className={cn(
+                    "text-white px-2 py-1 !text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
+                    isMiniPlayer && "text-sm",
+                )}
+            >
                 {notification.message}
             </div>
         </div>

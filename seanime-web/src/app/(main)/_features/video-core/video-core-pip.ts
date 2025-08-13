@@ -1,3 +1,4 @@
+import { NativePlayer_PlaybackInfo } from "@/api/generated/types"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
@@ -13,6 +14,11 @@ export class VideoCorePipManager {
     private controller = new AbortController()
     private canvasController: AbortController | null = null
     private readonly onPipElementChange: (element: HTMLVideoElement | null) => void
+    private mediaSessionSetup = false
+    private pipProxy: HTMLVideoElement | null = null
+    private isSyncingFromMain = false
+    private isSyncingFromPip = false
+    private playbackInfo: NativePlayer_PlaybackInfo | null = null
 
     constructor(onPipElementChange: (element: HTMLVideoElement | null) => void) {
         this.onPipElementChange = onPipElementChange
@@ -33,8 +39,18 @@ export class VideoCorePipManager {
         }, { signal: this.controller.signal })
     }
 
-    setVideo(video: HTMLVideoElement) {
+    setVideo(video: HTMLVideoElement, playbackInfo: NativePlayer_PlaybackInfo) {
         this.video = video
+
+        if (this.video) {
+            this.video.addEventListener("play", this.handleMainVideoPlay, {
+                signal: this.controller.signal,
+            })
+            this.video.addEventListener("pause", this.handleMainVideoPause, {
+                signal: this.controller.signal,
+            })
+        }
+        this.playbackInfo = playbackInfo
     }
 
     setSubtitleManager(subtitleManager: VideoCoreSubtitleManager) {
@@ -84,6 +100,7 @@ export class VideoCorePipManager {
 
     destroy() {
         this.exitPip()
+        this.clearMediaSession()
         this.canvasController?.abort()
         this.controller.abort()
         this.video = null
@@ -93,16 +110,20 @@ export class VideoCorePipManager {
     private handleEnterPip = () => {
         const pipElement = document.pictureInPictureElement as HTMLVideoElement | null
         log.info("Entered PiP", pipElement)
+        this.setupMediaSession()
+        this.updateMediaSessionPlaybackState()
         this.onPipElementChange(pipElement)
     }
 
     private handleLeavePip = () => {
         log.info("Left PiP")
+        this.clearMediaSession()
         this.onPipElementChange(null)
 
         if (this.video) {
             this.video.focus()
         }
+        this.pipProxy = null
     }
 
     private newPipVideo() {
@@ -114,6 +135,124 @@ export class VideoCorePipManager {
             signal: this.controller.signal,
         })
         return element
+    }
+
+    private setupMediaSession() {
+        if (!("mediaSession" in navigator) || this.mediaSessionSetup) {
+            return
+        }
+
+        try {
+            // Set up media session metadata
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: this.playbackInfo?.episode?.displayTitle ?? "Seanime",
+                artist: this.playbackInfo?.episode?.baseAnime?.title?.userPreferred ?? "Video Player",
+                artwork: [
+                    {
+                        src: this.playbackInfo?.episode?.episodeMetadata?.image ?? "",
+                        sizes: "100px",
+                        type: "image/webp",
+                    },
+                ],
+            })
+
+            // Set up action handlers for play/pause
+            navigator.mediaSession.setActionHandler("play", () => {
+                log.info("Play")
+                if (this.video?.paused) {
+                    this.video.play().catch(err => {
+                        log.error("Failed to play video from media session", err)
+                    })
+                }
+            })
+
+            navigator.mediaSession.setActionHandler("pause", () => {
+                log.info("Pause")
+                if (this.video && !this.video.paused) {
+                    this.video.pause()
+                }
+            })
+
+            this.mediaSessionSetup = true
+            log.info("Media session setup complete")
+        }
+        catch (error) {
+            log.error("Failed to setup media session", error)
+        }
+    }
+
+    private clearMediaSession() {
+        if (!("mediaSession" in navigator) || !this.mediaSessionSetup) {
+            return
+        }
+
+        try {
+            // Clear action handlers
+            navigator.mediaSession.setActionHandler("play", null)
+            navigator.mediaSession.setActionHandler("pause", null)
+            navigator.mediaSession.metadata = null
+
+            this.mediaSessionSetup = false
+            log.info("Media session cleared")
+        }
+        catch (error) {
+            log.error("Failed to clear media session", error)
+        }
+    }
+
+    private updateMediaSessionPlaybackState = () => {
+        if ("mediaSession" in navigator && this.mediaSessionSetup && this.video) {
+            navigator.mediaSession.playbackState = this.video.paused ? "paused" : "playing"
+        }
+    }
+
+    private renderToCanvas = (
+        pipVideo: HTMLVideoElement,
+        context: CanvasRenderingContext2D,
+        animationFrameRef: { current: number },
+    ) => (now?: number, metadata?: VideoFrameCallbackMetadata) => {
+        if (!this.video || !context) return
+
+        // sync play/pause state
+        if (now !== undefined) {
+            if (this.video.paused && !pipVideo.paused) {
+                if (!this.isSyncingFromPip) {
+                    pipVideo.pause()
+                }
+            } else if (!this.video.paused && pipVideo.paused) {
+                if (!this.isSyncingFromPip) {
+                    pipVideo.play().catch(() => {})
+                }
+            }
+            this.updateMediaSessionPlaybackState()
+        }
+
+        context.drawImage(this.video, 0, 0)
+        const subtitleCanvas = this.subtitleManager?.libassRenderer?._canvas
+        if (subtitleCanvas && context.canvas.width && context.canvas.height) {
+            context.drawImage(subtitleCanvas, 0, 0, context.canvas.width, context.canvas.height)
+        }
+        animationFrameRef.current = this.video.requestVideoFrameCallback(this.renderToCanvas(pipVideo, context, animationFrameRef))
+    }
+
+    private handleMainVideoPlay = () => {
+        if (this.isSyncingFromPip) return
+        this.updateMediaSessionPlaybackState()
+        if (this.pipProxy && this.pipProxy.paused) {
+            this.isSyncingFromMain = true
+            this.pipProxy.play().catch(() => {})
+            this.isSyncingFromMain = false
+        }
+    }
+
+    private handleMainVideoPause = () => {
+        if (this.isSyncingFromPip) return
+        this.updateMediaSessionPlaybackState()
+        if (this.pipProxy && !this.pipProxy.paused) {
+            this.isSyncingFromMain = true
+            this.pipProxy.pause()
+            this.isSyncingFromMain = false
+        }
     }
 
     private async enterPipWithSubtitles() {
@@ -129,6 +268,7 @@ export class VideoCorePipManager {
         const pipVideo = this.newPipVideo()
         pipVideo.srcObject = canvas.captureStream()
         pipVideo.muted = true
+        this.pipProxy = pipVideo
 
         canvas.width = this.video.videoWidth
         canvas.height = this.video.videoHeight
@@ -138,7 +278,30 @@ export class VideoCorePipManager {
         }
 
         this.canvasController = new AbortController()
-        let animationFrame: number
+
+        // Forward PiP overlay play/pause controls to the main video element
+        // In the canvas path the PiP element is not the main <video> and PiP UI
+        // controls act on this proxy element instead.
+        const forwardPlay = () => {
+            if (this.video && this.video.paused) {
+                this.isSyncingFromPip = true
+                this.video.play().catch(err => {
+                    log.error("Failed to play main video from PiP overlay", err)
+                }).finally(() => {
+                    this.isSyncingFromPip = false
+                })
+            }
+        }
+        const forwardPause = () => {
+            if (this.video && !this.video.paused) {
+                this.isSyncingFromPip = true
+                this.video.pause()
+                this.isSyncingFromPip = false
+            }
+        }
+        pipVideo.addEventListener("play", forwardPlay, { signal: this.canvasController.signal })
+        pipVideo.addEventListener("pause", forwardPause, { signal: this.canvasController.signal })
+        const animationFrameRef = { current: 0 }
 
         // draw initial frame
         context.drawImage(this.video, 0, 0)
@@ -164,35 +327,16 @@ export class VideoCorePipManager {
             }, { once: true })
         })
 
-        const renderFrame = (now?: number, metadata?: VideoFrameCallbackMetadata) => {
-            if (!this.video || !context) return
-
-            // sync play/pause state
-            if (now !== undefined) {
-                if (this.video.paused && !pipVideo.paused) {
-                    pipVideo.pause()
-                } else if (!this.video.paused && pipVideo.paused) {
-                    pipVideo.play().catch()
-                }
-            }
-
-            context.drawImage(this.video, 0, 0)
-            const subtitleCanvas = this.subtitleManager?.libassRenderer?._canvas
-            if (subtitleCanvas && canvas.width && canvas.height) {
-                context.drawImage(subtitleCanvas, 0, 0, canvas.width, canvas.height)
-            }
-            animationFrame = this.video.requestVideoFrameCallback(renderFrame)
-        }
-
         const cleanup = () => {
             if (this.subtitleManager?.libassRenderer) {
                 this.subtitleManager.libassRenderer.resize()
             }
-            if (animationFrame && this.video) {
-                this.video.cancelVideoFrameCallback(animationFrame)
+            if (animationFrameRef.current && this.video) {
+                this.video.cancelVideoFrameCallback(animationFrameRef.current)
             }
             canvas.remove()
             pipVideo.remove()
+            this.pipProxy = null
         }
 
         this.canvasController.signal.addEventListener("abort", cleanup)
@@ -205,7 +349,7 @@ export class VideoCorePipManager {
 
         try {
             // start the continuous rendering loop
-            renderFrame(performance.now())
+            this.renderToCanvas(pipVideo, context, animationFrameRef)(performance.now())
 
             // always start the canvas stream
             try {

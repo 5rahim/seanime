@@ -406,17 +406,16 @@ export function VideoCore(props: VideoCoreProps) {
             const manager = new VideoCorePipManager((element) => {
                 setPipElement(element)
             })
-            manager.setVideo(v!)
+            manager.setVideo(v!, state.playbackInfo!)
             return manager
         })
 
         // Initialize fullscreen manager
         setFullscreenManager(p => {
             if (p) p.destroy()
-            const manager = new VideoCoreFullscreenManager((isFullscreen: boolean) => {
+            return new VideoCoreFullscreenManager((isFullscreen: boolean) => {
                 setIsFullscreen(isFullscreen)
             })
-            return manager
         })
 
         log.info("Initializing preview manager")
@@ -553,11 +552,11 @@ export function VideoCore(props: VideoCoreProps) {
 
     // Update PIP manager
     React.useEffect(() => {
-        if (pipManager && videoRef.current) {
-            pipManager.setVideo(videoRef.current)
+        if (pipManager && videoRef.current && state.playbackInfo) {
+            pipManager.setVideo(videoRef.current, state.playbackInfo)
             if (subtitleManager) pipManager.setSubtitleManager(subtitleManager)
         }
-    }, [pipManager, subtitleManager, videoRef.current])
+    }, [pipManager, subtitleManager, videoRef.current, state.playbackInfo])
 
     // Update fullscreen manager
     React.useEffect(() => {

@@ -1,7 +1,7 @@
-import React from "react"
-import { vc_doFlashAction } from "./video-core-action-display"
 import { useAtomValue, useSetAtom } from "jotai"
+import React from "react"
 import { vc_subtitleManager, vc_videoElement } from "./video-core"
+import { vc_doFlashAction } from "./video-core-action-display"
 import { vc_anime4kCanvas, vc_anime4kOption } from "./video-core-anime-4k"
 
 export function useVideoCoreScreenshot() {
@@ -14,10 +14,9 @@ export function useVideoCoreScreenshot() {
 
     const screenshotTimeout = React.useRef<NodeJS.Timeout | null>(null)
 
-    async function saveToClipboard(blob: Blob, isEnhanced: boolean = false) {
+    async function saveToClipboard(blob: Blob, isAnime4K: boolean = false) {
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
-        const message = isEnhanced ? "Enhanced screenshot saved to clipboard" : "Screenshot saved to clipboard"
-        flashAction({ message, type: "message" })
+        flashAction({ message: "Screenshot saved to clipboard", type: "message" })
     }
 
     async function addSubtitles(canvas: HTMLCanvasElement): Promise<void> {
