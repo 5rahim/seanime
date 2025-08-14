@@ -4,7 +4,7 @@ import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -23,7 +23,7 @@ import { BiCollection, BiDownload, BiX } from "react-icons/bi"
 import { FcFilmReel, FcFolder } from "react-icons/fc"
 import { LuDownload, LuPlay } from "react-icons/lu"
 
-const isOpenAtom = atom(false)
+const confirmationModalOpenAtom = atom(false)
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void,
@@ -46,8 +46,8 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     const [destination, setDestination] = useState(defaultPath)
 
-    const [isOpen, setIsOpen] = useAtom(isOpenAtom)
-    const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
+    const [isConfirmationModalOpen, setConfirmationModalOpen] = useAtom(confirmationModalOpenAtom)
+    const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_selectionAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
 
     /**
@@ -74,20 +74,20 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     // download via torrent client
     const { mutate, isPending } = useTorrentClientDownload(() => {
-        setIsOpen(false)
+        setConfirmationModalOpen(false)
         setTorrentDrawerIsOpen(undefined)
         router.push("/torrent-list")
     })
 
     // download torrent file
     const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useDownloadTorrentFile(() => {
-        setIsOpen(false)
+        setConfirmationModalOpen(false)
         setTorrentDrawerIsOpen(undefined)
     })
 
     // download via debrid service
     const { mutate: debridAddTorrents, isPending: isDownloadingDebrid } = useDebridAddTorrents(() => {
-        setIsOpen(false)
+        setConfirmationModalOpen(false)
         setTorrentDrawerIsOpen(undefined)
         router.push("/debrid")
     })
@@ -141,8 +141,8 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     return (
         <Modal
-            open={isOpen}
-            onOpenChange={() => setIsOpen(false)}
+            open={isConfirmationModalOpen}
+            onOpenChange={() => setConfirmationModalOpen(false)}
             contentClass="max-w-3xl"
             title="Choose the destination"
             data-torrent-confirmation-modal
@@ -280,7 +280,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: { type: TorrentSelectionType, onTorrentValidated: () => void }) {
 
     const st = useAtomValue(__torrentSearch_selectedTorrentsAtom)
-    const setter = useSetAtom(isOpenAtom)
+    const setter = useSetAtom(confirmationModalOpenAtom)
 
     if (st.length === 0) return null
 

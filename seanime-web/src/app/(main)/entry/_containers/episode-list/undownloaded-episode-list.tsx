@@ -4,8 +4,8 @@ import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/ac
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import {
-    __torrentSearch_drawerEpisodeAtom,
-    __torrentSearch_drawerIsOpenAtom,
+    __torrentSearch_selectionAtom,
+    __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
@@ -19,8 +19,8 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
 
     const episodes = downloadInfo?.episodesToDownload
 
-    const setTorrentSearchIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
-    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
+    const setTorrentSearchIsOpen = useSetAtom(__torrentSearch_selectionAtom)
+    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
 
     const { hasTorrentProvider } = useHasTorrentProvider()
 

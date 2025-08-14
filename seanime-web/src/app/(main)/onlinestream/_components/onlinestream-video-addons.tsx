@@ -5,16 +5,19 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { Button, IconButton } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
+import { Button } from "@/components/ui/button"
+import { Modal, ModalProps } from "@/components/ui/modal"
+import { Popover, PopoverProps } from "@/components/ui/popover"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip as CTooltip } from "@/components/ui/tooltip"
+import { useWindowSize } from "@uidotdev/usehooks"
 import { Menu, Tooltip } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
+import { useRouter } from "next/navigation"
 import React from "react"
+import { LuGlobe } from "react-icons/lu"
 import { MdHighQuality, MdVideoSettings } from "react-icons/md"
 import { TbCloudSearch } from "react-icons/tb"
 
@@ -74,48 +77,89 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
 
     const { servers, providerExtensionOptions, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
+    const router = useRouter()
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
     const { mutate: emptyCache, isPending } = useOnlineStreamEmptyCache()
 
     return (
-        <Modal
-            title="Stream"
-            trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}
-        >
+        <>
             <Select
-                label="Provider"
                 value={provider || ""}
-                options={providerExtensionOptions}
+                options={[
+                    ...providerExtensionOptions,
+                    {
+                        value: "add-provider",
+                        label: "Find other providers",
+                    },
+                ]}
                 onValueChange={(v) => {
+                    if (v === "add-provider") {
+                        router.push(`/extensions`)
+                        return
+                    }
                     changeProvider(v)
                 }}
+                leftAddon={<LuGlobe />}
+                fieldClass="w-fit"
+                className="rounded-full rounded-l-none w-fit"
+                addonClass="rounded-full rounded-r-none"
             />
-            {!!servers.length && <Select
-                label="Server"
-                value={selectedServer}
-                options={servers.map((server) => ({ label: server, value: server }))}
-                onValueChange={(v) => {
-                    changeServer(v)
-                }}
-            />}
-
-            <Separator />
-
-            <p className="text-sm text-[--muted]">
-                Empty the cache if you are experiencing issues with the stream.
-            </p>
-            <Button
-                size="sm"
-                intent="alert-subtle"
-                onClick={() => emptyCache({ mediaId })}
-                loading={isPending}
+            <IsomorphicPopover
+                title="Stream"
+                trigger={<Button intent="gray-basic" size="sm" className="rounded-full" leftIcon={<MdVideoSettings className="text-xl" />}>
+                    Server & cache
+                </Button>}
             >
-                Empty stream cache
-            </Button>
-        </Modal>
+                {!!servers.length && <Select
+                    label="Server"
+                    value={selectedServer}
+                    options={servers.map((server) => ({ label: server, value: server }))}
+                    onValueChange={(v) => {
+                        changeServer(v)
+                    }}
+                />}
+
+                <Separator />
+
+                <p className="text-sm text-[--muted]">
+                    Empty the cache if you are experiencing issues with the stream.
+                </p>
+                <Button
+                    size="sm"
+                    intent="alert-subtle"
+                    onClick={() => emptyCache({ mediaId })}
+                    loading={isPending}
+                >
+                    Empty stream cache
+                </Button>
+            </IsomorphicPopover>
+        </>
     )
+
+
+}
+
+function IsomorphicPopover(props: PopoverProps & ModalProps) {
+    const { title, children, ...rest } = props
+    const { width } = useWindowSize()
+
+    if (width && width > 1024) {
+        return <Popover
+            {...rest}
+            className="max-w-xl !w-full overflow-hidden space-y-2"
+        >
+            {children}
+        </Popover>
+    }
+
+    return <Modal
+        {...rest}
+        title={title}
+    >
+        {children}
+    </Modal>
 }
 
 export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps) {
@@ -220,18 +264,14 @@ export function SwitchSubOrDubButton() {
     if (!selectedExtension || !selectedExtension?.supportsDub) return null
 
     return (
-        <CTooltip
-            trigger={<Button
-                className=""
-                rounded
-                intent="gray-outline"
-                size="sm"
-                onClick={() => toggleDubbed()}
-            >
-                {dubbed ? "Dubbed" : "Subbed"}
-            </Button>}
+        <Button
+            className=""
+            rounded
+            intent="gray-basic"
+            size="sm"
+            onClick={() => toggleDubbed()}
         >
             {dubbed ? "Switch to subs" : "Switch to dub"}
-        </CTooltip>
+        </Button>
     )
 }

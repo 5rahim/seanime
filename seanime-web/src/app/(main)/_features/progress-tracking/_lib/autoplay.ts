@@ -42,7 +42,7 @@ export function useAutoplay() {
     const countdownRef = React.useRef<NodeJS.Timeout | null>(null)
 
     // Clear all timers
-    const clearTimers = React.useCallback(() => {
+    const clearTimers = () => {
         if (timerRef.current) {
             clearTimeout(timerRef.current)
             timerRef.current = null
@@ -51,9 +51,9 @@ export function useAutoplay() {
             clearInterval(countdownRef.current)
             countdownRef.current = null
         }
-    }, [])
+    }
 
-    const cancelAutoplay = React.useCallback(() => {
+    const cancelAutoplay = () => {
         logger("Autoplay").info("Cancelling autoplay")
 
         clearTimers()
@@ -65,9 +65,9 @@ export function useAutoplay() {
         // Reset streaming autoplay info
         resetTorrentstreamAutoplayInfo()
         resetDebridstreamAutoplayInfo()
-    }, [clearTimers, resetTorrentstreamAutoplayInfo, resetDebridstreamAutoplayInfo])
+    }
 
-    const startAutoplay = React.useCallback((
+    const startAutoplay = (
         playbackState: PlaybackManager_PlaybackState,
         nextEp?: Anime_Episode,
         type: "local" | "torrent" | "debrid" = "local",
@@ -133,19 +133,19 @@ export function useAutoplay() {
             executeAutoplay(episodeToPlay, detectedType, playbackState)
         }, 5000)
 
-    }, [
-        serverStatus?.settings?.library?.autoPlayNextEpisode,
-        isActive,
-        hasNextTorrentstreamEpisode,
-        hasNextDebridstreamEpisode,
-    ])
+    }
 
     // Execute the actual autoplay
-    const executeAutoplay = React.useCallback((
+    const executeAutoplay = (
         episode: Anime_Episode | null,
         type: "local" | "torrent" | "debrid" | null,
         playbackState: PlaybackManager_PlaybackState,
     ) => {
+        if (!isActive) {
+            logger("Autoplay").info("Autoplay was cancelled, skipping execution")
+            return
+        }
+
         logger("Autoplay").info("Executing autoplay", { type, episode: episode?.displayTitle })
 
         try {
@@ -181,7 +181,7 @@ export function useAutoplay() {
             setStreamingType(null)
             setCountdown(5)
         }
-    }, [playMediaFile, autoplayNextTorrentstreamEpisode, autoplayNextDebridstreamEpisode])
+    }
 
     // Cleanup on unmount
     React.useEffect(() => {

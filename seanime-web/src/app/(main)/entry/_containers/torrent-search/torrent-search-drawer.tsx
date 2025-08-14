@@ -1,5 +1,5 @@
 import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
-import { useHandleTorrentSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
@@ -11,14 +11,14 @@ import { useAtom } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
-export const __torrentSearch_drawerIsOpenAtom = atom<TorrentSelectionType | undefined>(undefined)
-export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
+export const __torrentSearch_selectionAtom = atom<TorrentSelectionType | undefined>(undefined)
+export const __torrentSearch_selectionEpisodeAtom = atom<number | undefined>(undefined)
 
 export type TorrentSelectionType =
-    "select" // torrent streaming, torrent selection
-    | "select-file" // torrent streaming, torrent & file selection
-    | "debrid-stream-select" // debrid streaming, torrent selection only
-    | "debrid-stream-select-file"  // debrid streaming, torrent & file selection
+    "torrentstream-select"
+    | "torrentstream-select-file"
+    | "debridstream-select"
+    | "debridstream-select-file"
     | "download"
 
 export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
@@ -26,7 +26,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
     const { entry } = props
     const ts = useThemeSettings()
 
-    const [type, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const [selectionType, setSelection] = useAtom(__torrentSearch_selectionAtom)
     const searchParams = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
@@ -35,17 +35,17 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
 
     useEffect(() => {
         if (!!downloadParam) {
-            setter("download")
+            setSelection("download")
             router.replace(pathname + `?id=${mId}`)
         }
     }, [downloadParam])
 
-    const { onTorrentValidated } = useHandleTorrentSelection({ entry, type })
+    const { onTorrentValidated } = useTorrentSearchSelection({ entry, type: selectionType })
 
     return (
         <Modal
-            open={type !== undefined}
-            onOpenChange={() => setter(undefined)}
+            open={selectionType !== undefined}
+            onOpenChange={() => setSelection(undefined)}
             // size="xl"
             contentClass="max-w-5xl bg-gray-950 bg-opacity-75 firefox:bg-opacity-100 sm:rounded-xl"
             title={`${entry?.media?.title?.userPreferred || "Anime"}`}
@@ -111,11 +111,11 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
             {/*</div>}*/}
 
             <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
-                {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
-                {!!type && <TorrentSearchContainer type={type} entry={entry} />}
+                {selectionType === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
+                {!!selectionType && <TorrentSearchContainer type={selectionType} entry={entry} />}
             </AppLayoutStack>
 
-            <TorrentConfirmationContinueButton type={type || "download"} onTorrentValidated={onTorrentValidated} />
+            <TorrentConfirmationContinueButton type={selectionType || "download"} onTorrentValidated={onTorrentValidated} />
         </Modal>
     )
 

@@ -17,7 +17,7 @@ import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_conta
 import { useHandleOnlinestream } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { logger } from "@/lib/helpers/debug"
 import { isHLSProvider, MediaPlayerInstance, MediaProviderAdapter, MediaProviderChangeEvent, MediaProviderSetupEvent } from "@vidstack/react"
@@ -212,16 +212,19 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     hideBackButton={hideBackButton}
                     episodes={episodes}
                     leftHeaderActions={<>
+                        {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         {animeEntry && <OnlinestreamManualMappingModal entry={animeEntry}>
-                            <IconButton
+                            <Button
                                 size="sm"
                                 intent="gray-basic"
-                                icon={<FaSearch />}
-                            />
+                                className="rounded-full"
+                                leftIcon={<FaSearch className="" />}
+                            >
+                                Manual match
+                            </Button>
                         </OnlinestreamManualMappingModal>}
                         <SwitchSubOrDubButton />
-                        {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
-                        <div className="flex flex-1"></div>
+                        <div className="hidden lg:flex flex-1"></div>
                     </>}
                     rightHeaderActions={<>
                         <IconButton

@@ -233,7 +233,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 initial={{ opacity: 1, y: 0 }}
                 animate={{
                     opacity: y > 400 ? Math.max(1 - y * 0.006, 0.1) : 1,
-                    y: y > 50 ? Math.max(y * -0.1, -40) : 0,
+                    y: y > 200 ? Math.max(y * -0.05, -40) : 0,
                 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className="relative z-[4]"

@@ -30,6 +30,7 @@ import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-dr
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { useVideoCorePlaylistSetup } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
@@ -220,8 +221,7 @@ export function VideoCore(props: VideoCoreProps) {
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
     useVideoCoreBindings(state.playbackInfo)
     useVideoCoreAnime4K()
-    const action = useSetAtom(vc_dispatchAction)
-
+    useVideoCorePlaylistSetup()
 
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
@@ -235,6 +235,7 @@ export function VideoCore(props: VideoCoreProps) {
     const setPipElement = useSetAtom(vc_pipElement)
     const [fullscreenManager, setFullscreenManager] = useAtom(vc_fullscreenManager)
     const setIsFullscreen = useSetAtom(vc_isFullscreen)
+    const action = useSetAtom(vc_dispatchAction)
 
     // States
     const settings = useAtomValue(vc_settings)
