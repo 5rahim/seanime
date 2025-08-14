@@ -3481,7 +3481,6 @@ declare namespace $app {
         episodeCount: number;
         specialCount: number;
         mappings?: Metadata_AnimeMappings;
-        : number;
     }
 
     /**
