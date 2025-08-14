@@ -31,12 +31,20 @@ func SyncLocalDataJob(c *JobCtx) {
 		}
 	}()
 
-	if c.App.Settings == nil || c.App.Settings.Library == nil || !c.App.Settings.Library.AutoSyncOfflineLocalData {
+	if c.App.Settings == nil || c.App.Settings.Library == nil {
 		return
 	}
 
 	// Only synchronize local data if the user is not simulated
-	if !c.App.GetUser().IsSimulated {
-		_ = c.App.LocalManager.SynchronizeLocal()
+	if c.App.Settings.Library.AutoSyncOfflineLocalData && !c.App.GetUser().IsSimulated {
+		c.App.LocalManager.SynchronizeLocal()
+	}
+
+	// Only synchronize local data if the user is not simulated
+	if c.App.Settings.Library.AutoSaveCurrentMediaOffline && !c.App.GetUser().IsSimulated {
+		added, _ := c.App.LocalManager.AutoTrackCurrentMedia()
+		if added && c.App.Settings.Library.AutoSyncOfflineLocalData {
+			go c.App.LocalManager.SynchronizeLocal()
+		}
 	}
 }

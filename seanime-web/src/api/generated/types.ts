@@ -3325,6 +3325,7 @@ export type Models_LibrarySettings = {
     scannerMatchingThreshold: number
     scannerMatchingAlgorithm: string
     autoSyncToLocalAccount: boolean
+    autoSaveCurrentMediaOffline: boolean
 }
 
 /**

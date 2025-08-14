@@ -91,7 +91,7 @@ func IsFileUnderDir(filePath, dir string) bool {
 	}
 
 	// Check if the file path starts with the directory path
-	return strings.HasPrefix(absFilePath, absDir+string(os.PathSeparator))
+	return strings.HasPrefix(strings.ToLower(absFilePath), strings.ToLower(absDir+string(os.PathSeparator)))
 }
 
 // UnzipFile unzips a file to the destination.

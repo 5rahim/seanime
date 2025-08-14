@@ -45,6 +45,7 @@ type Manager interface {
 	GetOfflineMetadataProvider() metadata.Provider
 	// GetSyncer returns the syncer (used to synchronize the anime and manga snapshots in the local database).
 	GetSyncer() *Syncer
+	AutoTrackCurrentMedia() (bool, error)
 	// TrackAnime adds an anime to track for offline use.
 	// It checks that the anime is currently in the user's anime collection.
 	TrackAnime(mId int) error
@@ -263,6 +264,79 @@ func (m *ManagerImpl) UpdateLocalAnimeCollection(ac *anilist.AnimeCollection) {
 func (m *ManagerImpl) UpdateLocalMangaCollection(mc *anilist.MangaCollection) {
 	_ = m.localDb.SaveMangaCollection(mc)
 	m.loadLocalMangaCollection()
+}
+
+func (m *ManagerImpl) AutoTrackCurrentMedia() (added bool, err error) {
+
+	m.logger.Trace().Msgf("local manager: Saving all current media for offline use")
+
+	trackedMedia := m.GetTrackedMediaItems()
+	trackedMediaMap := make(map[int]struct{})
+	for _, item := range trackedMedia {
+		trackedMediaMap[item.MediaId] = struct{}{}
+	}
+
+	groupedLocalFiles := lo.GroupBy(m.localFiles, func(f *anime.LocalFile) int {
+		return f.MediaId
+	})
+
+	animeCollection, ok := m.animeCollection.Get()
+	if ok {
+		for _, list := range animeCollection.MediaListCollection.Lists {
+			for _, entry := range list.GetEntries() {
+				if entry.Status == nil || *entry.GetStatus() != anilist.MediaListStatusCurrent {
+					continue
+				}
+				if _, found := trackedMediaMap[entry.Media.GetID()]; found {
+					continue
+				}
+				m.logger.Trace().Msgf("local manager: Adding anime %d to local database", entry.Media.GetID())
+
+				lfs, ok := groupedLocalFiles[entry.Media.GetID()]
+				if !ok || len(lfs) == 0 {
+					continue
+				}
+
+				err := m.TrackAnime(entry.Media.GetID())
+				if err != nil {
+					continue
+				}
+				added = true
+			}
+		}
+	}
+
+	groupedDownloadedChapterContainers := lo.GroupBy(m.downloadedChapterContainers, func(c *manga.ChapterContainer) int {
+		return c.MediaId
+	})
+
+	mangaCollection, ok := m.mangaCollection.Get()
+	if ok {
+		for _, list := range mangaCollection.MediaListCollection.Lists {
+			for _, entry := range list.GetEntries() {
+				if entry.Status == nil || *entry.GetStatus() != anilist.MediaListStatusCurrent {
+					continue
+				}
+				if _, found := trackedMediaMap[entry.Media.GetID()]; found {
+					continue
+				}
+				m.logger.Trace().Msgf("local manager: Adding manga %d to local database", entry.Media.GetID())
+
+				ccs, ok := groupedDownloadedChapterContainers[entry.Media.GetID()]
+				if !ok || len(ccs) == 0 {
+					continue
+				}
+
+				err := m.TrackManga(entry.Media.GetID())
+				if err != nil {
+					continue
+				}
+				added = true
+			}
+		}
+	}
+
+	return
 }
 
 // TrackAnime adds an anime to track.

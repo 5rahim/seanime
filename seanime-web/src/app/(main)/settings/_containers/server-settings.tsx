@@ -102,7 +102,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             <SettingsCard
                 title="Local Data"
-                // description="You can upload your local Seanime collection to your AniList account."
+                description="Local data is used when you're not using an AniList account."
             >
                 <div className={cn(serverStatus?.user?.isSimulated && "opacity-50 pointer-events-none")}>
                     <Field.Switch
@@ -134,9 +134,16 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="autoSyncOfflineLocalData"
-                    label="Automatically download metadata"
-                    help="If enabled, local metadata will be refreshed periodically using current AniList data."
+                    label="Update local metadata automatically"
+                    help="If disabled, you will need to manually refresh your local metadata by clicking 'Sync now' in the offline mode page."
                     moreHelp="Only if no offline changes have been made."
+                />
+
+                <Field.Switch
+                    side="right"
+                    name="autoSaveCurrentMediaOffline"
+                    label="Save all currently watched/read media for offline use"
+                    help="If enabled, Seanime will automatically save all currently watched/read media for offline use."
                 />
 
             </SettingsCard>

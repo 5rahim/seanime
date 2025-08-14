@@ -1,8 +1,9 @@
 package util
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidVideoExtension(t *testing.T) {
@@ -44,6 +45,27 @@ func TestSubdirectory(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.child, func(t *testing.T) {
 			result := IsSubdirectory(test.parent, test.child)
+			require.Equal(t, test.expected, result)
+		})
+	}
+}
+
+func TestIsFileUnderDir(t *testing.T) {
+	tests := []struct {
+		parent   string
+		child    string
+		expected bool
+	}{
+		{parent: "C:\\parent", child: "C:\\parent\\child", expected: true},
+		{parent: "C:\\parent", child: "C:\\parent\\child.txt", expected: true},
+		{parent: "C:\\parent", child: "C:/PARENT/child.txt", expected: true},
+		{parent: "C:\\parent", child: "C:\\parent\\..\\child", expected: false},
+		{parent: "C:\\parent", child: "C:\\parent", expected: false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.child, func(t *testing.T) {
+			result := IsFileUnderDir(test.parent, test.child)
 			require.Equal(t, test.expected, result)
 		})
 	}

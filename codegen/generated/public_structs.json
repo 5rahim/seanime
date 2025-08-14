@@ -29000,6 +29000,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AutoSaveCurrentMediaOffline",
+        "jsonName": "autoSaveCurrentMediaOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
