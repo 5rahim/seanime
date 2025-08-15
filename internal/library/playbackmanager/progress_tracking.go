@@ -91,7 +91,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 
 	// Retrieve data about the current video playback
 	// Set PlaybackManager.currentMediaListEntry to the list entry of the current video
-	currentMediaListEntry, currentLocalFile, currentLocalFileWrapperEntry, err := pm.getLocalFilePlaybackDetails(status.Filename)
+	currentMediaListEntry, currentLocalFile, currentLocalFileWrapperEntry, err := pm.getLocalFilePlaybackDetails(status.Filepath)
 	if err != nil {
 		pm.Logger.Error().Err(err).Msg("playback manager: Failed to get media data")
 		// Send error event to the client

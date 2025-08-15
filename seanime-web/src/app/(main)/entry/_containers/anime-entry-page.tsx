@@ -286,6 +286,7 @@ export function AnimeEntryPage() {
                                     animeEntryLoading={animeEntryLoading}
                                     hideBackButton
                                 />
+                                <MediaEntryCharactersSection details={animeDetails} />
                             </div>
                         </PageWrapper>}
 

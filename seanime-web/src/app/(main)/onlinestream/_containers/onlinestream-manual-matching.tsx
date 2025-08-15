@@ -143,9 +143,9 @@ function Content({ entry }: { entry: Anime_Entry }) {
 
                             <Field.Switch
                                 name="dubbed"
-                                label="Look for dubbed version"
+                                label="Look for dubs"
                                 side="right"
-                                moreHelp="Only applies to providers that support dubbed versions in search results."
+                                moreHelp="Only applies to providers that support dubs in search results."
                             />
 
                             <Field.Submit intent="white" loading={isMatching || searchLoading || mappingLoading} className="">Search</Field.Submit>

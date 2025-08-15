@@ -17,8 +17,9 @@ import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelected
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
-import { LuGlobe } from "react-icons/lu"
-import { MdHighQuality, MdVideoSettings } from "react-icons/md"
+import { HiOutlineCog6Tooth } from "react-icons/hi2"
+import { LuGlobe, LuSpeech } from "react-icons/lu"
+import { MdHighQuality, MdOutlineSubtitles } from "react-icons/md"
 import { TbCloudSearch } from "react-icons/tb"
 
 type OnlinestreamServerButtonProps = {
@@ -101,28 +102,34 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                     }
                     changeProvider(v)
                 }}
+                size="sm"
                 leftAddon={<LuGlobe />}
                 fieldClass="w-fit"
                 className="rounded-full rounded-l-none w-fit"
                 addonClass="rounded-full rounded-r-none"
             />
+            {!!servers.length && <Select
+                size="sm"
+                value={selectedServer}
+                options={servers.map((server) => ({ label: server, value: server }))}
+                onValueChange={(v) => {
+                    changeServer(v)
+                }}
+                fieldClass="w-fit"
+                className="rounded-full w-fit"
+                addonClass="rounded-full rounded-r-none"
+            />}
             <IsomorphicPopover
                 title="Stream"
-                trigger={<Button intent="gray-basic" size="sm" className="rounded-full" leftIcon={<MdVideoSettings className="text-xl" />}>
-                    Server & cache
+                trigger={<Button
+                    intent="gray-basic"
+                    size="sm"
+                    className="rounded-full"
+                    leftIcon={<HiOutlineCog6Tooth className="text-xl" />}
+                >
+                    Cache
                 </Button>}
             >
-                {!!servers.length && <Select
-                    label="Server"
-                    value={selectedServer}
-                    options={servers.map((server) => ({ label: server, value: server }))}
-                    onValueChange={(v) => {
-                        changeServer(v)
-                    }}
-                />}
-
-                <Separator />
-
                 <p className="text-sm text-[--muted]">
                     Empty the cache if you are experiencing issues with the stream.
                 </p>
@@ -269,6 +276,7 @@ export function SwitchSubOrDubButton() {
             rounded
             intent="gray-basic"
             size="sm"
+            leftIcon={!dubbed ? <LuSpeech className="text-xl" /> : <MdOutlineSubtitles className="text-xl" />}
             onClick={() => toggleDubbed()}
         >
             {dubbed ? "Switch to subs" : "Switch to dub"}
