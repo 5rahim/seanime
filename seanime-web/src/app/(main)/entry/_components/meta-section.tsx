@@ -66,7 +66,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
             data-anime-meta-section-action-buttons
             className={cn(
                 "w-full flex flex-wrap gap-4 items-center",
-                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "w-auto flex-nowrap",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "w-auto flex-wrap lg:flex-nowrap",
             )}
         >
 

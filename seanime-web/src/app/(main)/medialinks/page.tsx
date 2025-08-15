@@ -74,8 +74,13 @@ export default function Page() {
                 const tokenQueryParam = await getHMACTokenQueryParam("/api/v1/mediastream/file", "&")
 
                 // Send video to external player
-                const urlToSend = getServerBaseUrl() + endpoint + tokenQueryParam
+                let urlToSend = getServerBaseUrl() + endpoint + tokenQueryParam
                 logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
+
+                // If the external player link includes a query parameter, we need to encode the URL to prevent query parameter conflicts
+                if (externalPlayerLink.includes("?")) {
+                    urlToSend = encodeURIComponent(urlToSend)
+                }
 
                 openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
 

@@ -70,8 +70,13 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		for _, list := range nakamaLibrary.AnimeCollection.MediaListCollection.GetLists() {
 			for _, entry := range list.GetEntries() {
 				if _, ok := missingMediaIds[entry.GetMedia().GetID()]; ok {
-					entry.Status = &[]anilist.MediaListStatus{anilist.MediaListStatusPlanning}[0]
-					animeCollection.MediaListCollection.AddEntryToList(entry, anilist.MediaListStatusPlanning)
+					// create a new entry with blank list data
+					newEntry := &anilist.AnimeListEntry{
+						ID:     entry.GetID(),
+						Media:  entry.GetMedia(),
+						Status: &[]anilist.MediaListStatus{anilist.MediaListStatusPlanning}[0],
+					}
+					animeCollection.MediaListCollection.AddEntryToList(newEntry, anilist.MediaListStatusPlanning)
 				}
 			}
 		}

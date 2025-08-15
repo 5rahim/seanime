@@ -8,6 +8,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import Image from "next/image"
 import React from "react"
@@ -22,6 +24,9 @@ export const dynamic = "force-static"
 export default function Page() {
 
     const [selectedSummaryId, setSelectedSummaryId] = React.useState<string | undefined | null>(undefined)
+    const [searchQuery, setSearchQuery] = React.useState("")
+    const debouncedSearchQuery = useDebounce(searchQuery, 300)
+    const [expandedAccordions, setExpandedAccordions] = React.useState<Set<string>>(new Set())
 
     const { data, isLoading } = useGetScanSummaries()
 
@@ -40,6 +45,61 @@ export default function Page() {
         }
     }, [selectedSummaryId, data])
 
+    // Filter unmatched files based on search query
+    const filteredUnmatchedFiles = React.useMemo(() => {
+        if (!selectedSummary?.unmatchedFiles || !debouncedSearchQuery.trim()) {
+            return selectedSummary?.unmatchedFiles || []
+        }
+        return selectedSummary.unmatchedFiles.filter(file =>
+            file.localFile?.path?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+        )
+    }, [selectedSummary?.unmatchedFiles, debouncedSearchQuery])
+
+    // Filter media groups and their files based on search query
+    const filteredGroups = React.useMemo(() => {
+        if (!selectedSummary?.groups || !debouncedSearchQuery.trim()) {
+            return selectedSummary?.groups || []
+        }
+        return selectedSummary.groups.map(group => {
+            const filteredFiles = group.files?.filter(file =>
+                file.localFile?.path?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+            ) || []
+            return { ...group, files: filteredFiles }
+        }).filter(group => group.files.length > 0)
+    }, [selectedSummary?.groups, debouncedSearchQuery])
+
+    // Auto-expand accordions that contain search matches
+    React.useEffect(() => {
+        if (debouncedSearchQuery.trim()) {
+            const newExpandedAccordions = new Set<string>()
+
+            // expand unmatched files accordion if there are matches
+            if (filteredUnmatchedFiles.length > 0) {
+                filteredUnmatchedFiles.forEach(file => {
+                    if (file.localFile?.path) {
+                        newExpandedAccordions.add(file.localFile.path)
+                    }
+                })
+            }
+
+            // expand media group accordions if there are matches
+            filteredGroups.forEach(group => {
+                if ((group.files?.length ?? 0) > 0) {
+                    newExpandedAccordions.add("i1")
+                    group.files?.forEach(file => {
+                        if (file.localFile?.path) {
+                            newExpandedAccordions.add(file.localFile.path)
+                        }
+                    })
+                }
+            })
+
+            setExpandedAccordions(newExpandedAccordions)
+        } else {
+            setExpandedAccordions(new Set())
+        }
+    }, [debouncedSearchQuery, filteredUnmatchedFiles, filteredGroups])
+
     return (
         <>
             <CustomLibraryBanner discrete />
@@ -47,11 +107,13 @@ export default function Page() {
                 className="p-4 sm:p-8 space-y-4"
             >
                 <div className="flex justify-between items-center w-full relative">
-                    <div>
-                        <h2>Scan summaries</h2>
-                        <p className="text-[--muted]">
-                            View the logs and details of your latest scans
-                        </p>
+                    <div className="space-y-4">
+                        <div>
+                            <h2>Scan summaries</h2>
+                            <p className="text-[--muted]">
+                                View the logs and details of your latest scans
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -59,7 +121,7 @@ export default function Page() {
                     {isLoading && <LoadingSpinner />}
                     {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
                     {!!data?.length && (
-                        <div>
+                        <div className="space-y-4">
                             <Select
                                 value={selectedSummaryId || "-"}
                                 options={data?.filter(n => !!n.scanSummary)
@@ -68,32 +130,57 @@ export default function Page() {
                                 onValueChange={v => setSelectedSummaryId(v)}
                             />
                             {!!selectedSummary && (
-                                <div className="mt-4 space-y-4 rounded-[--radius] ">
+                                <div className="w-full lg:max-w-[50%]">
+                                    <TextInput
+                                        placeholder="Search filenames..."
+                                        value={searchQuery}
+                                        onValueChange={setSearchQuery}
+                                        leftIcon={<LuFileSearch className="text-[--muted]" />}
+                                    />
+                                </div>
+                            )}
+                            {!!selectedSummary && (
+                                <div className="space-y-4 rounded-[--radius] ">
                                     <div>
-                                        <p className="text-[--muted]">Seanime successfully scanned {selectedSummary.groups?.length} media</p>
+                                        <p className="text-[--muted]">
+                                            Seanime successfully scanned {selectedSummary.groups?.length} media
+                                            {debouncedSearchQuery.trim() && (
+                                                <span className="ml-2 text-sm">({filteredGroups.length} matching)</span>
+                                            )}
+                                        </p>
                                         {!!selectedSummary?.unmatchedFiles?.length && (
-                                            <p className="text-orange-300">{selectedSummary?.unmatchedFiles?.length} file{selectedSummary?.unmatchedFiles?.length > 1
+                                            <p className="text-orange-300">
+                                                {selectedSummary?.unmatchedFiles?.length} file{selectedSummary?.unmatchedFiles?.length > 1
                                                 ? "s were "
-                                                : " was "}not matched</p>
+                                                : " was "}not matched
+                                                {debouncedSearchQuery.trim() && (
+                                                    <span className="ml-2 text-sm">({filteredUnmatchedFiles.length} matching)</span>
+                                                )}
+                                            </p>
                                         )}
                                     </div>
 
-                                    {!!selectedSummary?.unmatchedFiles?.length && <div className="space-y-2">
+                                    {!!filteredUnmatchedFiles?.length && <div className="space-y-2">
                                         <h5>Unmatched files</h5>
                                         <Accordion type="single" collapsible>
                                             <div className="grid grid-cols-1 gap-4">
-                                                {selectedSummary?.unmatchedFiles?.map(file => (
-                                                    <ScanSummaryGroupItem file={file} key={file.id} />
+                                                {filteredUnmatchedFiles?.map(file => (
+                                                    <ScanSummaryGroupItem
+                                                        file={file}
+                                                        key={file.id}
+                                                        searchQuery={debouncedSearchQuery}
+                                                        isExpanded={expandedAccordions.has(file.localFile?.path || "")}
+                                                    />
                                                 ))}
                                             </div>
                                         </Accordion>
                                     </div>}
 
-                                    {!!selectedSummary?.groups?.length && <div>
+                                    {!!filteredGroups?.length && <div>
                                         <h5>Media scanned</h5>
 
                                         <div className="space-y-4 divide-y">
-                                            {selectedSummary?.groups?.sort((a, b) => a.mediaTitle?.localeCompare(b.mediaTitle,
+                                            {filteredGroups?.sort((a, b) => a.mediaTitle?.localeCompare(b.mediaTitle,
                                                 undefined,
                                                 { numeric: true })).map(group => !!group?.files?.length ? (
                                                 <div className="space-y-4 pt-4" key={group.id}>
@@ -143,7 +230,7 @@ export default function Page() {
                                                     <div>
 
 
-                                                        <Accordion type="single" collapsible>
+                                                        <Accordion type="single" collapsible value={expandedAccordions.has("i1") ? "i1" : undefined}>
                                                             <AccordionItem value="i1">
                                                                 <AccordionTrigger className="p-0 dark:hover:bg-transparent text-[--muted] dark:hover:text-white">
                                                                     <span className="inline-flex text-base items-center gap-2"><LuTextSelect /> View
@@ -154,7 +241,12 @@ export default function Page() {
                                                                     <Accordion type="single" collapsible>
                                                                         <div className="grid grid-cols-1">
                                                                             {group.files.map(file => (
-                                                                                <ScanSummaryGroupItem file={file} key={file.id} />
+                                                                                <ScanSummaryGroupItem
+                                                                                    file={file}
+                                                                                    key={file.id}
+                                                                                    searchQuery={debouncedSearchQuery}
+                                                                                    isExpanded={expandedAccordions.has(file.localFile?.path || "")}
+                                                                                />
                                                                             ))}
                                                                         </div>
                                                                     </Accordion>
@@ -179,10 +271,12 @@ export default function Page() {
 
 type ScanSummaryFileItem = {
     file: Summary_ScanSummaryFile
+    searchQuery?: string
+    isExpanded?: boolean
 }
 
 function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
-    const { file } = props
+    const { file, searchQuery, isExpanded } = props
 
     const hasErrors = file.logs?.some(log => log.level === "error")
     const hasWarnings = file.logs?.some(log => log.level === "warning")
@@ -207,11 +301,21 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                                 hasWarnings ? <BsFileEarmarkPlayFill /> :
                                     <BsFileEarmarkPlayFill />}
                         </span>
-                        {file.localFile.name}</p>
+                        {searchQuery ? (
+                            <HighlightedText text={file.localFile.name} searchQuery={searchQuery} />
+                        ) : (
+                            file.localFile.name
+                        )}</p>
                 </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2 overflow-x-auto">
-                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">{file.localFile.path}</p>
+                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">
+                    {searchQuery ? (
+                        <HighlightedText text={file.localFile.path} searchQuery={searchQuery} />
+                    ) : (
+                        file.localFile.path
+                    )}
+                </p>
                 <ScanSummaryFileParsedData localFile={file.localFile} />
                 {file.logs.map(log => (
                     <ScanSummaryLog key={log.id} log={log} />
@@ -288,5 +392,28 @@ function ScanSummaryLogMessage(props: { message: string, level: string }) {
                 {message}
             </pre>
         </div>
+    )
+}
+
+function HighlightedText({ text, searchQuery }: { text: string, searchQuery: string }) {
+    if (!searchQuery.trim() || !text) {
+        return <>{text}</>
+    }
+
+    const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi")
+    const parts = text.split(regex)
+
+    return (
+        <span>
+            {parts.map((part, index) =>
+                regex.test(part) ? (
+                    <span key={index} className="bg-yellow-400 text-black px-0 rounded-sm">
+                        {part}
+                    </span>
+                ) : (
+                    part
+                ),
+            )}
+        </span>
     )
 }
