@@ -37,7 +37,7 @@ export default function Page() {
 
     const { mutate: startManualTracking, isPending: isStarting } = usePlaybackStartManualTracking()
 
-    const { externalPlayerLink, encodePath } = useExternalPlayerLink()
+    const { externalPlayerLink, encodePath, urlencodePath } = useExternalPlayerLink()
 
     function encodeFilePath(filePath: string) {
         if (encodePath) {
@@ -74,7 +74,10 @@ export default function Page() {
                 const tokenQueryParam = await getHMACTokenQueryParam("/api/v1/mediastream/file", "&")
 
                 // Send video to external player
-                const urlToSend = getServerBaseUrl() + endpoint + tokenQueryParam
+                let urlToSend = getServerBaseUrl() + endpoint + tokenQueryParam
+                if (urlencodePath) {
+                    urlToSend = encodeURIComponent(getServerBaseUrl() + endpoint + tokenQueryParam)
+                }
                 logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
 
                 openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))

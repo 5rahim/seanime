@@ -206,7 +206,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
 export function ExternalPlayerLinkSettings() {
 
-    const { externalPlayerLink, setExternalPlayerLink, encodePath, setEncodePath } = useExternalPlayerLink()
+    const { externalPlayerLink, setExternalPlayerLink, encodePath, setEncodePath, urlencodePath, setUrlencodePath } = useExternalPlayerLink()
 
     return (
         <>
@@ -239,6 +239,16 @@ export function ExternalPlayerLinkSettings() {
                     help="If enabled, the file path will be base64 encoded in the URL to avoid issues with special characters."
                     value={encodePath}
                     onValueChange={setEncodePath}
+                />
+            </SettingsCard>
+            <SettingsCard>
+                <Switch
+                    side="right"
+                    name="urlencodePath"
+                    label="urlencode {url} (library only)"
+                    help="If enabled, the {url} will be URL encoded to avoid issues with special characters when embeding as URI parameter usecase iOS/iPadOS"
+                    value={urlencodePath}
+                    onValueChange={setUrlencodePath}
                 />
             </SettingsCard>
 

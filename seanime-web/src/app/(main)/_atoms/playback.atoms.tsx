@@ -84,15 +84,18 @@ export function useCurrentDevicePlaybackSettings() {
 
 export const __playback_externalPlayerLink = atomWithStorage<string>("sea-playback-external-player-link", "")
 export const __playback_externalPlayerLink_encodePath = atomWithStorage<boolean>("sea-playback-external-player-link-encode-path", false)
-
+export const __playback_externalPlayerLink_urlencodePath = atomWithStorage<boolean>("sea-playback-external-player-link-urlencode-path", false)
 export function useExternalPlayerLink() {
     const [externalPlayerLink, setExternalPlayerLink] = useAtom(__playback_externalPlayerLink)
     const [encodePath, setEncodePath] = useAtom(__playback_externalPlayerLink_encodePath)
+    const [urlencodePath, setUrlencodePath] = useAtom(__playback_externalPlayerLink_urlencodePath)
     return {
         externalPlayerLink,
         setExternalPlayerLink,
         encodePath,
         setEncodePath,
+        urlencodePath,
+        setUrlencodePath,
     }
 }
 
