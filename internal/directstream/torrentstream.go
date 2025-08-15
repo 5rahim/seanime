@@ -2,7 +2,6 @@ package directstream
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -10,10 +9,8 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
-	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
 	"seanime/internal/util/torrentutil"
-	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/google/uuid"
@@ -118,56 +115,52 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			return
 		}
 
+		size := s.file.Length()
+		contentType := s.LoadContentType()
+		name := s.file.DisplayPath()
+
 		// Handle HEAD requests explicitly to provide file size information
 		if r.Method == http.MethodHead {
 			s.logger.Trace().Msg("directstream(torrent): Handling HEAD request")
-
 			// Set the content length from torrent file
-			fileSize := s.file.Length()
-			w.Header().Set("Content-Length", fmt.Sprintf("%d", fileSize))
-			w.Header().Set("Content-Type", s.LoadContentType())
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", size))
+			w.Header().Set("Content-Type", contentType)
 			w.Header().Set("Accept-Ranges", "bytes")
-			w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", s.file.DisplayPath()))
+			w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", name))
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
-		file := s.file
-		s.logger.Trace().Str("file", file.DisplayPath()).Msg("directstream(torrent): New reader")
-		tr := torrentutil.NewReadSeeker(s.torrent, file, s.logger)
+		if isThumbnailRequest(r) {
+			reader := s.file.NewReader()
+			ra, ok := handleRange(w, r, reader, name, size)
+			if !ok {
+				return
+			}
+			serveContentRange(w, r, r.Context(), reader, name, size, contentType, ra)
+			return
+		}
+
+		s.logger.Trace().Str("file", name).Msg("directstream(torrent): New reader")
+		tr := torrentutil.NewReadSeeker(s.torrent, s.file, s.logger)
 		defer func() {
 			s.logger.Trace().Msg("directstream(torrent): Closing reader")
 			_ = tr.Close()
 		}()
 
-		// If this is a range request for a later part of the file, prioritize those pieces
-		rangeHeader := r.Header.Get("Range")
-		if rangeHeader != "" && s.torrent != nil {
-			// Attempt to prioritize the pieces requested in the range
-			torrentutil.PrioritizeRangeRequestPieces(rangeHeader, s.torrent, file, s.logger)
-		}
-
-		// Parse the range header
-		ranges, err := httputil.ParseRange(rangeHeader, file.Length())
-		if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
-			w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", file.Length()))
-			http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
-			return
-		} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
-			// Let Go handle overlap
-			w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", file.Length()))
-			http.ServeContent(w, r, file.DisplayPath(), time.Now(), tr)
+		ra, ok := handleRange(w, r, tr, name, size)
+		if !ok {
 			return
 		}
 
 		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
 			// Start a subtitle stream from the current position
-			subReader := file.NewReader()
+			subReader := s.file.NewReader()
 			subReader.SetResponsive()
-			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ranges[0].Start)
+			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
 		}
 
-		serveTorrent(w, r, s.manager.playbackCtx, tr, file.DisplayPath(), file.Length(), s.LoadContentType(), ranges)
+		serveContentRange(w, r, s.manager.playbackCtx, tr, name, size, s.LoadContentType(), ra)
 	})
 }
 

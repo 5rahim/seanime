@@ -231,6 +231,7 @@ h6 {
 .JASSUB {
     position: absolute !important;
     width: 100%;
+    z-index: 10;
 }
 
 .force-hidden {

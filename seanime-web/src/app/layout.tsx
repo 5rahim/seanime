@@ -39,9 +39,9 @@ export default function RootLayout({ children }: {
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-        {/* {process.env.NODE_ENV === "development" && <head>
+        {process.env.NODE_ENV === "development" && <head>
             <script src="https://unpkg.com/react-scan/dist/auto.global.js" async></script>
-         </head>} */}
+        </head>}
         <body className={inter.className} suppressHydrationWarning>
         {/* {process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>} */}
         <ClientProviders>

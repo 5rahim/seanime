@@ -314,9 +314,6 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// Metadata Provider
 	//
 
-	v1.POST("/metadata-provider/tvdb-episodes", h.HandlePopulateTVDBEpisodes)
-	v1.DELETE("/metadata-provider/tvdb-episodes", h.HandleEmptyTVDBEpisodes)
-
 	v1.POST("/metadata-provider/filler", h.HandlePopulateFillerData)
 	v1.DELETE("/metadata-provider/filler", h.HandleRemoveFillerData)
 

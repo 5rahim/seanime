@@ -1278,26 +1278,6 @@ export const API_ENDPOINTS = {
     METADATA: {
         /**
          *  @description
-         *  Route populate cache with TVDB episode metadata.
-         *  This will populate the cache with TVDB episode metadata for the given media.
-         */
-        PopulateTVDBEpisodes: {
-            key: "METADATA-populate-tvdb-episodes",
-            methods: ["POST"],
-            endpoint: "/api/v1/metadata-provider/tvdb-episodes",
-        },
-        /**
-         *  @description
-         *  Route empties TVDB episode metadata cache.
-         *  This will empty the TVDB episode metadata cache for the given media.
-         */
-        EmptyTVDBEpisodes: {
-            key: "METADATA-empty-tvdb-episodes",
-            methods: ["DELETE"],
-            endpoint: "/api/v1/metadata-provider/tvdb-episodes",
-        },
-        /**
-         *  @description
          *  Route fetches and caches filler data for the given media.
          *  This will fetch and cache filler data for the given media.
          */

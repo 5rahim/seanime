@@ -2,9 +2,6 @@ package updater
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"io"
 	"os"
 	"os/exec"
@@ -16,6 +13,10 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 const (

@@ -209,20 +209,29 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 
 		rangeHeader := r.Header.Get("Range")
 
-		// Parse the range header
-		ranges, err := httputil.ParseRange(rangeHeader, s.contentLength)
-		if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
-			w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", s.contentLength))
-			http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
-			return
-		} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
-			// Let Go handle overlap
-			w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", s.contentLength))
-		}
-
 		if err := s.initializeStream(); err != nil {
 			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to initialize FileStream")
 			http.Error(w, "Failed to initialize FileStream", http.StatusInternalServerError)
+			return
+		}
+
+		reader, err := s.getReader()
+		if err != nil {
+			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to create reader for stream url")
+			http.Error(w, "Failed to create reader for stream url", http.StatusInternalServerError)
+		}
+
+		if isThumbnailRequest(r) {
+			ra, ok := handleRange(w, r, reader, s.filename, s.contentLength)
+			if !ok {
+				return
+			}
+			serveContentRange(w, r, r.Context(), reader, s.filename, s.contentLength, s.contentType, ra)
+			return
+		}
+
+		ra, ok := handleRange(w, r, reader, s.filename, s.contentLength)
+		if !ok {
 			return
 		}
 
@@ -233,8 +242,8 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 				http.Error(w, "Failed to create subtitle reader for stream url", http.StatusInternalServerError)
 				return
 			}
-			if len(ranges) > 0 && ranges[0].Start < s.contentLength-1024*1024 {
-				go s.StartSubtitleStreamP(s, s.manager.playbackCtx, subReader, ranges[0].Start, 0)
+			if ra.Start < s.contentLength-1024*1024 {
+				go s.StartSubtitleStreamP(s, s.manager.playbackCtx, subReader, ra.Start, 0)
 			}
 		}
 
@@ -271,16 +280,7 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 		w.Header().Set("Content-Type", s.LoadContentType()) // overwrite the type
 		w.WriteHeader(resp.StatusCode)
 
-		var offset int64 = 0
-		if len(ranges) > 0 {
-			offset = ranges[0].Start
-		}
-
-		err = s.httpStream.WriteAndFlush(resp.Body, w, offset)
-		if err != nil {
-			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to stream response body")
-			return
-		}
+		_ = s.httpStream.WriteAndFlush(resp.Body, w, ra.Start)
 	})
 }
 

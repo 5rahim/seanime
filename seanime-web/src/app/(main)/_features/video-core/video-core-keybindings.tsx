@@ -1,64 +1,57 @@
+import { __seaMediaPlayer_mutedAtom, __seaMediaPlayer_volumeAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
+import {
+    vc_audioManager,
+    vc_dispatchAction,
+    vc_isFullscreen,
+    vc_isMuted,
+    vc_pip,
+    vc_subtitleManager,
+    vc_volume,
+    VideoCoreChapterCue,
+} from "@/app/(main)/_features/video-core/video-core"
+import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
+import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { vc_defaultKeybindings, vc_keybindingsAtom, VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { logger } from "@/lib/helpers/debug"
-import { atom, useAtom } from "jotai"
-import { atomWithImmer } from "jotai-immer"
-import { useMediaSelector, useMediaStore } from "media-chrome/dist/react/media-store.js"
+import { atom, useAtom, useAtomValue } from "jotai"
+import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { StreamAudioManager, StreamSubtitleManager } from "./handle-native-player"
-import { defaultKeybindings, nativePlayer_stateAtom, NativePlayerKeybindings, nativePlayerKeybindingsAtom } from "./native-player.atoms"
+import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
-export const nativePlayerKeybindingsModalAtom = atom(false)
+export const videoCoreKeybindingsModalAtom = atom(false)
 
-// Flash notification system
-type FlashNotification = {
-    id: string
-    message: string
-    timestamp: number
-}
-
-const flashNotificationAtom = atomWithImmer<FlashNotification | null>(null)
-
-export function FlashNotificationDisplay() {
-    const [notification] = useAtom(flashNotificationAtom)
-
-    if (!notification) return null
-
+const KeybindingValueInput = React.memo(({
+    actionKey,
+    value,
+    onValueChange,
+}: {
+    actionKey: keyof VideoCoreKeybindings
+    value: number
+    onValueChange: (value: number) => void
+}) => {
     return (
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-            <div className="text-white px-4 py-2 !text-xl font-bold" style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}>
-                {notification.message}
-            </div>
-        </div>
+        <NumberInput
+            value={value}
+            onValueChange={onValueChange}
+            size="sm"
+            fieldClass="w-16"
+            hideControls
+            min={0}
+            step={actionKey.includes("Speed") ? 0.25 : 1}
+            onKeyDown={(e) => e.stopPropagation()}
+            onInput={(e) => e.stopPropagation()}
+        />
     )
-}
+})
 
-export function useFlashNotification() {
-    const [, setNotification] = useAtom(flashNotificationAtom)
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    const showFlash = useCallback((message: string) => {
-        const id = Date.now().toString()
-        setNotification({ id, message, timestamp: Date.now() })
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current)
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            setNotification(null)
-            timeoutRef.current = null
-        }, 1000)
-    }, [])
-
-    return { showFlash }
-}
-
-export function NativePlayerKeybindingsModal() {
-    const [open, setOpen] = useAtom(nativePlayerKeybindingsModalAtom)
-    const [keybindings, setKeybindings] = useAtom(nativePlayerKeybindingsAtom)
-    const [editedKeybindings, setEditedKeybindings] = useState<NativePlayerKeybindings>(keybindings)
+export function VideoCoreKeybindingsModal() {
+    const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
+    const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
+    const [editedKeybindings, setEditedKeybindings] = useState<VideoCoreKeybindings>(keybindings)
     const [recordingKey, setRecordingKey] = useState<string | null>(null)
 
     // Reset edited keybindings when modal opens
@@ -68,12 +61,13 @@ export function NativePlayerKeybindingsModal() {
         }
     }, [open, keybindings])
 
-    const handleKeyRecord = (actionKey: keyof NativePlayerKeybindings) => {
+    const handleKeyRecord = (actionKey: keyof VideoCoreKeybindings) => {
         setRecordingKey(actionKey)
 
         const handleKeyDown = (e: KeyboardEvent) => {
             e.preventDefault()
             e.stopPropagation()
+            e.stopImmediatePropagation()
 
             setEditedKeybindings(prev => ({
                 ...prev,
@@ -84,10 +78,10 @@ export function NativePlayerKeybindingsModal() {
             }))
 
             setRecordingKey(null)
-            document.removeEventListener("keydown", handleKeyDown)
+            document.removeEventListener("keydown", handleKeyDown, true)
         }
 
-        document.addEventListener("keydown", handleKeyDown)
+        document.addEventListener("keydown", handleKeyDown, true)
     }
 
     const handleSave = () => {
@@ -96,7 +90,7 @@ export function NativePlayerKeybindingsModal() {
     }
 
     const handleReset = () => {
-        setEditedKeybindings(defaultKeybindings)
+        setEditedKeybindings(vc_defaultKeybindings)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -113,7 +107,7 @@ export function NativePlayerKeybindingsModal() {
         return keyMap[keyCode] || keyCode
     }
 
-    const KeybindingRow = ({
+    const KeybindingRow = React.useCallback(({
         action,
         description,
         actionKey,
@@ -122,7 +116,7 @@ export function NativePlayerKeybindingsModal() {
     }: {
         action: string
         description: string
-        actionKey: keyof NativePlayerKeybindings
+        actionKey: keyof VideoCoreKeybindings
         hasValue?: boolean
         valueLabel?: string
     }) => (
@@ -132,17 +126,13 @@ export function NativePlayerKeybindingsModal() {
                 {hasValue && (
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">{valueLabel}:</span>
-                        <NumberInput
+                        <KeybindingValueInput
+                            actionKey={actionKey}
                             value={("value" in editedKeybindings[actionKey]) ? (editedKeybindings[actionKey] as any).value : 0}
-                            onChange={(value) => setEditedKeybindings(prev => ({
+                            onValueChange={(value) => setEditedKeybindings(prev => ({
                                 ...prev,
                                 [actionKey]: { ...prev[actionKey], value: value || 0 },
                             }))}
-                            size="sm"
-                            fieldClass="w-16"
-                            hideControls
-                            min={0}
-                            step={actionKey.includes("Speed") ? 0.25 : 1}
                         />
                     </div>
                 )}
@@ -161,7 +151,7 @@ export function NativePlayerKeybindingsModal() {
                 </Button>
             </div>
         </div>
-    )
+    ), [editedKeybindings, recordingKey, formatKeyDisplay, setEditedKeybindings, handleKeyRecord])
 
     return (
         <Modal
@@ -169,12 +159,11 @@ export function NativePlayerKeybindingsModal() {
             description="Customize the keyboard shortcuts for the player"
             open={open}
             onOpenChange={setOpen}
-            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none"
+            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
         >
             <div className="grid grid-cols-3 gap-8">
-                {/* Playback Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Seek Forward"
@@ -221,9 +210,8 @@ export function NativePlayerKeybindingsModal() {
                     </div>
                 </div>
 
-                {/* Navigation Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Next Chapter"
@@ -260,12 +248,16 @@ export function NativePlayerKeybindingsModal() {
                             description="Toggle picture in picture"
                             actionKey="pictureInPicture"
                         />
+                        <KeybindingRow
+                            action="Take Screenshot"
+                            description="Take screenshot"
+                            actionKey="takeScreenshot"
+                        />
                     </div>
                 </div>
 
-                {/* Controls Column */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3>
+                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
                     <div className="space-y-0">
                         <KeybindingRow
                             action="Volume Up"
@@ -321,84 +313,177 @@ export function NativePlayerKeybindingsModal() {
     )
 }
 
-export function NativePlayerKeybindingController(props: {
+export function VideoCoreKeybindingController(props: {
+    active: boolean
     videoRef: React.RefObject<HTMLVideoElement>,
-    chapterCues: { startTime: number, endTime: number, text?: string }[],
-    seekTo: (time: number) => void,
-    seek: (time: number) => void,
-    setVolume: (volume: number) => void,
-    setMuted: (muted: boolean) => void,
-    volume: number,
-    muted: boolean,
-    subtitleManagerRef: React.RefObject<StreamSubtitleManager>,
-    audioManagerRef: React.RefObject<StreamAudioManager>,
+    chapterCues: VideoCoreChapterCue[],
     introEndTime: number | undefined,
     introStartTime: number | undefined
+    endingEndTime: number | undefined,
+    endingStartTime: number | undefined
 }) {
     const {
+        active,
         videoRef,
         chapterCues,
-        seekTo,
-        seek,
-        setVolume,
-        setMuted,
-        volume,
-        muted,
-        subtitleManagerRef,
-        audioManagerRef,
         introEndTime,
         introStartTime,
+        endingEndTime,
+        endingStartTime,
     } = props
-    const [keybindings] = useAtom(nativePlayerKeybindingsAtom)
-    const [state] = useAtom(nativePlayer_stateAtom)
-    const mediaStore = useMediaStore()
-    const fullscreen = useMediaSelector(state => state.mediaIsFullscreen)
-    const pip = useMediaSelector(state => state.mediaIsPip)
-    const { showFlash } = useFlashNotification()
+
+    const [keybindings] = useAtom(vc_keybindingsAtom)
+    const isKeybindingsModalOpen = useAtomValue(videoCoreKeybindingsModalAtom)
+    const fullscreen = useAtomValue(vc_isFullscreen)
+    const pip = useAtomValue(vc_pip)
+    const volume = useAtomValue(vc_volume)
+    const setVolume = useSetAtom(__seaMediaPlayer_volumeAtom)
+    const muted = useAtomValue(vc_isMuted)
+    const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
+    const { flashAction } = useVideoCoreFlashAction()
+
+    const action = useSetAtom(vc_dispatchAction)
+
+    const subtitleManager = useAtomValue(vc_subtitleManager)
+    const audioManager = useAtomValue(vc_audioManager)
+    const fullscreenManager = useAtomValue(vc_fullscreenManager)
+
+    // Rate limiting for seeking operations
+    const lastSeekTime = useRef(0)
+    const SEEK_THROTTLE_MS = 100 // Minimum time between seek operations
+
+    function seek(seconds: number) {
+        action({ type: "seek", payload: { time: seconds, flashTime: true } })
+    }
+
+    function seekTo(to: number) {
+        action({ type: "seekTo", payload: { time: to, flashTime: true } })
+    }
+
+    const { takeScreenshot } = useVideoCoreScreenshot()
 
     //
     // Keyboard shortcuts
     //
 
     const handleKeyboardShortcuts = useCallback((e: KeyboardEvent) => {
-        // Don't handle shortcuts if we're in an input field or modal is open
-        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        // Don't handle shortcuts if in an input/textarea or while keybindings modal is open
+        if (isKeybindingsModalOpen || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
             return
         }
 
-        if (!videoRef.current || !state.active || !state.playbackInfo) {
+        if (!videoRef.current || !active) {
             return
         }
 
         const video = videoRef.current
 
-        // Handle escape key to exit fullscreen
+
+        if (e.code === "Space" || e.code === "Enter") {
+            e.preventDefault()
+            if (video.paused) {
+                video.play()
+                flashAction({ message: "PLAY", type: "icon" })
+            } else {
+                video.pause()
+                flashAction({ message: "PAUSE", type: "icon" })
+            }
+            return
+        }
+
+        // Home, go to beginning
+        if (e.code === "Home") {
+            e.preventDefault()
+            seekTo(0)
+            flashAction({ message: "Beginning" })
+            return
+        }
+
+        // End, go to end
+        if (e.code === "End") {
+            e.preventDefault()
+            seekTo(video.duration)
+            flashAction({ message: "End" })
+            return
+        }
+
+        // Escape - Exit fullscreen
         if (e.code === "Escape" && fullscreen) {
             e.preventDefault()
-            mediaStore.dispatch({
-                type: "mediaexitfullscreenrequest",
-            })
+            document.exitFullscreen()
             return
+        }
+
+        // Number keys 0-9, seek to percentage (0%, 10%, 20%, ..., 90%)
+        if (e.code.startsWith("Digit") && e.code.length === 6) {
+            e.preventDefault()
+            const digit = parseInt(e.code.slice(-1))
+            const percentage = digit * 10
+            const seekTime = Math.max(0, Math.min(video.duration, (video.duration * percentage) / 100))
+            seekTo(seekTime)
+            // flashAction({ message: `${percentage}%` })
+            return
+        }
+
+        // frame-by-frame seeking, assuming 24fps
+        if (e.code === "Comma") {
+            e.preventDefault()
+            seek(-1 / 24)
+            flashAction({ message: "Previous Frame" })
+            return
+        }
+
+        if (e.code === "Period") {
+            e.preventDefault()
+            seek(1 / 24)
+            flashAction({ message: "Next Frame" })
+            return
+        }
+
+        // Helper function to check if seeking is rate limited
+        const canSeek = () => {
+            const now = Date.now()
+            if (now - lastSeekTime.current < SEEK_THROTTLE_MS) {
+                return false
+            }
+            lastSeekTime.current = now
+            return true
         }
 
         // Check which shortcut was pressed
         if (e.code === keybindings.seekForward.key) {
             e.preventDefault()
+            if (!canSeek()) return
+
             if (props.introEndTime && props.introStartTime && video.currentTime < props.introEndTime && video.currentTime >= props.introStartTime) {
                 seekTo(props.introEndTime)
-                showFlash("Skipped intro")
+                flashAction({ message: "Skipped Opening" })
+                return
+            }
+            if (props.endingEndTime && props.endingStartTime && video.currentTime < props.endingEndTime && video.currentTime >= props.endingStartTime) {
+                seekTo(props.endingEndTime)
+                flashAction({ message: "Skipped Ending" })
                 return
             }
             seek(keybindings.seekForward.value)
+            video.dispatchEvent(new Event("seeked"))
         } else if (e.code === keybindings.seekBackward.key) {
             e.preventDefault()
+            if (!canSeek()) return
             seek(-keybindings.seekBackward.value)
+            video.dispatchEvent(new Event("seeked"))
         } else if (e.code === keybindings.seekForwardFine.key) {
             e.preventDefault()
+            // if (!canSeek()) return
+            video.dispatchEvent(new Event("seeking"))
             seek(keybindings.seekForwardFine.value)
+            video.dispatchEvent(new Event("seeked"))
         } else if (e.code === keybindings.seekBackwardFine.key) {
             e.preventDefault()
+            // if (!canSeek()) return
+            video.dispatchEvent(new Event("seeking"))
             seek(-keybindings.seekBackwardFine.value)
+            video.dispatchEvent(new Event("seeked"))
         } else if (e.code === keybindings.nextChapter.key) {
             e.preventDefault()
             handleNextChapter()
@@ -438,14 +523,17 @@ export function NativePlayerKeybindingController(props: {
             e.preventDefault()
             const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
             video.playbackRate = newRate
-            showFlash(`Speed: ${newRate.toFixed(2)}x`)
+            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
         } else if (e.code === keybindings.decreaseSpeed.key) {
             e.preventDefault()
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
-            showFlash(`Speed: ${newRate.toFixed(2)}x`)
+            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
+        } else if (e.code === keybindings.takeScreenshot.key) {
+            e.preventDefault()
+            takeScreenshot()
         }
-    }, [keybindings, volume, muted, seek, state.active, state.playbackInfo, fullscreen, pip, showFlash, introEndTime, introStartTime])
+    }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime, isKeybindingsModalOpen])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {
@@ -462,16 +550,16 @@ export function NativePlayerKeybindingController(props: {
             seekTo(nextChapter.startTime)
             // Try to get chapter name from video track cues
             const chapterName = nextChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}`)
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}` })
         } else {
             // If no next chapter, go to the end
             const lastChapter = sortedChapters[sortedChapters.length - 1]
             if (lastChapter && lastChapter.endTime) {
                 seekTo(lastChapter.endTime)
-                showFlash("End of chapters")
+                flashAction({ message: "End of chapters" })
             }
         }
-    }, [chapterCues, seekTo, showFlash])
+    }, [chapterCues, seekTo, flashAction])
 
     const handlePreviousChapter = useCallback(() => {
         if (!videoRef.current || !chapterCues) return
@@ -492,19 +580,19 @@ export function NativePlayerKeybindingController(props: {
             const previousChapter = sortedChapters[currentChapterIndex - 1]
             seekTo(previousChapter.startTime)
             const chapterName = previousChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}`)
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}` })
         } else if (currentChapterIndex === 0) {
             // Already in first chapter, go to the beginning
             seekTo(0)
             const firstChapter = sortedChapters[0]
             const chapterName = firstChapter.text
-            showFlash(chapterName ? `Chapter: ${chapterName}` : "Chapter 1")
+            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : "Chapter 1" })
         } else {
             // If we can't determine current chapter, just go to the beginning
             seekTo(0)
-            showFlash("Beginning")
+            flashAction({ message: "Beginning" })
         }
-    }, [chapterCues, seekTo, showFlash])
+    }, [chapterCues, seekTo, flashAction])
 
 
     const handleCycleSubtitles = useCallback(() => {
@@ -512,7 +600,7 @@ export function NativePlayerKeybindingController(props: {
 
         const textTracks = Array.from(videoRef.current.textTracks).filter(track => track.kind === "subtitles")
         if (textTracks.length === 0) {
-            showFlash("No subtitle tracks")
+            flashAction({ message: "No subtitle tracks" })
             return
         }
 
@@ -536,22 +624,22 @@ export function NativePlayerKeybindingController(props: {
         // Enable next track if available
         if (nextIndex < textTracks.length) {
             textTracks[nextIndex].mode = "showing"
-            subtitleManagerRef.current?.selectTrack(Number(textTracks[nextIndex].id))
+            subtitleManager?.selectTrack(Number(textTracks[nextIndex].id))
             const trackName = textTracks[nextIndex].label || `Track ${nextIndex + 1}`
-            showFlash(`Subtitles: ${trackName}`)
+            flashAction({ message: `Subtitles: ${trackName}` })
         } else {
             // If we've cycled through all, disable subtitles
-            subtitleManagerRef.current?.setNoTrack()
-            showFlash("Subtitles: Off")
+            subtitleManager?.setNoTrack()
+            flashAction({ message: "Subtitles: Off" })
         }
-    }, [])
+    }, [subtitleManager])
 
     const handleCycleAudio = useCallback(() => {
         if (!videoRef.current) return
 
         const audioTracks = videoRef.current.audioTracks
         if (!audioTracks || audioTracks.length <= 1) {
-            showFlash("No additional audio tracks")
+            flashAction({ message: "No additional audio tracks" })
             return
         }
 
@@ -574,13 +662,13 @@ export function NativePlayerKeybindingController(props: {
 
         // Enable next track
         audioTracks[nextIndex].enabled = true
-        audioManagerRef.current?.selectTrack(nextIndex)
+        audioManager?.selectTrack(nextIndex)
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
-        showFlash(`Audio: ${trackName}`)
+        flashAction({ message: `Audio: ${trackName}` })
     }, [])
 
-    const log = logger("NativePlayerKeybindings")
+    const log = logger("VideoCoreKeybindings")
 
     const handleNextEpisode = useCallback(() => {
         // Placeholder for next episode functionality
@@ -593,43 +681,41 @@ export function NativePlayerKeybindingController(props: {
     }, [])
 
     const handleToggleFullscreen = useCallback(() => {
-        mediaStore.dispatch({
-            type: fullscreen ? "mediaexitfullscreenrequest" : "mediaenterfullscreenrequest",
-        })
+        fullscreenManager?.toggleFullscreen()
 
         React.startTransition(() => {
             setTimeout(() => {
                 videoRef.current?.focus()
             }, 100)
         })
-    }, [fullscreen, mediaStore])
+    }, [fullscreenManager])
 
     const handleTogglePictureInPicture = useCallback(() => {
-        mediaStore.dispatch({
-            type: pip ? "mediaexitpiprequest" : "mediaenterpiprequest",
-        })
+        // mediaStore.dispatch({
+        //     type: pip ? "mediaexitpiprequest" : "mediaenterpiprequest",
+        // })
 
         React.startTransition(() => {
             setTimeout(() => {
                 videoRef.current?.focus()
             }, 100)
         })
-    }, [pip, mediaStore])
+    }, [pip])
 
     // Add keyboard event listeners
     useEffect(() => {
-        if (!state.active) return
+        if (!active) return
 
         document.addEventListener("keydown", handleKeyboardShortcuts)
 
         return () => {
             document.removeEventListener("keydown", handleKeyboardShortcuts)
         }
-    }, [handleKeyboardShortcuts, state.active])
+    }, [handleKeyboardShortcuts, active])
 
     // Handle fullscreen state changes to ensure video gets focused
     useEffect(() => {
-        if (!state.active) return
+        if (!active) return
 
         const handleFullscreenChange = () => {
             // Small delay to ensure fullscreen transition is complete
@@ -645,7 +731,7 @@ export function NativePlayerKeybindingController(props: {
         return () => {
             document.removeEventListener("fullscreenchange", handleFullscreenChange)
         }
-    }, [state.active])
+    }, [active])
 
     return null
 }

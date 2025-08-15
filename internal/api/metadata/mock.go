@@ -1,10 +1,11 @@
 package metadata
 
 import (
-	"github.com/stretchr/testify/require"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func GetMockProvider(t *testing.T) Provider {

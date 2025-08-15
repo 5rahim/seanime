@@ -14,7 +14,7 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    transpilePackages: ["@uiw/react-textarea-code-editor", "@replit/codemirror-vscode-keymap"],
+    transpilePackages: ["@uiw/react-textarea-code-editor", "@replit/codemirror-vscode-keymap", "media-chrome", "anime4k-webgpu"],
     assetPrefix: isProd ? undefined : (isDesktop ? `http://${internalHost}:43210` : undefined),
     experimental: {
         reactCompiler: true,

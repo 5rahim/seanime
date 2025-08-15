@@ -110,7 +110,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 		}
 	}
 
-	// Add and remove necessary medatada when hydrating from Nakama
+	// Add and remove necessary metadata when hydrating from Nakama
 	if fromNakama {
 		for _, ep := range libraryCollection.ContinueWatchingList {
 			ep.IsNakamaEpisode = true

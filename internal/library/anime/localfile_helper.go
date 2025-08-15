@@ -3,14 +3,15 @@ package anime
 import (
 	"bytes"
 	"fmt"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 	"path/filepath"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -309,12 +310,13 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
-	// Get the part from the filename
-	if len(f.ParsedData.Part) > 0 {
-		if res, ok := util.StringToInt(f.ParsedData.Part); ok {
-			part = res
-		}
-	}
+	// Devnote: This causes issues when an episode title contains "Part"
+	//// Get the part from the filename
+	//if len(f.ParsedData.Part) > 0 {
+	//	if res, ok := util.StringToInt(f.ParsedData.Part); ok {
+	//		part = res
+	//	}
+	//}
 
 	folderTitle := f.GetFolderTitle()
 

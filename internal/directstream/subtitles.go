@@ -25,8 +25,6 @@ type SubtitleStream struct {
 	offset    int64
 	completed bool // ran until the EOF
 
-	clusterPadding int64
-
 	cleanupFunc func()
 	stopOnce    sync.Once
 }
@@ -38,7 +36,9 @@ func (s *SubtitleStream) Stop(completed bool) {
 		s.cleanupFunc()
 	})
 }
-func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64, clusterPadding int64) {
+
+// StartSubtitleStreamP starts a subtitle stream for the given stream at the given offset with a specified backoff bytes.
+func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64) {
 	mkvMetadataParser, ok := s.playbackInfo.MkvMetadataParser.Get()
 	if !ok {
 		return
@@ -46,12 +46,11 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 
 	s.logger.Trace().Int64("offset", offset).Msg("directstream: Starting new subtitle stream")
 	subtitleStream := &SubtitleStream{
-		stream:         stream,
-		logger:         s.logger,
-		parser:         mkvMetadataParser,
-		reader:         newReader,
-		offset:         offset,
-		clusterPadding: clusterPadding,
+		stream: stream,
+		logger: s.logger,
+		parser: mkvMetadataParser,
+		reader: newReader,
+		offset: offset,
 	}
 
 	// Check if we have a completed subtitle stream for this offset
@@ -79,7 +78,7 @@ func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Con
 	subtitleStreamId := uuid.New().String()
 	s.activeSubtitleStreams.Set(subtitleStreamId, subtitleStream)
 
-	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset, clusterPadding)
+	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset, backoffBytes)
 
 	firstEventSentCh := make(chan struct{})
 	closeFirstEventSentOnce := sync.Once{}

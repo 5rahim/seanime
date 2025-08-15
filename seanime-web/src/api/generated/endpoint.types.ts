@@ -1261,28 +1261,6 @@ export type PreloadMediastreamMediaContainer_Variables = {
 /**
  * - Filepath: internal/handlers/metadata.go
  * - Filename: metadata.go
- * - Endpoint: /api/v1/metadata-provider/tvdb-episodes
- * @description
- * Route populate cache with TVDB episode metadata.
- */
-export type PopulateTVDBEpisodes_Variables = {
-    mediaId: number
-}
-
-/**
- * - Filepath: internal/handlers/metadata.go
- * - Filename: metadata.go
- * - Endpoint: /api/v1/metadata-provider/tvdb-episodes
- * @description
- * Route empties TVDB episode metadata cache.
- */
-export type EmptyTVDBEpisodes_Variables = {
-    mediaId: number
-}
-
-/**
- * - Filepath: internal/handlers/metadata.go
- * - Filename: metadata.go
  * - Endpoint: /api/v1/metadata-provider/filler
  * @description
  * Route fetches and caches filler data for the given media.

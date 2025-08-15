@@ -20,7 +20,7 @@ import { MdOutlineSegment } from "react-icons/md"
 import { RiSignalTowerFill } from "react-icons/ri"
 import { useWindowScroll } from "react-use"
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 type MediaPageHeaderProps = {
     children?: React.ReactNode

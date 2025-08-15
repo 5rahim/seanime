@@ -410,11 +410,11 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                                     {l.includes("|TRC|") &&
                                                                         <span className="text-purple-400 font-medium">|TRC|</span>}
                                                                     <span>{l.split("|")?.[2]
-                                                                        .replace("extension > (console.log):", "log >")
-                                                                        .replace("extension > (console.error):", "error >")
-                                                                        .replace("extension > (console.warn):", "warn >")
-                                                                        .replace("extension > (console.info):", "info >")
-                                                                        .replace("extension > (console.debug):", "debug >")
+                                                                        ?.replace("extension > (console.log):", "log >")
+                                                                        ?.replace("extension > (console.error):", "error >")
+                                                                        ?.replace("extension > (console.warn):", "warn >")
+                                                                        ?.replace("extension > (console.info):", "info >")
+                                                                        ?.replace("extension > (console.debug):", "debug >") ?? ""
                                                                     }</span>
                                                                 </>
                                                             ) : (

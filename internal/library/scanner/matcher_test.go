@@ -2,13 +2,14 @@ package scanner
 
 import (
 	"context"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 // Add more media to this file if needed

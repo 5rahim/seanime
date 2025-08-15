@@ -17,7 +17,7 @@ export const __libraryHeaderImageAtom = atom<{ bannerImage?: string | null, epis
     episodeImage: null,
 })
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 

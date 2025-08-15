@@ -78,7 +78,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
  * Drawer
  * -----------------------------------------------------------------------------------------------*/
 
-export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>, "modal"> &
+type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>, "modal"> &
     Pick<React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
         "onOpenAutoFocus" | "onCloseAutoFocus" | "onEscapeKeyDown" | "onPointerDownCapture" | "onInteractOutside"> &
     VariantProps<typeof DrawerAnatomy.content> &
@@ -119,9 +119,11 @@ export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimi
     borderToBorder?: boolean
 
     miniPlayer?: boolean
+
+    onMiniPlayerClick?: () => void
 }
 
-export function NativePlayerDrawer(props: DrawerProps) {
+export function VideoCoreDrawer(props: DrawerProps) {
 
     const {
         allowOutsideInteraction = false,
@@ -150,6 +152,7 @@ export function NativePlayerDrawer(props: DrawerProps) {
         onInteractOutside,
         portalContainer,
         miniPlayer,
+        onMiniPlayerClick,
         ...rest
     } = props
 
@@ -171,6 +174,7 @@ export function NativePlayerDrawer(props: DrawerProps) {
 
     // Dragging
     const contentRef = React.useRef<HTMLDivElement>(null)
+    const draggableAreaRef = React.useRef<HTMLDivElement>(null)
 
     // Calculate initial position immediately based on known dimensions
     const getInitialPosition = React.useCallback(() => {
@@ -193,7 +197,6 @@ export function NativePlayerDrawer(props: DrawerProps) {
     const PADDING = 20 // Define padding constant
     const AUTO_HIDE_THRESHOLD = 0.5 // Hide when 50% is overflowing
 
-    // Calculate boundaries helper function
     const calculateBoundaries = React.useCallback(() => {
         if (!contentRef.current) return null
 
@@ -222,12 +225,6 @@ export function NativePlayerDrawer(props: DrawerProps) {
         if (!miniPlayer || !contentRef.current) return
 
         const handleMouseDown = (e: MouseEvent) => {
-            if (!contentRef.current) return
-            if ((e.target as HTMLElement).tagName === "MEDIA-TIME-RANGE" ||
-                (e.target as HTMLElement).tagName === "MEDIA-VOLUME-RANGE" ||
-                (e.target as HTMLElement).tagName === "MEDIA-PLAYBACK-RATE-RANGE") {
-                return
-            }
             setIsDragging(true)
             dragStartPos.current = { x: e.clientX, y: e.clientY }
             elementStartPos.current = { x: position.x, y: position.y }
@@ -266,7 +263,7 @@ export function NativePlayerDrawer(props: DrawerProps) {
             setPosition({ x: boundedX, y: boundedY })
         }
 
-        const handleMouseUp = () => {
+        const handleMouseUp = (e: MouseEvent) => {
             setIsDragging(false)
 
             // If hidden, snap to hidden position or reveal based on drag behavior
@@ -283,6 +280,14 @@ export function NativePlayerDrawer(props: DrawerProps) {
                     setPosition({ x: window.innerWidth - boundaries.width * 0.1, y: position.y })
                 }
                 return
+            }
+
+            // if it's just a click and the target is the draggable area, do nothing
+            if (Math.abs(position.x - elementStartPos.current.x) < 10 && Math.abs(position.y - elementStartPos.current.y) < 10) {
+                if (e.target === draggableAreaRef.current) {
+                    onMiniPlayerClick?.()
+                    return
+                }
             }
 
             // Snap to the nearest corner when dragging stops
@@ -317,13 +322,13 @@ export function NativePlayerDrawer(props: DrawerProps) {
         }
 
         // Add event listeners
-        contentRef.current.addEventListener("mousedown", handleMouseDown)
+        draggableAreaRef.current?.addEventListener("mousedown", handleMouseDown)
         window.addEventListener("mousemove", handleMouseMove)
         window.addEventListener("mouseup", handleMouseUp)
 
         // Clean up
         return () => {
-            contentRef.current?.removeEventListener("mousedown", handleMouseDown)
+            draggableAreaRef.current?.removeEventListener("mousedown", handleMouseDown)
             window.removeEventListener("mousemove", handleMouseMove)
             window.removeEventListener("mouseup", handleMouseUp)
         }
@@ -360,7 +365,6 @@ export function NativePlayerDrawer(props: DrawerProps) {
     }, [miniPlayer, calculateBoundaries, isHidden])
 
 
-
     // Apply position styles when in mini player mode
     React.useEffect(() => {
         if (!contentRef.current || !miniPlayer) return
@@ -371,7 +375,6 @@ export function NativePlayerDrawer(props: DrawerProps) {
         contentRef.current.style.position = "fixed"
         contentRef.current.style.left = `${currentPosition.x}px`
         contentRef.current.style.top = `${currentPosition.y}px`
-        contentRef.current.style.cursor = "move"
         contentRef.current.style.zIndex = isHidden ? "40" : "50" // Lower z-index when hidden
 
         // Handle opacity and scale for hiding/showing
@@ -450,14 +453,12 @@ export function NativePlayerDrawer(props: DrawerProps) {
                         </div>
                     )}
 
-                    <div
-                        className={cn(
-                            "h-full w-full",
-                            miniPlayer && isDragging && "pointer-events-none",
-                        )}
-                    >
-                        {children}
-                    </div>
+                    {miniPlayer && <div ref={draggableAreaRef} className="vc-drawer-draggable-area absolute inset-0 z-[6]">
+
+                    </div>}
+
+
+                    {children}
 
                     {footer && <div className={cn(DrawerAnatomy.footer(), footerClass)}>
                         {footer}
@@ -482,4 +483,4 @@ export function NativePlayerDrawer(props: DrawerProps) {
     )
 }
 
-NativePlayerDrawer.displayName = "NativePlayerDrawer"
+VideoCoreDrawer.displayName = "NativePlayerDrawer"

@@ -4,6 +4,7 @@ import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sideba
 import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
+import { VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useInvalidateQueriesListener } from "@/app/(main)/_listeners/invalidate-queries.listeners"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
@@ -60,7 +61,9 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            {__isElectronDesktop__ && <NativePlayer />}
+            {__isElectronDesktop__ && <VideoCoreProvider>
+                <NativePlayer />
+            </VideoCoreProvider>}
             <TopIndefiniteLoader />
 
             <AppSidebarProvider>
