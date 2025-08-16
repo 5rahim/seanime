@@ -2395,6 +2395,138 @@ export type MalAuthResponse = {
 }
 
 /**
+ * - Filepath: internal/handlers/status.go
+ * - Filename: status.go
+ * - Package: handlers
+ */
+export type MemoryStatsResponse = {
+    /**
+     * bytes allocated and not yet freed
+     */
+    alloc: number
+    /**
+     * bytes allocated (even if freed)
+     */
+    totalAlloc: number
+    /**
+     * bytes obtained from system
+     */
+    sys: number
+    /**
+     * number of pointer lookups
+     */
+    lookups: number
+    /**
+     * number of mallocs
+     */
+    mallocs: number
+    /**
+     * number of frees
+     */
+    frees: number
+    /**
+     * bytes allocated and not yet freed
+     */
+    heapAlloc: number
+    /**
+     * bytes obtained from system
+     */
+    heapSys: number
+    /**
+     * bytes in idle spans
+     */
+    heapIdle: number
+    /**
+     * bytes in non-idle span
+     */
+    heapInuse: number
+    /**
+     * bytes released to OS
+     */
+    heapReleased: number
+    /**
+     * total number of allocated objects
+     */
+    heapObjects: number
+    /**
+     * bytes used by stack allocator
+     */
+    stackInuse: number
+    /**
+     * bytes obtained from system for stack allocator
+     */
+    stackSys: number
+    /**
+     * bytes used by mspan structures
+     */
+    mSpanInuse: number
+    /**
+     * bytes obtained from system for mspan structures
+     */
+    mSpanSys: number
+    /**
+     * bytes used by mcache structures
+     */
+    mCacheInuse: number
+    /**
+     * bytes obtained from system for mcache structures
+     */
+    mCacheSys: number
+    /**
+     * bytes used by the profiling bucket hash table
+     */
+    buckHashSys: number
+    /**
+     * bytes used for garbage collection system metadata
+     */
+    gcSys: number
+    /**
+     * bytes used for other system allocations
+     */
+    otherSys: number
+    /**
+     * next collection will happen when HeapAlloc ≥ this amount
+     */
+    nextGC: number
+    /**
+     * time the last garbage collection finished
+     */
+    lastGC: number
+    /**
+     * cumulative nanoseconds in GC stop-the-world pauses
+     */
+    pauseTotalNs: number
+    /**
+     * nanoseconds in recent GC stop-the-world pause
+     */
+    pauseNs: number
+    /**
+     * number of completed GC cycles
+     */
+    numGC: number
+    /**
+     * number of GC cycles that were forced by the application calling the GC function
+     */
+    numForcedGC: number
+    /**
+     * fraction of this program's available CPU time used by the GC since the program started
+     */
+    gcCPUFraction: number
+    /**
+     * boolean that indicates GC is enabled
+     */
+    enableGC: boolean
+    /**
+     * boolean that indicates GC debug mode is enabled
+     */
+    debugGC: boolean
+    /**
+     * number of goroutines
+     */
+    numGoroutine: number
+}
+
+/**
  * - Filepath: internal/handlers/docs.go
  * - Filename: docs.go
  * - Package: handlers

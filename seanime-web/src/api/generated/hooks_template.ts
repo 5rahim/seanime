@@ -2188,6 +2188,53 @@
 //     })
 // }
 
+// export function useGetMemoryStats() {
+//     return useServerQuery<MemoryStatsResponse>({
+//         endpoint: API_ENDPOINTS.STATUS.GetMemoryStats.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetMemoryStats.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetMemoryStats.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetMemoryProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetMemoryProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetMemoryProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetMemoryProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetGoRoutineProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetGoRoutineProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetGoRoutineProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetGoRoutineProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetCPUProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetCPUProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetCPUProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetCPUProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useForceGC() {
+//     return useServerMutation<MemoryStatsResponse>({
+//         endpoint: API_ENDPOINTS.STATUS.ForceGC.endpoint,
+//         method: API_ENDPOINTS.STATUS.ForceGC.methods[0],
+//         mutationKey: [API_ENDPOINTS.STATUS.ForceGC.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -847,6 +847,7 @@ export function VideoCore(props: VideoCoreProps) {
                                     style={{
                                         border: "none",
                                         width: "100%",
+                                        height: "100%",
                                         filter: (settings.videoEnhancement.enabled && beautifyImage)
                                             ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
                                             : "none",

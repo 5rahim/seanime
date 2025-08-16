@@ -1789,6 +1789,58 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/announcements",
         },
+        /**
+         *  @description
+         *  Route returns current memory statistics.
+         *  This returns real-time memory usage statistics from the Go runtime.
+         */
+        GetMemoryStats: {
+            key: "STATUS-get-memory-stats",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/stats",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a memory profile.
+         *  This generates a memory profile that can be analyzed with go tool pprof.
+         *  Query parameters: heap=true for heap profile, allocs=true for alloc profile.
+         */
+        GetMemoryProfile: {
+            key: "STATUS-get-memory-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/profile",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a goroutine profile.
+         *  This generates a goroutine profile showing all running goroutines and their stack traces.
+         */
+        GetGoRoutineProfile: {
+            key: "STATUS-get-go-routine-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/goroutine",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a CPU profile.
+         *  This generates a CPU profile for the specified duration (default 30 seconds).
+         *  Query parameter: duration=30 for duration in seconds.
+         */
+        GetCPUProfile: {
+            key: "STATUS-get-c-p-u-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/cpu",
+        },
+        /**
+         *  @description
+         *  Route forces garbage collection and returns memory stats.
+         *  This forces a garbage collection cycle and returns the updated memory statistics.
+         */
+        ForceGC: {
+            key: "STATUS-force-g-c",
+            methods: ["POST"],
+            endpoint: "/api/v1/memory/gc",
+        },
     },
     THEME: {
         GetTheme: {
