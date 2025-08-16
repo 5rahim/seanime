@@ -167,7 +167,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	entry.EntryLibraryData = libraryData
 
 	// +---------------------+
-	// |       AniZip        |
+	// |       Animap        |
 	// +---------------------+
 
 	// Fetch AniDB data and cache it for 30 minutes
@@ -176,10 +176,10 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 
 		// +---------------- Start
 		// +---------------------+
-		// |   Without AniZip    |
+		// |   Without Animap    |
 		// +---------------------+
 
-		// If AniZip data is not found, we will still create the Entry without it
+		// If Animap data is not found, we will still create the Entry without it
 		simpleAnimeEntry, err := NewSimpleEntry(ctx, &NewSimpleAnimeEntryOptions{
 			MediaId:         opts.MediaId,
 			LocalFiles:      opts.LocalFiles,
@@ -213,6 +213,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 		// +--------------- End
 
 	}
+
 	entry.AnidbId = animeMetadata.GetMappings().AnidbId
 
 	// Instantiate EntryListData

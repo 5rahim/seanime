@@ -6197,86 +6197,6 @@
     }
   },
   {
-    "name": "HandlePopulateTVDBEpisodes",
-    "trimmedName": "PopulateTVDBEpisodes",
-    "comments": [
-      "HandlePopulateTVDBEpisodes",
-      "",
-      "\t@summary populate cache with TVDB episode metadata.",
-      "\t@desc This will populate the cache with TVDB episode metadata for the given media.",
-      "\t@returns []tvdb.Episode",
-      "\t@route /api/v1/metadata-provider/tvdb-episodes [POST]",
-      ""
-    ],
-    "filepath": "internal/handlers/metadata.go",
-    "filename": "metadata.go",
-    "api": {
-      "summary": "populate cache with TVDB episode metadata.",
-      "descriptions": [
-        "This will populate the cache with TVDB episode metadata for the given media."
-      ],
-      "endpoint": "/api/v1/metadata-provider/tvdb-episodes",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "[]tvdb.Episode",
-      "returnGoType": "tvdb.Episode",
-      "returnTypescriptType": "Array\u003cTVDB_Episode\u003e"
-    }
-  },
-  {
-    "name": "HandleEmptyTVDBEpisodes",
-    "trimmedName": "EmptyTVDBEpisodes",
-    "comments": [
-      "HandleEmptyTVDBEpisodes",
-      "",
-      "\t@summary empties TVDB episode metadata cache.",
-      "\t@desc This will empty the TVDB episode metadata cache for the given media.",
-      "\t@returns bool",
-      "\t@route /api/v1/metadata-provider/tvdb-episodes [DELETE]",
-      ""
-    ],
-    "filepath": "internal/handlers/metadata.go",
-    "filename": "metadata.go",
-    "api": {
-      "summary": "empties TVDB episode metadata cache.",
-      "descriptions": [
-        "This will empty the TVDB episode metadata cache for the given media."
-      ],
-      "endpoint": "/api/v1/metadata-provider/tvdb-episodes",
-      "methods": [
-        "DELETE"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandlePopulateFillerData",
     "trimmedName": "PopulateFillerData",
     "comments": [
@@ -8761,6 +8681,160 @@
       "returns": "[]updater.Announcement",
       "returnGoType": "updater.Announcement",
       "returnTypescriptType": "Array\u003cUpdater_Announcement\u003e"
+    }
+  },
+  {
+    "name": "HandleGetMemoryStats",
+    "trimmedName": "GetMemoryStats",
+    "comments": [
+      "HandleGetMemoryStats",
+      "",
+      "\t@summary returns current memory statistics.",
+      "\t@desc This returns real-time memory usage statistics from the Go runtime.",
+      "\t@route /api/v1/memory/stats [GET]",
+      "\t@returns handlers.MemoryStatsResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns current memory statistics.",
+      "descriptions": [
+        "This returns real-time memory usage statistics from the Go runtime."
+      ],
+      "endpoint": "/api/v1/memory/stats",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "handlers.MemoryStatsResponse",
+      "returnGoType": "handlers.MemoryStatsResponse",
+      "returnTypescriptType": "MemoryStatsResponse"
+    }
+  },
+  {
+    "name": "HandleGetMemoryProfile",
+    "trimmedName": "GetMemoryProfile",
+    "comments": [
+      "HandleGetMemoryProfile",
+      "",
+      "\t@summary generates and returns a memory profile.",
+      "\t@desc This generates a memory profile that can be analyzed with go tool pprof.",
+      "\t@desc Query parameters: heap=true for heap profile, allocs=true for alloc profile.",
+      "\t@route /api/v1/memory/profile [GET]",
+      "\t@returns nil",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "generates and returns a memory profile.",
+      "descriptions": [
+        "This generates a memory profile that can be analyzed with go tool pprof.",
+        "Query parameters: heap=true for heap profile, allocs=true for alloc profile."
+      ],
+      "endpoint": "/api/v1/memory/profile",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nil",
+      "returnGoType": "nil",
+      "returnTypescriptType": "null"
+    }
+  },
+  {
+    "name": "HandleGetGoRoutineProfile",
+    "trimmedName": "GetGoRoutineProfile",
+    "comments": [
+      "HandleGetGoRoutineProfile",
+      "",
+      "\t@summary generates and returns a goroutine profile.",
+      "\t@desc This generates a goroutine profile showing all running goroutines and their stack traces.",
+      "\t@route /api/v1/memory/goroutine [GET]",
+      "\t@returns nil",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "generates and returns a goroutine profile.",
+      "descriptions": [
+        "This generates a goroutine profile showing all running goroutines and their stack traces."
+      ],
+      "endpoint": "/api/v1/memory/goroutine",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nil",
+      "returnGoType": "nil",
+      "returnTypescriptType": "null"
+    }
+  },
+  {
+    "name": "HandleGetCPUProfile",
+    "trimmedName": "GetCPUProfile",
+    "comments": [
+      "HandleGetCPUProfile",
+      "",
+      "\t@summary generates and returns a CPU profile.",
+      "\t@desc This generates a CPU profile for the specified duration (default 30 seconds).",
+      "\t@desc Query parameter: duration=30 for duration in seconds.",
+      "\t@route /api/v1/memory/cpu [GET]",
+      "\t@returns nil",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "generates and returns a CPU profile.",
+      "descriptions": [
+        "This generates a CPU profile for the specified duration (default 30 seconds).",
+        "Query parameter: duration=30 for duration in seconds."
+      ],
+      "endpoint": "/api/v1/memory/cpu",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "nil",
+      "returnGoType": "nil",
+      "returnTypescriptType": "null"
+    }
+  },
+  {
+    "name": "HandleForceGC",
+    "trimmedName": "ForceGC",
+    "comments": [
+      "HandleForceGC",
+      "",
+      "\t@summary forces garbage collection and returns memory stats.",
+      "\t@desc This forces a garbage collection cycle and returns the updated memory statistics.",
+      "\t@route /api/v1/memory/gc [POST]",
+      "\t@returns handlers.MemoryStatsResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "forces garbage collection and returns memory stats.",
+      "descriptions": [
+        "This forces a garbage collection cycle and returns the updated memory statistics."
+      ],
+      "endpoint": "/api/v1/memory/gc",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "handlers.MemoryStatsResponse",
+      "returnGoType": "handlers.MemoryStatsResponse",
+      "returnTypescriptType": "MemoryStatsResponse"
     }
   },
   {

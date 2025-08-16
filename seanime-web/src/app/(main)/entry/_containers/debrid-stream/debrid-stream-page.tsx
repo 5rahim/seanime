@@ -2,13 +2,13 @@ import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
+import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import {
-    __torrentSearch_drawerEpisodeAtom,
-    __torrentSearch_drawerIsOpenAtom,
+    __torrentSearch_selectionAtom,
+    __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
 import { useDebridStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
-import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -53,17 +53,17 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
         if (!episodeCollection?.hasMappingError) {
             setAutoSelect(serverStatus?.debridSettings?.streamAutoSelect)
         } else {
-            // Fall back to manual select if no download info (no AniZip data)
+            // Fall back to manual select if no download info (no Animap data)
             setAutoSelect(false)
         }
     }, [serverStatus?.torrentstreamSettings?.autoSelect, episodeCollection])
 
     // Atoms to control the torrent search drawer state
-    const [, setTorrentSearchDrawerOpen] = useAtom(__torrentSearch_drawerIsOpenAtom)
-    const [, setTorrentSearchEpisode] = useAtom(__torrentSearch_drawerEpisodeAtom)
+    const [, setTorrentSearchDrawerOpen] = useAtom(__torrentSearch_selectionAtom)
+    const [, setTorrentSearchEpisode] = useAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const { setTorrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
 
     // Function to handle playing the next episode on mount
     function handlePlayNextEpisodeOnMount(episode: Anime_Episode) {
@@ -129,13 +129,13 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                 React.startTransition(() => {
                     // If auto-select file is enabled, open the debrid stream select drawer
                     if (autoSelectFile) {
-                        setTorrentSearchDrawerOpen("debrid-stream-select")
+                        setTorrentSearchDrawerOpen("debridstream-select")
 
                         // Set the debrid stream autoplay info
                         handleSetDebridstreamAutoplayInfo(episode)
                     } else {
                         // Otherwise, open the debrid stream select file drawer
-                        setTorrentSearchDrawerOpen("debrid-stream-select-file")
+                        setTorrentSearchDrawerOpen("debridstream-select-file")
                     }
                 })
             })

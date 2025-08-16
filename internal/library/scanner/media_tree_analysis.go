@@ -3,13 +3,14 @@ package scanner
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
+
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -49,9 +50,9 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 		return true
 	})
 
-	// Get Anizip data for all related media in the tree
-	// With each Anizip media, get the min and max absolute episode number
-	// Create new MediaTreeAnalysisBranch for each Anizip media
+	// Get Animap data for all related media in the tree
+	// With each Animap media, get the min and max absolute episode number
+	// Create new MediaTreeAnalysisBranch for each Animap media
 	p := pool.NewWithResults[*MediaTreeAnalysisBranch]().WithErrors()
 	for _, rel := range relations {
 		p.Go(func() (*MediaTreeAnalysisBranch, error) {

@@ -1,5 +1,5 @@
 "use client"
-import { Local_QueueState } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, Local_QueueState } from "@/api/generated/types"
 import {
     useLocalGetHasLocalChanges,
     useLocalGetLocalStorageSize,
@@ -9,6 +9,8 @@ import {
     useLocalSyncData,
     useSetOfflineMode,
 } from "@/api/hooks/local.hooks"
+import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
+import { animeLibraryCollectionWithoutStreamsAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -25,6 +27,7 @@ import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
 import { WSEvents } from "@/lib/server/ws-events"
+import { useAtomValue } from "jotai/react"
 import React from "react"
 import { LuCloud, LuCloudDownload, LuCloudOff, LuCloudUpload, LuFolderSync } from "react-icons/lu"
 import { VscSyncIgnored } from "react-icons/vsc"
@@ -38,17 +41,11 @@ export default function Page() {
     const [syncModalOpen, setSyncModalOpen] = React.useState(false)
 
     const { data: trackedMediaItems, isLoading } = useLocalGetTrackedMediaItems()
-
     const { mutate: syncLocal, isPending: isSyncingLocal } = useLocalSyncData()
-
     const { mutate: syncAnilist, isPending: isSyncingAnilist } = useLocalSyncAnilistData()
-
     const { data: hasLocalChanges } = useLocalGetHasLocalChanges()
-
     const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useLocalSetHasLocalChanges()
-
     const { data: localStorageSize } = useLocalGetLocalStorageSize()
-
     const { mutate: setOfflineMode, isPending: isSettingOfflineMode } = useSetOfflineMode()
 
     const trackedAnimeItems = React.useMemo(() => {
@@ -58,6 +55,34 @@ export default function Page() {
     const trackedMangaItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "manga" && !!n.mangaEntry?.media) ?? []
     }, [trackedMediaItems])
+
+    const animeLibraryCollection = useAtomValue(animeLibraryCollectionWithoutStreamsAtom)
+    const { data: mangaLibraryCollection } = useGetMangaCollection()
+
+    const unsavedAnime = React.useMemo(() => {
+        const trackedIds = new Set(trackedAnimeItems.map(n => n.mediaId))
+        const currentList = animeLibraryCollection?.lists?.find(n => n.type === "CURRENT")
+        let unsavedAnime: AL_BaseAnime[] = []
+        // only include entries that have local files
+        for (const entry of currentList?.entries ?? []) {
+            if (!trackedIds.has(entry.mediaId)) {
+                unsavedAnime.push(entry.media!)
+            }
+        }
+        return unsavedAnime
+    }, [animeLibraryCollection?.lists, trackedAnimeItems])
+
+    const unsavedManga = React.useMemo(() => {
+        const trackedIds = new Set(trackedMangaItems.map(n => n.mediaId))
+        const currentList = mangaLibraryCollection?.lists?.find(n => n.type === "CURRENT")
+        let unsavedManga: AL_BaseManga[] = []
+        for (const entry of currentList?.entries ?? []) {
+            if (!trackedIds.has(entry.mediaId)) {
+                unsavedManga.push(entry.media!)
+            }
+        }
+        return unsavedManga
+    }, [mangaLibraryCollection?.lists, trackedMangaItems])
 
     const [queueState, setQueueState] = React.useState<Local_QueueState | null>(null)
     useWebsocketMessageListener<Local_QueueState>({
@@ -110,7 +135,7 @@ export default function Page() {
         >
 
             <Button
-                intent={"white-outline"}
+                intent="gray-subtle"
                 rounded
                 className=""
                 leftIcon={serverStatus?.isOffline ? <LuCloudOff className="text-2xl" /> : <LuCloud className="text-2xl" />}
@@ -124,9 +149,9 @@ export default function Page() {
                 {serverStatus?.isOffline ? "Disable offline mode" : "Enable offline mode"}
             </Button>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col lg:flex-row gap-2">
                 <div>
-                    <h2 className="text-center lg:text-left">Synced media</h2>
+                    <h2 className="">Offline media</h2>
                     <p className="text-[--muted]">
                         View the media you've saved locally for offline use.
                     </p>
@@ -143,7 +168,7 @@ export default function Page() {
                             return setSyncModalOpen(v)
                         }}
                         trigger={<Button
-                            intent="white"
+                            intent="white-subtle"
                             rounded
                             leftIcon={<LuFolderSync className="text-2xl" />}
                             loading={isSyncingLocal}
@@ -197,6 +222,28 @@ export default function Page() {
                     />
                 </div>
             </div>
+
+            {(!!unsavedAnime?.length || !!unsavedManga?.length) && (
+                <Alert
+                    intent="info-basic"
+                    className="border-transparent"
+                    description={
+                        <div className="space-y-2">
+                            <p>
+                                <span>You have not saved {!!unsavedAnime?.length
+                                    ? `${unsavedAnime?.length} anime`
+                                    : ""}{(!!unsavedAnime?.length && !!unsavedManga?.length) ? " and " : ""}{!!unsavedManga?.length
+                                    ? `${unsavedManga?.length} manga`
+                                    : ""} that you're currently {!!unsavedAnime?.length
+                                    ? "watching"
+                                    : ""}{(!!unsavedAnime.length && !!unsavedManga.length) ? " and " : ""}{!!unsavedManga?.length
+                                    ? "reading"
+                                    : ""}.</span>
+                            </p>
+                        </div>
+                    }
+                />
+            )}
 
             <p className="text-sm">
                 <span>Local storage size: </span>

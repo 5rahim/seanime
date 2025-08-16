@@ -15,8 +15,8 @@ import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
-    __torrentSearch_drawerEpisodeAtom,
-    __torrentSearch_drawerIsOpenAtom,
+    __torrentSearch_selectionAtom,
+    __torrentSearch_selectionEpisodeAtom,
     TorrentSearchDrawer,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
@@ -140,7 +140,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
     const { hasDebridService } = useHasDebridService()
 
     return (
-        <ScopeProvider atoms={[__torrentSearch_drawerIsOpenAtom, __torrentSearch_drawerEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
+        <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
             <div
                 className={cn(
                     "absolute z-[0] opacity-30 w-full rounded-t-[--radius] overflow-hidden",

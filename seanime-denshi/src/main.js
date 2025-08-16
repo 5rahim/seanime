@@ -16,12 +16,12 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('no-sandbox');
     app.commandLine.appendSwitch('no-zygote');
 
+
+    app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
     app.commandLine.appendSwitch('force_high_performance_gpu');
 
-    // Performance and caching
     app.commandLine.appendSwitch('disk-cache-size', (400 * 1000 * 1000).toString());
     app.commandLine.appendSwitch('force-effective-connection-type', '4g');
-    app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
     // Disable features that can interfere with playback
     app.commandLine.appendSwitch('disable-features', [
@@ -33,12 +33,12 @@ function setupChromiumFlags() {
     ].join(','));
 
     // Color management and rendering optimizations
-    app.commandLine.appendSwitch('force-color-profile', 'srgb');
-    app.commandLine.appendSwitch('disable-color-correct-rendering');
-    app.commandLine.appendSwitch('disable-web-contents-color-extraction');
-    app.commandLine.appendSwitch('disable-color-management');
-    app.commandLine.appendSwitch('force-color-profile-interpretation', 'all-images');
-    app.commandLine.appendSwitch('force-raster-color-profile', 'srgb');
+    // app.commandLine.appendSwitch('force-color-profile', 'srgb');
+    // app.commandLine.appendSwitch('disable-color-correct-rendering');
+    // app.commandLine.appendSwitch('disable-web-contents-color-extraction');
+    // app.commandLine.appendSwitch('disable-color-management');
+    // app.commandLine.appendSwitch('force-color-profile-interpretation', 'all-images');
+    // app.commandLine.appendSwitch('force-raster-color-profile', 'srgb');
 
     // Hardware acceleration and GPU optimizations
     app.commandLine.appendSwitch('force-high-performance-gpu');
@@ -58,11 +58,10 @@ function setupChromiumFlags() {
         'UseSkiaRenderer',
         'WebAssemblyLazyCompilation',
         'RawDraw',
+        // "Vulkan",
         // 'MediaFoundationHEVC',
         'PlatformHEVCDecoderSupport',
     ].join(','));
-
-    app.commandLine.appendSwitch("use-gl", "angle");
 
     app.commandLine.appendSwitch('enable-unsafe-webgpu');
     app.commandLine.appendSwitch('enable-gpu-rasterization');

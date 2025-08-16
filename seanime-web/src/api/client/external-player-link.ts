@@ -1,6 +1,10 @@
 import { __isDesktop__ } from "@/types/constants"
 
 export function getExternalPlayerURL(externalPlayerLink: string, url: string): string {
+    if (externalPlayerLink.includes("{scheme}")) {
+        return externalPlayerLink.replace("{scheme}", window.location.protocol.replace(":", ""))
+    }
+
     if (__isDesktop__) {
         let retUrl = externalPlayerLink.replace("{url}", url)
         if (externalPlayerLink.startsWith("intent://")) {

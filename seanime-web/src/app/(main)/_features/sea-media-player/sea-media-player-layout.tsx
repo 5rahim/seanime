@@ -110,9 +110,9 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                     <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{title}</h3>
                 </div>}
 
-                <div data-sea-media-player-layout-header-actions className="flex gap-2 items-center justify-end w-full">
+                <div data-sea-media-player-layout-header-actions className="flex flex-wrap gap-2 items-center lg:justify-end w-full">
                     {leftHeaderActions}
-                    <div className="hidden lg:flex flex-1"></div>
+                    <div className="flex flex-1"></div>
                     {(!!progressItem && progressItem.episodeNumber > currentProgress) && (
                         <Button
                             className="animate-pulse"

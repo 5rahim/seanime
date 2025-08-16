@@ -1,18 +1,22 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
+import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { isApple } from "@/lib/utils/browser-detection"
 import JASSUB, { ASS_Event, JassubOptions } from "jassub"
 import { toast } from "sonner"
-import { NativePlayerSettings } from "./native-player.atoms"
 
 const subtitleLog = logger("SUBTITLE")
-const audioLog = logger("AUDIO")
 
 const NO_TRACK_NUMBER = -1
 
-const DEFAULT_SUBTITLE_HEADER = `[Script Info]
+export class VideoCoreSubtitleManager {
+    private readonly videoElement: HTMLVideoElement
+    private readonly jassubOffscreenRender: boolean
+    libassRenderer: JASSUB | null = null
+    private settings: VideoCoreSettings
+    private defaultSubtitleHeader = `[Script Info]
 Title: English (US)
 ScriptType: v4.00+
 WrapStyle: 0
@@ -26,12 +30,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 [Events]
 
 `
-
-export class StreamSubtitleManager {
-    private readonly videoElement: HTMLVideoElement
-    private readonly jassubOffscreenRender: boolean
-    private libassRenderer: JASSUB | null = null
-    private settings: NativePlayerSettings
 
     private tracks: Record<string, {
         info: MKVParser_TrackInfo
@@ -52,7 +50,7 @@ export class StreamSubtitleManager {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
         playbackInfo: NativePlayer_PlaybackInfo
-        settings: NativePlayerSettings
+        settings: VideoCoreSettings
     }) {
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
@@ -86,7 +84,7 @@ export class StreamSubtitleManager {
     // Sets the track to no track.
     setNoTrack() {
         this.currentTrackNumber = NO_TRACK_NUMBER
-        this.libassRenderer?.setTrack(DEFAULT_SUBTITLE_HEADER)
+        this.libassRenderer?.setTrack(this.defaultSubtitleHeader)
         this.libassRenderer?.resize?.()
     }
 
@@ -109,7 +107,6 @@ export class StreamSubtitleManager {
         const track = this._getTracks()?.find?.(t => t.info.number === trackNumber)
         subtitleLog.info("Selecting track", trackNumber, track)
 
-        // Update video element's textTracks to reflect the selection in media-chrome
         if (this.videoElement.textTracks) {
             subtitleLog.info("Updating video element's textTracks", this.videoElement.textTracks)
             for (const textTrack of this.videoElement.textTracks) {
@@ -119,6 +116,7 @@ export class StreamSubtitleManager {
                     textTrack.mode = "disabled"
                 }
             }
+            this.videoElement.textTracks.dispatchEvent(new Event("change"))
         }
 
         if (!track) {
@@ -127,7 +125,7 @@ export class StreamSubtitleManager {
             return
         }
 
-        const codecPrivate = track.info.codecPrivate?.slice?.(0, -1) || DEFAULT_SUBTITLE_HEADER
+        const codecPrivate = track.info.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
 
         this.currentTrackNumber = track.info.number // update the current track number
 
@@ -181,7 +179,8 @@ export class StreamSubtitleManager {
 
     }
 
-    terminate() {
+    destroy() {
+        subtitleLog.info("Destroying subtitle manager")
         this.libassRenderer?.destroy()
         this.libassRenderer = null
         for (const trackNumber in this.tracks) {
@@ -245,13 +244,25 @@ export class StreamSubtitleManager {
         return Object.values(this.tracks).sort((a, b) => a.info.number - b.info.number)
     }
 
+    getSelectedTrack(): number | null {
+        if (!this.videoElement.textTracks) return null
+
+        for (let i = 0; i < this.videoElement.textTracks.length; i++) {
+            if (this.videoElement.textTracks[i].mode === "showing") {
+                return Number(this.videoElement.textTracks[i].id)
+            }
+        }
+
+        return null
+    }
+
     //
     // Stores the styles for each track.
     //
     private _storeTrackStyles() {
         if (!this.playbackInfo?.mkvMetadata?.subtitleTracks) return
         for (const track of this.playbackInfo.mkvMetadata.subtitleTracks) {
-            const codecPrivate = track.codecPrivate?.slice?.(0, -1) || DEFAULT_SUBTITLE_HEADER
+            const codecPrivate = track.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
             const lines = codecPrivate.replaceAll("\r\n", "\n").split("\n").filter(line => line.startsWith("Style:"))
             let index = 1
             const s: Record<string, number> = {}
@@ -288,7 +299,7 @@ export class StreamSubtitleManager {
 
         this.libassRenderer = new JASSUB({
             video: this.videoElement,
-            subContent: DEFAULT_SUBTITLE_HEADER, // needed
+            subContent: this.defaultSubtitleHeader, // needed
             // subUrl: new URL("/jassub/test.ass", window.location.origin).toString(),
             wasmUrl: wasmUrl,
             workerUrl: workerUrl,
@@ -343,10 +354,6 @@ export class StreamSubtitleManager {
 
         const eventKey = this.__eventMapKey(event)
 
-        if (event.text.includes("never imagined something")) {
-            subtitleLog.info("KEY", eventKey, "isNew", !trackEventMap.has(eventKey))
-        }
-
         // Check if the event is already in the record
         // If it is, return false
         if (trackEventMap.has(eventKey)) {
@@ -360,77 +367,3 @@ export class StreamSubtitleManager {
     }
 }
 
-export class StreamAudioManager {
-
-    onError: (error: string) => void
-    private videoElement: HTMLVideoElement
-    private settings: NativePlayerSettings
-    // Playback info
-    private playbackInfo: NativePlayer_PlaybackInfo
-
-    constructor({
-        videoElement,
-        settings,
-        playbackInfo,
-        onError,
-    }: {
-        videoElement: HTMLVideoElement
-        settings: NativePlayerSettings
-        playbackInfo: NativePlayer_PlaybackInfo
-        onError: (error: string) => void
-    }) {
-        this.videoElement = videoElement
-        this.settings = settings
-        this.playbackInfo = playbackInfo
-        this.onError = onError
-
-        if (this.videoElement.audioTracks) {
-            // Check that audio tracks are loaded
-            if (this.videoElement.audioTracks.length <= 0) {
-                this.onError("The video element does not support the media's audio codec. Please try another media.")
-                return
-            }
-            audioLog.info("Audio tracks", this.videoElement.audioTracks)
-        }
-
-        // Select the default track
-        this._selectDefaultTrack()
-    }
-
-    _selectDefaultTrack() {
-        const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (t.language || "eng") === this.settings.preferredAudioLanguage)
-        if (foundTracks?.length) {
-            // Find default or forced track
-            const defaultIndex = foundTracks.findIndex(t => t.forced)
-            this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number)
-        }
-    }
-
-    selectTrackByLabel(trackLabel: string) {
-        const track = this.playbackInfo.mkvMetadata?.audioTracks?.find?.(t => t.name === trackLabel)
-        if (track) {
-            this.selectTrack(track.number)
-        } else {
-            audioLog.error("Audio track not found", trackLabel)
-        }
-    }
-
-    selectTrack(trackNumber: number) {
-        if (!this.videoElement.audioTracks) return
-
-        let trackChanged = false
-        for (let i = 0; i < this.videoElement.audioTracks.length; i++) {
-            const shouldEnable = this.videoElement.audioTracks[i].id === trackNumber.toString()
-            if (this.videoElement.audioTracks[i].enabled !== shouldEnable) {
-                this.videoElement.audioTracks[i].enabled = shouldEnable
-                trackChanged = true
-            }
-        }
-
-        // Dispatch change event to notify media-chrome
-        if (trackChanged && this.videoElement.audioTracks.dispatchEvent) {
-            this.videoElement.audioTracks.dispatchEvent(new Event("change"))
-        }
-    }
-
-}

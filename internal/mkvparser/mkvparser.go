@@ -25,8 +25,8 @@ const (
 	// Default timecode scale (1ms)
 	defaultTimecodeScale = 1_000_000
 
-	defaultClusterSearchChunkSize = 8192             // 8KB
-	defaultClusterSearchDepth     = 10 * 1024 * 1024 // 1MB
+	clusterSearchChunkSize = 8192             // 8KB
+	clusterSearchDepth     = 10 * 1024 * 1024 // 1MB
 )
 
 var matroskaClusterID = []byte{0x1F, 0x43, 0xB6, 0x75}
@@ -158,6 +158,7 @@ func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 
 		_, _ = mp.reader.Seek(0, io.SeekStart)
 
+		// Devnote: Don't limit the depth anymore
 		//limitedReader, err := util.NewLimitedReadSeeker(mp.reader, maxScanBytes)
 		//if err != nil {
 		//	mp.logger.Error().Err(err).Msg("mkvparser: Failed to create limited reader")
@@ -564,7 +565,10 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		})
 		for _, group := range groups {
 			for _, track := range group {
-				track.Name = fmt.Sprintf("%s [%s]", track.Name, getSubtitleTrackType(track.CodecID))
+				track.Name = fmt.Sprintf("%s", track.Name)
+				if track.Language == "" {
+					track.Language = getLanguageCode(track)
+				}
 			}
 		}
 
@@ -652,7 +656,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 // - The context is canceled
 // - The entire stream is processed
 // - An unrecoverable error occurs (which is also returned in the error channel)
-func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
+func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64) (<-chan *SubtitleEvent, <-chan error, <-chan struct{}) {
 	subtitleCh := make(chan *SubtitleEvent)
 	errCh := make(chan error, 1)
 	startedCh := make(chan struct{})
@@ -675,7 +679,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 	if offset > 0 {
 		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
 
-		clusterSeekOffset, err := findNextClusterOffset(newReader, offset)
+		clusterSeekOffset, err := findNextClusterOffset(newReader, offset, backoffBytes)
 		if err != nil {
 			if !errors.Is(err, io.EOF) {
 				mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
@@ -749,10 +753,10 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		// Parse the stream for subtitles
 		err := gomkv.Parse(newReader, handler)
 		if err != nil && err != io.EOF && !strings.Contains(err.Error(), "unexpected EOF") {
-			mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
+			//mp.logger.Error().Err(err).Msg("mkvparser: Unrecoverable error during subtitle stream parsing")
 			closeChannels(err)
 		} else {
-			mp.logger.Info().Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
+			mp.logger.Debug().Err(err).Msg("mkvparser: Subtitle streaming completed successfully or with expected EOF.")
 			closeChannels(nil)
 		}
 	}()
@@ -872,6 +876,10 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 }
 
 func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64, headPos int64) {
+	if getSubtitleTrackType(track.CodecID) == "PGS" || getSubtitleTrackType(track.CodecID) == "unknown" {
+		return
+	}
+
 	if track.contentEncodings != nil {
 		if zr, err := zlib.NewReader(bytes.NewReader(subtitleData)); err == nil {
 			if buf, err := io.ReadAll(zr); err == nil {
@@ -1051,13 +1059,13 @@ func (h *subtitleHandler) HandleBinary(id gomkv.ElementID, value []byte, info go
 // findNextClusterOffset searches for the Matroska Cluster ID in the ReadSeeker rs,
 // starting from seekOffset. It returns the absolute file offset of the found Cluster ID,
 // or an error. If found, the ReadSeeker's position is set to the start of the Cluster ID.
-func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
+func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (int64, error) {
 
 	// DEVNOTE: findNextClusterOffset is faster than findPrecedingOrCurrentClusterOffset
 	// however it's not ideal so we'll offset the offset by 1MB to avoid missing a cluster
-	toRemove := int64(1 * 1024 * 1024) // 1MB
-	if seekOffset > toRemove {
-		seekOffset -= toRemove
+	//toRemove := int64(1 * 1024 * 1024) // 1MB
+	if seekOffset > backoffBytes {
+		seekOffset -= backoffBytes
 	} else {
 		seekOffset = 0
 	}
@@ -1068,8 +1076,8 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 		return -1, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
 	}
 
-	mainBuf := make([]byte, defaultClusterSearchChunkSize)
-	searchBuf := make([]byte, (len(matroskaClusterID)-1)+defaultClusterSearchChunkSize)
+	mainBuf := make([]byte, clusterSearchChunkSize)
+	searchBuf := make([]byte, (len(matroskaClusterID)-1)+clusterSearchChunkSize)
 
 	lenOverlapCarried := 0 // Length of overlap data copied into searchBuf's start from previous iteration
 
@@ -1118,8 +1126,8 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset int64) (int64, error) {
 // It returns the absolute file offset of the found Cluster ID, or an error.
 // If found, the ReadSeeker's position is set to the start of the Cluster ID.
 func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int64) (int64, error) {
-	mainBuf := make([]byte, defaultClusterSearchChunkSize)
-	searchBuf := make([]byte, (len(matroskaClusterID)-1)+defaultClusterSearchChunkSize)
+	mainBuf := make([]byte, clusterSearchChunkSize)
+	searchBuf := make([]byte, (len(matroskaClusterID)-1)+clusterSearchChunkSize)
 
 	// Start from targetFileOffset and work backwards
 	currentReadEndPos := targetFileOffset + int64(len(matroskaClusterID))
@@ -1127,7 +1135,7 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 
 	for {
 		// Calculate read position and size
-		readStartPos := currentReadEndPos - defaultClusterSearchChunkSize
+		readStartPos := currentReadEndPos - clusterSearchChunkSize
 		if readStartPos < 0 {
 			readStartPos = 0
 		}
@@ -1171,8 +1179,8 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 		}
 
 		// Check search depth limit
-		if (targetFileOffset - readStartPos) >= defaultClusterSearchDepth {
-			return -1, fmt.Errorf("cluster ID not found within search depth %dMB", defaultClusterSearchDepth/1024/1024)
+		if (targetFileOffset - readStartPos) >= clusterSearchDepth {
+			return -1, fmt.Errorf("cluster ID not found within search depth %dMB", clusterSearchDepth/1024/1024)
 		}
 
 		// If we've reached the start of the file, we're done
@@ -1192,30 +1200,4 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 
 		currentReadEndPos = readStartPos + int64(lenOverlapCarried)
 	}
-}
-
-// looksLikeZlib returns true if the first two bytes look like a valid zlib wrapper header.
-func looksLikeZlib(b []byte) bool {
-	if len(b) < 2 {
-		return false
-	}
-	cmf, flg := b[0], b[1]
-
-	// 1) Check compression method = DEFLATE (CM bits = 8)
-	if cmf&0x0F != 8 {
-		return false
-	}
-
-	// 2) Full 16‑bit header must be a multiple of 31
-	hdr := (uint16(cmf) << 8) | uint16(flg)
-	if hdr%31 != 0 {
-		return false
-	}
-
-	// 3) No preset dictionary (FDICT flag must be zero, bit 5)
-	if flg&0x20 != 0 {
-		return false
-	}
-
-	return true
 }

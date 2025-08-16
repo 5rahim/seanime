@@ -499,6 +499,9 @@ func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoS
 			if field.Name == "next" || field.Name == "preventDefault" || field.Name == "DefaultPrevented" {
 				continue
 			}
+			if field.JsonName == "" {
+				continue
+			}
 			// Field type
 			fieldNameSuffix := ""
 			if !field.Required {
@@ -539,6 +542,9 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 			fieldNameSuffix := ""
 			if !field.Required {
 				fieldNameSuffix = "?"
+			}
+			if field.JsonName == "" {
+				continue
 			}
 
 			if len(field.Comments) > 0 {
@@ -652,6 +658,9 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 			// Write fields
 			for _, field := range goStruct.Fields {
 				if field.Name == "next" || field.Name == "preventDefault" || field.Name == "DefaultPrevented" {
+					continue
+				}
+				if field.JsonName == "" {
 					continue
 				}
 

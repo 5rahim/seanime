@@ -7,7 +7,6 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner, Spinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { ProgressBar } from "@/components/ui/progress-bar"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
@@ -109,9 +108,9 @@ export function DebridStreamOverlay() {
 
     if (!state) return (
         <>
-            {(showMediaPlayerLoading) && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
-                <ProgressBar size="xs" isIndeterminate />
-            </div>}
+            {/*{(showMediaPlayerLoading) && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">*/}
+            {/*    <ProgressBar size="xs" isIndeterminate />*/}
+            {/*</div>}*/}
         </>
     )
 
@@ -140,9 +139,9 @@ export function DebridStreamOverlay() {
                 </div>
             )}
 
-            {state?.status === "downloading" && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
-                <ProgressBar size="xs" isIndeterminate />
-            </div>}
+            {/*{state?.status === "downloading" && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">*/}
+            {/*    <ProgressBar size="xs" isIndeterminate />*/}
+            {/*</div>}*/}
 
             <Modal
                 contentClass="max-w-xl sm:rounded-3xl"

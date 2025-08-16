@@ -38,10 +38,10 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
 }))
 
 function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseAnime | AL_BaseManga, forceModal?: boolean }) {
-    const { title, children, media, ...rest } = props
+    const { title, children, media, forceModal, ...rest } = props
     const { width } = useWindowSize()
 
-    if ((width && width > 1024) && !props.forceModal) {
+    if ((width && width > 1024) && !forceModal) {
         return <Popover
             {...rest}
             className="max-w-5xl !w-full overflow-hidden bg-gray-950/95 backdrop-blur-sm rounded-xl"

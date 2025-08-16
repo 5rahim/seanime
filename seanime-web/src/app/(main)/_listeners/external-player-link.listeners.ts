@@ -32,13 +32,21 @@ export function useExternalPlayerLinkListener() {
 
             toast.info("Opening media file in external player.")
 
-            logger("EXTERNAL_PLAYER_LINK").info("Opening external player", data)
-            const url = getExternalPlayerURL(externalPlayerLink, data.url)
-            logger("EXTERNAL_PLAYER_LINK").info("External player URL", url)
+            logger("EXTERNAL PLAYER LINK").info("Opening external player", data)
+            // URL encode the complete URL when passing to external player to prevent query parameter conflicts
+            let urlToSend = data.url
+            logger("EXTERNAL PLAYER LINK").info("Received URL to send", urlToSend)
+
+            if (externalPlayerLink.includes("?")) {
+                urlToSend = encodeURIComponent(urlToSend)
+            }
+
+            const url = getExternalPlayerURL(externalPlayerLink, urlToSend)
+            logger("EXTERNAL PLAYER LINK").info("Sending URL to external player", url)
             openTab(url)
 
             if (data.mediaId != 0) {
-                logger("EXTERNAL_PLAYER_LINK").info("Starting manual tracking", {
+                logger("EXTERNAL PLAYER LINK").info("Starting manual tracking", {
                     mediaId: data.mediaId,
                     episodeNumber: data.episodeNumber,
                     clientId: clientId || "",
@@ -51,7 +59,7 @@ export function useExternalPlayerLinkListener() {
                     clientId: clientId || "",
                 })
             } else {
-                logger("EXTERNAL_PLAYER_LINK").info("No manual tracking", {
+                logger("EXTERNAL PLAYER LINK").info("No manual tracking", {
                     url: data.url,
                     mediaId: data.mediaId,
                     episodeNumber: data.episodeNumber,

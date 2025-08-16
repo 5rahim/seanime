@@ -7,7 +7,6 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Spinner } from "@/components/ui/loading-spinner"
-import { ProgressBar } from "@/components/ui/progress-bar"
 import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
@@ -99,7 +98,7 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
             <>
                 {/* Native player is fullscreen */}
                 {/* It's integrated into the media controller */}
-                {nativePlayerState.active && !nativePlayerState.miniPlayer && status &&
+                {nativePlayerState.active && status &&
                     <div
                         className={cn(
                             "absolute left-0 top-8 w-full flex justify-center z-[100] pointer-events-none",
@@ -169,11 +168,11 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
     if (isLoaded && status) {
         return (
             <>
-                {!mediaPlayerStartedPlaying && !nativePlayerState.active && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
-                    <ProgressBar size="xs" isIndeterminate />
-                </div>}
+                {/*{!mediaPlayerStartedPlaying && !nativePlayerState.active && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">*/}
+                {/*    <ProgressBar size="xs" isIndeterminate />*/}
+                {/*</div>}*/}
                 {/* Normal overlay / Native player is not fullscreen */}
-                {(!nativePlayerState.active || nativePlayerState.miniPlayer) &&
+                {(!nativePlayerState.active) &&
                     <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
                     <div className="bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base pointer-events-auto">
 
@@ -215,9 +214,9 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
 
     if (loadingState && !nativePlayerState.active) {
         return <>
-            <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
-                <ProgressBar size="xs" isIndeterminate />
-            </div>
+            {/*<div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">*/}
+            {/*    <ProgressBar size="xs" isIndeterminate />*/}
+            {/*</div>*/}
             <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
                 <div className="bg-gray-950 rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-2 items-center text-sm lg:text-base pointer-events-auto">
                     <Spinner className="w-4 h-4" />

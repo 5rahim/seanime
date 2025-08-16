@@ -37,10 +37,8 @@ func (s *SubtitleStream) Stop(completed bool) {
 	})
 }
 
-// StartSubtitleStream starts a subtitle stream for the given stream at the given offset.
-//
-// If the media has no MKV metadata, this function will do nothing.
-func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64) {
+// StartSubtitleStreamP starts a subtitle stream for the given stream at the given offset with a specified backoff bytes.
+func (s *BaseStream) StartSubtitleStreamP(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64, backoffBytes int64) {
 	mkvMetadataParser, ok := s.playbackInfo.MkvMetadataParser.Get()
 	if !ok {
 		return
@@ -80,7 +78,7 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 	subtitleStreamId := uuid.New().String()
 	s.activeSubtitleStreams.Set(subtitleStreamId, subtitleStream)
 
-	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset)
+	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset, backoffBytes)
 
 	firstEventSentCh := make(chan struct{})
 	closeFirstEventSentOnce := sync.Once{}
@@ -208,82 +206,230 @@ func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Cont
 	//}
 }
 
-// streamSubtitles starts the subtitle stream.
-// It will stream the subtitles from all tracks to the client. The client should load the subtitles in an array.
-func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, newReader io.ReadSeekCloser, offset int64, cleanupFunc func()) (firstEventSentCh chan struct{}) {
-	m.Logger.Debug().Int64("offset", offset).Str("clientId", stream.ClientId()).Msg("directstream: Starting subtitle extraction")
-
-	subtitleCh, errCh, _ := parser.ExtractSubtitles(ctx, newReader, offset)
-
-	firstEventSentCh = make(chan struct{})
-	closeFirstEventSentOnce := sync.Once{}
-
-	onFirstEventSent := func() {
-		closeFirstEventSentOnce.Do(func() {
-			m.Logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event sent")
-			close(firstEventSentCh) // Notify that the first subtitle event has been sent
-		})
-	}
-
-	go func() {
-		defer func(reader io.ReadSeekCloser) {
-			_ = reader.Close()
-			m.Logger.Trace().Int64("offset", offset).Msg("directstream: Closing subtitle stream goroutine")
-		}(newReader)
-		defer func() {
-			onFirstEventSent()
-			if cleanupFunc != nil {
-				cleanupFunc()
-			}
-		}()
-
-		// Keep track if channels are active to manage loop termination
-		subtitleChannelActive := true
-		errorChannelActive := true
-
-		for subtitleChannelActive || errorChannelActive { // Loop as long as at least one channel might still produce data or a final status
-			select {
-			case <-ctx.Done():
-				m.Logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle streaming cancelled by context")
-				return
-
-			case subtitle, ok := <-subtitleCh:
-				if !ok {
-					subtitleCh = nil // Mark as exhausted
-					subtitleChannelActive = false
-					if !errorChannelActive { // If both channels are exhausted, exit
-						return
-					}
-					continue // Continue to wait for errorChannel or ctx.Done()
-				}
-				if subtitle != nil {
-					onFirstEventSent()
-					m.nativePlayer.SubtitleEvent(stream.ClientId(), subtitle)
-				}
-
-			case err, ok := <-errCh:
-				if !ok {
-					errCh = nil // Mark as exhausted
-					errorChannelActive = false
-					if !subtitleChannelActive { // If both channels are exhausted, exit
-						return
-					}
-					continue // Continue to wait for subtitleChannel or ctx.Done()
-				}
-				// A value (error or nil) was received from errCh.
-				// This is the terminal signal from the mkvparser's subtitle streaming process.
-				if err != nil {
-					m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Error streaming subtitles")
-				} else {
-					m.Logger.Info().Int64("offset", offset).Msg("directstream: Subtitle streaming completed by parser.")
-				}
-				return // Terminate goroutine
-			}
-		}
-	}()
-
-	return
+// StartSubtitleStream starts a subtitle stream for the given stream at the given offset.
+//
+// If the media has no MKV metadata, this function will do nothing.
+func (s *BaseStream) StartSubtitleStream(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64) {
+	// use 1MB as the cluster padding for subtitle streams
+	s.StartSubtitleStreamP(stream, playbackCtx, newReader, offset, 1024*1024)
 }
+
+//// StartSubtitleStream is similar to BaseStream.StartSubtitleStream, but rate limits the requests to the external debrid server.
+//// - There will only be one subtitle stream at a time.
+//func (s *DebridStream) StartSubtitleStream(stream Stream, playbackCtx context.Context, newReader io.ReadSeekCloser, offset int64, end int64) {
+//	mkvMetadataParser, ok := s.playbackInfo.MkvMetadataParser.Get()
+//	if !ok {
+//		return
+//	}
+//
+//	s.logger.Trace().Int64("offset", offset).Msg("directstream(debrid): Starting new subtitle stream")
+//	subtitleStream := &SubtitleStream{
+//		stream: stream,
+//		logger: s.logger,
+//		parser: mkvMetadataParser,
+//		reader: newReader,
+//		offset: offset,
+//	}
+//
+//	s.activeSubtitleStreams.Range(func(key string, value *SubtitleStream) bool {
+//		value.Stop(true)
+//		return true
+//	})
+//
+//	ctx, subtitleCtxCancel := context.WithCancel(playbackCtx)
+//	subtitleStream.cleanupFunc = subtitleCtxCancel
+//
+//	subtitleStreamId := uuid.New().String()
+//	s.activeSubtitleStreams.Set(subtitleStreamId, subtitleStream)
+//
+//	subtitleCh, errCh, _ := subtitleStream.parser.ExtractSubtitles(ctx, newReader, offset)
+//
+//	firstEventSentCh := make(chan struct{})
+//	closeFirstEventSentOnce := sync.Once{}
+//
+//	onFirstEventSent := func() {
+//		closeFirstEventSentOnce.Do(func() {
+//			s.logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event sent")
+//			close(firstEventSentCh) // Notify that the first subtitle event has been sent
+//		})
+//	}
+//
+//	var lastSubtitleEvent *mkvparser.SubtitleEvent
+//	lastSubtitleEventRWMutex := sync.RWMutex{}
+//
+//	// Check every second if we need to end this stream
+//	go func() {
+//		ticker := time.NewTicker(1 * time.Second)
+//		defer ticker.Stop()
+//		for {
+//			select {
+//			case <-ctx.Done():
+//				subtitleStream.Stop(false)
+//				return
+//			case <-ticker.C:
+//				if lastSubtitleEvent == nil {
+//					continue
+//				}
+//				shouldEnd := false
+//				lastSubtitleEventRWMutex.RLock()
+//				s.activeSubtitleStreams.Range(func(key string, value *SubtitleStream) bool {
+//					if key != subtitleStreamId {
+//						// If the other stream is ahead of this stream
+//						// and the last subtitle event is after the other stream's offset
+//						// |--------------->                   this stream
+//						//                     |-------------> other stream
+//						//                    ^^^ stop this stream where it reached the tail of the other stream
+//						if offset > 0 && offset < value.offset && lastSubtitleEvent.HeadPos >= value.offset {
+//							shouldEnd = true
+//						}
+//					}
+//					return true
+//				})
+//				lastSubtitleEventRWMutex.RUnlock()
+//				if shouldEnd {
+//					subtitleStream.Stop(false)
+//					return
+//				}
+//			}
+//		}
+//	}()
+//
+//	go func() {
+//		defer func(reader io.ReadSeekCloser) {
+//			_ = reader.Close()
+//			s.logger.Trace().Int64("offset", offset).Msg("directstream: Closing subtitle stream goroutine")
+//		}(newReader)
+//		defer func() {
+//			onFirstEventSent()
+//			subtitleStream.cleanupFunc()
+//		}()
+//
+//		// Keep track if channels are active to manage loop termination
+//		subtitleChannelActive := true
+//		errorChannelActive := true
+//
+//		for subtitleChannelActive || errorChannelActive { // Loop as long as at least one channel might still produce data or a final status
+//			select {
+//			case <-ctx.Done():
+//				s.logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle streaming cancelled by context")
+//				return
+//
+//			case subtitle, ok := <-subtitleCh:
+//				if !ok {
+//					subtitleCh = nil // Mark as exhausted
+//					subtitleChannelActive = false
+//					if !errorChannelActive { // If both channels are exhausted, exit
+//						return
+//					}
+//					continue // Continue to wait for errorChannel or ctx.Done()
+//				}
+//				if subtitle != nil {
+//					onFirstEventSent()
+//					s.manager.nativePlayer.SubtitleEvent(stream.ClientId(), subtitle)
+//					lastSubtitleEventRWMutex.Lock()
+//					lastSubtitleEvent = subtitle
+//					lastSubtitleEventRWMutex.Unlock()
+//				}
+//
+//			case err, ok := <-errCh:
+//				if !ok {
+//					errCh = nil // Mark as exhausted
+//					errorChannelActive = false
+//					if !subtitleChannelActive { // If both channels are exhausted, exit
+//						return
+//					}
+//					continue // Continue to wait for subtitleChannel or ctx.Done()
+//				}
+//				// A value (error or nil) was received from errCh.
+//				// This is the terminal signal from the mkvparser's subtitle streaming process.
+//				if err != nil {
+//					s.logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Error streaming subtitles")
+//				} else {
+//					s.logger.Info().Int64("offset", offset).Msg("directstream: Subtitle streaming completed by parser.")
+//					subtitleStream.Stop(true)
+//				}
+//				return // Terminate goroutine
+//			}
+//		}
+//	}()
+//}
+
+//// streamSubtitles starts the subtitle stream.
+//// It will stream the subtitles from all tracks to the client. The client should load the subtitles in an array.
+//func (m *Manager) streamSubtitles(ctx context.Context, stream Stream, parser *mkvparser.MetadataParser, newReader io.ReadSeekCloser, offset int64, cleanupFunc func()) (firstEventSentCh chan struct{}) {
+//	m.Logger.Debug().Int64("offset", offset).Str("clientId", stream.ClientId()).Msg("directstream: Starting subtitle extraction")
+//
+//	subtitleCh, errCh, _ := parser.ExtractSubtitles(ctx, newReader, offset)
+//
+//	firstEventSentCh = make(chan struct{})
+//	closeFirstEventSentOnce := sync.Once{}
+//
+//	onFirstEventSent := func() {
+//		closeFirstEventSentOnce.Do(func() {
+//			m.Logger.Debug().Int64("offset", offset).Msg("directstream: First subtitle event sent")
+//			close(firstEventSentCh) // Notify that the first subtitle event has been sent
+//		})
+//	}
+//
+//	go func() {
+//		defer func(reader io.ReadSeekCloser) {
+//			_ = reader.Close()
+//			m.Logger.Trace().Int64("offset", offset).Msg("directstream: Closing subtitle stream goroutine")
+//		}(newReader)
+//		defer func() {
+//			onFirstEventSent()
+//			if cleanupFunc != nil {
+//				cleanupFunc()
+//			}
+//		}()
+//
+//		// Keep track if channels are active to manage loop termination
+//		subtitleChannelActive := true
+//		errorChannelActive := true
+//
+//		for subtitleChannelActive || errorChannelActive { // Loop as long as at least one channel might still produce data or a final status
+//			select {
+//			case <-ctx.Done():
+//				m.Logger.Debug().Int64("offset", offset).Msg("directstream: Subtitle streaming cancelled by context")
+//				return
+//
+//			case subtitle, ok := <-subtitleCh:
+//				if !ok {
+//					subtitleCh = nil // Mark as exhausted
+//					subtitleChannelActive = false
+//					if !errorChannelActive { // If both channels are exhausted, exit
+//						return
+//					}
+//					continue // Continue to wait for errorChannel or ctx.Done()
+//				}
+//				if subtitle != nil {
+//					onFirstEventSent()
+//					m.nativePlayer.SubtitleEvent(stream.ClientId(), subtitle)
+//				}
+//
+//			case err, ok := <-errCh:
+//				if !ok {
+//					errCh = nil // Mark as exhausted
+//					errorChannelActive = false
+//					if !subtitleChannelActive { // If both channels are exhausted, exit
+//						return
+//					}
+//					continue // Continue to wait for subtitleChannel or ctx.Done()
+//				}
+//				// A value (error or nil) was received from errCh.
+//				// This is the terminal signal from the mkvparser's subtitle streaming process.
+//				if err != nil {
+//					m.Logger.Warn().Err(err).Int64("offset", offset).Msg("directstream: Error streaming subtitles")
+//				} else {
+//					m.Logger.Info().Int64("offset", offset).Msg("directstream: Subtitle streaming completed by parser.")
+//				}
+//				return // Terminate goroutine
+//			}
+//		}
+//	}()
+//
+//	return
+//}
 
 // OnSubtitleFileUploaded adds a subtitle track, converts it to ASS if needed.
 func (s *BaseStream) OnSubtitleFileUploaded(filename string, content string) {

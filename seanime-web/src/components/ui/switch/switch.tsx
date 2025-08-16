@@ -5,7 +5,7 @@ import { Popover } from "@/components/ui/popover"
 import * as SwitchPrimitive from "@radix-ui/react-switch"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
-import { AiOutlineExclamationCircle, AiOutlineQuestionCircle } from "react-icons/ai"
+import { AiOutlineExclamationCircle } from "react-icons/ai"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import { mergeRefs } from "../core/utils"
@@ -144,6 +144,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
             fieldClass={cn(
                 "w-fit",
                 side === "right" && "w-full group/switch transition-all duration-200 hover:bg-gray-300/5 rounded-[--radius] p-2 w-[calc(100%_+_1rem)] -ml-2 border border-transparent border-dashed hover:border-[--subtle]",
+                basicFieldProps.fieldClass,
             )}
             fieldHelpTextClass={cn("")}
         >

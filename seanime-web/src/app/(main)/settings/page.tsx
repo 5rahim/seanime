@@ -305,6 +305,7 @@ export default function Page() {
                                         scannerMatchingThreshold: data.scannerMatchingThreshold,
                                         scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
+                                        autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -455,6 +456,7 @@ export default function Page() {
                                 nakamaHostPassword: status?.settings?.nakama?.hostPassword ?? "",
                                 includeNakamaAnimeLibrary: status?.settings?.nakama?.includeNakamaAnimeLibrary ?? false,
                                 nakamaHostUnsharedAnimeIds: status?.settings?.nakama?.hostUnsharedAnimeIds ?? [],
+                                autoSaveCurrentMediaOffline: status?.settings?.library?.autoSaveCurrentMediaOffline ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >

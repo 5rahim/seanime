@@ -104,6 +104,7 @@ export const settingsSchema = z.object({
     nakamaUsername: z.string().optional().default(""),
     includeNakamaAnimeLibrary: z.boolean().optional().default(false),
     nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
+    autoSaveCurrentMediaOffline: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -130,6 +131,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         scannerMatchingThreshold: 0,
         scannerMatchingAlgorithm: "",
         autoSyncToLocalAccount: false,
+        autoSaveCurrentMediaOffline: false,
     },
     nakama: {
         enabled: false,

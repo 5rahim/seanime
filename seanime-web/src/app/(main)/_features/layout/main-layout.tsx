@@ -12,6 +12,7 @@ import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
+import { VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -89,7 +90,9 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            {__isElectronDesktop__ && <NativePlayer />}
+            {__isElectronDesktop__ && <VideoCoreProvider>
+                <NativePlayer />
+            </VideoCoreProvider>}
             <NakamaManager />
             <TopIndefiniteLoader />
             <Announcements />

@@ -18,9 +18,9 @@ import React from "react"
 import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
 import { MdOutlineSegment } from "react-icons/md"
 import { RiSignalTowerFill } from "react-icons/ri"
-import { useWindowScroll } from "react-use"
+import { useWindowScroll, useWindowSize } from "react-use"
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 type MediaPageHeaderProps = {
     children?: React.ReactNode
@@ -226,14 +226,15 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
 
     const ts = useThemeSettings()
     const { y } = useWindowScroll()
+    const { width } = useWindowSize()
 
     return (
         <>
             <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 animate={{
-                    opacity: y > 400 ? Math.max(1 - y * 0.006, 0.1) : 1,
-                    y: y > 50 ? Math.max(y * -0.1, -40) : 0,
+                    opacity: (width >= 1024 && y > 400) ? Math.max(1 - y * 0.006, 0.1) : 1,
+                    y: (width >= 1024 && y > 200) ? Math.max(y * -0.05, -40) : 0,
                 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className="relative z-[4]"

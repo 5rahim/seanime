@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/pprof"
 	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/database/models"
@@ -13,6 +14,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -335,4 +337,263 @@ func (h *Handler) HandleGetAnnouncements(c echo.Context) error {
 
 	return h.RespondWithData(c, announcements)
 
+}
+
+type MemoryStatsResponse struct {
+	Alloc         uint64  `json:"alloc"`         // bytes allocated and not yet freed
+	TotalAlloc    uint64  `json:"totalAlloc"`    // bytes allocated (even if freed)
+	Sys           uint64  `json:"sys"`           // bytes obtained from system
+	Lookups       uint64  `json:"lookups"`       // number of pointer lookups
+	Mallocs       uint64  `json:"mallocs"`       // number of mallocs
+	Frees         uint64  `json:"frees"`         // number of frees
+	HeapAlloc     uint64  `json:"heapAlloc"`     // bytes allocated and not yet freed
+	HeapSys       uint64  `json:"heapSys"`       // bytes obtained from system
+	HeapIdle      uint64  `json:"heapIdle"`      // bytes in idle spans
+	HeapInuse     uint64  `json:"heapInuse"`     // bytes in non-idle span
+	HeapReleased  uint64  `json:"heapReleased"`  // bytes released to OS
+	HeapObjects   uint64  `json:"heapObjects"`   // total number of allocated objects
+	StackInuse    uint64  `json:"stackInuse"`    // bytes used by stack allocator
+	StackSys      uint64  `json:"stackSys"`      // bytes obtained from system for stack allocator
+	MSpanInuse    uint64  `json:"mSpanInuse"`    // bytes used by mspan structures
+	MSpanSys      uint64  `json:"mSpanSys"`      // bytes obtained from system for mspan structures
+	MCacheInuse   uint64  `json:"mCacheInuse"`   // bytes used by mcache structures
+	MCacheSys     uint64  `json:"mCacheSys"`     // bytes obtained from system for mcache structures
+	BuckHashSys   uint64  `json:"buckHashSys"`   // bytes used by the profiling bucket hash table
+	GCSys         uint64  `json:"gcSys"`         // bytes used for garbage collection system metadata
+	OtherSys      uint64  `json:"otherSys"`      // bytes used for other system allocations
+	NextGC        uint64  `json:"nextGC"`        // next collection will happen when HeapAlloc ≥ this amount
+	LastGC        uint64  `json:"lastGC"`        // time the last garbage collection finished
+	PauseTotalNs  uint64  `json:"pauseTotalNs"`  // cumulative nanoseconds in GC stop-the-world pauses
+	PauseNs       uint64  `json:"pauseNs"`       // nanoseconds in recent GC stop-the-world pause
+	NumGC         uint32  `json:"numGC"`         // number of completed GC cycles
+	NumForcedGC   uint32  `json:"numForcedGC"`   // number of GC cycles that were forced by the application calling the GC function
+	GCCPUFraction float64 `json:"gcCPUFraction"` // fraction of this program's available CPU time used by the GC since the program started
+	EnableGC      bool    `json:"enableGC"`      // boolean that indicates GC is enabled
+	DebugGC       bool    `json:"debugGC"`       // boolean that indicates GC debug mode is enabled
+	NumGoroutine  int     `json:"numGoroutine"`  // number of goroutines
+}
+
+// HandleGetMemoryStats
+//
+//	@summary returns current memory statistics.
+//	@desc This returns real-time memory usage statistics from the Go runtime.
+//	@route /api/v1/memory/stats [GET]
+//	@returns handlers.MemoryStatsResponse
+func (h *Handler) HandleGetMemoryStats(c echo.Context) error {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	// Force garbage collection to get accurate memory stats
+	// runtime.GC()
+	runtime.ReadMemStats(&m)
+
+	response := MemoryStatsResponse{
+		Alloc:         m.Alloc,
+		TotalAlloc:    m.TotalAlloc,
+		Sys:           m.Sys,
+		Lookups:       m.Lookups,
+		Mallocs:       m.Mallocs,
+		Frees:         m.Frees,
+		HeapAlloc:     m.HeapAlloc,
+		HeapSys:       m.HeapSys,
+		HeapIdle:      m.HeapIdle,
+		HeapInuse:     m.HeapInuse,
+		HeapReleased:  m.HeapReleased,
+		HeapObjects:   m.HeapObjects,
+		StackInuse:    m.StackInuse,
+		StackSys:      m.StackSys,
+		MSpanInuse:    m.MSpanInuse,
+		MSpanSys:      m.MSpanSys,
+		MCacheInuse:   m.MCacheInuse,
+		MCacheSys:     m.MCacheSys,
+		BuckHashSys:   m.BuckHashSys,
+		GCSys:         m.GCSys,
+		OtherSys:      m.OtherSys,
+		NextGC:        m.NextGC,
+		LastGC:        m.LastGC,
+		PauseTotalNs:  m.PauseTotalNs,
+		PauseNs:       m.PauseNs[0], // Most recent pause
+		NumGC:         m.NumGC,
+		NumForcedGC:   m.NumForcedGC,
+		GCCPUFraction: m.GCCPUFraction,
+		EnableGC:      m.EnableGC,
+		DebugGC:       m.DebugGC,
+		NumGoroutine:  runtime.NumGoroutine(),
+	}
+
+	return h.RespondWithData(c, response)
+}
+
+// HandleGetMemoryProfile
+//
+//	@summary generates and returns a memory profile.
+//	@desc This generates a memory profile that can be analyzed with go tool pprof.
+//	@desc Query parameters: heap=true for heap profile, allocs=true for alloc profile.
+//	@route /api/v1/memory/profile [GET]
+//	@returns nil
+func (h *Handler) HandleGetMemoryProfile(c echo.Context) error {
+	// Parse query parameters
+	heap := c.QueryParam("heap") == "true"
+	allocs := c.QueryParam("allocs") == "true"
+
+	// Default to heap profile if no specific type requested
+	if !heap && !allocs {
+		heap = true
+	}
+
+	// Set response headers for file download
+	timestamp := time.Now().Format("2006-01-02_15-04-05")
+	var filename string
+	var profile *pprof.Profile
+	var err error
+
+	if heap {
+		filename = fmt.Sprintf("seanime-heap-profile-%s.pprof", timestamp)
+		profile = pprof.Lookup("heap")
+	} else if allocs {
+		filename = fmt.Sprintf("seanime-allocs-profile-%s.pprof", timestamp)
+		profile = pprof.Lookup("allocs")
+	}
+
+	if profile == nil {
+		h.App.Logger.Error().Msg("handlers: Failed to lookup memory profile")
+		return h.RespondWithError(c, fmt.Errorf("failed to lookup memory profile"))
+	}
+
+	c.Response().Header().Set("Content-Type", "application/octet-stream")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	// // Force garbage collection before profiling for more accurate results
+	// runtime.GC()
+
+	// Write profile to response
+	if err = profile.WriteTo(c.Response().Writer, 0); err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to write memory profile")
+		return h.RespondWithError(c, err)
+	}
+
+	return nil
+}
+
+// HandleGetGoRoutineProfile
+//
+//	@summary generates and returns a goroutine profile.
+//	@desc This generates a goroutine profile showing all running goroutines and their stack traces.
+//	@route /api/v1/memory/goroutine [GET]
+//	@returns nil
+func (h *Handler) HandleGetGoRoutineProfile(c echo.Context) error {
+	timestamp := time.Now().Format("2006-01-02_15-04-05")
+	filename := fmt.Sprintf("seanime-goroutine-profile-%s.pprof", timestamp)
+
+	profile := pprof.Lookup("goroutine")
+	if profile == nil {
+		h.App.Logger.Error().Msg("handlers: Failed to lookup goroutine profile")
+		return h.RespondWithError(c, fmt.Errorf("failed to lookup goroutine profile"))
+	}
+
+	c.Response().Header().Set("Content-Type", "application/octet-stream")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	if err := profile.WriteTo(c.Response().Writer, 0); err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to write goroutine profile")
+		return h.RespondWithError(c, err)
+	}
+
+	return nil
+}
+
+// HandleGetCPUProfile
+//
+//	@summary generates and returns a CPU profile.
+//	@desc This generates a CPU profile for the specified duration (default 30 seconds).
+//	@desc Query parameter: duration=30 for duration in seconds.
+//	@route /api/v1/memory/cpu [GET]
+//	@returns nil
+func (h *Handler) HandleGetCPUProfile(c echo.Context) error {
+	// Parse duration from query parameter (default to 30 seconds)
+	durationStr := c.QueryParam("duration")
+	duration := 30 * time.Second
+	if durationStr != "" {
+		if d, err := strconv.Atoi(durationStr); err == nil && d > 0 && d <= 300 { // Max 5 minutes
+			duration = time.Duration(d) * time.Second
+		}
+	}
+
+	timestamp := time.Now().Format("2006-01-02_15-04-05")
+	filename := fmt.Sprintf("seanime-cpu-profile-%s.pprof", timestamp)
+
+	c.Response().Header().Set("Content-Type", "application/octet-stream")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	// Start CPU profiling
+	if err := pprof.StartCPUProfile(c.Response().Writer); err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to start CPU profile")
+		return h.RespondWithError(c, err)
+	}
+
+	// Profile for the specified duration
+	h.App.Logger.Info().Msgf("handlers: Starting CPU profile for %v", duration)
+	time.Sleep(duration)
+
+	// Stop CPU profiling
+	pprof.StopCPUProfile()
+	h.App.Logger.Info().Msg("handlers: CPU profile completed")
+
+	return nil
+}
+
+// HandleForceGC
+//
+//	@summary forces garbage collection and returns memory stats.
+//	@desc This forces a garbage collection cycle and returns the updated memory statistics.
+//	@route /api/v1/memory/gc [POST]
+//	@returns handlers.MemoryStatsResponse
+func (h *Handler) HandleForceGC(c echo.Context) error {
+	h.App.Logger.Info().Msg("handlers: Forcing garbage collection")
+
+	// Force garbage collection
+	runtime.GC()
+	runtime.GC() // Run twice to ensure cleanup
+
+	// Get updated memory stats
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	response := MemoryStatsResponse{
+		Alloc:         m.Alloc,
+		TotalAlloc:    m.TotalAlloc,
+		Sys:           m.Sys,
+		Lookups:       m.Lookups,
+		Mallocs:       m.Mallocs,
+		Frees:         m.Frees,
+		HeapAlloc:     m.HeapAlloc,
+		HeapSys:       m.HeapSys,
+		HeapIdle:      m.HeapIdle,
+		HeapInuse:     m.HeapInuse,
+		HeapReleased:  m.HeapReleased,
+		HeapObjects:   m.HeapObjects,
+		StackInuse:    m.StackInuse,
+		StackSys:      m.StackSys,
+		MSpanInuse:    m.MSpanInuse,
+		MSpanSys:      m.MSpanSys,
+		MCacheInuse:   m.MCacheInuse,
+		MCacheSys:     m.MCacheSys,
+		BuckHashSys:   m.BuckHashSys,
+		GCSys:         m.GCSys,
+		OtherSys:      m.OtherSys,
+		NextGC:        m.NextGC,
+		LastGC:        m.LastGC,
+		PauseTotalNs:  m.PauseTotalNs,
+		PauseNs:       m.PauseNs[0],
+		NumGC:         m.NumGC,
+		NumForcedGC:   m.NumForcedGC,
+		GCCPUFraction: m.GCCPUFraction,
+		EnableGC:      m.EnableGC,
+		DebugGC:       m.DebugGC,
+		NumGoroutine:  runtime.NumGoroutine(),
+	}
+
+	h.App.Logger.Info().Msgf("handlers: GC completed, heap size: %d bytes", response.HeapAlloc)
+
+	return h.RespondWithData(c, response)
 }

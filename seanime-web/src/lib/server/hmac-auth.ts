@@ -1,3 +1,5 @@
+import * as CryptoJS from "crypto-js"
+
 interface TokenClaims {
     endpoint: string
     iat: number // issued at (unix timestamp)
@@ -44,25 +46,10 @@ class HMACAuth {
     }
 
     private async generateHMACSignature(data: string): Promise<string> {
-        // Convert secret to ArrayBuffer
-        const encoder = new TextEncoder()
-        const secretBuffer = encoder.encode(this.secret)
-        const dataBuffer = encoder.encode(data)
+        const signature = CryptoJS.HmacSHA256(data, this.secret)
 
-        // Import key for HMAC
-        const key = await crypto.subtle.importKey(
-            "raw",
-            secretBuffer,
-            { name: "HMAC", hash: "SHA-256" },
-            false,
-            ["sign"],
-        )
-
-        const signatureBuffer = await crypto.subtle.sign("HMAC", key, dataBuffer)
-
-        // Convert to base64url
-        const signatureArray = new Uint8Array(signatureBuffer)
-        return btoa(String.fromCharCode(...signatureArray))
+        const base64 = CryptoJS.enc.Base64.stringify(signature)
+        return base64
             .replace(/\+/g, "-")
             .replace(/\//g, "_")
             .replace(/=/g, "")

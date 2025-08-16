@@ -37,6 +37,7 @@ import React from "react"
 import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
+import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
@@ -128,6 +129,13 @@ export function MainSidebar() {
             href: "/",
             isCurrent: pathname === "/",
         },
+        ...(process.env.NODE_ENV === "development" ? [{
+            id: "test",
+            iconType: GrTest,
+            name: "Test",
+            href: "/test",
+            isCurrent: pathname === "/test",
+        }] : []),
         {
             id: "schedule",
             iconType: BiCalendarAlt,

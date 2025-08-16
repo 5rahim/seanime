@@ -1,32 +1,44 @@
-import { Anime_Entry } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import {
     useDebridStreamAutoplay,
     useHandleStartTorrentStream,
     useTorrentStreamAutoplay,
 } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { __torrentSearch_torrentstreamSelectedTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
-import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
-import { useSetAtom } from "jotai/index"
+import { atom, useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
 
-export function useHandleTorrentSelection({ type = "download", entry }: { type: TorrentSelectionType | undefined, entry: Anime_Entry }) {
+const __torrentSearch_streamingSelectedEpisodeAtom = atom<Anime_Episode | null>(null)
+
+export function useStreamingSelectedEpisode() {
+    const [value, setter] = useAtom(__torrentSearch_streamingSelectedEpisodeAtom)
+
+    return {
+        torrentStreamingSelectedEpisode: value,
+        setTorrentStreamingSelectedEpisode: setter,
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function useTorrentSearchSelection({ type = "download", entry }: { type: TorrentSelectionType | undefined, entry: Anime_Entry }) {
 
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection } = useHandleStartDebridStream()
-    const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
-    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const [, setDrawerOpen] = useAtom(__torrentSearch_selectionAtom)
     const { setDebridstreamAutoplaySelectedTorrent } = useDebridStreamAutoplay()
     const { setTorrentstreamAutoplaySelectedTorrent } = useTorrentStreamAutoplay()
 
     const onTorrentValidated = () => {
         console.log("onTorrentValidated", torrentStreamingSelectedEpisode)
-        if (type === "select") {
+        if (type === "torrentstream-select") {
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 setTorrentstreamAutoplaySelectedTorrent(selectedTorrents[0])
                 handleManualTorrentStreamSelection({
@@ -36,12 +48,12 @@ export function useHandleTorrentSelection({ type = "download", entry }: { type: 
                     episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                     chosenFileIndex: undefined,
                 })
-                setter(undefined)
+                setDrawerOpen(undefined)
                 React.startTransition(() => {
                     setSelectedTorrents([])
                 })
             }
-        } else if (type === "select-file") {
+        } else if (type === "torrentstream-select-file") {
             // Open the drawer to select the file
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer
@@ -50,7 +62,7 @@ export function useHandleTorrentSelection({ type = "download", entry }: { type: 
                     setSelectedTorrents([])
                 })
             }
-        } else if (type === "debrid-stream-select") {
+        } else if (type === "debridstream-select") {
             // Start debrid stream with auto file selection
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 setDebridstreamAutoplaySelectedTorrent(selectedTorrents[0])
@@ -61,12 +73,12 @@ export function useHandleTorrentSelection({ type = "download", entry }: { type: 
                     episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                     chosenFileId: "",
                 })
-                setter(undefined)
+                setDrawerOpen(undefined)
                 React.startTransition(() => {
                     setSelectedTorrents([])
                 })
             }
-        } else if (type === "debrid-stream-select-file") {
+        } else if (type === "debridstream-select-file") {
             // Open the drawer to select the file
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer

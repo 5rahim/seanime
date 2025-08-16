@@ -6,22 +6,22 @@ require (
 	fyne.io/systray v1.11.0
 	github.com/5rahim/go-astisub v0.2.1
 	github.com/5rahim/gomkv v0.2.1
-	github.com/5rahim/habari v0.1.6
-	github.com/Masterminds/semver/v3 v3.3.1
+	github.com/5rahim/habari v0.1.7
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/Yamashou/gqlgenc v0.25.4
 	github.com/adrg/strutil v0.3.1
 	github.com/anacrolix/log v0.16.0
 	github.com/anacrolix/torrent v1.58.1
-	github.com/bmatcuk/doublestar/v4 v4.8.1
+	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cli/browser v1.3.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dop251/goja v0.0.0-20250531102226-cb187b08699c
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.25.5
+	github.com/evanw/esbuild v0.25.8
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
 	github.com/glebarez/sqlite v1.11.0
@@ -35,7 +35,7 @@ require (
 	github.com/grafov/m3u8 v0.12.1
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
 	github.com/huin/goupnp v1.3.0
-	github.com/imroc/req/v3 v3.52.2
+	github.com/imroc/req/v3 v3.54.0
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/mileusna/useragent v1.3.5
@@ -46,20 +46,20 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.51.0
-	github.com/samber/mo v1.14.0
+	github.com/samber/mo v1.15.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	github.com/xfrr/goffmpeg v1.0.0
 	github.com/ziflex/lecho/v3 v3.8.0
-	golang.org/x/crypto v0.39.0
-	golang.org/x/image v0.28.0
-	golang.org/x/net v0.41.0
-	golang.org/x/term v0.32.0
-	golang.org/x/text v0.26.0
+	golang.org/x/crypto v0.41.0
+	golang.org/x/image v0.30.0
+	golang.org/x/net v0.43.0
+	golang.org/x/term v0.34.0
+	golang.org/x/text v0.28.0
 	golang.org/x/time v0.12.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
-	gorm.io/gorm v1.30.0
+	gorm.io/gorm v1.30.1
 )
 
 require github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
@@ -83,7 +83,7 @@ require (
 	github.com/anacrolix/sync v0.5.1 // indirect
 	github.com/anacrolix/upnp v0.1.4 // indirect
 	github.com/anacrolix/utp v0.1.0 // indirect
-	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/antchfx/htmlquery v1.3.2 // indirect
 	github.com/antchfx/xmlquery v1.4.1 // indirect
@@ -110,7 +110,6 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
-	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -147,7 +146,6 @@ require (
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/neilotoole/fifomu v0.1.2 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
-	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pion/datachannel v1.5.9 // indirect
 	github.com/pion/dtls/v3 v3.0.3 // indirect
@@ -168,8 +166,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/protolambda/ctxlock v0.1.0 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
-	github.com/quic-go/quic-go v0.51.0 // indirect
-	github.com/refraction-networking/utls v1.6.7 // indirect
+	github.com/quic-go/quic-go v0.53.0 // indirect
+	github.com/refraction-networking/utls v1.7.3 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
@@ -194,17 +192,16 @@ require (
 	go.opentelemetry.io/otel v1.29.0 // indirect
 	go.opentelemetry.io/otel/metric v1.29.0 // indirect
 	go.opentelemetry.io/otel/trace v1.29.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/automaxprocs v1.6.0 // indirect
-	go.uber.org/mock v0.5.1 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/tools v0.33.0 // indirect
+	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.6 // indirect

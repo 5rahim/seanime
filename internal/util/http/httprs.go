@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"seanime/internal/util/limiter"
 	"strconv"
 	"strings"
 	"sync"
@@ -31,14 +32,15 @@ import (
 // HttpReadSeeker implements io.ReadSeeker for HTTP responses
 // It allows seeking within an HTTP response by using HTTP Range requests
 type HttpReadSeeker struct {
-	url        string         // The URL of the resource
-	client     *http.Client   // HTTP client to use for requests
-	resp       *http.Response // Current response
-	offset     int64          // Current offset in the resource
-	size       int64          // Size of the resource, -1 if unknown
-	readBuf    []byte         // Buffer for reading
-	readOffset int            // Current offset in readBuf
-	mu         sync.Mutex     // Mutex for thread safety
+	url         string         // The URL of the resource
+	client      *http.Client   // HTTP client to use for requests
+	resp        *http.Response // Current response
+	offset      int64          // Current offset in the resource
+	size        int64          // Size of the resource, -1 if unknown
+	readBuf     []byte         // Buffer for reading
+	readOffset  int            // Current offset in readBuf
+	mu          sync.Mutex     // Mutex for thread safety
+	rateLimiter *limiter.Limiter
 }
 
 // NewHttpReadSeeker creates a new HttpReadSeeker from an http.Response
@@ -62,6 +64,15 @@ func NewHttpReadSeeker(resp *http.Response) *HttpReadSeeker {
 		readBuf:    nil,
 		readOffset: 0,
 	}
+}
+
+func NewHttpReadSeekerFromURL(url string) (*HttpReadSeeker, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("httprs: failed to get URL %s: %w", url, err)
+	}
+
+	return NewHttpReadSeeker(resp), nil
 }
 
 // Read implements io.Reader
@@ -266,5 +277,13 @@ func (hrs *HttpReadSeeker) WithClient(client *http.Client) *HttpReadSeeker {
 	defer hrs.mu.Unlock()
 
 	hrs.client = client
+	return hrs
+}
+
+func (hrs *HttpReadSeeker) WithRateLimiter(rl *limiter.Limiter) *HttpReadSeeker {
+	hrs.mu.Lock()
+	defer hrs.mu.Unlock()
+
+	hrs.rateLimiter = rl
 	return hrs
 }

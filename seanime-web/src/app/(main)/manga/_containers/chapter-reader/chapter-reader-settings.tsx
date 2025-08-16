@@ -496,7 +496,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                     {!isMobile && (
                         <>
                             <div>
-                                <h4>Editable Keybindings</h4>
+                                <h4>Editable Keybinds</h4>
                                 <p className="text-[--muted] text-xs">Click to edit</p>
                             </div>
 

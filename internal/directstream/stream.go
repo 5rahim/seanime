@@ -105,6 +105,7 @@ func (m *Manager) loadStream(stream Stream) {
 	m.playbackCtxCancelFunc = cancel
 
 	m.Logger.Debug().Msgf("directstream: Loading content type")
+	m.nativePlayer.OpenAndAwait(stream.ClientId(), "Loading metadata...")
 	// Load the content type
 	contentType := stream.LoadContentType()
 	if contentType == "" {
@@ -114,7 +115,6 @@ func (m *Manager) loadStream(stream Stream) {
 	}
 
 	m.Logger.Debug().Msgf("directstream: Signaling native player that metadata is being loaded")
-	m.nativePlayer.OpenAndAwait(stream.ClientId(), "Loading metadata...")
 
 	// Load the playback info
 	// If EBML, it will block until the metadata is parsed
@@ -309,6 +309,8 @@ type BaseStream struct {
 	updateProgress sync.Once
 }
 
+var _ Stream = (*BaseStream)(nil)
+
 func (s *BaseStream) GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool) {
 	return nil, false
 }
@@ -328,8 +330,6 @@ func (s *BaseStream) LoadPlaybackInfo() (*nativeplayer.PlaybackInfo, error) {
 func (s *BaseStream) Type() nativeplayer.StreamType {
 	return ""
 }
-
-var _ Stream = (*BaseStream)(nil)
 
 func (s *BaseStream) Media() *anilist.BaseAnime {
 	return s.media

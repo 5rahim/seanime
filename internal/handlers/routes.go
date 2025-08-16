@@ -127,6 +127,12 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.DELETE("/logs", h.HandleDeleteLogs)
 	v1.GET("/logs/latest", h.HandleGetLatestLogContent)
 
+	v1.GET("/memory/stats", h.HandleGetMemoryStats)
+	v1.GET("/memory/profile", h.HandleGetMemoryProfile)
+	v1.GET("/memory/goroutine", h.HandleGetGoRoutineProfile)
+	v1.GET("/memory/cpu", h.HandleGetCPUProfile)
+	v1.POST("/memory/gc", h.HandleForceGC)
+
 	v1.POST("/announcements", h.HandleGetAnnouncements)
 
 	// Auth
@@ -313,9 +319,6 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	// Metadata Provider
 	//
-
-	v1.POST("/metadata-provider/tvdb-episodes", h.HandlePopulateTVDBEpisodes)
-	v1.DELETE("/metadata-provider/tvdb-episodes", h.HandleEmptyTVDBEpisodes)
 
 	v1.POST("/metadata-provider/filler", h.HandlePopulateFillerData)
 	v1.DELETE("/metadata-provider/filler", h.HandleRemoveFillerData)

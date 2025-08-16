@@ -1,12 +1,13 @@
 package scanner
 
 import (
-	"github.com/fsnotify/fsnotify"
-	"github.com/rs/zerolog"
 	"os"
 	"path/filepath"
 	"seanime/internal/events"
 	"strings"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/rs/zerolog"
 )
 
 // Watcher is a custom file system event watcher

@@ -2,7 +2,6 @@ package metadata
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
 	"strings"
 	"time"
@@ -20,7 +19,7 @@ type (
 		// GetAnimeMetadata fetches anime metadata for the given platform from a source.
 		// In this case, the source is api.ani.zip.
 		GetAnimeMetadata(platform Platform, mId int) (*AnimeMetadata, error)
-		GetCache() *result.Cache[string, *AnimeMetadata]
+		GetCache() *result.BoundedCache[string, *AnimeMetadata]
 		// GetAnimeMetadataWrapper creates a wrapper for anime metadata.
 		GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *AnimeMetadata) AnimeMetadataWrapper
 	}
@@ -31,10 +30,6 @@ type (
 	AnimeMetadataWrapper interface {
 		// GetEpisodeMetadata combines metadata from multiple sources to create a single EpisodeMetadata object.
 		GetEpisodeMetadata(episodeNumber int) EpisodeMetadata
-
-		EmptyTVDBEpisodesBucket(mediaId int) error
-		GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error)
-		GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool)
 	}
 )
 
@@ -47,6 +42,8 @@ type (
 		EpisodeCount int                         `json:"episodeCount"`
 		SpecialCount int                         `json:"specialCount"`
 		Mappings     *AnimeMappings              `json:"mappings"`
+
+		currentEpisodeCount int `json:"-"`
 	}
 
 	AnimeMappings struct {
@@ -122,6 +119,9 @@ func (m *AnimeMetadata) GetCurrentEpisodeCount() int {
 	if m == nil {
 		return 0
 	}
+	if m.currentEpisodeCount > 0 {
+		return m.currentEpisodeCount
+	}
 	count := 0
 	for _, ep := range m.Episodes {
 		firstChar := ep.Episode[0]
@@ -137,6 +137,7 @@ func (m *AnimeMetadata) GetCurrentEpisodeCount() int {
 			}
 		}
 	}
+	m.currentEpisodeCount = count
 	return count
 }
 

@@ -1278,26 +1278,6 @@ export const API_ENDPOINTS = {
     METADATA: {
         /**
          *  @description
-         *  Route populate cache with TVDB episode metadata.
-         *  This will populate the cache with TVDB episode metadata for the given media.
-         */
-        PopulateTVDBEpisodes: {
-            key: "METADATA-populate-tvdb-episodes",
-            methods: ["POST"],
-            endpoint: "/api/v1/metadata-provider/tvdb-episodes",
-        },
-        /**
-         *  @description
-         *  Route empties TVDB episode metadata cache.
-         *  This will empty the TVDB episode metadata cache for the given media.
-         */
-        EmptyTVDBEpisodes: {
-            key: "METADATA-empty-tvdb-episodes",
-            methods: ["DELETE"],
-            endpoint: "/api/v1/metadata-provider/tvdb-episodes",
-        },
-        /**
-         *  @description
          *  Route fetches and caches filler data for the given media.
          *  This will fetch and cache filler data for the given media.
          */
@@ -1442,8 +1422,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
-         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
+         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",
@@ -1808,6 +1788,58 @@ export const API_ENDPOINTS = {
             key: "STATUS-get-announcements",
             methods: ["POST"],
             endpoint: "/api/v1/announcements",
+        },
+        /**
+         *  @description
+         *  Route returns current memory statistics.
+         *  This returns real-time memory usage statistics from the Go runtime.
+         */
+        GetMemoryStats: {
+            key: "STATUS-get-memory-stats",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/stats",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a memory profile.
+         *  This generates a memory profile that can be analyzed with go tool pprof.
+         *  Query parameters: heap=true for heap profile, allocs=true for alloc profile.
+         */
+        GetMemoryProfile: {
+            key: "STATUS-get-memory-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/profile",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a goroutine profile.
+         *  This generates a goroutine profile showing all running goroutines and their stack traces.
+         */
+        GetGoRoutineProfile: {
+            key: "STATUS-get-go-routine-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/goroutine",
+        },
+        /**
+         *  @description
+         *  Route generates and returns a CPU profile.
+         *  This generates a CPU profile for the specified duration (default 30 seconds).
+         *  Query parameter: duration=30 for duration in seconds.
+         */
+        GetCPUProfile: {
+            key: "STATUS-get-c-p-u-profile",
+            methods: ["GET"],
+            endpoint: "/api/v1/memory/cpu",
+        },
+        /**
+         *  @description
+         *  Route forces garbage collection and returns memory stats.
+         *  This forces a garbage collection cycle and returns the updated memory statistics.
+         */
+        ForceGC: {
+            key: "STATUS-force-g-c",
+            methods: ["POST"],
+            endpoint: "/api/v1/memory/gc",
         },
     },
     THEME: {

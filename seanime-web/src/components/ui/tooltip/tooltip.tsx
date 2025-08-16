@@ -30,6 +30,10 @@ export type TooltipProps = React.ComponentPropsWithoutRef<typeof TooltipPrimitiv
      * - Passed props: `data-state`	("closed" | "delayed-open" | "instant-open")
      */
     trigger: React.ReactElement
+    /**
+     * Portal container for custom mounting (useful for fullscreen mode)
+     */
+    portalContainer?: HTMLElement
 }
 
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>((props, ref) => {
@@ -44,6 +48,8 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>((props, re
         defaultOpen,
         open,
         onOpenChange,
+        // Portal
+        portalContainer,
         ...rest
     } = props
 
@@ -59,13 +65,15 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>((props, re
                 <TooltipPrimitive.Trigger asChild>
                     {trigger}
                 </TooltipPrimitive.Trigger>
-                <TooltipPrimitive.Content
-                    ref={ref}
-                    className={cn(TooltipAnatomy.root(), className)}
-                    {...rest}
-                >
-                    {children}
-                </TooltipPrimitive.Content>
+                <TooltipPrimitive.Portal container={portalContainer}>
+                    <TooltipPrimitive.Content
+                        ref={ref}
+                        className={cn(TooltipAnatomy.root(), className)}
+                        {...rest}
+                    >
+                        {children}
+                    </TooltipPrimitive.Content>
+                </TooltipPrimitive.Portal>
             </TooltipPrimitive.Root>
         </TooltipProvider>
     )

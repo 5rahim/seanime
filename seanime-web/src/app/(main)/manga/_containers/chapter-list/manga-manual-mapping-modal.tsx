@@ -34,6 +34,7 @@ export function MangaManualMappingModal(props: MangaManualMappingModalProps) {
             <Modal
                 data-manga-manual-mapping-modal
                 title="Manual match"
+                description="Match this manga to a search result"
                 trigger={children}
                 contentClass="max-w-4xl"
             >
@@ -126,15 +127,11 @@ function Content({ entry }: { entry: Manga_Entry }) {
 
                     <Separator />
 
-                    <div>
-                        <p>Search from provider</p>
-                    </div>
-
                     <Form schema={searchSchema} onSubmit={handleSearch}>
                         <div className="flex gap-2 items-center">
                             <Field.Text
                                 name="query"
-                                placeholder="Search"
+                                placeholder="Enter a title..."
                                 leftIcon={<FiSearch className="text-xl text-[--muted]" />}
                                 fieldClass="w-full"
                             />

@@ -3,13 +3,13 @@ import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import {
-    __torrentSearch_drawerEpisodeAtom,
-    __torrentSearch_drawerIsOpenAtom,
+    __torrentSearch_selectionAtom,
+    __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
 import { useHandleStartTorrentStream, useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
-import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -52,16 +52,16 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
         if (!episodeCollection?.hasMappingError) {
             setAutoSelect(serverStatus?.torrentstreamSettings?.autoSelect)
         } else {
-            // Fall back to manual select if no download info (no AniZip data)
+            // Fall back to manual select if no download info (no Animap data)
             setAutoSelect(false)
         }
     }, [serverStatus?.torrentstreamSettings?.autoSelect, episodeCollection])
 
-    const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
-    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
+    const setTorrentSearchSelection = useSetAtom(__torrentSearch_selectionAtom)
+    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const { setTorrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
 
 
     /**
@@ -133,13 +133,13 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                     React.startTransition(() => {
                         // If auto-select file is enabled, open the torrent drawer
                         if (autoSelectFile) {
-                            setTorrentDrawerIsOpen("select")
+                            setTorrentSearchSelection("torrentstream-select")
 
                             // Set the torrent stream autoplay info
                             handleSetTorrentstreamAutoplayInfo(episode)
 
                         } else { // Otherwise, open the torrent drawer
-                        setTorrentDrawerIsOpen("select-file")
+                            setTorrentSearchSelection("torrentstream-select-file")
                         }
                     })
 

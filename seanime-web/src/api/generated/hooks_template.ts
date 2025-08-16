@@ -1593,28 +1593,6 @@
 // metadata
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// export function usePopulateTVDBEpisodes() {
-//     return useServerMutation<Array<TVDB_Episode>, PopulateTVDBEpisodes_Variables>({
-//         endpoint: API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.endpoint,
-//         method: API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.methods[0],
-//         mutationKey: [API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useEmptyTVDBEpisodes() {
-//     return useServerMutation<boolean, EmptyTVDBEpisodes_Variables>({
-//         endpoint: API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.endpoint,
-//         method: API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.methods[0],
-//         mutationKey: [API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
 // export function usePopulateFillerData() {
 //     return useServerMutation<true, PopulateFillerData_Variables>({
 //         endpoint: API_ENDPOINTS.METADATA.PopulateFillerData.endpoint,
@@ -2204,6 +2182,53 @@
 //         endpoint: API_ENDPOINTS.STATUS.GetAnnouncements.endpoint,
 //         method: API_ENDPOINTS.STATUS.GetAnnouncements.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.GetAnnouncements.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetMemoryStats() {
+//     return useServerQuery<MemoryStatsResponse>({
+//         endpoint: API_ENDPOINTS.STATUS.GetMemoryStats.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetMemoryStats.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetMemoryStats.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetMemoryProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetMemoryProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetMemoryProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetMemoryProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetGoRoutineProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetGoRoutineProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetGoRoutineProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetGoRoutineProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetCPUProfile() {
+//     return useServerQuery<null>({
+//         endpoint: API_ENDPOINTS.STATUS.GetCPUProfile.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetCPUProfile.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetCPUProfile.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useForceGC() {
+//     return useServerMutation<MemoryStatsResponse>({
+//         endpoint: API_ENDPOINTS.STATUS.ForceGC.endpoint,
+//         method: API_ENDPOINTS.STATUS.ForceGC.methods[0],
+//         mutationKey: [API_ENDPOINTS.STATUS.ForceGC.key],
 //         onSuccess: async () => {
 // 
 //         },

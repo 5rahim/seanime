@@ -32,10 +32,10 @@ type (
 		TheMovieDbID     string `json:"themoviedb_id,omitempty"` // Can be int or string, forced to string
 		MalID            int    `json:"mal_id,omitempty"`
 		LivechartID      int    `json:"livechart_id,omitempty"`
-		AnimePlanetID    string `json:"anime-planet_id,omitempty"` // Can be int or string, forced to string
+		AnimePlanetID    string `json:"animeplanet_id,omitempty"` // Can be int or string, forced to string
 		AnisearchID      int    `json:"anisearch_id,omitempty"`
 		SimklID          int    `json:"simkl_id,omitempty"`
-		NotifyMoeID      string `json:"notify.moe_id,omitempty"`
+		NotifyMoeID      string `json:"notifymoe_id,omitempty"`
 		AnimecountdownID int    `json:"animecountdown_id,omitempty"`
 		Type             string `json:"type,omitempty"`
 	}
@@ -64,16 +64,6 @@ type (
 type Cache struct {
 	*result.Cache[string, *Anime]
 }
-
-func NewCache() *Cache {
-	return &Cache{result.NewCache[string, *Anime]()}
-}
-
-func GetCacheKey(from string, id int) string {
-	return from + strconv.Itoa(id)
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // FetchAnimapMedia fetches animap.Anime from the Animap API.
 func FetchAnimapMedia(from string, id int) (*Anime, error) {
@@ -144,24 +134,4 @@ func FetchAnimapMedia(from string, id int) (*Anime, error) {
 	}
 
 	return event.Media, nil
-}
-
-// FetchAnimapMediaC is the same as FetchAnimapMedia but uses a cache.
-// If the media is found in the cache, it will be returned.
-// If the media is not found in the cache, it will be fetched and then added to the cache.
-func FetchAnimapMediaC(from string, id int, cache *Cache) (*Anime, error) {
-
-	cacheV, ok := cache.Get(GetCacheKey(from, id))
-	if ok {
-		return cacheV, nil
-	}
-
-	media, err := FetchAnimapMedia(from, id)
-	if err != nil {
-		return nil, err
-	}
-
-	cache.Set(GetCacheKey(from, id), media)
-
-	return media, nil
 }

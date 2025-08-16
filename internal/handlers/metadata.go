@@ -1,88 +1,8 @@
 package handlers
 
 import (
-	"seanime/internal/api/metadata"
-
 	"github.com/labstack/echo/v4"
 )
-
-// HandlePopulateTVDBEpisodes
-//
-//	@summary populate cache with TVDB episode metadata.
-//	@desc This will populate the cache with TVDB episode metadata for the given media.
-//	@returns []tvdb.Episode
-//	@route /api/v1/metadata-provider/tvdb-episodes [POST]
-func (h *Handler) HandlePopulateTVDBEpisodes(c echo.Context) error {
-	type body struct {
-		MediaId int `json:"mediaId"`
-	}
-
-	var b body
-	if err := c.Bind(&b); err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	animeMetadata, err := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Create media wrapper
-	aw := h.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
-
-	// Fetch episodes
-	episodes, err := aw.GetTVDBEpisodes(true)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Respond
-	return h.RespondWithData(c, episodes)
-}
-
-// HandleEmptyTVDBEpisodes
-//
-//	@summary empties TVDB episode metadata cache.
-//	@desc This will empty the TVDB episode metadata cache for the given media.
-//	@returns bool
-//	@route /api/v1/metadata-provider/tvdb-episodes [DELETE]
-func (h *Handler) HandleEmptyTVDBEpisodes(c echo.Context) error {
-	type body struct {
-		MediaId int `json:"mediaId"`
-	}
-
-	var b body
-	if err := c.Bind(&b); err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	animeMetadata, err := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Create media wrapper
-	aw := h.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
-
-	// Empty TVDB episodes bucket
-	err = aw.EmptyTVDBEpisodesBucket(b.MediaId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Respond
-	return h.RespondWithData(c, true)
-}
 
 // HandlePopulateFillerData
 //

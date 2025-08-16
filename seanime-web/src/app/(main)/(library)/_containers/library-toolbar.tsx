@@ -100,7 +100,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                         {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
 
-                        {!(isStreamingOnly || isNakamaLibrary) && hasLibraryPath && <Button
+                        {/*Show up even when there's no local entries*/}
+                        {!isNakamaLibrary && hasLibraryPath && <Button
                             data-library-toolbar-scan-button
                             intent={hasEntries ? "primary-subtle" : "primary"}
                             leftIcon={hasEntries ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}

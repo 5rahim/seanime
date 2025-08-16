@@ -2,7 +2,6 @@ package directstream
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
-	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
 	"time"
 
@@ -177,6 +175,28 @@ func (s *LocalFileStream) GetStreamHandler() http.Handler {
 }
 
 func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileStream) {
+	playbackInfo, err := lfStream.LoadPlaybackInfo()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	size := playbackInfo.ContentLength
+
+	if isThumbnailRequest(r) {
+		reader, err := lfStream.newReader()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		ra, ok := handleRange(w, r, reader, lfStream.localFile.Path, size)
+		if !ok {
+			return
+		}
+		serveContentRange(w, r, r.Context(), reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ra)
+		return
+	}
+
 	if lfStream.serveContentCancelFunc != nil {
 		lfStream.serveContentCancelFunc()
 	}
@@ -191,32 +211,8 @@ func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileS
 	}
 	defer reader.Close()
 
-	playbackInfo, err := lfStream.LoadPlaybackInfo()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	size := playbackInfo.ContentLength
-	w.Header().Set("Content-Length", fmt.Sprint(size))
-
-	// No Range header → let Go handle it
-	rangeHdr := r.Header.Get("Range")
-	if rangeHdr == "" {
-		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
-		return
-	}
-
-	// Parse the range header
-	ranges, err := httputil.ParseRange(rangeHdr, size)
-	if err != nil && !errors.Is(err, httputil.ErrNoOverlap) {
-		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
-		http.Error(w, "Invalid Range", http.StatusRequestedRangeNotSatisfiable)
-		return
-	} else if err != nil && errors.Is(err, httputil.ErrNoOverlap) {
-		// Let Go handle overlap
-		w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", size))
-		http.ServeContent(w, r, lfStream.localFile.Path, time.Now(), reader)
+	ra, ok := handleRange(w, r, reader, lfStream.localFile.Path, size)
+	if !ok {
 		return
 	}
 
@@ -228,10 +224,10 @@ func ServeLocalFile(w http.ResponseWriter, r *http.Request, lfStream *LocalFileS
 			http.Error(w, "Failed to create subtitle reader", http.StatusInternalServerError)
 			return
 		}
-		lfStream.StartSubtitleStream(lfStream, lfStream.manager.playbackCtx, subReader, ranges[0].Start)
+		go lfStream.StartSubtitleStream(lfStream, lfStream.manager.playbackCtx, subReader, ra.Start)
 	}
 
-	serveContentRange(w, r, ct, reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ranges)
+	serveContentRange(w, r, ct, reader, lfStream.localFile.Path, size, playbackInfo.MimeType, ra)
 }
 
 type PlayLocalFileOptions struct {

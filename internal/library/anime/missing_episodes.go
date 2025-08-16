@@ -67,8 +67,8 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 				return nil
 			}
 
-			// Skip if the status is nil or dropped
-			if entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped {
+			// Skip if the status is nil, dropped or completed
+			if entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped || *entry.Status == anilist.MediaListStatusCompleted {
 				return nil
 			}
 
@@ -77,7 +77,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 				return nil
 			}
 			//If the latest local file is the same or higher than the current episode count, skip
-			if entry.Media.GetCurrentEpisodeCount() <= latestLf.GetEpisodeNumber() {
+			if entry.Media.GetCurrentEpisodeCount() == -1 || entry.Media.GetCurrentEpisodeCount() <= latestLf.GetEpisodeNumber() {
 				return nil
 			}
 			rateLimiter.Wait()

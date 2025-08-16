@@ -84,7 +84,8 @@ type LibrarySettings struct {
 	ScannerMatchingThreshold float64 `gorm:"column:scanner_matching_threshold" json:"scannerMatchingThreshold"`
 	ScannerMatchingAlgorithm string  `gorm:"column:scanner_matching_algorithm" json:"scannerMatchingAlgorithm"`
 	// v2.9+
-	AutoSyncToLocalAccount bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
+	AutoSyncToLocalAccount      bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
+	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

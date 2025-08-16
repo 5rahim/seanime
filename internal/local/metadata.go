@@ -3,7 +3,6 @@ package local
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
 	"strconv"
 
@@ -14,7 +13,7 @@ import (
 type OfflineMetadataProvider struct {
 	manager            *ManagerImpl
 	animeSnapshots     map[int]*AnimeSnapshot
-	animeMetadataCache *result.Cache[string, *metadata.AnimeMetadata]
+	animeMetadataCache *result.BoundedCache[string, *metadata.AnimeMetadata]
 }
 
 type OfflineAnimeMetadataWrapper struct {
@@ -26,7 +25,7 @@ func NewOfflineMetadataProvider(manager *ManagerImpl) metadata.Provider {
 	ret := &OfflineMetadataProvider{
 		manager:            manager,
 		animeSnapshots:     make(map[int]*AnimeSnapshot),
-		animeMetadataCache: result.NewCache[string, *metadata.AnimeMetadata](),
+		animeMetadataCache: result.NewBoundedCache[string, *metadata.AnimeMetadata](500),
 	}
 
 	// Load the anime snapshots
@@ -72,7 +71,7 @@ func (mp *OfflineMetadataProvider) GetAnimeMetadata(platform metadata.Platform, 
 	return nil, errors.New("anime metadata not found")
 }
 
-func (mp *OfflineMetadataProvider) GetCache() *result.Cache[string, *metadata.AnimeMetadata] {
+func (mp *OfflineMetadataProvider) GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata] {
 	return mp.animeMetadataCache
 }
 
@@ -91,16 +90,4 @@ func (mw *OfflineAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (re
 		ret = *episodeMetadata
 	}
 	return
-}
-
-func (mw *OfflineAnimeMetadataWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
-	return nil
-}
-
-func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
-	return make([]*tvdb.Episode, 0), nil
-}
-
-func (mw *OfflineAnimeMetadataWrapper) GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool) {
-	return nil, false
 }

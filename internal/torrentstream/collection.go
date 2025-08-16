@@ -8,6 +8,8 @@ import (
 	"seanime/internal/library/anime"
 	"strconv"
 	"sync"
+
+	"github.com/samber/lo"
 )
 
 type (
@@ -46,7 +48,13 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			continue
 		}
 		if *list.Status == anilist.MediaListStatusCurrent {
-			currentlyWatching = list.CopyT()
+			//currentlyWatching = list.CopyT()
+			currentlyWatching = &anilist.AnimeCollection_MediaListCollection_Lists{
+				Status:       lo.ToPtr(anilist.MediaListStatusCurrent),
+				Name:         lo.ToPtr("CURRENT"),
+				IsCustomList: lo.ToPtr(false),
+				Entries:      list.Entries,
+			}
 			continue
 		}
 	}
