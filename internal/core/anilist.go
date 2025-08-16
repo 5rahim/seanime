@@ -52,9 +52,10 @@ func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection,
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	go func() {
-		for _, f := range a.OnRefreshAnilistCollectionFuncs {
+		a.OnRefreshAnilistCollectionFuncs.Range(func(key string, f func()) bool {
 			go f()
-		}
+			return true
+		})
 	}()
 
 	ret, err := a.AnilistPlatform.RefreshAnimeCollection(context.Background())

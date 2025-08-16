@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.6
+
+- 🦺 Fixed server crash caused by navigating to 'Schedule' page
+
 ## v2.9.5
 
 - ⚡️ Updated Discord RPC: Media title used as activity name, links

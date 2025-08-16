@@ -32,10 +32,6 @@ export function AnimeEntryMetadataManager(props: AnimeEntryMetadataManagerProps)
             contentClass="max-w-xl"
             titleClass=""
         >
-            <p className="text-[--muted]">
-                Having issues with missing images? Try fetching metadata from other sources.
-            </p>
-
             <h3 className="text-center">AnimeFillerList</h3>
 
             <div className="flex lg:flex-row flex-col gap-2">

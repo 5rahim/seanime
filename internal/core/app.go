@@ -46,6 +46,7 @@ import (
 	"seanime/internal/user"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
+	"seanime/internal/util/result"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -90,7 +91,7 @@ type (
 		MangaDownloader                 *manga.Downloader
 		ContinuityManager               *continuity.Manager
 		Cleanups                        []func()
-		OnRefreshAnilistCollectionFuncs map[string]func()
+		OnRefreshAnilistCollectionFuncs *result.Map[string, func()]
 		OnFlushLogs                     func()
 		MediastreamRepository           *mediastream.Repository
 		TorrentstreamRepository         *torrentstream.Repository
@@ -360,7 +361,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater:                     selfupdater,
 		moduleMu:                        sync.Mutex{},
-		OnRefreshAnilistCollectionFuncs: make(map[string]func()),
+		OnRefreshAnilistCollectionFuncs: result.NewResultMap[string, func()](),
 		HookManager:                     hookManager,
 		isOffline:                       &isOffline,
 		ServerPasswordHash:              serverPasswordHash,
@@ -429,7 +430,7 @@ func (a *App) AddOnRefreshAnilistCollectionFunc(key string, f func()) {
 	if key == "" {
 		return
 	}
-	a.OnRefreshAnilistCollectionFuncs[key] = f
+	a.OnRefreshAnilistCollectionFuncs.Set(key, f)
 }
 
 func (a *App) Cleanup() {
