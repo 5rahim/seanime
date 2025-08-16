@@ -1,8 +1,9 @@
 package anilist
 
 import (
-	"github.com/samber/lo"
 	"seanime/internal/util/comparison"
+
+	"github.com/samber/lo"
 )
 
 func (m *BaseAnime) GetTitleSafe() string {
@@ -180,6 +181,13 @@ func (m *BaseAnime) GetCurrentEpisodeCount() int {
 
 	return ceil
 }
+func (m *BaseAnime) GetCurrentEpisodeCountOrNil() *int {
+	n := m.GetCurrentEpisodeCount()
+	if n == -1 {
+		return nil
+	}
+	return &n
+}
 
 // GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
 func (m *BaseAnime) GetTotalEpisodeCount() int {
@@ -188,6 +196,11 @@ func (m *BaseAnime) GetTotalEpisodeCount() int {
 		ceil = *m.Episodes
 	}
 	return ceil
+}
+
+// GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
+func (m *BaseAnime) GetTotalEpisodeCountOrNil() *int {
+	return m.Episodes
 }
 
 // GetPossibleSeasonNumber returns the possible season number for that media and -1 if it doesn't have one.

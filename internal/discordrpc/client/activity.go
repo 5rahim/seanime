@@ -12,9 +12,11 @@ import (
 //
 // See https://discord.com/developers/docs/game-sdk/activities#data-models-activity-struct
 type Activity struct {
-	Name    string `json:"name,omitempty"`
-	Details string `json:"details,omitempty"`
-	State   string `json:"state,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Details    string `json:"details,omitempty"`
+	DetailsURL string `json:"details_url,omitempty"` // URL to details
+	State      string `json:"state,omitempty"`
+	StateURL   string `json:"state_url,omitempty"` // URL to state
 
 	Timestamps *Timestamps `json:"timestamps,omitempty"`
 	Assets     *Assets     `json:"assets,omitempty"`
@@ -22,8 +24,9 @@ type Activity struct {
 	Secrets    *Secrets    `json:"secrets,omitempty"`
 	Buttons    []*Button   `json:"buttons,omitempty"`
 
-	Instance bool `json:"instance"`
-	Type     int  `json:"type"`
+	Instance          bool `json:"instance"`
+	Type              int  `json:"type"`
+	StatusDisplayType int  `json:"status_display_type,omitempty"` // 1 = name, 2 = details, 3 = state
 }
 
 // Timestamps holds unix timestamps for start and/or end of the game
@@ -48,8 +51,10 @@ func (t Epoch) MarshalJSON() ([]byte, error) {
 type Assets struct {
 	LargeImage string `json:"large_image,omitempty"`
 	LargeText  string `json:"large_text,omitempty"`
+	LargeURL   string `json:"large_url,omitempty"` // URL to large image, if any
 	SmallImage string `json:"small_image,omitempty"`
 	SmallText  string `json:"small_text,omitempty"`
+	SmallURL   string `json:"small_url,omitempty"` // URL to small image, if any
 }
 
 // Party holds information for the current party of the player
