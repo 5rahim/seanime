@@ -10,7 +10,7 @@ import {
     useSetOfflineMode,
 } from "@/api/hooks/local.hooks"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
-import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { animeLibraryCollectionWithoutStreamsAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -56,13 +56,14 @@ export default function Page() {
         return trackedMediaItems?.filter(n => n.type === "manga" && !!n.mangaEntry?.media) ?? []
     }, [trackedMediaItems])
 
-    const animeLibraryCollection = useAtomValue(animeLibraryCollectionAtom)
+    const animeLibraryCollection = useAtomValue(animeLibraryCollectionWithoutStreamsAtom)
     const { data: mangaLibraryCollection } = useGetMangaCollection()
 
     const unsavedAnime = React.useMemo(() => {
         const trackedIds = new Set(trackedAnimeItems.map(n => n.mediaId))
         const currentList = animeLibraryCollection?.lists?.find(n => n.type === "CURRENT")
         let unsavedAnime: AL_BaseAnime[] = []
+        // only include entries that have local files
         for (const entry of currentList?.entries ?? []) {
             if (!trackedIds.has(entry.mediaId)) {
                 unsavedAnime.push(entry.media!)

@@ -1,7 +1,7 @@
 import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Manga_Collection, Manga_CollectionEntry } from "@/api/generated/types"
 import { useLocalAddTrackedMedia, useLocalRemoveTrackedMedia } from "@/api/hooks/local.hooks"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
-import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { animeLibraryCollectionWithoutStreamsAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button } from "@/components/ui/button"
@@ -81,7 +81,7 @@ function MediaSelector(props: MediaSelectorProps) {
         onSave,
     } = props
 
-    const animeLibraryCollection = useAtomValue(animeLibraryCollectionAtom)
+    const animeLibraryCollection = useAtomValue(animeLibraryCollectionWithoutStreamsAtom)
 
     const { data: mangaLibraryCollection } = useGetMangaCollection()
 

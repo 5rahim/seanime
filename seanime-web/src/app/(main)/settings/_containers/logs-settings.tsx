@@ -22,7 +22,7 @@ import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { BiRefresh } from "react-icons/bi"
 import { FaCopy, FaMemory, FaMicrochip } from "react-icons/fa"
-import { FiDownload } from "react-icons/fi"
+import { FiDownload, FiTrash2 } from "react-icons/fi"
 import { toast } from "sonner"
 import { SettingsCard } from "../_components/settings-card"
 
@@ -262,15 +262,15 @@ function MemoryProfilingSettings() {
                             >
                                 Refresh
                             </Button>
-                            {/* <Button
-                             intent="gray-outline"
-                             size="sm"
-                             leftIcon={<FiTrash2 />}
-                             onClick={handleForceGC}
-                             loading={isForceGCPending}
-                             >
-                             Force GC
-                             </Button> */}
+                            <Button
+                                intent="gray-outline"
+                                size="sm"
+                                leftIcon={<FiTrash2 />}
+                                onClick={handleForceGC}
+                                loading={isForceGCPending}
+                            >
+                                Force GC
+                            </Button>
                         </div>
                     </div>
 
@@ -323,7 +323,7 @@ function MemoryProfilingSettings() {
                         <div>
                             <h4 className="text-md font-medium mb-2 flex items-center gap-2">
                                 <FaMemory className="text-blue-400" />
-                                Memory Profiles
+                                Memory
                             </h4>
                             <div className="flex flex-wrap gap-2">
                                 <Button
@@ -361,9 +361,9 @@ function MemoryProfilingSettings() {
                         <div>
                             <h4 className="text-md font-medium mb-2 flex items-center gap-2">
                                 <FaMicrochip className="text-green-400" />
-                                CPU Profile
+                                CPU
                             </h4>
-                            <div className="flex items-center gap-2">
+                            <div className="space-y-2">
                                 <NumberInput
                                     label="Duration (seconds)"
                                     value={cpuDuration}
@@ -371,6 +371,7 @@ function MemoryProfilingSettings() {
                                     min={1}
                                     max={300}
                                     className="w-32"
+                                    size="sm"
                                 />
                                 <Button
                                     intent="gray-outline"

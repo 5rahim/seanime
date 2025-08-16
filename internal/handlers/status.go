@@ -384,7 +384,7 @@ func (h *Handler) HandleGetMemoryStats(c echo.Context) error {
 	runtime.ReadMemStats(&m)
 
 	// Force garbage collection to get accurate memory stats
-	runtime.GC()
+	// runtime.GC()
 	runtime.ReadMemStats(&m)
 
 	response := MemoryStatsResponse{
@@ -463,8 +463,8 @@ func (h *Handler) HandleGetMemoryProfile(c echo.Context) error {
 	c.Response().Header().Set("Content-Type", "application/octet-stream")
 	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
 
-	// Force garbage collection before profiling for more accurate results
-	runtime.GC()
+	// // Force garbage collection before profiling for more accurate results
+	// runtime.GC()
 
 	// Write profile to response
 	if err = profile.WriteTo(c.Response().Writer, 0); err != nil {

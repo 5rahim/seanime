@@ -7,6 +7,7 @@ import (
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
+	"seanime/internal/util/result"
 	"sync"
 	"time"
 
@@ -26,6 +27,7 @@ type (
 		rawMangaCollection     mo.Option[*anilist.MangaCollection]
 		isOffline              bool
 		offlinePlatformEnabled bool
+		baseAnimeCache         *result.BoundedCache[int, *anilist.BaseAnime]
 	}
 )
 
@@ -38,9 +40,14 @@ func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Log
 		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
 		mangaCollection:    mo.None[*anilist.MangaCollection](),
 		rawMangaCollection: mo.None[*anilist.MangaCollection](),
+		baseAnimeCache:     result.NewBoundedCache[int, *anilist.BaseAnime](50),
 	}
 
 	return ap
+}
+
+func (ap *AnilistPlatform) clearCache() {
+	ap.baseAnimeCache.Clear()
 }
 
 func (ap *AnilistPlatform) SetUsername(username string) {
@@ -204,6 +211,17 @@ func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
 func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
 
+	//if cachedAnime, ok := ap.baseAnimeCache.Get(mediaID); ok {
+	//	ap.logger.Trace().Msg("anilist platform: Returning anime from cache")
+	//	event := new(GetAnimeEvent)
+	//	event.Anime = cachedAnime
+	//	err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	return event.Anime, nil
+	//}
+
 	ret, err := ap.anilistClient.BaseAnimeByID(ctx, &mediaID)
 	if err != nil {
 
@@ -219,6 +237,8 @@ func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.
 	if err != nil {
 		return nil, err
 	}
+
+	//ap.baseAnimeCache.SetT(mediaID, event.Anime, time.Minute*30)
 
 	return event.Anime, nil
 }
