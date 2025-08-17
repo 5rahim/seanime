@@ -270,7 +270,7 @@ function VideoCoreTimeRangeSegment(props: {
                     className={cn(
                         "vc-time-range-chapter-bar",
                         "bg-white/20 absolute left-0 w-full h-full z-[1]",
-                        (["intro", "opening", "op", "ending", "outro",
+                        (["opening", "op", "ending",
                             "ed"].includes(chapter.label?.toLowerCase?.() || "") && highlightOPEDChapters) && "bg-blue-300/50",
                     )}
                 />

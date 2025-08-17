@@ -51,6 +51,13 @@ func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection,
 
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+	go func() {
+		a.OnRefreshAnilistCollectionFuncs.Range(func(key string, f func()) bool {
+			go f()
+			return true
+		})
+	}()
+
 	ret, err := a.AnilistPlatform.RefreshAnimeCollection(context.Background())
 
 	if err != nil {
@@ -68,12 +75,6 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 	// Save the collection to DirectStreamManager
 	a.DirectStreamManager.SetAnimeCollection(ret)
-
-	go func() {
-		for _, f := range a.OnRefreshAnilistCollectionFuncs {
-			go f()
-		}
-	}()
 
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
 	a.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)

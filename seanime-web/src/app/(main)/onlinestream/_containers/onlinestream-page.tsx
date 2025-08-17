@@ -17,7 +17,7 @@ import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_conta
 import { useHandleOnlinestream } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { logger } from "@/lib/helpers/debug"
 import { isHLSProvider, MediaPlayerInstance, MediaProviderAdapter, MediaProviderChangeEvent, MediaProviderSetupEvent } from "@vidstack/react"
@@ -30,7 +30,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { BsFillGrid3X3GapFill } from "react-icons/bs"
 import { FaSearch } from "react-icons/fa"
-import { useUpdateEffect } from "react-use"
 import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { PluginEpisodeGridItemMenuItems } from "../../_features/plugin/actions/plugin-actions"
@@ -82,7 +81,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         ref,
     })
 
-    const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
     const progress = animeEntry?.listData?.progress ?? 0
 
     const nakamaStatus = useNakamaStatus()
@@ -91,23 +89,23 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
      * Set episode number on mount
      */
     const firstRenderRef = React.useRef(true)
-    useUpdateEffect(() => {
+    React.useEffect(() => {
         // Do not auto set the episode number if the user is in a watch party and is not the host
         if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
 
         if (!!media && firstRenderRef.current && !!episodes) {
-            const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
-            const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
+            const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = animeEntry?.listData?.progress ?? 0
-            let nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : progress + 1
-            if (!episodes.find(e => e.number === nextProgressNumber)) {
-                nextProgressNumber = 1
+            let episodeNumber = 1
+            const episodeToWatch = episodes.find(e => e.number === progress + 1)
+            if (episodeToWatch) {
+                episodeNumber = episodeToWatch.number
             }
-            handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
-            logger("ONLINESTREAM").info("Setting episode number to", _urlEpNumber || nextProgressNumber || 1)
+            handleChangeEpisodeNumber(episodeNumberFromURL || episodeNumber || 1)
+            logger("ONLINESTREAM").info("Setting episode number to", episodeNumberFromURL || episodeNumber || 1)
             firstRenderRef.current = false
         }
-    }, [episodes])
+    }, [episodes, media, animeEntry?.listData, urlEpNumber])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -212,16 +210,19 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     hideBackButton={hideBackButton}
                     episodes={episodes}
                     leftHeaderActions={<>
+                        {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         {animeEntry && <OnlinestreamManualMappingModal entry={animeEntry}>
-                            <IconButton
+                            <Button
                                 size="sm"
                                 intent="gray-basic"
-                                icon={<FaSearch />}
-                            />
+                                className="rounded-full"
+                                leftIcon={<FaSearch className="" />}
+                            >
+                                Manual match
+                            </Button>
                         </OnlinestreamManualMappingModal>}
                         <SwitchSubOrDubButton />
-                        {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
-                        <div className="flex flex-1"></div>
+                        <div className="hidden lg:flex flex-1"></div>
                     </>}
                     rightHeaderActions={<>
                         <IconButton

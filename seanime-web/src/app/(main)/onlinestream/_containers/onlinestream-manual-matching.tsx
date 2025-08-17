@@ -38,6 +38,7 @@ export function OnlinestreamManualMappingModal(props: OnlinestreamManualMappingM
         <>
             <Modal
                 title="Manual match"
+                description="Match this anime to a search result from the provider."
                 trigger={children}
                 contentClass="max-w-4xl"
             >
@@ -131,22 +132,20 @@ function Content({ entry }: { entry: Anime_Entry }) {
 
                     <Separator />
 
-                    <div>
-                        <p>Search from provider</p>
-                    </div>
-
                     <Form schema={searchSchema} onSubmit={handleSearch}>
                         <div className="space-y-2">
                             <Field.Text
                                 name="query"
-                                placeholder="Search"
+                                placeholder="Enter a title..."
                                 leftIcon={<FiSearch className="text-xl text-[--muted]" />}
                                 fieldClass="w-full"
                             />
 
                             <Field.Switch
                                 name="dubbed"
-                                label="Dubbed"
+                                label="Look for dubs"
+                                side="right"
+                                moreHelp="Only applies to providers that support dubs in search results."
                             />
 
                             <Field.Submit intent="white" loading={isMatching || searchLoading || mappingLoading} className="">Search</Field.Submit>

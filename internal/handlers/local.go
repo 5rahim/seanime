@@ -137,6 +137,16 @@ func (h *Handler) HandleLocalSyncData(c echo.Context) error {
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
+
+	if h.App.Settings.GetLibrary().AutoSaveCurrentMediaOffline {
+		go func() {
+			added, _ := h.App.LocalManager.AutoTrackCurrentMedia()
+			if added {
+				_ = h.App.LocalManager.SynchronizeLocal()
+			}
+		}()
+	}
+
 	return h.RespondWithData(c, true)
 }
 

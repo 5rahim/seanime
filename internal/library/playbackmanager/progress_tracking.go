@@ -91,7 +91,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 
 	// Retrieve data about the current video playback
 	// Set PlaybackManager.currentMediaListEntry to the list entry of the current video
-	currentMediaListEntry, currentLocalFile, currentLocalFileWrapperEntry, err := pm.getLocalFilePlaybackDetails(status.Filename)
+	currentMediaListEntry, currentLocalFile, currentLocalFileWrapperEntry, err := pm.getLocalFilePlaybackDetails(status.Filepath)
 	if err != nil {
 		pm.Logger.Error().Err(err).Msg("playback manager: Failed to get media data")
 		// Send error event to the client
@@ -121,13 +121,15 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
 		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-			ID:            pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
-			Title:         pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
-			Image:         pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
-			IsMovie:       pm.currentMediaListEntry.MustGet().GetMedia().IsMovie(),
-			EpisodeNumber: pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
-			Progress:      int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
-			Duration:      int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+			ID:                  pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+			Title:               pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
+			Image:               pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
+			IsMovie:             pm.currentMediaListEntry.MustGet().GetMedia().IsMovie(),
+			EpisodeNumber:       pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
+			Progress:            int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+			Duration:            int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+			TotalEpisodes:       pm.currentMediaListEntry.MustGet().GetMedia().Episodes,
+			CurrentEpisodeCount: pm.currentMediaListEntry.MustGet().GetMedia().GetCurrentEpisodeCountOrNil(),
 		})
 	}
 }
@@ -311,13 +313,15 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
 		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-			ID:            pm.currentStreamMedia.MustGet().GetID(),
-			Title:         pm.currentStreamMedia.MustGet().GetPreferredTitle(),
-			Image:         pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
-			IsMovie:       pm.currentStreamMedia.MustGet().IsMovie(),
-			EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-			Progress:      int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
-			Duration:      int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+			ID:                  pm.currentStreamMedia.MustGet().GetID(),
+			Title:               pm.currentStreamMedia.MustGet().GetPreferredTitle(),
+			Image:               pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
+			IsMovie:             pm.currentStreamMedia.MustGet().IsMovie(),
+			EpisodeNumber:       pm.currentStreamEpisode.MustGet().GetProgressNumber(),
+			Progress:            int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds),
+			Duration:            int(pm.currentMediaPlaybackStatus.DurationInSeconds),
+			TotalEpisodes:       pm.currentStreamMedia.MustGet().Episodes,
+			CurrentEpisodeCount: pm.currentStreamMedia.MustGet().GetCurrentEpisodeCountOrNil(),
 		})
 	}
 }

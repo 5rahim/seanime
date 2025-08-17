@@ -115,7 +115,7 @@ export const TorrentPreviewList = React.memo((
                                     </Badge>
                                 )}
                                 <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                                {((type === "download" || type === "debrid-stream-select" || type === "debrid-stream-select-file") && !!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
+                                {((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
                                     <TorrentDebridInstantAvailabilityBadge />
                                 )}
                                 <TorrentSeedersBadge seeders={item.torrent.seeders} />

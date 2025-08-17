@@ -162,9 +162,9 @@ export function VideoCoreControlBar(props: {
             <div
                 className={cn(
                     "vc-control-bar-bottom-gradient pointer-events-none",
-                    "absolute bottom-0 left-0 right-0 w-full z-[5] h-32 transition-opacity duration-300 opacity-0",
+                    "absolute bottom-0 left-0 right-0 w-full z-[5] h-28 transition-opacity duration-300 opacity-0",
                     "bg-gradient-to-t to-transparent",
-                    !isMiniPlayer ? "from-black/80" : "from-black/80 via-black/40",
+                    !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
                     isMiniPlayer && "h-20",
                     !hideShadow && "opacity-100",
                 )}
@@ -174,7 +174,7 @@ export function VideoCoreControlBar(props: {
                     "vc-control-bar-bottom-gradient-time-range-only pointer-events-none",
                     "absolute bottom-0 left-0 right-0 w-full z-[5] h-14 transition-opacity duration-400 opacity-0",
                     "bg-gradient-to-t to-transparent",
-                    !isMiniPlayer ? "from-black/60" : "from-black/60",
+                    !isMiniPlayer ? "from-black/40" : "from-black/60",
                     isMiniPlayer && "h-10",
                     (showOnlyTimeRange && paused && hideShadow) && "opacity-100",
                 )}
@@ -183,7 +183,7 @@ export function VideoCoreControlBar(props: {
                 data-vc-control-bar-section
                 className={cn(
                     "vc-control-bar-section",
-                    "absolute left-0 bottom-0 right-0 flex flex-col",
+                    "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-all duration-300 opacity-0",
                     "z-[100] h-28",
                     !hideControlBar && "opacity-100",

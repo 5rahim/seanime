@@ -12,14 +12,14 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
+import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
     __torrentSearch_torrentstreamSelectedTorrentAtom,
     TorrentstreamFileSelectionModal,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
-import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -153,7 +153,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     return (
         <>
-            {(type === "select" || type === "select-file" || type === "debrid-stream-select-file" || type === "debrid-stream-select") &&
+            {(type === "torrentstream-select" || type === "torrentstream-select-file" || type === "debridstream-select-file" || type === "debridstream-select") &&
                 <TorrentSearchTorrentStreamBatchHistory
                     type={type}
                     entry={entry}
@@ -392,8 +392,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 entry={entry}
             />}
 
-            {type === "select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
-            {type === "debrid-stream-select-file" && <DebridStreamFileSelectionModal entry={entry} />}
+            {type === "torrentstream-select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
+            {type === "debridstream-select-file" && <DebridStreamFileSelectionModal entry={entry} />}
         </>
     )
 
@@ -409,9 +409,9 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection } = useHandleStartDebridStream()
-    const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
-    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const [, setter] = useAtom(__torrentSearch_selectionAtom)
 
     if (!batchHistory?.torrent || !entry) return null
 
@@ -432,7 +432,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 isBestRelease={batchHistory?.torrent.isBestRelease}
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
-                    if (type === "select") {
+                    if (type === "torrentstream-select") {
                         handleManualTorrentStreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,
@@ -441,7 +441,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                             chosenFileIndex: undefined,
                         })
                         setter(undefined)
-                    } else if (type === "debrid-stream-select") {
+                    } else if (type === "debridstream-select") {
                         handleStreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,
@@ -450,7 +450,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                             chosenFileId: "",
                         })
                         setter(undefined)
-                    } else if (type === "select-file" || type === "debrid-stream-select-file") {
+                    } else if (type === "torrentstream-select-file" || type === "debridstream-select-file") {
                         // Open the drawer to select the file
                         // This opens the file selection drawer
                         setTorrentstreamSelectedTorrent(batchHistory?.torrent)

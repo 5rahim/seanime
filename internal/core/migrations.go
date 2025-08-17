@@ -1,10 +1,11 @@
 package core
 
 import (
-	"github.com/Masterminds/semver/v3"
 	"seanime/internal/constants"
 	"seanime/internal/util"
 	"strings"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 func (a *App) runMigrations() {

@@ -26165,23 +26165,12 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedTypescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animapCache",
-        "jsonName": "animapCache",
-        "goType": "animap.Cache",
-        "typescriptType": "Animap_Cache",
-        "usedTypescriptType": "Animap_Cache",
-        "usedStructName": "animap.Cache",
+        "name": "singleflight",
+        "jsonName": "singleflight",
+        "goType": "singleflight.Group",
+        "typescriptType": "Group",
+        "usedTypescriptType": "Group",
+        "usedStructName": "singleflight.Group",
         "required": false,
         "public": false,
         "comments": []
@@ -28995,6 +28984,15 @@
       {
         "name": "AutoSyncToLocalAccount",
         "jsonName": "autoSyncToLocalAccount",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoSaveCurrentMediaOffline",
+        "jsonName": "autoSaveCurrentMediaOffline",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -40328,6 +40326,357 @@
       " Status is a struct containing the user data, settings, and OS.",
       " It is used by the client in various places to access necessary information."
     ]
+  },
+  {
+    "filepath": "../internal/handlers/status.go",
+    "filename": "status.go",
+    "name": "MemoryStatsResponse",
+    "formattedName": "MemoryStatsResponse",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Alloc",
+        "jsonName": "alloc",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes allocated and not yet freed"
+        ]
+      },
+      {
+        "name": "TotalAlloc",
+        "jsonName": "totalAlloc",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes allocated (even if freed)"
+        ]
+      },
+      {
+        "name": "Sys",
+        "jsonName": "sys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes obtained from system"
+        ]
+      },
+      {
+        "name": "Lookups",
+        "jsonName": "lookups",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of pointer lookups"
+        ]
+      },
+      {
+        "name": "Mallocs",
+        "jsonName": "mallocs",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of mallocs"
+        ]
+      },
+      {
+        "name": "Frees",
+        "jsonName": "frees",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of frees"
+        ]
+      },
+      {
+        "name": "HeapAlloc",
+        "jsonName": "heapAlloc",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes allocated and not yet freed"
+        ]
+      },
+      {
+        "name": "HeapSys",
+        "jsonName": "heapSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes obtained from system"
+        ]
+      },
+      {
+        "name": "HeapIdle",
+        "jsonName": "heapIdle",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes in idle spans"
+        ]
+      },
+      {
+        "name": "HeapInuse",
+        "jsonName": "heapInuse",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes in non-idle span"
+        ]
+      },
+      {
+        "name": "HeapReleased",
+        "jsonName": "heapReleased",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes released to OS"
+        ]
+      },
+      {
+        "name": "HeapObjects",
+        "jsonName": "heapObjects",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " total number of allocated objects"
+        ]
+      },
+      {
+        "name": "StackInuse",
+        "jsonName": "stackInuse",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used by stack allocator"
+        ]
+      },
+      {
+        "name": "StackSys",
+        "jsonName": "stackSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes obtained from system for stack allocator"
+        ]
+      },
+      {
+        "name": "MSpanInuse",
+        "jsonName": "mSpanInuse",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used by mspan structures"
+        ]
+      },
+      {
+        "name": "MSpanSys",
+        "jsonName": "mSpanSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes obtained from system for mspan structures"
+        ]
+      },
+      {
+        "name": "MCacheInuse",
+        "jsonName": "mCacheInuse",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used by mcache structures"
+        ]
+      },
+      {
+        "name": "MCacheSys",
+        "jsonName": "mCacheSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes obtained from system for mcache structures"
+        ]
+      },
+      {
+        "name": "BuckHashSys",
+        "jsonName": "buckHashSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used by the profiling bucket hash table"
+        ]
+      },
+      {
+        "name": "GCSys",
+        "jsonName": "gcSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used for garbage collection system metadata"
+        ]
+      },
+      {
+        "name": "OtherSys",
+        "jsonName": "otherSys",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " bytes used for other system allocations"
+        ]
+      },
+      {
+        "name": "NextGC",
+        "jsonName": "nextGC",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " next collection will happen when HeapAlloc ≥ this amount"
+        ]
+      },
+      {
+        "name": "LastGC",
+        "jsonName": "lastGC",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " time the last garbage collection finished"
+        ]
+      },
+      {
+        "name": "PauseTotalNs",
+        "jsonName": "pauseTotalNs",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " cumulative nanoseconds in GC stop-the-world pauses"
+        ]
+      },
+      {
+        "name": "PauseNs",
+        "jsonName": "pauseNs",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " nanoseconds in recent GC stop-the-world pause"
+        ]
+      },
+      {
+        "name": "NumGC",
+        "jsonName": "numGC",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of completed GC cycles"
+        ]
+      },
+      {
+        "name": "NumForcedGC",
+        "jsonName": "numForcedGC",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of GC cycles that were forced by the application calling the GC function"
+        ]
+      },
+      {
+        "name": "GCCPUFraction",
+        "jsonName": "gcCPUFraction",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " fraction of this program's available CPU time used by the GC since the program started"
+        ]
+      },
+      {
+        "name": "EnableGC",
+        "jsonName": "enableGC",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " boolean that indicates GC is enabled"
+        ]
+      },
+      {
+        "name": "DebugGC",
+        "jsonName": "debugGC",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " boolean that indicates GC debug mode is enabled"
+        ]
+      },
+      {
+        "name": "NumGoroutine",
+        "jsonName": "numGoroutine",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " number of goroutines"
+        ]
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/hook/hook.go",
@@ -80821,6 +81170,60 @@
     "package": "util",
     "fields": [],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/result/boundedcache.go",
+    "filename": "boundedcache.go",
+    "name": "BoundedCache",
+    "formattedName": "BoundedCache",
+    "package": "result",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "capacity",
+        "jsonName": "capacity",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "items",
+        "jsonName": "items",
+        "goType": "map[K]list.Element",
+        "typescriptType": "Record\u003cK, Element\u003e",
+        "usedTypescriptType": "Element",
+        "usedStructName": "list.Element",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "order",
+        "jsonName": "order",
+        "goType": "list.List",
+        "typescriptType": "List",
+        "usedTypescriptType": "List",
+        "usedStructName": "list.List",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " BoundedCache implements an LRU cache with a maximum capacity"
+    ]
   },
   {
     "filepath": "../internal/util/result/resultcache.go",

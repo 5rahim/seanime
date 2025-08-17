@@ -133,6 +133,8 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	// Close the current client and stop event loop
 	p.Close()
 
+	settings.RichPresenceUseMediaTitleStatus = false    // Devnote: Not used anymore, disable
+	settings.RichPresenceShowAniListMediaButton = false // Devnote: Not used anymore, disable
 	p.settings = settings
 
 	// Create a new client if rich presence is enabled
@@ -230,6 +232,7 @@ var (
 			LargeText:  "",
 			SmallImage: "https://seanime.app/images/circular-logo.png",
 			SmallText:  "Seanime v" + constants.Version,
+			SmallURL:   "https://seanime.app",
 		},
 		Timestamps: &discordrpc_client.Timestamps{
 			Start: &discordrpc_client.Epoch{
@@ -239,13 +242,26 @@ var (
 		Buttons: []*discordrpc_client.Button{
 			{
 				Label: "Seanime",
-				Url:   "https://github.com/5rahim/seanime",
+				Url:   "https://seanime.app",
 			},
 		},
-		Instance: true,
-		Type:     3,
+		Instance:          true,
+		Type:              3,
+		StatusDisplayType: 2,
 	}
 )
+
+func isSeanimeButtonPresent(activity *discordrpc_client.Activity) bool {
+	if activity == nil || activity.Buttons == nil {
+		return false
+	}
+	for _, button := range activity.Buttons {
+		if button.Label == "Seanime" && button.Url == "https://seanime.app" {
+			return true
+		}
+	}
+	return false
+}
 
 type AnimeActivity struct {
 	ID                  int     `json:"id"`
@@ -287,20 +303,20 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	event := &DiscordPresenceAnimeActivityRequestedEvent{}
 
 	state := fmt.Sprintf("Watching Episode %d", a.EpisodeNumber)
+	//if a.TotalEpisodes != nil {
+	//	state += fmt.Sprintf(" of %d", *a.TotalEpisodes)
+	//}
 	if a.IsMovie {
 		state = "Watching Movie"
 	}
 
 	activity := defaultActivity
 	activity.Details = a.Title
+	activity.DetailsURL = fmt.Sprintf("https://anilist.co/anime/%d", a.ID)
 	activity.State = state
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
-
-	// Set status using the Anime title
-	if p.settings.RichPresenceUseMediaTitleStatus {
-		activity.Name = a.Title
-	}
+	activity.Assets.LargeURL = fmt.Sprintf("https://anilist.co/anime/%d", a.ID)
 
 	// Calculate the start time
 	startTime := time.Now()
@@ -324,13 +340,6 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
 
-	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
-		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
-			Label: "View Anime",
-			Url:   fmt.Sprintf("https://anilist.co/anime/%d", a.ID),
-		})
-	}
-
 	if p.settings.RichPresenceShowAniListProfileButton {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "View Profile",
@@ -341,7 +350,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "Seanime",
-			Url:   "https://github.com/5rahim/seanime",
+			Url:   "https://seanime.app",
 		})
 	}
 
@@ -351,12 +360,15 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 
 	event.AnimeActivity = a
 	event.Name = activity.Name
-	event.Details = a.Title
+	event.Details = activity.Details
+	event.DetailsURL = activity.DetailsURL
 	event.State = state
-	event.LargeImage = a.Image
+	event.LargeImage = activity.Assets.LargeImage
+	event.LargeText = activity.Assets.LargeText
+	event.LargeURL = activity.Assets.LargeURL
 	event.SmallImage = activity.Assets.SmallImage
-	event.LargeText = a.Title
 	event.SmallText = activity.Assets.SmallText
+	event.SmallURL = activity.Assets.SmallURL
 	event.Buttons = activity.Buttons
 	event.Instance = defaultActivity.Instance
 	event.Type = defaultActivity.Type
@@ -370,12 +382,18 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	// Update the activity
 	activity.Name = event.Name
 	activity.Details = event.Details
+	activity.DetailsURL = event.DetailsURL
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage
 	activity.Assets.LargeText = event.LargeText
-	activity.Assets.SmallImage = event.SmallImage
-	// activity.Assets.SmallText = event.SmallText
+	activity.Assets.LargeURL = event.LargeURL
 	activity.Buttons = event.Buttons
+	// Only allow changing small image and text if Seanime button is present
+	if isSeanimeButtonPresent(&activity) {
+		activity.Assets.SmallImage = event.SmallImage
+		activity.Assets.SmallText = event.SmallText
+		activity.Assets.SmallURL = event.SmallURL
+	}
 	// Update start timestamp
 	if event.StartTimestamp != nil {
 		activity.Timestamps.Start.Time = time.Unix(*event.StartTimestamp, 0)
@@ -499,19 +517,14 @@ func (p *Presence) LegacySetAnimeActivity(a *LegacyAnimeActivity) {
 
 	activity := defaultActivity
 	activity.Details = a.Title
+	activity.DetailsURL = fmt.Sprintf("https://anilist.co/anime/%d", a.ID)
 	activity.State = state
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
+	activity.Assets.LargeURL = fmt.Sprintf("https://anilist.co/anime/%d", a.ID)
 	activity.Timestamps.Start.Time = time.Now()
 	activity.Timestamps.End = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
-
-	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
-		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
-			Label: "View Anime",
-			Url:   fmt.Sprintf("https://anilist.co/anime/%d", a.ID),
-		})
-	}
 
 	if p.settings.RichPresenceShowAniListProfileButton {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
@@ -523,7 +536,7 @@ func (p *Presence) LegacySetAnimeActivity(a *LegacyAnimeActivity) {
 	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "Seanime",
-			Url:   "https://github.com/5rahim/seanime",
+			Url:   "https://seanime.app",
 		})
 	}
 
@@ -562,14 +575,11 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 
 	activity := defaultActivity
 	activity.Details = a.Title
+	activity.DetailsURL = fmt.Sprintf("https://anilist.co/manga/%d", a.ID)
 	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
-
-	// Set status using the Manga title
-	if p.settings.RichPresenceUseMediaTitleStatus {
-		activity.Name = a.Title
-	}
+	activity.Assets.LargeURL = fmt.Sprintf("https://anilist.co/manga/%d", a.ID)
 
 	now := time.Now()
 	activity.Timestamps.Start.Time = now
@@ -577,13 +587,6 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.Timestamps.End = nil
 	event.EndTimestamp = nil
 	activity.Buttons = make([]*discordrpc_client.Button, 0)
-
-	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
-		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
-			Label: "View Manga",
-			Url:   fmt.Sprintf("https://anilist.co/manga/%d", a.ID),
-		})
-	}
 
 	if p.settings.RichPresenceShowAniListProfileButton && p.username != "" {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
@@ -595,18 +598,21 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "Seanime",
-			Url:   "https://github.com/5rahim/seanime",
+			Url:   "https://seanime.app",
 		})
 	}
 
 	event.MangaActivity = a
 	event.Name = activity.Name
-	event.Details = a.Title
+	event.Details = activity.Details
+	event.DetailsURL = activity.DetailsURL
 	event.State = activity.State
 	event.LargeImage = activity.Assets.LargeImage
-	event.SmallImage = activity.Assets.SmallImage
 	event.LargeText = activity.Assets.LargeText
+	event.LargeURL = activity.Assets.LargeURL
+	event.SmallImage = activity.Assets.SmallImage
 	event.SmallText = activity.Assets.SmallText
+	event.SmallURL = activity.Assets.SmallURL
 	event.Buttons = activity.Buttons
 	event.Instance = activity.Instance
 	event.Type = activity.Type
@@ -620,12 +626,18 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	// Update the activity
 	activity.Name = event.Name
 	activity.Details = event.Details
+	activity.DetailsURL = event.DetailsURL
 	activity.State = event.State
 	activity.Assets.LargeImage = event.LargeImage
 	activity.Assets.LargeText = event.LargeText
-	activity.Assets.SmallImage = event.SmallImage
-	// activity.Assets.SmallText = event.SmallText
+	activity.Assets.LargeURL = event.LargeURL
 	activity.Buttons = event.Buttons
+	// Only allow changing small image and text if Seanime button is present
+	if isSeanimeButtonPresent(&activity) {
+		activity.Assets.SmallImage = event.SmallImage
+		activity.Assets.SmallText = event.SmallText
+		activity.Assets.SmallURL = event.SmallURL
+	}
 	activity.Instance = event.Instance
 	activity.Type = event.Type
 	// Update start timestamp

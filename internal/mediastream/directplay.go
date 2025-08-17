@@ -41,7 +41,7 @@ func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId 
 	}
 
 	if !inLibrary {
-		return c.NoContent(http.StatusForbidden)
+		return c.NoContent(http.StatusNotFound)
 	}
 
 	r.logger.Trace().Str("filepath", filePath).Str("payload", rawFilePath).Msg("mediastream: Served file")

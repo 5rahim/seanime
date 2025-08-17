@@ -31,7 +31,9 @@ func (r *Repository) FetchExternalExtensionData(manifestURI string) (*extension.
 	return r.fetchExternalExtensionData(manifestURI)
 }
 
-func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.Extension, error) {
+// fetchExternalExtensionData fetches the extension data from the manifest URI.
+// noPayloadDownload is an optional argument to skip downloading the payload from the payload URI if it exists (e.g when checking for updates)
+func (r *Repository) fetchExternalExtensionData(manifestURI string, noPayloadDownload ...bool) (*extension.Extension, error) {
 
 	// Fetch the manifest file
 	client := &http.Client{}
@@ -61,7 +63,7 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 	}
 
 	// Before sanity check, fetch the payload if needed
-	if ext.PayloadURI != "" {
+	if ext.PayloadURI != "" && !lo.Contains(noPayloadDownload, true) {
 		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Downloading payload")
 		payloadFromURI, err := r.downloadPayload(ext.PayloadURI)
 		if err != nil {
@@ -252,7 +254,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 			}
 
 			// Get the extension data from the repository
-			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI())
+			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI(), true)
 			if err != nil {
 				r.logger.Error().Err(err).Str("id", ext.GetID()).Str("url", ext.GetManifestURI()).Msg("extensions: Failed to fetch extension data while checking for update")
 				return

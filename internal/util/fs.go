@@ -90,6 +90,11 @@ func IsFileUnderDir(filePath, dir string) bool {
 		return false
 	}
 
+	if runtime.GOOS == "windows" {
+		absFilePath = strings.ToLower(absFilePath)
+		absDir = strings.ToLower(absDir)
+	}
+
 	// Check if the file path starts with the directory path
 	return strings.HasPrefix(absFilePath, absDir+string(os.PathSeparator))
 }

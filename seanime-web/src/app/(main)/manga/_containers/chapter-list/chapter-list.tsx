@@ -23,8 +23,8 @@ import { useSetAtom } from "jotai/react"
 import React from "react"
 import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
-import { HiOutlineSearchCircle } from "react-icons/hi"
 import { IoBookOutline, IoLibrary } from "react-icons/io5"
+import { LuSearch } from "react-icons/lu"
 import { MdOutlineDownloadForOffline, MdOutlineOfflinePin } from "react-icons/md"
 
 type ChapterListProps = {
@@ -340,7 +340,7 @@ export function ChapterList(props: ChapterListProps) {
 
                 <MangaManualMappingModal entry={entry}>
                     <Button
-                        leftIcon={<HiOutlineSearchCircle className="text-lg" />}
+                        leftIcon={<LuSearch className="text-lg" />}
                         intent="gray-outline"
                         size="sm"
                     >

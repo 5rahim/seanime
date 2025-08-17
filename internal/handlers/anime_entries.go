@@ -437,7 +437,7 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//var missingEpisodesMap = result.NewResultMap[string, *anime.MissingEpisodes]()
+var missingEpisodesCache *anime.MissingEpisodes
 
 // HandleGetMissingEpisodes
 //
@@ -447,6 +447,13 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 //	@route /api/v1/library/missing-episodes [GET]
 //	@returns anime.MissingEpisodes
 func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
+	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetMissingEpisodes", func() {
+		missingEpisodesCache = nil
+	})
+
+	if missingEpisodesCache != nil {
+		return h.RespondWithData(c, missingEpisodesCache)
+	}
 
 	// Get the user's anilist collection
 	// Do not bypass the cache, since this handler might be called multiple times, and we don't want to spam the API
@@ -477,6 +484,8 @@ func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
+
+	missingEpisodesCache = event.MissingEpisodes
 
 	return h.RespondWithData(c, event.MissingEpisodes)
 }

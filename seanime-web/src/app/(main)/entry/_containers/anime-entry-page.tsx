@@ -8,7 +8,7 @@ import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { DebridStreamPage } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_selectionAtom, TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -136,7 +136,7 @@ export function AnimeEntryPage() {
         setView("library")
     })
 
-    const setTorrentSearchDrawer = useSetAtom(__torrentSearch_drawerIsOpenAtom)
+    const setTorrentSearchDrawer = useSetAtom(__torrentSearch_selectionAtom)
 
     const { inject, remove } = useSeaCommandInject()
     React.useEffect(() => {
@@ -286,6 +286,7 @@ export function AnimeEntryPage() {
                                     animeEntryLoading={animeEntryLoading}
                                     hideBackButton
                                 />
+                                <MediaEntryCharactersSection details={animeDetails} />
                             </div>
                         </PageWrapper>}
 

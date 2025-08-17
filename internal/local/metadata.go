@@ -13,7 +13,7 @@ import (
 type OfflineMetadataProvider struct {
 	manager            *ManagerImpl
 	animeSnapshots     map[int]*AnimeSnapshot
-	animeMetadataCache *result.Cache[string, *metadata.AnimeMetadata]
+	animeMetadataCache *result.BoundedCache[string, *metadata.AnimeMetadata]
 }
 
 type OfflineAnimeMetadataWrapper struct {
@@ -25,7 +25,7 @@ func NewOfflineMetadataProvider(manager *ManagerImpl) metadata.Provider {
 	ret := &OfflineMetadataProvider{
 		manager:            manager,
 		animeSnapshots:     make(map[int]*AnimeSnapshot),
-		animeMetadataCache: result.NewCache[string, *metadata.AnimeMetadata](),
+		animeMetadataCache: result.NewBoundedCache[string, *metadata.AnimeMetadata](500),
 	}
 
 	// Load the anime snapshots
@@ -71,7 +71,7 @@ func (mp *OfflineMetadataProvider) GetAnimeMetadata(platform metadata.Platform, 
 	return nil, errors.New("anime metadata not found")
 }
 
-func (mp *OfflineMetadataProvider) GetCache() *result.Cache[string, *metadata.AnimeMetadata] {
+func (mp *OfflineMetadataProvider) GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata] {
 	return mp.animeMetadataCache
 }
 

@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.6
+
+- 🦺 Fixed server crash caused by navigating to 'Schedule' page
+
+## v2.9.5
+
+- ⚡️ Updated Discord RPC: Media title used as activity name, links
+- ⚡️ Offline mode: Option to auto save currently watched/read media locally #376
+- ⚡️ Offline mode: Bulk select media to save locally #377
+- ⚡️ Metadata: Prefer TVDB title when AniDB isn't up-to-date
+- ⚡️ Scan summaries: Search input for filenames
+- 🦺 Potential fixes for high memory usage and app slowdowns
+- 🦺 Torrent list: Fixed 'Stop seeding all' button pausing downloading torrents
+- 🦺 Playground: Fixed UI crash caused by console logs
+- 🦺 Scanner: Fixed matching being messed up by "Part" keyword in filenames
+- 🦺 Parser: Fixed folder names with single-word titles being ignored
+- 🦺 Online streaming: Don't hide button for adult entries
+- 🦺 Online streaming: Fixed wrong episode selection when page is loaded #384
+- 🦺 Potential fix for auto play not being canceled
+- 🦺 Nakama: Fixed host's list data being added to anime that aren't in the collection
+- 🦺 External Player Link: Fixed incorrect stream URL when server password is set
+- 🦺 Media player: Use filepaths for comparison when loading media instead of filenames
+- 🦺 Nakama: Fixed case sensitivity issue when comparing file paths on Windows
+- 🦺 Fixed external player links by encoding stream URL if it contains a query parameter #387
+- 🦺 Playlists: Fixed playlist deletion
+- 🏗️ Slight changes to the online streaming page for more clarity
+- 🏗️ Settings: Added memory profiling to 'logs' section
+- 🏗️ Anime: Removed (obsolete) manual TVDB metadata fetching option
+- 🏗️ Perf(Extensions): Do not download payload when checking for updates
+
 ## v2.9.4
 
 - ⚡️ Migrated to Seanime's own anime metadata API

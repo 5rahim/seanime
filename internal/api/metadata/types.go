@@ -19,7 +19,7 @@ type (
 		// GetAnimeMetadata fetches anime metadata for the given platform from a source.
 		// In this case, the source is api.ani.zip.
 		GetAnimeMetadata(platform Platform, mId int) (*AnimeMetadata, error)
-		GetCache() *result.Cache[string, *AnimeMetadata]
+		GetCache() *result.BoundedCache[string, *AnimeMetadata]
 		// GetAnimeMetadataWrapper creates a wrapper for anime metadata.
 		GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *AnimeMetadata) AnimeMetadataWrapper
 	}

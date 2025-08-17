@@ -51,8 +51,14 @@ export function useHandlePlayMedia() {
         if (episode._isNakamaEpisode) {
             // If external player link is set, open the media file in the external player
             if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {
-                const urlToSend = getServerBaseUrl() + "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64")
+                let urlToSend = getServerBaseUrl() + "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64")
                 logger("PLAY MEDIA").info("Opening external player", externalPlayerLink, "URL", urlToSend)
+
+                // If the external player link includes a query parameter, we need to encode the URL to prevent query parameter conflicts
+                if (externalPlayerLink.includes("?")) {
+                    urlToSend = encodeURIComponent(urlToSend)
+                }
+
                 openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
 
                 if (episode?.progressNumber && episode.type === "main") {

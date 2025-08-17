@@ -1,6 +1,6 @@
 {
   "productName": "Seanime Desktop",
-  "version": "2.9.4",
+  "version": "2.9.6",
   "identifier": "app.seanime.desktop",
   "build": {
     "frontendDist": "../../web-desktop",
