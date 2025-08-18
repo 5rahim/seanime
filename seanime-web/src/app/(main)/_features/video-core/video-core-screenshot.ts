@@ -1,15 +1,15 @@
 import { useAtomValue, useSetAtom } from "jotai"
 import React from "react"
-import { vc_subtitleManager, vc_videoElement } from "./video-core"
+import { vc_anime4kManager, vc_subtitleManager, vc_videoElement } from "./video-core"
 import { vc_doFlashAction } from "./video-core-action-display"
-import { vc_anime4kCanvas, vc_anime4kOption } from "./video-core-anime-4k"
+import { vc_anime4kOption } from "./video-core-anime-4k"
 
 export function useVideoCoreScreenshot() {
 
     const videoElement = useAtomValue(vc_videoElement)
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const flashAction = useSetAtom(vc_doFlashAction)
-    const anime4kCanvas = useAtomValue(vc_anime4kCanvas)
+    const anime4kManager = useAtomValue(vc_anime4kManager)
     const anime4kOption = useAtomValue(vc_anime4kOption)
 
     const screenshotTimeout = React.useRef<NodeJS.Timeout | null>(null)
@@ -97,8 +97,8 @@ export function useVideoCoreScreenshot() {
             let blob: Blob | null = null
             let isAnime4K = false
 
-            if (anime4kOption !== "off" && anime4kCanvas) {
-                const anime4kBlob = await createVideoCanvas(anime4kCanvas)
+            if (anime4kOption !== "off" && anime4kManager?.canvas) {
+                const anime4kBlob = await createVideoCanvas(anime4kManager.canvas)
                 if (anime4kBlob) {
                     if (subtitleManager?.libassRenderer) {
                         blob = await createEnhancedCanvas(anime4kBlob)

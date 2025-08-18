@@ -232,16 +232,17 @@ export function NativePlayer() {
             logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
             if (lastWatchedTime > 0) {
                 logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                const isPaused = videoElement?.paused
-                videoElement?.pause?.()
-                setTimeout(() => {
-                    dispatchEvent({ type: "seekTo", payload: { time: lastWatchedTime } })
-                    if (!isPaused) {
-                        setTimeout(() => {
-                            videoElement?.play?.()
-                        }, 200)
-                    }
-                }, 200)
+                dispatchEvent({ type: "restoreProgress", payload: { time: lastWatchedTime } })
+                // const isPaused = videoElement?.paused
+                // videoElement?.play?.()
+                // setTimeout(() => {
+                //
+                //     if (isPaused) {
+                //         setTimeout(() => {
+                //             videoElement?.pause?.()
+                //         }, 200)
+                //     }
+                // }, 1000)
             }
         }
     }

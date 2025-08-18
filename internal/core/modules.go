@@ -122,42 +122,6 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
-	// |   Auto Downloader   |
-	// +---------------------+
-
-	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
-		Logger:                  a.Logger,
-		TorrentClientRepository: a.TorrentClientRepository,
-		TorrentRepository:       a.TorrentRepository,
-		Database:                a.Database,
-		WSEventManager:          a.WSEventManager,
-		MetadataProvider:        a.MetadataProvider,
-		DebridClientRepository:  a.DebridClientRepository,
-		IsOffline:               a.IsOffline(),
-	})
-
-	// This is run in a goroutine
-	a.AutoDownloader.Start()
-
-	// +---------------------+
-	// |   Auto Scanner      |
-	// +---------------------+
-
-	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
-		Database:         a.Database,
-		Platform:         a.AnilistPlatform,
-		Logger:           a.Logger,
-		WSEventManager:   a.WSEventManager,
-		Enabled:          false, // Will be set in InitOrRefreshModules
-		AutoDownloader:   a.AutoDownloader,
-		MetadataProvider: a.MetadataProvider,
-		LogsDir:          a.Config.Logs.Dir,
-	})
-
-	// This is run in a goroutine
-	a.AutoScanner.Start()
-
-	// +---------------------+
 	// |  Manga Downloader   |
 	// +---------------------+
 
@@ -251,6 +215,42 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:       a.PlaybackManager,
 		MangaRepository:       a.MangaRepository,
 	})
+
+	// +---------------------+
+	// |   Auto Downloader   |
+	// +---------------------+
+
+	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
+		Logger:                  a.Logger,
+		TorrentClientRepository: a.TorrentClientRepository,
+		TorrentRepository:       a.TorrentRepository,
+		Database:                a.Database,
+		WSEventManager:          a.WSEventManager,
+		MetadataProvider:        a.MetadataProvider,
+		DebridClientRepository:  a.DebridClientRepository,
+		IsOffline:               a.IsOffline(),
+	})
+
+	// This is run in a goroutine
+	a.AutoDownloader.Start()
+
+	// +---------------------+
+	// |   Auto Scanner      |
+	// +---------------------+
+
+	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
+		Database:         a.Database,
+		Platform:         a.AnilistPlatform,
+		Logger:           a.Logger,
+		WSEventManager:   a.WSEventManager,
+		Enabled:          false, // Will be set in InitOrRefreshModules
+		AutoDownloader:   a.AutoDownloader,
+		MetadataProvider: a.MetadataProvider,
+		LogsDir:          a.Config.Logs.Dir,
+	})
+
+	// This is run in a goroutine
+	a.AutoScanner.Start()
 
 	// +---------------------+
 	// |       Nakama        |
