@@ -12,7 +12,7 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
@@ -409,7 +409,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection } = useHandleStartDebridStream()
-    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_selectionAtom)
 

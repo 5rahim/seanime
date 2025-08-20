@@ -26,10 +26,20 @@ import {
     RunPlaygroundCodeResponse,
 } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
+import React from "react"
 import { toast } from "sonner"
 
+const unauthorizedPluginCountAtom = atom(0)
+
+export function useUnauthorizedPluginCount() {
+    const [count] = useAtom(unauthorizedPluginCountAtom)
+    return count
+}
+
 export function useGetAllExtensions(withUpdates: boolean) {
-    return useServerQuery<ExtensionRepo_AllExtensions, GetAllExtensions_Variables>({
+    const { data, ...rest } = useServerQuery<ExtensionRepo_AllExtensions, GetAllExtensions_Variables>({
         endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
         queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key, withUpdates],
@@ -39,6 +49,13 @@ export function useGetAllExtensions(withUpdates: boolean) {
         gcTime: 0,
         enabled: true,
     })
+
+    const [, setCount] = useAtom(unauthorizedPluginCountAtom)
+    React.useEffect(() => {
+        setCount((data?.invalidExtensions ?? []).filter(n => n.code === "plugin_permissions_not_granted")?.length ?? 0)
+    }, [data])
+
+    return { data, ...rest }
 }
 
 export function useFetchExternalExtensionData(id: Nullish<string>) {

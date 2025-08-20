@@ -1,7 +1,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useDebridGetTorrentFilePreviews } from "@/api/hooks/debrid.hooks"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { __torrentSearch_torrentstreamSelectedTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -33,7 +33,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const [selectedFileId, setSelectedFileIdx] = React.useState("")
 
-    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     const { data: previews, isLoading } = useDebridGetTorrentFilePreviews({
         torrent: selectedTorrent!,

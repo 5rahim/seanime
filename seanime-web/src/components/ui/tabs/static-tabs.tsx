@@ -36,6 +36,7 @@ export type StaticTabsItem = {
     iconType?: React.ElementType,
     onClick?: () => void,
     isCurrent: boolean
+    addon?: React.ReactNode,
 }
 
 export type StaticTabsProps = React.ComponentPropsWithRef<"nav"> &
@@ -81,6 +82,7 @@ export const StaticTabs = React.forwardRef<HTMLElement, StaticTabsProps>((props,
                         data-current={tab.isCurrent}
                     />}
                     <span>{tab.name}</span>
+                    {tab.addon}
                 </SeaLink>
             ) : (
                 <div
@@ -103,6 +105,7 @@ export const StaticTabs = React.forwardRef<HTMLElement, StaticTabsProps>((props,
                         data-current={tab.isCurrent}
                     />}
                     <span>{tab.name}</span>
+                    {tab.addon}
                 </div>
             ))}
         </nav>

@@ -1,6 +1,6 @@
 import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamTorrentFilePreviews } from "@/api/hooks/torrentstream.hooks"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -26,7 +26,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
     const [selectedFileIdx, setSelectedFileIdx] = React.useState(-1)
 
-    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     const { data: filePreviews, isLoading } = useGetTorrentstreamTorrentFilePreviews({
         torrent: selectedTorrent,

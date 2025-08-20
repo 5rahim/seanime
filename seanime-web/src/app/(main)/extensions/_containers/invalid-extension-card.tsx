@@ -185,14 +185,14 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                 )}
             ></div>
 
-            <div className="absolute top-3 right-3 grid grid-cols-2 gap-1 p-1 rounded-[--radius-md] bg-gray-950 z-[2]">
+            <div className="absolute top-3 right-3 flex flex-col gap-1 p-1 rounded-[--radius-md] bg-gray-950 z-[2]">
                 <Modal
-                    trigger={<IconButton
+                    trigger={<Button
                         size="sm"
                         intent="warning-basic"
-                        icon={<LuShieldCheck />}
+                        leftIcon={<LuShieldCheck />}
                         className="animate-bounce"
-                    />}
+                    >Grant</Button>}
                     title="Permissions required"
                     contentClass="max-w-2xl"
                 >
@@ -279,7 +279,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         <p className="font-semibold line-clamp-1">
                             {extension.extension?.name ?? "Unknown"}
                         </p>
-                        <p className="text-[--muted] text-sm line-clamp-1 italic">
+                        <p className="text-[--muted] text-xs line-clamp-1 italic">
                             {extension.extension?.id ?? "Invalid ID"}
                         </p>
                     </div>

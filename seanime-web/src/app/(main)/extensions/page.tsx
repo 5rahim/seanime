@@ -1,5 +1,6 @@
 "use client"
 
+import { useUnauthorizedPluginCount } from "@/api/hooks/extensions.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { __extensions_currentPageAtom, ExtensionList } from "@/app/(main)/extensions/_containers/extension-list"
 import { MarketplaceExtensions } from "@/app/(main)/extensions/_containers/marketplace-extensions"
@@ -8,13 +9,13 @@ import { StaticTabs } from "@/components/ui/tabs"
 import { useAtom } from "jotai"
 import { AnimatePresence } from "motion/react"
 import React from "react"
+import { FaExclamation } from "react-icons/fa"
 import { LuDownload, LuGlobe } from "react-icons/lu"
 
 export default function Page() {
 
     const [page, setPage] = useAtom(__extensions_currentPageAtom)
-
-    console.log("page", page)
+    const unauthorizedPluginCount = useUnauthorizedPluginCount()
 
     return (
         <>
@@ -32,6 +33,11 @@ export default function Page() {
                             isCurrent: page === "installed",
                             onClick: () => setPage("installed"),
                             iconType: LuDownload,
+                            addon: unauthorizedPluginCount > 0 && (
+                                <span className="ml-2 bottom-1 right-1 rounded-full relative">
+                                    <FaExclamation className="text-[--orange] animate-bounce size-6" />
+                                </span>
+                            ),
                         },
                         {
                             name: "Marketplace",
