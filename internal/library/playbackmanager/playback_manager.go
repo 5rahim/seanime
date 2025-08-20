@@ -397,6 +397,9 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		return err
 	}
 
+	aniDbEpisode = event.AniDbEpisode
+	windowTitle = event.WindowTitle
+
 	if event.DefaultPrevented {
 		pm.Logger.Debug().Msg("playback manager: Stream playback prevented by hook")
 		return nil
@@ -407,7 +410,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		return errors.New("cannot stream when offline")
 	}
 
-	if media == nil || aniDbEpisode == "" {
+	if event.Media == nil || aniDbEpisode == "" {
 		pm.Logger.Error().Msg("playback manager: cannot start streaming, missing options [StartStreamingUsingMediaPlayer]")
 		return errors.New("cannot start streaming, not enough data provided")
 	}
@@ -422,13 +425,13 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		pm.manualTrackingCtxCancel()
 	}
 
-	pm.currentStreamMedia = mo.Some(media)
+	pm.currentStreamMedia = mo.Some(event.Media)
 	episodeNumber := 0
 
 	// Find the current episode being stream
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
 		AnimeMetadata:    nil,
-		Media:            media,
+		Media:            event.Media,
 		MetadataProvider: pm.metadataProvider,
 		Logger:           pm.Logger,
 	})
@@ -442,7 +445,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		pm.Logger.Warn().Str("episode", aniDbEpisode).Msg("playback manager: Failed to find episode in episode collection")
 	}
 
-	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID, windowTitle)
+	err = pm.MediaPlayerRepository.Stream(event.Payload, episodeNumber, event.Media.ID, windowTitle)
 	if err != nil {
 		pm.Logger.Error().Err(err).Msg("playback manager: Failed to start streaming")
 		return err

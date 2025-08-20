@@ -274,10 +274,12 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 			Url           string `json:"url"`
 			MediaId       int    `json:"mediaId"`
 			EpisodeNumber int    `json:"episodeNumber"`
+			MediaTitle    string `json:"mediaTitle"`
 		}{
 			Url:           streamURL,
 			MediaId:       opts.MediaId,
 			EpisodeNumber: opts.EpisodeNumber,
+			MediaTitle:    baseAnime.GetPreferredTitle(),
 		})
 
 		// Signal to the client that the torrent has started playing (remove loading status)
@@ -295,55 +297,6 @@ type StartUntrackedStreamOptions struct {
 	UserAgent    string
 	ClientId     string
 	PlaybackType PlaybackType
-}
-
-func (r *Repository) StartUntrackedStream(opts *StartUntrackedStreamOptions) (err error) {
-	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartUntrackedStream", &err)
-
-	if opts.Magnet == "" {
-		return fmt.Errorf("torrentstream: No magnet provided")
-	}
-
-	switch opts.PlaybackType {
-	//
-	// Desktop player
-	//
-	case PlaybackTypeExternal:
-		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartUntrackedStreamingUsingMediaPlayer(opts.WindowTitle, &playbackmanager.StartPlayingOptions{
-			Payload:   opts.Magnet,
-			UserAgent: opts.UserAgent,
-			ClientId:  opts.ClientId,
-		})
-		if err != nil {
-			// Failed to start the stream, we'll drop the torrents and stop the server
-			r.sendStateEvent(eventLoadingFailed)
-			_ = r.StopStream()
-			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
-			r.wsEventManager.SendEventTo(opts.ClientId, events.ErrorToast, err.Error())
-		}
-
-	//
-	// External player link
-	//
-	case PlaybackTypeExternalPlayerLink:
-		// Send the external player link
-		r.sendStateEvent(events.ExternalPlayerOpenURL, struct {
-			Url           string `json:"url"`
-			MediaId       int    `json:"mediaId"`
-			EpisodeNumber int    `json:"episodeNumber"`
-		}{
-			Url:           r.client.GetStreamingUrl(),
-			MediaId:       0,
-			EpisodeNumber: 0,
-		})
-
-		// Signal to the client that the torrent has started playing (remove loading status)
-		// We can't know for sure
-		r.sendStateEvent(eventTorrentStartedPlaying)
-	}
-
-	return nil
 }
 
 func (r *Repository) StopStream() error {

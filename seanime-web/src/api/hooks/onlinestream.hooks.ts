@@ -30,6 +30,7 @@ export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, prov
             dubbed,
         },
         enabled: !!id,
+        muteError: true,
     })
 }
 
@@ -50,6 +51,7 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
             provider: provider!,
         },
         enabled: enabled && !!provider,
+        muteError: true,
     })
 }
 
@@ -62,6 +64,7 @@ export function useOnlineStreamEmptyCache() {
         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key] })
             toast.info("Stream cache emptied")
         },
     })

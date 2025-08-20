@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	ErrNoAnimeFound         = errors.New("no anime found")
+	ErrNoAnimeFound         = errors.New("anime not found, try manual matching")
 	ErrNoEpisodes           = errors.New("no episodes found")
 	errNoEpisodeSourceFound = errors.New("no source found for episode")
 )
@@ -92,6 +92,8 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 
 	ec.ProviderEpisodeList = providerEpisodeList
 
+	var lastServerError error
+
 	for _, episodeDetails := range providerEpisodeList {
 
 		if episodeDetails.Number >= from && episodeDetails.Number <= to {
@@ -129,6 +131,7 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 			// Fetch episode servers
 			servers, err := r.getProviderEpisodeServers(provider, episodeDetails)
 			if err != nil {
+				lastServerError = err
 				r.logger.Error().Err(err).Msgf("onlinestream: failed to get episode '%d' servers", episodeDetails.Number)
 				continue
 			}
@@ -152,13 +155,13 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 	}
 
 	if from > 0 && to > 0 && len(ec.Episodes) == 0 {
-		r.logger.Error().Msg("onlinestream: No episodes found")
-		return nil, ErrNoEpisodes
+		r.logger.Error().Err(lastServerError).Msg("onlinestream: No episode servers found")
+		return nil, fmt.Errorf("no episode servers found, provider returned: '%w'", lastServerError)
 	}
 
 	if len(ec.ProviderEpisodeList) == 0 {
-		r.logger.Error().Msg("onlinestream: No episodes found")
-		return nil, ErrNoEpisodes
+		r.logger.Error().Msg("onlinestream: No episodes found for this anime")
+		return nil, fmt.Errorf("no episodes found for this anime")
 	}
 
 	return ec, nil
@@ -297,7 +300,7 @@ func (r *Repository) getProviderEpisodeList(provider string, media *anilist.Base
 		}
 
 		if len(searchResults) == 0 {
-			return nil, ErrNoAnimeFound
+			return nil, fmt.Errorf("automatic matching returned no results")
 		}
 
 		bestResult, found := GetBestSearchResult(searchResults, media.GetAllTitles())
@@ -310,11 +313,11 @@ func (r *Repository) getProviderEpisodeList(provider string, media *anilist.Base
 	// Fetch episodes.
 	ret, err := providerExtension.GetProvider().FindEpisodes(matchId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("provider returned an error: %w", err)
 	}
 
 	if len(ret) == 0 {
-		return nil, ErrNoEpisodes
+		return nil, fmt.Errorf("provider returned no episodes")
 	}
 
 	return ret, nil

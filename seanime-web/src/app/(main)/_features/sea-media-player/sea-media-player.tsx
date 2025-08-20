@@ -52,6 +52,7 @@ import {
 import { DefaultVideoLayout, DefaultVideoLayoutProps } from "@vidstack/react/player/layouts/default"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
+import capitalize from "lodash/capitalize"
 import mousetrap from "mousetrap"
 import Image from "next/image"
 import React from "react"
@@ -60,7 +61,7 @@ export type SeaMediaPlayerProps = {
     url?: string | { src: string, type: string }
     poster?: string
     isLoading?: boolean
-    isPlaybackError?: boolean
+    isPlaybackError?: string
     playerRef: React.RefObject<MediaPlayerInstance>
     onProviderChange?: (provider: MediaProviderAdapter | null, e: MediaProviderChangeEvent) => void
     onProviderSetup?: (provider: MediaProviderAdapter, e: MediaProviderSetupEvent) => void
@@ -510,8 +511,12 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     return (
         <>
             <div data-sea-media-player-container className="aspect-video relative w-full self-start mx-auto">
-                {isPlaybackError ? (
-                    <LuffyError title="Playback Error" />
+                {(!!isPlaybackError?.length) ? (
+                    <LuffyError title="Oops!">
+                        <p className="max-w-md">
+                            {capitalize(isPlaybackError)}
+                        </p>
+                    </LuffyError>
                 ) : (!!url && !isLoading) ? (
                     <MediaPlayer
                         data-sea-media-player

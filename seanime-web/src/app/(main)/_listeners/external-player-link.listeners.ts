@@ -1,8 +1,8 @@
-import { getExternalPlayerURL } from "@/api/client/external-player-link"
 import { usePlaybackStartManualTracking } from "@/api/hooks/playback_manager.hooks"
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -13,6 +13,7 @@ type ExternalPlayerLinkEventProps = {
     url: string
     mediaId: number
     episodeNumber: number
+    mediaTitle?: string
 }
 
 export function useExternalPlayerLinkListener() {
@@ -33,17 +34,12 @@ export function useExternalPlayerLinkListener() {
             toast.info("Opening media file in external player.")
 
             logger("EXTERNAL PLAYER LINK").info("Opening external player", data)
-            // URL encode the complete URL when passing to external player to prevent query parameter conflicts
-            let urlToSend = data.url
-            logger("EXTERNAL PLAYER LINK").info("Received URL to send", urlToSend)
 
-            if (externalPlayerLink.includes("?")) {
-                urlToSend = encodeURIComponent(urlToSend)
-            }
-
-            const url = getExternalPlayerURL(externalPlayerLink, urlToSend)
-            logger("EXTERNAL PLAYER LINK").info("Sending URL to external player", url)
-            openTab(url)
+            const link = new ExternalPlayerLink(externalPlayerLink)
+            link.setEpisodeNumber(data.episodeNumber)
+            link.setMediaTitle(data.mediaTitle)
+            link.setUrl(data.url)
+            openTab(link.getFullUrl())
 
             if (data.mediaId != 0) {
                 logger("EXTERNAL PLAYER LINK").info("Starting manual tracking", {

@@ -12,10 +12,14 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import {
+    useDebridStreamAutoplay,
+    useHandleStartTorrentStream,
+    useTorrentStreamAutoplay,
+} from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
     __torrentSearch_torrentstreamSelectedTorrentAtom,
     TorrentstreamFileSelectionModal,
@@ -409,9 +413,12 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection } = useHandleStartDebridStream()
-    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_selectionAtom)
+
+    const { setDebridstreamAutoplaySelectedTorrent } = useDebridStreamAutoplay()
+    const { setTorrentstreamAutoplaySelectedTorrent } = useTorrentStreamAutoplay()
 
     if (!batchHistory?.torrent || !entry) return null
 
@@ -433,6 +440,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "torrentstream-select") {
+                        setTorrentstreamAutoplaySelectedTorrent(batchHistory.torrent)
                         handleManualTorrentStreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,
@@ -442,6 +450,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                         })
                         setter(undefined)
                     } else if (type === "debridstream-select") {
+                        setDebridstreamAutoplaySelectedTorrent(batchHistory.torrent)
                         handleStreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,

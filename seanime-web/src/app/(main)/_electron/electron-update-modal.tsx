@@ -48,10 +48,10 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
 
     const checkElectronUpdate = React.useCallback(() => {
         try {
-            if ((window as any).electron) {
+            if (window.electron) {
                 // Check if the update is available
                 setUpdateLoading(true);
-                (window as any).electron.checkForUpdates()
+                window.electron.checkForUpdates()
                     .then((updateAvailable: boolean) => {
                         setUpdate(updateAvailable)
                         setUpdateLoading(false)
@@ -73,13 +73,13 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
         checkElectronUpdate()
 
         // Listen for update events from Electron
-        if ((window as any).electron) {
+        if (window.electron) {
             // Register listeners for update events
-            const removeUpdateDownloaded = (window as any).electron.on("update-downloaded", () => {
+            const removeUpdateDownloaded = window.electron.on("update-downloaded", () => {
                 toast.info("Update downloaded and ready to install")
             })
 
-            const removeUpdateError = (window as any).electron.on("update-error", (error: string) => {
+            const removeUpdateError = window.electron.on("update-error", (error: string) => {
                 logger("ELECTRON").error("Update error", error)
                 toast.error(`Update error: ${error}`)
                 setIsUpdating(false)
@@ -87,8 +87,8 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
 
             return () => {
                 // Clean up listeners
-                removeUpdateDownloaded()
-                removeUpdateError()
+                removeUpdateDownloaded?.()
+                removeUpdateError?.()
             }
         }
     }, [])
@@ -106,13 +106,13 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
             setIsUpdating(true)
 
             // Tell Electron to download and install the update
-            if ((window as any).electron) {
+            if (window.electron) {
                 toast.info("Downloading update...")
 
                 // Kill the currently running server before installing update
                 try {
                     toast.info("Shutting down server...")
-                    await (window as any).electron.killServer()
+                    await window.electron.killServer()
                 }
                 catch (e) {
                     logger("ELECTRON").error("Failed to kill server", e)
@@ -120,7 +120,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
 
                 // Install update
                 toast.info("Installing update...")
-                await (window as any).electron.installUpdate()
+                await window.electron.installUpdate()
                 setIsInstalled(true)
 
                 // Electron will automatically restart the app

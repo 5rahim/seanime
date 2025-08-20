@@ -21,6 +21,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { logger } from "@/lib/helpers/debug"
 import { isHLSProvider, MediaPlayerInstance, MediaProviderAdapter, MediaProviderChangeEvent, MediaProviderSetupEvent } from "@vidstack/react"
+import { AxiosError } from "axios"
 import HLS from "hls.js"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -59,6 +60,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const ref = React.useRef<MediaPlayerInstance>(null)
     const [episodeViewMode, setEpisodeViewMode] = useAtom(episodeViewModeAtom)
 
+    const media = animeEntry?.media
+
     const {
         episodes,
         currentEpisodeDetails,
@@ -68,12 +71,13 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         onCanPlay: _onCanPlay,
         onFatalError,
         loadPage,
-        media,
+        // media,
         episodeSource,
         currentEpisodeNumber,
         handleChangeEpisodeNumber,
         episodeLoading,
         isErrorEpisodeSource,
+        errorEpisodeSource,
         isErrorProvider,
         provider,
     } = useHandleOnlinestream({
@@ -178,7 +182,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         return () => clearTimeout(t)
     }, [opts.hasCustomQualities, url, episodeLoading])
 
-    if (!loadPage || !media || animeEntryLoading) return <div data-onlinestream-page-loading-container className="space-y-4">
+    if (!media || animeEntryLoading) return <div data-onlinestream-page-loading-container className="space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
@@ -209,6 +213,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     title={media?.title?.userPreferred}
                     hideBackButton={hideBackButton}
                     episodes={episodes}
+                    loading={loadPage}
                     leftHeaderActions={<>
                         {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         {animeEntry && <OnlinestreamManualMappingModal entry={animeEntry}>
@@ -242,8 +247,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         <SeaMediaPlayer
                             url={url}
                             poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge}
-                            isLoading={episodeLoading}
-                            isPlaybackError={isErrorEpisodeSource}
+                            isLoading={!loadPage || episodeLoading}
+                            isPlaybackError={isErrorEpisodeSource
+                                ? (errorEpisodeSource as AxiosError<{ error: string }>)?.response?.data?.error
+                                : undefined}
                             playerRef={ref}
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
@@ -275,10 +282,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         />
                     )}
                     episodeList={<>
-                        {(!episodes?.length && !loadPage) && <p>
-                            No episodes found
-                        </p>}
-
                         <AnimatePresence mode="wait" initial={false}>
                             {episodeViewMode === "list" ? (
                                 <motion.div
@@ -320,7 +323,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             />
                                         )
                                     })}
-                                    <p className="text-center text-[--muted] py-2">End</p>
+                                    {!!episodes?.length && <p className="text-center text-[--muted] py-2">End</p>}
                                 </motion.div>
                             ) : (
                                 <EpisodePillsGrid

@@ -1,4 +1,4 @@
-const {contextBridge, ipcRenderer, shell} = require('electron');
+const {contextBridge, ipcRenderer, ipcMain, shell, BrowserWindow} = require('electron');
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
@@ -19,7 +19,8 @@ contextBridge.exposeInMainWorld(
             hide: () => ipcRenderer.send('window:hide'),
             show: () => ipcRenderer.send('window:show'),
             isVisible: () => ipcRenderer.invoke('window:isVisible'),
-            setTitleBarStyle: (style) => ipcRenderer.send('window:setTitleBarStyle', style)
+            setTitleBarStyle: (style) => ipcRenderer.send('window:setTitleBarStyle', style),
+            getCurrentWindow: () => ipcRenderer.invoke('window:getCurrentWindow')
         },
 
         // Event listeners
@@ -34,7 +35,8 @@ contextBridge.exposeInMainWorld(
                 'update-downloaded',
                 'update-error',
                 'update-available',
-                'download-progress'
+                'download-progress',
+                'window:currentWindow'
             ];
             if (validChannels.includes(channel)) {
                 // Remove the event listener to avoid memory leaks

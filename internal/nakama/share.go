@@ -166,7 +166,12 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
 
-	err = m.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
+	windowTitle := media.GetPreferredTitle()
+	if !media.IsMovieOrSingleEpisode() {
+		windowTitle += " - Episode " + aniDBEpisode
+	}
+
+	err = m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 		Payload:   ret,
 		UserAgent: userAgent,
 		ClientId:  "",
@@ -208,7 +213,12 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
 
-	err := m.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
+	windowTitle := media.GetPreferredTitle()
+	if !media.IsMovieOrSingleEpisode() {
+		windowTitle += " - Episode " + aniDBEpisode
+	}
+
+	err := m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 		Payload:   ret,
 		UserAgent: userAgent,
 		ClientId:  "",

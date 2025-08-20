@@ -2,7 +2,7 @@ import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import {
     __torrentSearch_selectionAtom,
     __torrentSearch_selectionEpisodeAtom,
@@ -63,7 +63,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const [, setTorrentSearchEpisode] = useAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     // Function to handle playing the next episode on mount
     function handlePlayNextEpisodeOnMount(episode: Anime_Episode) {

@@ -3,7 +3,7 @@ import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useStreamingSelectedEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import {
     __torrentSearch_selectionAtom,
     __torrentSearch_selectionEpisodeAtom,
@@ -61,7 +61,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
 
 
     /**
