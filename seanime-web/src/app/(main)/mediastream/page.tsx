@@ -235,7 +235,7 @@ export default function Page() {
                                 type: mediaContainer?.mediaInfo?.extension === "mp4" ? "video/mp4" :
                                     mediaContainer?.mediaInfo?.extension === "avi" ? "video/x-msvideo" : "video/webm",
                             } : url}
-                            isPlaybackError={isError}
+                            isPlaybackError={isError ? "Playback error" : undefined}
                             isLoading={isMediaContainerLoading}
                             playerRef={playerRef}
                             poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image ||

@@ -159,9 +159,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                         <p className="font-semibold line-clamp-1">
                             {extension.name}
                         </p>
-                        <p className="opacity-30 text-xs line-clamp-1 tracking-wide">
-                            {extension.id}
-                        </p>
+                        {/*<p className="opacity-30 text-xs line-clamp-1 tracking-wide">*/}
+                        {/*    {extension.id}*/}
+                        {/*</p>*/}
                     </div>
                 </div>
 

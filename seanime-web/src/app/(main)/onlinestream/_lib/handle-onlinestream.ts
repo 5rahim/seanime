@@ -54,7 +54,7 @@ export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_Onlinestr
 
     const extension = React.useMemo(() => extensions.find(p => p.id === provider), [extensions, provider])
 
-    const { data, isLoading, isFetching, isError } = useGetOnlineStreamEpisodeSource(
+    const { data, isLoading, isFetching, isError, error } = useGetOnlineStreamEpisodeSource(
         mId,
         provider,
         episodeNumber,
@@ -67,6 +67,7 @@ export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_Onlinestr
         isLoading,
         isFetching,
         isError,
+        error,
     }
 }
 
@@ -165,6 +166,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         isLoading: isLoadingEpisodeSource,
         isFetching: isFetchingEpisodeSource,
         isError: isErrorEpisodeSource,
+        error: errorEpisodeSource,
     } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isSuccess && !waitForWatchHistory))
 
     /**
@@ -445,6 +447,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         handleChangeEpisodeNumber,
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         isErrorEpisodeSource,
+        errorEpisodeSource,
         isErrorProvider: isError,
         opts: {
             selectedExtension,

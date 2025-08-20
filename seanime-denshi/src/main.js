@@ -1,4 +1,4 @@
-const {app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote} = require('electron');
+const {app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net} = require('electron');
 const path = require('path');
 const serve = require('electron-serve');
 const {spawn} = require('child_process');
@@ -24,12 +24,7 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('force-effective-connection-type', '4g');
 
     // Disable features that can interfere with playback
-    app.commandLine.appendSwitch('disable-features', [
-        'Vulkan',
-        'WidgetLayering',
-        'ColorProviderRedirection',
-        'WebContentsForceDarkMode',
-        // 'ForcedColors'
+    app.commandLine.appendSwitch('disable-features', ['Vulkan', 'WidgetLayering', 'ColorProviderRedirection', 'WebContentsForceDarkMode', // 'ForcedColors'
     ].join(','));
 
     // Color management and rendering optimizations
@@ -51,17 +46,9 @@ function setupChromiumFlags() {
     app.commandLine.appendSwitch('enable-accelerated-video-decode');
 
     // Enable advanced features
-    app.commandLine.appendSwitch('enable-features', [
-        'ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes',
-        'PlatformEncryptedDolbyVision',
-        'CanvasOopRasterization',
-        'UseSkiaRenderer',
-        'WebAssemblyLazyCompilation',
-        'RawDraw',
-        // "Vulkan",
+    app.commandLine.appendSwitch('enable-features', ['ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes', 'PlatformEncryptedDolbyVision', 'CanvasOopRasterization', 'UseSkiaRenderer', 'WebAssemblyLazyCompilation', 'RawDraw', // "Vulkan",
         // 'MediaFoundationHEVC',
-        'PlatformHEVCDecoderSupport',
-    ].join(','));
+        'PlatformHEVCDecoderSupport',].join(','));
 
     app.commandLine.appendSwitch('enable-unsafe-webgpu');
     app.commandLine.appendSwitch('enable-gpu-rasterization');
@@ -85,6 +72,82 @@ const appServe = !_development ? serve({
     directory: path.join(__dirname, '../web-denshi')
 }) : null;
 
+// Custom protocol handler for routing in production
+if (!_development) {
+    app.whenReady().then(() => {
+        const {protocol} = require('electron');
+        const mime = require('mime-types');
+
+        // Register a custom protocol to handle routing
+        protocol.handle('app', async (request) => {
+            const url = new URL(request.url);
+            let filePath = url.pathname;
+
+            // Remove leading slash
+            if (filePath.startsWith('/')) {
+                filePath = filePath.substring(1);
+            }
+
+            // Handle root path
+            if (filePath === '' || filePath === '-') {
+                filePath = 'index.html';
+            } else if (!filePath.endsWith('.html') && !filePath.includes('.') && !filePath.includes('/')) {
+                // If it's a route without extension, try to find corresponding HTML file
+                filePath = filePath + '.html';
+            }
+
+            // Handle subdirectories (like splashscreen/crash)
+            if (filePath.includes('/')) {
+                const parts = filePath.split('/');
+                if (parts.length > 1) {
+                    // For nested routes like splashscreen/crash, try the nested structure first
+                    const nestedPath = parts.join('/');
+                    const nestedFullPath = path.join(__dirname, '../web-denshi', nestedPath);
+                    if (fs.existsSync(nestedFullPath)) {
+                        filePath = nestedPath;
+                    } else {
+                        // Try with .html extension
+                        const nestedHtmlPath = nestedPath + '.html';
+                        const nestedHtmlFullPath = path.join(__dirname, '../web-denshi', nestedHtmlPath);
+                        if (fs.existsSync(nestedHtmlFullPath)) {
+                            filePath = nestedHtmlPath;
+                        } else {
+                            // Fall back to the last part with .html
+                            filePath = parts[parts.length - 1] + '.html';
+                        }
+                    }
+                }
+            }
+
+            const fullPath = path.join(__dirname, '../web-denshi', filePath);
+
+            // Check if file exists, otherwise fall back to index.html
+            if (!fs.existsSync(fullPath)) {
+                filePath = 'index.html';
+            }
+
+            const finalPath = path.join(__dirname, '../web-denshi', filePath);
+
+            try {
+                const fileContent = fs.readFileSync(finalPath);
+                const mimeType = mime.lookup(finalPath) || 'application/octet-stream';
+                return new Response(fileContent, {
+                    headers: {
+                        'Content-Type': mimeType,
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+            } catch (error) {
+                console.error('[Protocol] Error reading file:', finalPath, error);
+                return new Response('File not found', {
+                    status: 404,
+                    headers: {'Content-Type': 'text/plain'}
+                });
+            }
+        });
+    });
+}
+
 // Setup update events for logging
 autoUpdater.logger = log;
 log.transports.file.level = 'debug';
@@ -96,7 +159,7 @@ console.error = log.error;
 function logStartupEvent(stage, detail = '') {
     const message = `[STARTUP] ${stage}: ${detail}`;
     log.info(message);
-    console.info(message);
+    // console.info(message);
 }
 
 // Global error handlers to catch unhandled exceptions
@@ -104,10 +167,7 @@ process.on('uncaughtException', (error) => {
     log.error('Uncaught Exception:', error);
 
     if (app.isReady()) {
-        dialog.showErrorBox(
-            'An error occurred',
-            `Uncaught Exception: ${error.message}\n\nCheck the logs for more details.`
-        );
+        dialog.showErrorBox('An error occurred', `Uncaught Exception: ${error.message}\n\nCheck the logs for more details.`);
     }
 
     logStartupEvent('UNCAUGHT EXCEPTION', error.stack || error.message);
@@ -133,8 +193,8 @@ function logEnvironmentInfo() {
     if (process.resourcesPath) {
         logStartupEvent('Resources path', process.resourcesPath);
         try {
-            const resourceFiles = fs.readdirSync(process.resourcesPath);
-            logStartupEvent('Resources directory contents', JSON.stringify(resourceFiles));
+            // const resourceFiles = fs.readdirSync(process.resourcesPath);
+            // logStartupEvent('Resources directory contents', JSON.stringify(resourceFiles));
 
             // Check if binaries directory exists
             const binariesDir = path.join(process.resourcesPath, 'binaries');
@@ -152,11 +212,11 @@ function logEnvironmentInfo() {
     // Check app directory structure
     try {
         const appPath = app.getAppPath();
-        logStartupEvent('App directory contents', JSON.stringify(fs.readdirSync(appPath)));
+        // logStartupEvent('App directory contents', JSON.stringify(fs.readdirSync(appPath)));
 
         const webPath = path.join(appPath, 'web-denshi');
         if (fs.existsSync(webPath)) {
-            logStartupEvent('Web directory contents', JSON.stringify(fs.readdirSync(webPath)));
+            // logStartupEvent('Web directory contents', JSON.stringify(fs.readdirSync(webPath)));
         } else {
             logStartupEvent('ERROR', 'web-denshi directory not found in app path');
         }
@@ -204,9 +264,7 @@ autoUpdater.on('update-available', (info) => {
     autoUpdater.logger.info('Update available:', info);
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('update-available', {
-            version: info.version,
-            releaseDate: info.releaseDate,
-            files: info.files
+            version: info.version, releaseDate: info.releaseDate, files: info.files
         });
     }
 });
@@ -219,10 +277,7 @@ autoUpdater.on('download-progress', (progressObj) => {
     autoUpdater.logger.info(`Download progress: ${progressObj.percent}%`);
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('download-progress', {
-            percent: progressObj.percent,
-            bytesPerSecond: progressObj.bytesPerSecond,
-            transferred: progressObj.transferred,
-            total: progressObj.total
+            percent: progressObj.percent, bytesPerSecond: progressObj.bytesPerSecond, transferred: progressObj.transferred, total: progressObj.total
         });
     }
 });
@@ -232,9 +287,7 @@ autoUpdater.on('update-downloaded', (info) => {
     updateDownloaded = true;
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('update-downloaded', {
-            version: info.version,
-            releaseDate: info.releaseDate,
-            files: info.files
+            version: info.version, releaseDate: info.releaseDate, files: info.files
         });
     }
 });
@@ -243,9 +296,7 @@ autoUpdater.on('error', (err) => {
     autoUpdater.logger.error('Error in auto-updater:', err);
     if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('update-error', {
-            code: err.code || 'unknown',
-            message: err.message,
-            stack: err.stack
+            code: err.code || 'unknown', message: err.message, stack: err.stack
         });
     }
 });
@@ -260,42 +311,30 @@ function createTray() {
     }
     tray = new Tray(iconPath);
 
-    const contextMenu = Menu.buildFromTemplate([
-        {
-            id: 'toggle_visibility',
-            label: 'Toggle visibility',
-            click: () => {
-                if (mainWindow.isVisible()) {
-                    mainWindow.hide();
-                    if (process.platform === 'darwin') {
-                        app.dock.hide();
-                    }
-                } else {
-                    mainWindow.show();
-                    mainWindow.focus();
-                    if (process.platform === 'darwin') {
-                        app.dock.show();
-                    }
-                }
-            }
-        },
-        ...(process.platform === 'darwin' ? [
-            {
-                id: 'accessory_mode',
-                label: 'Remove from dock',
-                click: () => {
+    const contextMenu = Menu.buildFromTemplate([{
+        id: 'toggle_visibility', label: 'Toggle visibility', click: () => {
+            if (mainWindow.isVisible()) {
+                mainWindow.hide();
+                if (process.platform === 'darwin') {
                     app.dock.hide();
                 }
-            }
-        ] : []),
-        {
-            id: 'quit',
-            label: 'Quit Seanime',
-            click: () => {
-                cleanupAndExit();
+            } else {
+                mainWindow.show();
+                mainWindow.focus();
+                if (process.platform === 'darwin') {
+                    app.dock.show();
+                }
             }
         }
-    ]);
+    }, ...(process.platform === 'darwin' ? [{
+        id: 'accessory_mode', label: 'Remove from dock', click: () => {
+            app.dock.hide();
+        }
+    }] : []), {
+        id: 'quit', label: 'Quit Seanime', click: () => {
+            cleanupAndExit();
+        }
+    }]);
 
     tray.setToolTip('Seanime');
     tray.setContextMenu(contextMenu);
@@ -312,7 +351,7 @@ function createTray() {
 /**
  * Launch the Seanime server
  */
-async function launchSeanimeServer() {
+async function launchSeanimeServer(isRestart) {
     return new Promise((resolve, reject) => {
         // TEST ONLY: Check for -no-binary flag
         if (process.argv.includes('-no-binary')) {
@@ -402,11 +441,12 @@ async function launchSeanimeServer() {
             //     mainWindow.webContents.send('message', lineStr);
             // }
 
+            // Check if the frontend is connected
             if (!serverStarted && lineStr.includes('Client connected')) {
                 console.log('[Main] Server started');
+                serverStarted = true;
                 setTimeout(() => {
                     console.log('[Main] Server started timeout');
-                    serverStarted = true;
                     if (splashScreen && !splashScreen.isDestroyed()) {
                         splashScreen.close();
                         splashScreen = null;
@@ -417,7 +457,7 @@ async function launchSeanimeServer() {
                         mainWindow.show();
                     }
                     resolve();
-                }, 2000);
+                }, 1000);
             }
         });
 
@@ -430,8 +470,10 @@ async function launchSeanimeServer() {
 
             // If the server didn't start properly and we're not in the process of shutting down
             if (!serverStarted && !isShutdown) {
+                console.log('[Main] Server process exited before starting');
                 reject(new Error(`Server process exited prematurely with code ${code} before starting.`));
 
+                // close splash screen and main window
                 if (splashScreen && !splashScreen.isDestroyed()) {
                     splashScreen.close();
                     splashScreen = null;
@@ -441,12 +483,10 @@ async function launchSeanimeServer() {
                     mainWindow.close();
                 }
 
+                // show crash screen
                 if (crashScreen && !crashScreen.isDestroyed()) {
                     crashScreen.show();
-                    crashScreen.webContents.send(
-                        'crash',
-                        `Seanime server process terminated with status: ${code}. Closing in 10 seconds.`
-                    );
+                    crashScreen.webContents.send('crash', `Seanime server process terminated with status: ${code}. Closing in 10 seconds.`);
 
                     setTimeout(() => {
                         app.exit(1);
@@ -469,10 +509,7 @@ async function launchSeanimeServer() {
 function createMainWindow() {
     logStartupEvent('Creating main window');
     const windowOptions = {
-        width: 800,
-        height: 600,
-        show: false,
-        webPreferences: {
+        width: 800, height: 600, show: false, webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
@@ -527,11 +564,9 @@ function createMainWindow() {
         mainWindow.loadURL('http://127.0.0.1:43210');
         // mainWindow.loadURL('chrome://gpu');
     } else {
-        // Load from electron-serve
-        logStartupEvent('Loading production build with electron-serve');
-        appServe(mainWindow).then(() => {
-            mainWindow.loadURL('app://-');
-        });
+        // Load from custom protocol handler in production
+        logStartupEvent('Loading production build with custom protocol');
+        mainWindow.loadURL('app://-');
     }
 
     // Development tools
@@ -556,14 +591,8 @@ function createMainWindow() {
 function createSplashScreen() {
     logStartupEvent('Creating splash screen');
     splashScreen = new BrowserWindow({
-        width: 800,
-        height: 600,
-        frame: false,
-        resizable: false,
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+        width: 800, height: 600, frame: false, resizable: false, webPreferences: {
+            nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'preload.js')
         }
     });
 
@@ -573,11 +602,9 @@ function createSplashScreen() {
         logStartupEvent('Loading splash from dev server', 'http://127.0.0.1:43210/splashscreen');
         splashScreen.loadURL('http://127.0.0.1:43210/splashscreen');
     } else {
-        // Load from electron-serve
-        logStartupEvent('Loading splash screen with electron-serve');
-        appServe(splashScreen).then(() => {
-            splashScreen.loadURL('app://splashscreen');
-        });
+        // Load from custom protocol handler
+        logStartupEvent('Loading splash screen with custom protocol');
+        splashScreen.loadURL('app://splashscreen');
     }
 }
 
@@ -586,15 +613,8 @@ function createSplashScreen() {
  */
 function createCrashScreen() {
     crashScreen = new BrowserWindow({
-        width: 800,
-        height: 600,
-        frame: false,
-        resizable: false,
-        show: false,
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+        width: 800, height: 600, frame: false, resizable: false, show: false, webPreferences: {
+            nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'preload.js')
         }
     });
 
@@ -603,10 +623,8 @@ function createCrashScreen() {
         // In development, load from the dev server
         crashScreen.loadURL('http://127.0.0.1:43210/splashscreen/crash');
     } else {
-        // Load from electron-serve
-        appServe(crashScreen).then(() => {
-            crashScreen.loadURL('app://splashscreen/crash');
-        });
+        // Load from custom protocol handler
+        crashScreen.loadURL('app://splashscreen/crash');
     }
 }
 
@@ -650,8 +668,7 @@ app.whenReady().then(async () => {
             console.log('[Main] Checking for updates...');
             const result = await autoUpdater.checkForUpdates();
             return {
-                updateAvailable: !!result?.updateInfo,
-                updateInfo: result?.updateInfo
+                updateAvailable: !!result?.updateInfo, updateInfo: result?.updateInfo
             };
         } catch (error) {
             console.error('[Main] Error checking for updates:', error);
@@ -698,7 +715,7 @@ app.whenReady().then(async () => {
     // Launch server
     try {
         logStartupEvent('Attempting to launch server');
-        await launchSeanimeServer();
+        await launchSeanimeServer(false);
         logStartupEvent('Server launched successfully');
         // Check for updates only after server launch and main window setup is successful
         autoUpdater.checkForUpdatesAndNotify();
@@ -712,10 +729,7 @@ app.whenReady().then(async () => {
 
         if (crashScreen && !crashScreen.isDestroyed()) {
             crashScreen.show();
-            crashScreen.webContents.send(
-                'crash',
-                `The server failed to start: ${error}. Closing in 10 seconds.`
-            );
+            crashScreen.webContents.send('crash', `The server failed to start: ${error}. Closing in 10 seconds.`);
 
             setTimeout(() => {
                 console.error('[Main] Exiting due to server start failure.');
@@ -771,6 +785,11 @@ app.whenReady().then(async () => {
         }
     });
 
+    ipcMain.handle('window:getCurrentWindow', () => {
+        const win = BrowserWindow.fromWebContents(mainWindow.webContents);
+        return win?.id;
+    });
+
     // Window state query handlers
     ipcMain.handle('window:isMaximized', () => {
         return mainWindow && !mainWindow.isDestroyed() ? mainWindow.isMaximized() : false;
@@ -811,9 +830,9 @@ app.whenReady().then(async () => {
             console.log('Killing existing server process');
             serverProcess.kill();
         }
-
-        serverStarted = false;
-        launchSeanimeServer().catch(console.error);
+        // devnote: don't set this to false or it will trigger the crashscreen
+        // serverStarted = false;
+        launchSeanimeServer(true).catch(console.error);
     });
 
     ipcMain.on('kill-server', () => {

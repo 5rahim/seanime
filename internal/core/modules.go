@@ -211,9 +211,8 @@ func (a *App) initModulesOnce() {
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		MediaPlayerRepository: a.MediaPlayerRepository,
-		PlaybackManager:       a.PlaybackManager,
-		MangaRepository:       a.MangaRepository,
+		PlaybackManager: a.PlaybackManager,
+		MangaRepository: a.MangaRepository,
 	})
 
 	// +---------------------+
@@ -383,6 +382,10 @@ func (a *App) InitOrRefreshModules() {
 		})
 
 		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
+
+		plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+			MediaPlayerRepository: a.MediaPlayerRepository,
+		})
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}

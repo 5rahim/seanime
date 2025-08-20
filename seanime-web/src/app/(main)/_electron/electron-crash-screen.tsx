@@ -1,34 +1,26 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import React from "react"
 
 export function ElectronCrashScreenError() {
+    const [msg, setMsg] = React.useState("")
+
+    React.useEffect(() => {
+
+        if (window.electron) {
+            const u = window.electron.on("crash", (msg: string) => {
+                console.log("Received crash event", msg)
+                setMsg(msg)
+            })
+            return () => {
+                u?.()
+            }
+        }
+    }, [])
 
     return (
-        <div className="flex items-center justify-center py-10">
-            <div className="space-y-4">
-                <Button
-                    intent="primary-outline"
-                    onClick={() => {
-                        if ((window as any).electron) {
-                            (window as any).electron.send("restart-app")
-                        }
-                    }}
-                >
-                    Restart Seanime
-                </Button>
-                <Button
-                    intent="alert-subtle"
-                    onClick={() => {
-                        if ((window as any).electron) {
-                            (window as any).electron.send("quit-app")
-                        }
-                    }}
-                >
-                    Quit Seanime
-                </Button>
-            </div>
-        </div>
+        <p className="px-4">
+            {msg || "An error occurred"}
+        </p>
     )
 }

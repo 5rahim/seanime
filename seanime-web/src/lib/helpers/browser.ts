@@ -15,8 +15,8 @@ export async function copyToClipboard(text: string) {
     if (__isTauriDesktop__) {
         const { writeText } = require("@tauri-apps/plugin-clipboard-manager")
         await writeText(text)
-    } else if (__isElectronDesktop__ && (window as any).electron?.clipboard) {
-        await (window as any).electron.clipboard.writeText(text)
+    } else if (__isElectronDesktop__ && window.electron?.clipboard) {
+        await window.electron.clipboard.writeText(text)
     } else {
         copy(text)
     }

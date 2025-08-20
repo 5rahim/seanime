@@ -367,8 +367,13 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			return
 		}
 
+		windowTitle := media.GetPreferredTitle()
+		if !media.IsMovieOrSingleEpisode() {
+			windowTitle += fmt.Sprintf(" - Episode %s", aniDbEpisode)
+		}
+
 		event := &DebridSendStreamToMediaPlayerEvent{
-			WindowTitle:  fmt.Sprintf("%s - Episode %s", selectedTorrent.Name, aniDbEpisode),
+			WindowTitle:  windowTitle,
 			StreamURL:    streamUrl,
 			Media:        media.ToBaseAnime(),
 			AniDbEpisode: aniDbEpisode,
@@ -378,7 +383,7 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		if err != nil {
 			s.repository.logger.Err(err).Msg("debridstream: Failed to send stream to media player")
 		}
-		windowTitle := event.WindowTitle
+		windowTitle = event.WindowTitle
 		streamUrl = event.StreamURL
 		media := event.Media
 		aniDbEpisode := event.AniDbEpisode
@@ -476,10 +481,12 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 				Url           string `json:"url"`
 				MediaId       int    `json:"mediaId"`
 				EpisodeNumber int    `json:"episodeNumber"`
+				MediaTitle    string `json:"mediaTitle"`
 			}{
 				Url:           streamUrl,
 				MediaId:       opts.MediaId,
 				EpisodeNumber: opts.EpisodeNumber,
+				MediaTitle:    media.GetPreferredTitle(),
 			})
 
 			// Signal to the client that the torrent has started playing (remove loading status)

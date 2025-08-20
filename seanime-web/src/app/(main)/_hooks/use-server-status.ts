@@ -51,7 +51,7 @@ export function useServerHMACAuth() {
     const [password] = useAtom(serverAuthTokenAtom)
 
     return {
-        getHMACTokenQueryParam: async (endpoint: string, symbol?: string) => {
+        getHMACTokenQueryParam: async (endpoint: string, symbol?: string): Promise<string> => {
             if (!serverStatus?.serverHasPassword || !password) return ""
 
             try {

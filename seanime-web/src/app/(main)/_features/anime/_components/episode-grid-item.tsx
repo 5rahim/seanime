@@ -92,6 +92,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                 "rounded-lg relative transition group/episode-list-item select-none",
                 !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 ? "bg-[--background] p-3" : "py-3",
                 "pr-12",
+                disabled && "cursor-not-allowed opacity-50 pointer-events-none",
                 className,
             )}
             {...rest}

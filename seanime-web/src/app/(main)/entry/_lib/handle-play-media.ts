@@ -1,5 +1,3 @@
-import { getExternalPlayerURL } from "@/api/client/external-player-link"
-import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Episode } from "@/api/generated/types"
 import { useDirectstreamPlayLocalFile } from "@/api/hooks/directstream.hooks"
 import { useNakamaPlayVideo } from "@/api/hooks/nakama.hooks"
@@ -14,6 +12,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
@@ -51,15 +50,13 @@ export function useHandlePlayMedia() {
         if (episode._isNakamaEpisode) {
             // If external player link is set, open the media file in the external player
             if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {
-                let urlToSend = getServerBaseUrl() + "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64")
-                logger("PLAY MEDIA").info("Opening external player", externalPlayerLink, "URL", urlToSend)
-
-                // If the external player link includes a query parameter, we need to encode the URL to prevent query parameter conflicts
-                if (externalPlayerLink.includes("?")) {
-                    urlToSend = encodeURIComponent(urlToSend)
-                }
-
-                openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
+                const link = new ExternalPlayerLink(externalPlayerLink)
+                link.setEpisodeNumber(episode.progressNumber)
+                link.setMediaTitle(episode.baseAnime?.title?.userPreferred)
+                link.to({
+                    endpoint: "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64"),
+                }).then()
+                openTab(link.getFullUrl())
 
                 if (episode?.progressNumber && episode.type === "main") {
                     logger("PLAY MEDIA").error("Starting manual tracking for nakama file")
@@ -74,6 +71,7 @@ export function useHandlePlayMedia() {
                 } else {
                     logger("PLAY MEDIA").warning("No manual tracking, progress number is not set for nakama file")
                 }
+                return
             }
             return playNakamaVideo({ path, mediaId, anidbEpisode })
         }

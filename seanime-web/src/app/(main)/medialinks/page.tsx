@@ -1,7 +1,5 @@
 "use client"
 
-import { getExternalPlayerURL } from "@/api/client/external-player-link"
-import { getServerBaseUrl } from "@/api/client/server-url"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { usePlaybackStartManualTracking } from "@/api/hooks/playback_manager.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
@@ -15,6 +13,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
@@ -70,19 +69,14 @@ export default function Page() {
                     return
                 }
 
-                const endpoint = "/api/v1/mediastream/file?path=" + encodeFilePath(filePath)
-                const tokenQueryParam = await getHMACTokenQueryParam("/api/v1/mediastream/file", "&")
-
-                // Send video to external player
-                let urlToSend = getServerBaseUrl() + endpoint + tokenQueryParam
-                logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
-
-                // If the external player link includes a query parameter, we need to encode the URL to prevent query parameter conflicts
-                if (externalPlayerLink.includes("?")) {
-                    urlToSend = encodeURIComponent(urlToSend)
-                }
-
-                openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
+                const link = new ExternalPlayerLink(externalPlayerLink)
+                link.setEpisodeNumber(episode.progressNumber)
+                link.setMediaTitle(animeEntry.media?.title?.userPreferred)
+                await link.to({
+                    endpoint: "/api/v1/mediastream/file?path=" + encodeFilePath(filePath),
+                    onTokenQueryParam: () => getHMACTokenQueryParam("/api/v1/mediastream/file", "&"),
+                })
+                openTab(link.getFullUrl())
 
                 if (episode?.progressNumber && episode.type === "main") {
                     logger("MEDIALINKS").error("Starting manual tracking")

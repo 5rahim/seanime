@@ -8,6 +8,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
@@ -26,6 +27,7 @@ export type SeaMediaPlayerLayoutProps = {
     mediaPlayer: React.ReactNode
     episodeList: React.ReactNode
     episodes: any[] | undefined
+    loading?: boolean
 }
 
 export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
@@ -38,6 +40,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
         mediaPlayer,
         episodeList,
         episodes,
+        loading,
     } = props
 
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
@@ -132,7 +135,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 </div>
             </div>
 
-            <div
+            {!(loading === false) ? <div
                 data-sea-media-player-layout-content
                 className={cn(
                     "flex gap-4 w-full flex-col 2xl:flex-row",
@@ -166,7 +169,16 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                         className={"z-[5] absolute bottom-0 w-full h-[2rem] bg-gradient-to-t from-[--background] to-transparent"}
                     />
                 </ScrollArea>
-            </div>
+            </div> : <div
+                className="grid 2xl:grid-cols-[1fr,450px] gap-4 xl:gap-4"
+            >
+                <div className="w-full min-h-[70dvh] relative">
+                    <Skeleton className="h-full w-full absolute" />
+                </div>
+
+                <Skeleton className="hidden 2xl:block relative h-[78dvh] overflow-y-auto pr-4 pt-0" />
+
+            </div>}
         </div>
     )
 }

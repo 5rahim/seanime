@@ -116,7 +116,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                     changeServer(v)
                 }}
                 fieldClass="w-fit"
-                className="rounded-full w-fit"
+                className="rounded-full w-fit !px-4"
                 addonClass="rounded-full rounded-r-none"
             />}
             <IsomorphicPopover
