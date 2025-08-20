@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.7
+
+- ⚡️ Nakama: Better default titles with MPV
+- ⚡️ External Player Links: New variables for custom scheme #345
+  - {mediaTitle}, {episodeNumber}, {formattedTitle}, {scheme}
+- 🦺 Fixed Auto Downloader not working with Debrid 
+- 🦺 Auto Play: Use same torrent when playback is started from previous selection
+- 🦺 Nakama: Fixed external player link starting playback on system player 
+- 🦺 Online streaming: Fixed m3u8 Proxy skipping some URIs #396
+- 🦺 Fixed VLC progress tracking for local file playback #398
+- 🦺 Plugin Hooks: Fixed some events being ignored 
+- 🦺 Online streaming: Invalidate all episode queries when emptying cache
+- 🏗️️ Online streaming: Display errors in the UI
+
 ## v2.9.6
 
 - 🦺 Fixed server crash caused by navigating to 'Schedule' page
