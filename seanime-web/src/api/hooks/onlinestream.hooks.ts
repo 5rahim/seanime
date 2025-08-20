@@ -64,6 +64,7 @@ export function useOnlineStreamEmptyCache() {
         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeSource.key] })
             toast.info("Stream cache emptied")
         },
     })
