@@ -1,5 +1,10 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import {
+    useCancelDiscordActivity,
+    useSetDiscordAnimeActivityWithProgress,
+    useUpdateDiscordAnimeActivityWithProgress,
+} from "@/api/hooks/discord.hooks"
 import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
@@ -212,7 +217,7 @@ export interface VideoCoreProps {
 }
 
 export function VideoCore(props: VideoCoreProps) {
-    const status = useServerStatus()
+    const serverStatus = useServerStatus()
 
     const {
         state,
@@ -281,6 +286,26 @@ export function VideoCore(props: VideoCoreProps) {
     const [muted] = useAtom(__seaMediaPlayer_mutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(__seaMediaPlayer_playbackRateAtom)
 
+    const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
+    const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
+    const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            if (!videoRef.current) return
+
+            if (serverStatus?.settings?.discord?.enableRichPresence && serverStatus?.settings?.discord?.enableAnimeRichPresence) {
+                updateAnimeDiscordActivity({
+                    progress: Math.floor(videoRef.current?.currentTime ?? 0),
+                    duration: Math.floor(videoRef.current?.duration ?? 0),
+                    paused: videoRef.current?.paused ?? false,
+                })
+            }
+        }, 6000)
+
+        return () => clearInterval(interval)
+    }, [serverStatus?.settings?.discord, videoRef.current])
+
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
     React.useEffect(() => {
         setRealVideoSize({
@@ -293,6 +318,10 @@ export function VideoCore(props: VideoCoreProps) {
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
+
+        if (!state.playbackInfo || state.playbackInfo.id !== currentPlaybackRef.current) {
+            cancelDiscordActivity()
+        }
     }, [state.playbackInfo])
 
 
@@ -469,11 +498,38 @@ export function VideoCore(props: VideoCoreProps) {
         })
 
         log.info("Initializing preview manager")
-        // TODO uncomment
         setPreviewManager(p => {
             if (p) p.cleanup()
             return new VideoCorePreviewManager(v!, streamUrl)
         })
+
+        if (
+            serverStatus?.settings?.discord?.enableRichPresence &&
+            serverStatus?.settings?.discord?.enableAnimeRichPresence &&
+            !!state.playbackInfo?.media?.id &&
+            !!state.playbackInfo?.episode?.progressNumber
+        ) {
+            const media = state.playbackInfo.media
+            const videoProgress = videoRef.current?.currentTime ?? 0
+            const videoDuration = videoRef.current?.duration ?? 0
+
+            log.info("Setting discord activity", {
+                videoProgress,
+                videoDuration,
+            })
+            setAnimeDiscordActivity({
+                mediaId: media?.id ?? 0,
+                title: media?.title?.userPreferred || media?.title?.romaji || media?.title?.english || "Watching",
+                image: media?.coverImage?.large || media?.coverImage?.medium || "",
+                isMovie: media?.format === "MOVIE",
+                episodeNumber: state.playbackInfo?.episode?.progressNumber ?? 0,
+                progress: Math.floor(videoProgress),
+                duration: Math.floor(videoDuration),
+                totalEpisodes: media?.episodes,
+                currentEpisodeCount: media?.nextAiringEpisode?.episode ? media?.nextAiringEpisode?.episode - 1 : media?.episodes,
+                episodeTitle: state.playbackInfo.episode.episodeTitle || undefined,
+            })
+        }
     }
 
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {

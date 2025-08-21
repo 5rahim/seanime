@@ -108,7 +108,7 @@ export function useToggleAnimeEntrySilenceStatus() {
     })
 }
 
-export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episodeNumber: number) {
+export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episodeNumber: number, showToast: boolean = true) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, UpdateAnimeEntryProgress_Variables>({
@@ -121,7 +121,9 @@ export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episod
             if (id) {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
             }
-            toast.success("Progress updated successfully")
+            if (showToast) {
+                toast.success("Progress updated successfully")
+            }
         },
     })
 }

@@ -67,6 +67,7 @@ export function NativePlayer() {
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: isProgressUpdateSuccess } = useUpdateAnimeEntryProgress(
         state.playbackInfo?.media?.id,
         state.playbackInfo?.episode?.progressNumber ?? 0,
+        false,
     )
 
     const handleTimeInterval = () => {
@@ -110,6 +111,13 @@ export function NativePlayer() {
                 },
             },
         })
+        if (state.playbackInfo?.media && state.playbackInfo?.episode) {
+            updateProgress({
+                mediaId: state.playbackInfo?.media?.id,
+                totalEpisodes: state.playbackInfo?.media?.episodes || 0,
+                episodeNumber: state.playbackInfo?.episode?.progressNumber,
+            })
+        }
     }
 
     const handleTimeUpdate = () => {
@@ -233,16 +241,6 @@ export function NativePlayer() {
             if (lastWatchedTime > 0) {
                 logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
                 dispatchEvent({ type: "restoreProgress", payload: { time: lastWatchedTime } })
-                // const isPaused = videoElement?.paused
-                // videoElement?.play?.()
-                // setTimeout(() => {
-                //
-                //     if (isPaused) {
-                //         setTimeout(() => {
-                //             videoElement?.pause?.()
-                //         }, 200)
-                //     }
-                // }, 1000)
             }
         }
     }

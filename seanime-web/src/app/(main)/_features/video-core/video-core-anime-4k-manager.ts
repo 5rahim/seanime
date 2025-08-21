@@ -125,7 +125,7 @@ export class VideoCoreAnime4KManager {
         this._currentOption = option
 
         if (option === "off") {
-            log.info("Anime4K turned off")
+            // log.info("Anime4K turned off")
             this.destroy()
             return
         }
