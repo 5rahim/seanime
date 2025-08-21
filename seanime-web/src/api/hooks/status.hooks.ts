@@ -4,7 +4,7 @@ import { DeleteLogs_Variables, GetAnnouncements_Variables } from "@/api/generate
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MemoryStatsResponse, Status, Updater_Announcement } from "@/api/generated/types"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { copyToClipboard } from "@/lib/helpers/browser"
+import { copyToClipboard, openTab } from "@/lib/helpers/browser"
 import { __isDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
@@ -198,14 +198,7 @@ export function useDownloadGoRoutineProfile() {
                 const filename = `seanime-goroutine-profile-${timestamp}.pprof`
 
                 const url = window.URL.createObjectURL(blob)
-                const link = document.createElement("a")
-                link.href = url
-                link.setAttribute("download", filename)
-                link.style.display = "none"
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                window.URL.revokeObjectURL(url)
+                openTab(url)
 
                 toast.success("Goroutine profile downloaded")
             }

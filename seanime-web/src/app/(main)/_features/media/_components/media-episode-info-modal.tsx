@@ -27,7 +27,7 @@ function IsomorphicPopover(props: PopoverProps & ModalProps) {
     if (width && width > 1024) {
         return <Popover
             {...rest}
-            className="max-w-xl !w-full overflow-hidden"
+            className="max-w-xl !w-full overflow-hidden min-w-md"
         >
             {children}
         </Popover>
@@ -56,6 +56,8 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
         filename,
         ...rest
     } = props
+
+    if (!episodeTitle && !filename && !summary) return null
 
     return (
         <>

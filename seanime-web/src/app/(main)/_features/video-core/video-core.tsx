@@ -10,7 +10,8 @@ import {
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { vc_doFlashAction, VideoCoreActionDisplay } from "@/app/(main)/_features/video-core/video-core-action-display"
-import { useVideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
+import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
+import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
 import {
     vc_hoveringControlBar,
@@ -74,7 +75,7 @@ export const VIDEOCORE_DEBUG_ELEMENTS = false
 const DELAY_BEFORE_NOT_BUSY = 1_000 //ms
 
 export const vc_videoSize = atom({ width: 1, height: 1 })
-export const vc_realVideoSize = atom({ width: 1, height: 1 })
+export const vc_realVideoSize = atom({ width: 0, height: 0 })
 export const vc_duration = atom(1)
 export const vc_currentTime = atom(0)
 export const vc_playbackRate = atom(1)
@@ -119,10 +120,13 @@ export const vc_containerElement = atom<HTMLDivElement | null>(null)
 export const vc_subtitleManager = atom<VideoCoreSubtitleManager | null>(null)
 export const vc_audioManager = atom<VideoCoreAudioManager | null>(null)
 export const vc_previewManager = atom<VideoCorePreviewManager | null>(null)
+export const vc_anime4kManager = atom<VideoCoreAnime4KManager | null>(null)
 
 export const vc_previousPausedState = atom(false)
 
-type VideoCoreAction = "seekTo" | "seek" | "togglePlay"
+export const vc_lastKnownProgress = atom(0)
+
+type VideoCoreAction = "seekTo" | "seek" | "togglePlay" | "restoreProgress"
 
 export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCoreAction; payload?: any }) => {
     const videoElement = get(vc_videoElement)
@@ -151,6 +155,10 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 break
             case "togglePlay":
                 videoElement.paused ? videoElement.play() : videoElement.pause()
+                break
+            case "restoreProgress":
+                // Restore time to the last known position
+                set(vc_lastKnownProgress, Math.max(0, action.payload.time))
                 break
         }
     }
@@ -220,7 +228,7 @@ export function VideoCore(props: VideoCoreProps) {
     const setVideoElement = useSetAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
     useVideoCoreBindings(state.playbackInfo)
-    useVideoCoreAnime4K()
+    // useVideoCoreAnime4K()
     useVideoCorePlaylistSetup()
 
     const videoCompletedRef = useRef(false)
@@ -231,6 +239,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [subtitleManager, setSubtitleManager] = useAtom(vc_subtitleManager)
     const [audioManager, setAudioManager] = useAtom(vc_audioManager)
     const [previewManager, setPreviewManager] = useAtom(vc_previewManager)
+    const [anime4kManager, setAnime4kManager] = useAtom(vc_anime4kManager)
     const [pipManager, setPipManager] = useAtom(vc_pipManager)
     const setPipElement = useSetAtom(vc_pipElement)
     const [fullscreenManager, setFullscreenManager] = useAtom(vc_fullscreenManager)
@@ -249,6 +258,7 @@ export function VideoCore(props: VideoCoreProps) {
     const beautifyImage = useAtomValue(vc_beautifyImageAtom)
     const isPip = useAtomValue(vc_pip)
     const flashAction = useSetAtom(vc_doFlashAction)
+    const dispatchAction = useSetAtom(vc_dispatchAction)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
@@ -293,9 +303,11 @@ export function VideoCore(props: VideoCoreProps) {
         if (videoRef?.current?.paused) {
             videoRef?.current?.play()
             onPlay?.()
+            flashAction({ message: "PLAY", type: "icon" })
         } else {
             videoRef?.current?.pause()
             onPause?.()
+            flashAction({ message: "PAUSE", type: "icon" })
         }
     }
 
@@ -339,6 +351,8 @@ export function VideoCore(props: VideoCoreProps) {
             previewManager?.cleanup?.()
             setPreviewManager(null)
             setAudioManager(null)
+            anime4kManager?.destroy?.()
+            setAnime4kManager(null)
             pipManager?.destroy?.()
             setPipManager(null)
             setPipElement(null)
@@ -356,6 +370,8 @@ export function VideoCore(props: VideoCoreProps) {
     }, [state.playbackInfo, videoRef.current])
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
+
+    const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
 
     // events
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -400,6 +416,22 @@ export function VideoCore(props: VideoCoreProps) {
                 },
             }))
         }
+
+        // Initialize Anime4K manager
+        setAnime4kManager(p => {
+            if (p) p.destroy()
+            return new VideoCoreAnime4KManager({
+                videoElement: v!,
+                settings: settings,
+                onFallback: (message) => {
+                    flashAction({ message, duration: 2000 })
+                },
+                onOptionChanged: (opt) => {
+                    console.warn("here", opt)
+                    setAnime4kOption(opt)
+                },
+            })
+        })
 
         // Initialize PIP manager
         setPipManager(p => {
@@ -479,6 +511,10 @@ export function VideoCore(props: VideoCoreProps) {
     const handleClick = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Video clicked")
         togglePlay()
+    }
+
+    const handleDoubleClick = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        // fullscreenManager?.toggleFullscreen()
     }
 
     const handlePlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -690,8 +726,27 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [handleUpload, state.active])
 
+    /**
+     * Restore last position
+     */
+    const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
+    React.useEffect(() => {
+        if (!anime4kManager || !restoreProgressTo) return
+
+        if (anime4kOption === "off" || anime4kManager.canvas !== null) {
+            dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo } })
+        } else if (anime4kOption !== ("off" as Anime4KOption) && anime4kManager.canvas === null) {
+            anime4kManager.registerOnCanvasCreated(() => {
+                dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo } })
+                setRestoreProgressTo(0)
+            })
+        }
+
+    }, [anime4kManager, anime4kOption, restoreProgressTo])
+
     return (
         <>
+            <VideoCoreAnime4K />
             <VideoCoreKeybindingsModal />
             {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
@@ -832,7 +887,7 @@ export function VideoCore(props: VideoCoreProps) {
                                     onPlay={handlePlay}
                                     onPause={handlePause}
                                     onClick={handleClick}
-                                    onDoubleClick={() => { }}
+                                    onDoubleClick={handleDoubleClick}
                                     onLoadedData={handleLoadedData}
                                     onVolumeChange={handleVolumeChange}
                                     onRateChange={handleRateChange}
@@ -847,7 +902,7 @@ export function VideoCore(props: VideoCoreProps) {
                                     style={{
                                         border: "none",
                                         width: "100%",
-                                        height: "100%",
+                                        height: "auto",
                                         filter: (settings.videoEnhancement.enabled && beautifyImage)
                                             ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
                                             : "none",

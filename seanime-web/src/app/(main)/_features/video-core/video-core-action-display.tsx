@@ -1,7 +1,7 @@
 // Flash notification system
 import { vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { cn } from "@/components/ui/core/styling"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/index"
 import { motion } from "motion/react"
 import React from "react"
@@ -33,7 +33,7 @@ export const vc_doFlashAction = atom(null, (get, set, payload: { message: string
 
 export function VideoCoreActionDisplay() {
     const [notification] = useAtom(vc_flashAction)
-    const isMiniPlayer = useAtom(vc_miniPlayer)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
 
     if (!notification) return null
 
@@ -47,9 +47,15 @@ export function VideoCoreActionDisplay() {
                 className="absolute w-full h-full pointer-events-none flex z-[50] items-center justify-center"
             >
                 {notification.message === "PLAY" &&
-                    <PiPlayDuotone className="size-24 text-white" style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }} />}
+                    <PiPlayDuotone
+                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
+                    />}
                 {notification.message === "PAUSE" &&
-                    <PiPauseDuotone className="size-24 text-white" style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }} />}
+                    <PiPauseDuotone
+                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
+                    />}
             </motion.div>
         )
     }

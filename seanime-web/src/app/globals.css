@@ -244,10 +244,11 @@ h6 {
 /*    overflow-y: auto !important;*/
 /*}*/
 
-body[data-scroll-locked] .scroll-locked-offset {
-    padding-right: 10px;
+@media screen and (min-width: 1024px) {
+    body[data-scroll-locked] .scroll-locked-offset {
+        padding-right: 10px;
+    }
 }
-
 
 body[data-scroll-locked] .media-page-header-scroll-locked {
     /*right: 10px;*/

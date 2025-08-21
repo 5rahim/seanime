@@ -16,6 +16,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import Image from "next/image"
 import React from "react"
@@ -135,9 +136,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 </div>
             </div>
 
-            <div className="z-[1] relative space-y-3">
+            <div className="z-[1] relative flex flex-col h-full">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
+                    <div className="relative rounded-md size-12 flex-none bg-gray-900 overflow-hidden">
                         {!!extension.icon ? (
                             <Image
                                 src={extension.icon}
@@ -159,13 +160,21 @@ export function ExtensionCard(props: ExtensionCardProps) {
                         <p className="font-semibold line-clamp-1">
                             {extension.name}
                         </p>
-                        <p className="opacity-30 text-xs line-clamp-1 tracking-wide">
-                            {extension.id}
-                        </p>
+                        <Popover
+                            className="text-sm cursor-pointer" trigger={<p className="opacity-30 mt-1 text-xs line-clamp-1 tracking-wide">
+                            {extension.description}
+                        </p>}
+                        >
+                            {extension.description}
+                        </Popover>
                     </div>
                 </div>
 
-                <div className="flex gap-2 flex-wrap">
+                {!!updateData && <Badge className="rounded-md absolute right-9 top-1" intent="success">
+                    Update available
+                </Badge>}
+
+                <div className="flex gap-2 flex-wrap pt-4 flex-1 items-end">
                     {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
@@ -182,9 +191,6 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {/*<Badge className="rounded-md" intent="unstyled">*/}
                     {/*    {capitalize(extension.language)}*/}
                     {/*</Badge>*/}
-                    {!!updateData && <Badge className="rounded-md" intent="success">
-                        Update available
-                    </Badge>}
                 </div>
 
             </div>

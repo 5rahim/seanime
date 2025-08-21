@@ -14,7 +14,7 @@ import React from "react"
 
 const __torrentSearch_streamingSelectedEpisodeAtom = atom<Anime_Episode | null>(null)
 
-export function useStreamingSelectedEpisode() {
+export function useTorrentSearchSelectedStreamEpisode() {
     const [value, setter] = useAtom(__torrentSearch_streamingSelectedEpisodeAtom)
 
     return {
@@ -30,7 +30,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection } = useHandleStartDebridStream()
-    const { torrentStreamingSelectedEpisode } = useStreamingSelectedEpisode()
+    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setDrawerOpen] = useAtom(__torrentSearch_selectionAtom)
     const { setDebridstreamAutoplaySelectedTorrent } = useDebridStreamAutoplay()

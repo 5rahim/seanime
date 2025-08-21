@@ -555,8 +555,6 @@ export function VideoCoreSubtitleButton() {
 
     function onAudioChange() {
         setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
-
-        console.log(subtitleManager?.getSelectedTrack?.() ?? null)
     }
 
     React.useEffect(() => {

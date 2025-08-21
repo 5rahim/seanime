@@ -21,27 +21,27 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
 
     // Handle window control actions
     function handleMinimize() {
-        if ((window as any).electron?.window) {
-            (window as any).electron.window.minimize()
+        if (window.electron?.window) {
+            window.electron.window.minimize()
         }
     }
 
     function toggleMaximized() {
-        if ((window as any).electron?.window) {
-            (window as any).electron.window.toggleMaximize()
+        if (window.electron?.window) {
+            window.electron.window.toggleMaximize()
         }
     }
 
     function handleClose() {
-        if ((window as any).electron?.window) {
-            (window as any).electron.window.close()
+        if (window.electron?.window) {
+            window.electron.window.close()
         }
     }
 
     // Check fullscreen state
     function onFullscreenChange() {
-        if ((window as any).electron?.window) {
-            (window as any).electron.window.isFullscreen().then((fullscreen: boolean) => {
+        if (window.electron?.window) {
+            window.electron.window.isFullscreen().then((fullscreen: boolean) => {
                 setShowControls(!fullscreen)
                 setDisplayDragRegion(!fullscreen)
             })
@@ -50,31 +50,31 @@ export function ElectronWindowTitleBar(props: ElectronWindowTitleBarProps) {
 
     React.useEffect(() => {
         // Get platform
-        if ((window as any).electron) {
-            setCurrentPlatform((window as any).electron.platform)
+        if (window.electron) {
+            setCurrentPlatform(window.electron.platform)
         }
 
         // Setup window event listeners
-        const removeMaximizedListener = (window as any).electron?.on("window:maximized", () => {
+        const removeMaximizedListener = window.electron?.on("window:maximized", () => {
             setMaximized(true)
         })
 
-        const removeUnmaximizedListener = (window as any).electron?.on("window:unmaximized", () => {
+        const removeUnmaximizedListener = window.electron?.on("window:unmaximized", () => {
             setMaximized(false)
         })
 
-        const removeFullscreenListener = (window as any).electron?.on("window:fullscreen", (isFullscreen: boolean) => {
+        const removeFullscreenListener = window.electron?.on("window:fullscreen", (isFullscreen: boolean) => {
             setShowControls(!isFullscreen)
             setDisplayDragRegion(!isFullscreen)
         })
 
         // Check window capabilities
-        // if ((window as any).electron?.window) {
+        // if (window.electron?.window) {
         //     Promise.all([
-        //         (window as any).electron.window.isMinimizable(),
-        //         (window as any).electron.window.isMaximizable(),
-        //         (window as any).electron.window.isClosable(),
-        //         (window as any).electron.window.isMaximized()
+        //         window.electron.window.isMinimizable(),
+        //         window.electron.window.isMaximizable(),
+        //         window.electron.window.isClosable(),
+        //         window.electron.window.isMaximized()
         //     ]).then(([minimizable, maximizable, closable, isMaximized]) => {
         //         setMaximized(isMaximized)
         //         setShowControls(minimizable || maximizable || closable)

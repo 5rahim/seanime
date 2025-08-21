@@ -897,7 +897,7 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 		m.currentPlaybackStatus.Playing = st.State == "playing"
 		m.currentPlaybackStatus.Filename = st.Information.Category["meta"].Filename
 		m.currentPlaybackStatus.Duration = int(st.Length * 1000)
-		m.currentPlaybackStatus.Filepath = "" // VLC does not provide the filepath
+		m.currentPlaybackStatus.Filepath = st.Information.Category["meta"].Filename
 
 		m.currentPlaybackStatus.CurrentTimeInSeconds = float64(st.Time)
 		m.currentPlaybackStatus.DurationInSeconds = float64(st.Length)
