@@ -3,7 +3,7 @@ import { useDebridGetTorrentFilePreviews } from "@/api/hooks/debrid.hooks"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { __torrentSearch_torrentstreamSelectedTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
+import { __torrentSearch_fileSelectionTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -29,7 +29,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const [, setter] = useAtom(__torrentSearch_selectionAtom)
 
-    const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
+    const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_fileSelectionTorrentAtom)
 
     const [selectedFileId, setSelectedFileIdx] = React.useState("")
 

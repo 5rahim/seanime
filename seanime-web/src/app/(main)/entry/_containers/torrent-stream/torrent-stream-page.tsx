@@ -1,5 +1,6 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
+import { useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -9,12 +10,13 @@ import {
     __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
-import { useHandleStartTorrentStream, useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { logger } from "@/lib/helpers/debug"
+import { atom } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
@@ -25,7 +27,8 @@ type TorrentStreamPageProps = {
     bottomSection?: React.ReactNode
 }
 
-const autoSelectFileAtom = atomWithStorage("sea-torrentstream-auto-select-file", true)
+export const __torrentStream_autoSelectFileAtom = atomWithStorage("sea-torrentstream-auto-select-file", true)
+export const __torrentStream_currentSessionAutoSelectAtom = atom(false)
 
 export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
@@ -38,9 +41,15 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     const serverStatus = useServerStatus()
 
-    const [autoSelect, setAutoSelect] = React.useState(serverStatus?.torrentstreamSettings?.autoSelect)
+    const [autoSelect, setAutoSelect] = React.useState(serverStatus?.torrentstreamSettings?.autoSelect ?? false)
 
-    const [autoSelectFile, setAutoSelectFile] = useAtom(autoSelectFileAtom)
+    const [autoSelectFile, setAutoSelectFile] = useAtom(__torrentStream_autoSelectFileAtom)
+
+    // Sync the auto-select setting with the current session
+    const [, setCurrentSessionAutoSelect] = useAtom(__torrentStream_currentSessionAutoSelectAtom)
+    React.useEffect(() => {
+        setCurrentSessionAutoSelect(autoSelect)
+    }, [autoSelect])
 
     /**
      * Get all episodes to watch
@@ -50,7 +59,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     React.useLayoutEffect(() => {
         // Set auto-select to the server status value
         if (!episodeCollection?.hasMappingError) {
-            setAutoSelect(serverStatus?.torrentstreamSettings?.autoSelect)
+            setAutoSelect(serverStatus?.torrentstreamSettings?.autoSelect ?? false)
         } else {
             // Fall back to manual select if no download info (no Animap data)
             setAutoSelect(false)
@@ -67,8 +76,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     /**
      * Handle auto-select
      */
-    const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
-    const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
+    const { handleAutoSelectStream, isPending } = useHandleStartTorrentStream()
+    const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
 
     // Function to set the torrent stream autoplay info
     // It checks if there is a next episode and if it has aniDBEpisode
@@ -94,7 +103,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     function handleAutoSelect(entry: Anime_Entry, episode: Anime_Episode | undefined) {
         if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         // Start the torrent stream
-        handleAutoSelectTorrentStream({
+        handleAutoSelectStream({
             entry: entry,
             episodeNumber: episode.episodeNumber,
             aniDBEpisode: episode.aniDBEpisode,

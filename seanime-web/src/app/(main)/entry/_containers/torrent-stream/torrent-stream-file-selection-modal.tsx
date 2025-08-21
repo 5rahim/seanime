@@ -17,12 +17,12 @@ import React from "react"
 import { IoPlayCircle } from "react-icons/io5"
 import { MdVerified } from "react-icons/md"
 
-export const __torrentSearch_torrentstreamSelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | undefined>(undefined)
+export const __torrentSearch_fileSelectionTorrentAtom = atom<HibikeTorrent_AnimeTorrent | undefined>(undefined)
 
 export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry }) {
     const [, setter] = useAtom(__torrentSearch_selectionAtom)
 
-    const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
+    const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_fileSelectionTorrentAtom)
 
     const [selectedFileIdx, setSelectedFileIdx] = React.useState(-1)
 
@@ -34,12 +34,12 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         media: entry.media,
     }, !!selectedTorrent)
 
-    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const { handleStreamSelection } = useHandleStartTorrentStream()
 
     function onStream() {
         if (selectedFileIdx == -1 || !selectedTorrent || !torrentStreamingSelectedEpisode || !torrentStreamingSelectedEpisode.aniDBEpisode) return
 
-        handleManualTorrentStreamSelection({
+        handleStreamSelection({
             torrent: selectedTorrent,
             entry,
             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,

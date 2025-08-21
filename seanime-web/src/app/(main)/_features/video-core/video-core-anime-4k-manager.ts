@@ -67,6 +67,7 @@ export class VideoCoreAnime4KManager {
     private _initializationTimeout: NodeJS.Timeout | null = null
     private _initialized = false
     private _onCanvasCreatedCallbacks: Set<(canvas: HTMLCanvasElement) => void> = new Set()
+    private _onCanvasCreatedCallbacksOnce: Set<(canvas: HTMLCanvasElement) => void> = new Set()
 
     constructor({
         videoElement,
@@ -97,9 +98,20 @@ export class VideoCoreAnime4KManager {
         }
     }
 
+    reposition() {
+        if (this.canvas) {
+            this.canvas.style.top = this.videoElement.getBoundingClientRect().top + "px"
+        }
+    }
+
     // Adds a function to be called whenever the canvas is created or recreated
     registerOnCanvasCreated(callback: (canvas: HTMLCanvasElement) => void) {
         this._onCanvasCreatedCallbacks.add(callback)
+    }
+
+    // Adds a function to be called whenever the canvas is created or recreated
+    registerOnCanvasCreatedOnce(callback: (canvas: HTMLCanvasElement) => void) {
+        this._onCanvasCreatedCallbacksOnce.add(callback)
     }
 
     // Select an Anime4K option
@@ -164,7 +176,7 @@ export class VideoCoreAnime4KManager {
 
     // Destroy and cleanup resources
     destroy() {
-        this.videoElement.style.opacity = "1"
+        // this.videoElement.style.opacity = "1"
 
         this._initialized = false
 
@@ -259,11 +271,7 @@ export class VideoCoreAnime4KManager {
         log.info("Creating canvas", { width: this.canvas.width, height: this.canvas.height, top: this.canvas.style.top })
 
         this.videoElement.parentElement?.appendChild(this.canvas)
-        this.videoElement.style.opacity = "0"
-
-        for (const callback of this._onCanvasCreatedCallbacks) {
-            callback(this.canvas)
-        }
+        // this.videoElement.style.opacity = "0"
     }
 
     // WebGPU rendering
@@ -301,6 +309,18 @@ export class VideoCoreAnime4KManager {
                 return this.createPipeline(commonProps)
             },
         })
+
+        setTimeout(() => {
+            if (this.canvas) {
+                for (const callback of this._onCanvasCreatedCallbacks) {
+                    callback(this.canvas)
+                }
+                for (const callback of this._onCanvasCreatedCallbacksOnce) {
+                    callback(this.canvas)
+                }
+                this._onCanvasCreatedCallbacksOnce.clear()
+            }
+        }, 100)
 
         // Start frame drop detection if enabled
         if (this._frameDropState.enabled && this._isOptionSelected(this._currentOption)) {
@@ -429,14 +449,14 @@ export class VideoCoreAnime4KManager {
     private _hideCanvas() {
         if (this.canvas) {
             this.canvas.style.display = "none"
-            this.videoElement.style.opacity = "1"
+            // this.videoElement.style.opacity = "1"
         }
     }
 
     private _showCanvas() {
         if (this.canvas) {
             this.canvas.style.display = "block"
-            this.videoElement.style.opacity = "0"
+            // this.videoElement.style.opacity = "0"
         }
     }
 

@@ -440,7 +440,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	case "mpv":
 		args := []string{}
 		if windowTitle != "" {
-			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
+			args = append(args, fmt.Sprintf("--title=%s", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
@@ -454,7 +454,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	case "iina":
 		args := []string{}
 		if windowTitle != "" {
-			args = append(args, fmt.Sprintf("--mpv-title=%q", windowTitle))
+			args = append(args, fmt.Sprintf("--mpv-title=%s", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Iina.OpenAndPlay(streamUrl, args...)

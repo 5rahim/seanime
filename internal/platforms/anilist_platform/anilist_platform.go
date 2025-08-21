@@ -28,6 +28,7 @@ type (
 		isOffline              bool
 		offlinePlatformEnabled bool
 		baseAnimeCache         *result.BoundedCache[int, *anilist.BaseAnime]
+		completeAnimeCache     *result.BoundedCache[int, *anilist.CompleteAnime]
 	}
 )
 
@@ -41,6 +42,7 @@ func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Log
 		mangaCollection:    mo.None[*anilist.MangaCollection](),
 		rawMangaCollection: mo.None[*anilist.MangaCollection](),
 		baseAnimeCache:     result.NewBoundedCache[int, *anilist.BaseAnime](50),
+		completeAnimeCache: result.NewBoundedCache[int, *anilist.CompleteAnime](10),
 	}
 
 	return ap
@@ -211,16 +213,16 @@ func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
 func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
 
-	//if cachedAnime, ok := ap.baseAnimeCache.Get(mediaID); ok {
-	//	ap.logger.Trace().Msg("anilist platform: Returning anime from cache")
-	//	event := new(GetAnimeEvent)
-	//	event.Anime = cachedAnime
-	//	err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return event.Anime, nil
-	//}
+	if cachedAnime, ok := ap.baseAnimeCache.Get(mediaID); ok {
+		ap.logger.Trace().Msg("anilist platform: Returning anime from cache")
+		event := new(GetAnimeEvent)
+		event.Anime = cachedAnime
+		err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		return event.Anime, nil
+	}
 
 	ret, err := ap.anilistClient.BaseAnimeByID(ctx, &mediaID)
 	if err != nil {
@@ -238,7 +240,7 @@ func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.
 		return nil, err
 	}
 
-	//ap.baseAnimeCache.SetT(mediaID, event.Anime, time.Minute*30)
+	ap.baseAnimeCache.SetT(mediaID, event.Anime, time.Minute*30)
 
 	return event.Anime, nil
 }
@@ -264,7 +266,7 @@ func (ap *AnilistPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*ani
 }
 
 func (ap *AnilistPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*anilist.AnimeDetailsById_Media, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime details")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching anime details")
 	ret, err := ap.anilistClient.AnimeDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
@@ -284,16 +286,25 @@ func (ap *AnilistPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*a
 }
 
 func (ap *AnilistPlatform) GetAnimeWithRelations(ctx context.Context, mediaID int) (*anilist.CompleteAnime, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime with relations")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching anime with relations")
+
+	if cachedAnime, ok := ap.completeAnimeCache.Get(mediaID); ok {
+		ap.logger.Trace().Msg("anilist platform: Cache HIT for anime with relations")
+		return cachedAnime, nil
+	}
+
 	ret, err := ap.anilistClient.CompleteAnimeByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
+
+	ap.completeAnimeCache.SetT(mediaID, ret.GetMedia(), 4*time.Hour)
+
 	return ret.GetMedia(), nil
 }
 
 func (ap *AnilistPlatform) GetManga(ctx context.Context, mediaID int) (*anilist.BaseManga, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching manga")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching manga")
 	ret, err := ap.anilistClient.BaseMangaByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err

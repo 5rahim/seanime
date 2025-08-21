@@ -36,7 +36,14 @@ import {
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
-import { vc_beautifyImageAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import {
+    vc_autoNextAtom,
+    vc_autoPlayVideoAtom,
+    vc_autoSkipOPEDAtom,
+    vc_beautifyImageAtom,
+    vc_highlightOPEDChaptersAtom,
+    vc_showChapterMarkersAtom,
+} from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { Switch } from "@/components/ui/switch"
@@ -45,6 +52,8 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
 import React from "react"
+import { HiFastForward } from "react-icons/hi"
+import { IoCaretForwardCircleOutline } from "react-icons/io5"
 import {
     LuCaptions,
     LuChevronLeft,
@@ -62,7 +71,7 @@ import {
 import { MdSpeed } from "react-icons/md"
 import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
-import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
+import { TbArrowForwardUp, TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
 
 const VIDEOCORE_CONTROL_BAR_VPADDING = 5
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
@@ -632,6 +641,9 @@ export function VideoCoreSettingsButton() {
     const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
     const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)
     const [beautifyImage, setBeautifyImage] = useAtom(vc_beautifyImageAtom)
+    const [autoNext, setAutoNext] = useAtom(vc_autoNextAtom)
+    const [autoPlay, setAutoPlay] = useAtom(vc_autoPlayVideoAtom)
+    const [autoSkipOPED, setAutoSkipOPED] = useAtom(vc_autoSkipOPEDAtom)
 
     if (isMiniPlayer) return null
 
@@ -649,6 +661,9 @@ export function VideoCoreSettingsButton() {
             <VideoCoreMenuSectionBody>
                 <VideoCoreMenuTitle>Settings</VideoCoreMenuTitle>
                 <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed} value={`${playbackRate}x`} />
+                <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline} value={autoPlay ? "On" : "Off"} />
+                <VideoCoreMenuOption title="Auto Next" icon={HiFastForward} value={autoNext ? "On" : "Off"} />
+                <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
                 <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
                 <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
                 <VideoCoreMenuOption title="Keybinds" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
@@ -668,6 +683,42 @@ export function VideoCoreSettingsButton() {
                             setPlaybackRate(v)
                         }}
                         value={playbackRate}
+                    />
+                </VideoCoreMenuOption>
+                <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline}>
+                    <VideoCoreSettingSelect
+                        options={[
+                            { label: "On", value: 1 },
+                            { label: "Off", value: 0 },
+                        ]}
+                        onValueChange={(v: number) => {
+                            setAutoPlay(!!v)
+                        }}
+                        value={autoPlay ? 1 : 0}
+                    />
+                </VideoCoreMenuOption>
+                <VideoCoreMenuOption title="Auto Next" icon={HiFastForward}>
+                    <VideoCoreSettingSelect
+                        options={[
+                            { label: "On", value: 1 },
+                            { label: "Off", value: 0 },
+                        ]}
+                        onValueChange={(v: number) => {
+                            setAutoNext(!!v)
+                        }}
+                        value={autoNext ? 1 : 0}
+                    />
+                </VideoCoreMenuOption>
+                <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp}>
+                    <VideoCoreSettingSelect
+                        options={[
+                            { label: "On", value: 1 },
+                            { label: "Off", value: 0 },
+                        ]}
+                        onValueChange={(v: number) => {
+                            setAutoSkipOPED(!!v)
+                        }}
+                        value={autoSkipOPED ? 1 : 0}
                     />
                 </VideoCoreMenuOption>
                 <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>

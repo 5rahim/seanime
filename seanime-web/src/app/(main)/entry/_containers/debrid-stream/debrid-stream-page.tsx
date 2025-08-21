@@ -1,5 +1,6 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
+import { useDebridstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
@@ -8,12 +9,12 @@ import {
     __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
-import { useDebridStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { logger } from "@/lib/helpers/debug"
+import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
@@ -24,7 +25,8 @@ type DebridStreamPageProps = {
     bottomSection?: React.ReactNode
 }
 
-const autoSelectFileAtom = atomWithStorage("sea-debridstream-manually-select-file", false)
+export const __debridStream_autoSelectFileAtom = atomWithStorage("sea-debridstream-manually-select-file", false)
+export const __debridStream_currentSessionAutoSelectAtom = atom(false)
 
 // DEVNOTE: This page uses some utility functions from the TorrentStream feature
 
@@ -40,8 +42,14 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const serverStatus = useServerStatus()
 
     // State to manage auto-select setting
-    const [autoSelect, setAutoSelect] = React.useState(serverStatus?.debridSettings?.streamAutoSelect)
-    const [autoSelectFile, setAutoSelectFile] = useAtom(autoSelectFileAtom)
+    const [autoSelect, setAutoSelect] = React.useState(serverStatus?.debridSettings?.streamAutoSelect ?? false)
+    const [autoSelectFile, setAutoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)
+
+    // Sync the auto-select setting with the current session
+    const [, setCurrentSessionAutoSelect] = useAtom(__debridStream_currentSessionAutoSelectAtom)
+    React.useEffect(() => {
+        setCurrentSessionAutoSelect(autoSelect)
+    }, [autoSelect])
 
     /**
      * Get all episodes to watch
@@ -51,7 +59,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     React.useLayoutEffect(() => {
         // Set auto-select to the server status value
         if (!episodeCollection?.hasMappingError) {
-            setAutoSelect(serverStatus?.debridSettings?.streamAutoSelect)
+            setAutoSelect(serverStatus?.debridSettings?.streamAutoSelect ?? false)
         } else {
             // Fall back to manual select if no download info (no Animap data)
             setAutoSelect(false)
@@ -78,7 +86,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const { handleAutoSelectStream } = useHandleStartDebridStream()
 
     // Hook to manage debrid stream autoplay information
-    const { setDebridstreamAutoplayInfo } = useDebridStreamAutoplay()
+    const { setDebridstreamAutoplayInfo } = useDebridstreamAutoplay()
 
     // Function to set the debrid stream autoplay info
     // It checks if there is a next episode and if it has aniDBEpisode

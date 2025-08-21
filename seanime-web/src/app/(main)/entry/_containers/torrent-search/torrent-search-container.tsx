@@ -1,5 +1,6 @@
 import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
+import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
@@ -15,13 +16,9 @@ import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
-    useDebridStreamAutoplay,
-    useHandleStartTorrentStream,
-    useTorrentStreamAutoplay,
-} from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
-import {
-    __torrentSearch_torrentstreamSelectedTorrentAtom,
+    __torrentSearch_fileSelectionTorrentAtom,
     TorrentstreamFileSelectionModal,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -38,7 +35,6 @@ import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
-import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { LuCornerLeftDown, LuGem } from "react-icons/lu"
@@ -411,14 +407,12 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
 
-    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
-    const { handleStreamSelection } = useHandleStartDebridStream()
+    const { handleStreamSelection: handleTorrentstreamSelection } = useHandleStartTorrentStream()
+    const { handleStreamSelection: handleDebridstreamSelection } = useHandleStartDebridStream()
     const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
-    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
-    const [, setter] = useAtom(__torrentSearch_selectionAtom)
-
-    const { setDebridstreamAutoplaySelectedTorrent } = useDebridStreamAutoplay()
-    const { setTorrentstreamAutoplaySelectedTorrent } = useTorrentStreamAutoplay()
+    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_fileSelectionTorrentAtom)
+    const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
+    const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
     if (!batchHistory?.torrent || !entry) return null
 
@@ -440,25 +434,25 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "torrentstream-select") {
-                        setTorrentstreamAutoplaySelectedTorrent(batchHistory.torrent)
-                        handleManualTorrentStreamSelection({
+                        setAutoPlayTorrent(batchHistory.torrent)
+                        handleTorrentstreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,
                             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                             chosenFileIndex: undefined,
                         })
-                        setter(undefined)
+                        setTorrentSearch(undefined)
                     } else if (type === "debridstream-select") {
-                        setDebridstreamAutoplaySelectedTorrent(batchHistory.torrent)
-                        handleStreamSelection({
+                        setAutoPlayTorrent(batchHistory.torrent)
+                        handleDebridstreamSelection({
                             torrent: batchHistory?.torrent,
                             entry,
                             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                             chosenFileId: "",
                         })
-                        setter(undefined)
+                        setTorrentSearch(undefined)
                     } else if (type === "torrentstream-select-file" || type === "debridstream-select-file") {
                         // Open the drawer to select the file
                         // This opens the file selection drawer
