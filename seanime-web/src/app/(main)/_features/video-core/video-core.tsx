@@ -1,4 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
@@ -61,6 +62,7 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { __isDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { atom, useAtomValue } from "jotai"
 import { derive } from "jotai-derive"
 import { createIsolation, ScopeProvider } from "jotai-scope"
@@ -287,6 +289,12 @@ export function VideoCore(props: VideoCoreProps) {
         })
     }, [width, height])
 
+    const qc = useQueryClient()
+    React.useEffect(() => {
+        qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
+        qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
+    }, [state.playbackInfo])
+
 
     React.useEffect(() => {
         if (state.active && videoRef.current && !!state.playbackInfo) {
@@ -462,10 +470,10 @@ export function VideoCore(props: VideoCoreProps) {
 
         log.info("Initializing preview manager")
         // TODO uncomment
-        // setPreviewManager(p => {
-        //     if (p) p.cleanup()
-        //     return new VideoCorePreviewManager(v!, streamUrl)
-        // })
+        setPreviewManager(p => {
+            if (p) p.cleanup()
+            return new VideoCorePreviewManager(v!, streamUrl)
+        })
     }
 
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -477,7 +485,7 @@ export function VideoCore(props: VideoCoreProps) {
         const percent = v.currentTime / v.duration
         if (!!v.duration && !videoCompletedRef.current && percent >= 0.8) {
             videoCompletedRef.current = true
-
+            onCompleted?.()
         }
 
         /**
@@ -764,8 +772,11 @@ export function VideoCore(props: VideoCoreProps) {
             })
         }
         setRestoreProgressTo(0)
+        if (autoPlay) {
+            videoRef.current?.play()
+        }
 
-    }, [anime4kManager, anime4kOption, restoreProgressTo])
+    }, [anime4kManager, anime4kOption, restoreProgressTo, autoPlay])
 
     return (
         <>
