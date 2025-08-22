@@ -12,7 +12,10 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -423,4 +426,116 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 	stream.Terminate()
 	m.nativePlayer.Error(stream.ClientId(), err)
 	m.unloadStream()
+}
+
+func getContentTypeAndLengthHead(url string) (string, string) {
+	resp, err := http.Head(url)
+	if err != nil {
+		return "", ""
+	}
+
+	defer resp.Body.Close()
+
+	return resp.Header.Get("Content-Type"), resp.Header.Get("Content-Length")
+}
+
+func (m *Manager) getContentTypeAndLength(url string) (string, int64, error) {
+	// Try using HEAD request
+	cType, cLength := getContentTypeAndLengthHead(url)
+
+	length, err := strconv.ParseInt(cLength, 10, 64)
+	if err != nil && cLength != "" {
+		m.Logger.Error().Err(err).Str("contentType", cType).Str("contentLength", cLength).Msg("directstream(debrid): Failed to parse content length from header")
+		return "", 0, fmt.Errorf("failed to parse content length: %w", err)
+	}
+
+	if cType != "" {
+		return cType, length, nil
+	}
+
+	m.Logger.Trace().Msg("directstream(debrid): Content type not found in headers, falling back to GET request")
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", 0, err
+	}
+
+	// Only read a small amount of data to determine the content type.
+	req.Header.Set("Range", "bytes=0-511")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", 0, err
+	}
+	defer resp.Body.Close()
+
+	// Read the first 512 bytes
+	buf := make([]byte, 512)
+	n, err := resp.Body.Read(buf)
+	if err != nil && err != io.EOF {
+		return "", 0, err
+	}
+
+	// Detect content type based on the read bytes
+	contentType := http.DetectContentType(buf[:n])
+
+	return contentType, length, nil
+}
+
+type StreamInfo struct {
+	ContentType   string
+	ContentLength int64
+}
+
+func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream bool) {
+	hasExtension, isArchive := IsArchive(streamUrl)
+
+	// If we were able to verify that the stream URL is an archive, we can't stream it
+	if isArchive {
+		m.Logger.Warn().Str("url", streamUrl).Msg("directstream(debrid): Stream URL is an archive, cannot stream")
+		return nil, false
+	}
+
+	// If the stream URL has an extension, we can stream it
+	if hasExtension {
+		ext := filepath.Ext(streamUrl)
+		// If not a valid video extension, we can't stream it
+		if !util.IsValidVideoExtension(ext) {
+			m.Logger.Warn().Str("url", streamUrl).Str("ext", ext).Msg("directstream(debrid): Stream URL has an invalid video extension, cannot stream")
+			return nil, false
+		}
+	}
+
+	// We'll fetch headers to get the info
+	// If the headers are not available, we can't stream it
+
+	contentType, contentLength, err := m.getContentTypeAndLength(streamUrl)
+	if err != nil {
+		m.Logger.Error().Err(err).Str("url", streamUrl).Msg("directstream(debrid): Failed to fetch content type and length")
+		return nil, false
+	}
+
+	// If not a video content type, we can't stream it
+	if !strings.HasPrefix(contentType, "video/") && contentType != "application/octet-stream" && contentType != "application/force-download" {
+		m.Logger.Warn().Str("url", streamUrl).Str("contentType", contentType).Msg("directstream(debrid): Stream URL has an invalid content type, cannot stream")
+		return nil, false
+	}
+
+	return &StreamInfo{
+		ContentType:   contentType,
+		ContentLength: contentLength,
+	}, true
+}
+
+func IsArchive(streamUrl string) (hasExtension bool, isArchive bool) {
+	ext := filepath.Ext(streamUrl)
+	if ext == ".zip" || ext == ".rar" {
+		return true, true
+	}
+
+	if ext != "" {
+		return true, false
+	}
+
+	return false, false
 }

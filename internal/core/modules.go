@@ -264,6 +264,7 @@ func (a *App) initModulesOnce() {
 		Platform:                a.AnilistPlatform,
 		ServerHost:              a.Config.Server.Host,
 		ServerPort:              a.Config.Server.Port,
+		NativePlayer:            a.NativePlayer,
 	})
 
 }

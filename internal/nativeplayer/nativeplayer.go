@@ -46,6 +46,7 @@ type (
 
 		playbackStatusMu sync.RWMutex
 		playbackStatus   *PlaybackStatus
+		playbackInfo     *PlaybackInfo
 
 		seekedEventCancelFunc context.CancelFunc
 
@@ -90,13 +91,20 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
 func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
-	p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
+	//p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
+	//	Type    string      `json:"type"`
+	//	Payload interface{} `json:"payload"`
+	//}{
+	//	Type:    t,
+	//	Payload: payload,
+	//}, noLog...)
+	p.wsEventManager.SendEvent(string(events.NativePlayerEventType), struct {
 		Type    string      `json:"type"`
 		Payload interface{} `json:"payload"`
 	}{
 		Type:    t,
 		Payload: payload,
-	}, noLog...)
+	})
 }
 
 func (p *NativePlayer) sendPlayerEvent(t string, payload interface{}) {
@@ -144,6 +152,17 @@ func (p *NativePlayer) GetPlaybackStatus() *PlaybackStatus {
 	p.playbackStatusMu.RLock()
 	defer p.playbackStatusMu.RUnlock()
 	return p.playbackStatus
+}
+
+// GetPlaybackInfo returns the current playback info of the player.
+func (p *NativePlayer) GetPlaybackInfo() (*PlaybackInfo, bool) {
+	p.playbackStatusMu.RLock()
+	defer p.playbackStatusMu.RUnlock()
+	return p.playbackInfo, p.playbackInfo != nil
+}
+
+func (p *NativePlayer) SetPlaybackInfo(info *PlaybackInfo) {
+	p.playbackInfo = info
 }
 
 func (p *NativePlayer) SetPlaybackStatus(status *PlaybackStatus) {

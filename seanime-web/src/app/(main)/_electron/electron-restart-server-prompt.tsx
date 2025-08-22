@@ -28,6 +28,8 @@ export function ElectronRestartServerPrompt() {
     }, [])
 
     const handleRestart = async () => {
+        if (process.env.NODE_ENV === "development") return toast.warning("Dev mode: Not restarting server")
+
         setHasClickedRestarted(true)
         toast.info("Restarting server...")
         if (window.electron) {

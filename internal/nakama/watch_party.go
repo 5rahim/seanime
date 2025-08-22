@@ -140,6 +140,8 @@ type WatchPartySessionParticipant struct {
 	IsReady    bool      `json:"isReady"`
 	LastSeen   time.Time `json:"lastSeen"`
 	Latency    int64     `json:"latency"` // in milliseconds
+	// Player settings
+	UseDenshiPlayer bool `json:"useDenshiPlayer"` // Whether this participant uses Denshi player
 	// Buffering state
 	IsBuffering    bool                        `json:"isBuffering"`
 	BufferHealth   float64                     `json:"bufferHealth"`             // 0.0 to 1.0, how much buffer is available
@@ -200,11 +202,12 @@ type (
 	}
 
 	WatchPartyPeerStatusPayload struct {
-		PeerId         string                     `json:"peerId"`
-		PlaybackStatus mediaplayer.PlaybackStatus `json:"playbackStatus"`
-		IsBuffering    bool                       `json:"isBuffering"`
-		BufferHealth   float64                    `json:"bufferHealth"` // 0.0 to 1.0
-		Timestamp      time.Time                  `json:"timestamp"`
+		PeerId          string                     `json:"peerId"`
+		PlaybackStatus  mediaplayer.PlaybackStatus `json:"playbackStatus"`
+		IsBuffering     bool                       `json:"isBuffering"`
+		BufferHealth    float64                    `json:"bufferHealth"` // 0.0 to 1.0
+		UseDenshiPlayer bool                       `json:"useDenshiPlayer"`
+		Timestamp       time.Time                  `json:"timestamp"`
 	}
 
 	WatchPartyBufferUpdatePayload struct {

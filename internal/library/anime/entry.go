@@ -243,7 +243,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 //----------------------------------------------------------------------------------------------------------------------
 
 // hydrateEntryEpisodeData
-// AniZipData, Media and LocalFiles should be defined
+// Metadata, Media and LocalFiles should be defined
 func (e *Entry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.AnimeListEntry,
 	animeMetadata *metadata.AnimeMetadata,

@@ -115,7 +115,7 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 //----------------------------------------------------------------------------------------------------------------------
 
 // hydrateEntryEpisodeData
-// AniZipData, Media and LocalFiles should be defined
+// Metadata, Media and LocalFiles should be defined
 func (e *SimpleEntry) hydrateEntryEpisodeData() {
 
 	// +---------------------+

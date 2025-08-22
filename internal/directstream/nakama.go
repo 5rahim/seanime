@@ -13,7 +13,6 @@ import (
 	httputil "seanime/internal/util/http"
 	"seanime/internal/util/result"
 	"sync"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/samber/mo"
@@ -23,10 +22,10 @@ import (
 // Torrent
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var _ Stream = (*DebridStream)(nil)
+var _ Stream = (*Nakama)(nil)
 
-// DebridStream is a stream that is a torrent.
-type DebridStream struct {
+// Nakama is a stream that is a torrent.
+type Nakama struct {
 	BaseStream
 	streamUrl     string
 	contentLength int64
@@ -36,11 +35,11 @@ type DebridStream struct {
 	cacheMu       sync.RWMutex         // Protects httpStream access
 }
 
-func (s *DebridStream) Type() nativeplayer.StreamType {
+func (s *Nakama) Type() nativeplayer.StreamType {
 	return nativeplayer.StreamTypeDebrid
 }
 
-func (s *DebridStream) LoadContentType() string {
+func (s *Nakama) LoadContentType() string {
 	s.contentTypeOnce.Do(func() {
 		s.cacheMu.RLock()
 		if s.httpStream == nil {
@@ -52,10 +51,10 @@ func (s *DebridStream) LoadContentType() string {
 
 		info, ok := s.manager.FetchStreamInfo(s.streamUrl)
 		if !ok {
-			s.logger.Warn().Str("url", s.streamUrl).Msg("directstream(debrid): Failed to fetch stream info for content type")
+			s.logger.Warn().Str("url", s.streamUrl).Msg("directstream(nakama): Failed to fetch stream info for content type")
 			return
 		}
-		s.logger.Debug().Str("url", s.streamUrl).Str("contentType", info.ContentType).Int64("contentLength", info.ContentLength).Msg("directstream(debrid): Fetched content type and length")
+		s.logger.Debug().Str("url", s.streamUrl).Str("contentType", info.ContentType).Int64("contentLength", info.ContentLength).Msg("directstream(nakama): Fetched content type and length")
 		s.contentType = info.ContentType
 		if s.contentType == "application/force-download" {
 			s.contentType = "application/octet-stream"
@@ -67,37 +66,37 @@ func (s *DebridStream) LoadContentType() string {
 }
 
 // Close cleanup the HTTP cache and other resources
-func (s *DebridStream) Close() error {
+func (s *Nakama) Close() error {
 	s.cacheMu.Lock()
 	defer s.cacheMu.Unlock()
 
-	s.logger.Debug().Msg("directstream(debrid): Closing HTTP cache")
+	s.logger.Debug().Msg("directstream(nakama): Closing HTTP cache")
 
 	if s.httpStream != nil {
 		if err := s.httpStream.Close(); err != nil {
-			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to close HTTP cache")
+			s.logger.Error().Err(err).Msg("directstream(nakama): Failed to close HTTP cache")
 			return err
 		}
 		s.httpStream = nil
 	}
 
-	s.logger.Debug().Msg("directstream(debrid): HTTP cache closed successfully")
+	s.logger.Debug().Msg("directstream(nakama): HTTP cache closed successfully")
 
 	return nil
 }
 
 // Terminate overrides BaseStream.Terminate to also clean up the HTTP cache
-func (s *DebridStream) Terminate() {
+func (s *Nakama) Terminate() {
 	// Clean up HTTP cache first
 	if err := s.Close(); err != nil {
-		s.logger.Error().Err(err).Msg("directstream(debrid): Failed to clean up HTTP cache during termination")
+		s.logger.Error().Err(err).Msg("directstream(nakama): Failed to clean up HTTP cache during termination")
 	}
 
 	// Call the base implementation
 	s.BaseStream.Terminate()
 }
 
-func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err error) {
+func (s *Nakama) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err error) {
 	s.playbackInfoOnce.Do(func() {
 		if s.streamUrl == "" {
 			ret = &nativeplayer.PlaybackInfo{}
@@ -136,7 +135,7 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 			//reader, err := s.getPriorityReader()
 			if err != nil {
 				err = fmt.Errorf("failed to create reader for stream url: %w", err)
-				s.logger.Error().Err(err).Msg("directstream(debrid): Failed to create reader for stream url")
+				s.logger.Error().Err(err).Msg("directstream(nakama): Failed to create reader for stream url")
 				s.playbackInfoErr = err
 				return
 			}
@@ -144,7 +143,7 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 
 			_, _ = reader.Seek(0, io.SeekStart)
 			s.logger.Trace().Msgf(
-				"directstream(debrid): Loading metadata for stream url: %s",
+				"directstream(nakama): Loading metadata for stream url: %s",
 				s.streamUrl,
 			)
 
@@ -152,7 +151,7 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 			metadata := parser.GetMetadata(context.Background())
 			if metadata.Error != nil {
 				err = fmt.Errorf("failed to get metadata: %w", metadata.Error)
-				s.logger.Error().Err(metadata.Error).Msg("directstream(debrid): Failed to get metadata")
+				s.logger.Error().Err(metadata.Error).Msg("directstream(nakama): Failed to get metadata")
 				s.playbackInfoErr = err
 				return
 			}
@@ -167,32 +166,22 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 	return s.playbackInfo, s.playbackInfoErr
 }
 
-func (s *DebridStream) GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool) {
+func (s *Nakama) GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo, bool) {
 	return getAttachmentByName(s.manager.playbackCtx, s, filename)
 }
 
-var videoProxyClient = &http.Client{
-	Transport: &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 10,
-		IdleConnTimeout:     90 * time.Second,
-		ForceAttemptHTTP2:   false, // Fixes issues on Linux
-	},
-	Timeout: 60 * time.Second,
-}
-
-func (s *DebridStream) GetStreamHandler() http.Handler {
+func (s *Nakama) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(debrid): Stream endpoint hit")
+		s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(nakama): Stream endpoint hit")
 
 		if s.streamUrl == "" {
-			s.logger.Error().Msg("directstream(debrid): No URL to stream")
+			s.logger.Error().Msg("directstream(nakama): No URL to stream")
 			http.Error(w, "No URL to stream", http.StatusNotFound)
 			return
 		}
 
 		if r.Method == http.MethodHead {
-			s.logger.Trace().Msg("directstream(debrid): Handling HEAD request")
+			s.logger.Trace().Msg("directstream(nakama): Handling HEAD request")
 
 			fileSize := s.contentLength
 			w.Header().Set("Content-Length", fmt.Sprintf("%d", fileSize))
@@ -205,14 +194,14 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 		rangeHeader := r.Header.Get("Range")
 
 		if err := s.initializeStream(); err != nil {
-			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to initialize FileStream")
+			s.logger.Error().Err(err).Msg("directstream(nakama): Failed to initialize FileStream")
 			http.Error(w, "Failed to initialize FileStream", http.StatusInternalServerError)
 			return
 		}
 
 		reader, err := s.getReader()
 		if err != nil {
-			s.logger.Error().Err(err).Msg("directstream(debrid): Failed to create reader for stream url")
+			s.logger.Error().Err(err).Msg("directstream(nakama): Failed to create reader for stream url")
 			http.Error(w, "Failed to create reader for stream url", http.StatusInternalServerError)
 		}
 
@@ -233,7 +222,7 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
 			subReader, err := s.getReader()
 			if err != nil {
-				s.logger.Error().Err(err).Msg("directstream(debrid): Failed to create subtitle reader for stream url")
+				s.logger.Error().Err(err).Msg("directstream(nakama): Failed to create subtitle reader for stream url")
 				http.Error(w, "Failed to create subtitle reader for stream url", http.StatusInternalServerError)
 				return
 			}
@@ -279,21 +268,16 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 	})
 }
 
-type PlayDebridStreamOptions struct {
+type PlayNakamaStreamOptions struct {
 	StreamUrl     string
 	MediaId       int
 	EpisodeNumber int    // RELATIVE Episode number to identify the file
-	AnidbEpisode  string // Anizip episode
+	AnidbEpisode  string // Animap episode
 	Media         *anilist.BaseAnime
-	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent
-	FileId        string                      // File ID or index
-	UserAgent     string
-	ClientId      string
-	AutoSelect    bool
 }
 
-// PlayDebridStream is used by a module to load a new debrid stream.
-func (m *Manager) PlayDebridStream(ctx context.Context, opts PlayDebridStreamOptions) error {
+// PlayNakamaStream is used by a module to load a new nakama stream.
+func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOptions) error {
 	m.playbackMu.Lock()
 	defer m.playbackMu.Unlock()
 
@@ -309,16 +293,15 @@ func (m *Manager) PlayDebridStream(ctx context.Context, opts PlayDebridStreamOpt
 
 	episode, ok := episodeCollection.FindEpisodeByAniDB(opts.AnidbEpisode)
 	if !ok {
-		return fmt.Errorf("cannot play debrid stream, could not find episode: %s", opts.AnidbEpisode)
+		return fmt.Errorf("cannot play nakama stream, could not find episode: %s", opts.AnidbEpisode)
 	}
 
-	stream := &DebridStream{
+	stream := &Nakama{
 		streamUrl: opts.StreamUrl,
-		torrent:   opts.Torrent,
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,
-			clientId:              opts.ClientId,
+			clientId:              "",
 			media:                 opts.Media,
 			filename:              "",
 			episode:               episode,
@@ -339,7 +322,7 @@ func (m *Manager) PlayDebridStream(ctx context.Context, opts PlayDebridStreamOpt
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // initializeStream creates the HTTP cache for this stream if it doesn't exist
-func (s *DebridStream) initializeStream() error {
+func (s *Nakama) initializeStream() error {
 	s.cacheMu.Lock()
 	defer s.cacheMu.Unlock()
 
@@ -360,7 +343,7 @@ func (s *DebridStream) initializeStream() error {
 		s.contentLength = info.ContentLength
 	}
 
-	s.logger.Debug().Msgf("directstream(debrid): Initializing FileStream for stream URL: %s", s.streamUrl)
+	s.logger.Debug().Msgf("directstream(nakama): Initializing FileStream for stream URL: %s", s.streamUrl)
 
 	// Create a file-backed stream with the known content length
 	cache, err := httputil.NewFileStream(s.manager.playbackCtx, s.logger, s.contentLength)
@@ -370,12 +353,12 @@ func (s *DebridStream) initializeStream() error {
 
 	s.httpStream = cache
 
-	s.logger.Debug().Msgf("directstream(debrid): FileStream initialized")
+	s.logger.Debug().Msgf("directstream(nakama): FileStream initialized")
 
 	return nil
 }
 
-func (s *DebridStream) getReader() (io.ReadSeekCloser, error) {
+func (s *Nakama) getReader() (io.ReadSeekCloser, error) {
 	if err := s.initializeStream(); err != nil {
 		return nil, err
 	}

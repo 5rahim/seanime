@@ -89,7 +89,7 @@ export function NativePlayer() {
 
     // Time update interval
     React.useEffect(() => {
-        const interval = setInterval(handleTimeInterval, 2000)
+        const interval = setInterval(handleTimeInterval, 1000)
         return () => clearInterval(interval)
     }, [videoElement])
 

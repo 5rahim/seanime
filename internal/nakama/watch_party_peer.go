@@ -8,6 +8,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"strings"
 	"time"
@@ -136,11 +137,12 @@ func (wpm *WatchPartyManager) sendStatusToHost(peerId string) {
 
 	// Send peer status update
 	_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyPeerStatus, WatchPartyPeerStatusPayload{
-		PeerId:         peerId,
-		PlaybackStatus: *playbackStatus,
-		IsBuffering:    isBuffering,
-		BufferHealth:   bufferHealth,
-		Timestamp:      time.Now(),
+		PeerId:          peerId,
+		PlaybackStatus:  *playbackStatus,
+		IsBuffering:     isBuffering,
+		BufferHealth:    bufferHealth,
+		UseDenshiPlayer: wpm.manager.GetUseDenshiPlayer(),
+		Timestamp:       time.Now(),
 	})
 }
 
@@ -396,6 +398,11 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to play media: Torrent streaming is not enabled")
 				return
 			}
+			// Whether to use Denshi player
+			if wpm.manager.GetUseDenshiPlayer() {
+				payload.Session.CurrentMediaInfo.OptionalTorrentStreamStartOptions.PlaybackType = torrentstream.PlaybackTypeNativePlayer
+			}
+
 			// Start the torrent
 			err = wpm.manager.torrentstreamRepository.StartStream(wpm.sessionCtx, payload.Session.CurrentMediaInfo.OptionalTorrentStreamStartOptions)
 		case "debrid":
