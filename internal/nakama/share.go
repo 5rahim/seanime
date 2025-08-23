@@ -216,7 +216,6 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 				cancel()
 			}
 		})
-
 	}
 
 	return nil
@@ -247,24 +246,49 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		windowTitle += " - Episode " + aniDBEpisode
 	}
 
-	err := m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
-		Payload:   ret,
-		UserAgent: userAgent,
-		ClientId:  "",
-	}, media, aniDBEpisode)
-	if err != nil {
-		m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-		go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
-		return err
-	}
-
-	m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
-		switch event.(type) {
-		case playbackmanager.StreamStartedEvent:
+	// Playback Manager
+	if !m.GetUseDenshiPlayer() {
+		err := m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
+			Payload:   ret,
+			UserAgent: userAgent,
+			ClientId:  "",
+		}, media, aniDBEpisode)
+		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-			cancel()
+			go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
+			return err
 		}
-	})
+
+		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
+			switch event.(type) {
+			case playbackmanager.StreamStartedEvent, playbackmanager.StreamStoppedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+				cancel()
+			}
+		})
+	} else {
+		// Native Player
+		err := m.directstreamManager.PlayNakamaStream(context.Background(), directstream.PlayNakamaStreamOptions{
+			StreamUrl:          ret,
+			MediaId:            media.ID,
+			AnidbEpisode:       aniDBEpisode,
+			Media:              media,
+			NakamaHostPassword: m.settings.RemoteServerPassword,
+		})
+		if err != nil {
+			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+			go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-stream")
+			return err
+		}
+
+		m.nativePlayer.RegisterMediaPlayerCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+			switch event.(type) {
+			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
+				cancel()
+			}
+		})
+	}
 
 	return nil
 }
