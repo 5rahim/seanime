@@ -74,10 +74,10 @@ func TestCachedReadSeeker_CachingBehavior(t *testing.T) {
 		t.Errorf("First read failed: got %q, want %q", buf1, "Hello")
 	}
 
-	// Seek back to start - should not hit source
+	// SeekToSlow back to start - should not hit source
 	_, err = cached.Seek(0, io.SeekStart)
 	if err != nil {
-		t.Errorf("Seek failed: %v", err)
+		t.Errorf("SeekToSlow failed: %v", err)
 	}
 
 	// Second read of same data - should be from cache
@@ -105,7 +105,7 @@ func TestCachedReadSeeker_Performance(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// Seek back and read again
+		// SeekToSlow back and read again
 		mock.Seek(0, io.SeekStart)
 		if _, err := io.ReadAll(mock); err != nil {
 			t.Fatal(err)
@@ -125,7 +125,7 @@ func TestCachedReadSeeker_Performance(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// Seek back and read again
+		// SeekToSlow back and read again
 		cached.Seek(0, io.SeekStart)
 		if _, err := io.ReadAll(cached); err != nil {
 			t.Fatal(err)
@@ -159,11 +159,11 @@ func TestCachedReadSeeker_SeekBehavior(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			pos, err := cached.Seek(tt.offset, tt.whence)
 			if err != nil {
-				t.Errorf("Seek failed: %v", err)
+				t.Errorf("SeekToSlow failed: %v", err)
 				return
 			}
 			if pos != tt.wantPos {
-				t.Errorf("Seek position = %d, want %d", pos, tt.wantPos)
+				t.Errorf("SeekToSlow position = %d, want %d", pos, tt.wantPos)
 			}
 
 			buf := make([]byte, tt.readBufSize)
@@ -243,7 +243,7 @@ func TestCachedReadSeeker_ChunkedReadsAndSeeks(t *testing.T) {
 	// Simulate typical streaming behavior with repeated reads
 	ops := []readOp{
 		{0, io.SeekStart, 10 * 1024 * 1024, "initial header"},        // Read first 10MB (headers)
-		{500_000, io.SeekStart, 15 * 1024 * 1024, "middle preview"},  // Seek to middle, read 15MB
+		{500_000, io.SeekStart, 15 * 1024 * 1024, "middle preview"},  // SeekToSlow to middle, read 15MB
 		{0, io.SeekStart, len(data), "full read after random seeks"}, // Read entire file
 		{0, io.SeekStart, len(data), "re-read entire file"},          // Re-read entire file (should be cached)
 	}

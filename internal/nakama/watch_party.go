@@ -83,7 +83,7 @@ type WatchPartyManager struct {
 	sessionCtxCancel context.CancelFunc            // Cancel function for the current watch party session
 	mu               sync.RWMutex                  // Mutex for the watch party manager
 
-	// Seek management to prevent choppy playback
+	// SeekToSlow management to prevent choppy playback
 	lastSeekTime time.Time     // Time of last seek operation
 	seekCooldown time.Duration // Minimum time between seeks
 
@@ -91,7 +91,7 @@ type WatchPartyManager struct {
 	catchUpCancel context.CancelFunc // Cancel function for catch-up operations
 	catchUpMu     sync.Mutex         // Mutex for catch-up operations
 
-	// Seek management
+	// SeekToSlow management
 	pendingSeekTime     time.Time  // When a seek was initiated
 	pendingSeekPosition float64    // Position we're seeking to
 	seekMu              sync.Mutex // Mutex for seek state

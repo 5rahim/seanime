@@ -439,14 +439,15 @@ func (wpm *WatchPartyManager) listenToNativePlayer() {
 							aniDbEpisode = playbackInfo.Episode.AniDBEpisode
 						}
 
+						optionalTorrentStreamStartOptions, _ := wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
+
 						newCurrentMediaInfo := &WatchPartySessionMediaInfo{
-							MediaId:       playbackInfo.Media.ID,
-							EpisodeNumber: episodeNumber,
-							AniDBEpisode:  aniDbEpisode,
-							StreamType:    streamType,
-							StreamPath:    playbackInfo.StreamUrl,
-							// Note: Native player doesn't have torrent stream options
-							OptionalTorrentStreamStartOptions: nil,
+							MediaId:                           playbackInfo.Media.ID,
+							EpisodeNumber:                     episodeNumber,
+							AniDBEpisode:                      aniDbEpisode,
+							StreamType:                        streamType,
+							StreamPath:                        playbackInfo.StreamUrl,
+							OptionalTorrentStreamStartOptions: optionalTorrentStreamStartOptions,
 						}
 
 						wpm.mu.Lock()

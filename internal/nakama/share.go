@@ -1,15 +1,18 @@
 package nakama
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
 	"strconv"
 	"strings"
@@ -171,24 +174,50 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		windowTitle += " - Episode " + aniDBEpisode
 	}
 
-	err = m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
-		Payload:   ret,
-		UserAgent: userAgent,
-		ClientId:  "",
-	}, media, aniDBEpisode)
-	if err != nil {
-		m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-		go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
-		return err
-	}
-
-	m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
-		switch event.(type) {
-		case playbackmanager.StreamStartedEvent:
+	// Playback Manager
+	if !m.GetUseDenshiPlayer() {
+		err = m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
+			Payload:   ret,
+			UserAgent: userAgent,
+			ClientId:  "",
+		}, media, aniDBEpisode)
+		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-			cancel()
+			go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
+			return err
 		}
-	})
+
+		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
+			switch event.(type) {
+			case playbackmanager.StreamStartedEvent, playbackmanager.StreamStoppedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
+				cancel()
+			}
+		})
+	} else {
+		// Native Player
+		err = m.directstreamManager.PlayNakamaStream(context.Background(), directstream.PlayNakamaStreamOptions{
+			StreamUrl:          ret,
+			MediaId:            media.ID,
+			AnidbEpisode:       aniDBEpisode,
+			Media:              media,
+			NakamaHostPassword: m.settings.RemoteServerPassword,
+		})
+		if err != nil {
+			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
+			go m.playbackManager.UnsubscribeFromPlaybackStatus("nakama-file")
+			return err
+		}
+
+		m.nativePlayer.RegisterMediaPlayerCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+			switch event.(type) {
+			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
+				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
+				cancel()
+			}
+		})
+
+	}
 
 	return nil
 }

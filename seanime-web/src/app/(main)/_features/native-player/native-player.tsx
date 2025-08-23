@@ -229,19 +229,24 @@ export function NativePlayer() {
                 payload: {
                     currentTime: v.currentTime,
                     duration: v.duration,
+                    paused: v.paused,
                 },
             },
         })
 
-        if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
-                videoElement?.currentTime,
-                videoElement?.duration)
-            logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                dispatchEvent({ type: "restoreProgress", payload: { time: lastWatchedTime } })
+        if (!state.playbackInfo?.isNakamaWatchParty) {
+            if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
+                const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
+                    videoElement?.currentTime,
+                    videoElement?.duration)
+                logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
+                if (lastWatchedTime > 0) {
+                    logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
+                    dispatchEvent({ type: "restoreProgress", payload: { time: lastWatchedTime } })
+                }
             }
+        } else {
+            log.info("This stream is a watch party, only listen")
         }
     }
 
@@ -330,6 +335,7 @@ export function NativePlayer() {
                     subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
                 case "add-subtitle-track":
+                    log.info("Add subtitle track event received", payload)
                     subtitleManager?.onTrackAdded(payload as MKVParser_TrackInfo)
                     break
                 case "terminate":
@@ -343,6 +349,35 @@ export function NativePlayer() {
                         draft.playbackError = (payload as { error: string }).error
                         return
                     })
+                    break
+                case "pause":
+                    log.info("Pause event received", payload)
+                    videoElement?.pause()
+                    break
+                case "resume":
+                    log.info("Play event received", payload)
+                    videoElement?.play()
+                    break
+                case "seek":
+                    log.info("Seek event received", payload)
+                    if (videoElement) {
+                        const currentTime = videoElement?.currentTime
+                        const duration = videoElement?.duration
+                        const seekTo = currentTime + (payload as number)
+                        if (currentTime && duration) {
+                            videoElement.currentTime = seekTo
+                        }
+                    }
+                    break
+                case "seek-to":
+                    log.info("Seek to event received", payload)
+                    if (videoElement) {
+                        const currentTime = videoElement?.currentTime
+                        const duration = videoElement?.duration
+                        if (currentTime && duration) {
+                            videoElement.currentTime = payload as number
+                        }
+                    }
                     break
             }
         },

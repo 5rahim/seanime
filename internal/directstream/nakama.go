@@ -27,12 +27,13 @@ var _ Stream = (*Nakama)(nil)
 // Nakama is a stream that is a torrent.
 type Nakama struct {
 	BaseStream
-	streamUrl     string
-	contentLength int64
-	torrent       *hibiketorrent.AnimeTorrent
-	streamReadyCh chan struct{}        // Closed by the initiator when the stream is ready
-	httpStream    *httputil.FileStream // Shared file-backed cache for multiple readers
-	cacheMu       sync.RWMutex         // Protects httpStream access
+	streamUrl          string
+	contentLength      int64
+	torrent            *hibiketorrent.AnimeTorrent
+	streamReadyCh      chan struct{}        // Closed by the initiator when the stream is ready
+	httpStream         *httputil.FileStream // Shared file-backed cache for multiple readers
+	cacheMu            sync.RWMutex         // Protects httpStream access
+	nakamaHostPassword string
 }
 
 func (s *Nakama) Type() nativeplayer.StreamType {
@@ -187,6 +188,7 @@ func (s *Nakama) GetStreamHandler() http.Handler {
 			w.Header().Set("Content-Length", fmt.Sprintf("%d", fileSize))
 			w.Header().Set("Content-Type", s.LoadContentType())
 			w.Header().Set("Accept-Ranges", "bytes")
+			w.Header().Set("X-Seanime-Nakama-Token", s.nakamaHostPassword)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -247,6 +249,8 @@ func (s *Nakama) GetStreamHandler() http.Handler {
 			}
 		}
 
+		req.Header.Set("X-Seanime-Nakama-Token", s.nakamaHostPassword)
+
 		resp, err := videoProxyClient.Do(req)
 		if err != nil {
 			http.Error(w, "Failed to proxy request", http.StatusInternalServerError)
@@ -269,11 +273,11 @@ func (s *Nakama) GetStreamHandler() http.Handler {
 }
 
 type PlayNakamaStreamOptions struct {
-	StreamUrl     string
-	MediaId       int
-	EpisodeNumber int    // RELATIVE Episode number to identify the file
-	AnidbEpisode  string // Animap episode
-	Media         *anilist.BaseAnime
+	StreamUrl          string
+	MediaId            int
+	AnidbEpisode       string // Animap episode
+	Media              *anilist.BaseAnime
+	NakamaHostPassword string
 }
 
 // PlayNakamaStream is used by a module to load a new nakama stream.
@@ -297,7 +301,8 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 	}
 
 	stream := &Nakama{
-		streamUrl: opts.StreamUrl,
+		streamUrl:          opts.StreamUrl,
+		nakamaHostPassword: opts.NakamaHostPassword,
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,

@@ -638,11 +638,11 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 			strings.Contains(err.Error(), "wsasend") || strings.Contains(err.Error(), "reset by peer") {
 			h.App.Logger.Warn().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: network connection error during streaming")
 		} else {
-			h.App.Logger.Error().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: error streaming response body")
+			//h.App.Logger.Error().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: error streaming response body")
 		}
 		// Don't return error here as response has already started
 	} else {
-		h.App.Logger.Debug().Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: successfully streamed response")
+		h.App.Logger.Debug().Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: Successfully streamed response")
 	}
 	return nil
 }

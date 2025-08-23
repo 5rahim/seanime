@@ -1070,7 +1070,7 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (in
 		seekOffset = 0
 	}
 
-	// Seek to the starting position
+	// SeekToSlow to the starting position
 	absPosOfNextRead, err := rs.Seek(seekOffset, io.SeekStart)
 	if err != nil {
 		return -1, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
@@ -1146,7 +1146,7 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 			return -1, fmt.Errorf("cluster ID not found at or before offset %d", targetFileOffset)
 		}
 
-		// Seek and read
+		// SeekToSlow and read
 		_, err := rs.Seek(readStartPos, io.SeekStart)
 		if err != nil {
 			return -1, fmt.Errorf("seek to %d failed: %w", readStartPos, err)

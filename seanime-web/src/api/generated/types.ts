@@ -3831,6 +3831,10 @@ export type Nakama_WatchPartySessionParticipant = {
      * in milliseconds
      */
     latency: number
+    /**
+     * Whether this participant uses Denshi player
+     */
+    useDenshiPlayer: boolean
     isBuffering: boolean
     /**
      * 0.0 to 1.0, how much buffer is available
@@ -3912,6 +3916,10 @@ export type NativePlayer_PlaybackInfo = {
     entryListData?: Anime_EntryListData
     episode?: Anime_Episode
     media?: AL_BaseAnime
+    /**
+     * Is the stream from Nakama Watch Party
+     */
+    isNakamaWatchParty: boolean
 }
 
 /**
@@ -3926,6 +3934,7 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "pause" |
     "resume" |
     "seek" |
+    "seek-to" |
     "error" |
     "add-subtitle-track" |
     "terminate"
@@ -4313,6 +4322,10 @@ export type Torrentstream_StartStreamOptions = {
     UserAgent: string
     ClientId: string
     PlaybackType: Torrentstream_PlaybackType
+    /**
+     * If this is a nakama stream (watch party)
+     */
+    IsNakamaWatchParty: boolean
 }
 
 /**

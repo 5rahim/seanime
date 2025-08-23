@@ -57,6 +57,7 @@ type Stream interface {
 	GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent]
 	// OnSubtitleFileUploaded is called when a subtitle file is uploaded.
 	OnSubtitleFileUploaded(filename string, content string)
+	IsNakamaWatchParty() bool
 }
 
 func (m *Manager) getStreamHandler() http.Handler {
@@ -127,6 +128,8 @@ func (m *Manager) loadStream(stream Stream) {
 		m.preStreamError(stream, fmt.Errorf("failed to load playback info: %w", err))
 		return
 	}
+
+	playbackInfo.IsNakamaWatchParty = stream.IsNakamaWatchParty()
 
 	// Shut the mkv parser logger
 	//parser, ok := playbackInfo.MkvMetadataParser.Get()
@@ -304,6 +307,7 @@ type BaseStream struct {
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
+	isNakamaWatchParty     bool   // Whether the stream is from Nakama
 
 	// Subtitle stream management
 	activeSubtitleStreams *result.Map[string, *SubtitleStream]
@@ -352,6 +356,10 @@ func (s *BaseStream) EpisodeCollection() *anime.EpisodeCollection {
 
 func (s *BaseStream) ClientId() string {
 	return s.clientId
+}
+
+func (s *BaseStream) IsNakamaWatchParty() bool {
+	return s.isNakamaWatchParty
 }
 
 func (s *BaseStream) Terminate() {

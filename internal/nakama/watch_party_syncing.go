@@ -43,7 +43,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 	}
 
 	// If the playback manager doesn't have a status, do nothing
-	playbackStatus, ok := wpm.manager.playbackManager.PullStatus()
+	playbackStatus, ok := wpm.manager.mediaController.PullStatus()
 	if !ok {
 		return
 	}
@@ -119,7 +119,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 				wpm.pendingSeekPosition = seekPosition
 				wpm.seekMu.Unlock()
 
-				_ = wpm.manager.playbackManager.Seek(seekPosition)
+				wpm.manager.mediaController.SeekTo(seekPosition)
 			} else if positionDrift > 0 && positionDrift <= ResumeAheadTolerance {
 				wpm.logger.Debug().
 					Float64("positionDrift", positionDrift).
@@ -129,7 +129,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			}
 
 			wpm.logger.Debug().Msg("nakama: Host resumed, resuming peer playback")
-			_ = wpm.manager.playbackManager.Resume()
+			wpm.manager.mediaController.Resume()
 		} else {
 			wpm.logger.Debug().Msg("nakama: Host paused, handling peer pause")
 			wpm.handleHostPause(payloadStatus, *playbackStatus, timeSinceMessage)
@@ -150,7 +150,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 			Msg("nakama: Host is playing but peer is paused, syncing and resuming")
 
 		// Resume and sync to host position
-		_ = wpm.manager.playbackManager.Resume()
+		wpm.manager.mediaController.Resume()
 
 		// Track pending seek
 		now := time.Now()
@@ -159,7 +159,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 		wpm.pendingSeekPosition = hostExpectedPosition
 		wpm.seekMu.Unlock()
 
-		_ = wpm.manager.playbackManager.Seek(hostExpectedPosition)
+		wpm.manager.mediaController.SeekTo(hostExpectedPosition)
 	} else if !payloadStatus.Playing && playbackStatus.Playing {
 		// Host paused, peer playing, pause immediately
 		wpm.logger.Debug().Msg("nakama: Host is paused but peer is playing, pausing immediately")
@@ -205,9 +205,9 @@ func (wpm *WatchPartyManager) handleHostPause(hostStatus mediaplayer.PlaybackSta
 			wpm.pendingSeekPosition = hostActualPausePosition
 			wpm.seekMu.Unlock()
 
-			_ = wpm.manager.playbackManager.Seek(hostActualPausePosition)
+			wpm.manager.mediaController.SeekTo(hostActualPausePosition)
 		}
-		_ = wpm.manager.playbackManager.Pause()
+		wpm.manager.mediaController.Pause()
 		wpm.logger.Debug().Msgf("nakama: Host paused, peer paused immediately (diff: %.2f)", timeDifference)
 	}
 }
@@ -244,20 +244,20 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, timeSinceM
 				if time.Since(startTime) > maxCatchUpTime {
 					wpm.logger.Debug().Msg("nakama: Catch-up timeout, seeking to host position and pausing")
 
-					// Seek to host position and pause
+					// SeekToSlow to host position and pause
 					now := time.Now()
 					wpm.seekMu.Lock()
 					wpm.pendingSeekTime = now
 					wpm.pendingSeekPosition = hostPausePosition
 					wpm.seekMu.Unlock()
 
-					_ = wpm.manager.playbackManager.Seek(hostPausePosition)
-					_ = wpm.manager.playbackManager.Pause()
+					wpm.manager.mediaController.SeekTo(hostPausePosition)
+					wpm.manager.mediaController.Pause()
 					return
 				}
 
 				// Get current playback status
-				currentStatus, ok := wpm.manager.playbackManager.PullStatus()
+				currentStatus, ok := wpm.manager.mediaController.PullStatus()
 				if !ok {
 					continue
 				}
@@ -274,8 +274,8 @@ func (wpm *WatchPartyManager) startCatchUp(hostPausePosition float64, timeSinceM
 					wpm.pendingSeekPosition = hostPausePosition
 					wpm.seekMu.Unlock()
 
-					_ = wpm.manager.playbackManager.Seek(hostPausePosition)
-					_ = wpm.manager.playbackManager.Pause()
+					wpm.manager.mediaController.SeekTo(hostPausePosition)
+					wpm.manager.mediaController.Pause()
 					return
 				}
 
@@ -407,7 +407,7 @@ func (wpm *WatchPartyManager) syncPlaybackPosition(hostStatus mediaplayer.Playba
 		wpm.pendingSeekPosition = seekPosition
 		wpm.seekMu.Unlock()
 
-		_ = wpm.manager.playbackManager.Seek(seekPosition)
+		wpm.manager.mediaController.SeekTo(seekPosition)
 		wpm.lastSeekTime = now
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 )
 
 type ServerEvent string
@@ -18,6 +19,7 @@ const (
 	ServerEventPause            ServerEvent = "pause"
 	ServerEventResume           ServerEvent = "resume"
 	ServerEventSeek             ServerEvent = "seek"
+	ServerEventSeekTo           ServerEvent = "seek-to"
 	ServerEventError            ServerEvent = "error"
 	ServerEventAddSubtitleTrack ServerEvent = "add-subtitle-track"
 	ServerEventTerminate        ServerEvent = "terminate"
@@ -32,6 +34,10 @@ func (p *NativePlayer) OpenAndAwait(clientId string, loadingState string) {
 func (p *NativePlayer) Watch(clientId string, playbackInfo *PlaybackInfo) {
 	// Store the playback info
 	p.SetPlaybackInfo(playbackInfo)
+	p.setPlaybackStatus(func() {
+		p.playbackStatus.ClientId = clientId
+		p.playbackStatus.Url = playbackInfo.StreamUrl
+	})
 	p.sendPlayerEventTo(clientId, string(ServerEventWatch), playbackInfo, true)
 }
 
@@ -60,6 +66,11 @@ func (p *NativePlayer) Seek(clientId string, time float64) {
 	p.sendPlayerEventTo(clientId, string(ServerEventSeek), time)
 }
 
+// SeekTo sends the seek to event to the client.
+func (p *NativePlayer) SeekTo(clientId string, time float64) {
+	p.sendPlayerEventTo(clientId, string(ServerEventSeekTo), time)
+}
+
 // Error stops the playback and displays an error message.
 func (p *NativePlayer) Error(clientId string, err error) {
 	p.sendPlayerEventTo(clientId, string(ServerEventError), struct {
@@ -67,6 +78,7 @@ func (p *NativePlayer) Error(clientId string, err error) {
 	}{
 		Error: err.Error(),
 	})
+	p.EmptyPlaybackStatus()
 	p.SetPlaybackInfo(nil)
 }
 
@@ -83,6 +95,7 @@ func (p *NativePlayer) Stop() {
 		BaseVideoEvent: BaseVideoEvent{ClientId: p.playbackStatus.ClientId},
 	})
 	p.sendPlayerEvent(string(ServerEventTerminate), nil)
+	p.EmptyPlaybackStatus()
 	p.SetPlaybackInfo(nil)
 }
 
@@ -178,6 +191,7 @@ type (
 	videoLoadedMetadataPayload struct {
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
+		Paused      bool    `json:"paused"`
 	}
 	videoSeekedPayload struct {
 		CurrentTime float64 `json:"currentTime"`
@@ -340,6 +354,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.ClientId = playerEvent.ClientId
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
+								p.playbackStatus.Paused = payload.Paused
 							})
 							p.notifySubscribers(&VideoLoadedMetadataEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
@@ -386,6 +401,21 @@ func (p *NativePlayer) listenToPlayerEvents() {
 // Events returns the event channel for the subscriber.
 func (s *Subscriber) Events() <-chan VideoEvent {
 	return s.eventCh
+}
+
+func (p *NativePlayer) RegisterMediaPlayerCallback(callback func(event VideoEvent, cancelFunc func())) (cancel func()) {
+	id := uuid.NewString()
+	sub := p.Subscribe(id)
+	cancel = func() {
+		p.Unsubscribe(id)
+	}
+	go func(sub *Subscriber) {
+		for event := range sub.Events() {
+			callback(event, cancel)
+		}
+	}(sub)
+
+	return cancel
 }
 
 func (e *PlayerEvent) UnmarshalAs(dest interface{}) error {

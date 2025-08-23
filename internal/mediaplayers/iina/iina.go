@@ -233,8 +233,8 @@ func (i *Iina) Resume() error {
 	return nil
 }
 
-// SeekTo seeks to the given position in the file.
-func (i *Iina) SeekTo(position float64) error {
+// SeekToSlow seeks to the given position in the file.
+func (i *Iina) SeekToSlow(position float64) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
@@ -250,8 +250,8 @@ func (i *Iina) SeekTo(position float64) error {
 	return nil
 }
 
-// Seek seeks to the given position in the file.
-func (i *Iina) Seek(position float64) error {
+// SeekTo seeks to the given position in the file.
+func (i *Iina) SeekTo(position float64) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 

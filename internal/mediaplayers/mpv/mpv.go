@@ -277,8 +277,8 @@ func (m *Mpv) Resume() error {
 	return nil
 }
 
-// SeekTo seeks to the given position in the file by first pausing the player and unpausing it after seeking.
-func (m *Mpv) SeekTo(position float64) error {
+// SeekToSlow seeks to the given position in the file by first pausing the player and unpausing it after seeking.
+func (m *Mpv) SeekToSlow(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -310,8 +310,8 @@ func (m *Mpv) SeekTo(position float64) error {
 	return nil
 }
 
-// Seek seeks to the given position in the file.
-func (m *Mpv) Seek(position float64) error {
+// SeekTo seeks to the given position in the file.
+func (m *Mpv) SeekTo(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

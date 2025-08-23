@@ -1297,6 +1297,15 @@
           "comments": []
         },
         {
+          "name": "DetailsURL",
+          "jsonName": "detailsUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "State",
           "jsonName": "state",
           "goType": "string",
@@ -1342,6 +1351,17 @@
           "comments": []
         },
         {
+          "name": "LargeURL",
+          "jsonName": "largeUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to large image, if any"
+          ]
+        },
+        {
           "name": "SmallImage",
           "jsonName": "smallImage",
           "goType": "string",
@@ -1358,6 +1378,17 @@
           "required": true,
           "public": true,
           "comments": []
+        },
+        {
+          "name": "SmallURL",
+          "jsonName": "smallUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to small image, if any"
+          ]
         },
         {
           "name": "Buttons",
@@ -1385,6 +1416,15 @@
           "goType": "int",
           "typescriptType": "number",
           "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StatusDisplayType",
+          "jsonName": "statusDisplayType",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
           "public": true,
           "comments": []
         },
@@ -1466,6 +1506,15 @@
           "comments": []
         },
         {
+          "name": "DetailsURL",
+          "jsonName": "detailsUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "State",
           "jsonName": "state",
           "goType": "string",
@@ -1511,6 +1560,17 @@
           "comments": []
         },
         {
+          "name": "LargeURL",
+          "jsonName": "largeUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to large image, if any"
+          ]
+        },
+        {
           "name": "SmallImage",
           "jsonName": "smallImage",
           "goType": "string",
@@ -1527,6 +1587,17 @@
           "required": true,
           "public": true,
           "comments": []
+        },
+        {
+          "name": "SmallURL",
+          "jsonName": "smallUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to small image, if any"
+          ]
         },
         {
           "name": "Buttons",
@@ -1554,6 +1625,15 @@
           "goType": "int",
           "typescriptType": "number",
           "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StatusDisplayType",
+          "jsonName": "statusDisplayType",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
           "public": true,
           "comments": []
         },

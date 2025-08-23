@@ -265,6 +265,7 @@ func (a *App) initModulesOnce() {
 		ServerHost:              a.Config.Server.Host,
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
+		DirectStreamManager:     a.DirectStreamManager,
 	})
 
 }

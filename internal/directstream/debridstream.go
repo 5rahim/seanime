@@ -280,16 +280,15 @@ func (s *DebridStream) GetStreamHandler() http.Handler {
 }
 
 type PlayDebridStreamOptions struct {
-	StreamUrl     string
-	MediaId       int
-	EpisodeNumber int    // RELATIVE Episode number to identify the file
-	AnidbEpisode  string // Anizip episode
-	Media         *anilist.BaseAnime
-	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent
-	FileId        string                      // File ID or index
-	UserAgent     string
-	ClientId      string
-	AutoSelect    bool
+	StreamUrl    string
+	MediaId      int
+	AnidbEpisode string // Anizip episode
+	Media        *anilist.BaseAnime
+	Torrent      *hibiketorrent.AnimeTorrent // Selected torrent
+	FileId       string                      // File ID or index
+	UserAgent    string
+	ClientId     string
+	AutoSelect   bool
 }
 
 // PlayDebridStream is used by a module to load a new debrid stream.

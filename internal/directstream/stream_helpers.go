@@ -54,7 +54,7 @@ func serveContentRange(w http.ResponseWriter, r *http.Request, ctx context.Conte
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", ra.Length))
 	w.WriteHeader(http.StatusPartialContent)
 
-	// Seek to the requested position
+	// SeekToSlow to the requested position
 	_, err := reader.Seek(ra.Start, io.SeekStart)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -82,7 +82,7 @@ func serveTorrent(w http.ResponseWriter, r *http.Request, ctx context.Context, r
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", ra.Length))
 	w.WriteHeader(http.StatusPartialContent)
 
-	// Seek to the requested position
+	// SeekToSlow to the requested position
 	_, err := reader.Seek(ra.Start, io.SeekStart)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

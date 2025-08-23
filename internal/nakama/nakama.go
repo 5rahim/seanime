@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/nativeplayer"
@@ -35,8 +36,10 @@ type Manager struct {
 	playbackManager         *playbackmanager.PlaybackManager
 	torrentstreamRepository *torrentstream.Repository
 	debridClientRepository  *debrid_client.Repository
+	directstreamManager     *directstream.Manager
 	peerId                  string
 	nativePlayer            *nativeplayer.NativePlayer
+	mediaController         *MediaController
 
 	// Host connections (when acting as host)
 	peerConnections *result.Map[string, *PeerConnection]
@@ -79,6 +82,7 @@ type NewManagerOptions struct {
 	ServerHost              string
 	ServerPort              int
 	NativePlayer            *nativeplayer.NativePlayer
+	DirectStreamManager     *directstream.Manager
 }
 
 type ConnectionType string
@@ -216,8 +220,10 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		previousPath:            "",
 		nativePlayer:            opts.NativePlayer,
 		useDenshiPlayer:         false,
+		directstreamManager:     opts.DirectStreamManager,
 	}
 
+	m.mediaController = NewMediaController(m)
 	m.watchPartyManager = NewWatchPartyManager(m)
 
 	// Register default message handlers
@@ -242,6 +248,11 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				// Store the client's UseDenshiPlayer setting
 				m.clientMu.Lock()
 				m.useDenshiPlayer = payload.UseDenshiPlayer
+				if m.useDenshiPlayer {
+					m.mediaController.SetType(MediaControllerTypeNativePlayer)
+				} else {
+					m.mediaController.SetType(MediaControllerTypePlaybackManager)
+				}
 				m.clientMu.Unlock()
 
 				currSession, _ := m.GetWatchPartyManager().GetCurrentSession()

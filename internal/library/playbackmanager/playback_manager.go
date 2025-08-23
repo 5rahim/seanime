@@ -108,7 +108,7 @@ type (
 	// PlaybackStatusSubscriber provides a single event channel for all playback events
 	PlaybackStatusSubscriber struct {
 		EventCh  chan PlaybackEvent
-		canceled atomic.Bool
+		Canceled atomic.Bool
 	}
 
 	// PlaybackEvent is the base interface for all playback events
@@ -146,14 +146,6 @@ type (
 	}
 
 	// Stream playback events
-	StreamStateChangedEvent struct {
-		State PlaybackState
-	}
-
-	StreamStatusChangedEvent struct {
-		Status mediaplayer.PlaybackStatus
-	}
-
 	StreamStartedEvent struct {
 		Filename string
 		Filepath string
@@ -206,8 +198,6 @@ func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_chan
 func (e VideoStartedEvent) Type() string          { return "video_started" }
 func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
 func (e VideoCompletedEvent) Type() string        { return "video_completed" }
-func (e StreamStateChangedEvent) Type() string    { return "stream_state_changed" }
-func (e StreamStatusChangedEvent) Type() string   { return "stream_status_changed" }
 func (e StreamStartedEvent) Type() string         { return "stream_started" }
 func (e StreamStoppedEvent) Type() string         { return "stream_stopped" }
 func (e StreamCompletedEvent) Type() string       { return "stream_completed" }
@@ -567,9 +557,9 @@ func (pm *PlaybackManager) Resume() error {
 	return pm.MediaPlayerRepository.Resume()
 }
 
-// Seek seeks to the specified time in the current media.
-func (pm *PlaybackManager) Seek(seconds float64) error {
-	return pm.MediaPlayerRepository.Seek(seconds)
+// SeekTo seeks to the specified time in the current media.
+func (pm *PlaybackManager) SeekTo(seconds float64) error {
+	return pm.MediaPlayerRepository.SeekTo(seconds)
 }
 
 // PullStatus pulls the current media player playback status at the time of the call.
@@ -725,7 +715,7 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 	if !ok {
 		return
 	}
-	subscriber.canceled.Store(true)
+	subscriber.Canceled.Store(true)
 	pm.playbackStatusSubscribers.Delete(id)
 	close(subscriber.EventCh)
 }

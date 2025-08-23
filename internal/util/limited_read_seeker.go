@@ -82,7 +82,7 @@ func (lrs *LimitedReadSeeker) Seek(offset int64, whence int) (int64, error) {
 		return 0, ErrInvalidOffset
 	}
 
-	// Seek in the underlying ReadSeeker
+	// SeekToSlow in the underlying ReadSeeker
 	_, err := lrs.rs.Seek(lrs.basePos+absoluteOffset, io.SeekStart)
 	if err != nil {
 		return 0, err

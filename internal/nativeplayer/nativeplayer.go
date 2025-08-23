@@ -23,15 +23,16 @@ const (
 
 type (
 	PlaybackInfo struct {
-		ID            string               `json:"id"`
-		StreamType    StreamType           `json:"streamType"`
-		MimeType      string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
-		StreamUrl     string               `json:"streamUrl"`               // URL of the stream
-		ContentLength int64                `json:"contentLength"`           // Size of the stream in bytes
-		MkvMetadata   *mkvparser.Metadata  `json:"mkvMetadata,omitempty"`   // nil if not ebml
-		EntryListData *anime.EntryListData `json:"entryListData,omitempty"` // nil if not in list
-		Episode       *anime.Episode       `json:"episode"`
-		Media         *anilist.BaseAnime   `json:"media"`
+		ID                 string               `json:"id"`
+		StreamType         StreamType           `json:"streamType"`
+		MimeType           string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
+		StreamUrl          string               `json:"streamUrl"`               // URL of the stream
+		ContentLength      int64                `json:"contentLength"`           // Size of the stream in bytes
+		MkvMetadata        *mkvparser.Metadata  `json:"mkvMetadata,omitempty"`   // nil if not ebml
+		EntryListData      *anime.EntryListData `json:"entryListData,omitempty"` // nil if not in list
+		Episode            *anime.Episode       `json:"episode"`
+		Media              *anilist.BaseAnime   `json:"media"`
+		IsNakamaWatchParty bool                 `json:"isNakamaWatchParty"` // Is the stream from Nakama Watch Party
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}
@@ -163,6 +164,16 @@ func (p *NativePlayer) GetPlaybackInfo() (*PlaybackInfo, bool) {
 
 func (p *NativePlayer) SetPlaybackInfo(info *PlaybackInfo) {
 	p.playbackInfo = info
+}
+
+func (p *NativePlayer) EmptyPlaybackStatus() {
+	p.setPlaybackStatus(func() {
+		p.playbackStatus.Duration = 0
+		p.playbackStatus.CurrentTime = 0
+		p.playbackStatus.Paused = true
+		p.playbackStatus.Url = ""
+		p.playbackStatus.ClientId = ""
+	})
 }
 
 func (p *NativePlayer) SetPlaybackStatus(status *PlaybackStatus) {

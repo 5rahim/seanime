@@ -27457,8 +27457,8 @@
       {
         "name": "OnRefreshAnilistCollectionFuncs",
         "jsonName": "OnRefreshAnilistCollectionFuncs",
-        "goType": "map[string]",
-        "typescriptType": "Record\u003cstring, any\u003e",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": true,
         "comments": []
@@ -33436,34 +33436,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/directstream/debridstream.go",
-    "filename": "debridstream.go",
-    "name": "StreamInfo",
-    "formattedName": "Directstream_StreamInfo",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "ContentType",
-        "jsonName": "ContentType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentLength",
-        "jsonName": "ContentLength",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/directstream/localfile.go",
     "filename": "localfile.go",
     "name": "LocalFileStream",
@@ -33880,6 +33852,148 @@
     ]
   },
   {
+    "filepath": "../internal/directstream/nakama.go",
+    "filename": "nakama.go",
+    "name": "Nakama",
+    "formattedName": "Directstream_Nakama",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "streamUrl",
+        "jsonName": "streamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "contentLength",
+        "jsonName": "contentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrent",
+        "jsonName": "torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamReadyCh",
+        "jsonName": "streamReadyCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed by the initiator when the stream is ready"
+        ]
+      },
+      {
+        "name": "httpStream",
+        "jsonName": "httpStream",
+        "goType": "httputil.FileStream",
+        "typescriptType": "FileStream",
+        "usedTypescriptType": "FileStream",
+        "usedStructName": "httputil.FileStream",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Shared file-backed cache for multiple readers"
+        ]
+      },
+      {
+        "name": "cacheMu",
+        "jsonName": "cacheMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Protects httpStream access"
+        ]
+      }
+    ],
+    "comments": [
+      " Nakama is a stream that is a torrent."
+    ],
+    "embeddedStructNames": [
+      "directstream.BaseStream"
+    ]
+  },
+  {
+    "filepath": "../internal/directstream/nakama.go",
+    "filename": "nakama.go",
+    "name": "PlayNakamaStreamOptions",
+    "formattedName": "Directstream_PlayNakamaStreamOptions",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "StreamUrl",
+        "jsonName": "StreamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AnidbEpisode",
+        "jsonName": "AnidbEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Animap episode"
+        ]
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/directstream/stream.go",
     "filename": "stream.go",
     "name": "BaseStream",
@@ -34046,6 +34160,17 @@
         ]
       },
       {
+        "name": "isNakamaWatchParty",
+        "jsonName": "isNakamaWatchParty",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Whether the stream is from Nakama"
+        ]
+      },
+      {
         "name": "activeSubtitleStreams",
         "jsonName": "activeSubtitleStreams",
         "goType": "",
@@ -34074,6 +34199,34 @@
         "usedStructName": "sync.Once",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/directstream/stream.go",
+    "filename": "stream.go",
+    "name": "StreamInfo",
+    "formattedName": "Directstream_StreamInfo",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "ContentType",
+        "jsonName": "ContentType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentLength",
+        "jsonName": "ContentLength",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -34330,6 +34483,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsNakamaWatchParty",
+        "jsonName": "IsNakamaWatchParty",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Is the stream from Nakama (watch party)"
+        ]
       }
     ],
     "comments": []
@@ -34360,6 +34524,17 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "details_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to details"
+        ]
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -34367,6 +34542,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StateURL",
+        "jsonName": "state_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to state"
+        ]
       },
       {
         "name": "Timestamps",
@@ -34440,6 +34626,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "status_display_type",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " 1 = name, 2 = details, 3 = state"
+        ]
       }
     ],
     "comments": [
@@ -34524,6 +34721,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "large_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "small_image",
         "goType": "string",
@@ -34540,6 +34748,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "small_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       }
     ],
     "comments": [
@@ -34933,6 +35152,15 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "detailsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -34978,6 +35206,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "largeUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "smallImage",
         "goType": "string",
@@ -34994,6 +35233,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "smallUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       },
       {
         "name": "Buttons",
@@ -35021,6 +35271,15 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "statusDisplayType",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -35072,6 +35331,15 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "detailsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -35117,6 +35385,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "largeUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "smallImage",
         "goType": "string",
@@ -35133,6 +35412,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "smallUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       },
       {
         "name": "Buttons",
@@ -35160,6 +35450,15 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "statusDisplayType",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -46556,14 +46855,14 @@
         "comments": []
       },
       {
-        "name": "canceled",
-        "jsonName": "canceled",
+        "name": "Canceled",
+        "jsonName": "Canceled",
         "goType": "atomic.Bool",
         "typescriptType": "Bool",
         "usedTypescriptType": "Bool",
         "usedStructName": "atomic.Bool",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -46729,48 +47028,6 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/playbackmanager/playback_manager.go",
-    "filename": "playback_manager.go",
-    "name": "StreamStateChangedEvent",
-    "formattedName": "PlaybackManager_StreamStateChangedEvent",
-    "package": "playbackmanager",
-    "fields": [
-      {
-        "name": "State",
-        "jsonName": "State",
-        "goType": "PlaybackState",
-        "typescriptType": "PlaybackManager_PlaybackState",
-        "usedTypescriptType": "PlaybackManager_PlaybackState",
-        "usedStructName": "playbackmanager.PlaybackState",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/playbackmanager/playback_manager.go",
-    "filename": "playback_manager.go",
-    "name": "StreamStatusChangedEvent",
-    "formattedName": "PlaybackManager_StreamStatusChangedEvent",
-    "package": "playbackmanager",
-    "fields": [
-      {
-        "name": "Status",
-        "jsonName": "Status",
-        "goType": "mediaplayer.PlaybackStatus",
-        "typescriptType": "PlaybackStatus",
-        "usedTypescriptType": "PlaybackStatus",
-        "usedStructName": "mediaplayer.PlaybackStatus",
-        "required": false,
         "public": true,
         "comments": []
       }
@@ -59954,6 +60211,119 @@
     ]
   },
   {
+    "filepath": "../internal/nakama/media_controller.go",
+    "filename": "media_controller.go",
+    "name": "MediaControllerType",
+    "formattedName": "Nakama_MediaControllerType",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"playback_manager\"",
+        "\"native_player\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/media_controller.go",
+    "filename": "media_controller.go",
+    "name": "MediaController",
+    "formattedName": "Nakama_MediaController",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "Manager",
+        "typescriptType": "Nakama_Manager",
+        "usedTypescriptType": "Nakama_Manager",
+        "usedStructName": "nakama.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "current",
+        "jsonName": "current",
+        "goType": "MediaControllerType",
+        "typescriptType": "Nakama_MediaControllerType",
+        "usedTypescriptType": "Nakama_MediaControllerType",
+        "usedStructName": "nakama.MediaControllerType",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nativePlayerSubscribers",
+        "jsonName": "nativePlayerSubscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MediaController is an agnostic interface for controlling both the PlaybackManager (system player) and the NativePlayer (Denshi player).",
+      " It converts native player events to playback manager events."
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/media_controller.go",
+    "filename": "media_controller.go",
+    "name": "NativePlayerToPlaybackManagerSubscriber",
+    "formattedName": "Nakama_NativePlayerToPlaybackManagerSubscriber",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "subscriber",
+        "jsonName": "subscriber",
+        "goType": "playbackmanager.PlaybackStatusSubscriber",
+        "typescriptType": "PlaybackManager_PlaybackStatusSubscriber",
+        "usedTypescriptType": "PlaybackManager_PlaybackStatusSubscriber",
+        "usedStructName": "playbackmanager.PlaybackStatusSubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nativePlayerSubscriber",
+        "jsonName": "nativePlayerSubscriber",
+        "goType": "nativeplayer.Subscriber",
+        "typescriptType": "NativePlayer_Subscriber",
+        "usedTypescriptType": "NativePlayer_Subscriber",
+        "usedStructName": "nativeplayer.Subscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeCh",
+        "jsonName": "closeCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/nakama/nakama.go",
     "filename": "nakama.go",
     "name": "Manager",
@@ -60070,6 +60440,28 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nativePlayer",
+        "jsonName": "nativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaController",
+        "jsonName": "mediaController",
+        "goType": "MediaController",
+        "typescriptType": "Nakama_MediaController",
+        "usedTypescriptType": "Nakama_MediaController",
+        "usedStructName": "nakama.MediaController",
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -60220,6 +60612,30 @@
         "comments": [
           " latest file streamed by the peer - real path on the host"
         ]
+      },
+      {
+        "name": "useDenshiPlayer",
+        "jsonName": "useDenshiPlayer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Whether this client uses Denshi player"
+        ]
+      },
+      {
+        "name": "clientMu",
+        "jsonName": "clientMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Mutex for client settings"
+        ]
       }
     ],
     "comments": []
@@ -60312,6 +60728,17 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NativePlayer",
+        "jsonName": "NativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -60928,6 +61355,25 @@
     "comments": []
   },
   {
+    "filepath": "../internal/nakama/nakama.go",
+    "filename": "nakama.go",
+    "name": "NakamaStatusRequestedPayload",
+    "formattedName": "Nakama_NakamaStatusRequestedPayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "UseDenshiPlayer",
+        "jsonName": "useDenshiPlayer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/nakama/share.go",
     "filename": "share.go",
     "name": "HydrateHostAnimeLibraryOptions",
@@ -61528,6 +61974,17 @@
         ]
       },
       {
+        "name": "UseDenshiPlayer",
+        "jsonName": "useDenshiPlayer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether this participant uses Denshi player"
+        ]
+      },
+      {
         "name": "IsBuffering",
         "jsonName": "isBuffering",
         "goType": "bool",
@@ -61950,6 +62407,15 @@
         ]
       },
       {
+        "name": "UseDenshiPlayer",
+        "jsonName": "useDenshiPlayer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Timestamp",
         "jsonName": "timestamp",
         "goType": "time.Time",
@@ -62328,6 +62794,7 @@
         "\"pause\"",
         "\"resume\"",
         "\"seek\"",
+        "\"seek-to\"",
         "\"error\"",
         "\"add-subtitle-track\"",
         "\"terminate\""
@@ -62811,6 +63278,17 @@
         "comments": []
       },
       {
+        "name": "IsNakamaWatchParty",
+        "jsonName": "isNakamaWatchParty",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Is the stream from Nakama Watch Party"
+        ]
+      },
+      {
         "name": "MkvMetadataParser",
         "jsonName": "",
         "goType": "",
@@ -62869,6 +63347,17 @@
         "typescriptType": "NativePlayer_PlaybackStatus",
         "usedTypescriptType": "NativePlayer_PlaybackStatus",
         "usedStructName": "nativeplayer.PlaybackStatus",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackInfo",
+        "jsonName": "playbackInfo",
+        "goType": "PlaybackInfo",
+        "typescriptType": "NativePlayer_PlaybackInfo",
+        "usedTypescriptType": "NativePlayer_PlaybackInfo",
+        "usedStructName": "nativeplayer.PlaybackInfo",
         "required": false,
         "public": false,
         "comments": []
@@ -63875,6 +64364,24 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseAnimeCache",
+        "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completeAnimeCache",
+        "jsonName": "completeAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -78282,6 +78789,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsNakamaWatchParty",
+        "jsonName": "IsNakamaWatchParty",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If this is a nakama stream (watch party)"
+        ]
       }
     ],
     "comments": []

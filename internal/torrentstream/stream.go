@@ -29,15 +29,16 @@ const (
 )
 
 type StartStreamOptions struct {
-	MediaId       int
-	EpisodeNumber int                         // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                      // Animap episode
-	AutoSelect    bool                        // Automatically select the best file to stream
-	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
-	FileIndex     *int                        // Index of the file to stream (Manual selection)
-	UserAgent     string
-	ClientId      string
-	PlaybackType  PlaybackType
+	MediaId            int
+	EpisodeNumber      int                         // RELATIVE Episode number to identify the file
+	AniDBEpisode       string                      // Animap episode
+	AutoSelect         bool                        // Automatically select the best file to stream
+	Torrent            *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
+	FileIndex          *int                        // Index of the file to stream (Manual selection)
+	UserAgent          string
+	ClientId           string
+	PlaybackType       PlaybackType
+	IsNakamaWatchParty bool // If this is a nakama stream (watch party)
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -146,12 +147,13 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		//
 		case PlaybackTypeNativePlayer:
 			readyCh, err := r.directStreamManager.PlayTorrentStream(ctx, directstream.PlayTorrentStreamOptions{
-				ClientId:      opts.ClientId,
-				EpisodeNumber: opts.EpisodeNumber,
-				AnidbEpisode:  opts.AniDBEpisode,
-				Media:         media.ToBaseAnime(),
-				Torrent:       r.client.currentTorrent.MustGet(),
-				File:          r.client.currentFile.MustGet(),
+				ClientId:           opts.ClientId,
+				EpisodeNumber:      opts.EpisodeNumber,
+				AnidbEpisode:       opts.AniDBEpisode,
+				Media:              media.ToBaseAnime(),
+				Torrent:            r.client.currentTorrent.MustGet(),
+				File:               r.client.currentFile.MustGet(),
+				IsNakamaWatchParty: opts.IsNakamaWatchParty,
 			})
 			if err != nil {
 				r.logger.Error().Err(err).Msg("torrentstream: Failed to prepare new stream")

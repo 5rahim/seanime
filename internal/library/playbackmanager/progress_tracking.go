@@ -80,7 +80,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -148,7 +148,7 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -194,7 +194,7 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- VideoStoppedEvent{Reason: reason}
@@ -234,7 +234,7 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -290,7 +290,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -349,7 +349,7 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -384,7 +384,7 @@ func (pm *PlaybackManager) handleStreamingVideoCompleted(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -419,7 +419,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- StreamStoppedEvent{Reason: reason}

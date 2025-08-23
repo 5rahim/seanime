@@ -27,8 +27,8 @@ func (api *MpcHc) ToggleFullScreen() (err error) {
 	return
 }
 
-// Seek position in ms
-func (api *MpcHc) Seek(pos int) (err error) {
+// SeekTo position in ms
+func (api *MpcHc) SeekTo(pos int) (err error) {
 	_, err = api.Execute(seekCmd, map[string]interface{}{"position": millisecondsToDuration(pos)})
 	return
 }

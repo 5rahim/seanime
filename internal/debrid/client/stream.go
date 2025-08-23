@@ -498,16 +498,15 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			})
 		case PlaybackTypeNativePlayer:
 			err := s.repository.directStreamManager.PlayDebridStream(ctx, directstream.PlayDebridStreamOptions{
-				StreamUrl:     streamUrl,
-				MediaId:       media.ID,
-				EpisodeNumber: opts.EpisodeNumber,
-				AnidbEpisode:  opts.AniDBEpisode,
-				Media:         media,
-				Torrent:       selectedTorrent,
-				FileId:        fileId,
-				UserAgent:     opts.UserAgent,
-				ClientId:      opts.ClientId,
-				AutoSelect:    false,
+				StreamUrl:    streamUrl,
+				MediaId:      media.ID,
+				AnidbEpisode: opts.AniDBEpisode,
+				Media:        media,
+				Torrent:      selectedTorrent,
+				FileId:       fileId,
+				UserAgent:    opts.UserAgent,
+				ClientId:     opts.ClientId,
+				AutoSelect:   false,
 			})
 			if err != nil {
 				s.repository.logger.Error().Err(err).Msg("directstream: Failed to prepare new stream")

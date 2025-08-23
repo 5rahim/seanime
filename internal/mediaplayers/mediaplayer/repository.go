@@ -252,7 +252,7 @@ func (m *Repository) Play(path string) error {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.SeekTo(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.Resume()
 			}
@@ -276,7 +276,7 @@ func (m *Repository) Play(path string) error {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.SeekTo(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Play()
 			}
@@ -296,7 +296,7 @@ func (m *Repository) Play(path string) error {
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
 			if lastWatched.Found {
-				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Mpv.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err := m.Mpv.OpenAndPlay(path)
@@ -320,7 +320,7 @@ func (m *Repository) Play(path string) error {
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
 			if lastWatched.Found {
-				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Iina.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err := m.Iina.OpenAndPlay(path)
@@ -367,16 +367,16 @@ func (m *Repository) Resume() error {
 	}
 }
 
-func (m *Repository) Seek(seconds float64) error {
+func (m *Repository) SeekTo(seconds float64) error {
 	switch m.Default {
 	case "vlc":
-		return m.VLC.Seek(fmt.Sprintf("%d", int(seconds)))
+		return m.VLC.SeekTo(fmt.Sprintf("%d", int(seconds)))
 	case "mpc-hc":
-		return m.MpcHc.Seek(int(seconds))
+		return m.MpcHc.SeekTo(int(seconds * 1000))
 	case "mpv":
-		return m.Mpv.Seek(seconds)
+		return m.Mpv.SeekTo(seconds)
 	case "iina":
-		return m.Iina.Seek(seconds)
+		return m.Iina.SeekTo(seconds)
 	default:
 		return errors.New("no default media player set")
 	}
@@ -417,7 +417,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.SeekTo(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.Resume()
 			}
@@ -431,7 +431,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.SeekTo(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Play()
 			}
@@ -445,7 +445,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 			if lastWatched.Found {
-				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Mpv.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
@@ -459,7 +459,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Iina.OpenAndPlay(streamUrl, args...)
 			if lastWatched.Found {
-				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Iina.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err = m.Iina.OpenAndPlay(streamUrl, args...)
