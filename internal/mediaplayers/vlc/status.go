@@ -202,10 +202,17 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 	if len(option) > 1 {
 		return errors.New("please provide only one option")
 	}
-	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(filepath.FromSlash(uri))
+	
+	var encodedInput string
 	if strings.HasPrefix(uri, "http") {
-		urlSegment = "/requests/status.json?command=in_play&input=" + url.PathEscape(uri)
+		// For HTTP URLs, use QueryEscape to preserve URL structure and query parameters
+		encodedInput = url.QueryEscape(uri)
+	} else {
+		// For file paths, use PathEscape
+		encodedInput = url.PathEscape(filepath.FromSlash(uri))
 	}
+	
+	urlSegment := "/requests/status.json?command=in_play&input=" + encodedInput
 	if len(option) == 1 {
 		if (option[0] != "noaudio") && (option[0] != "novideo") {
 			return errors.New("invalid option")
@@ -218,13 +225,29 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 
 // Add adds a URI to the playlist
 func (vlc *VLC) Add(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + url.PathEscape(uri))
+	var encodedInput string
+	if strings.HasPrefix(uri, "http") {
+		// For HTTP URLs, use QueryEscape to preserve URL structure and query parameters
+		encodedInput = url.QueryEscape(uri)
+	} else {
+		// For file paths, use PathEscape
+		encodedInput = url.PathEscape(uri)
+	}
+	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + encodedInput)
 	return
 }
 
 // AddSubtitle adds a subtitle from URI to currently playing file
 func (vlc *VLC) AddSubtitle(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + url.PathEscape(uri))
+	var encodedInput string
+	if strings.HasPrefix(uri, "http") {
+		// For HTTP URLs, use QueryEscape to preserve URL structure and query parameters
+		encodedInput = url.QueryEscape(uri)
+	} else {
+		// For file paths, use PathEscape
+		encodedInput = url.PathEscape(uri)
+	}
+	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + encodedInput)
 	return
 }
 
