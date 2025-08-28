@@ -25,6 +25,7 @@ import { logger } from "@/lib/helpers/debug"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
+import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
 type VideoCorePlaylistState = {
@@ -56,18 +57,24 @@ export function useVideoCorePlaylistSetup() {
     // Fetch anime entry and episode collection
     // episode collection will be used for non-localfile streams
     const { data: animeEntry } = useGetAnimeEntry(mediaId)
-    const { data: episodeCollection, isLoading } = useGetAnimeEpisodeCollection(mediaId)
+    const { data: episodeCollection, isLoading, refetch } = useGetAnimeEpisodeCollection(mediaId)
+
+    useUpdateEffect(() => {
+        if (mediaId) {
+            refetch()
+        }
+    }, [state.playbackInfo, mediaId])
 
     // Get the episodes depending on the stream type
     const episodes = React.useMemo(() => {
-        if (!animeEntry?.episodes || !episodeCollection) return []
+        if (!episodeCollection) return []
 
         if (streamType === "localfile") {
-            return animeEntry.episodes.filter(ep => ep.type === "main")
+            return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
         }
 
         return episodeCollection?.episodes ?? []
-    }, [animeEntry?.episodes, episodeCollection, currProgressNumber, streamType])
+    }, [animeEntry?.episodes, episodeCollection?.episodes, currProgressNumber, streamType])
 
     const currentEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber) ?? null
     const previousEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber - 1) ?? null
