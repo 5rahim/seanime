@@ -2,6 +2,7 @@ import { Anime_Episode } from "@/api/generated/types"
 import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
@@ -77,6 +78,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const { setPreviewModalMediaId } = useMediaPreviewModal()
+    const { selectEpisodeToAddAndOpenEditor } = usePlaylistEditorManager()
 
     const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
@@ -135,8 +137,14 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         >
                             Preview
                         </ContextMenuItem>}
-
                     </>}
+                    {(props.episode && anime?.id && props.episode?.aniDBEpisode) && <ContextMenuItem
+                        onClick={() => {
+                            selectEpisodeToAddAndOpenEditor(anime.id!, props.episode?.aniDBEpisode!)
+                        }}
+                    >
+                        Add to Playlist
+                    </ContextMenuItem>}
 
                     <PluginEpisodeCardContextMenuItems episode={props.episode} />
 

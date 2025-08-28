@@ -92,20 +92,27 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
 func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
-	//p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
-	//	Type    string      `json:"type"`
-	//	Payload interface{} `json:"payload"`
-	//}{
-	//	Type:    t,
-	//	Payload: payload,
-	//}, noLog...)
-	p.wsEventManager.SendEvent(string(events.NativePlayerEventType), struct {
-		Type    string      `json:"type"`
-		Payload interface{} `json:"payload"`
-	}{
-		Type:    t,
-		Payload: payload,
-	})
+	if clientId == "" && p.playbackStatus != nil {
+		p.playbackStatus.ClientId = clientId
+	}
+
+	if clientId != "" {
+		p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
+			Type    string      `json:"type"`
+			Payload interface{} `json:"payload"`
+		}{
+			Type:    t,
+			Payload: payload,
+		}, noLog...)
+	} else {
+		p.wsEventManager.SendEvent(string(events.NativePlayerEventType), struct {
+			Type    string      `json:"type"`
+			Payload interface{} `json:"payload"`
+		}{
+			Type:    t,
+			Payload: payload,
+		})
+	}
 }
 
 func (p *NativePlayer) sendPlayerEvent(t string, payload interface{}) {

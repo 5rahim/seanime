@@ -203,9 +203,9 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 	if len(option) > 1 {
 		return errors.New("please provide only one option")
 	}
-	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(filepath.FromSlash(uri))
+	urlSegment := "/requests/status.json?command=in_play&input=" + url.QueryEscape(filepath.FromSlash(uri))
 	if strings.HasPrefix(uri, "http") {
-		urlSegment = "/requests/status.json?command=in_play&input=" + url.PathEscape(uri)
+		urlSegment = "/requests/status.json?command=in_play&input=" + url.QueryEscape(uri)
 	}
 	if len(option) == 1 {
 		if (option[0] != "noaudio") && (option[0] != "novideo") {
@@ -219,13 +219,13 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 
 // Add adds a URI to the playlist
 func (vlc *VLC) Add(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + url.PathEscape(uri))
+	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + url.QueryEscape(uri))
 	return
 }
 
 // AddSubtitle adds a subtitle from URI to currently playing file
 func (vlc *VLC) AddSubtitle(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + url.PathEscape(uri))
+	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + url.QueryEscape(uri))
 	return
 }
 

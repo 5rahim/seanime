@@ -301,7 +301,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/playlist", h.HandleCreatePlaylist)
 	v1.PATCH("/playlist", h.HandleUpdatePlaylist)
 	v1.DELETE("/playlist", h.HandleDeletePlaylist)
-	v1.GET("/playlist/episodes/:id/:progress", h.HandleGetPlaylistEpisodes)
+	v1.GET("/playlist/episodes/:id", h.HandleGetPlaylistEpisodes)
 
 	//
 	// Onlinestream

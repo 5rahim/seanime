@@ -7611,7 +7611,7 @@
       "HandleCreatePlaylist",
       "",
       "\t@summary creates a new playlist.",
-      "\t@desc This will create a new playlist with the given name and local file paths.",
+      "\t@desc This will create a new playlist with the given name and episodes.",
       "\t@desc The response is ignored, the client should re-fetch the playlists after this.",
       "\t@route /api/v1/playlist [POST]",
       "\t@returns anime.Playlist",
@@ -7622,7 +7622,7 @@
     "api": {
       "summary": "creates a new playlist.",
       "descriptions": [
-        "This will create a new playlist with the given name and local file paths.",
+        "This will create a new playlist with the given name and episodes.",
         "The response is ignored, the client should re-fetch the playlists after this."
       ],
       "endpoint": "/api/v1/playlist",
@@ -7641,11 +7641,11 @@
           "descriptions": []
         },
         {
-          "name": "Paths",
-          "jsonName": "paths",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
+          "name": "Episodes",
+          "jsonName": "episodes",
+          "goType": "[]anime.PlaylistEpisode",
+          "usedStructType": "anime.PlaylistEpisode",
+          "typescriptType": "Array\u003cAnime_PlaylistEpisode\u003e",
           "required": true,
           "descriptions": []
         }
@@ -7740,11 +7740,11 @@
           "descriptions": []
         },
         {
-          "name": "Paths",
-          "jsonName": "paths",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
+          "name": "Episodes",
+          "jsonName": "episodes",
+          "goType": "[]anime.PlaylistEpisode",
+          "usedStructType": "anime.PlaylistEpisode",
+          "typescriptType": "Array\u003cAnime_PlaylistEpisode\u003e",
           "required": true,
           "descriptions": []
         }
@@ -7798,10 +7798,10 @@
       "HandleGetPlaylistEpisodes",
       "",
       "\t@summary returns all the local files of a playlist media entry that have not been watched.",
-      "\t@route /api/v1/playlist/episodes/{id}/{progress} [GET]",
+      "\t@route /api/v1/playlist/episodes/{id} [GET]",
       "\t@param id - int - true - \"The ID of the media entry.\"",
       "\t@param progress - int - true - \"The progress of the media entry.\"",
-      "\t@returns []anime.LocalFile",
+      "\t@returns []anime.PlaylistEpisode",
       ""
     ],
     "filepath": "internal/handlers/playlist.go",
@@ -7809,7 +7809,7 @@
     "api": {
       "summary": "returns all the local files of a playlist media entry that have not been watched.",
       "descriptions": [],
-      "endpoint": "/api/v1/playlist/episodes/{id}/{progress}",
+      "endpoint": "/api/v1/playlist/episodes/{id}",
       "methods": [
         "GET"
       ],
@@ -7838,9 +7838,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "[]anime.LocalFile",
-      "returnGoType": "anime.LocalFile",
-      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+      "returns": "[]anime.PlaylistEpisode",
+      "returnGoType": "anime.PlaylistEpisode",
+      "returnTypescriptType": "Array\u003cAnime_PlaylistEpisode\u003e"
     }
   },
   {

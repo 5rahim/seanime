@@ -18,6 +18,8 @@ export function ElectronRestartServerPrompt() {
     const isUpdatedInstalled = useAtomValue(isUpdateInstalledAtom)
     const isUpdating = useAtomValue(isUpdatingAtom)
 
+    const threshold = 8
+
     React.useEffect(() => {
         (async () => {
             if (window.electron) {
@@ -45,7 +47,7 @@ export function ElectronRestartServerPrompt() {
     // Try to reconnect automatically
     const tryAutoReconnectRef = React.useRef(true)
     React.useEffect(() => {
-        if (!isConnected && connectionErrorCount >= 10 && tryAutoReconnectRef.current && !isUpdatedInstalled) {
+        if (!isConnected && connectionErrorCount >= threshold && tryAutoReconnectRef.current && !isUpdatedInstalled) {
             tryAutoReconnectRef.current = false
             console.log("Connection error count reached 10, restarting server automatically")
             handleRestart()
@@ -64,7 +66,7 @@ export function ElectronRestartServerPrompt() {
     // Not connected for 10 seconds
     return (
         <>
-            {(!isConnected && connectionErrorCount < 10 && !isUpdating && !isUpdatedInstalled) && (
+            {(!isConnected && connectionErrorCount > 2 && connectionErrorCount < threshold && !isUpdating && !isUpdatedInstalled) && (
                 <LoadingOverlay className="fixed left-0 top-0 z-[9999]">
                     <p>
                         The server connection has been lost. Please wait while we attempt to reconnect.
@@ -73,7 +75,7 @@ export function ElectronRestartServerPrompt() {
             )}
 
             <Modal
-                open={!isConnected && connectionErrorCount >= 10 && !isUpdatedInstalled}
+                open={!isConnected && connectionErrorCount >= threshold && !isUpdatedInstalled}
                 onOpenChange={() => {}}
                 hideCloseButton
                 contentClass="max-w-2xl"

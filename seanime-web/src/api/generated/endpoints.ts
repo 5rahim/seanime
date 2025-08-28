@@ -1422,8 +1422,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
-         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
+         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",
@@ -1607,7 +1607,7 @@ export const API_ENDPOINTS = {
         /**
          *  @description
          *  Route creates a new playlist.
-         *  This will create a new playlist with the given name and local file paths.
+         *  This will create a new playlist with the given name and episodes.
          *  The response is ignored, the client should re-fetch the playlists after this.
          */
         CreatePlaylist: {
@@ -1638,7 +1638,7 @@ export const API_ENDPOINTS = {
         GetPlaylistEpisodes: {
             key: "PLAYLIST-get-playlist-episodes",
             methods: ["GET"],
-            endpoint: "/api/v1/playlist/episodes/{id}/{progress}",
+            endpoint: "/api/v1/playlist/episodes/{id}",
         },
     },
     RELEASES: {

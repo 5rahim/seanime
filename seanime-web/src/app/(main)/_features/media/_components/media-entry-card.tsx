@@ -29,9 +29,10 @@ import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_component
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useHasTorrentOrDebridInclusion, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaEntryCardUnreadBadge } from "@/app/(main)/manga/_containers/manga-entry-card-unread-badge"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -85,10 +86,13 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const router = useRouter()
     const serverStatus = useServerStatus()
+    const { hasTorrentOrDebridInclusion } = useHasTorrentOrDebridInclusion()
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
+
+    const { selectMediaAndOpenEditor } = usePlaylistEditorManager()
 
     const ref = React.useRef<HTMLDivElement>(null)
 
@@ -190,6 +194,13 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         }}
                     >
                         Preview
+                    </ContextMenuItem>}
+                    {(libraryData || nakamaLibraryData || (listData && hasTorrentOrDebridInclusion)) && <ContextMenuItem
+                        onClick={() => {
+                            selectMediaAndOpenEditor(media.id!)
+                        }}
+                    >
+                        Add to Playlist
                     </ContextMenuItem>}
 
                     <PluginMediaCardContextMenuItems for={type} media={media} />

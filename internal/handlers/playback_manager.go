@@ -140,7 +140,7 @@ func (h *Handler) HandlePlaybackStartPlaylist(c echo.Context) error {
 	}
 
 	// Get playlist
-	playlist, err := db_bridge.GetPlaylist(h.App.Database, b.DbId)
+	playlist, err := db_bridge.GetLegacyPlaylist(h.App.Database, b.DbId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

@@ -23,6 +23,7 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
+    "electronDist": "/Users/rahim/IdeaProjects/electron-v36.2.1/electron_macos_dist",
     "appId": "app.seanime.denshi",
     "productName": "Seanime Denshi",
     "asar": true,

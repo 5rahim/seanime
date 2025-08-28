@@ -1,6 +1,6 @@
-import { Anime_Playlist } from "@/api/generated/types"
+import { Anime_LibraryCollection, Anime_Playlist, Anime_PlaylistEpisode } from "@/api/generated/types"
 import { useCreatePlaylist, useDeletePlaylist, useUpdatePlaylist } from "@/api/hooks/playlist.hooks"
-import { PlaylistManager } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-manager"
+import { PlaylistEditor, PlaylistMediaEntry } from "@/app/(main)/_features/playlists/_components/playlist-editor"
 import { Button } from "@/components/ui/button"
 import { DangerZone } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
@@ -9,39 +9,40 @@ import { TextInput } from "@/components/ui/text-input"
 import React from "react"
 import { toast } from "sonner"
 
-type PlaylistModalProps = {
+type PlaylistEditorModalProps = {
+    libraryCollection: Anime_LibraryCollection | undefined
     playlist?: Anime_Playlist
     trigger: React.ReactElement
 }
 
-export function PlaylistModal(props: PlaylistModalProps) {
+export function PlaylistEditorModal(props: PlaylistEditorModalProps) {
 
     const {
+        libraryCollection,
         playlist,
         trigger,
     } = props
 
     const [isOpen, setIsOpen] = React.useState(false)
     const [name, setName] = React.useState(playlist?.name ?? "")
-    const [paths, setPaths] = React.useState<string[]>(playlist?.localFiles?.map(l => l.path) ?? [])
+    const [episodes, setEpisodes] = React.useState<Anime_PlaylistEpisode[]>([])
 
     const isUpdate = !!playlist
 
     const { mutate: createPlaylist, isPending: isCreating } = useCreatePlaylist()
-
     const { mutate: deletePlaylist, isPending: isDeleting } = useDeletePlaylist()
-
     const { mutate: updatePlaylist, isPending: isUpdating } = useUpdatePlaylist()
+
 
     function reset() {
         setName("")
-        setPaths([])
+        setEpisodes([])
     }
 
     React.useEffect(() => {
-        if (isUpdate && !!playlist && !!playlist.localFiles) {
+        if (isUpdate && !!playlist && !!playlist.episodes) {
             setName(playlist.name)
-            setPaths(playlist.localFiles.map(l => l.path))
+            setEpisodes(playlist.episodes)
         }
     }, [playlist, isOpen])
 
@@ -51,10 +52,10 @@ export function PlaylistModal(props: PlaylistModalProps) {
             return
         }
         if (isUpdate && !!playlist) {
-            updatePlaylist({ dbId: playlist.dbId, name, paths })
+            updatePlaylist({ dbId: playlist.dbId, name, episodes })
         } else {
             setIsOpen(false)
-            createPlaylist({ name, paths }, {
+            createPlaylist({ name, episodes }, {
                 onSuccess: () => {
                     reset()
                 },
@@ -62,12 +63,14 @@ export function PlaylistModal(props: PlaylistModalProps) {
         }
     }
 
+
     return (
         <Modal
             title={isUpdate ? "Edit playlist" : "Create a playlist"}
             trigger={trigger}
             open={isOpen}
             onOpenChange={v => setIsOpen(v)}
+            onInteractOutside={e => e.preventDefault()}
             contentClass="max-w-4xl"
         >
             <div className="space-y-4">
@@ -81,12 +84,20 @@ export function PlaylistModal(props: PlaylistModalProps) {
 
                     <Separator />
 
-                    <PlaylistManager
-                        paths={paths}
-                        setPaths={setPaths}
+                    <PlaylistEditor
+                        episodes={episodes}
+                        setEpisodes={setEpisodes}
+                        libraryCollection={libraryCollection}
                     />
+
+                    {libraryCollection?.lists?.flatMap(n => n.entries)?.filter(Boolean)?.map(entry => {
+                        return (
+                            <PlaylistMediaEntry key={entry.mediaId} entry={entry} episodes={episodes} setEpisodes={setEpisodes} />
+                        )
+                    })}
+
                     <div className="">
-                        <Button disabled={paths.length === 0} onClick={handleSubmit} loading={isCreating || isDeleting || isUpdating}>
+                        <Button disabled={episodes.length === 0} onClick={handleSubmit} loading={isCreating || isDeleting || isUpdating}>
                             {isUpdate ? "Update" : "Create"}
                         </Button>
                     </div>

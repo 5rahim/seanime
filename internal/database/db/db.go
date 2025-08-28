@@ -80,7 +80,8 @@ func migrateTables(db *gorm.DB) error {
 		&models.AutoDownloaderItem{},
 		&models.SilencedMediaEntry{},
 		&models.Theme{},
-		&models.PlaylistEntry{},
+		&models.PlaylistEntry{}, // Legacy playlists
+		&models.Playlist{},
 		&models.ChapterDownloadQueueItem{},
 		&models.TorrentstreamSettings{},
 		&models.TorrentstreamHistory{},

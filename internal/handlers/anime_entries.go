@@ -25,6 +25,58 @@ import (
 	"gorm.io/gorm"
 )
 
+func (h *Handler) getAnimeEntry(c echo.Context, lfs []*anime.LocalFile, mId int) (*anime.Entry, error) {
+	// Get the host anime library files
+	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
+	if hydratedFromNakama && nakamaLfs != nil {
+		lfs = nakamaLfs
+	}
+
+	// Get the user's anilist collection
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return nil, err
+	}
+
+	if animeCollection == nil {
+		return nil, errors.New("anime collection not found")
+	}
+
+	// Create a new media entry
+	entry, err := anime.NewEntry(c.Request().Context(), &anime.NewEntryOptions{
+		MediaId:          mId,
+		LocalFiles:       lfs,
+		AnimeCollection:  animeCollection,
+		Platform:         h.App.AnilistPlatform,
+		MetadataProvider: h.App.MetadataProvider,
+		IsSimulated:      h.App.GetUser().IsSimulated,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
+	fillerEvent.Entry = entry
+	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
+	if err != nil {
+		return nil, h.RespondWithError(c, err)
+	}
+	entry = fillerEvent.Entry
+
+	if !fillerEvent.DefaultPrevented {
+		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
+	}
+
+	if hydratedFromNakama {
+		entry.IsNakamaEntry = true
+		for _, ep := range entry.Episodes {
+			ep.IsNakamaEpisode = true
+		}
+	}
+
+	return entry, nil
+}
+
 // HandleGetAnimeEntry
 //
 //	@summary return a media entry for the given AniList anime media id.
@@ -46,52 +98,9 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Get the host anime library files
-	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(mId)
-	if hydratedFromNakama && nakamaLfs != nil {
-		lfs = nakamaLfs
-	}
-
-	// Get the user's anilist collection
-	animeCollection, err := h.App.GetAnimeCollection(false)
+	entry, err := h.getAnimeEntry(c, lfs, mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
-	}
-
-	if animeCollection == nil {
-		return h.RespondWithError(c, errors.New("anime collection not found"))
-	}
-
-	// Create a new media entry
-	entry, err := anime.NewEntry(c.Request().Context(), &anime.NewEntryOptions{
-		MediaId:          mId,
-		LocalFiles:       lfs,
-		AnimeCollection:  animeCollection,
-		Platform:         h.App.AnilistPlatform,
-		MetadataProvider: h.App.MetadataProvider,
-		IsSimulated:      h.App.GetUser().IsSimulated,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
-	fillerEvent.Entry = entry
-	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-	entry = fillerEvent.Entry
-
-	if !fillerEvent.DefaultPrevented {
-		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
-	}
-
-	if hydratedFromNakama {
-		entry.IsNakamaEntry = true
-		for _, ep := range entry.Episodes {
-			ep.IsNakamaEpisode = true
-		}
 	}
 
 	return h.RespondWithData(c, entry)

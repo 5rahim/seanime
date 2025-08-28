@@ -13,11 +13,12 @@ import type {
     Anime_AutoDownloaderRuleEpisodeType,
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
+    Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
-    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -1479,7 +1480,7 @@ export type PlaybackStartManualTracking_Variables = {
  */
 export type CreatePlaylist_Variables = {
     name: string
-    paths: Array<string>
+    episodes: Array<Anime_PlaylistEpisode>
 }
 
 /**
@@ -1492,7 +1493,7 @@ export type CreatePlaylist_Variables = {
 export type UpdatePlaylist_Variables = {
     dbId: number
     name: string
-    paths: Array<string>
+    episodes: Array<Anime_PlaylistEpisode>
 }
 
 /**
@@ -1509,7 +1510,7 @@ export type DeletePlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
- * - Endpoint: /api/v1/playlist/episodes/{id}/{progress}
+ * - Endpoint: /api/v1/playlist/episodes/{id}
  * @description
  * Route returns all the local files of a playlist media entry that have not been watched.
  */
@@ -1738,7 +1739,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string

@@ -420,7 +420,6 @@ export function NativePlayer() {
 
     return (
         <>
-
             <VideoCore
                 state={state}
                 aniSkipData={aniSkipData}

@@ -35,6 +35,22 @@ export function useHasDebridService() {
     }
 }
 
+export function useHasTorrentOrDebridInclusion() {
+    const serverStatus = useServerStatus()
+    return {
+        hasTorrentStreaming: React.useMemo(() =>
+                (!!serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary),
+            [serverStatus?.torrentstreamSettings]),
+        hasDebridStreaming: React.useMemo(() =>
+                (!!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider && !!serverStatus?.debridSettings?.includeDebridStreamInLibrary),
+            [serverStatus?.debridSettings]),
+        hasTorrentOrDebridInclusion: React.useMemo(() =>
+                (!!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider && !!serverStatus?.debridSettings?.includeDebridStreamInLibrary) ||
+                (!!serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary),
+            [serverStatus?.debridSettings, serverStatus?.torrentstreamSettings]),
+    }
+}
+
 export function useServerPassword() {
     const serverStatus = useServerStatus()
     const [password] = useAtom(serverAuthTokenAtom)

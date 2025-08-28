@@ -43,6 +43,11 @@ declare global {
                 setTitleBarStyle: (style: string) => void;
                 getCurrentWindow: () => Promise<string>;
             };
+            media?: {
+                setMetadata: (metadata: any) => Promise<boolean>
+                clearSession: () => Promise<boolean>
+                stopAllMedia: () => Promise<boolean>
+            }
             on: (channel: string, callback: (...args: any[]) => void) => (() => void) | undefined;
             // Send events
             emit: (channel: string, data?: any) => void;

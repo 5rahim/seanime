@@ -8,6 +8,30 @@ import (
 	lop "github.com/samber/lo/parallel"
 )
 
+func (h *Handler) getAnimeEpisodeCollection(c echo.Context, mId int) (*anime.EpisodeCollection, error) {
+
+	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
+	if err != nil {
+		return nil, err
+	}
+
+	ec, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
+		AnimeMetadata:    animeMetadata,
+		Media:            completeAnime.ToBaseAnime(),
+		MetadataProvider: h.App.MetadataProvider,
+		Logger:           h.App.Logger,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
+		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
+	})
+
+	return ec, nil
+}
+
 // HandleGetAnimeEpisodeCollection
 //
 //	@summary gets list of main episodes
@@ -22,24 +46,10 @@ func (h *Handler) HandleGetAnimeEpisodeCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
+	ec, err := h.getAnimeEpisodeCollection(c, mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-
-	ec, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    animeMetadata,
-		Media:            completeAnime.ToBaseAnime(),
-		MetadataProvider: h.App.MetadataProvider,
-		Logger:           h.App.Logger,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
-		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
-	})
 
 	return h.RespondWithData(c, ec)
 }

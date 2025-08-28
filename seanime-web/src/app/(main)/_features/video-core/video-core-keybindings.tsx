@@ -366,7 +366,7 @@ export function VideoCoreKeybindingController(props: {
     // Keyboard shortcuts
     //
 
-    const handleKeyboardShortcuts = useCallback((e: KeyboardEvent) => {
+    const handleKeyboardShortcuts = useCallback(async (e: KeyboardEvent) => {
         // Don't handle shortcuts if in an input/textarea or while keybindings modal is open
         if (isKeybindingsModalOpen || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
             return
@@ -382,7 +382,7 @@ export function VideoCoreKeybindingController(props: {
         if (e.code === "Space" || e.code === "Enter") {
             e.preventDefault()
             if (video.paused) {
-                video.play()
+                await video.play()
                 flashAction({ message: "PLAY", type: "icon" })
             } else {
                 video.pause()

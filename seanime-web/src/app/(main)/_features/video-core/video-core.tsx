@@ -31,6 +31,7 @@ import {
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
+import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { useVideoCorePlaylist, useVideoCorePlaylistSetup, VideoCorePlaylistControl } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
@@ -260,6 +261,7 @@ export function VideoCore(props: VideoCoreProps) {
     const setPipElement = useSetAtom(vc_pipElement)
     const [fullscreenManager, setFullscreenManager] = useAtom(vc_fullscreenManager)
     const setIsFullscreen = useSetAtom(vc_isFullscreen)
+    const [mediaSessionManager, setMediaSessionManager] = useAtom(vc_mediaSessionManager)
     const action = useSetAtom(vc_dispatchAction)
 
     // States
@@ -391,6 +393,12 @@ export function VideoCore(props: VideoCoreProps) {
     useUpdateEffect(() => {
         if (!state.playbackInfo) {
             log.info("Cleaning up")
+            if (videoRef.current) {
+                videoRef.current.pause()
+                videoRef.current.removeAttribute("src")
+                videoRef.current.load()
+                videoRef.current = null
+            }
             setVideoElement(null)
             subtitleManager?.destroy?.()
             setSubtitleManager(null)
@@ -405,6 +413,11 @@ export function VideoCore(props: VideoCoreProps) {
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
             setIsFullscreen(false)
+            if (mediaSessionManager) {
+                mediaSessionManager.setVideo(null)
+                mediaSessionManager.destroy()
+            }
+            setMediaSessionManager(null)
             currentPlaybackRef.current = null
             videoRef.current = null
         }
@@ -495,6 +508,34 @@ export function VideoCore(props: VideoCoreProps) {
             return new VideoCoreFullscreenManager((isFullscreen: boolean) => {
                 setIsFullscreen(isFullscreen)
             })
+        })
+
+        // Initialize media session manager
+        setMediaSessionManager(p => {
+            if (p) p.destroy()
+            const manager = new VideoCoreMediaSessionManager()
+
+            manager.on("media-play-request", () => {
+                if (videoRef.current?.paused) {
+                    videoRef.current.play().catch(err => {
+                        log.error("Failed to play video from media session", err)
+                    })
+                }
+            })
+
+            manager.on("media-pause-request", () => {
+                if (videoRef.current && !videoRef.current.paused) {
+                    videoRef.current.pause()
+                }
+            })
+
+            manager.on("media-seek-request", (event: Event) => {
+                const { seekTime } = (event as CustomEvent).detail
+                action({ type: "seekTo", payload: { time: seekTime } })
+            })
+            manager.setPlaybackInfo(state.playbackInfo!)
+            manager.setVideo(v!)
+            return manager
         })
 
         log.info("Initializing preview manager")
@@ -686,6 +727,27 @@ export function VideoCore(props: VideoCoreProps) {
             fullscreenManager.setContainer(containerRef.current)
         }
     }, [fullscreenManager, containerRef.current])
+
+    React.useEffect(() => {
+        if (mediaSessionManager && videoRef.current && state.playbackInfo && state.active) {
+            mediaSessionManager.setVideo(videoRef.current)
+            mediaSessionManager.setPlaybackInfo(state.playbackInfo)
+            mediaSessionManager.activate()
+        } else if (mediaSessionManager && !state.active) {
+            log.info("Video inactive, deactivating media session")
+            mediaSessionManager.deactivate()
+        }
+    }, [mediaSessionManager, videoRef.current, state.playbackInfo, state.active, playEpisode])
+
+    React.useEffect(() => {
+        return () => {
+            log.info("VideoCore unmounting, cleaning up media session")
+            if (mediaSessionManager) {
+                mediaSessionManager.setVideo(null)
+                mediaSessionManager.destroy()
+            }
+        }
+    }, [mediaSessionManager])
 
     //
 

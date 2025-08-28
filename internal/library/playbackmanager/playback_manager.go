@@ -593,7 +593,7 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 
 // StartPlaylist starts a playlist.
 // This action is triggered by the client.
-func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
+func (pm *PlaybackManager) StartPlaylist(playlist *anime.LegacyPlaylist) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartPlaylist", &err)
 
 	pm.playlistHub.loadPlaylist(playlist)
@@ -655,7 +655,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 
 	// Delete playlist in goroutine
 	go func() {
-		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
+		err := db_bridge.DeleteLegacyPlaylist(pm.Database, playlist.DbId)
 		if err != nil {
 			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
 			return

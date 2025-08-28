@@ -1996,7 +1996,7 @@
 // }
 
 // export function useGetPlaylistEpisodes(id: number, progress: number) {
-//     return useServerQuery<Array<Anime_LocalFile>>({
+//     return useServerQuery<Array<Anime_PlaylistEpisode>>({
 //         endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)).replace("{progress}", String(progress)),
 //         method: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.methods[0],
 //         queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key],

@@ -14,8 +14,8 @@ import (
 type MediaControllerType string
 
 const (
-	MediaControllerTypePlaybackManager MediaControllerType = "playback_manager"
-	MediaControllerTypeNativePlayer    MediaControllerType = "native_player"
+	MediaControllerTypePlaybackManager MediaControllerType = "playbackmanager"
+	MediaControllerTypeNativePlayer    MediaControllerType = "nativeplayer"
 )
 
 // MediaController is an agnostic interface for controlling both the PlaybackManager (system player) and the NativePlayer (Denshi player).

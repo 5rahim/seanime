@@ -61,7 +61,7 @@ func (api *MpcHc) Execute(command int, data map[string]interface{}) (string, err
 
 // OpenAndPlay opens a video file in MPC.
 func (api *MpcHc) OpenAndPlay(filePath string) (string, error) {
-	url := fmt.Sprintf("%s/browser.html?path=%s", api.url(), neturl.PathEscape(filePath))
+	url := fmt.Sprintf("%s/browser.html?path=%s", api.url(), neturl.QueryEscape(filePath))
 	api.Logger.Trace().Str("url", url).Msg("mpc hc: Opening and playing")
 
 	response, err := http.Get(url)

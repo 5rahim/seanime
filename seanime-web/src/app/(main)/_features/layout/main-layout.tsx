@@ -1,5 +1,4 @@
 "use client"
-import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
@@ -8,6 +7,7 @@ import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
+import { PlaylistManagerModal } from "@/app/(main)/_features/playlists/playlist-manager-modal"
 import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
@@ -63,6 +63,17 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter()
     const pathname = usePathname()
 
+    const [hasNavigated, setHasNavigated] = React.useState(false)
+
+    // dumb fix for duplicated player
+    const prevPathname = React.useRef(pathname)
+    React.useEffect(() => {
+        if (prevPathname.current !== pathname && pathname !== "/") {
+            setHasNavigated(true)
+        }
+        prevPathname.current = pathname
+    }, [pathname])
+
     React.useEffect(() => {
         if (!serverStatus?.isOffline && pathname.startsWith("/offline")) {
             router.push("/")
@@ -79,7 +90,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ScanProgressBar />
             <LibraryWatcher />
             <ScannerModal />
-            <PlaylistsModal />
+            <PlaylistManagerModal />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
             <DebridStreamOverlay />
@@ -90,7 +101,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            {__isElectronDesktop__ && <VideoCoreProvider>
+            {(__isElectronDesktop__) && <VideoCoreProvider>
                 <NativePlayer />
             </VideoCoreProvider>}
             <NakamaManager />

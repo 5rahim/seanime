@@ -4,11 +4,11 @@ import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { __ignoredFileManagerIsOpen } from "@/app/(main)/(library)/_containers/ignored-file-manager"
 import { PlayRandomEpisodeButton } from "@/app/(main)/(library)/_containers/play-random-episode-button"
-import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
@@ -57,7 +57,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const setUnmatchedFileManagerOpen = useSetAtom(__unmatchedFileManagerIsOpen)
     const setIgnoredFileManagerOpen = useSetAtom(__ignoredFileManagerIsOpen)
     const setUnknownMediaManagerOpen = useSetAtom(__unknownMedia_drawerIsOpen)
-    const setPlaylistsModalOpen = useSetAtom(__playlists_modalOpenAtom)
+    const { setModalOpen } = usePlaylistEditorManager()
 
     const [libraryView, setLibraryView] = useAtom(__library_viewAtom)
 
@@ -89,14 +89,14 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             Switch view
                         </Tooltip>
 
-                        {!(isStreamingOnly || isNakamaLibrary) && <Tooltip
+                        <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-playlists-button
                                 intent={"white-subtle"}
                                 icon={<MdOutlineVideoLibrary className="text-2xl" />}
-                                onClick={() => setPlaylistsModalOpen(true)}
+                                onClick={() => setModalOpen(true)}
                             />}
-                        >Playlists</Tooltip>}
+                        >Playlists</Tooltip>
 
                         {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
 
@@ -174,7 +174,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         <SeaLink href="/scan-summaries">
                             <DropdownMenuItem
                                 data-library-toolbar-scan-summaries-button
-                            // className={cn({ "!text-[--muted]": !hasEntries })}
+                                // className={cn({ "!text-[--muted]": !hasEntries })}
                             >
                                 <PiClockCounterClockwiseFill />
                                 <span>Scan summaries</span>

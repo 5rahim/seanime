@@ -162,7 +162,7 @@ func NewLibraryCollection(ctx context.Context, opts *NewLibraryCollectionOptions
 	event := &AnimeLibraryCollectionEvent{
 		LibraryCollection: lc,
 	}
-	hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
+	_ = hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
 	lc = event.LibraryCollection
 
 	return

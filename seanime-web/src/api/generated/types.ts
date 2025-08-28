@@ -1656,17 +1656,26 @@ export type Anime_NakamaEntryLibraryData = {
  */
 export type Anime_Playlist = {
     /**
-     * DbId is the database ID of the models.PlaylistEntry
+     * DbId is the database ID of the models.Playlist
      */
     dbId: number
     /**
      * Name is the name of the playlist
      */
     name: string
-    /**
-     * LocalFiles is a list of local files in the playlist, in order
-     */
-    localFiles?: Array<Anime_LocalFile>
+    episodes?: Array<Anime_PlaylistEpisode>
+}
+
+/**
+ * - Filepath: internal/library/anime/playlist.go
+ * - Filename: playlist.go
+ * - Package: anime
+ */
+export type Anime_PlaylistEpisode = {
+    episode?: Anime_Episode
+    isCompleted: boolean
+    watchType: Anime_WatchType
+    isNakama: boolean
 }
 
 /**
@@ -1700,6 +1709,13 @@ export type Anime_UnmatchedGroup = {
     localFiles?: Array<Anime_LocalFile>
     suggestions?: Array<AL_BaseAnime>
 }
+
+/**
+ * - Filepath: internal/library/anime/playlist.go
+ * - Filename: playlist.go
+ * - Package: anime
+ */
+export type Anime_WatchType = "localfile" | "debrid" | "torrent" | "nakama"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChapterDownloader

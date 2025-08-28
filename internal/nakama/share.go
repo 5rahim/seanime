@@ -48,7 +48,7 @@ func (m *Manager) generateHMACToken(endpoint string) (string, error) {
 	return hmacAuth.GenerateToken(endpoint)
 }
 
-func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, hydrated bool) {
+func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs []*anime.LocalFile, hydrated bool) {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
 		return nil, false
 	}
@@ -57,6 +57,7 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, 
 	var err error
 	if len(mId) > 0 {
 		response, err = m.reqClient.R().
+			SetContext(ctx).
 			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files/" + strconv.Itoa(mId[0]))
 		if err != nil {
@@ -64,6 +65,7 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, 
 		}
 	} else {
 		response, err = m.reqClient.R().
+			SetContext(ctx).
 			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files")
 		if err != nil {
@@ -88,7 +90,7 @@ func (m *Manager) GetHostAnimeLibraryFiles(mId ...int) (lfs []*anime.LocalFile, 
 	return entryResponse.Data, true
 }
 
-func (m *Manager) GetHostAnimeLibrary() (ac *NakamaAnimeLibrary, hydrated bool) {
+func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibrary, hydrated bool) {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
 		return nil, false
 	}
@@ -97,6 +99,7 @@ func (m *Manager) GetHostAnimeLibrary() (ac *NakamaAnimeLibrary, hydrated bool) 
 	var err error
 
 	response, err = m.reqClient.R().
+		SetContext(ctx).
 		SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library")
 	if err != nil {

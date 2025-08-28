@@ -30207,6 +30207,40 @@
         "comments": []
       }
     ],
+    "comments": [
+      " PlaylistEntry legacy playlists",
+      " DEPRECATED"
+    ],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "Playlist",
+    "formattedName": "Models_Playlist",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "models.BaseModel"
@@ -33349,17 +33383,6 @@
         "comments": []
       },
       {
-        "name": "EpisodeNumber",
-        "jsonName": "EpisodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " RELATIVE Episode number to identify the file"
-        ]
-      },
-      {
         "name": "AnidbEpisode",
         "jsonName": "AnidbEpisode",
         "goType": "string",
@@ -33923,6 +33946,15 @@
         "comments": [
           " Protects httpStream access"
         ]
+      },
+      {
+        "name": "nakamaHostPassword",
+        "jsonName": "nakamaHostPassword",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -33958,17 +33990,6 @@
         "comments": []
       },
       {
-        "name": "EpisodeNumber",
-        "jsonName": "EpisodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " RELATIVE Episode number to identify the file"
-        ]
-      },
-      {
         "name": "AnidbEpisode",
         "jsonName": "AnidbEpisode",
         "goType": "string",
@@ -33987,6 +34008,15 @@
         "usedTypescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NakamaHostPassword",
+        "jsonName": "NakamaHostPassword",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -44590,6 +44620,51 @@
     ]
   },
   {
+    "filepath": "../internal/library/anime/legacy_playlist.go",
+    "filename": "legacy_playlist.go",
+    "name": "LegacyPlaylist",
+    "formattedName": "Anime_LegacyPlaylist",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "DbId",
+        "jsonName": "dbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " DbId is the database ID of the models.PlaylistEntry"
+        ]
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Name is the name of the playlist"
+        ]
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " LocalFiles is a list of local files in the playlist, in order"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/anime/localfile.go",
     "filename": "localfile.go",
     "name": "LocalFileType",
@@ -45041,7 +45116,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " DbId is the database ID of the models.PlaylistEntry"
+          " DbId is the database ID of the models.Playlist"
         ]
       },
       {
@@ -45056,17 +45131,84 @@
         ]
       },
       {
-        "name": "LocalFiles",
-        "jsonName": "localFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedTypescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]PlaylistEpisode",
+        "typescriptType": "Array\u003cAnime_PlaylistEpisode\u003e",
+        "usedTypescriptType": "Anime_PlaylistEpisode",
+        "usedStructName": "anime.PlaylistEpisode",
         "required": false,
         "public": true,
-        "comments": [
-          " LocalFiles is a list of local files in the playlist, in order"
-        ]
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/playlist.go",
+    "filename": "playlist.go",
+    "name": "WatchType",
+    "formattedName": "Anime_WatchType",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"localfile\"",
+        "\"debrid\"",
+        "\"torrent\"",
+        "\"nakama\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/playlist.go",
+    "filename": "playlist.go",
+    "name": "PlaylistEpisode",
+    "formattedName": "Anime_PlaylistEpisode",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCompleted",
+        "jsonName": "isCompleted",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WatchType",
+        "jsonName": "watchType",
+        "goType": "WatchType",
+        "typescriptType": "Anime_WatchType",
+        "usedTypescriptType": "Anime_WatchType",
+        "usedStructName": "anime.WatchType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsNakama",
+        "jsonName": "isNakama",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -60221,8 +60363,8 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"playback_manager\"",
-        "\"native_player\""
+        "\"playbackmanager\"",
+        "\"nativeplayer\""
       ]
     },
     "comments": []
@@ -60430,6 +60572,17 @@
         "typescriptType": "DebridClient_Repository",
         "usedTypescriptType": "DebridClient_Repository",
         "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "directstreamManager",
+        "jsonName": "directstreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
         "required": false,
         "public": false,
         "comments": []
@@ -60738,6 +60891,17 @@
         "typescriptType": "NativePlayer_NativePlayer",
         "usedTypescriptType": "NativePlayer_NativePlayer",
         "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DirectStreamManager",
+        "jsonName": "DirectStreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -65136,6 +65300,128 @@
       " SimulatedPlatform used when the user is not authenticated to AniList.",
       " It acts as a dummy account using simulated collections stored locally."
     ]
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "PlayerType",
+    "formattedName": "PlayerType",
+    "package": "playlist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"desktop\"",
+        "\"externalPlayerLink\"",
+        "\"nativeplayer\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "PlaylistStateItem",
+    "formattedName": "PlaylistStateItem",
+    "package": "playlist",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaImage",
+        "jsonName": "mediaImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "Manager",
+    "formattedName": "Manager",
+    "package": "playlist",
+    "fields": [
+      {
+        "name": "playerType",
+        "jsonName": "playerType",
+        "goType": "PlayerType",
+        "typescriptType": "PlayerType",
+        "usedTypescriptType": "PlayerType",
+        "usedStructName": "playlist.PlayerType",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "directstreamManager",
+        "jsonName": "directstreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedTypescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/plugin/anilist.go",

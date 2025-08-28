@@ -342,7 +342,15 @@ type Theme struct {
 // |      Playlist       |
 // +---------------------+
 
+// PlaylistEntry legacy playlists
+// DEPRECATED
 type PlaylistEntry struct {
+	BaseModel
+	Name  string `gorm:"column:name" json:"name"`
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
+type Playlist struct {
 	BaseModel
 	Name  string `gorm:"column:name" json:"name"`
 	Value []byte `gorm:"column:value" json:"value"`
