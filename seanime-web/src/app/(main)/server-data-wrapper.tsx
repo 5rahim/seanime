@@ -12,7 +12,7 @@ import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isDesktop__ } from "@/types/constants"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -35,7 +35,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     const router = useRouter()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
-    const password = useAtom(serverAuthTokenAtom)
+    const password = useAtomValue(serverAuthTokenAtom)
     const { data: _serverStatus, isLoading, refetch } = useGetStatus()
 
     React.useEffect(() => {
@@ -53,9 +53,18 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         },
     })
 
+    const [authenticated, setAuthenticated] = React.useState(false)
+
     React.useEffect(() => {
-        if (!!serverStatus && serverStatus?.serverHasPassword && !password && pathname !== "/public/auth") {
-            window.location.href = "/public/auth"
+        if (serverStatus) {
+            if (serverStatus?.serverHasPassword && !password && pathname !== "/public/auth") {
+                window.location.href = "/public/auth"
+                router.replace("/public/auth")
+                setAuthenticated(false)
+                console.warn("Redirecting to auth")
+            } else {
+                setAuthenticated(true)
+            }
         }
     }, [serverStatus?.serverHasPassword, password, pathname])
 
@@ -81,7 +90,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     /**
      * If the server status is loading or doesn't exist, show the loading overlay
      */
-    if (isLoading || !serverStatus) return <LoadingOverlayWithLogo />
+    if (isLoading || !serverStatus || !authenticated) return <LoadingOverlayWithLogo />
     if (!serverStatus?.serverReady) return <LoadingOverlayWithLogo title="L o a d i n g" />
 
     /**

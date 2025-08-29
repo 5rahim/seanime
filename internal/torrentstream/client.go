@@ -233,23 +233,9 @@ func (c *Client) GetStreamingUrl() string {
 	if c.currentFile.IsAbsent() {
 		return ""
 	}
-	settings, ok := c.repository.settings.Get()
-	if !ok {
-		return ""
-	}
 
-	host := settings.Host
-	if host == "0.0.0.0" {
-		host = "127.0.0.1"
-	}
-	address := fmt.Sprintf("%s:%d", host, settings.Port)
-	if settings.StreamUrlAddress != "" {
-		address = settings.StreamUrlAddress
-	}
-	ret := fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
-	if strings.HasPrefix(ret, "http://http") {
-		ret = strings.Replace(ret, "http://http", "http", 1)
-	}
+	ret := fmt.Sprintf("{{SCHEME}}://{{HOST}}/api/v1/torrentstream/stream/%s", url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+
 	return ret
 }
 
