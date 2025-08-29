@@ -121,9 +121,9 @@ export const TorrentPreviewList = React.memo((
                                 <TorrentSeedersBadge seeders={item.torrent.seeders} />
                                 {!!item.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
                                     {item.torrent.formattedSize}</p>}
-                                <p className="text-[--muted] text-sm flex items-center gap-1">
+                                {item.torrent.date && <p className="text-[--muted] text-sm flex items-center gap-1">
                                     <BiCalendarAlt /> {formatDistanceToNowSafe(item.torrent.date)}
-                                </p>
+                                </p>}
                             </div>
                             <TorrentParsedMetadata metadata={torrentMetadata?.[item.torrent.infoHash!]} />
                         </TorrentPreviewItem>

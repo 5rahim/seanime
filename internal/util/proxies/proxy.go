@@ -201,6 +201,20 @@ func VideoProxy(c echo.Context) (err error) {
 			}
 		}
 
+		allAlternatives := masterPl.GetAllAlternatives()
+		for _, alternative := range allAlternatives {
+			if alternative != nil && alternative.URI != "" {
+				if !isAlreadyProxied(alternative.URI) {
+					alternativeURI := alternative.URI
+					if !strings.HasPrefix(alternative.URI, "http") {
+						alternativeURI = resolveURL(baseURL, alternative.URI)
+					}
+					alternative.URI = rewriteProxyURL(alternativeURI, headerMap)
+					needsRewrite = true
+				}
+			}
+		}
+
 		// Rewrite session key URIs
 		for i, sessionKey := range masterPl.SessionKeys {
 			if sessionKey.URI != "" {
