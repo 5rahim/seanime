@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.9
+
+- 🦺 Fixed torrent streaming for desktop players
+
 ## v2.9.8
 
 - 🦺 External Player Link: Fixed torrent streaming links
