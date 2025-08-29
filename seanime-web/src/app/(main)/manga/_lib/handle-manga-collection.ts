@@ -80,10 +80,6 @@ export function useHandleMangaCollection() {
         }, 500)
     }, [])
 
-    React.useEffect(() => {
-        setUnreadOnly(params.unreadOnly)
-    }, [params.unreadOnly])
-
     // Reset params when data changes
     React.useEffect(() => {
         if (!!data) {
@@ -91,6 +87,13 @@ export function useHandleMangaCollection() {
             setParams(defaultParams)
         }
     }, [data, unreadOnly])
+
+    // Sync unreadOnly to persistent storage when params change
+    React.useEffect(() => {
+        if (mountedRef.current && params.unreadOnly !== unreadOnly) {
+            setUnreadOnly(params.unreadOnly)
+        }
+    }, [params.unreadOnly])
 
     const genres = React.useMemo(() => {
         const genresSet = new Set<string>()

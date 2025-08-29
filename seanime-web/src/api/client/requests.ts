@@ -4,6 +4,7 @@ import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 import { useAtomValue } from "jotai"
+import { useAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { toast } from "sonner"
@@ -111,7 +112,7 @@ export function useServerQuery<R, V = any>(
     }: ServerQueryProps<R | undefined, V>) {
 
     const pathname = usePathname()
-    const password = useAtomValue(serverAuthTokenAtom)
+    const [password, setPassword] = useAtom(serverAuthTokenAtom)
 
     const props = useQuery<R | undefined, SeaError>({
         queryFn: async () => {
@@ -129,6 +130,7 @@ export function useServerQuery<R, V = any>(
     useEffect(() => {
         if (!muteError && props.isError) {
             if (props.error?.response?.data?.error === "UNAUTHENTICATED" && pathname !== "/public/auth") {
+                setPassword(undefined)
                 window.location.href = "/public/auth"
                 return
             }

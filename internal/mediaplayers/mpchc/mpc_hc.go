@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	neturl "net/url"
+	"path/filepath"
+	"strings"
 
 	"github.com/rs/zerolog"
 )
@@ -59,9 +61,18 @@ func (api *MpcHc) Execute(command int, data map[string]interface{}) (string, err
 	return res, nil
 }
 
+func escapeInput(input string) string {
+	if strings.HasPrefix(input, "http") {
+		return neturl.QueryEscape(input)
+	} else {
+		input = filepath.FromSlash(input)
+		return strings.ReplaceAll(neturl.QueryEscape(input), "+", "%20")
+	}
+}
+
 // OpenAndPlay opens a video file in MPC.
 func (api *MpcHc) OpenAndPlay(filePath string) (string, error) {
-	url := fmt.Sprintf("%s/browser.html?path=%s", api.url(), neturl.PathEscape(filePath))
+	url := fmt.Sprintf("%s/browser.html?path=%s", api.url(), escapeInput(filePath))
 	api.Logger.Trace().Str("url", url).Msg("mpc hc: Opening and playing")
 
 	response, err := http.Get(url)
