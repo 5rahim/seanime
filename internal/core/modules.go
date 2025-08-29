@@ -26,6 +26,7 @@ import (
 	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
+	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -266,6 +267,22 @@ func (a *App) initModulesOnce() {
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
 		DirectStreamManager:     a.DirectStreamManager,
+	})
+
+	// +---------------------+
+	// |      Playlist       |
+	// +---------------------+
+
+	a.PlaylistManager = playlist.NewManager(&playlist.NewManagerOptions{
+		TorrentstreamRepository: a.TorrentstreamRepository,
+		DebridClientRepository:  a.DebridClientRepository,
+		DirectStreamManager:     a.DirectStreamManager,
+		Platform:                a.AnilistPlatform,
+		PlaybackManager:         a.PlaybackManager,
+		WSEventManager:          a.WSEventManager,
+		NativePlayer:            a.NativePlayer,
+		Database:                a.Database,
+		Logger:                  a.Logger,
 	})
 
 }

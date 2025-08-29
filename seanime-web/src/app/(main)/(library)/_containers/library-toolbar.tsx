@@ -8,7 +8,7 @@ import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanne
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
-import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"

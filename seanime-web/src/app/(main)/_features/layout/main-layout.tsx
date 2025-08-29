@@ -7,7 +7,8 @@ import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
-import { PlaylistManagerModal } from "@/app/(main)/_features/playlists/playlist-manager-modal"
+import { GlobalPlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
+import { PlaylistListModal } from "@/app/(main)/_features/playlists/playlist-list-modal"
 import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
@@ -90,7 +91,8 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ScanProgressBar />
             <LibraryWatcher />
             <ScannerModal />
-            <PlaylistManagerModal />
+            <PlaylistListModal />
+            <GlobalPlaylistManager />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
             <DebridStreamOverlay />

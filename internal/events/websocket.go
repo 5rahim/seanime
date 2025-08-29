@@ -18,6 +18,7 @@ type WSEventManagerInterface interface {
 	SubscribeToClientEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber
+	SubscribeToClientPlaylistEvents(id string) *ClientEventSubscriber
 	UnsubscribeFromClientEvents(id string)
 }
 
@@ -53,6 +54,7 @@ type (
 		clientEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 		clientNativePlayerEventSubscribers *result.Map[string, *ClientEventSubscriber]
 		nakamaEventSubscribers             *result.Map[string, *ClientEventSubscriber]
+		playlistEventSubscribers           *result.Map[string, *ClientEventSubscriber]
 	}
 
 	ClientEventSubscriber struct {
@@ -80,6 +82,7 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 		clientEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
 		clientNativePlayerEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
 		nakamaEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
+		playlistEventSubscribers:           result.NewResultMap[string, *ClientEventSubscriber](),
 	}
 	GlobalWSEventManager = &GlobalWSEventManagerWrapper{
 		WSEventManager: ret,
@@ -238,6 +241,8 @@ func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 		m.clientNativePlayerEventSubscribers.Range(onEvent)
 	case NakamaEventType:
 		m.nakamaEventSubscribers.Range(onEvent)
+	case PlaylistEvent:
+		m.playlistEventSubscribers.Range(onEvent)
 	default:
 		m.clientEventSubscribers.Range(onEvent)
 	}
@@ -264,6 +269,14 @@ func (m *WSEventManager) SubscribeToClientNakamaEvents(id string) *ClientEventSu
 		Channel: make(chan *WebsocketClientEvent, 100),
 	}
 	m.nakamaEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) SubscribeToClientPlaylistEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.playlistEventSubscribers.Set(id, subscriber)
 	return subscriber
 }
 

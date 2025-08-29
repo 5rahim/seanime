@@ -37,6 +37,7 @@ import (
 	"seanime/internal/platforms/offline_platform"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/platforms/simulated_platform"
+	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	"seanime/internal/report"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -119,6 +120,7 @@ type (
 		isOffline          *bool
 		NakamaManager      *nakama.Manager
 		ServerPasswordHash string // SHA-256 hash of the server password
+		PlaylistManager    *playlist.Manager
 	}
 )
 

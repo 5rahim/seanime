@@ -29,7 +29,7 @@ import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_component
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
-import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useHasTorrentOrDebridInclusion, useServerStatus } from "@/app/(main)/_hooks/use-server-status"

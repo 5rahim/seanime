@@ -132,6 +132,10 @@ type (
 		State  PlaybackState
 	}
 
+	PlaybackErrorEvent struct {
+		Reason string
+	}
+
 	VideoStartedEvent struct {
 		Filename string
 		Filepath string
@@ -195,6 +199,7 @@ type (
 
 // Event type implementations
 func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_changed" }
+func (e PlaybackErrorEvent) Type() string         { return "playback_error" }
 func (e VideoStartedEvent) Type() string          { return "video_started" }
 func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
 func (e VideoCompletedEvent) Type() string        { return "video_completed" }

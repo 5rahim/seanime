@@ -262,6 +262,17 @@ func (pm *PlaybackManager) handleTrackingRetry(reason string) {
 
 	// ------- Playlist ------- //
 	go pm.playlistHub.onTrackingError()
+
+	// Notify subscribers
+	go func() {
+		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.Canceled.Load() {
+				return true
+			}
+			value.EventCh <- PlaybackErrorEvent{Reason: reason}
+			return true
+		})
+	}()
 }
 
 func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.PlaybackStatus) {

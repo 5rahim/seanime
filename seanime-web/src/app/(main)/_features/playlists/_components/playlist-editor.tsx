@@ -1,6 +1,6 @@
 import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Anime_PlaylistEpisode, Anime_WatchType } from "@/api/generated/types"
 import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
-import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-manager"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useHasTorrentOrDebridInclusion } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
@@ -185,10 +185,12 @@ function PlaylistMediaEntryTrigger(props: PlaylistMediaEntryTriggerProps) {
 
     const { selectedMedia, setSelectedMedia } = usePlaylistEditorManager()
 
+    const added = episodes.filter(n => n.episode?.baseAnime?.id === entry.mediaId)?.length ?? 0
+
     return (
         <div
             key={entry.mediaId}
-            className="col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative transition cursor-pointer bg-[--background] md:opacity-60 md:hover:opacity-100"
+            className="col-span-1 aspect-[7/7] rounded-md border overflow-hidden relative transition cursor-pointer bg-[--background] md:opacity-60 md:hover:opacity-100"
             onClick={() => setSelectedMedia(entry.mediaId)}
         >
             {entry.libraryData && <div data-media-entry-card-body-library-badge className="absolute z-[1] left-0 top-0">
@@ -196,6 +198,12 @@ function PlaylistMediaEntryTrigger(props: PlaylistMediaEntryTriggerProps) {
                     size="lg" intent="warning-solid"
                     className="rounded-md rounded-bl-none rounded-tr-none text-orange-900 opacity-80"
                 ><IoLibrarySharp /></Badge>
+            </div>}
+            {added > 0 && <div data-media-entry-card-body-library-badge className="absolute z-[1] right-1 top-1">
+                <Badge
+                    size="lg" intent="warning-solid"
+                    className="rounded-full bg-black text-white opacity-80 size-6"
+                >{added}</Badge>
             </div>}
 
             <Image
@@ -246,25 +254,6 @@ export function PlaylistMediaEntry(props: PlaylistMediaEntryProps) {
     </Modal>
 }
 
-const radioGroupClasses = {
-    itemClass: cn(
-        "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
-        "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
-        "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
-    ),
-    stackClass: "space-y-0 flex flex-wrap gap-2",
-    itemIndicatorClass: "hidden",
-    itemLabelClass: "font-normal text-sm tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
-    itemContainerClass: cn(
-        "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
-        "hover:bg-[--subtle] dark:bg-gray-900",
-        "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-        "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-        "border border-transparent data-[state=checked]:border-[--gray] data-[state=checked]:ring-offset-0",
-        "w-fit",
-    ),
-}
-
 function SortableItem({ id, episode, setEpisodes }: {
     id: string,
     episode: Anime_PlaylistEpisode
@@ -297,21 +286,27 @@ function SortableItem({ id, episode, setEpisodes }: {
     }, [hasDebridStreaming, hasTorrentStreaming])
 
     // Set default watch type
+    const t = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
         if (episode && !episode.watchType && (hasTorrentStreaming || hasDebridStreaming)) {
-            setEpisodes(prev => {
-                const foundEp = prev.find(n => isSameEpisode(n, episode))
-                if (!foundEp) return prev
-                return prev.map(n => {
-                    if (isSameEpisode(n, episode)) {
-                        return {
-                            ...n,
-                            watchType: (hasTorrentStreaming ? "torrent" : hasDebridStreaming ? "debrid" : "") as Anime_WatchType,
+            t.current = setTimeout(() => {
+                setEpisodes(prev => {
+                    const foundEp = prev.find(n => isSameEpisode(n, episode))
+                    if (!foundEp) return prev
+                    return prev.map(n => {
+                        if (isSameEpisode(n, episode)) {
+                            return {
+                                ...n,
+                                watchType: (hasTorrentStreaming ? "torrent" : hasDebridStreaming ? "debrid" : "") as Anime_WatchType,
+                            }
                         }
-                    }
-                    return n
+                        return n
+                    })
                 })
-            })
+            }, 300)
+        }
+        return () => {
+            if (t.current) clearTimeout(t.current)
         }
     }, [episode, hasDebridStreaming, hasTorrentStreaming])
 
@@ -347,17 +342,17 @@ function SortableItem({ id, episode, setEpisodes }: {
                         )}
                     />}
                 </div>
-                <div className="max-w-full">
+                <div className="max-w-full space-y-1">
                     <p className="text-sm text-[--muted]">{episode.episode?.baseAnime?.title?.userPreferred}</p>
                     <p className="">{episode.episode?.baseAnime?.format !== "MOVIE" ? `Episode ${episode.episode!.episodeNumber}` : "Movie"}</p>
 
-                    {(!episode.episode?.localFile && !episode.isNakama) && <div className="mt-1">
+                    {(!episode.episode?.localFile && !episode.isNakama) && <div className="flex gap-1 flex-wrap">
                         {streamOptions.map(option => {
                             return <div
                                 key={option.value}
                                 className={cn(
                                     "text-sm flex w-fit py-1 px-1.5 rounded-md bg-[--subtle] border border-transparent cursor-pointer",
-                                    option.value === episode.watchType && "border-[--white]",
+                                    option.value === episode.watchType && "border-[rgba(255,255,255,0.4)]",
                                 )}
                                 onPointerDown={e => e.stopPropagation()}
                                 onClick={e => {
@@ -380,28 +375,12 @@ function SortableItem({ id, episode, setEpisodes }: {
                                 {option.label}
                             </div>
                         })}
+                    </div>}
 
-                        {/*<RadioGroup*/}
-                        {/*    {...radioGroupClasses}*/}
-                        {/*    options={streamOptions}*/}
-                        {/*    value={episode.watchType}*/}
-                        {/*    onValueChange={(value) => {*/}
-                        {/*        setEpisodes(prev => {*/}
-                        {/*            const foundEp = prev.find(n => isSameEpisode(n, episode))*/}
-                        {/*            console.log(foundEp, value)*/}
-                        {/*            if(!foundEp) return prev*/}
-                        {/*            return prev.map(n => {*/}
-                        {/*                if(isSameEpisode(n, episode)) {*/}
-                        {/*                    return {*/}
-                        {/*                        ...n,*/}
-                        {/*                        watchType: value as Anime_WatchType,*/}
-                        {/*                    }*/}
-                        {/*                }*/}
-                        {/*                return n*/}
-                        {/*            })*/}
-                        {/*        })*/}
-                        {/*    }}*/}
-                        {/*/>*/}
+                    {!!episode.episode?.localFile && <div>
+                        <div className="text-sm text-[--muted] line-clamp-1 tracking-wide">
+                            {episode.episode?.localFile?.name}
+                        </div>
                     </div>}
                 </div>
             </div>
@@ -430,7 +409,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
 
     const t = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        if (episodeToAdd && selectedMedia && selectedMedia === entry.mediaId) {
+        if (data && episodeToAdd && selectedMedia && selectedMedia === entry.mediaId) {
             t.current = setTimeout(() => {
                 // Check if already added
                 if (selectedEpisodes.find(n => n.episode?.baseAnime?.id === selectedMedia && n.episode.aniDBEpisode === episodeToAdd)) {
@@ -451,7 +430,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                 clearTimeout(t.current)
             }
         }
-    }, [episodeToAdd, selectedMedia, selectedEpisodes])
+    }, [data, episodeToAdd, selectedMedia, selectedEpisodes])
 
     const handleSelect = (ep: Anime_PlaylistEpisode) => {
         React.startTransition(() => {
