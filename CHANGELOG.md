@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.9.8
+
+- 🦺 External Player Link: Fixed torrent streaming links
+- 🦺 VLC, MPC-HC: Fixed input URI encoding
+- 🦺 M3u8 Proxy: Potential fix for missed rewrites
+- 🦺 Server Password: Do not load page before authentication
+- 🦺 Online streaming: Do not always restore fullscreen
+- 🦺 Fixed some UI bugs
+
 ## v2.9.7
 
 - ⚡️ Nakama: Better default titles with MPV
