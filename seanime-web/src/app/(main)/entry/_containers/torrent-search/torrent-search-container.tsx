@@ -483,9 +483,9 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                     <TorrentSeedersBadge seeders={batchHistory?.torrent?.seeders} />
                     {!!batchHistory?.torrent?.size && <p className="text-gray-300 text-sm flex items-center gap-1">
                         {batchHistory?.torrent?.formattedSize}</p>}
-                    <p className="text-[--muted] text-sm flex items-center gap-1">
+                    {batchHistory?.torrent?.date && <p className="text-[--muted] text-sm flex items-center gap-1">
                         <BiCalendarAlt /> {formatDistanceToNowSafe(batchHistory?.torrent?.date)}
-                    </p>
+                    </p>}
                 </div>
             </TorrentPreviewItem>
         </AppLayoutStack>
