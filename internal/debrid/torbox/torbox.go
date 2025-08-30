@@ -433,19 +433,20 @@ func (t *TorBox) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *debrid.
 
 	// If the torrent is cached
 	if resp.Data != nil {
-		data := resp.Data.(map[string]interface{})
+		data, ok := resp.Data.(map[string]interface{})
+		if ok {
+			if torrentData, exists := data[opts.InfoHash]; exists {
+				marshaledData, _ := json.Marshal(torrentData)
 
-		if torrentData, exists := data[opts.InfoHash]; exists {
-			marshaledData, _ := json.Marshal(torrentData)
+				var torrent TorrentInfo
+				err = json.Unmarshal(marshaledData, &torrent)
+				if err != nil {
+					return nil, fmt.Errorf("torbox: Failed to parse cached torrent: %w", err)
+				}
 
-			var torrent TorrentInfo
-			err = json.Unmarshal(marshaledData, &torrent)
-			if err != nil {
-				return nil, fmt.Errorf("torbox: Failed to parse cached torrent: %w", err)
+				ret = toDebridTorrentInfo(&torrent)
+				return ret, nil
 			}
-
-			ret = toDebridTorrentInfo(&torrent)
-			return ret, nil
 		}
 	}
 
@@ -456,12 +457,14 @@ func (t *TorBox) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *debrid.
 	}
 
 	// DEVNOTE: Handle incorrect TorBox API response
-	data := resp.Data.(map[string]interface{})
-	if _, ok := data["data"]; ok {
-		if _, ok := data["data"].(map[string]interface{}); ok {
-			data = data["data"].(map[string]interface{})
-		} else {
-			return nil, fmt.Errorf("torbox: Failed to parse response")
+	data, ok := resp.Data.(map[string]interface{})
+	if ok {
+		if _, ok := data["data"]; ok {
+			if _, ok := data["data"].(map[string]interface{}); ok {
+				data = data["data"].(map[string]interface{})
+			} else {
+				return nil, fmt.Errorf("torbox: Failed to parse response")
+			}
 		}
 	}
 
