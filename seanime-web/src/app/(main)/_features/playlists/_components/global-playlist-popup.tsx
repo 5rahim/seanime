@@ -54,13 +54,13 @@ const PlaylistManagerPopup: React.FC<PlaylistManagerPopupProps> = ({
 
     return (
         <div
-            className={cn(`fixed ${containerConfig.positions[position]} z-50`, className)}
+            className={cn(`fixed ${containerConfig.positions[position]} z-[9999]`, className)}
             {...props}
         >
             <div
                 ref={containerRef}
                 className={cn(
-                    "flex flex-col bg-[--paper] border sm:rounded-lg shadow-md overflow-hidden transition-all duration-250 ease-out sm:absolute sm:w-[90vw] sm:h-[80vh] fixed inset-0 w-full h-full sm:inset-auto",
+                    "flex flex-col bg-[--paper] overflow-hidden border sm:rounded-2xl shadow-md transition-all duration-250 ease-out sm:absolute sm:w-[90vw] sm:h-[80vh] fixed inset-0 w-full h-full sm:inset-auto",
                     containerConfig.containerPositions[position],
                     containerConfig.dimensions[size],
                     isOpen ? containerConfig.states.open : containerConfig.states.closed,

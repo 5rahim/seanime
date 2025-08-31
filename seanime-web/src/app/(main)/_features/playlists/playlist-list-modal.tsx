@@ -3,6 +3,7 @@ import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { useGetPlaylists } from "@/api/hooks/playlist.hooks"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { PlaylistEditorModal } from "@/app/(main)/_features/playlists/_components/playlist-editor-modal"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
@@ -15,6 +16,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import Image from "next/image"
 import React from "react"
 import { BiEditAlt } from "react-icons/bi"
+import { FaCirclePlay } from "react-icons/fa6"
 import { LuPlus } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { toast } from "sonner"
@@ -129,7 +131,9 @@ export function PlaylistListModal() {
 function PlaylistLists({ libraryCollection }: { libraryCollection: Anime_LibraryCollection | undefined }) {
 
     const { data: playlists, isLoading } = useGetPlaylists()
-    const { selectedMedia } = usePlaylistEditorManager()
+    const { selectedMedia, setModalOpen } = usePlaylistEditorManager()
+
+    const { startPlaylist } = usePlaylistManager()
 
     if (isLoading) return <LoadingSpinner />
 
@@ -186,6 +190,14 @@ function PlaylistLists({ libraryCollection }: { libraryCollection: Anime_Library
                                     {/*    trigger={*/}
                                     {/*        <FaCirclePlay className="block text-5xl cursor-pointer opacity-50 hover:opacity-100 transition-opacity" />}*/}
                                     {/*/>*/}
+                                    {!selectedMedia && <div
+                                        onClick={() => {
+                                            startPlaylist(p)
+                                            setModalOpen(false)
+                                        }}
+                                    >
+                                        <FaCirclePlay className="block text-5xl cursor-pointer opacity-95 hover:opacity-70 hover:scale-[1.1] transition-all" />
+                                    </div>}
                                 </div>
                                 <div className="absolute top-2 right-2 z-[6] flex items-center justify-center">
                                     <PlaylistEditorModal

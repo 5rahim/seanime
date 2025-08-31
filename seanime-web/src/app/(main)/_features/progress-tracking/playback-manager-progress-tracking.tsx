@@ -6,6 +6,7 @@ import {
     usePlaybackSyncCurrentProgress,
 } from "@/api/hooks/playback_manager.hooks"
 import { useAutoplay, useNextEpisodeResolver } from "@/app/(main)/_features/autoplay/autoplay"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { AutoplayCountdownModal } from "@/app/(main)/_features/progress-tracking/_components/autoplay-countdown-modal"
 import { PlaybackManager_PlaybackState, PlaybackManager_PlaylistState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -110,6 +111,8 @@ export function PlaybackManagerProgressTracking() {
         state?.episodeNumber || 0,
     )
 
+    const { currentPlaylist } = usePlaylistManager()
+
     const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
 
     const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
@@ -173,7 +176,7 @@ export function PlaybackManagerProgressTracking() {
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] }).then()
 
             // Start unified autoplay if conditions are met
-            if (!playlistState && state && state.completionPercentage && state.completionPercentage > 0.7) {
+            if (!currentPlaylist && state && state.completionPercentage && state.completionPercentage > 0.7) {
                 if (!autoplayState.isActive) {
                     startAutoplay(state, nextEpisodeToPlay || undefined, "local")
                 }

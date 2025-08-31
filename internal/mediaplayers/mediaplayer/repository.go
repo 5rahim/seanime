@@ -337,6 +337,27 @@ func (m *Repository) Play(path string) error {
 
 }
 
+func (m *Repository) Append(path string) error {
+	switch m.Default {
+	case "vlc", "mpc-hc":
+		m.Logger.Trace().Str("player", m.Default).Msg("media player: Appending is not supported by the player")
+	case "mpv":
+		err := m.Mpv.Append(path)
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("media player: Could not append video on MPV")
+			return fmt.Errorf("could not append video, %w", err)
+		}
+	case "iina":
+		err := m.Iina.Append(path)
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("media player: Could not append video on IINA")
+			return fmt.Errorf("could not append video, %w", err)
+		}
+	}
+
+	return nil
+}
+
 func (m *Repository) Pause() error {
 	switch m.Default {
 	case "vlc":

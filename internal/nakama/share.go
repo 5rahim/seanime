@@ -212,7 +212,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 			return err
 		}
 
-		m.nativePlayer.RegisterMediaPlayerCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+		m.nativePlayer.RegisterEventCallback(func(event nativeplayer.VideoEvent, cancel func()) {
 			switch event.(type) {
 			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
@@ -284,7 +284,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 			return err
 		}
 
-		m.nativePlayer.RegisterMediaPlayerCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+		m.nativePlayer.RegisterEventCallback(func(event nativeplayer.VideoEvent, cancel func()) {
 			switch event.(type) {
 			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")

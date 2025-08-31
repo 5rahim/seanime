@@ -337,6 +337,19 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	return nil
 }
 
+type AppendToMediaPlayerOptions struct {
+	Payload string
+}
+
+func (pm *PlaybackManager) AppendToMediaPlayer(opts *AppendToMediaPlayerOptions) error {
+	err := pm.MediaPlayerRepository.Append(opts.Payload)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // StartUntrackedStreamingUsingMediaPlayer starts a stream using the media player without any tracking.
 func (pm *PlaybackManager) StartUntrackedStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartUntrackedStreamingUsingMediaPlayer", &err)

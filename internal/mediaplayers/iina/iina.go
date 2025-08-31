@@ -201,6 +201,25 @@ func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (i *Iina) Append(path string) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	if i.conn == nil || i.conn.IsClosed() {
+		return errors.New("iina is not running")
+	}
+
+	// Clear playlist if any
+	_, _ = i.conn.Call("playlist-clear")
+
+	_, err := i.conn.Call("loadfile", path, "append")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (i *Iina) Pause() error {
 	i.mu.Lock()
 	defer i.mu.Unlock()

@@ -151,61 +151,63 @@ func (m *MediaController) SubscribeToPlaybackStatus(id string) *playbackmanager.
 	go func() {
 		defer util.HandlePanicInModuleThen("nakama/nativePlayerSubscriber", func() {})
 
-		select {
-		case event := <-nativePlayerSubscriber.Events():
-			if sub.subscriber.Canceled.Load() {
+		for {
+			select {
+			case event := <-nativePlayerSubscriber.Events():
+				if sub.subscriber.Canceled.Load() {
+					return
+				}
+				nativePlayerStatus := m.manager.nativePlayer.GetPlaybackStatus()
+				nativePlayerInfo, _ := m.manager.nativePlayer.GetPlaybackInfo()
+				status := m.toPlaybackManagerStatus(nativePlayerStatus)
+				state := m.toPlaybackManagerState(nativePlayerInfo, nativePlayerStatus)
+				switch event.(type) {
+				case *nativeplayer.VideoLoadedMetadataEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+					sub.subscriber.EventCh <- &playbackmanager.StreamStartedEvent{
+						Filename: status.Filename,
+						Filepath: status.Filepath,
+					}
+				case *nativeplayer.VideoCompletedEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+					sub.subscriber.EventCh <- &playbackmanager.StreamCompletedEvent{
+						Filename: status.Filename,
+					}
+				case *nativeplayer.VideoTerminatedEvent:
+					sub.subscriber.EventCh <- &playbackmanager.StreamStoppedEvent{
+						Reason: "Player closed",
+					}
+				case *nativeplayer.VideoPausedEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+				case *nativeplayer.VideoResumedEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+				case *nativeplayer.VideoSeekedEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+				case *nativeplayer.VideoStatusEvent:
+					sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
+						Status: status,
+						State:  state,
+					}
+				}
+			case <-sub.closeCh:
+				// Terminate the goroutine when the subscriber is closed
 				return
 			}
-			nativePlayerStatus := m.manager.nativePlayer.GetPlaybackStatus()
-			nativePlayerInfo, _ := m.manager.nativePlayer.GetPlaybackInfo()
-			status := m.toPlaybackManagerStatus(nativePlayerStatus)
-			state := m.toPlaybackManagerState(nativePlayerInfo, nativePlayerStatus)
-			switch event.(type) {
-			case *nativeplayer.VideoLoadedMetadataEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-				sub.subscriber.EventCh <- &playbackmanager.StreamStartedEvent{
-					Filename: status.Filename,
-					Filepath: status.Filepath,
-				}
-			case *nativeplayer.VideoCompletedEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-				sub.subscriber.EventCh <- &playbackmanager.StreamCompletedEvent{
-					Filename: status.Filename,
-				}
-			case *nativeplayer.VideoTerminatedEvent:
-				sub.subscriber.EventCh <- &playbackmanager.StreamStoppedEvent{
-					Reason: "Player closed",
-				}
-			case *nativeplayer.VideoPausedEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-			case *nativeplayer.VideoResumedEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-			case *nativeplayer.VideoSeekedEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-			case *nativeplayer.VideoStatusEvent:
-				sub.subscriber.EventCh <- &playbackmanager.PlaybackStatusChangedEvent{
-					Status: status,
-					State:  state,
-				}
-			}
-		case <-sub.closeCh:
-			// Terminate the goroutine when the subscriber is closed
-			return
 		}
 	}()
 

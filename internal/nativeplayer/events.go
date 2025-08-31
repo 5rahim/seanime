@@ -403,7 +403,7 @@ func (s *Subscriber) Events() <-chan VideoEvent {
 	return s.eventCh
 }
 
-func (p *NativePlayer) RegisterMediaPlayerCallback(callback func(event VideoEvent, cancelFunc func())) (cancel func()) {
+func (p *NativePlayer) RegisterEventCallback(callback func(event VideoEvent, cancelFunc func())) (cancel func()) {
 	id := uuid.NewString()
 	sub := p.Subscribe(id)
 	cancel = func() {

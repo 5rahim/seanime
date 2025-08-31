@@ -245,6 +245,25 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (m *Mpv) Append(path string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	// Clear playlist if any
+	_, _ = m.conn.Call("playlist-clear")
+
+	_, err := m.conn.Call("loadfile", path, "append")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Mpv) Pause() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

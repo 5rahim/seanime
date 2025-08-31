@@ -9,6 +9,7 @@ import {
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import { websocketConnectedAtom } from "@/app/websocket-provider"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -97,10 +98,11 @@ export function NakamaManager() {
         }
     }, [nakamaStatus])
 
+    const websocketConnected = useAtomValue(websocketConnectedAtom)
 
     React.useEffect(() => {
         refetchStatus()
-    }, [isModalOpen])
+    }, [isModalOpen, websocketConnected])
 
     const handleReconnect = React.useCallback(() => {
         reconnectToHost({}, {

@@ -278,7 +278,7 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 			EpisodeNumber int    `json:"episodeNumber"`
 			MediaTitle    string `json:"mediaTitle"`
 		}{
-			Url:           streamURL,
+			Url:           r.client.GetExternalPlayerStreamingUrl(),
 			MediaId:       opts.MediaId,
 			EpisodeNumber: opts.EpisodeNumber,
 			MediaTitle:    baseAnime.GetPreferredTitle(),

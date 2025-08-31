@@ -37,6 +37,44 @@ func (pd *Playlist) SetEpisodes(episodes []*PlaylistEpisode) {
 	pd.Episodes = episodes
 }
 
+func (pd *Playlist) NextEpisode(episode *PlaylistEpisode) (*PlaylistEpisode, bool) {
+	for i, e := range pd.Episodes {
+		if isSameEpisode(e, episode) {
+			if i+1 < len(pd.Episodes) {
+				return pd.Episodes[i+1], true
+			}
+			return nil, false
+		}
+	}
+	return nil, false
+}
+
+func (pd *Playlist) PreviousEpisode(episode *PlaylistEpisode) (*PlaylistEpisode, bool) {
+	for i, e := range pd.Episodes {
+		if isSameEpisode(e, episode) {
+			if i-1 >= 0 {
+				return pd.Episodes[i-1], true
+			}
+			return nil, false
+		}
+	}
+	return nil, false
+}
+
+func isSameEpisode(a *PlaylistEpisode, b *PlaylistEpisode) bool {
+	if a == nil || b == nil {
+		return false
+	}
+
+	// If one file is a local file, use progress number for comparison
+	if a.Episode.LocalFile != nil || b.Episode.LocalFile != nil {
+		return a.Episode.BaseAnime.ID == b.Episode.BaseAnime.ID && a.Episode.ProgressNumber == b.Episode.ProgressNumber
+	}
+
+	// Otherwise, use AniDB episode number for comparison
+	return a.Episode.BaseAnime.ID == b.Episode.BaseAnime.ID && a.Episode.AniDBEpisode == b.Episode.AniDBEpisode
+}
+
 func (pd *Playlist) GetEpisodesToWatch() []*PlaylistEpisode {
 	episodes := make([]*PlaylistEpisode, 0)
 	for _, episode := range pd.Episodes {

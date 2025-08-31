@@ -290,7 +290,6 @@ func (m *ManagerImpl) AutoTrackCurrentMedia() (added bool, err error) {
 				if _, found := trackedMediaMap[entry.Media.GetID()]; found {
 					continue
 				}
-				m.logger.Trace().Msgf("local manager: Adding anime %d to local database", entry.Media.GetID())
 
 				lfs, ok := groupedLocalFiles[entry.Media.GetID()]
 				if !ok || len(lfs) == 0 {
@@ -302,6 +301,7 @@ func (m *ManagerImpl) AutoTrackCurrentMedia() (added bool, err error) {
 					continue
 				}
 				added = true
+				m.logger.Trace().Msgf("local manager: Adding anime %d to local database", entry.Media.GetID())
 			}
 		}
 	}
@@ -320,7 +320,6 @@ func (m *ManagerImpl) AutoTrackCurrentMedia() (added bool, err error) {
 				if _, found := trackedMediaMap[entry.Media.GetID()]; found {
 					continue
 				}
-				m.logger.Trace().Msgf("local manager: Adding manga %d to local database", entry.Media.GetID())
 
 				ccs, ok := groupedDownloadedChapterContainers[entry.Media.GetID()]
 				if !ok || len(ccs) == 0 {
@@ -332,6 +331,7 @@ func (m *ManagerImpl) AutoTrackCurrentMedia() (added bool, err error) {
 					continue
 				}
 				added = true
+				m.logger.Trace().Msgf("local manager: Adding manga %d to local database", entry.Media.GetID())
 			}
 		}
 	}

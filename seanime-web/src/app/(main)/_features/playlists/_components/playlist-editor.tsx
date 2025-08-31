@@ -1,4 +1,4 @@
-import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Anime_PlaylistEpisode, Anime_WatchType } from "@/api/generated/types"
+import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Anime_PlaylistEpisode, Anime_WatchType, Nullish } from "@/api/generated/types"
 import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useHasTorrentOrDebridInclusion } from "@/app/(main)/_hooks/use-server-status"
@@ -22,11 +22,12 @@ import { BiPlus, BiTrash } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { toast } from "sonner"
 
-function isSameEpisode(a: Anime_PlaylistEpisode, b: Anime_PlaylistEpisode) {
+export function playlist_isSameEpisode(a: Nullish<Anime_PlaylistEpisode>, b: Nullish<Anime_PlaylistEpisode>) {
+    if (!a || !b) return false
     return a.episode?.aniDBEpisode === b.episode?.aniDBEpisode && a.episode?.baseAnime?.id === b.episode?.baseAnime?.id
 }
 
-function getEpisodeKey(a: Anime_PlaylistEpisode) {
+export function playlist_getEpisodeKey(a: Anime_PlaylistEpisode) {
     return a.episode?.aniDBEpisode + String(a.episode?.baseAnime?.id) + String(a.episode?.episodeNumber) + String(a.episode?.progressNumber) + String(
         a.episode?.localFile?.path)
 }
@@ -73,8 +74,8 @@ export function PlaylistEditor(props: PlaylistEditorProps) {
 
         if (active.id !== over?.id) {
             setEpisodes((items) => {
-                const oldIndex = items.findIndex(item => getEpisodeKey(item) === active.id)
-                const newIndex = items.findIndex(item => getEpisodeKey(item) === over?.id)
+                const oldIndex = items.findIndex(item => playlist_getEpisodeKey(item) === active.id)
+                const newIndex = items.findIndex(item => playlist_getEpisodeKey(item) === over?.id)
 
                 return arrayMove(items, oldIndex, newIndex)
             })
@@ -154,14 +155,14 @@ export function PlaylistEditor(props: PlaylistEditorProps) {
             >
                 <SortableContext
                     strategy={verticalListSortingStrategy}
-                    items={episodes.map(n => getEpisodeKey(n))}
+                    items={episodes.map(n => playlist_getEpisodeKey(n))}
                 >
                     <div className="space-y-2">
                         <ul className="space-y-2">
                             {episodes.filter(Boolean).map((ep, index) => (
                                 <SortableItem
-                                    key={getEpisodeKey(ep)}
-                                    id={getEpisodeKey(ep)}
+                                    key={playlist_getEpisodeKey(ep)}
+                                    id={playlist_getEpisodeKey(ep)}
                                     episode={ep}
                                     setEpisodes={setEpisodes}
                                 />
@@ -291,10 +292,10 @@ function SortableItem({ id, episode, setEpisodes }: {
         if (episode && !episode.watchType && (hasTorrentStreaming || hasDebridStreaming)) {
             t.current = setTimeout(() => {
                 setEpisodes(prev => {
-                    const foundEp = prev.find(n => isSameEpisode(n, episode))
+                    const foundEp = prev.find(n => playlist_isSameEpisode(n, episode))
                     if (!foundEp) return prev
                     return prev.map(n => {
-                        if (isSameEpisode(n, episode)) {
+                        if (playlist_isSameEpisode(n, episode)) {
                             return {
                                 ...n,
                                 watchType: (hasTorrentStreaming ? "torrent" : hasDebridStreaming ? "debrid" : "") as Anime_WatchType,
@@ -324,7 +325,7 @@ function SortableItem({ id, episode, setEpisodes }: {
                     intent="alert-subtle"
                     size="sm"
                     onClick={(e) => {
-                        setEpisodes((prev: Anime_PlaylistEpisode[]) => prev.filter(n => !isSameEpisode(n, episode)))
+                        setEpisodes((prev: Anime_PlaylistEpisode[]) => prev.filter(n => !playlist_isSameEpisode(n, episode)))
                     }}
                     onPointerDown={(e) => e.stopPropagation()}
                 />
@@ -339,12 +340,15 @@ function SortableItem({ id, episode, setEpisodes }: {
                         sizes="20rem"
                         className={cn(
                             "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                            episode.isCompleted && "opacity-20",
                         )}
                     />}
                 </div>
                 <div className="max-w-full space-y-1">
                     <p className="text-sm text-[--muted]">{episode.episode?.baseAnime?.title?.userPreferred}</p>
-                    <p className="">{episode.episode?.baseAnime?.format !== "MOVIE" ? `Episode ${episode.episode!.episodeNumber}` : "Movie"}</p>
+                    <p className="">{episode.episode?.baseAnime?.format !== "MOVIE"
+                        ? `Episode ${episode.episode!.episodeNumber}`
+                        : "Movie"}{episode.isCompleted ? ` (Watched)` : ""}</p>
 
                     {(!episode.episode?.localFile && !episode.isNakama) && <div className="flex gap-1 flex-wrap">
                         {streamOptions.map(option => {
@@ -358,10 +362,10 @@ function SortableItem({ id, episode, setEpisodes }: {
                                 onClick={e => {
                                     e.stopPropagation()
                                     setEpisodes(prev => {
-                                        const foundEp = prev.find(n => isSameEpisode(n, episode))
+                                        const foundEp = prev.find(n => playlist_isSameEpisode(n, episode))
                                         if (!foundEp) return prev
                                         return prev.map(n => {
-                                            if (isSameEpisode(n, episode)) {
+                                            if (playlist_isSameEpisode(n, episode)) {
                                                 return {
                                                     ...n,
                                                     watchType: (option.value === n.watchType ? "" : option.value) as Anime_WatchType,
@@ -435,8 +439,8 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
     const handleSelect = (ep: Anime_PlaylistEpisode) => {
         React.startTransition(() => {
             setSelectedEpisodes(prev => {
-                if (prev.find(n => isSameEpisode(n, ep))) {
-                    return prev.filter(n => !isSameEpisode(n, ep))
+                if (prev.find(n => playlist_isSameEpisode(n, ep))) {
+                    return prev.filter(n => !playlist_isSameEpisode(n, ep))
                 }
                 if (prev.length >= 20) {
                     toast.error("You can't add more than 20 episodes to a playlist")
@@ -454,10 +458,10 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
             {data?.filter(n => !!n.episode)?.sort((a, b) => a.episode!.progressNumber - b.episode!.progressNumber)?.map(ep => {
                 return (
                     <div
-                        key={getEpisodeKey(ep)}
+                        key={playlist_getEpisodeKey(ep)}
                         className={cn(
                             "grid grid-cols-[auto,1fr] px-2.5 py-2 bg-[--background] rounded-md border cursor-pointer overflow-hidden items-center gap-3 opacity-80 max-w-full",
-                            selectedEpisodes.find(n => isSameEpisode(ep, n))
+                            selectedEpisodes.find(n => playlist_isSameEpisode(ep, n))
                                 ? "bg-gray-800 opacity-100 text-white ring-1 ring-[--zinc]"
                                 : "hover:bg-[--subtle]",
                             "transition",
