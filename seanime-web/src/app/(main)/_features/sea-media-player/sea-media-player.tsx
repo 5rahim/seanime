@@ -145,6 +145,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const checkTimeRef = React.useRef<number>(0)
     const canPlayRef = React.useRef<boolean>(false)
     const previousUrlRef = React.useRef<string | { src: string, type: string } | undefined>(undefined)
+    const wasFullscreenBeforeNextEpisodeRef = React.useRef(false)
+    const currentFullscreenStateRef = React.useRef(false)
 
     // Track last focused element
     const lastFocusedElementRef = React.useRef<HTMLElement | null>(null)
@@ -308,6 +310,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         _onEnded?.(e)
 
         if (autoNext && !wentToNextEpisodeRef.current) {
+            wasFullscreenBeforeNextEpisodeRef.current = currentFullscreenStateRef.current
             onGoToNextEpisode()
             wentToNextEpisodeRef.current = true
         }
@@ -327,7 +330,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
         canPlayRef.current = true
 
-        if (__isDesktop__ && wentToNextEpisodeRef.current) {
+        if (__isDesktop__ && wentToNextEpisodeRef.current && wasFullscreenBeforeNextEpisodeRef.current) {
             logger("MEDIA PLAYER").info("Restoring fullscreen")
             try {
                 playerRef.current?.enterFullscreen()
@@ -533,6 +536,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         onProviderChange={onProviderChange}
                         onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
                         onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
+                            currentFullscreenStateRef.current = isFullscreen
+
                             if (isFullscreen) {
                                 // Store the currently focused element
                                 lastFocusedElementRef.current = document.activeElement as HTMLElement

@@ -253,6 +253,19 @@ func (c *Client) GetStreamingUrl() string {
 	return ret
 }
 
+func (c *Client) GetExternalPlayerStreamingUrl() string {
+	if c.torrentClient.IsAbsent() {
+		return ""
+	}
+	if c.currentFile.IsAbsent() {
+		return ""
+	}
+
+	ret := fmt.Sprintf("{{SCHEME}}://{{HOST}}/api/v1/torrentstream/stream/%s", url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+
+	return ret
+}
+
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")

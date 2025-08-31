@@ -278,7 +278,10 @@ export function AnimeEntryPage() {
                         >
                             <div className="h-10 lg:h-0" />
                             <div className="space-y-4" data-anime-entry-page-online-streaming-view-content>
-                                <div className="absolute right-0 top-[-3rem]" data-anime-entry-page-online-streaming-view-content-title-container>
+                                <div
+                                    className="absolute right-0 top-[-0.5rem] lg:top-[-3rem]"
+                                    data-anime-entry-page-online-streaming-view-content-title-container
+                                >
                                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>
                                 </div>
                                 <OnlinestreamPage

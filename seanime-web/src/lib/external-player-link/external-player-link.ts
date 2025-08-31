@@ -43,10 +43,14 @@ export class ExternalPlayerLink {
     }
 
     private _getUrlToSend() {
+        let urlToSend = this._urlToSend
+        urlToSend = urlToSend.replace("{{SCHEME}}", window.location.protocol.replace(":", ""))
+        urlToSend = urlToSend.replace("{{HOST}}", window.location.host)
+
         if (this._playerLink.includes("?")) {
-            return encodeURIComponent(this._urlToSend)
+            return encodeURIComponent(urlToSend)
         }
-        return this._urlToSend
+        return urlToSend
     }
 
     private _cleanTitle(title: string) {

@@ -66,6 +66,7 @@ export function useHandleContinuityWithMediaPlayer(playerRef: React.RefObject<Me
 
     React.useEffect(() => {
         (async () => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
         })()
     }, [episodeNumber ?? 0])
