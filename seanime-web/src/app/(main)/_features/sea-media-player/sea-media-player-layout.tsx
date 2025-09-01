@@ -85,7 +85,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 clearTimeout(scrollTimeoutRef.current)
             }
         }
-    }, [width, progress.currentEpisodeNumber, theaterMode])
+    }, [width, episodes, loading, progress.currentEpisodeNumber, theaterMode])
 
     const handleProgressUpdate = React.useCallback(() => {
         if (!media || !progressItem || isUpdatingProgress || hasUpdatedProgress) return

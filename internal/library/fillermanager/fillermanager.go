@@ -3,6 +3,7 @@ package fillermanager
 import (
 	"seanime/internal/api/filler"
 	"seanime/internal/database/db"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/onlinestream"
 	"seanime/internal/util"
@@ -213,6 +214,15 @@ func (fm *FillerManager) HydrateFillerData(e *anime.Entry) {
 		return
 	}
 
+	event := &HydrateFillerDataRequestedEvent{
+		Entry: e,
+	}
+	_ = hook.GlobalHookManager.OnHydrateFillerDataRequested().Trigger(event)
+	if event.DefaultPrevented {
+		return
+	}
+	e = event.Entry
+
 	// Check if the filler data has been fetched
 	if !fm.HasFillerFetched(e.Media.ID) {
 		return
@@ -234,6 +244,15 @@ func (fm *FillerManager) HydrateOnlinestreamFillerData(mId int, episodes []*onli
 		return
 	}
 
+	event := &HydrateOnlinestreamFillerDataRequestedEvent{
+		Episodes: episodes,
+	}
+	_ = hook.GlobalHookManager.OnHydrateOnlinestreamFillerDataRequested().Trigger(event)
+	if event.DefaultPrevented {
+		return
+	}
+	episodes = event.Episodes
+
 	// Check if the filler data has been fetched
 	if !fm.HasFillerFetched(mId) {
 		return
@@ -244,15 +263,27 @@ func (fm *FillerManager) HydrateOnlinestreamFillerData(mId int, episodes []*onli
 	}
 }
 
-func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.Episode) {
-	if fm == nil || e == nil {
+func (fm *FillerManager) HydrateEpisodeFillerData(mId int, episodes []*anime.Episode) {
+	if fm == nil || len(episodes) == 0 {
 		return
 	}
+
+	event := &HydrateEpisodeFillerDataRequestedEvent{
+		Episodes: episodes,
+	}
+	_ = hook.GlobalHookManager.OnHydrateEpisodeFillerDataRequested().Trigger(event)
+	if event.DefaultPrevented {
+		return
+	}
+	episodes = event.Episodes
 
 	// Check if the filler data has been fetched
 	if !fm.HasFillerFetched(mId) {
 		return
 	}
 
-	e.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(mId, e.EpisodeNumber)
+	lop.ForEach(episodes, func(e *anime.Episode, _ int) {
+		//h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
+		e.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(mId, e.EpisodeNumber)
+	})
 }

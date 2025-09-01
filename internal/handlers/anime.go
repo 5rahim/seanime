@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	lop "github.com/samber/lo/parallel"
 )
 
 // HandleGetAnimeEpisodeCollection
@@ -22,6 +21,10 @@ func (h *Handler) HandleGetAnimeEpisodeCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetAnimeEpisodeCollection", func() {
+		anime.ClearEpisodeCollectionCache()
+	})
+
 	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -37,9 +40,7 @@ func (h *Handler) HandleGetAnimeEpisodeCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
-		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
-	})
+	h.App.FillerManager.HydrateEpisodeFillerData(mId, ec.Episodes)
 
 	return h.RespondWithData(c, ec)
 }

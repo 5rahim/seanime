@@ -199,6 +199,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 						Title:       episode.EpisodeTitle,
 						Image:       episode.EpisodeMetadata.Image,
 						Description: episode.EpisodeMetadata.Summary,
+						IsFiller:    episode.EpisodeMetadata.IsFiller,
 					})
 				} else {
 					episodes = append(episodes, &Episode{

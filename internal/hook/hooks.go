@@ -57,6 +57,8 @@ type Manager interface {
 	OnAnimeLibraryStreamCollectionRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resolver]
 
+	OnAnimeScheduleItems() *Hook[hook_resolver.Resolver]
+
 	// Auto Downloader events
 	OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver]
 	OnAutoDownloaderMatchVerified() *Hook[hook_resolver.Resolver]
@@ -140,6 +142,11 @@ type Manager interface {
 	// Animap events
 	OnAnimapMediaRequested() *Hook[hook_resolver.Resolver]
 	OnAnimapMedia() *Hook[hook_resolver.Resolver]
+
+	// Filler manager
+	OnHydrateFillerDataRequested() *Hook[hook_resolver.Resolver]
+	OnHydrateOnlinestreamFillerDataRequested() *Hook[hook_resolver.Resolver]
+	OnHydrateEpisodeFillerDataRequested() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -182,6 +189,7 @@ type ManagerImpl struct {
 	onAnimeLibraryCollection                *Hook[hook_resolver.Resolver]
 	onAnimeLibraryStreamCollectionRequested *Hook[hook_resolver.Resolver]
 	onAnimeLibraryStreamCollection          *Hook[hook_resolver.Resolver]
+	onAnimeScheduleItems                    *Hook[hook_resolver.Resolver]
 	// Auto Downloader events
 	onAutoDownloaderMatchVerified         *Hook[hook_resolver.Resolver]
 	onAutoDownloaderRunStarted            *Hook[hook_resolver.Resolver]
@@ -254,6 +262,10 @@ type ManagerImpl struct {
 	// Animap events
 	onAnimapMediaRequested *Hook[hook_resolver.Resolver]
 	onAnimapMedia          *Hook[hook_resolver.Resolver]
+	// Filler manager events
+	onHydrateFillerDataRequested             *Hook[hook_resolver.Resolver]
+	onHydrateOnlinestreamFillerDataRequested *Hook[hook_resolver.Resolver]
+	onHydrateEpisodeFillerDataRequested      *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -317,6 +329,7 @@ func (m *ManagerImpl) initHooks() {
 	m.onAnimeLibraryCollection = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeLibraryStreamCollectionRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeLibraryStreamCollection = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeScheduleItems = &Hook[hook_resolver.Resolver]{}
 	// Auto Downloader events
 	m.onAutoDownloaderMatchVerified = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderRunStarted = &Hook[hook_resolver.Resolver]{}
@@ -389,6 +402,10 @@ func (m *ManagerImpl) initHooks() {
 	// Animap events
 	m.onAnimapMediaRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimapMedia = &Hook[hook_resolver.Resolver]{}
+	// Filler manager events
+	m.onHydrateFillerDataRequested = &Hook[hook_resolver.Resolver]{}
+	m.onHydrateOnlinestreamFillerDataRequested = &Hook[hook_resolver.Resolver]{}
+	m.onHydrateEpisodeFillerDataRequested = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -638,6 +655,13 @@ func (m *ManagerImpl) OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resol
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAnimeLibraryStreamCollection
+}
+
+func (m *ManagerImpl) OnAnimeScheduleItems() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeScheduleItems
 }
 
 // Auto Downloader events
@@ -1069,4 +1093,27 @@ func (m *ManagerImpl) OnAnimapMedia() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAnimapMedia
+}
+
+// Filler manager events
+
+func (m *ManagerImpl) OnHydrateFillerDataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onHydrateFillerDataRequested
+}
+
+func (m *ManagerImpl) OnHydrateOnlinestreamFillerDataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onHydrateOnlinestreamFillerDataRequested
+}
+
+func (m *ManagerImpl) OnHydrateEpisodeFillerDataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onHydrateEpisodeFillerDataRequested
 }

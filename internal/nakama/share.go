@@ -114,6 +114,10 @@ func (m *Manager) GetHostAnimeLibrary() (ac *NakamaAnimeLibrary, hydrated bool) 
 		return nil, false
 	}
 
+	if entryResponse.Data == nil {
+		return nil, false
+	}
+
 	return entryResponse.Data, true
 }
 

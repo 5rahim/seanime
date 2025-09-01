@@ -27457,8 +27457,8 @@
       {
         "name": "OnRefreshAnilistCollectionFuncs",
         "jsonName": "OnRefreshAnilistCollectionFuncs",
-        "goType": "map[string]",
-        "typescriptType": "Record\u003cstring, any\u003e",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": true,
         "comments": []
@@ -34360,6 +34360,17 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "details_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to details"
+        ]
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -34367,6 +34378,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StateURL",
+        "jsonName": "state_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to state"
+        ]
       },
       {
         "name": "Timestamps",
@@ -34440,6 +34462,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "status_display_type",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " 1 = name, 2 = details, 3 = state"
+        ]
       }
     ],
     "comments": [
@@ -34524,6 +34557,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "large_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "small_image",
         "goType": "string",
@@ -34540,6 +34584,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "small_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       }
     ],
     "comments": [
@@ -34933,6 +34988,15 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "detailsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -34978,6 +35042,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "largeUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "smallImage",
         "goType": "string",
@@ -34994,6 +35069,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "smallUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       },
       {
         "name": "Buttons",
@@ -35021,6 +35107,15 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "statusDisplayType",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -35072,6 +35167,15 @@
         "comments": []
       },
       {
+        "name": "DetailsURL",
+        "jsonName": "detailsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "State",
         "jsonName": "state",
         "goType": "string",
@@ -35117,6 +35221,17 @@
         "comments": []
       },
       {
+        "name": "LargeURL",
+        "jsonName": "largeUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to large image, if any"
+        ]
+      },
+      {
         "name": "SmallImage",
         "jsonName": "smallImage",
         "goType": "string",
@@ -35133,6 +35248,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SmallURL",
+        "jsonName": "smallUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " URL to small image, if any"
+        ]
       },
       {
         "name": "Buttons",
@@ -35160,6 +35286,15 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StatusDisplayType",
+        "jsonName": "statusDisplayType",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -39512,89 +39647,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/handlers/anime_collection.go",
-    "filename": "anime_collection.go",
-    "name": "AnimeCollectionScheduleItem",
-    "formattedName": "AnimeCollectionScheduleItem",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Time",
-        "jsonName": "time",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DateTime",
-        "jsonName": "dateTime",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsMovie",
-        "jsonName": "isMovie",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsSeasonFinale",
-        "jsonName": "isSeasonFinale",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/handlers/directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
@@ -41103,6 +41155,15 @@
         "comments": []
       },
       {
+        "name": "onAnimeScheduleItems",
+        "jsonName": "onAnimeScheduleItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onAutoDownloaderMatchVerified",
         "jsonName": "onAutoDownloaderMatchVerified",
         "goType": "",
@@ -41627,6 +41688,33 @@
       {
         "name": "onAnimapMedia",
         "jsonName": "onAnimapMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateFillerDataRequested",
+        "jsonName": "onHydrateFillerDataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateOnlinestreamFillerDataRequested",
+        "jsonName": "onHydrateOnlinestreamFillerDataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateEpisodeFillerDataRequested",
+        "jsonName": "onHydrateEpisodeFillerDataRequested",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -44291,6 +44379,43 @@
     ]
   },
   {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeScheduleItemsEvent",
+    "formattedName": "Anime_AnimeScheduleItemsEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]ScheduleItem",
+        "typescriptType": "Array\u003cAnime_ScheduleItem\u003e",
+        "usedTypescriptType": "Anime_ScheduleItem",
+        "usedStructName": "anime.ScheduleItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeScheduleItemsEvent is triggered when the schedule items are being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/library/anime/localfile.go",
     "filename": "localfile.go",
     "name": "LocalFileType",
@@ -44768,6 +44893,89 @@
         "comments": [
           " LocalFiles is a list of local files in the playlist, in order"
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/schedule.go",
+    "filename": "schedule.go",
+    "name": "ScheduleItem",
+    "formattedName": "Anime_ScheduleItem",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Time",
+        "jsonName": "time",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateTime",
+        "jsonName": "dateTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMovie",
+        "jsonName": "isMovie",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsSeasonFinale",
+        "jsonName": "isSeasonFinale",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -45805,6 +46013,90 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateFillerDataRequestedEvent",
+    "formattedName": "HydrateFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "anime.Entry",
+        "typescriptType": "Anime_Entry",
+        "usedTypescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for an entry.",
+      " This is used by the local file episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateOnlinestreamFillerDataRequestedEvent",
+    "formattedName": "HydrateOnlinestreamFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]onlinestream.Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedTypescriptType": "Onlinestream_Episode",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateOnlinestreamFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for online streaming episodes.",
+      " This is used by the online streaming episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateEpisodeFillerDataRequestedEvent",
+    "formattedName": "HydrateEpisodeFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateEpisodeFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for specific episodes.",
+      " This is used by the torrent and debrid streaming episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
   },
   {
     "filepath": "../internal/library/playbackmanager/hook_events.go",
@@ -63875,6 +64167,15 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseAnimeCache",
+        "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
         "public": false,
         "comments": []
       }

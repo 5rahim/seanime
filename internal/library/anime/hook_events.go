@@ -156,3 +156,12 @@ type AnimeEpisodeCollectionEvent struct {
 	hook_resolver.Event
 	EpisodeCollection *EpisodeCollection `json:"episodeCollection"`
 }
+
+/////////////////////////////////////
+
+// AnimeScheduleItemsEvent is triggered when the schedule items are being returned.
+type AnimeScheduleItemsEvent struct {
+	hook_resolver.Event
+	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
+	Items           []*ScheduleItem          `json:"items"`
+}

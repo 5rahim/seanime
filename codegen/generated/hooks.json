@@ -1297,6 +1297,15 @@
           "comments": []
         },
         {
+          "name": "DetailsURL",
+          "jsonName": "detailsUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "State",
           "jsonName": "state",
           "goType": "string",
@@ -1342,6 +1351,17 @@
           "comments": []
         },
         {
+          "name": "LargeURL",
+          "jsonName": "largeUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to large image, if any"
+          ]
+        },
+        {
           "name": "SmallImage",
           "jsonName": "smallImage",
           "goType": "string",
@@ -1358,6 +1378,17 @@
           "required": true,
           "public": true,
           "comments": []
+        },
+        {
+          "name": "SmallURL",
+          "jsonName": "smallUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to small image, if any"
+          ]
         },
         {
           "name": "Buttons",
@@ -1385,6 +1416,15 @@
           "goType": "int",
           "typescriptType": "number",
           "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StatusDisplayType",
+          "jsonName": "statusDisplayType",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
           "public": true,
           "comments": []
         },
@@ -1466,6 +1506,15 @@
           "comments": []
         },
         {
+          "name": "DetailsURL",
+          "jsonName": "detailsUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "State",
           "jsonName": "state",
           "goType": "string",
@@ -1511,6 +1560,17 @@
           "comments": []
         },
         {
+          "name": "LargeURL",
+          "jsonName": "largeUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to large image, if any"
+          ]
+        },
+        {
           "name": "SmallImage",
           "jsonName": "smallImage",
           "goType": "string",
@@ -1527,6 +1587,17 @@
           "required": true,
           "public": true,
           "comments": []
+        },
+        {
+          "name": "SmallURL",
+          "jsonName": "smallUrl",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": false,
+          "public": true,
+          "comments": [
+            " URL to small image, if any"
+          ]
         },
         {
           "name": "Buttons",
@@ -1554,6 +1625,15 @@
           "goType": "int",
           "typescriptType": "number",
           "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "StatusDisplayType",
+          "jsonName": "statusDisplayType",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
           "public": true,
           "comments": []
         },
@@ -2759,6 +2839,73 @@
     }
   },
   {
+    "package": "anime",
+    "goStruct": {
+      "filepath": "../internal/library/anime/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "AnimeScheduleItemsEvent",
+      "formattedName": "Anime_AnimeScheduleItemsEvent",
+      "package": "anime",
+      "fields": [
+        {
+          "name": "AnimeCollection",
+          "jsonName": "animeCollection",
+          "goType": "anilist.AnimeCollection",
+          "typescriptType": "AL_AnimeCollection",
+          "usedTypescriptType": "AL_AnimeCollection",
+          "usedStructName": "anilist.AnimeCollection",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Items",
+          "jsonName": "items",
+          "goType": "[]ScheduleItem",
+          "typescriptType": "Array\u003cAnime_ScheduleItem\u003e",
+          "usedTypescriptType": "Anime_ScheduleItem",
+          "usedStructName": "anime.ScheduleItem",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " AnimeScheduleItemsEvent is triggered when the schedule items are being returned."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
     "package": "autodownloader",
     "goStruct": {
       "filepath": "../internal/library/autodownloader/hook_events.go",
@@ -3175,6 +3322,180 @@
       ],
       "comments": [
         " AutoDownloaderAfterDownloadTorrentEvent is triggered when the autodownloader has downloaded a torrent."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "fillermanager",
+    "goStruct": {
+      "filepath": "../internal/library/fillermanager/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "HydrateFillerDataRequestedEvent",
+      "formattedName": "HydrateFillerDataRequestedEvent",
+      "package": "fillermanager",
+      "fields": [
+        {
+          "name": "Entry",
+          "jsonName": "entry",
+          "goType": "anime.Entry",
+          "typescriptType": "Anime_Entry",
+          "usedTypescriptType": "Anime_Entry",
+          "usedStructName": "anime.Entry",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " HydrateFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for an entry.",
+        " This is used by the local file episode list.",
+        " Prevent default to skip the default behavior and return your own data."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "fillermanager",
+    "goStruct": {
+      "filepath": "../internal/library/fillermanager/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "HydrateOnlinestreamFillerDataRequestedEvent",
+      "formattedName": "HydrateOnlinestreamFillerDataRequestedEvent",
+      "package": "fillermanager",
+      "fields": [
+        {
+          "name": "Episodes",
+          "jsonName": "episodes",
+          "goType": "[]onlinestream.Episode",
+          "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+          "usedTypescriptType": "Onlinestream_Episode",
+          "usedStructName": "onlinestream.Episode",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " HydrateOnlinestreamFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for online streaming episodes.",
+        " This is used by the online streaming episode list.",
+        " Prevent default to skip the default behavior and return your own data."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "fillermanager",
+    "goStruct": {
+      "filepath": "../internal/library/fillermanager/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "HydrateEpisodeFillerDataRequestedEvent",
+      "formattedName": "HydrateEpisodeFillerDataRequestedEvent",
+      "package": "fillermanager",
+      "fields": [
+        {
+          "name": "Episodes",
+          "jsonName": "episodes",
+          "goType": "[]anime.Episode",
+          "typescriptType": "Array\u003cAnime_Episode\u003e",
+          "usedTypescriptType": "Anime_Episode",
+          "usedStructName": "anime.Episode",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " HydrateEpisodeFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for specific episodes.",
+        " This is used by the torrent and debrid streaming episode list.",
+        " Prevent default to skip the default behavior and return your own data."
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"
