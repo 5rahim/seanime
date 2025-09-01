@@ -1679,6 +1679,22 @@ export type Anime_PlaylistEpisode = {
 }
 
 /**
+ * - Filepath: internal/library/anime/schedule.go
+ * - Filename: schedule.go
+ * - Package: anime
+ */
+export type Anime_ScheduleItem = {
+    mediaId: number
+    title: string
+    time: string
+    dateTime?: string
+    image: string
+    episodeNumber: number
+    isMovie: boolean
+    isSeasonFinale: boolean
+}
+
+/**
  * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
@@ -2337,22 +2353,6 @@ export type ExtensionRepo_UpdateData = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Handlers
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/handlers/anime_collection.go
- * - Filename: anime_collection.go
- * - Package: handlers
- */
-export type AnimeCollectionScheduleItem = {
-    mediaId: number
-    title: string
-    time: string
-    dateTime?: string
-    image: string
-    episodeNumber: number
-    isMovie: boolean
-    isSeasonFinale: boolean
-}
 
 /**
  * - Filepath: internal/handlers/docs.go

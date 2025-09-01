@@ -27712,6 +27712,17 @@
         "comments": [
           " SHA-256 hash of the server password"
         ]
+      },
+      {
+        "name": "PlaylistManager",
+        "jsonName": "PlaylistManager",
+        "goType": "playlist.Manager",
+        "typescriptType": "Manager",
+        "usedTypescriptType": "Manager",
+        "usedStructName": "playlist.Manager",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -35865,7 +35876,8 @@
       "declaredValues": [
         "\"native-player\"",
         "\"nakama\"",
-        "\"plugin\""
+        "\"plugin\"",
+        "\"playlist\""
       ]
     },
     "comments": []
@@ -36011,6 +36023,15 @@
       {
         "name": "nakamaEventSubscribers",
         "jsonName": "nakamaEventSubscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playlistEventSubscribers",
+        "jsonName": "playlistEventSubscribers",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -39841,89 +39862,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/handlers/anime_collection.go",
-    "filename": "anime_collection.go",
-    "name": "AnimeCollectionScheduleItem",
-    "formattedName": "AnimeCollectionScheduleItem",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Time",
-        "jsonName": "time",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DateTime",
-        "jsonName": "dateTime",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsMovie",
-        "jsonName": "isMovie",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsSeasonFinale",
-        "jsonName": "isSeasonFinale",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/handlers/directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
@@ -41432,6 +41370,15 @@
         "comments": []
       },
       {
+        "name": "onAnimeScheduleItems",
+        "jsonName": "onAnimeScheduleItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onAutoDownloaderMatchVerified",
         "jsonName": "onAutoDownloaderMatchVerified",
         "goType": "",
@@ -41956,6 +41903,33 @@
       {
         "name": "onAnimapMedia",
         "jsonName": "onAnimapMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateFillerDataRequested",
+        "jsonName": "onHydrateFillerDataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateOnlinestreamFillerDataRequested",
+        "jsonName": "onHydrateOnlinestreamFillerDataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onHydrateEpisodeFillerDataRequested",
+        "jsonName": "onHydrateEpisodeFillerDataRequested",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -44620,6 +44594,43 @@
     ]
   },
   {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeScheduleItemsEvent",
+    "formattedName": "Anime_AnimeScheduleItemsEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]ScheduleItem",
+        "typescriptType": "Array\u003cAnime_ScheduleItem\u003e",
+        "usedTypescriptType": "Anime_ScheduleItem",
+        "usedStructName": "anime.ScheduleItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeScheduleItemsEvent is triggered when the schedule items are being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/library/anime/legacy_playlist.go",
     "filename": "legacy_playlist.go",
     "name": "LegacyPlaylist",
@@ -45204,6 +45215,89 @@
       {
         "name": "IsNakama",
         "jsonName": "isNakama",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/schedule.go",
+    "filename": "schedule.go",
+    "name": "ScheduleItem",
+    "formattedName": "Anime_ScheduleItem",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Time",
+        "jsonName": "time",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateTime",
+        "jsonName": "dateTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsMovie",
+        "jsonName": "isMovie",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsSeasonFinale",
+        "jsonName": "isSeasonFinale",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -46248,6 +46342,90 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateFillerDataRequestedEvent",
+    "formattedName": "HydrateFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "anime.Entry",
+        "typescriptType": "Anime_Entry",
+        "usedTypescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for an entry.",
+      " This is used by the local file episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateOnlinestreamFillerDataRequestedEvent",
+    "formattedName": "HydrateOnlinestreamFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]onlinestream.Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedTypescriptType": "Onlinestream_Episode",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateOnlinestreamFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for online streaming episodes.",
+      " This is used by the online streaming episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/fillermanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "HydrateEpisodeFillerDataRequestedEvent",
+    "formattedName": "HydrateEpisodeFillerDataRequestedEvent",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HydrateEpisodeFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for specific episodes.",
+      " This is used by the torrent and debrid streaming episode list.",
+      " Prevent default to skip the default behavior and return your own data."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/library/playbackmanager/hook_events.go",
     "filename": "hook_events.go",
     "name": "LocalFilePlaybackRequestedEvent",
@@ -47113,6 +47291,25 @@
   {
     "filepath": "../internal/library/playbackmanager/playback_manager.go",
     "filename": "playback_manager.go",
+    "name": "PlaybackErrorEvent",
+    "formattedName": "PlaybackManager_PlaybackErrorEvent",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "Reason",
+        "jsonName": "Reason",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
     "name": "VideoStartedEvent",
     "formattedName": "PlaybackManager_VideoStartedEvent",
     "package": "playbackmanager",
@@ -47532,6 +47729,25 @@
       {
         "name": "ClientId",
         "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
+    "name": "AppendToMediaPlayerOptions",
+    "formattedName": "PlaybackManager_AppendToMediaPlayerOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "Payload",
+        "jsonName": "Payload",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -65304,17 +65520,19 @@
   {
     "filepath": "../internal/playlist/manager.go",
     "filename": "manager.go",
-    "name": "PlayerType",
-    "formattedName": "PlayerType",
+    "name": "PlaylistClientEventType",
+    "formattedName": "PlaylistClientEventType",
     "package": "playlist",
     "fields": [],
     "aliasOf": {
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"desktop\"",
-        "\"externalPlayerLink\"",
-        "\"nativeplayer\""
+        "\"current-playlist\"",
+        "\"start-playlist\"",
+        "\"stop-playlist\"",
+        "\"play-episode\"",
+        "\"reopen-episode\""
       ]
     },
     "comments": []
@@ -65322,24 +65540,93 @@
   {
     "filepath": "../internal/playlist/manager.go",
     "filename": "manager.go",
-    "name": "PlaylistStateItem",
-    "formattedName": "PlaylistStateItem",
+    "name": "ClientEvent",
+    "formattedName": "ClientEvent",
     "package": "playlist",
     "fields": [
       {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "PlaylistClientEventType",
+        "typescriptType": "PlaylistClientEventType",
+        "usedTypescriptType": "PlaylistClientEventType",
+        "usedStructName": "playlist.PlaylistClientEventType",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "MediaImage",
-        "jsonName": "mediaImage",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "ClientPlaybackMethod",
+    "formattedName": "ClientPlaybackMethod",
+    "package": "playlist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"\"",
+        "\"default\"",
+        "\"transcode\"",
+        "\"externalPlayerLink\"",
+        "\"nativePlayer\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "PlaylistServerEventType",
+    "formattedName": "PlaylistServerEventType",
+    "package": "playlist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"current-playlist\"",
+        "\"play-episode\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "ServerEvent",
+    "formattedName": "ServerEvent",
+    "package": "playlist",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "PlaylistServerEventType",
+        "typescriptType": "PlaylistServerEventType",
+        "usedTypescriptType": "PlaylistServerEventType",
+        "usedStructName": "playlist.PlaylistServerEventType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": true,
         "comments": []
@@ -65355,13 +65642,64 @@
     "package": "playlist",
     "fields": [
       {
-        "name": "playerType",
-        "jsonName": "playerType",
-        "goType": "PlayerType",
-        "typescriptType": "PlayerType",
-        "usedTypescriptType": "PlayerType",
-        "usedStructName": "playlist.PlayerType",
+        "name": "currentPlaylistData",
+        "jsonName": "currentPlaylistData",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentEpisode",
+        "jsonName": "currentEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentPlaybackMethod",
+        "jsonName": "currentPlaybackMethod",
+        "goType": "ClientPlaybackMethod",
+        "typescriptType": "ClientPlaybackMethod",
+        "usedTypescriptType": "ClientPlaybackMethod",
+        "usedStructName": "playlist.ClientPlaybackMethod",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -65383,6 +65721,39 @@
         "typescriptType": "PlaybackManager_PlaybackManager",
         "usedTypescriptType": "PlaybackManager_PlaybackManager",
         "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nativePlayer",
+        "jsonName": "nativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentstreamRepository",
+        "jsonName": "torrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedTypescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "debridClientRepository",
+        "jsonName": "debridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedTypescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
         "required": false,
         "public": false,
         "comments": []
@@ -65410,6 +65781,39 @@
         "comments": []
       },
       {
+        "name": "isStartingPlaylist",
+        "jsonName": "isStartingPlaylist",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isLoadingNextEpisode",
+        "jsonName": "isLoadingNextEpisode",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "cancel",
         "jsonName": "cancel",
         "goType": "context.CancelFunc",
@@ -65418,6 +65822,115 @@
         "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "NewManagerOptions",
+    "formattedName": "NewManagerOptions",
+    "package": "playlist",
+    "fields": [
+      {
+        "name": "DirectStreamManager",
+        "jsonName": "DirectStreamManager",
+        "goType": "directstream.Manager",
+        "typescriptType": "Directstream_Manager",
+        "usedTypescriptType": "Directstream_Manager",
+        "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackManager",
+        "jsonName": "PlaybackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedTypescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedTypescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedTypescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NativePlayer",
+        "jsonName": "NativePlayer",
+        "goType": "nativeplayer.NativePlayer",
+        "typescriptType": "NativePlayer_NativePlayer",
+        "usedTypescriptType": "NativePlayer_NativePlayer",
+        "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],

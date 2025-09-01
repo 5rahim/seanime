@@ -120,6 +120,10 @@ func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibra
 		return nil, false
 	}
 
+	if entryResponse.Data == nil {
+		return nil, false
+	}
+
 	return entryResponse.Data, true
 }
 

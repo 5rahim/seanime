@@ -77,7 +77,6 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	a.DirectStreamManager.SetAnimeCollection(ret)
 
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
-	a.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 
 	return ret, nil
 }
@@ -103,6 +102,8 @@ func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 	}
 
 	a.LocalManager.SetMangaCollection(mc)
+
+	a.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 
 	return mc, nil
 }

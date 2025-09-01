@@ -103,15 +103,14 @@ func (h *Handler) HandleGetNakamaAnimeLibrary(c echo.Context) error {
 
 	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
 	unsharedAnimeIdsMap := make(map[int]struct{})
+	unsharedAnimeIdsMap[0] = struct{}{} // Do not share unmatched files
 	for _, id := range unsharedAnimeIds {
 		unsharedAnimeIdsMap[id] = struct{}{}
 	}
-	if len(unsharedAnimeIds) > 0 {
-		lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-			_, ok := unsharedAnimeIdsMap[lf.MediaId]
-			return !ok
-		})
-	}
+	lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+		_, ok := unsharedAnimeIdsMap[lf.MediaId]
+		return !ok
+	})
 
 	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
@@ -162,15 +161,14 @@ func (h *Handler) HandleGetNakamaAnimeLibraryCollection(c echo.Context) error {
 
 	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
 	unsharedAnimeIdsMap := make(map[int]struct{})
+	unsharedAnimeIdsMap[0] = struct{}{}
 	for _, id := range unsharedAnimeIds {
 		unsharedAnimeIdsMap[id] = struct{}{}
 	}
-	if len(unsharedAnimeIds) > 0 {
-		lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-			_, ok := unsharedAnimeIdsMap[lf.MediaId]
-			return !ok
-		})
-	}
+	lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+		_, ok := unsharedAnimeIdsMap[lf.MediaId]
+		return !ok
+	})
 
 	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
@@ -213,7 +211,17 @@ func (h *Handler) HandleGetNakamaAnimeLibraryFiles(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
+	unsharedAnimeIdsMap := make(map[int]struct{})
+	unsharedAnimeIdsMap[0] = struct{}{}
+	for _, id := range unsharedAnimeIds {
+		unsharedAnimeIdsMap[id] = struct{}{}
+	}
+
 	retLfs := lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+		if _, ok := unsharedAnimeIdsMap[lf.MediaId]; ok {
+			return false
+		}
 		return lf.MediaId == mId
 	})
 
@@ -239,15 +247,14 @@ func (h *Handler) HandleGetNakamaAnimeAllLibraryFiles(c echo.Context) error {
 
 	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
 	unsharedAnimeIdsMap := make(map[int]struct{})
+	unsharedAnimeIdsMap[0] = struct{}{}
 	for _, id := range unsharedAnimeIds {
 		unsharedAnimeIdsMap[id] = struct{}{}
 	}
-	if len(unsharedAnimeIds) > 0 {
-		lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-			_, ok := unsharedAnimeIdsMap[lf.MediaId]
-			return !ok
-		})
-	}
+	lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+		_, ok := unsharedAnimeIdsMap[lf.MediaId]
+		return !ok
+	})
 
 	return h.RespondWithData(c, lfs)
 }

@@ -160,7 +160,7 @@
 // }
 
 // export function useGetAnimeCollectionSchedule() {
-//     return useServerQuery<Array<AnimeCollectionScheduleItem>>({
+//     return useServerQuery<Array<Anime_ScheduleItem>>({
 //         endpoint: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.endpoint,
 //         method: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.methods[0],
 //         queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.key],

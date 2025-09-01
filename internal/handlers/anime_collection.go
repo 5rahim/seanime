@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
@@ -12,7 +11,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/samber/lo"
 )
 
 // HandleGetLibraryCollection
@@ -144,30 +142,19 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-type AnimeCollectionScheduleItem struct {
-	MediaId        int       `json:"mediaId"`
-	Title          string    `json:"title"`
-	Time           string    `json:"time"`
-	DateTime       time.Time `json:"dateTime"`
-	Image          string    `json:"image"`
-	EpisodeNumber  int       `json:"episodeNumber"`
-	IsMovie        bool      `json:"isMovie"`
-	IsSeasonFinale bool      `json:"isSeasonFinale"`
-}
-
-var animeScheduleCache = result.NewCache[int, []*AnimeCollectionScheduleItem]()
+var animeScheduleCache = result.NewCache[int, []*anime.ScheduleItem]()
 
 // HandleGetAnimeCollectionSchedule
 //
 //	@summary returns anime collection schedule
 //	@desc This is used by the "Schedule" page to display the anime schedule.
 //	@route /api/v1/library/schedule [GET]
-//	@returns []handlers.AnimeCollectionScheduleItem
+//	@returns []anime.ScheduleItem
 func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 
 	// Invalidate the cache when the Anilist collection is refreshed
 	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetAnimeCollectionSchedule", func() {
-		animeScheduleCache.Delete(1)
+		animeScheduleCache.Clear()
 	})
 
 	if ret, ok := animeScheduleCache.Get(1); ok {
@@ -184,80 +171,7 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	animeEntryMap := make(map[int]*anilist.AnimeListEntry)
-	for _, list := range animeCollection.MediaListCollection.GetLists() {
-		for _, entry := range list.GetEntries() {
-			animeEntryMap[entry.GetMedia().GetID()] = entry
-		}
-	}
-
-	type animeScheduleNode interface {
-		GetAiringAt() int
-		GetTimeUntilAiring() int
-		GetEpisode() int
-	}
-
-	type animeScheduleMedia interface {
-		GetMedia() []*anilist.AnimeSchedule
-	}
-
-	formatNodeItem := func(node animeScheduleNode, entry *anilist.AnimeListEntry) *AnimeCollectionScheduleItem {
-		t := time.Unix(int64(node.GetAiringAt()), 0)
-		item := &AnimeCollectionScheduleItem{
-			MediaId:        entry.GetMedia().GetID(),
-			Title:          *entry.GetMedia().GetTitle().GetUserPreferred(),
-			Time:           t.UTC().Format("15:04"),
-			DateTime:       t.UTC(),
-			Image:          entry.GetMedia().GetCoverImageSafe(),
-			EpisodeNumber:  node.GetEpisode(),
-			IsMovie:        entry.GetMedia().IsMovie(),
-			IsSeasonFinale: false,
-		}
-		if entry.GetMedia().GetTotalEpisodeCount() > 0 && node.GetEpisode() == entry.GetMedia().GetTotalEpisodeCount() {
-			item.IsSeasonFinale = true
-		}
-		return item
-	}
-
-	formatPart := func(m animeScheduleMedia) ([]*AnimeCollectionScheduleItem, bool) {
-		if m == nil {
-			return nil, false
-		}
-		ret := make([]*AnimeCollectionScheduleItem, 0)
-		for _, m := range m.GetMedia() {
-			entry, ok := animeEntryMap[m.GetID()]
-			if !ok || entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped {
-				continue
-			}
-			for _, n := range m.GetPrevious().GetNodes() {
-				ret = append(ret, formatNodeItem(n, entry))
-			}
-			for _, n := range m.GetUpcoming().GetNodes() {
-				ret = append(ret, formatNodeItem(n, entry))
-			}
-		}
-		return ret, true
-	}
-
-	ongoingItems, _ := formatPart(animeSchedule.GetOngoing())
-	ongoingNextItems, _ := formatPart(animeSchedule.GetOngoingNext())
-	precedingItems, _ := formatPart(animeSchedule.GetPreceding())
-	upcomingItems, _ := formatPart(animeSchedule.GetUpcoming())
-	upcomingNextItems, _ := formatPart(animeSchedule.GetUpcomingNext())
-
-	allItems := make([]*AnimeCollectionScheduleItem, 0)
-	allItems = append(allItems, ongoingItems...)
-	allItems = append(allItems, ongoingNextItems...)
-	allItems = append(allItems, precedingItems...)
-	allItems = append(allItems, upcomingItems...)
-	allItems = append(allItems, upcomingNextItems...)
-
-	ret := lo.UniqBy(allItems, func(item *AnimeCollectionScheduleItem) string {
-		if item == nil {
-			return ""
-		}
-		return fmt.Sprintf("%d-%d-%d", item.MediaId, item.EpisodeNumber, item.DateTime.Unix())
-	})
+	ret := anime.GetScheduleItems(animeSchedule, animeCollection)
 
 	animeScheduleCache.SetT(1, ret, 1*time.Hour)
 
