@@ -170,16 +170,12 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     </div>
                 </div>
 
-                {!!updateData && <Badge className="rounded-md absolute right-9 top-1" intent="success">
-                    Update available
-                </Badge>}
-
                 <div className="flex gap-2 flex-wrap pt-4 flex-1 items-end">
                     {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
-                    {!!extension.version && <Badge className="rounded-md tracking-wide">
-                        {extension.version}
+                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : undefined}>
+                        {extension.version}{!!updateData ? " → " + updateData.version : ""}
                     </Badge>}
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}

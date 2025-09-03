@@ -677,7 +677,7 @@
       "\t@summary returns anime collection schedule",
       "\t@desc This is used by the \"Schedule\" page to display the anime schedule.",
       "\t@route /api/v1/library/schedule [GET]",
-      "\t@returns []handlers.AnimeCollectionScheduleItem",
+      "\t@returns []anime.ScheduleItem",
       ""
     ],
     "filepath": "internal/handlers/anime_collection.go",
@@ -693,9 +693,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]handlers.AnimeCollectionScheduleItem",
-      "returnGoType": "handlers.AnimeCollectionScheduleItem",
-      "returnTypescriptType": "Array\u003cAnimeCollectionScheduleItem\u003e"
+      "returns": "[]anime.ScheduleItem",
+      "returnGoType": "anime.ScheduleItem",
+      "returnTypescriptType": "Array\u003cAnime_ScheduleItem\u003e"
     }
   },
   {

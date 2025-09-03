@@ -59,7 +59,6 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         if (serverStatus) {
             if (serverStatus?.serverHasPassword && !password && pathname !== "/public/auth") {
                 window.location.href = "/public/auth"
-                router.replace("/public/auth")
                 setAuthenticated(false)
                 console.warn("Redirecting to auth")
             } else {

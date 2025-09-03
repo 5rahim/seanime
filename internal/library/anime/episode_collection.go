@@ -16,8 +16,8 @@ import (
 	"github.com/samber/lo"
 )
 
-var episodeCollectionCache = result.NewCache[int, *EpisodeCollection]()
-var EpisodeCollectionFromLocalFilesCache = result.NewCache[int, *EpisodeCollection]()
+var episodeCollectionCache = result.NewBoundedCache[int, *EpisodeCollection](10)
+var EpisodeCollectionFromLocalFilesCache = result.NewBoundedCache[int, *EpisodeCollection](10)
 
 type (
 	// EpisodeCollection represents a collection of episodes.
@@ -180,9 +180,13 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	}
 	ec = event.EpisodeCollection
 
-	episodeCollectionCache.SetT(opts.Media.ID, ec, time.Hour*6)
+	episodeCollectionCache.SetT(opts.Media.ID, ec, time.Minute*10)
 
 	return
+}
+
+func ClearEpisodeCollectionCache() {
+	episodeCollectionCache.Clear()
 }
 
 /////////

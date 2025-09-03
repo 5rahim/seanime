@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/events"
 	"seanime/internal/util/result"
 	"strconv"
 	"time"
@@ -24,18 +23,23 @@ func (h *Handler) HandleGetAnimeCollection(c echo.Context) error {
 
 	bypassCache := c.Request().Method == "POST"
 
-	// Get the user's anilist collection
-	animeCollection, err := h.App.GetAnimeCollection(bypassCache)
+	if !bypassCache {
+		// Get the user's anilist collection
+		animeCollection, err := h.App.GetAnimeCollection(false)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+		return h.RespondWithData(c, animeCollection)
+	}
+
+	animeCollection, err := h.App.RefreshAnimeCollection()
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
 	go func() {
 		if h.App.Settings != nil && h.App.Settings.GetLibrary().EnableManga {
-			_, _ = h.App.GetMangaCollection(bypassCache)
-			if bypassCache {
-				h.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
-			}
+			_, _ = h.App.RefreshMangaCollection()
 		}
 	}()
 

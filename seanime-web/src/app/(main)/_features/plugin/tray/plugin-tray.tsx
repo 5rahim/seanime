@@ -200,7 +200,7 @@ export function PluginTray(props: TrayPluginProps) {
                 <PopoverPrimitive.Trigger
                     asChild
                 >
-                    <div data-plugin-tray-icon-trigger>
+                    <div data-plugin-tray-icon-trigger={props.trayIcon.extensionId}>
                         {!!tooltipText ? <Tooltip
                             side={props.place === "sidebar" ? "right" : "bottom"}
                             trigger={<div data-plugin-tray-icon-tooltip-trigger>
@@ -223,6 +223,7 @@ export function PluginTray(props: TrayPluginProps) {
                             minHeight: props.trayIcon.minHeight || "auto",
                             marginLeft: props.width && props.width < 1024 ? `10px` : undefined,
                         }}
+                        data-plugin-tray-popover-content={props.trayIcon.extensionId}
                     >
                         <PluginTrayProvider props={props}>
                             <PluginTrayContent
