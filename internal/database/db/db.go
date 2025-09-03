@@ -19,6 +19,7 @@ type Database struct {
 	gormdb           *gorm.DB
 	Logger           *zerolog.Logger
 	CurrMediaFillers mo.Option[map[int]*MediaFillerItem]
+	cleanupManager   *CleanupManager
 }
 
 func (db *Database) Gorm() *gorm.DB {
@@ -35,8 +36,8 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		sqlitePath = filepath.Join(appDataDir, dbName+".db")
 	}
 
-	// Connect to the SQLite database
-	db, err := gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{
+	// Connect to the SQLite database with optimized settings
+	db, err := gorm.Open(sqlite.Open(sqlitePath+"?_busy_timeout=30000&_journal_mode=WAL&_synchronous=NORMAL&_cache_size=1000&_foreign_keys=on"), &gorm.Config{
 		Logger: gormlogger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags),
 			gormlogger.Config{
@@ -52,6 +53,17 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		return nil, err
 	}
 
+	// Configure connection pool for SQLite
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	// SQLite works best with a single connection for writes
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetMaxIdleConns(1)
+	sqlDB.SetConnMaxLifetime(time.Hour) //is it enogh for long running processes?
+
 	// Migrate tables
 	err = migrateTables(db)
 	if err != nil {
@@ -61,11 +73,16 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 
 	logger.Info().Str("name", fmt.Sprintf("%s.db", dbName)).Msg("db: Database instantiated")
 
-	return &Database{
+	database := &Database{
 		gormdb:           db,
 		Logger:           logger,
 		CurrMediaFillers: mo.None[map[int]*MediaFillerItem](),
-	}, nil
+	}
+
+	// Initialize cleanup manager
+	database.cleanupManager = NewCleanupManager(database)
+
+	return database, nil
 }
 
 // MigrateTables performs auto migration on the database
@@ -99,4 +116,10 @@ func migrateTables(db *gorm.DB) error {
 	}
 
 	return nil
+}
+
+// RunDatabaseCleanup runs all database cleanup operations using the cleanup manager
+// This replaces the individual trim functions to prevent concurrent access issues
+func (db *Database) RunDatabaseCleanup() {
+	db.cleanupManager.RunAllCleanupOperations()
 }
