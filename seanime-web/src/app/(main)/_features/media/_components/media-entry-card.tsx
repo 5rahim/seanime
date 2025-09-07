@@ -86,7 +86,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const router = useRouter()
     const serverStatus = useServerStatus()
-    const { hasTorrentOrDebridInclusion } = useHasTorrentOrDebridInclusion()
+    const { hasStreamingEnabled } = useHasTorrentOrDebridInclusion()
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
@@ -195,7 +195,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     >
                         Preview
                     </ContextMenuItem>}
-                    {(libraryData || nakamaLibraryData || (listData && hasTorrentOrDebridInclusion)) && <ContextMenuItem
+                    {(libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && <ContextMenuItem
                         onClick={() => {
                             selectMediaAndOpenEditor(media.id!)
                         }}

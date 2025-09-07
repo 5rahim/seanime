@@ -10,6 +10,6 @@ export function BetaBadge(props: Props) {
 
 export function AlphaBadge(props: Props) {
     return (
-        <Badge intent="warning" size="sm" className="align-middle ml-1.5" {...props}>Alpha</Badge>
+        <Badge intent="warning" size="sm" className="align-middle ml-1.5 border-transparent" {...props}>Alpha</Badge>
     )
 }

@@ -23,6 +23,7 @@ const (
 	WatchTypeDebrid    WatchType = "debrid"
 	WatchTypeTorrent   WatchType = "torrent"
 	WatchTypeNakama    WatchType = "nakama"
+	WatchTypeOnline    WatchType = "online"
 )
 
 // NewPlaylist creates a new Playlist instance

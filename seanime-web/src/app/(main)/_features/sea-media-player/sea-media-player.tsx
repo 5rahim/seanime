@@ -26,7 +26,7 @@ import {
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { vidstackLayoutIcons } from "@/components/shared/vidstack"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -56,6 +56,7 @@ import capitalize from "lodash/capitalize"
 import mousetrap from "mousetrap"
 import Image from "next/image"
 import React from "react"
+import { LuSkipBack, LuSkipForward } from "react-icons/lu"
 
 export type SeaMediaPlayerProps = {
     url?: string | { src: string, type: string }
@@ -74,7 +75,7 @@ export type SeaMediaPlayerProps = {
     videoLayoutSlots?: Omit<DefaultVideoLayoutProps["slots"], "settingsMenuEndItems">
     settingsItems?: React.ReactElement
     loadingText?: React.ReactNode
-    onGoToNextEpisode: () => void
+    onGoToNextEpisode?: () => void
     onGoToPreviousEpisode?: () => void
     mediaInfoDuration?: number
 }
@@ -308,7 +309,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         _onEnded?.(e)
 
         if (autoNext && !wentToNextEpisodeRef.current) {
-            onGoToNextEpisode()
+            onGoToNextEpisode?.()
             wentToNextEpisodeRef.current = true
         }
     }
@@ -486,7 +487,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                             <p>Next Episode</p>
                         </>
                     ),
-                    onSelect: () => onGoToNextEpisode(),
+                    onSelect: () => onGoToNextEpisode?.(),
                 },
                 {
                     id: "previous-episode",
@@ -587,6 +588,26 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                             icons={vidstackLayoutIcons}
                             slots={{
                                 ...videoLayoutSlots,
+                                beforeMuteButton: (
+                                    <div className="flex items-center gap-1">
+                                        {onGoToPreviousEpisode && (
+                                            <IconButton
+                                                intent="white-basic"
+                                                size="md"
+                                                onClick={onGoToPreviousEpisode}
+                                                aria-label="Previous Episode"
+                                                icon={<LuSkipBack className="text-3xl" />}
+                                            />
+                                        )}
+                                        {onGoToNextEpisode && <IconButton
+                                            intent="white-basic"
+                                            size="md"
+                                            onClick={onGoToNextEpisode}
+                                            aria-label="Next Episode"
+                                            icon={<LuSkipForward className="text-3xl" />}
+                                        />}
+                                    </div>
+                                ),
                                 settingsMenuEndItems: <>
                                     {settingsItems}
                                     <SeaMediaPlayerPlaybackSubmenu />

@@ -3,6 +3,7 @@ import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { SeaMediaPlayer } from "@/app/(main)/_features/sea-media-player/sea-media-player"
 import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/sea-media-player-layout"
 import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
@@ -88,6 +89,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const progress = animeEntry?.listData?.progress ?? 0
 
     const nakamaStatus = useNakamaStatus()
+    const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
     /**
      * Set episode number on mount
@@ -109,7 +111,25 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             logger("ONLINESTREAM").info("Setting episode number to", episodeNumberFromURL || episodeNumber || 1)
             firstRenderRef.current = false
         }
-    }, [episodes, media, animeEntry?.listData, urlEpNumber])
+    }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist])
+
+    /**
+     * Set episode number on update
+     */
+    React.useEffect(() => {
+        // Do not auto set the episode number if the user is in a watch party and is not the host
+        if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
+
+        if (firstRenderRef.current) return
+
+        if (!!media && !!episodes) {
+            const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
+            if (episodeNumberFromURL) {
+                handleChangeEpisodeNumber(episodeNumberFromURL)
+                logger("ONLINESTREAM").info("Changing episode number to", episodeNumberFromURL)
+            }
+        }
+    }, [urlEpNumber])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -123,7 +143,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const episodeTitle = episodes?.find(e => e.number === currentEpisodeNumber)?.title
 
+    const hasNextEpisode = currentPlaylist ? !!nextPlaylistEpisode : !!episodes?.find(e => e.number === currentEpisodeNumber + 1)
+    const hasPreviousEpisode = currentPlaylist ? !!prevPlaylistEpisode : !!episodes?.find(e => e.number === currentEpisodeNumber - 1)
+
     function goToNextEpisode() {
+        if (currentPlaylist) {
+            playPlaylistEpisode("next", false)
+            return
+        }
         // check if the episode exists
         if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
             handleChangeEpisodeNumber(currentEpisodeNumber + 1)
@@ -131,6 +158,11 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     }
 
     function goToPreviousEpisode() {
+        if (currentPlaylist) {
+            playPlaylistEpisode("previous", false)
+            return
+        }
+
         if (currentEpisodeNumber > 1) {
             // check if the episode exists
             if (episodes?.find(e => e.number === currentEpisodeNumber - 1)) {
@@ -255,8 +287,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
                             onCanPlay={_onCanPlay}
-                            onGoToNextEpisode={goToNextEpisode}
-                            onGoToPreviousEpisode={goToPreviousEpisode}
+                            onGoToNextEpisode={hasNextEpisode ? goToNextEpisode : undefined}
+                            onGoToPreviousEpisode={hasPreviousEpisode ? goToPreviousEpisode : undefined}
                             tracks={episodeSource?.subtitles?.map((sub) => ({
                                 id: sub.language,
                                 label: sub.language,

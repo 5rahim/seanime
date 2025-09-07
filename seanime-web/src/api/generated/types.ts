@@ -1731,7 +1731,7 @@ export type Anime_UnmatchedGroup = {
  * - Filename: playlist.go
  * - Package: anime
  */
-export type Anime_WatchType = "localfile" | "debrid" | "torrent" | "nakama"
+export type Anime_WatchType = "localfile" | "debrid" | "torrent" | "nakama" | "online"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChapterDownloader

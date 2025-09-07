@@ -2,6 +2,7 @@ import { Anime_Entry, Anime_Playlist, Anime_PlaylistEpisode, HibikeTorrent_Anime
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentDevicePlaybackSettings } from "@/app/(main)/_atoms/playback.atoms"
 import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { PlaylistManagerPopup } from "@/app/(main)/_features/playlists/_components/global-playlist-popup"
 import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_features/playlists/_components/playlist-editor"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
@@ -36,6 +37,7 @@ import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { BiX } from "react-icons/bi"
 import { LuRefreshCw } from "react-icons/lu"
@@ -134,6 +136,9 @@ export function GlobalPlaylistManager() {
     const { sendMessage } = useWebsocketSender()
     const websocketConnected = useAtomValue(websocketConnectedAtom)
     const serverStatus = useServerStatus()
+    const router = useRouter()
+
+    const nativePlayerState = useAtomValue(nativePlayer_stateAtom)
 
     const { stopPlaylist, reopenEpisode, playEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
@@ -197,6 +202,8 @@ export function GlobalPlaylistManager() {
                     log.info("Received play episode event", data.payload)
                     const payload2 = data.payload as { playlistEpisode: Anime_PlaylistEpisode }
                     const episode = payload2.playlistEpisode
+
+                    toast.info(`Playing episode ${episode.episode?.aniDBEpisode} of ${episode.episode?.baseAnime?.title?.userPreferred}`)
 
                     switch (payload2.playlistEpisode.watchType) {
                         case "nakama":
@@ -268,6 +275,13 @@ export function GlobalPlaylistManager() {
                                 }
                             }
                             break
+                        case "online":
+                            const params = {
+                                mediaId: episode.episode?.baseAnime?.id!,
+                                episodeNumber: episode.episode?.episodeNumber!,
+                            }
+                            router.push("/entry?id=" + params.mediaId + "&tab=onlinestream&episode=" + params.episodeNumber)
+                            break
                     }
                     break
             }
@@ -279,7 +293,7 @@ export function GlobalPlaylistManager() {
     return <>
         {animeEntry && <TorrentSearchDrawer entry={animeEntry} isPlaylistDrawer />}
 
-        <PlaylistManagerPopup position="bottom-right">
+        {!nativePlayerState.active && <PlaylistManagerPopup position="bottom-right">
             <p className="p-3 text-sm font-semibold">
                 Playlist: {currentPlaylist.name}
             </p>
@@ -334,7 +348,7 @@ export function GlobalPlaylistManager() {
                     />
                 </div>
             </div>
-        </PlaylistManagerPopup>
+        </PlaylistManagerPopup>}
     </>
 }
 
@@ -362,6 +376,7 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
                     sizes="20rem"
                     className={cn(
                         "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                        episode.isCompleted && "opacity-30",
                     )}
                 />}
             </div>
@@ -371,7 +386,8 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
 
                 <div>
                     <div className="text-xs text-[--muted] line-clamp-1 tracking-wide">
-                        {episode.watchType === "torrent" ? "Torrent streaming" : episode.watchType === "debrid" ? "Debrid streaming " :
+                        {episode.watchType === "torrent" ? "Torrent streaming" : episode.watchType === "debrid" ? "Debrid streaming" :
+                            episode.watchType === "online" ? "Online streaming" :
                             episode.episode?.localFile?.name}
                     </div>
                 </div>

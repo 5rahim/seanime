@@ -35,15 +35,30 @@ export function useHasDebridService() {
     }
 }
 
-export function useHasTorrentOrDebridInclusion() {
+export function useHasTorrentStreaming() {
     const serverStatus = useServerStatus()
     return {
-        hasTorrentStreaming: React.useMemo(() =>
-                (!!serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary),
+        hasTorrentStreaming: React.useMemo(() => !!serverStatus?.torrentstreamSettings?.enabled,
             [serverStatus?.torrentstreamSettings]),
-        hasDebridStreaming: React.useMemo(() =>
-                (!!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider && !!serverStatus?.debridSettings?.includeDebridStreamInLibrary),
-            [serverStatus?.debridSettings]),
+    }
+}
+
+export function useHasOnlineStreaming() {
+    const serverStatus = useServerStatus()
+    return {
+        hasOnlineStreaming: React.useMemo(() =>
+                (!!serverStatus?.settings?.library?.enableOnlinestream),
+            [serverStatus?.settings?.library]),
+    }
+}
+
+export function useHasTorrentOrDebridInclusion() {
+    const serverStatus = useServerStatus()
+    const { hasDebridService } = useHasDebridService()
+    const { hasTorrentStreaming } = useHasTorrentStreaming()
+    const { hasOnlineStreaming } = useHasOnlineStreaming()
+    return {
+        hasStreamingEnabled: hasOnlineStreaming || hasTorrentStreaming || hasDebridService,
         hasTorrentOrDebridInclusion: React.useMemo(() =>
                 (!!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider && !!serverStatus?.debridSettings?.includeDebridStreamInLibrary) ||
                 (!!serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary),

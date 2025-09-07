@@ -568,7 +568,8 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 
 	if (isLf && data.options.LocalFilePlaybackMethod != ClientPlaybackMethodNativePlayer) ||
 		(isNakama && data.options.LocalFilePlaybackMethod != ClientPlaybackMethodNativePlayer) ||
-		(isTorrentOrDebridStream && data.options.StreamPlaybackMethod != ClientPlaybackMethodNativePlayer) {
+		(isTorrentOrDebridStream && data.options.StreamPlaybackMethod != ClientPlaybackMethodNativePlayer) ||
+		episode.WatchType == anime.WatchTypeOnline {
 		m.nativePlayer.Stop()
 	}
 
@@ -606,7 +607,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 
 		return
 	}
-	// nakama and desktop media player, play it from server
+	// nakama and desktop media player or native player, play it from server
 	if isNakama && (data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault || data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer) {
 		m.logger.Debug().Msg("playlist: Nakama stream and desktop media player, playing from server")
 		err := m.nakamaManager.PlayHostAnimeLibraryFile(episode.Episode.LocalFile.Path, "", episode.Episode.BaseAnime, episode.Episode.AniDBEpisode)

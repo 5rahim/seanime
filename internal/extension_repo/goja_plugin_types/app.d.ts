@@ -616,10 +616,10 @@ declare namespace $app {
     function onAnimeScheduleItems(cb: (event: AnimeScheduleItemsEvent) => void): void;
 
     interface AnimeScheduleItemsEvent {
+        next(): void;
+
         animeCollection?: AL_AnimeCollection;
         items?: Array<Anime_ScheduleItem>;
-
-        next(): void;
     }
 
 
@@ -776,7 +776,8 @@ declare namespace $app {
      * @file internal/continuity/hook_events.go
      * @description
      * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
-     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
+     *     or set it to nil to indicate that the watch history item was not found.
      */
     function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void): void;
 
@@ -923,10 +924,10 @@ declare namespace $app {
      * @event DiscordPresenceAnimeActivityRequestedEvent
      * @file internal/discordrpc/presence/hook_events.go
      * @description
-     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right before the activity is sent to queue.
-     * There is no guarantee as to when or if the activity will be successfully sent to discord.
-     * Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.
-     * Prevent default to stop the activity from being sent to discord.
+     * DiscordPresenceAnimeActivityRequestedEvent is triggered when anime activity is requested, after the [animeActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
      */
     function onDiscordPresenceAnimeActivityRequested(cb: (event: DiscordPresenceAnimeActivityRequestedEvent) => void): void;
 
@@ -964,10 +965,10 @@ declare namespace $app {
      * @event DiscordPresenceMangaActivityRequestedEvent
      * @file internal/discordrpc/presence/hook_events.go
      * @description
-     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right before the activity is sent to queue.
-     * There is no guarantee as to when or if the activity will be successfully sent to discord.
-     * Note that this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed.
-     * Prevent default to stop the activity from being sent to discord.
+     * DiscordPresenceMangaActivityRequestedEvent is triggered when manga activity is requested, after the [mangaActivity] is processed, and right
+     *     before the activity is sent to queue. There is no guarantee as to when or if the activity will be successfully sent to discord. Note that
+     *     this event is triggered every 6 seconds or so, avoid heavy processing or perform it only when the activity is changed. Prevent default to
+     *     stop the activity from being sent to discord.
      */
     function onDiscordPresenceMangaActivityRequested(cb: (event: DiscordPresenceMangaActivityRequestedEvent) => void): void;
 
@@ -1030,29 +1031,28 @@ declare namespace $app {
     function onHydrateFillerDataRequested(cb: (event: HydrateFillerDataRequestedEvent) => void): void;
 
     interface HydrateFillerDataRequestedEvent {
-        entry?: Anime_Entry;
-
         next(): void;
 
         preventDefault(): void;
+
+        entry?: Anime_Entry;
     }
 
     /**
      * @event HydrateOnlinestreamFillerDataRequestedEvent
      * @file internal/library/fillermanager/hook_events.go
      * @description
-     * HydrateOnlinestreamFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for online streaming episodes.
-     * This is used by the online streaming episode list.
-     * Prevent default to skip the default behavior and return your own data.
+     * HydrateOnlinestreamFillerDataRequestedEvent is triggered when the filler manager requests to hydrate the filler data for online streaming
+     *     episodes. This is used by the online streaming episode list. Prevent default to skip the default behavior and return your own data.
      */
     function onHydrateOnlinestreamFillerDataRequested(cb: (event: HydrateOnlinestreamFillerDataRequestedEvent) => void): void;
 
     interface HydrateOnlinestreamFillerDataRequestedEvent {
-        episodes?: Array<Onlinestream_Episode>;
-
         next(): void;
 
         preventDefault(): void;
+
+        episodes?: Array<Onlinestream_Episode>;
     }
 
     /**
@@ -1066,11 +1066,11 @@ declare namespace $app {
     function onHydrateEpisodeFillerDataRequested(cb: (event: HydrateEpisodeFillerDataRequestedEvent) => void): void;
 
     interface HydrateEpisodeFillerDataRequestedEvent {
-        episodes?: Array<Anime_Episode>;
-
         next(): void;
 
         preventDefault(): void;
+
+        episodes?: Array<Anime_Episode>;
     }
 
 
@@ -1353,9 +1353,9 @@ declare namespace $app {
      * @file internal/api/metadata/hook_events.go
      * @description
      * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
-     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
-     * This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
-     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
+     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
+     *     metadata is nil, an empty EpisodeMetadata object will be returned.
      */
     function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void): void;
 
@@ -1433,8 +1433,8 @@ declare namespace $app {
      * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
      * This event is triggered right after the media player loads an episode.
      * The playback manager uses the local files details to track the progress, propose next episodes, etc.
-     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
-     * Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
+     *     and anime list entry. Prevent default to skip the default fetching and override the details.
      */
     function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void): void;
 
@@ -1456,7 +1456,8 @@ declare namespace $app {
      * @description
      * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
      * Prevent default to skip the default fetching and override the details.
-     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
+     *     still tracked.
      */
     function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void): void;
 

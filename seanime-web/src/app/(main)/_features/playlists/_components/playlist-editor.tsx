@@ -1,7 +1,7 @@
 import { Anime_LibraryCollection, Anime_LibraryCollectionEntry, Anime_PlaylistEpisode, Anime_WatchType, Nullish } from "@/api/generated/types"
 import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
-import { useHasTorrentOrDebridInclusion } from "@/app/(main)/_hooks/use-server-status"
+import { useHasDebridService, useHasOnlineStreaming, useHasTorrentStreaming } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -268,7 +268,10 @@ function SortableItem({ id, episode, setEpisodes }: {
         transition,
     } = useSortable({ id: id })
 
-    const { hasTorrentStreaming, hasDebridStreaming } = useHasTorrentOrDebridInclusion()
+    // const { hasTorrentStreaming, hasDebridStreaming } = useHasTorrentOrDebridInclusion()
+    const { hasDebridService } = useHasDebridService()
+    const { hasTorrentStreaming } = useHasTorrentStreaming()
+    const { hasOnlineStreaming } = useHasOnlineStreaming()
 
     const style = {
         transform: CSS.Transform.toString(transform ? { ...transform, scaleY: 1 } : null),
@@ -280,16 +283,19 @@ function SortableItem({ id, episode, setEpisodes }: {
         if (hasTorrentStreaming) {
             options.push({ label: "Torrent streaming", value: "torrent" })
         }
-        if (hasDebridStreaming) {
+        if (hasDebridService) {
             options.push({ label: "Debrid streaming", value: "debrid" })
         }
+        if (hasOnlineStreaming) {
+            options.push({ label: "Online streaming", value: "online" })
+        }
         return options
-    }, [hasDebridStreaming, hasTorrentStreaming])
+    }, [hasDebridService, hasOnlineStreaming, hasTorrentStreaming])
 
     // Set default watch type
     const t = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        if (episode && !episode.watchType && (hasTorrentStreaming || hasDebridStreaming)) {
+        if (episode && !episode.watchType && (hasTorrentStreaming || hasDebridService)) {
             t.current = setTimeout(() => {
                 setEpisodes(prev => {
                     const foundEp = prev.find(n => playlist_isSameEpisode(n, episode))
@@ -298,7 +304,9 @@ function SortableItem({ id, episode, setEpisodes }: {
                         if (playlist_isSameEpisode(n, episode)) {
                             return {
                                 ...n,
-                                watchType: (hasTorrentStreaming ? "torrent" : hasDebridStreaming ? "debrid" : "") as Anime_WatchType,
+                                watchType: (hasTorrentStreaming ? "torrent" : hasDebridService ? "debrid" : hasOnlineStreaming
+                                    ? "online"
+                                    : "") as Anime_WatchType,
                             }
                         }
                         return n
@@ -309,7 +317,7 @@ function SortableItem({ id, episode, setEpisodes }: {
         return () => {
             if (t.current) clearTimeout(t.current)
         }
-    }, [episode, hasDebridStreaming, hasTorrentStreaming])
+    }, [episode, hasDebridService, hasOnlineStreaming, hasTorrentStreaming])
 
     if (!episode) return null
 

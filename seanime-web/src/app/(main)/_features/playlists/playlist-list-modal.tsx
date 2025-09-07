@@ -6,8 +6,8 @@ import { PlaylistEditorModal } from "@/app/(main)/_features/playlists/_component
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { AlphaBadge } from "@/components/shared/beta-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
-import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
@@ -91,7 +91,7 @@ export function PlaylistListModal() {
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h4>Playlists</h4>
+                            <h4 className="flex items-center">Playlists <AlphaBadge /></h4>
                         </div>
                         <div className="flex gap-2 items-center md:pr-8">
                             <PlaylistEditorModal
@@ -107,16 +107,6 @@ export function PlaylistListModal() {
                             />
                         </div>
                     </div>
-
-                    {!serverStatus?.settings?.library?.autoUpdateProgress && <Alert
-                        className="max-w-2xl mx-auto"
-                        intent="warning"
-                        description={<>
-                            <p>
-                                You need to enable "Automatically update progress" to use playlists.
-                            </p>
-                        </>}
-                    />}
 
                     <div className="">
                         <PlaylistLists libraryCollection={libraryCollection} />

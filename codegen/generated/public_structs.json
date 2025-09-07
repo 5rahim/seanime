@@ -45169,7 +45169,8 @@
         "\"localfile\"",
         "\"debrid\"",
         "\"torrent\"",
-        "\"nakama\""
+        "\"nakama\"",
+        "\"online\""
       ]
     },
     "comments": []
@@ -55292,6 +55293,17 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "trackingType",
+        "jsonName": "trackingType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " \"file\" or \"stream\" - tracks which type of tracking is active"
+        ]
       },
       {
         "name": "currentPlaybackStatus",
@@ -65599,7 +65611,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"current-playlist\"",
-        "\"play-episode\""
+        "\"play-episode\"",
+        "\"playing-episode\""
       ]
     },
     "comments": []
@@ -65632,6 +65645,26 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/playlist/manager.go",
+    "filename": "manager.go",
+    "name": "State",
+    "formattedName": "State",
+    "package": "playlist",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"idle\"",
+        "\"started\"",
+        "\"completed\"",
+        "\"errored\"",
+        "\"stopped\""
+      ]
+    },
     "comments": []
   },
   {
@@ -65759,6 +65792,17 @@
         "comments": []
       },
       {
+        "name": "nakamaManager",
+        "jsonName": "nakamaManager",
+        "goType": "nakama.Manager",
+        "typescriptType": "Nakama_Manager",
+        "usedTypescriptType": "Nakama_Manager",
+        "usedStructName": "nakama.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
@@ -65798,6 +65842,48 @@
         "typescriptType": "Bool",
         "usedTypescriptType": "Bool",
         "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentPlaybackCtx",
+        "jsonName": "currentPlaybackCtx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentPlaybackCancel",
+        "jsonName": "currentPlaybackCancel",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "state",
+        "jsonName": "state",
+        "goType": "atomic.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "atomic.Value",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playerType",
+        "jsonName": "playerType",
+        "goType": "atomic.Value",
+        "typescriptType": "Value",
+        "usedTypescriptType": "Value",
+        "usedStructName": "atomic.Value",
         "required": false,
         "public": false,
         "comments": []
@@ -65885,6 +65971,17 @@
         "typescriptType": "NativePlayer_NativePlayer",
         "usedTypescriptType": "NativePlayer_NativePlayer",
         "usedStructName": "nativeplayer.NativePlayer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NakamaManager",
+        "jsonName": "NakamaManager",
+        "goType": "nakama.Manager",
+        "typescriptType": "Nakama_Manager",
+        "usedTypescriptType": "Nakama_Manager",
+        "usedStructName": "nakama.Manager",
         "required": false,
         "public": true,
         "comments": []
