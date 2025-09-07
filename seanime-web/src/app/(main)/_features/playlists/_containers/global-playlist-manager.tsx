@@ -1,19 +1,40 @@
-import { Anime_Playlist, Anime_PlaylistEpisode } from "@/api/generated/types"
+import { Anime_Entry, Anime_Playlist, Anime_PlaylistEpisode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentDevicePlaybackSettings } from "@/app/(main)/_atoms/playback.atoms"
+import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { PlaylistManagerPopup } from "@/app/(main)/_features/playlists/_components/global-playlist-popup"
 import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_features/playlists/_components/playlist-editor"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
+import {
+    __debridStream_autoSelectFileAtom,
+    __debridStream_currentSessionAutoSelectAtom,
+} from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
+import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import {
+    __torrentSearch_selectionAtom,
+    __torrentSearch_selectionEpisodeAtom,
+    TorrentSearchDrawer,
+} from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import {
+    __torrentStream_autoSelectFileAtom,
+    __torrentStream_currentSessionAutoSelectAtom,
+} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
+import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
+import { logger } from "@/lib/helpers/debug"
 import { getImageUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import React from "react"
 import { BiX } from "react-icons/bi"
@@ -21,8 +42,12 @@ import { LuRefreshCw } from "react-icons/lu"
 import { MdSkipNext, MdSkipPrevious } from "react-icons/md"
 import { toast } from "sonner"
 
+const log = logger("PLAYLIST MANAGER")
+
 type ServerEvents =
-    "current-playlist"
+    "current-playlist" |
+    "play-episode" |
+    "playing-episode"
 
 const pm_currentPlaylist = atom<Anime_Playlist | null>(null)
 const pm_currentPlaylistEpisode = atom<Anime_PlaylistEpisode | null>(null)
@@ -31,6 +56,7 @@ export function usePlaylistManager() {
     const { sendMessage } = useWebsocketSender()
 
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
+    const [currentPlaylistEpisode, setCurrentPlaylistEpisode] = useAtom(pm_currentPlaylistEpisode)
 
     const { downloadedMediaPlayback, torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { activeOnDevice } = useMediastreamActiveOnDevice()
@@ -55,6 +81,7 @@ export function usePlaylistManager() {
     }
 
     function stopPlaylist() {
+        log.info("Sending stop playlist event")
         sendMessage({
             type: WSEvents.PLAYLIST,
             payload: {
@@ -64,6 +91,7 @@ export function usePlaylistManager() {
     }
 
     function reopenEpisode() {
+        log.info("Sending reopen episode event")
         sendMessage({
             type: WSEvents.PLAYLIST,
             payload: {
@@ -72,19 +100,42 @@ export function usePlaylistManager() {
         })
     }
 
+    function playEpisode(which: "next" | "previous", isCurrentCompleted: boolean) {
+        log.info("Sending play episode event", which, isCurrentCompleted)
+        sendMessage({
+            type: WSEvents.PLAYLIST,
+            payload: {
+                type: "play-episode",
+                payload: {
+                    which,
+                    isCurrentCompleted,
+                },
+            },
+        })
+    }
+
+    const currentPlaylistEpisodeIndex = currentPlaylist?.episodes?.findIndex(n => playlist_isSameEpisode(n, currentPlaylistEpisode)) ?? -1
+
+    const nextPlaylistEpisode = currentPlaylist?.episodes?.[currentPlaylistEpisodeIndex + 1]
+    const prevPlaylistEpisode = currentPlaylist?.episodes?.[currentPlaylistEpisodeIndex - 1]
+
     return {
         currentPlaylist,
         startPlaylist,
         stopPlaylist,
         reopenEpisode,
+        playEpisode,
+        nextPlaylistEpisode,
+        prevPlaylistEpisode,
     }
 }
 
 export function GlobalPlaylistManager() {
     const { sendMessage } = useWebsocketSender()
     const websocketConnected = useAtomValue(websocketConnectedAtom)
+    const serverStatus = useServerStatus()
 
-    const { stopPlaylist, reopenEpisode } = usePlaylistManager()
+    const { stopPlaylist, reopenEpisode, playEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
     // state
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
@@ -94,19 +145,130 @@ export function GlobalPlaylistManager() {
         sendMessage({ type: WSEvents.PLAYLIST, payload: { type: "current-playlist" } })
     }, [websocketConnected])
 
-    const currentPlaylistEpisodeIndex = currentPlaylist?.episodes?.findIndex(n => playlist_isSameEpisode(n, currentPlaylistEpisode)) ?? -1
+    //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    const nextPlaylistEpisode = currentPlaylist?.episodes?.[currentPlaylistEpisodeIndex + 1]
-    const prevPlaylistEpisode = currentPlaylist?.episodes?.[currentPlaylistEpisodeIndex - 1]
+    const {
+        handleStreamSelection: handleTorrentstreamSelection,
+        handleAutoSelectStream: handleTorrentstreamAutoSelect,
+    } = useHandleStartTorrentStream()
+    const { handleStreamSelection: handleDebridstreamSelection, handleAutoSelectStream: handleDebridstreamAutoSelect } = useHandleStartDebridStream()
+    const { playMediaFile } = useHandlePlayMedia()
+
+    // If user is auto-selecting the torrent
+    const [torrentStream_currentSessionAutoSelect] = useAtom(__torrentStream_currentSessionAutoSelectAtom)
+    const [debridStream_currentSessionAutoSelect] = useAtom(__debridStream_currentSessionAutoSelectAtom)
+    // const torrentStream_currentSessionAutoSelect = serverStatus?.torrentstreamSettings?.autoSelect
+    // const debridStream_currentSessionAutoSelect = serverStatus?.debridSettings?.streamAutoSelect
+    // If user is auto-selecting the file
+    const [torrentStream_autoSelectFile] = useAtom(__torrentStream_autoSelectFileAtom)
+    const [debridStream_autoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)
+    const { torrentStreamingSelectedEpisode, setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
+
+    const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
+    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
+
+    const { data: animeEntry } = useGetAnimeEntry(torrentStreamingSelectedEpisode?.baseAnime?.id)
+
+    // The torrent to continue playing from
+    const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
+
+    function sameTorrent(autoPlayTorrent: { entry: Anime_Entry, torrent: HibikeTorrent_AnimeTorrent } | null, episode: Anime_PlaylistEpisode) {
+        if (!autoPlayTorrent) return false
+
+        return autoPlayTorrent.entry.mediaId == episode.episode?.baseAnime?.id
+    }
 
     useWebsocketMessageListener({
         type: WSEvents.PLAYLIST,
         onMessage: (data: { type: ServerEvents, payload: unknown }) => {
             switch (data.type) {
                 case "current-playlist":
-                    const payload = data.payload as { playlist: Anime_Playlist | null, playlistEpisode: Anime_PlaylistEpisode | null }
+                    let payload = data.payload as { playlist: Anime_Playlist | null, playlistEpisode: Anime_PlaylistEpisode | null }
                     setCurrentPlaylist(payload.playlist ?? null)
                     setCurrentPlaylistEpisode(payload.playlistEpisode ?? null)
+                    break
+
+                case "playing-episode":
+                    setTorrentStreamingSelectedEpisode(null)
+                    setTorrentSearch(undefined)
+                    break
+
+                case "play-episode":
+                    log.info("Received play episode event", data.payload)
+                    const payload2 = data.payload as { playlistEpisode: Anime_PlaylistEpisode }
+                    const episode = payload2.playlistEpisode
+
+                    switch (payload2.playlistEpisode.watchType) {
+                        case "nakama":
+                        case "localfile":
+                            log.info("Playing local file. Is Nakama: ", payload2.playlistEpisode.episode?._isNakamaEpisode)
+                            if (payload2.playlistEpisode.episode?.localFile?.path) {
+                                playMediaFile({
+                                    path: payload2.playlistEpisode.episode?.localFile?.path,
+                                    mediaId: payload2.playlistEpisode.episode?.baseAnime?.id!,
+                                    episode: payload2.playlistEpisode.episode,
+                                })
+                            }
+                            break
+                        case "torrent":
+                            if (torrentStream_currentSessionAutoSelect) {
+                                log.info("Auto select is enabled, auto-selecting torrent for streaming")
+                                handleTorrentstreamAutoSelect({
+                                    mediaId: episode.episode?.baseAnime?.id!,
+                                    episodeNumber: episode.episode?.episodeNumber!,
+                                    aniDBEpisode: episode.episode?.aniDBEpisode!,
+                                })
+                                return
+                            } else {
+                                if (autoPlayTorrent?.torrent?.isBatch && torrentStream_autoSelectFile && sameTorrent(autoPlayTorrent, episode)) {
+                                    log.info("Previous selection matches, auto-selecting file for torrent stream")
+                                    handleTorrentstreamSelection({
+                                        mediaId: episode.episode?.baseAnime?.id!,
+                                        episodeNumber: episode.episode?.episodeNumber!,
+                                        aniDBEpisode: episode.episode?.aniDBEpisode!,
+                                        torrent: autoPlayTorrent.torrent,
+                                        chosenFileIndex: undefined,
+                                    })
+                                    return
+                                } else {
+                                    log.info("No previous torrent found, opening torrent search")
+                                    setTorrentSearchEpisode(episode.episode?.episodeNumber)
+                                    setTorrentStreamingSelectedEpisode(episode.episode!)
+                                    setTorrentSearch(torrentStream_autoSelectFile ? "torrentstream-select" : "torrentstream-select-file")
+                                    return
+                                }
+                            }
+                            break
+                        case "debrid":
+                            if (debridStream_currentSessionAutoSelect) {
+                                log.info("Auto select is enabled, auto-selecting torrent for debrid stream")
+                                handleDebridstreamAutoSelect({
+                                    mediaId: episode.episode?.baseAnime?.id!,
+                                    episodeNumber: episode.episode?.episodeNumber!,
+                                    aniDBEpisode: episode.episode?.aniDBEpisode!,
+                                })
+                                return
+                            } else {
+                                if (autoPlayTorrent?.torrent?.isBatch && debridStream_autoSelectFile && sameTorrent(autoPlayTorrent, episode)) {
+                                    log.info("Previous selection matches, auto-selecting file for debrid stream")
+                                    handleDebridstreamSelection({
+                                        mediaId: episode.episode?.baseAnime?.id!,
+                                        episodeNumber: episode.episode?.episodeNumber!,
+                                        aniDBEpisode: episode.episode?.aniDBEpisode!,
+                                        torrent: autoPlayTorrent.torrent,
+                                        chosenFileId: "",
+                                    })
+                                    return
+                                } else {
+                                    log.info("No previous debrid found, opening debrid search")
+                                    setTorrentSearchEpisode(episode.episode?.episodeNumber)
+                                    setTorrentStreamingSelectedEpisode(episode.episode!)
+                                    setTorrentSearch(debridStream_autoSelectFile ? "debridstream-select" : "debridstream-select-file")
+                                    return
+                                }
+                            }
+                            break
+                    }
                     break
             }
         },
@@ -114,60 +276,66 @@ export function GlobalPlaylistManager() {
 
     if (!currentPlaylist) return null
 
-    return <PlaylistManagerPopup position="bottom-right">
-        <p className="p-3 text-sm font-semibold">
-            Playlist: {currentPlaylist.name}
-        </p>
-        <div className="p-3 space-y-2 overflow-auto">
-            <div className="space-y-2 relative">
-                {currentPlaylist.episodes?.map(ep => <EpisodeItem key={playlist_getEpisodeKey(ep)} episode={ep} />)}
+    return <>
+        {animeEntry && <TorrentSearchDrawer entry={animeEntry} isPlaylistDrawer />}
+
+        <PlaylistManagerPopup position="bottom-right">
+            <p className="p-3 text-sm font-semibold">
+                Playlist: {currentPlaylist.name}
+            </p>
+            <div className="p-3 space-y-2 overflow-auto">
+                <div className="space-y-2 relative">
+                    {currentPlaylist.episodes?.map(ep => <EpisodeItem key={playlist_getEpisodeKey(ep)} episode={ep} />)}
+                </div>
             </div>
-        </div>
-        <div className="p-3 bg-[--paper] relative">
-            <div className="absolute top-[-2rem] h-[2rem] left-0 right-0 bg-gradient-to-t from-[--paper] to-transparent">
-            </div>
-            <div className="flex gap-2">
-                <IconButton
-                    icon={<MdSkipPrevious />}
-                    intent="white-subtle"
-                    className="rounded-full"
-                    disabled={!prevPlaylistEpisode}
-                />
-                <div className="flex flex-1"></div>
-                <Tooltip
-                    className="z-[99999]" trigger={<span>
+            <div className="p-3 bg-[--paper] relative">
+                <div className="absolute top-[-2rem] h-[2rem] left-0 right-0 bg-gradient-to-t from-[--paper] to-transparent">
+                </div>
+                <div className="flex gap-2">
                     <IconButton
-                        icon={<LuRefreshCw />}
-                        intent="gray-basic"
+                        icon={<MdSkipPrevious />}
+                        intent="white-subtle"
                         className="rounded-full"
-                        onClick={() => reopenEpisode()}
+                        disabled={!prevPlaylistEpisode}
+                        onClick={() => playEpisode("previous", false)}
                     />
-                </span>}
-                >
-                    Reopen episode
-                </Tooltip>
-                <Tooltip
-                    className="z-[99999]" trigger={<span>
+                    <div className="flex flex-1"></div>
+                    <Tooltip
+                        className="z-[99999]" trigger={<span>
+                        <IconButton
+                            icon={<LuRefreshCw />}
+                            intent="gray-basic"
+                            className="rounded-full"
+                            onClick={() => reopenEpisode()}
+                        />
+                    </span>}
+                    >
+                        Reopen episode
+                    </Tooltip>
+                    <Tooltip
+                        className="z-[99999]" trigger={<span>
+                        <IconButton
+                            icon={<BiX />}
+                            intent="alert-basic"
+                            className="rounded-full"
+                            onClick={() => stopPlaylist()}
+                        />
+                    </span>}
+                    >
+                        Stop playlist
+                    </Tooltip>
+                    <div className="flex flex-1"></div>
                     <IconButton
-                        icon={<BiX />}
-                        intent="alert-basic"
+                        icon={<MdSkipNext />}
+                        intent="white-subtle"
                         className="rounded-full"
-                        onClick={() => stopPlaylist()}
+                        disabled={!nextPlaylistEpisode}
+                        onClick={() => playEpisode("next", false)}
                     />
-                </span>}
-                >
-                    Stop playlist
-                </Tooltip>
-                <div className="flex flex-1"></div>
-                <IconButton
-                    icon={<MdSkipNext />}
-                    intent="white-subtle"
-                    className="rounded-full"
-                    disabled={!nextPlaylistEpisode}
-                />
+                </div>
             </div>
-        </div>
-    </PlaylistManagerPopup>
+        </PlaylistManagerPopup>
+    </>
 }
 
 function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {

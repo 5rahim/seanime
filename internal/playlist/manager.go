@@ -10,6 +10,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
@@ -61,6 +62,26 @@ type ServerEvent struct {
 const (
 	ServerEventCurrentPlaylist PlaylistServerEventType = "current-playlist"
 	ServerEventPlayEpisode     PlaylistServerEventType = "play-episode"
+	ServerEventPlayingEpisode  PlaylistServerEventType = "playing-episode"
+)
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------//
+
+type State string
+
+const (
+	StateIdle      State = "idle"
+	StateStarted   State = "started"
+	StateCompleted State = "completed"
+	StateErrored   State = "errored"
+	StateStopped   State = "stopped"
+)
+
+const (
+	SystemPlayer       = "system"
+	NativePlayer       = "native"
+	ExternalPlayerLink = "externalPlayerLink"
+	Transcode          = "transcode"
 )
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -85,12 +106,19 @@ type (
 		nativePlayer            *nativeplayer.NativePlayer
 		torrentstreamRepository *torrentstream.Repository
 		debridClientRepository  *debrid_client.Repository
+		nakamaManager           *nakama.Manager
 
 		mu     sync.Mutex
 		logger *zerolog.Logger
 
 		isStartingPlaylist   atomic.Bool
 		isLoadingNextEpisode atomic.Bool
+
+		currentPlaybackCtx    context.Context
+		currentPlaybackCancel func()
+
+		state      atomic.Value
+		playerType atomic.Value
 
 		ctx    context.Context
 		cancel context.CancelFunc
@@ -102,6 +130,7 @@ type (
 		TorrentstreamRepository *torrentstream.Repository
 		DebridClientRepository  *debrid_client.Repository
 		NativePlayer            *nativeplayer.NativePlayer
+		NakamaManager           *nakama.Manager
 		Logger                  *zerolog.Logger
 		Platform                platform.Platform
 		WSEventManager          events.WSEventManagerInterface
@@ -117,6 +146,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		torrentstreamRepository: opts.TorrentstreamRepository,
 		debridClientRepository:  opts.DebridClientRepository,
 		nativePlayer:            opts.NativePlayer,
+		nakamaManager:           opts.NakamaManager,
 		platform:                opts.Platform,
 		db:                      opts.Database,
 		wsEventManager:          opts.WSEventManager,
@@ -257,9 +287,6 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 	playbackManagerSubscriber := m.playbackManager.SubscribeToPlaybackStatus("playlist-manager")
 	nativePlayerSubscriber := m.nativePlayer.Subscribe("playlist-manager")
 
-	episodeCompleted := atomic.Bool{}
-	isTransitioning := atomic.Bool{}
-
 	// continue in goroutine
 	go func() {
 		for {
@@ -271,66 +298,100 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 				m.nativePlayer.Unsubscribe("playlist-manager")
 				return
 			case event := <-playbackManagerSubscriber.EventCh:
+				if m.playerType.Load() != SystemPlayer {
+					continue
+				}
 				switch e := event.(type) {
 				case playbackmanager.PlaybackStatusChangedEvent:
 					// check if video is done
-					if e.Status.CompletionPercentage < 99 {
+					if e.Status.CompletionPercentage < 99.9 {
 						if e.Status.CompletionPercentage >= 80.0 {
-							episodeCompleted.Store(true)
+							m.state.Store(StateCompleted)
 						}
 						continue
 					}
-					m.markCurrentAsCompleted()
-					m.playNextEpisode()
+					//m.markCurrentAsCompleted()
+					//m.playNextEpisode()
 
 				case playbackmanager.VideoCompletedEvent, playbackmanager.StreamCompletedEvent:
-					episodeCompleted.Store(true)
+					m.state.Store(StateCompleted)
 
-				case playbackmanager.PlaybackErrorEvent:
-					if episodeCompleted.Load() {
+				case playbackmanager.PlaybackErrorEvent, playbackmanager.VideoStoppedEvent, playbackmanager.StreamStoppedEvent:
+					if m.state.Load() == StateStarted {
+						m.StopPlaylist("Playlist stopped")
+
+					} else if m.state.Load() == StateCompleted {
 						m.markCurrentAsCompleted()
 						m.playNextEpisode()
-						// player is closed before starting the next episode
-						isTransitioning.Store(true)
-						continue
 					}
-					// Otherwise, stop the playlist
-					m.StopPlaylist("Playlist stopped")
+					m.state.Store(StateIdle)
+					m.playerType.Store("")
 
 				case playbackmanager.VideoStartedEvent, playbackmanager.StreamStartedEvent:
-					episodeCompleted.Store(false)
+					m.state.Store(StateStarted)
+					m.playerType.Store(SystemPlayer)
 
-					// Check if the episode has changed to the next one without completion/error events
-					if !isTransitioning.Load() {
+					data, ok := m.currentPlaylistData.Get()
+					if !ok {
+						continue
+					}
+
+					state := playbackmanager.PlaybackState{}
+					ok = false
+					switch e.(type) {
+					case playbackmanager.VideoStartedEvent:
+						state, ok = m.playbackManager.PullVideoState()
+					case playbackmanager.StreamStartedEvent:
+						state, ok = m.playbackManager.PullStreamState()
+					}
+					if ok {
+						// Check if correct episode
 						currentEpisode, ok := m.currentEpisode.Get()
 						if ok {
-							data, ok := m.currentPlaylistData.Get()
-							if !ok {
-								continue
-							}
-							nextEpisode, found := data.playlist.NextEpisode(currentEpisode)
-							if found {
-								m.currentEpisode = mo.Some(nextEpisode)
+							if currentEpisode.Episode.EpisodeNumber != state.EpisodeNumber || currentEpisode.Episode.BaseAnime.ID != state.MediaId {
+								// Find the episode
+								var actualEpisode *anime.PlaylistEpisode
+								for _, e := range data.playlist.Episodes {
+									if e.Episode.BaseAnime.ID == state.MediaId && e.Episode.AniDBEpisode == state.AniDbEpisode {
+										actualEpisode = e
+										break
+									}
+								}
+								if actualEpisode == nil {
+									m.logger.Error().Int("episodeNumber", state.EpisodeNumber).Int("mediaId", state.MediaId).Msg("playlist: Cannot find episode in playlist")
+									m.StopPlaylist("Playlist stopped, cannot find episode in playlist", true)
+									continue
+								}
+								m.currentEpisode = mo.Some(actualEpisode)
+								m.sendCurrentPlaylistToClient()
 							}
 						}
 					}
-					isTransitioning.Store(false)
 				}
 			case event := <-nativePlayerSubscriber.Events():
+				if m.playerType.Load() != NativePlayer {
+					continue
+				}
 				switch event.(type) {
 				case *nativeplayer.VideoLoadedMetadataEvent:
-					episodeCompleted.Store(false)
+					m.state.Store(StateStarted)
+					m.playerType.Store(SystemPlayer)
 
 				case *nativeplayer.VideoCompletedEvent:
 					m.markCurrentAsCompleted()
-					episodeCompleted.Store(true)
+					m.state.Store(StateCompleted)
 
 				case *nativeplayer.VideoEndedEvent:
-					m.markCurrentAsCompleted()
-					m.playNextEpisode()
+					if m.state.Load() == StateCompleted {
+						m.markCurrentAsCompleted()
+						m.playNextEpisode()
+					}
+					m.state.Store(StateIdle)
 
 				case *nativeplayer.VideoTerminatedEvent:
-					m.StopPlaylist("Playlist stopped")
+					if m.state.Load() == StateStarted || m.state.Load() == StateCompleted {
+						m.StopPlaylist("Playlist stopped")
+					}
 				}
 			}
 		}
@@ -351,6 +412,7 @@ func (m *Manager) playNextEpisode() {
 	if m.isLoadingNextEpisode.Load() {
 		return
 	}
+	m.state.Store(StateIdle)
 	m.isLoadingNextEpisode.Store(true)
 	defer m.isLoadingNextEpisode.Store(false)
 	m.mu.Lock()
@@ -358,31 +420,38 @@ func (m *Manager) playNextEpisode() {
 
 	m.logger.Trace().Msg("playlist: Playing next episode")
 
+	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+		Type:    ServerEventPlayingEpisode,
+		Payload: nil,
+	})
+
 	data, ok := m.currentPlaylistData.Get()
 	if !ok {
 		m.logger.Error().Msg("playlist: Cannot play next episode, no playlist is currently playing")
 		return
 	}
 
-	// find episode
 	var episode *anime.PlaylistEpisode
-	for _, playlistEp := range data.playlist.Episodes {
-		if playlistEp.IsCompleted {
-			continue
+
+	currentEpisode, found := m.currentEpisode.Get()
+
+	if !found {
+		// find episode
+		for _, playlistEp := range data.playlist.Episodes {
+			if playlistEp.IsCompleted {
+				continue
+			}
+			episode = playlistEp
+			break
 		}
-		episode = playlistEp
-		break
+	} else {
+		episode, _ = data.playlist.NextEpisode(currentEpisode)
 	}
 
 	if episode == nil {
 		m.logger.Error().Msg("playlist: Cannot play next episode, no episodes in playlist")
 		return
 	}
-
-	// store pointer to episode
-	m.currentEpisode = mo.Some(episode)
-
-	m.sendCurrentPlaylistToClient()
 
 	m.playEpisode(episode)
 
@@ -426,18 +495,19 @@ func (m *Manager) markCurrentAsCompleted() {
 
 	currentEpisode.IsCompleted = true
 
-	go func(currentEpisode anime.PlaylistEpisode) {
-		// update the playlist in db
-		err := db_bridge.UpdatePlaylist(m.db, data.playlist)
-		if err != nil {
-			m.logger.Error().Err(err).Msg("playlist: Failed to update playlist")
-		}
-		// update the progress
-		err = m.platform.UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
-		if err != nil {
-			m.logger.Error().Err(err).Msg("playlist: Failed to update progress")
-		}
-	}(*currentEpisode)
+	_ = data
+	//go func(currentEpisode anime.PlaylistEpisode) {
+	//	// update the playlist in db
+	//	err := db_bridge.UpdatePlaylist(m.db, data.playlist)
+	//	if err != nil {
+	//		m.logger.Error().Err(err).Msg("playlist: Failed to update playlist")
+	//	}
+	//	// update the progress
+	//	err = m.platform.UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
+	//	if err != nil {
+	//		m.logger.Error().Err(err).Msg("playlist: Failed to update progress")
+	//	}
+	//}(*currentEpisode)
 
 	m.sendCurrentPlaylistToClient()
 
@@ -446,6 +516,7 @@ func (m *Manager) markCurrentAsCompleted() {
 
 func (m *Manager) resetPlaylist() {
 	m.currentPlaylistData = mo.None[*playlistData]()
+	m.currentEpisode = mo.None[*anime.PlaylistEpisode]()
 	m.cancel = nil
 	m.sendCurrentPlaylistToClient()
 }
@@ -455,6 +526,24 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 	if !ok {
 		return
 	}
+
+	m.logger.Trace().Int("mediaId", episode.Episode.BaseAnime.ID).Str("aniDBEpisode", episode.Episode.AniDBEpisode).Msg("playlist: Playing episode")
+
+	m.logger.Trace().Msg("playlist: Canceling media player events before playing episode")
+	m.state.Store(StateIdle)
+	_ = m.playbackManager.Cancel()
+
+	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+		Type:    ServerEventPlayingEpisode,
+		Payload: nil,
+	})
+
+	m.state.Store(StateIdle)
+
+	// store pointer to episode
+	m.currentEpisode = mo.Some(episode)
+
+	m.sendCurrentPlaylistToClient()
 
 	// play the file
 	// - if external player link, do nothing
@@ -466,19 +555,26 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 	isNakama := episode.IsNakama
 	isTorrentOrDebridStream := !isLf && !isNakama
 
-	// it's a local file and user uses an external player link, do nothing
-	if (isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodExternalPlayerLink) ||
-		(isNakama && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodExternalPlayerLink) ||
-		(isTorrentOrDebridStream && data.options.StreamPlaybackMethod == ClientPlaybackMethodExternalPlayerLink) {
-		m.logger.Trace().Msg("playlist: External player link, skipping")
+	//// it's a local file and user uses an external player link, do nothing
+	//if (isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodExternalPlayerLink) ||
+	//	(isNakama && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodExternalPlayerLink) ||
+	//	(isTorrentOrDebridStream && data.options.StreamPlaybackMethod == ClientPlaybackMethodExternalPlayerLink) {
+	//	m.logger.Trace().Msg("playlist: External player link, skipping playback")
+	//
+	//	m.currentPlaybackMethod = ClientPlaybackMethodExternalPlayerLink
+	//
+	//	return
+	//}
 
-		m.currentPlaybackMethod = ClientPlaybackMethodExternalPlayerLink
-
-		return
+	if (isLf && data.options.LocalFilePlaybackMethod != ClientPlaybackMethodNativePlayer) ||
+		(isNakama && data.options.LocalFilePlaybackMethod != ClientPlaybackMethodNativePlayer) ||
+		(isTorrentOrDebridStream && data.options.StreamPlaybackMethod != ClientPlaybackMethodNativePlayer) {
+		m.nativePlayer.Stop()
 	}
 
 	// local file and desktop media player, play it from server
 	if isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault {
+		m.logger.Debug().Msg("playlist: Local file and desktop media player, playing from server")
 		err := m.playbackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
 			Payload:   episode.Episode.LocalFile.Path,
 			UserAgent: "",
@@ -492,7 +588,39 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 		m.currentPlaybackMethod = ClientPlaybackMethodDefault
 
 		return
+
+	} else if isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer {
+		// local file and native media player, play it from server
+		m.logger.Debug().Msg("playlist: Local file and native media player, playing from server")
+		err := m.directstreamManager.PlayLocalFile(context.Background(), directstream.PlayLocalFileOptions{
+			ClientId:   "",
+			Path:       episode.Episode.LocalFile.Path,
+			LocalFiles: []*anime.LocalFile{episode.Episode.LocalFile},
+		})
+		if err != nil {
+			m.logger.Error().Err(err).Msg("playlist: Failed to start playing local file")
+			m.StopPlaylist("Failed to start playing local file")
+		}
+
+		m.currentPlaybackMethod = ClientPlaybackMethodNativePlayer
+
+		return
 	}
+	// nakama and desktop media player, play it from server
+	if isNakama && (data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault || data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer) {
+		m.logger.Debug().Msg("playlist: Nakama stream and desktop media player, playing from server")
+		err := m.nakamaManager.PlayHostAnimeLibraryFile(episode.Episode.LocalFile.Path, "", episode.Episode.BaseAnime, episode.Episode.AniDBEpisode)
+		if err != nil {
+			m.logger.Error().Err(err).Msg("playlist: Failed to start playing nakama stream")
+			m.StopPlaylist("Failed to start playing nakama stream")
+		}
+
+		m.currentPlaybackMethod = ClientPlaybackMethodDefault
+
+		return
+	}
+
+	m.logger.Trace().Msg("playlist: Sending play episode event to client")
 
 	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
 		Type: ServerEventPlayEpisode,
@@ -531,20 +659,24 @@ func (m *Manager) prepareNextEpisode() {
 		})
 		if err != nil {
 			m.logger.Error().Err(err).Msg("playlist: Failed to append to media player")
-			m.StopPlaylist("Failed to append to media player")
+			//m.StopPlaylist("Failed to append to media player")
 		}
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *Manager) StopPlaylist(reason string) {
-	m.logger.Trace().Msg("playlist: Stopping current playlist")
+func (m *Manager) StopPlaylist(reason string, isError ...bool) {
+	m.logger.Trace().Str("reason", reason).Msg("playlist: Stopping current playlist")
 	if m.cancel != nil {
 		m.cancel()
 	}
 	m.isStartingPlaylist.Store(false)
 	m.resetPlaylist()
+	if len(isError) > 0 && isError[0] {
+		m.wsEventManager.SendEvent(events.ErrorToast, reason)
+		return
+	}
 	m.wsEventManager.SendEvent(events.InfoToast, reason)
 }
 
@@ -554,10 +686,43 @@ func (m *Manager) PlayEpisode(which string, isCurrentCompleted bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
+	m.logger.Debug().Str("which", which).Bool("isCurrentCompleted", isCurrentCompleted).Msg("playlist: Episode requested")
+
 	if isCurrentCompleted {
 		m.markCurrentAsCompleted()
 	}
 
+	data, ok := m.currentPlaylistData.Get()
+	if !ok {
+		return
+	}
+
+	currentEpisode, ok := m.currentEpisode.Get()
+	if !ok {
+		if which == "next" {
+			m.logger.Debug().Msg("playlist: No episodes in playlist, playing next episode")
+			m.playNextEpisode()
+		}
+		return
+	}
+
+	var episode *anime.PlaylistEpisode
+
+	switch which {
+	case "next":
+		episode, _ = data.playlist.NextEpisode(currentEpisode)
+	case "previous":
+		episode, _ = data.playlist.PreviousEpisode(currentEpisode)
+	}
+
+	if episode == nil {
+		m.logger.Error().Msgf("playlist: Episode not found for '%s'", which)
+		return
+	}
+
+	m.logger.Debug().Str("which", which).Int("mediaId", episode.Episode.BaseAnime.ID).Str("aniDBEpisode", episode.Episode.AniDBEpisode).Str("episode", episode.Episode.DisplayTitle).Msg("playlist: Episode found")
+
+	m.playEpisode(episode)
 }
 
 func (m *Manager) ReopenEpisode() {

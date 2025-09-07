@@ -1,4 +1,4 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useDebridStartStream } from "@/api/hooks/debrid.hooks"
 import {
     ElectronPlaybackMethod,
@@ -15,13 +15,13 @@ import React from "react"
 
 type DebridStreamSelectionProps = {
     torrent: HibikeTorrent_AnimeTorrent
-    entry: Anime_Entry
+    mediaId: number
     episodeNumber: number
     aniDBEpisode: string
     chosenFileId: string
 }
 type DebridStreamAutoSelectProps = {
-    entry: Anime_Entry
+    mediaId: number
     episodeNumber: number
     aniDBEpisode: string
 }
@@ -44,11 +44,11 @@ export function useHandleStartDebridStream() {
             return "externalPlayerLink"
         }
         return "default"
-    }, [torrentStreamingPlayback, externalPlayerLink])
+    }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
 
     const handleStreamSelection = React.useCallback((params: DebridStreamSelectionProps) => {
         mutate({
-            mediaId: params.entry.mediaId,
+            mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: params.torrent,
             aniDBEpisode: params.aniDBEpisode,
@@ -67,7 +67,7 @@ export function useHandleStartDebridStream() {
 
     const handleAutoSelectStream = React.useCallback((params: DebridStreamAutoSelectProps) => {
         mutate({
-            mediaId: params.entry.mediaId,
+            mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: undefined,
             aniDBEpisode: params.aniDBEpisode,

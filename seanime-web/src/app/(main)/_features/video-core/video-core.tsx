@@ -277,6 +277,7 @@ export function VideoCore(props: VideoCoreProps) {
     const isPip = useAtomValue(vc_pip)
     const flashAction = useSetAtom(vc_doFlashAction)
     const dispatchAction = useSetAtom(vc_dispatchAction)
+    const cursorBusy = useAtomValue(vc_cursorBusy)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
@@ -630,9 +631,38 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
+    const [debouncedCursorBusy, setDebouncedCursorBusy] = React.useState(false)
+    React.useEffect(() => {
+        if (cursorBusy) {
+            setDebouncedCursorBusy(true)
+            return
+        }
+        let t = setTimeout(() => {
+            setDebouncedCursorBusy(false)
+        }, 800)
+        return () => {
+            clearTimeout(t)
+        }
+    }, [cursorBusy])
+
+    let lastClickTime = React.useRef(0)
+
     const handleClick = (e: React.SyntheticEvent<HTMLDivElement>) => {
         log.info("Video clicked")
-        togglePlay()
+        // check if right click
+        if (e.type === "click") {
+            if (!debouncedCursorBusy) {
+                togglePlay()
+            }
+        }
+
+        if (e.type === "contextmenu") {
+            const now = Date.now()
+            if (lastClickTime.current && now - lastClickTime.current < 500) {
+                fullscreenManager?.toggleFullscreen()
+            }
+            lastClickTime.current = now
+        }
     }
 
     const handleDoubleClick = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -752,7 +782,6 @@ export function VideoCore(props: VideoCoreProps) {
     //
 
     // container events
-    const cursorBusy = useAtomValue(vc_cursorBusy)
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)
     const lastPointerPosition = React.useRef({ x: 0, y: 0 })
     const handleContainerPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -1035,6 +1064,7 @@ export function VideoCore(props: VideoCoreProps) {
                                 <div
                                     className="relative w-full h-full flex items-center justify-center"
                                     onClick={handleClick}
+                                    onContextMenu={handleClick}
                                 >
                                     <video
                                         data-video-core-element

@@ -1,4 +1,5 @@
 import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useTorrentSearchSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
@@ -21,9 +22,9 @@ export type TorrentSelectionType =
     | "debridstream-select-file"
     | "download"
 
-export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawer?: boolean }) {
 
-    const { entry } = props
+    const { entry, isPlaylistDrawer } = props
     const ts = useThemeSettings()
 
     const [selectionType, setSelection] = useAtom(__torrentSearch_selectionAtom)
@@ -33,6 +34,8 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
     const mId = searchParams.get("id")
     const downloadParam = searchParams.get("download")
 
+    const { currentPlaylist } = usePlaylistManager()
+
     useEffect(() => {
         if (!!downloadParam) {
             setSelection("download")
@@ -41,6 +44,8 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
     }, [downloadParam])
 
     const { onTorrentValidated } = useTorrentSearchSelection({ entry, type: selectionType })
+
+    if (currentPlaylist && !isPlaylistDrawer) return null
 
     return (
         <Modal
@@ -52,6 +57,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
             titleClass="max-w-[500px] text-ellipsis truncate"
             data-torrent-search-drawer
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
+            onInteractOutside={e => {if (isPlaylistDrawer) e.preventDefault()}}
         >
 
             <GlowingEffect

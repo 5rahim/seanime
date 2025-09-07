@@ -280,6 +280,7 @@ func (a *App) initModulesOnce() {
 		Platform:                a.AnilistPlatform,
 		PlaybackManager:         a.PlaybackManager,
 		WSEventManager:          a.WSEventManager,
+		NakamaManager:           a.NakamaManager,
 		NativePlayer:            a.NativePlayer,
 		Database:                a.Database,
 		Logger:                  a.Logger,

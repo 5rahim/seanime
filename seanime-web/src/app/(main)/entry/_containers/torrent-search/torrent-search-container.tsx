@@ -434,20 +434,20 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "torrentstream-select") {
-                        setAutoPlayTorrent(batchHistory.torrent)
+                        setAutoPlayTorrent(batchHistory.torrent, entry!)
                         handleTorrentstreamSelection({
                             torrent: batchHistory?.torrent,
-                            entry,
+                            mediaId: entry!.mediaId,
                             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                             chosenFileIndex: undefined,
                         })
                         setTorrentSearch(undefined)
                     } else if (type === "debridstream-select") {
-                        setAutoPlayTorrent(batchHistory.torrent)
+                        setAutoPlayTorrent(batchHistory.torrent, entry!)
                         handleDebridstreamSelection({
                             torrent: batchHistory?.torrent,
-                            entry,
+                            mediaId: entry!.mediaId,
                             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                             chosenFileId: "",

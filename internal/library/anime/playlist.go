@@ -37,6 +37,15 @@ func (pd *Playlist) SetEpisodes(episodes []*PlaylistEpisode) {
 	pd.Episodes = episodes
 }
 
+func (pd *Playlist) FindEpisode(mId int, episodeNumber int) (*PlaylistEpisode, bool) {
+	for _, e := range pd.Episodes {
+		if e.Episode.BaseAnime.ID == mId && e.Episode.EpisodeNumber == episodeNumber {
+			return e, true
+		}
+	}
+	return nil, false
+}
+
 func (pd *Playlist) NextEpisode(episode *PlaylistEpisode) (*PlaylistEpisode, bool) {
 	for i, e := range pd.Episodes {
 		if isSameEpisode(e, episode) {

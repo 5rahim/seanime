@@ -41,7 +41,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
         handleStreamSelection({
             torrent: selectedTorrent,
-            entry,
+            mediaId: entry.mediaId,
             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
             chosenFileIndex: selectedFileIdx,

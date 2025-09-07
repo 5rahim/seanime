@@ -90,6 +90,9 @@ func (p *NativePlayer) AddSubtitleTrack(clientId string, track *mkvparser.TrackI
 // Stop emits a VideoTerminatedEvent to all subscribers.
 // It should only be called by a module.
 func (p *NativePlayer) Stop() {
+	if p.playbackInfo == nil {
+		return
+	}
 	p.logger.Debug().Msg("nativeplayer: Stopping playback, notifying subscribers")
 	p.notifySubscribers(&VideoTerminatedEvent{
 		BaseVideoEvent: BaseVideoEvent{ClientId: p.playbackStatus.ClientId},

@@ -1,4 +1,4 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import {
     ElectronPlaybackMethod,
@@ -18,13 +18,13 @@ import React from "react"
 
 type ManualTorrentStreamSelectionProps = {
     torrent: HibikeTorrent_AnimeTorrent
-    entry: Anime_Entry
+    mediaId: number
     episodeNumber: number
     aniDBEpisode: string
     chosenFileIndex: number | undefined | null
 }
 type AutoSelectTorrentStreamProps = {
-    entry: Anime_Entry
+    mediaId: number
     episodeNumber: number
     aniDBEpisode: string
 }
@@ -51,7 +51,7 @@ export function useHandleStartTorrentStream() {
 
     const handleStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
         mutate({
-            mediaId: params.entry.mediaId,
+            mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: params.torrent,
             aniDBEpisode: params.aniDBEpisode,
@@ -72,7 +72,7 @@ export function useHandleStartTorrentStream() {
 
     const handleAutoSelectStream = React.useCallback((params: AutoSelectTorrentStreamProps) => {
         mutate({
-            mediaId: params.entry.mediaId,
+            mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             aniDBEpisode: params.aniDBEpisode,
             autoSelect: true,

@@ -161,6 +161,12 @@ func (i *Iina) Exited() chan struct{} {
 	return i.exitedCh
 }
 
+func (i *Iina) Quit() {
+	if cmdCancel != nil {
+		cmdCancel()
+	}
+}
+
 func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()

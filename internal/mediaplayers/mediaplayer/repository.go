@@ -44,6 +44,7 @@ type (
 		completionThreshold   float64
 		mu                    sync.RWMutex
 		isRunning             bool
+		trackingType          string // "file" or "stream" - tracks which type of tracking is active
 		currentPlaybackStatus *PlaybackStatus
 		subscribers           *result.Map[string, *RepositorySubscriber]
 		cancel                context.CancelFunc
@@ -503,12 +504,13 @@ func (m *Repository) Cancel() {
 		m.Logger.Debug().Msg("media player: Cancel request received")
 		m.cancel()
 		m.trackingStopped("Something went wrong, tracking cancelled")
-	} else {
-		m.Logger.Debug().Msg("media player: Cancel request received, but no context found")
 	}
 	// Close MPV if it's the default player
-	if m.Default == "mpv" {
-		m.Mpv.CloseAll()
+	switch m.Default {
+	case "mpv":
+		go m.Mpv.CloseAll()
+	case "iina":
+		go m.Iina.CloseAll()
 	}
 	m.mu.Unlock()
 }
@@ -521,10 +523,12 @@ func (m *Repository) Stop() {
 		m.cancel()
 		m.cancel = nil
 		m.trackingStopped("Tracking stopped")
-		// Close MPV if it's the default player
-		if m.Default == "mpv" {
-			go m.Mpv.CloseAll()
-		}
+	}
+	switch m.Default {
+	case "mpv":
+		m.Mpv.CloseAll()
+	case "iina":
+		m.Iina.CloseAll()
 	}
 	m.mu.Unlock()
 }
@@ -532,10 +536,16 @@ func (m *Repository) Stop() {
 // StartTrackingTorrentStream will start tracking media player status for torrent streaming
 func (m *Repository) StartTrackingTorrentStream() {
 	m.mu.Lock()
-	// If a previous context exists, cancel it
-	if m.cancel != nil {
-		m.Logger.Debug().Msg("media player: Cancelling previous context")
-		m.cancel()
+
+	// Check if tracking is already running
+	if m.isRunning {
+		m.Logger.Debug().Str("currentTrackingType", m.trackingType).Msg("media player: Tracking already running, cancelling previous tracking")
+		if m.cancel != nil {
+			m.cancel()
+			m.cancel = nil
+		}
+		m.isRunning = false
+		m.trackingType = ""
 	}
 
 	// Create a new context
@@ -562,6 +572,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 	// Default prevented, do not track
 	if hookEvent.DefaultPrevented {
 		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		m.mu.Unlock()
 		return
 	}
 
@@ -571,37 +582,34 @@ func (m *Repository) StartTrackingTorrentStream() {
 	var waitInSeconds int
 
 	m.isRunning = true
+	m.trackingType = "stream"
 	gotFirstStatus := false
 
 	m.mu.Unlock()
 
-	go func() {
+	go func(trackingCtx context.Context) {
 		defer func() {
 			m.mu.Lock()
 			m.isRunning = false
-			if m.cancel != nil {
-				m.cancel()
-			}
+			m.trackingType = ""
 			m.mu.Unlock()
 		}()
+
 		for {
 			select {
 			case <-done:
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Connection lost")
-				m.isRunning = false
 				m.mu.Unlock()
 				return
 			case <-trackingCtx.Done():
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
-				m.isRunning = false
 				m.mu.Unlock()
 				return
 			//case <-m.exitedCh:
 			//	m.mu.Lock()
 			//	m.Logger.Debug().Msg("media player: Player exited")
-			//	m.isRunning = false
 			//	m.streamingTrackingStopped(PlayerClosedEvent)
 			//	m.mu.Unlock()
 			//	return
@@ -662,15 +670,15 @@ func (m *Repository) StartTrackingTorrentStream() {
 					continue
 				}
 
-				// New video has started playing \/
+				// New stream has started playing \/
 				if filename == "" || filename != m.currentPlaybackStatus.Filename {
-					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Video loaded")
+					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Stream loaded")
 					m.streamingTrackingStarted(m.currentPlaybackStatus)
 					filename = m.currentPlaybackStatus.Filename
 					completed = false
 				}
 
-				// Video completed \/
+				// Stream completed \/
 				if m.currentPlaybackStatus.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("media player: Video completed")
 					m.streamingVideoCompleted(m.currentPlaybackStatus)
@@ -680,17 +688,23 @@ func (m *Repository) StartTrackingTorrentStream() {
 				m.streamingPlaybackStatus(m.currentPlaybackStatus)
 			}
 		}
-	}()
+	}(trackingCtx)
 }
 
 // StartTracking will start tracking media player status.
 // This method is safe to call multiple times -- it will cancel the previous context and start a new one.
 func (m *Repository) StartTracking() {
 	m.mu.Lock()
-	// If a previous context exists, cancel it
-	if m.cancel != nil {
-		m.Logger.Debug().Msg("media player: Cancelling previous context")
-		m.cancel()
+
+	// Check if tracking is already running
+	if m.isRunning {
+		m.Logger.Debug().Str("currentTrackingType", m.trackingType).Msg("media player: Tracking already running, cancelling previous tracking")
+		if m.cancel != nil {
+			m.cancel()
+			m.cancel = nil
+		}
+		m.isRunning = false
+		m.trackingType = ""
 	}
 
 	// Create a new context
@@ -715,15 +729,24 @@ func (m *Repository) StartTracking() {
 	// Default prevented, do not track
 	if hookEvent.DefaultPrevented {
 		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		m.mu.Unlock()
 		return
 	}
 
 	m.isRunning = true
+	m.trackingType = "file"
 	gotFirstStatus := false
 
 	m.mu.Unlock()
 
-	go func() {
+	go func(trackingCtx context.Context) {
+		defer func() {
+			m.mu.Lock()
+			m.isRunning = false
+			m.trackingType = ""
+			m.mu.Unlock()
+		}()
+
 		for {
 			select {
 			case <-done:
@@ -731,16 +754,11 @@ func (m *Repository) StartTracking() {
 				m.Logger.Debug().Msg("media player: Connection lost")
 				m.isRunning = false
 				m.mu.Unlock()
-				if m.cancel != nil {
-					m.cancel()
-					m.cancel = nil
-				}
 				return
 			case <-trackingCtx.Done():
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
 				m.isRunning = false
-				m.cancel = nil
 				m.mu.Unlock()
 				return
 			//case <-m.exitedCh:
@@ -815,7 +833,7 @@ func (m *Repository) StartTracking() {
 				m.playbackStatus(m.currentPlaybackStatus)
 			}
 		}
-	}()
+	}(trackingCtx)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

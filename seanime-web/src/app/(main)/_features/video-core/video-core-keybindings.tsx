@@ -353,11 +353,25 @@ export function VideoCoreKeybindingController(props: {
     const SEEK_THROTTLE_MS = 100 // Minimum time between seek operations
 
     function seek(seconds: number) {
+        const isPaused = videoRef.current?.paused
+        if (!isPaused) {
+            videoRef.current?.pause()
+        }
         action({ type: "seek", payload: { time: seconds, flashTime: true } })
+        if (!isPaused) {
+            videoRef.current?.play()
+        }
     }
 
     function seekTo(to: number) {
+        const isPaused = videoRef.current?.paused
+        if (!isPaused) {
+            videoRef.current?.pause()
+        }
         action({ type: "seekTo", payload: { time: to, flashTime: true } })
+        if (!isPaused) {
+            videoRef.current?.play()
+        }
     }
 
     const { takeScreenshot } = useVideoCoreScreenshot()

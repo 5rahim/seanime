@@ -513,6 +513,12 @@ func (m *Mpv) terminate() {
 	m.Logger.Trace().Msg("mpv: Terminated")
 }
 
+func (m *Mpv) Quit() {
+	if cmdCancel != nil {
+		cmdCancel()
+	}
+}
+
 func (m *Mpv) Subscribe(id string) *Subscriber {
 	sub := &Subscriber{
 		eventCh:  make(chan *mpvipc.Event, 100),

@@ -585,8 +585,31 @@ func (pm *PlaybackManager) PullStatus() (*mediaplayer.PlaybackStatus, bool) {
 	return pm.MediaPlayerRepository.PullStatus()
 }
 
+func (pm *PlaybackManager) PullVideoState() (PlaybackState, bool) {
+	pm.eventMu.RLock()
+	defer pm.eventMu.RUnlock()
+	status := pm.currentMediaPlaybackStatus
+	if status == nil {
+		return PlaybackState{}, false
+	}
+	state := pm.getLocalFilePlaybackState(status)
+	return state, true
+}
+
+func (pm *PlaybackManager) PullStreamState() (PlaybackState, bool) {
+	pm.eventMu.RLock()
+	defer pm.eventMu.RUnlock()
+	status := pm.currentMediaPlaybackStatus
+	if status == nil {
+		return PlaybackState{}, false
+	}
+	state := pm.getStreamPlaybackState(status)
+	return state, true
+}
+
 // Cancel stops the current media player playback and publishes a "normal" event.
 func (pm *PlaybackManager) Cancel() error {
+	pm.Logger.Debug().Msg("playback manager: Cancel called, stopping media player")
 	pm.MediaPlayerRepository.Stop()
 	return nil
 }

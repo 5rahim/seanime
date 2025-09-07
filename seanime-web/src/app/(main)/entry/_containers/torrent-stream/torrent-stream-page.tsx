@@ -104,7 +104,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
         if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         // Start the torrent stream
         handleAutoSelectStream({
-            entry: entry,
+            mediaId: entry.mediaId,
             episodeNumber: episode.episodeNumber,
             aniDBEpisode: episode.aniDBEpisode,
         })

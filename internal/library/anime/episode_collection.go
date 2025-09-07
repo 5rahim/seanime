@@ -205,10 +205,6 @@ func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeColl
 		opts.Logger = lo.ToPtr(zerolog.Nop())
 	}
 
-	if ec, ok := EpisodeCollectionFromLocalFilesCache.Get(opts.Media.GetID()); ok {
-		return ec, nil
-	}
-
 	// Make sure to keep the local files from the media only
 	opts.LocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, i int) bool {
 		return lf.MediaId == opts.Media.GetID()
@@ -248,8 +244,6 @@ func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeColl
 		Episodes:        entry.Episodes,
 		Metadata:        animeMetadata,
 	}
-
-	EpisodeCollectionFromLocalFilesCache.SetT(opts.Media.GetID(), ec, time.Hour*6)
 
 	return ec, nil
 }

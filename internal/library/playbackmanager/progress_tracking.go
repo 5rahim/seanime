@@ -51,7 +51,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				case mediaplayer.StreamingTrackingStoppedEvent:
 					pm.handleStreamingTrackingStopped(e.Reason)
 				case mediaplayer.StreamingTrackingRetryEvent:
-					// Do nothing
+					pm.handleTrackingRetry(e.Reason)
 				}
 			}
 		}

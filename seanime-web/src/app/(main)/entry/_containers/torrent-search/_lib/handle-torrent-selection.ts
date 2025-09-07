@@ -44,11 +44,11 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
         if (type === "torrentstream-select") {
             if (!!torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // Store the selected torrent
-                setAutoPlayTorrent(torrent)
+                setAutoPlayTorrent(torrent, entry)
                 // Start torrent stream with auto file selection
                 handleTorrentstreamSelection({
                     torrent: torrent,
-                    entry,
+                    mediaId: entry.mediaId,
                     aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                     episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                     chosenFileIndex: undefined,
@@ -72,11 +72,11 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
             // Start debrid stream with auto file selection
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // Store the selected torrent
-                setAutoPlayTorrent(torrent)
+                setAutoPlayTorrent(torrent, entry)
                 // Start debrid stream with auto file selection
                 handleDebridstreamSelection({
                     torrent: torrent,
-                    entry,
+                    mediaId: entry.mediaId,
                     aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
                     episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
                     chosenFileId: "",
