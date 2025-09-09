@@ -2,8 +2,8 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { __seaMediaPlayer_autoNextAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { vc_autoNextAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -39,7 +39,7 @@ export function NativePlayer() {
     const clientId = useAtomValue(clientIdAtom)
     const { sendMessage } = useWebsocketSender()
 
-    const autoPlayNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
+    const autoPlayNext = useAtomValue(vc_autoNextAtom)
     const videoElement = useAtomValue(vc_videoElement)
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)

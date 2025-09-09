@@ -114,7 +114,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
         if (!episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         // Start the debrid stream
         handleAutoSelectStream({
-            entry: entry,
+            mediaId: entry.mediaId,
             episodeNumber: episode.episodeNumber,
             aniDBEpisode: episode.aniDBEpisode,
         })

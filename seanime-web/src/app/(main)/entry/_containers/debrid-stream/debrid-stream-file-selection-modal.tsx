@@ -48,7 +48,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
         handleStreamSelection({
             torrent: selectedTorrent,
-            entry,
+            mediaId: entry.mediaId,
             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
             chosenFileId: selectedFileId,

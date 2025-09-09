@@ -57,7 +57,7 @@ export class VideoCoreAnime4KManager {
         frameDropThreshold: 5,
         frameDropCount: 0,
         lastFrameTime: 0,
-        targetFrameTime: 1000 / 30, // 30fps target
+        targetFrameTime: 1000 / 16, // 30fps target
         performanceGracePeriod: 1000,
         initTime: 0,
     }

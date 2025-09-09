@@ -148,7 +148,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     function goToNextEpisode() {
         if (currentPlaylist) {
-            playPlaylistEpisode("next", false)
+            playPlaylistEpisode("next", true)
             return
         }
         // check if the episode exists
@@ -159,7 +159,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     function goToPreviousEpisode() {
         if (currentPlaylist) {
-            playPlaylistEpisode("previous", false)
+            playPlaylistEpisode("previous", true)
             return
         }
 

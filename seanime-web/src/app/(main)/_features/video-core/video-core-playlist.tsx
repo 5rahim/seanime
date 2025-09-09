@@ -206,12 +206,12 @@ export function useVideoCorePlaylist() {
             switch (which) {
                 case "previous":
                     if (globalPlaylistPreviousEpisode) {
-                        playGlobalPlaylistEpisode("previous", false)
+                        playGlobalPlaylistEpisode("previous", true)
                     }
                     break
                 case "next":
                     if (globalPlaylistNextEpisode) {
-                        playGlobalPlaylistEpisode("next", false)
+                        playGlobalPlaylistEpisode("next", true)
                     }
                     break
             }
@@ -283,12 +283,12 @@ export function VideoCorePlaylistControl() {
         return <>
             {!!prevPlaylistEpisode && <VideoCorePreviousButton
                 onClick={() => {
-                    playPlaylistEpisode("previous", false)
+                    playPlaylistEpisode("previous", true)
                 }}
             />}
             {!!nextPlaylistEpisode && <VideoCoreNextButton
                 onClick={() => {
-                    playPlaylistEpisode("next", false)
+                    playPlaylistEpisode("next", true)
                 }}
             />}
         </>

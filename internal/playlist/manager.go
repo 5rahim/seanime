@@ -496,18 +496,18 @@ func (m *Manager) markCurrentAsCompleted() {
 	currentEpisode.IsCompleted = true
 
 	_ = data
-	//go func(currentEpisode anime.PlaylistEpisode) {
-	//	// update the playlist in db
-	//	err := db_bridge.UpdatePlaylist(m.db, data.playlist)
-	//	if err != nil {
-	//		m.logger.Error().Err(err).Msg("playlist: Failed to update playlist")
-	//	}
-	//	// update the progress
-	//	err = m.platform.UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
-	//	if err != nil {
-	//		m.logger.Error().Err(err).Msg("playlist: Failed to update progress")
-	//	}
-	//}(*currentEpisode)
+	go func(currentEpisode anime.PlaylistEpisode) {
+		// update the playlist in db
+		err := db_bridge.UpdatePlaylist(m.db, data.playlist)
+		if err != nil {
+			m.logger.Error().Err(err).Msg("playlist: Failed to update playlist")
+		}
+		// update the progress
+		err = m.platform.UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
+		if err != nil {
+			m.logger.Error().Err(err).Msg("playlist: Failed to update progress")
+		}
+	}(*currentEpisode)
 
 	m.sendCurrentPlaylistToClient()
 
@@ -672,6 +672,27 @@ func (m *Manager) StopPlaylist(reason string, isError ...bool) {
 	if m.cancel != nil {
 		m.cancel()
 	}
+	// Delete playlist if all episodes are completed
+	go func() {
+		data, ok := m.currentPlaylistData.Get()
+		if !ok {
+			return
+		}
+		d := *data
+		if len(d.playlist.Episodes) == 0 {
+			return
+		}
+		var completedEpisodes int
+		for _, episode := range d.playlist.Episodes {
+			if episode.IsCompleted {
+				completedEpisodes++
+			}
+		}
+		if completedEpisodes == len(d.playlist.Episodes) {
+			_ = db_bridge.DeletePlaylist(m.db, d.playlist.DbId)
+			m.wsEventManager.SendEvent(events.InvalidateQueries, []string{events.GetPlaylistsEndpoint})
+		}
+	}()
 	m.isStartingPlaylist.Store(false)
 	m.resetPlaylist()
 	if len(isError) > 0 && isError[0] {

@@ -10,7 +10,7 @@ import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_h
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
-import { AlphaBadge } from "@/components/shared/beta-badge"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -234,7 +234,7 @@ export function NakamaManager() {
             title={<div className="flex items-center gap-2 w-full justify-center">
                 <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
-                <AlphaBadge className="border-transparent" />
+                <BetaBadge className="border-transparent" />
             </div>}
             contentClass="max-w-3xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"

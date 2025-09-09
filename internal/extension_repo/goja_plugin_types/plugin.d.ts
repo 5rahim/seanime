@@ -910,6 +910,24 @@ declare namespace $ui {
         setDataAttribute(key: string, value: string): void
 
         /**
+         * Sets the inner HTML
+         * @param value - The value to set
+         */
+        setInnerHTML(value: string): void
+
+        /**
+         * Appends the child element
+         * @param child - The child element to append
+         */
+        appendChild(child: DOMElement): void
+
+        /**
+         * Removes the child element
+         * @param child - The child element to remove
+         */
+        removeChild(child: DOMElement): void
+
+        /**
          * Removes a data attribute (data-* attribute)
          * @param key - The data attribute key (without the data- prefix)
          */

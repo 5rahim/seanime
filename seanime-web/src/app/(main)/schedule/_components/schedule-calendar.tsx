@@ -387,7 +387,7 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                             className="ml-3 hidden flex-none text-[--muted] group-hover:text-gray-200 xl:flex items-center"
                         >
                             <span className="mr-1 text-sm group-hover:text-[--foreground] font-semibold ">
-                                {event.episode}
+                                {`{{ICON}}`} {event.episode}
                             </span>
                         </time>
                     </SeaLink>
@@ -473,7 +473,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                     {hoveredEvent && (
                         <div className="bg-gray-900/70 backdrop-blur-sm rounded-md px-2 py-1.5 border">
                             <p className="text-xs font-medium text-gray-100 line-clamp-2 leading-tight">
-                                <span className="text-[--muted] font-normal">{hoveredEvent.name.slice(0, 20) + (hoveredEvent.name.length > 20
+                                <span className="text-[--muted] font-normal">{hoveredEvent.name.slice(0, 28) + (hoveredEvent.name.length > 28
                                     ? "..."
                                     : "")}</span>
                                 {hoveredEvent.isSeasonFinale && <span className="text-[--blue] ml-1">Finale</span>}

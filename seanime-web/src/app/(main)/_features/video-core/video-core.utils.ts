@@ -14,15 +14,10 @@ import {
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
-
-export type VideoCoreChapter = {
-    start: number
-    end: number
-    title: string
-}
 
 export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | null | undefined) {
 
@@ -107,6 +102,46 @@ export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | und
     })
 
     return vttContent
+}
+
+export function vc_getChapterType(name: string | null | undefined) {
+    if (!name) return false
+    if (/opening$|^opening\s|^op$/mi.test(name)) return "Opening"
+    if (/ending$|^ending\s|^ed$|^credits/mi.test(name)) return "Ending"
+    if (/^intro$|recap/mi.test(name)) return "Intro"
+    if (/^outro$/mi.test(name)) return "Outro"
+    return false
+}
+
+export function vc_introIsOpening(chapters: VideoCoreTimeRangeChapter[]) {
+    const types = chapters.map(c => vc_getChapterType(c.label)).filter(Boolean)
+    return types.includes("Intro") && !types.includes("Opening")
+}
+
+export function vc_getOPEDChapters(chapters: VideoCoreTimeRangeChapter[]): {
+    opening: VideoCoreTimeRangeChapter | null;
+    ending: VideoCoreTimeRangeChapter | null
+} {
+    let opening: VideoCoreTimeRangeChapter | null = null
+    let ending: VideoCoreTimeRangeChapter | null = null
+    const introIsOpening = vc_introIsOpening(chapters)
+    for (const chapter of chapters) {
+        const type = vc_getChapterType(chapter.label)
+        if (!opening && !introIsOpening && type === "Opening") {
+            opening = chapter
+        }
+        if (!opening && introIsOpening && type === "Intro") {
+            opening = chapter
+        }
+        if (!ending && !introIsOpening && type === "Ending") {
+            ending = chapter
+        }
+        if (!ending && introIsOpening && type === "Outro") {
+            ending = chapter
+        }
+        if (opening && ending) break
+    }
+    return { opening, ending }
 }
 
 export function isSubtitleFile(filename: string) {

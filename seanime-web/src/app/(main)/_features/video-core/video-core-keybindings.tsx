@@ -1,4 +1,3 @@
-import { __seaMediaPlayer_mutedAtom, __seaMediaPlayer_volumeAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import {
     vc_audioManager,
     vc_dispatchAction,
@@ -11,7 +10,13 @@ import {
 } from "@/app/(main)/_features/video-core/video-core"
 import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { vc_defaultKeybindings, vc_keybindingsAtom, VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import {
+    vc_defaultKeybindings,
+    vc_keybindingsAtom,
+    vc_storedMutedAtom,
+    vc_storedVolumeAtom,
+    VideoCoreKeybindings,
+} from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -337,9 +342,9 @@ export function VideoCoreKeybindingController(props: {
     const fullscreen = useAtomValue(vc_isFullscreen)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)
-    const setVolume = useSetAtom(__seaMediaPlayer_volumeAtom)
+    const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
-    const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
+    const setMuted = useSetAtom(vc_storedMutedAtom)
     const { flashAction } = useVideoCoreFlashAction()
 
     const action = useSetAtom(vc_dispatchAction)

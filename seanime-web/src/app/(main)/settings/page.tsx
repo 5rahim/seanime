@@ -38,7 +38,6 @@ import { UseFormReturn } from "react-hook-form"
 import { BiDonateHeart } from "react-icons/bi"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
-import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
@@ -234,9 +233,7 @@ export default function Page() {
                                 <TabsTrigger
                                     value="nakama"
                                     className="group relative"
-                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama <GrTest
-                                    className="text-md text-orange-300/40 absolute right-2 lg:block hidden"
-                                /></TabsTrigger>
+                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
                                 <TabsTrigger
                                     value="discord"
                                     className="group"

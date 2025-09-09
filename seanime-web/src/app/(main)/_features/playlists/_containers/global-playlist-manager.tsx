@@ -27,8 +27,9 @@ import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
 import { imageShimmer } from "@/components/shared/image-helpers"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
 import { logger } from "@/lib/helpers/debug"
 import { getImageUrl } from "@/lib/server/assets"
@@ -53,12 +54,14 @@ type ServerEvents =
 
 const pm_currentPlaylist = atom<Anime_Playlist | null>(null)
 const pm_currentPlaylistEpisode = atom<Anime_PlaylistEpisode | null>(null)
+const pm_confirmProgressUpdateModalOpen = atom<"next" | "previous" | null>(null)
 
 export function usePlaylistManager() {
     const { sendMessage } = useWebsocketSender()
 
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
     const [currentPlaylistEpisode, setCurrentPlaylistEpisode] = useAtom(pm_currentPlaylistEpisode)
+    const [confirmOpen, setConfirmOpen] = useAtom(pm_confirmProgressUpdateModalOpen)
 
     const { downloadedMediaPlayback, torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { activeOnDevice } = useMediastreamActiveOnDevice()
@@ -104,16 +107,38 @@ export function usePlaylistManager() {
 
     function playEpisode(which: "next" | "previous", isCurrentCompleted: boolean) {
         log.info("Sending play episode event", which, isCurrentCompleted)
-        sendMessage({
-            type: WSEvents.PLAYLIST,
-            payload: {
-                type: "play-episode",
+        if (isCurrentCompleted) {
+            sendMessage({
+                type: WSEvents.PLAYLIST,
                 payload: {
-                    which,
-                    isCurrentCompleted,
+                    type: "play-episode",
+                    payload: {
+                        which,
+                        isCurrentCompleted: false, // server doesn't need to update progress
+                    },
                 },
-            },
-        })
+            })
+        } else {
+            log.info("Awaiting confirmation to update progress for", which)
+            setConfirmOpen(which)
+        }
+    }
+
+    function onConfirmedProgress(shouldUpdate: boolean) {
+        if (confirmOpen) {
+            setConfirmOpen(null)
+            log.info("Sending play episode event", confirmOpen, shouldUpdate)
+            sendMessage({
+                type: WSEvents.PLAYLIST,
+                payload: {
+                    type: "play-episode",
+                    payload: {
+                        which: confirmOpen,
+                        isCurrentCompleted: shouldUpdate,
+                    },
+                },
+            })
+        }
     }
 
     const currentPlaylistEpisodeIndex = currentPlaylist?.episodes?.findIndex(n => playlist_isSameEpisode(n, currentPlaylistEpisode)) ?? -1
@@ -129,6 +154,7 @@ export function usePlaylistManager() {
         playEpisode,
         nextPlaylistEpisode,
         prevPlaylistEpisode,
+        onConfirmedProgress,
     }
 }
 
@@ -140,7 +166,7 @@ export function GlobalPlaylistManager() {
 
     const nativePlayerState = useAtomValue(nativePlayer_stateAtom)
 
-    const { stopPlaylist, reopenEpisode, playEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
+    const { stopPlaylist, reopenEpisode, playEpisode, nextPlaylistEpisode, prevPlaylistEpisode, onConfirmedProgress } = usePlaylistManager()
 
     // state
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
@@ -288,10 +314,37 @@ export function GlobalPlaylistManager() {
         },
     })
 
+    const [confirmProgress, setConfirmProgress] = useAtom(pm_confirmProgressUpdateModalOpen)
+
     if (!currentPlaylist) return null
 
     return <>
         {animeEntry && <TorrentSearchDrawer entry={animeEntry} isPlaylistDrawer />}
+
+        <Modal
+            open={confirmProgress !== null}
+            onOpenChange={open => {
+                if (!open) {
+                    onConfirmedProgress(false)
+                    setConfirmProgress(null)
+                }
+            }}
+            title="Update progress?"
+        >
+            <p>
+                Do you want to update the progress of the current episode?
+            </p>
+
+            <div className="flex gap-2 mt-4 justify-end">
+                <Button intent="primary" onClick={() => onConfirmedProgress(true)}>
+                    Yes
+                </Button>
+                <Button intent="white-subtle" onClick={() => onConfirmedProgress(false)}>
+                    No
+                </Button>
+            </div>
+
+        </Modal>
 
         {!nativePlayerState.active && <PlaylistManagerPopup position="bottom-right">
             <p className="p-3 text-sm font-semibold">
@@ -376,7 +429,7 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
                     sizes="20rem"
                     className={cn(
                         "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
-                        episode.isCompleted && "opacity-30",
+                        episode.isCompleted && "opacity-10",
                     )}
                 />}
             </div>
@@ -388,7 +441,7 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
                     <div className="text-xs text-[--muted] line-clamp-1 tracking-wide">
                         {episode.watchType === "torrent" ? "Torrent streaming" : episode.watchType === "debrid" ? "Debrid streaming" :
                             episode.watchType === "online" ? "Online streaming" :
-                            episode.episode?.localFile?.name}
+                                episode.episode?.localFile?.name}
                     </div>
                 </div>
             </div>

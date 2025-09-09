@@ -452,7 +452,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const playNextEpisode = () => {
         logger("MEDIASTREAM").info("[playNextEpisode] called")
         if (currentPlaylist) {
-            playPlaylistEpisode("next", false)
+            playPlaylistEpisode("next", true)
             return
         }
         if (nextFile) {

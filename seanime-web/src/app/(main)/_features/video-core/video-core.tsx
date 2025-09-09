@@ -7,11 +7,6 @@ import {
 } from "@/api/hooks/discord.hooks"
 import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
-import {
-    __seaMediaPlayer_mutedAtom,
-    __seaMediaPlayer_playbackRateAtom,
-    __seaMediaPlayer_volumeAtom,
-} from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { vc_doFlashAction, VideoCoreActionDisplay } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
@@ -32,6 +27,7 @@ import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-dr
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
+import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { useVideoCorePlaylist, useVideoCorePlaylistSetup, VideoCorePlaylistControl } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
@@ -44,6 +40,9 @@ import {
     vc_autoSkipOPEDAtom,
     vc_beautifyImageAtom,
     vc_settings,
+    vc_storedMutedAtom,
+    vc_storedPlaybackRateAtom,
+    vc_storedVolumeAtom,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
     detectSubtitleType,
@@ -73,7 +72,7 @@ import { atom, useAtomValue } from "jotai"
 import { derive } from "jotai-derive"
 import { createIsolation, ScopeProvider } from "jotai-scope"
 import { useAtom, useSetAtom } from "jotai/react"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { PiSpinnerDuotone } from "react-icons/pi"
@@ -123,9 +122,8 @@ export const vc_closestBufferedTime = derive([vc_timeRanges, vc_currentTime], (t
 export const vc_ended = atom(false)
 export const vc_paused = atom(true)
 export const vc_miniPlayer = atom(false)
-export const vc_menuOpen = atom(false)
 export const vc_cursorBusy = derive([vc_hoveringControlBar, vc_menuOpen], (f1, f2) => {
-    return f1 || f2
+    return f1 || !!f2
 })
 export const vc_cursorPosition = atom({ x: 0, y: 0 })
 export const vc_busy = atom(true)
@@ -141,6 +139,9 @@ export const vc_anime4kManager = atom<VideoCoreAnime4KManager | null>(null)
 export const vc_previousPausedState = atom(false)
 
 export const vc_lastKnownProgress = atom(0)
+
+export const vc_skipOpeningTime = atom<number | null>(null)
+export const vc_skipEndingTime = atom<number | null>(null)
 
 type VideoCoreAction = "seekTo" | "seek" | "togglePlay" | "restoreProgress"
 
@@ -279,15 +280,15 @@ export function VideoCore(props: VideoCoreProps) {
     const dispatchAction = useSetAtom(vc_dispatchAction)
     const cursorBusy = useAtomValue(vc_cursorBusy)
 
-    const [showSkipIntroButton, setShowSkipIntroButton] = useState(false)
-    const [showSkipEndingButton, setShowSkipEndingButton] = useState(false)
+    const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
+    const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
 
     const [autoNext] = useAtom(vc_autoNextAtom)
     const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
-    const [autoSkipIntroOutro] = useAtom(vc_autoSkipOPEDAtom)
-    const [volume] = useAtom(__seaMediaPlayer_volumeAtom)
-    const [muted] = useAtom(__seaMediaPlayer_mutedAtom)
-    const [playbackRate, setPlaybackRate] = useAtom(__seaMediaPlayer_playbackRateAtom)
+    const [autoSkipOpeningOutro] = useAtom(vc_autoSkipOPEDAtom)
+    const [volume] = useAtom(vc_storedVolumeAtom)
+    const [muted] = useAtom(vc_storedMutedAtom)
+    const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
     const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
     const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
@@ -584,40 +585,6 @@ export function VideoCore(props: VideoCoreProps) {
         if (!!v.duration && !videoCompletedRef.current && percent >= 0.8) {
             videoCompletedRef.current = true
             onCompleted?.()
-        }
-
-        /**
-         * AniSkip
-         */
-        if (
-            aniSkipData?.op?.interval &&
-            !!e.currentTarget.currentTime &&
-            e.currentTarget.currentTime >= aniSkipData.op.interval.startTime &&
-            e.currentTarget.currentTime < aniSkipData.op.interval.endTime
-        ) {
-            setShowSkipIntroButton(true)
-            if (autoSkipIntroOutro) {
-                action({ type: "seekTo", payload: { time: aniSkipData?.op?.interval?.endTime || 0 } })
-                flashAction({ message: "Skipped OP", duration: 1000 })
-            }
-        } else {
-            setShowSkipIntroButton(false)
-        }
-        if (
-            aniSkipData?.ed?.interval &&
-            Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
-            !!e.currentTarget.currentTime &&
-            e.currentTarget.currentTime >= aniSkipData.ed.interval.startTime &&
-            e.currentTarget.currentTime < aniSkipData.ed.interval.endTime &&
-            e.currentTarget.currentTime < duration
-        ) {
-            setShowSkipEndingButton(true)
-            if (autoSkipIntroOutro) {
-                action({ type: "seekTo", payload: { time: aniSkipData?.ed?.interval?.endTime || 0 } })
-                flashAction({ message: "Skipped ED", duration: 1000 })
-            }
-        } else {
-            setShowSkipEndingButton(false)
         }
     }
 
@@ -1028,14 +995,14 @@ export function VideoCore(props: VideoCoreProps) {
                                 )}
 
                                 {busy && <>
-                                    {showSkipIntroButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
+                                    {!!skipOpeningTime && !isMiniPlayer && (
                                         <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
                                             <Button
                                                 size="sm"
                                                 intent="gray-basic"
                                                 onClick={e => {
                                                     e.stopPropagation()
-                                                    action({ type: "seekTo", payload: { time: aniSkipData?.op?.interval?.endTime || 0 } })
+                                                    action({ type: "seekTo", payload: { time: skipOpeningTime || 0 } })
                                                 }}
                                                 onPointerMove={e => e.stopPropagation()}
                                             >
@@ -1044,14 +1011,14 @@ export function VideoCore(props: VideoCoreProps) {
                                         </div>
                                     )}
 
-                                    {showSkipEndingButton && !isMiniPlayer && !state.playbackInfo?.mkvMetadata?.chapters?.length && (
+                                    {!!skipEndingTime && !isMiniPlayer && (
                                         <div className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
                                             <Button
                                                 size="sm"
                                                 intent="gray-basic"
                                                 onClick={e => {
                                                     e.stopPropagation()
-                                                    action({ type: "seekTo", payload: { time: aniSkipData?.ed?.interval?.endTime || 0 } })
+                                                    action({ type: "seekTo", payload: { time: skipEndingTime || 0 } })
                                                 }}
                                                 onPointerMove={e => e.stopPropagation()}
                                             >
