@@ -4,10 +4,13 @@ import (
 	"seanime/internal/database/db_bridge"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
+
+	"github.com/5rahim/habari"
 )
 
 type BatchHistoryResponse struct {
-	Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
+	Torrent  *hibiketorrent.AnimeTorrent `json:"torrent"`
+	Metadata *habari.Metadata            `json:"metadata"`
 }
 
 func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
@@ -20,8 +23,11 @@ func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
 		return &BatchHistoryResponse{}
 	}
 
+	metadata := habari.Parse(torrent.Name)
+
 	return &BatchHistoryResponse{
 		torrent,
+		metadata,
 	}
 }
 

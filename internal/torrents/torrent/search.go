@@ -336,7 +336,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 	isBatch := opts.torrent.IsBestRelease ||
 		opts.torrent.IsBatch ||
 		comparison.ValueContainsBatchKeywords(opts.torrent.Name) || // Contains batch keywords
-		(!opts.media.IsMovieOrSingleEpisode() && len(parsedData.EpisodeNumber) > 1) // Multiple episodes parsed & not a movie
+		(!opts.media.IsMovieOrSingleEpisode() && (len(parsedData.EpisodeNumber) > 1 || len(parsedData.EpisodeNumber) == 0)) // Multiple episodes parsed & not a movie
 
 	if opts.torrent.ReleaseGroup == "" {
 		opts.torrent.ReleaseGroup = parsedData.ReleaseGroup

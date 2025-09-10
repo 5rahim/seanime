@@ -4,11 +4,7 @@ import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/auto
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
-import {
-    TorrentDebridInstantAvailabilityBadge,
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
@@ -361,6 +357,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                             <>
                                 <TorrentTable
                                     entry={entry}
+                                    type={type}
                                     torrents={torrents}
                                     globalFilter={globalFilter}
                                     setGlobalFilter={setGlobalFilter}
@@ -424,13 +421,16 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 link={batchHistory?.torrent?.link}
                 confirmed={batchHistory?.torrent?.confirmed}
                 key={batchHistory?.torrent.link}
-                title={""}
+                displayName={""}
                 releaseGroup={batchHistory?.torrent.releaseGroup || ""}
-                subtitle={batchHistory?.torrent.name}
+                torrentName={batchHistory?.torrent.name}
                 isBatch={batchHistory?.torrent.isBatch ?? false}
                 image={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 fallbackImage={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 isBestRelease={batchHistory?.torrent.isBestRelease}
+                metadata={batchHistory.metadata}
+                resolution={batchHistory.torrent.resolution}
+                debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!batchHistory.torrent.infoHash && !!debridInstantAvailability[batchHistory.torrent.infoHash])}
                 onClick={() => {
                     if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "torrentstream-select") {
@@ -460,19 +460,15 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                     }
                 }}
             >
-                <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex flex-wrap gap-3 items-center absolute bottom-0 left-0 right-0">
                     {batchHistory?.torrent?.isBestRelease && (
                         <Badge
                             className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                             intent="success-solid"
                             leftIcon={<LuGem className="text-md" />}
                         >
-                            Best release
+                            Highest quality
                         </Badge>
-                    )}
-                    <TorrentResolutionBadge resolution={batchHistory?.torrent?.resolution} />
-                    {(!!batchHistory?.torrent?.infoHash && debridInstantAvailability[batchHistory?.torrent?.infoHash]) && (
-                        <TorrentDebridInstantAvailabilityBadge />
                     )}
                     <TorrentSeedersBadge seeders={batchHistory?.torrent?.seeders} />
                     {!!batchHistory?.torrent?.size && <p className="text-gray-300 text-sm flex items-center gap-1">

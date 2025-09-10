@@ -78938,6 +78938,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Metadata",
+        "jsonName": "metadata",
+        "goType": "habari.Metadata",
+        "typescriptType": "Habari_Metadata",
+        "usedTypescriptType": "Habari_Metadata",
+        "usedStructName": "habari.Metadata",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

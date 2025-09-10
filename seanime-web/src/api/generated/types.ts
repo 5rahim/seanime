@@ -4284,6 +4284,7 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
  */
 export type Torrentstream_BatchHistoryResponse = {
     torrent?: HibikeTorrent_AnimeTorrent
+    metadata?: Habari_Metadata
 }
 
 /**

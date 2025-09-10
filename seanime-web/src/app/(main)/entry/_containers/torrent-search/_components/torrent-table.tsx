@@ -12,18 +12,15 @@ import {
     useTorrentFiltering,
     useTorrentSorting,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
-import {
-    TorrentDebridInstantAvailabilityBadge,
-    TorrentParsedMetadata,
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentParsedMetadata, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { ScrollAreaBox } from "@/components/shared/scroll-area-box"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
+import { anilist_animeIsSingleEpisode } from "@/lib/helpers/media"
 import React, { memo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { TorrentPreviewItem } from "./torrent-preview-item"
@@ -42,6 +39,7 @@ type TorrentTable = {
     debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
     animeMetadata: Metadata_AnimeMetadata | undefined
     torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
+    type: TorrentSelectionType
 }
 
 export const TorrentTable = memo((
@@ -59,6 +57,7 @@ export const TorrentTable = memo((
         debridInstantAvailability,
         animeMetadata,
         torrentMetadata,
+        type,
     }: TorrentTable) => {
     // Use hooks for sorting and filtering
     const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
@@ -96,10 +95,11 @@ export const TorrentTable = memo((
                     />
                     <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
                         {sortedTorrents.map(torrent => {
-                            const parsedEpisodeNumberStr = torrentMetadata?.[torrent.infoHash!]?.metadata?.episode_number?.[0]
+                            const metadata = torrentMetadata?.[torrent.infoHash!]
+                            const parsedEpisodeNumberStr = metadata?.metadata?.episode_number?.[0]
                             const parsedEpisodeNumber = parsedEpisodeNumberStr ? parseInt(parsedEpisodeNumberStr) : undefined
-                            const releaseGroup = torrent.releaseGroup || torrentMetadata?.[torrent.infoHash!]?.metadata?.release_group || ""
-                            let episodeNumber = torrent.episodeNumber || parsedEpisodeNumber || -1
+                            const releaseGroup = torrent.releaseGroup || metadata?.metadata?.release_group || ""
+                            let episodeNumber = torrent.episodeNumber ?? parsedEpisodeNumber ?? -1
                             let totalEpisodes = entry?.media?.episodes || (entry?.media?.nextAiringEpisode?.episode ? entry?.media?.nextAiringEpisode?.episode : 0)
                             if (episodeNumber > totalEpisodes) {
                                 // normalize episode number
@@ -111,6 +111,8 @@ export const TorrentTable = memo((
                                 }
                             }
 
+                            const isBatch = torrent.isBatch ?? (!anilist_animeIsSingleEpisode(entry?.media) && (metadata?.metadata?.episode_number?.length ?? 0) > 1 || (metadata?.metadata?.episode_number?.length ?? 0) == 0)
+
                             let episodeImage: string | undefined
                             if (!!animeMetadata && (episodeNumber ?? -1) >= 0) {
                                 const episode = animeMetadata.episodes?.[episodeNumber!.toString()]
@@ -120,7 +122,6 @@ export const TorrentTable = memo((
                             }
                             let distance = 9999
                             if (!!torrentMetadata && !!torrent.infoHash) {
-                                const metadata = torrentMetadata[torrent.infoHash!]
                                 if (metadata) {
                                     distance = metadata.distance
                                 }
@@ -133,32 +134,31 @@ export const TorrentTable = memo((
                                     // isBasic
                                     link={torrent.link}
                                     key={torrent.link}
-                                    title={torrent.name}
+                                    torrentName={torrent.name}
                                     releaseGroup={releaseGroup}
-                                    subtitle={torrent.isBatch ? torrent.name : (episodeNumber ?? -1) >= 0
+                                    displayName={(episodeNumber ?? -1) >= 0
                                         ? `Episode ${episodeNumber}`
                                         : ""}
-                                    isBatch={torrent.isBatch ?? false}
+                                    isBatch={torrent.isBestRelease ? true : isBatch}
                                     isBestRelease={torrent.isBestRelease}
                                     image={distance <= 20 ? episodeImage : undefined}
                                     fallbackImage={(entry?.media?.coverImage?.large || entry?.media?.bannerImage)}
                                     isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
+                                    metadata={metadata?.metadata}
+                                    resolution={torrent.resolution}
+                                    debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!torrent.infoHash && !!debridInstantAvailability[torrent.infoHash])}
                                     onClick={() => onToggleTorrent(torrent!)}
                                     // confirmed={distance === 0}
                                 >
-                                    <div className="flex flex-wrap gap-2 items-center">
+                                    <div className="flex flex-wrap gap-2 items-center absolute bottom-0 left-0 right-0">
                                         {torrent.isBestRelease && (
                                             <Badge
                                                 className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                                                 intent="success-solid"
 
                                             >
-                                                Best release
+                                                Highest quality
                                             </Badge>
-                                        )}
-                                        <TorrentResolutionBadge resolution={torrent.resolution} />
-                                        {(!!torrent.infoHash && debridInstantAvailability[torrent.infoHash]) && (
-                                            <TorrentDebridInstantAvailabilityBadge />
                                         )}
                                         <TorrentSeedersBadge seeders={torrent.seeders} />
                                         {!!torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">

@@ -12,12 +12,7 @@ import {
     useTorrentFiltering,
     useTorrentSorting,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
-import {
-    TorrentDebridInstantAvailabilityBadge,
-    TorrentParsedMetadata,
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentParsedMetadata, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -93,30 +88,29 @@ export const TorrentPreviewList = React.memo((
                             link={item.torrent?.link}
                             confirmed={item.torrent?.confirmed}
                             key={item.torrent.link}
-                            title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
+                            displayName={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                             releaseGroup={item.torrent.releaseGroup || ""}
-                            subtitle={item.torrent.name}
+                            torrentName={item.torrent.name}
                             isBatch={item.torrent.isBatch ?? false}
                             isBestRelease={item.torrent.isBestRelease}
                             image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
                                 (item.torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
                             fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
                             isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
+                            metadata={torrentMetadata?.[item.torrent.infoHash!]?.metadata}
+                            resolution={item.torrent.resolution}
+                            debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && !!debridInstantAvailability[item.torrent.infoHash])}
                             onClick={() => onToggleTorrent(item.torrent!)}
                         >
-                            <div className="flex flex-wrap gap-2 items-center">
+                            <div className="flex flex-wrap gap-2 items-center absolute bottom-0 left-0 right-0">
                                 {item.torrent.isBestRelease && (
                                     <Badge
                                         className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                                         intent="success-solid"
                                         leftIcon={<LuGem className="text-md" />}
                                     >
-                                        Best release
+                                        Highest quality
                                     </Badge>
-                                )}
-                                <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                                {((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
-                                    <TorrentDebridInstantAvailabilityBadge />
                                 )}
                                 <TorrentSeedersBadge seeders={item.torrent.seeders} />
                                 {!!item.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
