@@ -2,13 +2,15 @@ package torrentstream
 
 import (
 	"fmt"
-	"github.com/5rahim/habari"
-	"github.com/anacrolix/torrent"
+	"path/filepath"
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"sync"
+
+	"github.com/5rahim/habari"
+	"github.com/anacrolix/torrent"
 )
 
 type (
@@ -55,7 +57,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			defer wg.Done()
 			defer util.HandlePanicInModuleThen("debridstream/GetTorrentFilePreviewsFromManualSelection", func() {})
 
-			metadata := habari.Parse(file.DisplayPath())
+			metadata := habari.Parse(filepath.Base(file.Path()))
 			mu.Lock()
 			fileMetadataMap[file.Path()] = metadata
 			mu.Unlock()
@@ -87,7 +89,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			metadata := fileMetadataMap[file.Path()]
 			mu.RUnlock()
 
-			displayTitle := file.DisplayPath()
+			displayTitle := filepath.Base(file.Path())
 
 			isLikely := false
 			parsedEpisodeNumber := -1
@@ -111,7 +113,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			// Get the file preview
 			ret = append(ret, &FilePreview{
 				Path:          file.Path(),
-				DisplayPath:   file.DisplayPath(),
+				DisplayPath:   filepath.Base(file.Path()),
 				DisplayTitle:  displayTitle,
 				EpisodeNumber: parsedEpisodeNumber,
 				IsLikely:      isLikely,

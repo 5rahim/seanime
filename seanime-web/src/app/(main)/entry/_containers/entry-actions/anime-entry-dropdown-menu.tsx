@@ -4,6 +4,7 @@ import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { PluginAnimePageDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
 import {
     __bulkDeleteFilesModalIsOpenAtom,
     AnimeEntryBulkDeleteFilesModal,
@@ -34,6 +35,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
     const inLibrary = !!entry.libraryData
 
+    const { currentView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
+
     // Start default media player
     const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()
     // Open entry in explorer
@@ -55,7 +58,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 />}
             >
 
-                {(inLibrary && !entry._isNakamaEntry) && <>
+                {(isLibraryView && inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuItem
                         onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
                     >
@@ -85,7 +88,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 </DropdownMenuItem>
 
 
-                {(inLibrary && !entry._isNakamaEntry) && <>
+                {(isLibraryView && inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                     <DropdownMenuItem

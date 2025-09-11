@@ -16,8 +16,8 @@ export function useTorrentSearchSelectedStreamEpisode() {
     const [value, setter] = useAtom(__torrentSearch_streamingSelectedEpisodeAtom)
 
     return {
-        torrentStreamingSelectedEpisode: value,
-        setTorrentStreamingSelectedEpisode: setter,
+        torrentSearchStreamEpisode: value,
+        setTorrentSearchStreamEpisode: setter,
     }
 }
 
@@ -30,7 +30,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
     // Currently selected torrents
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     // Get the currently selected episode
-    const { torrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
+    const { torrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
     // Sets the selected torrent for file selection
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_fileSelectionTorrentAtom)
     // Sets the selected torrent for auto play
@@ -39,18 +39,18 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
 
     const onTorrentValidated = () => {
         const torrent = selectedTorrents[0]
-        console.log("onTorrentValidated", torrentStreamingSelectedEpisode)
+        console.log("onTorrentValidated", torrentSearchStreamEpisode)
         // User manually selected a torrent
         if (type === "torrentstream-select") {
-            if (!!torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+            if (!!torrent && !!torrentSearchStreamEpisode?.aniDBEpisode) {
                 // Store the selected torrent
                 setAutoPlayTorrent(torrent, entry)
                 // Start torrent stream with auto file selection
                 handleTorrentstreamSelection({
                     torrent: torrent,
                     mediaId: entry.mediaId,
-                    aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                    episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                    aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
+                    episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                     chosenFileIndex: undefined,
                 })
                 // Close torrent search
@@ -61,7 +61,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
             }
         } else if (type === "torrentstream-select-file") {
             // Open the drawer to select the file
-            if (!!torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+            if (!!torrent && !!torrentSearchStreamEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer
                 setTorrentstreamSelectedTorrent(torrent)
                 React.startTransition(() => {
@@ -70,15 +70,15 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
             }
         } else if (type === "debridstream-select") {
             // Start debrid stream with auto file selection
-            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+            if (selectedTorrents.length && !!torrentSearchStreamEpisode?.aniDBEpisode) {
                 // Store the selected torrent
                 setAutoPlayTorrent(torrent, entry)
                 // Start debrid stream with auto file selection
                 handleDebridstreamSelection({
                     torrent: torrent,
                     mediaId: entry.mediaId,
-                    aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                    episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                    aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
+                    episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                     chosenFileId: "",
                 })
                 // Close torrent search
@@ -89,7 +89,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
             }
         } else if (type === "debridstream-select-file") {
             // Open the drawer to select the file
-            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+            if (selectedTorrents.length && !!torrentSearchStreamEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer
                 setTorrentstreamSelectedTorrent(torrent)
                 React.startTransition(() => {

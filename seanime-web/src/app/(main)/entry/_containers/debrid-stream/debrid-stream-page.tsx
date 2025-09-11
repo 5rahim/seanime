@@ -71,7 +71,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const [, setTorrentSearchEpisode] = useAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
+    const { setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     // Function to handle playing the next episode on mount
     function handlePlayNextEpisodeOnMount(episode: Anime_Episode) {
@@ -127,7 +127,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const handleEpisodeClick = (episode: Anime_Episode) => {
         if (!episode || !episode.aniDBEpisode) return
 
-        setTorrentStreamingSelectedEpisode(episode)
+        setTorrentSearchStreamEpisode(episode)
 
         if (autoSelect) {
             handleAutoSelect(entry, episode)
@@ -157,7 +157,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
         <>
             <PageWrapper
                 data-anime-entry-page-debrid-stream-view
-                key="torrent-streaming-episodes"
+                key="debrid-streaming-episodes"
                 className="relative 2xl:order-first pb-10 lg:pt-0"
                 {...{
                     initial: { opacity: 0, y: 60 },

@@ -95,7 +95,7 @@ jobs:
       - name: Set up Go ⬇️
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.3'
+          go-version: '1.25.1'
 
       # Download the web folders
       # TODO Uncomment if building web
@@ -627,7 +627,7 @@ jobs:
       - name: Set up Go ⬇️
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.3'
+          go-version: '1.25.1'
 
       # Build the Go script
       - name: Build Go scripts 🛠️

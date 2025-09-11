@@ -193,12 +193,12 @@ export function GlobalPlaylistManager() {
     // If user is auto-selecting the file
     const [torrentStream_autoSelectFile] = useAtom(__torrentStream_autoSelectFileAtom)
     const [debridStream_autoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)
-    const { torrentStreamingSelectedEpisode, setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
+    const { torrentSearchStreamEpisode, setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
 
-    const { data: animeEntry } = useGetAnimeEntry(torrentStreamingSelectedEpisode?.baseAnime?.id)
+    const { data: animeEntry } = useGetAnimeEntry(torrentSearchStreamEpisode?.baseAnime?.id)
 
     // The torrent to continue playing from
     const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
@@ -220,7 +220,7 @@ export function GlobalPlaylistManager() {
                     break
 
                 case "playing-episode":
-                    setTorrentStreamingSelectedEpisode(null)
+                    setTorrentSearchStreamEpisode(null)
                     setTorrentSearch(undefined)
                     break
 
@@ -266,7 +266,7 @@ export function GlobalPlaylistManager() {
                                 } else {
                                     log.info("No previous torrent found, opening torrent search")
                                     setTorrentSearchEpisode(episode.episode?.episodeNumber)
-                                    setTorrentStreamingSelectedEpisode(episode.episode!)
+                                    setTorrentSearchStreamEpisode(episode.episode!)
                                     setTorrentSearch(torrentStream_autoSelectFile ? "torrentstream-select" : "torrentstream-select-file")
                                     return
                                 }
@@ -295,7 +295,7 @@ export function GlobalPlaylistManager() {
                                 } else {
                                     log.info("No previous debrid found, opening debrid search")
                                     setTorrentSearchEpisode(episode.episode?.episodeNumber)
-                                    setTorrentStreamingSelectedEpisode(episode.episode!)
+                                    setTorrentSearchStreamEpisode(episode.episode!)
                                     setTorrentSearch(debridStream_autoSelectFile ? "debridstream-select" : "debridstream-select-file")
                                     return
                                 }

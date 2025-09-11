@@ -1,0 +1,219 @@
+import { cn } from "@/components/ui/core/styling"
+import React from "react"
+import { FcFolder } from "react-icons/fc"
+import { FiChevronDown, FiChevronRight, FiFile } from "react-icons/fi"
+import { MdVerified } from "react-icons/md"
+
+export type FileTreeNode = {
+    name: string
+    type: "file" | "directory"
+    path: string
+    filePreview?: {
+        displayTitle: string
+        displayPath: string
+        path: string
+        isLikely: boolean
+    }
+    children?: FileTreeNode[]
+}
+
+export const buildFileTree = (filePreviews: any[]): FileTreeNode => {
+    const root: FileTreeNode = {
+        name: "root",
+        type: "directory",
+        path: "",
+        children: [],
+    }
+
+    const sortedPreviews = filePreviews.toSorted((a, b) => a.path.localeCompare(b.path))
+
+    sortedPreviews.forEach(filePreview => {
+        const pathParts = filePreview.path.split("/").filter((part: string) => part !== "")
+        let currentNode = root
+
+        pathParts.forEach((part: string, index: number) => {
+            const isFile = index === pathParts.length - 1
+            const currentPath = pathParts.slice(0, index + 1).join("/")
+
+            let existingNode = currentNode.children?.find(child => child.name === part)
+
+            if (!existingNode) {
+                existingNode = {
+                    name: part,
+                    type: isFile ? "file" : "directory",
+                    path: currentPath,
+                    filePreview: isFile ? filePreview : undefined,
+                    children: isFile ? undefined : [],
+                }
+                currentNode.children?.push(existingNode)
+            }
+
+            if (!isFile) {
+                currentNode = existingNode
+            }
+        })
+    })
+
+    return root
+}
+
+export type FileTreeSelectorProps = {
+    filePreviews: any[]
+    selectedValue: string | number
+    onFileSelect: (value: string | number) => void
+    getFileValue: (filePreview: any) => string | number // Functio to extract the selection value from file preview
+    hasLikelyMatch: boolean
+    hasOneLikelyMatch: boolean
+    likelyMatchRef: React.RefObject<HTMLDivElement>
+}
+
+type FileTreeNodeProps = {
+    node: FileTreeNode
+    selectedValue: string | number
+    onFileSelect: (value: string | number) => void
+    getFileValue: (filePreview: any) => string | number
+    hasLikelyMatch: boolean
+    hasOneLikelyMatch: boolean
+    likelyMatchRef: React.RefObject<HTMLDivElement>
+    level?: number
+}
+
+const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
+    node,
+    selectedValue,
+    onFileSelect,
+    getFileValue,
+    hasLikelyMatch,
+    hasOneLikelyMatch,
+    likelyMatchRef,
+    level = 0,
+}) => {
+    const [isOpen, setIsOpen] = React.useState(level === 0 || level === 1)
+
+    const toggleOpen = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (node.type === "directory") {
+            setIsOpen(!isOpen)
+        }
+    }
+
+    const handleFileSelect = () => {
+        if (node.type === "file" && node.filePreview) {
+            onFileSelect(getFileValue(node.filePreview))
+        }
+    }
+
+    const isSelected = node.type === "file" && node.filePreview && selectedValue === getFileValue(node.filePreview)
+    const isLikelyMatch = node.type === "file" && node.filePreview?.isLikely
+
+    return (
+        <div>
+            <div
+                className={cn(
+                    "flex items-center py-1.5 px-2 transition border border-transparent rounded-[--radius]",
+                    node.type === "file" && "cursor-pointer",
+                    node.type === "file" && !isSelected && "hover:bg-[--subtle]",
+                    isSelected && "bg-white dark:bg-gray-950 border border-[--brand]",
+                    (hasLikelyMatch && !isSelected && !isLikelyMatch && node.type === "file") && "opacity-60",
+                )}
+                onClick={handleFileSelect}
+                ref={hasOneLikelyMatch && isLikelyMatch ? likelyMatchRef : undefined}
+            >
+                <div className="flex items-center" onClick={toggleOpen}>
+                    {node.type === "directory" && (
+                        <span className="mr-1 cursor-pointer">
+                            {isOpen ? (
+                                <FiChevronDown className="size-5" />
+                            ) : (
+                                <FiChevronRight className="size-5" />
+                            )}
+                        </span>
+                    )}
+                    {node.type === "directory" ? (
+                        <FcFolder className="size-5 mr-2 text-[--white] cursor-pointer" />
+                    ) : (
+                        <FiFile className="size-5 mr-2 text-[--muted]" />
+                    )}
+                </div>
+
+                <div className="flex flex-col flex-1 min-w-0">
+                    {node.type === "file" && node.filePreview ? (
+                        <>
+                            <p className="mb-1 line-clamp-1 font-medium">
+                                {node.filePreview.displayTitle}
+                            </p>
+                            {isLikelyMatch && (
+                                <p className="flex items-center">
+                                    <MdVerified className="text-[--green] mr-1" />
+                                    <span className="text-white text-sm">Likely match</span>
+                                </p>
+                            )}
+                            <p className="font-normal line-clamp-2 text-sm text-[--muted]">{node.filePreview.displayPath}</p>
+                        </>
+                    ) : (
+                        <span
+                            className={cn(
+                                "font-medium",
+                                node.type === "directory" ? "text-[--white]" : "cursor-pointer",
+                            )}
+                        >
+                            {node.name}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {node.type === "directory" && isOpen && node.children && (
+                <div className="ml-4 border-l pl-2">
+                    {node.children.map((child, index) => (
+                        <FileTreeNodeComponent
+                            key={index}
+                            node={child}
+                            selectedValue={selectedValue}
+                            onFileSelect={onFileSelect}
+                            getFileValue={getFileValue}
+                            hasLikelyMatch={hasLikelyMatch}
+                            hasOneLikelyMatch={hasOneLikelyMatch}
+                            likelyMatchRef={likelyMatchRef}
+                            level={level + 1}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+export const FileTreeSelector: React.FC<FileTreeSelectorProps> = ({
+    filePreviews,
+    selectedValue,
+    onFileSelect,
+    getFileValue,
+    hasLikelyMatch,
+    hasOneLikelyMatch,
+    likelyMatchRef,
+}) => {
+    if (!filePreviews || filePreviews.length === 0) {
+        return null
+    }
+
+    const fileTree = buildFileTree(filePreviews)
+
+    return (
+        <div className="flex flex-col gap-1">
+            {fileTree.children?.map((child, index) => (
+                <FileTreeNodeComponent
+                    key={index}
+                    node={child}
+                    selectedValue={selectedValue}
+                    onFileSelect={onFileSelect}
+                    getFileValue={getFileValue}
+                    hasLikelyMatch={hasLikelyMatch || false}
+                    hasOneLikelyMatch={hasOneLikelyMatch || false}
+                    likelyMatchRef={likelyMatchRef}
+                    level={0}
+                />
+            ))}
+        </div>
+    )
+}

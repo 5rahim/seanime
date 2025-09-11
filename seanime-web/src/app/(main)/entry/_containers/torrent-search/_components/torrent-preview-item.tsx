@@ -1,20 +1,83 @@
-import { Habari_Metadata } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Episode, Habari_Metadata, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import {
     TorrentDebridInstantAvailabilityBadge,
+    TorrentParsedMetadata,
     TorrentResolutionBadge,
+    TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { openTab } from "@/lib/helpers/browser"
+import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { uniqBy } from "lodash"
 import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
-import { BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
 import { BsFileEarmarkPlayFill } from "react-icons/bs"
 import { FcOpenedFolder } from "react-icons/fc"
-import { LuCircleCheckBig } from "react-icons/lu"
+import { LuCircleCheckBig, LuGem } from "react-icons/lu"
+
+export const TorrentList = ({ children }: { children?: React.ReactNode }) => {
+    return (
+        <div className="grid grid-cols-1 gap-3">
+            {children}
+        </div>
+    )
+}
+
+export const TorrentListItem = ({ torrent, metadata, debridCached, onClick, isSelected, episode, media, overrideProps }: {
+    torrent: HibikeTorrent_AnimeTorrent,
+    metadata: Habari_Metadata | undefined,
+    debridCached: boolean | undefined,
+    episode: Anime_Episode | undefined,
+    media: AL_BaseAnime | undefined,
+    isSelected: boolean
+    onClick: () => void
+    overrideProps?: Partial<TorrentPreviewItemProps>
+}) => {
+    return (
+        <TorrentPreviewItem
+            link={overrideProps?.link ?? torrent?.link}
+            confirmed={overrideProps?.confirmed ?? torrent?.confirmed}
+            key={torrent.link}
+            displayName={overrideProps?.displayName ?? (episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || "")}
+            releaseGroup={overrideProps?.releaseGroup ?? (torrent.releaseGroup || "")}
+            torrentName={overrideProps?.torrentName ?? torrent.name}
+            isBatch={overrideProps?.isBatch ?? torrent.isBatch ?? false}
+            isBestRelease={overrideProps?.isBestRelease ?? torrent.isBestRelease}
+            image={overrideProps?.image ?? (episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large ||
+                (torrent.confirmed ? (media?.coverImage?.large || media?.bannerImage) : null))}
+            fallbackImage={overrideProps?.fallbackImage ?? (media?.coverImage?.large || media?.bannerImage)}
+            isSelected={overrideProps?.isSelected ?? isSelected}
+            metadata={overrideProps?.metadata ?? metadata}
+            resolution={overrideProps?.resolution ?? torrent.resolution}
+            debridCached={overrideProps?.debridCached ?? debridCached}
+            onClick={onClick}
+        >
+            <div className="flex flex-wrap gap-2 items-center lg:absolute bottom-0 left-0 right-0">
+                {torrent.isBestRelease && (
+                    <Badge
+                        className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
+                        intent="success-solid"
+                        leftIcon={<LuGem className="text-md" />}
+                    >
+                        Highest quality
+                    </Badge>
+                )}
+                <TorrentSeedersBadge seeders={torrent.seeders} />
+                {!!torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
+                    {torrent.formattedSize}</p>}
+                {torrent.date && <p className="text-[--muted] text-sm flex items-center gap-1">
+                    <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
+                </p>}
+            </div>
+            {metadata && <TorrentParsedMetadata metadata={metadata} />}
+        </TorrentPreviewItem>
+    )
+}
 
 type TorrentPreviewItemProps = {
     link?: string
@@ -39,7 +102,7 @@ type TorrentPreviewItemProps = {
     debridCached?: boolean
 }
 
-export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
+const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
     const {
         link,
@@ -139,6 +202,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 "border p-3 pr-12 rounded-lg relative transition group/torrent-preview-item overflow-hidden",
                 // !__isElectronDesktop__ && "lg:hover:scale-[1.01]",
                 "max-w-full bg-[--background]",
+                isSelected && "sticky top-2 z-10",
                 {
                     "border-brand-200": isSelected,
                     "hover:border-gray-500": !isSelected,
@@ -153,21 +217,21 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
             {(image || fallbackImage) &&
                 <div className="absolute left-0 top-0 w-full h-full max-w-[200px] overflow-hidden" data-torrent-preview-item-image-container>
-                {(image || fallbackImage) && <Image
-                    data-torrent-preview-item-image
-                    src={image || fallbackImage!}
-                    alt="episode image"
-                    fill
-                    className={cn(
-                        "object-cover object-center absolute w-full h-full group-hover/torrent-preview-item:blur-0 transition-opacity opacity-25 group-hover/torrent-preview-item:opacity-60 z-[0] select-none pointer-events-none",
-                        (!image && fallbackImage) && "opacity-10 group-hover/torrent-preview-item:opacity-30",
-                        isSelected && "opacity-50",
-                    )}
-                />}
-                <div
-                    data-torrent-preview-item-image-end-gradient
-                    className="transition-colors absolute w-full h-full -right-2 bg-gradient-to-l from-[--background] via-[--background] via-30% hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
-                ></div>
+                    {(image || fallbackImage) && <Image
+                        data-torrent-preview-item-image
+                        src={image || fallbackImage!}
+                        alt="episode image"
+                        fill
+                        className={cn(
+                            "object-cover object-center absolute w-full h-full group-hover/torrent-preview-item:blur-0 transition-opacity opacity-25 group-hover/torrent-preview-item:opacity-60 z-[0] select-none pointer-events-none",
+                            (!image && fallbackImage) && "opacity-10 group-hover/torrent-preview-item:opacity-30",
+                            isSelected && "opacity-50",
+                        )}
+                    />}
+                    <div
+                        data-torrent-preview-item-image-end-gradient
+                        className="transition-colors absolute w-full h-full -right-2 bg-gradient-to-l from-[--background] via-[--background] via-30% hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
+                    ></div>
                 </div>}
             {!image && !!fallbackImage &&
                 <div className="absolute right-0 top-0 w-full h-full max-w-[200px] overflow-hidden" data-torrent-preview-item-image-container>

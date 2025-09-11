@@ -154,6 +154,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
             // for smooth seeking, we don't want to peg the current time to the actual video time
             // instead act like the target time is instantly reached
             case "seekTo":
+                if (isNaN(duration) || duration <= 1) return
                 t = Math.min(duration, Math.max(0, action.payload.time))
                 videoElement.currentTime = t
                 set(vc_currentTime, t)
@@ -162,6 +163,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 }
                 break
             case "seek":
+                if (isNaN(duration) || duration <= 1) return
                 const currentTime = get(vc_currentTime)
                 t = Math.min(duration, Math.max(0, currentTime + action.payload.time))
                 videoElement.currentTime = t

@@ -15,7 +15,6 @@ import {
     ThemeMediaPageBannerSizeOptions,
     ThemeMediaPageBannerType,
     ThemeMediaPageBannerTypeOptions,
-    ThemeMediaPageInfoBoxSizeOptions,
     useThemeSettings,
 } from "@/lib/theme/hooks"
 import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
@@ -675,12 +674,12 @@ export function UISettings() {
                                     help={ThemeMediaPageBannerSizeOptions.find(n => n.value === f.watch("mediaPageBannerSize"))?.description}
                                 />
 
-                                <Field.RadioCards
-                                    label="Banner info layout"
-                                    name="mediaPageBannerInfoBoxSize"
-                                    options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}
-                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
-                                />
+                                {/*<Field.RadioCards*/}
+                                {/*    label="Banner info layout"*/}
+                                {/*    name="mediaPageBannerInfoBoxSize"*/}
+                                {/*    options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}*/}
+                                {/*    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"*/}
+                                {/*/>*/}
 
                                 <Field.Switch
                                     side="right"

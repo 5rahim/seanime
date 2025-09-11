@@ -70,7 +70,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
 
     // Stores the episode that was clicked
-    const { setTorrentStreamingSelectedEpisode } = useTorrentSearchSelectedStreamEpisode()
+    const { setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
 
     /**
@@ -130,7 +130,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const handleEpisodeClick = (episode: Anime_Episode) => {
             if (isPending) return
 
-            setTorrentStreamingSelectedEpisode(episode)
+            setTorrentSearchStreamEpisode(episode)
 
             React.startTransition(() => {
                 // If auto-select is enabled, send the streaming request

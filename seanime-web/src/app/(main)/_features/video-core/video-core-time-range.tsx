@@ -113,15 +113,18 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     // handle auto skip
     React.useEffect(() => {
         if (!opEdChapters.opening?.end && !opEdChapters.ending?.end) return
+        if (isNaN(duration) || duration <= 1) return
 
         // e.currentTarget.currentTime >= aniSkipData.op.interval.startTime &&
         //             e.currentTarget.currentTime < aniSkipData.op.interval.endTime
         if (
             opEdChapters.opening &&
+            opEdChapters.opening.end &&
             currentTime >= opEdChapters.opening.start &&
             currentTime < opEdChapters.opening.end
         ) {
             if (autoSkipIntroOutro && !restoreProgressTo) {
+                console.log("auto skip", opEdChapters.opening.end)
                 action({ type: "seekTo", payload: { time: opEdChapters.opening.end } })
                 flashAction({ message: "Skipped OP", duration: 1000 })
             } else {
@@ -133,11 +136,13 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
 
         if (
             opEdChapters.ending &&
+            opEdChapters.ending.end &&
             currentTime >= opEdChapters.ending.start &&
             currentTime < opEdChapters.ending.end &&
             currentTime < duration
         ) {
             if (autoSkipIntroOutro && !restoreProgressTo) {
+                console.log("auto skip", opEdChapters.ending.end)
                 action({ type: "seekTo", payload: { time: opEdChapters.ending.end } })
                 flashAction({ message: "Skipped ED", duration: 1000 })
             } else {

@@ -1,4 +1,4 @@
-import { Torrent_TorrentMetadata } from "@/api/generated/types"
+import { Habari_Metadata } from "@/api/generated/types"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -57,13 +57,14 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
             leftIcon={<Icon
                 className={cn(
                     "text-xl mr-0.5",
-                    seeders >= 20 ? "text-[--indigo]" : seeders >= 5 ? "text-orange-300" : "text-[--red]",
+                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-orange-300" : "text-[--red]",
                 )}
             />}
         >
             <span
                 className={cn("text-[.9rem] font-normal",
-                    seeders >= 20 ? "text-[--indigo]" : seeders >= 5 ? "text-orange-300" : "text-[--red]")}
+                    seeders >= 50 ? "text-[--indigo]" : seeders >= 10 ? "text-[--green]" : seeders >= 5 ? "text-orange-300" : "text-[--red]",
+                )}
             >{seeders || "No"}</span><span className="text-[--muted] text-[.9rem]">seeder{seeders != 1
             ? "s"
             : ""}</span>
@@ -73,18 +74,18 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 }
 
 
-export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentMetadata | undefined }) {
+export function TorrentParsedMetadata({ metadata }: { metadata: Habari_Metadata | undefined }) {
 
     if (!metadata) return null
 
-    const hasDubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("dub"))
-    // const hasSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("sub"))
-    const hasMultiSubs = metadata.metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("multi"))
+    const hasDubs = metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("dub"))
+    // const hasSubs = metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("sub"))
+    const hasMultiSubs = metadata?.subtitles?.some(n => n.toLocaleLowerCase().includes("multi"))
 
-    const languages = !!metadata.metadata?.language?.length ? [...new Set(metadata.metadata?.language)] : []
+    const languages = !!metadata?.language?.length ? [...new Set(metadata?.language)] : []
 
     const filterHEVC = (n: string) => {
-        return !(n.toLocaleLowerCase().includes("265") && metadata.metadata?.video_term?.map(n => n.toLocaleLowerCase()).includes("hevc"))
+        return !(n.toLocaleLowerCase().includes("265") && metadata?.video_term?.map(n => n.toLocaleLowerCase()).includes("hevc"))
     }
 
     return (
@@ -97,7 +98,7 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
                     <PiChatTeardropDuotone className="text-lg text-[--blue]" /> {term}
                 </Badge>
             )) : null}
-            {metadata.metadata?.video_term?.filter(filterHEVC).map(term => (
+            {metadata?.video_term?.filter(filterHEVC).map(term => (
                 <Badge
                     key={term}
                     className="rounded-md border-transparent bg-transparent text-[.8rem] text-[--foreground] px-1"
@@ -105,7 +106,7 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
                     {term}
                 </Badge>
             ))}
-            {metadata.metadata?.audio_term?.filter(term => !term.toLowerCase().includes("dual") && !term.toLowerCase().includes("multi"))
+            {metadata?.audio_term?.filter(term => !term.toLowerCase().includes("dual") && !term.toLowerCase().includes("multi"))
                 .map(term => (
                     <Badge
                         key={term}
@@ -125,7 +126,7 @@ export function TorrentParsedMetadata({ metadata }: { metadata: Torrent_TorrentM
                     {languages.join(", ")}
                 </span>
             </Tooltip> : null}
-            {metadata.metadata?.audio_term?.filter(term => term.toLowerCase().includes("dual") || term.toLowerCase().includes("multi")).map(term => (
+            {metadata?.audio_term?.filter(term => term.toLowerCase().includes("dual") || term.toLowerCase().includes("multi")).map(term => (
                 <Badge
                     key={term}
                     className="rounded-md border-transparent bg-[--subtle] text-[.8rem] px-1"

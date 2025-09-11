@@ -5,7 +5,7 @@ import * as React from "react"
 import { Drawer as VaulPrimitive } from "vaul"
 
 const Vaul = ({
-    shouldScaleBackground = false,
+    shouldScaleBackground = true,
     ...props
 }: React.ComponentProps<typeof VaulPrimitive.Root>) => (
     <VaulPrimitive.Root
@@ -28,7 +28,7 @@ const VaulOverlay = React.forwardRef<
     return (
         <VaulPrimitive.Overlay
             ref={ref}
-            className={cn("fixed inset-0 z-50 bg-black/80", className)}
+            className={cn("fixed inset-0 z-50 bg-gray-950/70 backdrop-blur-sm", className)}
             {...props}
         />
     )
@@ -46,6 +46,7 @@ const VaulContent = React.forwardRef<
                 ref={ref}
                 className={cn(
                     "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-[var(--background)]",
+                    "select-none focus:outline-none outline-none outline-0 focus:outline-0",
                     className,
                 )}
                 {...props}
