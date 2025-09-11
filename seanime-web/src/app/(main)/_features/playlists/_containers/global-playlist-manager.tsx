@@ -8,10 +8,7 @@ import { playlist_getEpisodeKey, playlist_isSameEpisode } from "@/app/(main)/_fe
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
-import {
-    __debridStream_autoSelectFileAtom,
-    __debridStream_currentSessionAutoSelectAtom,
-} from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
+import { __debridStream_autoSelectFileAtom } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import {
     __torrentSearch_selectionAtom,
@@ -19,10 +16,7 @@ import {
     TorrentSearchDrawer,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
-import {
-    __torrentStream_autoSelectFileAtom,
-    __torrentStream_currentSessionAutoSelectAtom,
-} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
+import { __torrentStream_autoSelectFileAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
@@ -186,10 +180,10 @@ export function GlobalPlaylistManager() {
     const { playMediaFile } = useHandlePlayMedia()
 
     // If user is auto-selecting the torrent
-    const [torrentStream_currentSessionAutoSelect] = useAtom(__torrentStream_currentSessionAutoSelectAtom)
-    const [debridStream_currentSessionAutoSelect] = useAtom(__debridStream_currentSessionAutoSelectAtom)
-    // const torrentStream_currentSessionAutoSelect = serverStatus?.torrentstreamSettings?.autoSelect
-    // const debridStream_currentSessionAutoSelect = serverStatus?.debridSettings?.streamAutoSelect
+    // const [torrentStream_currentSessionAutoSelect] = useAtom(__torrentStream_currentSessionAutoSelectAtom)
+    // const [debridStream_currentSessionAutoSelect] = useAtom(__debridStream_currentSessionAutoSelectAtom)
+    const torrentStream_currentSessionAutoSelect = serverStatus?.torrentstreamSettings?.autoSelect
+    const debridStream_currentSessionAutoSelect = serverStatus?.debridSettings?.streamAutoSelect
     // If user is auto-selecting the file
     const [torrentStream_autoSelectFile] = useAtom(__torrentStream_autoSelectFileAtom)
     const [debridStream_autoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)

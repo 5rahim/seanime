@@ -109,7 +109,6 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     <Details />
                 </MediaPageHeaderEntryDetails>
 
-                <EntrySectionTabs entry={entry} />
 
                 <div
                     data-anime-meta-section-buttons-container
@@ -169,6 +168,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                 </div>
 
+                <EntrySectionTabs entry={entry} />
 
                 <NextAiringEpisode media={entry.media} />
 

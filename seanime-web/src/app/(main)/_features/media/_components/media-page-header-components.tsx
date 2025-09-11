@@ -175,8 +175,8 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     <div
                         data-media-page-header-banner-left-gradient
                         className={cn(
-                            "hidden lg:block max-w-[60rem] xl:max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background]  transition-opacity to-transparent",
-                            "opacity-85 duration-1000",
+                            "hidden lg:block max-w-[60rem] lg:max-w-[100rem] xl:max-w-[90%] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background]  transition-opacity to-transparent",
+                            "opacity-95 duration-1000",
                             // y > 300 && "opacity-70",
                         )}
                     />

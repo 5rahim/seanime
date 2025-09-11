@@ -23,11 +23,9 @@ export type TorrentSelectionType =
     | "debridstream-select-file"
     | "download"
 
-export type TorrentSearchLayout = "modal" | "stream" | "page"
+export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawer?: boolean }) {
 
-export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawer?: boolean, layoutType?: TorrentSearchLayout }) {
-
-    const { entry, isPlaylistDrawer, layoutType: _layoutType } = props
+    const { entry, isPlaylistDrawer } = props
     const ts = useThemeSettings()
 
     const [selectionType, setSelection] = useAtom(__torrentSearch_selectionAtom)
@@ -45,8 +43,6 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawe
             router.replace(pathname + `?id=${mId}`)
         }
     }, [downloadParam])
-
-    const layoutType = isPlaylistDrawer ? "modal" : selectionType !== "download" ? "stream" : (_layoutType ?? "modal")
 
     const { onTorrentValidated } = useTorrentSearchSelection({ entry, type: selectionType })
 

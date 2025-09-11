@@ -131,15 +131,22 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }, [urlEpNumber])
 
-    React.useEffect(() => {
-        const t = setTimeout(() => {
-            if (urlEpNumber) {
-                router.replace(pathname + `?id=${mediaId}`)
-            }
-        }, 500)
+    // React.useEffect(() => {
+    //     const t = setTimeout(() => {
+    //         if (urlEpNumber) {
+    //             router.replace(pathname + `?id=${mediaId}`)
+    //         }
+    //     }, 500)
+    //
+    //     return () => clearTimeout(t)
+    // }, [mediaId])
 
-        return () => clearTimeout(t)
-    }, [mediaId])
+    function onCanPlay() {
+        if (urlEpNumber) {
+            router.replace(pathname + `?id=${mediaId}`)
+        }
+        _onCanPlay()
+    }
 
     const episodeTitle = episodes?.find(e => e.number === currentEpisodeNumber)?.title
 
@@ -286,7 +293,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             playerRef={ref}
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
-                            onCanPlay={_onCanPlay}
+                            onCanPlay={onCanPlay}
                             onGoToNextEpisode={hasNextEpisode ? goToNextEpisode : undefined}
                             onGoToPreviousEpisode={hasPreviousEpisode ? goToPreviousEpisode : undefined}
                             tracks={episodeSource?.subtitles?.map((sub) => ({

@@ -6,11 +6,12 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Modal } from "@/components/ui/modal"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
+import { Vaul, VaulContent } from "@/components/vaul"
 import { openTab } from "@/lib/helpers/browser"
 import { upath } from "@/lib/helpers/upath"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
@@ -140,138 +141,149 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     if (selectedTorrents.length === 0) return null
 
     return (
-        <Modal
+        <Vaul
             open={isConfirmationModalOpen}
             onOpenChange={() => setConfirmationModalOpen(false)}
-            contentClass="max-w-3xl"
-            title="Choose the destination"
+            // contentClass="max-w-3xl"
+            // title="Choose the destination"
             data-torrent-confirmation-modal
         >
+            <VaulContent
+                className="max-w-3xl mx-auto"
+            >
 
-            {debridActive && (
-                <Switch
-                    label="Download with Debrid service"
-                    value={isDebrid}
-                    onValueChange={v => setIsDebrid(v)}
-                />
-            )}
+                <AppLayoutStack className="p-6">
 
-            <DirectorySelector
-                name="destination"
-                label="Destination"
-                leftIcon={<FcFolder />}
-                value={destination}
-                defaultValue={destination}
-                onSelect={setDestination}
-                shouldExist={false}
-            />
+                    <h4 className="text-center">
+                        Choose the destination
+                    </h4>
 
-            {selectedTorrents.map(torrent => (
-                <Tooltip
-                    data-torrent-confirmation-modal-tooltip
-                    key={`${torrent.link}`}
-                    trigger={<div
-                        className={cn(
-                            "ml-12 gap-2 p-2 border rounded-[--radius-md] hover:bg-gray-800 relative",
-                        )}
-                        key={torrent.name}
-                        data-torrent-confirmation-modal-torrent-item
-                    >
-                        <div
-                            data-torrent-confirmation-modal-torrent-item-content
-                            className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
-                            onClick={() => openTab(torrent.link)}
-                        >
-                            <span className="text-lg" data-torrent-confirmation-modal-torrent-item-icon>
-                                {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
-                                    <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
-                            </span>
-                            <p className="line-clamp-1" data-torrent-confirmation-modal-torrent-item-name>
-                                {torrent.name}
-                            </p>
-                        </div>
-                        <IconButton
-                            icon={<BiX />}
-                            className="absolute right-2 top-2 rounded-full"
-                            size="xs"
-                            intent="gray-outline"
-                            onClick={() => {
-                                onToggleTorrent(torrent)
-                            }}
-                            data-torrent-confirmation-modal-torrent-item-close-button
+                    {debridActive && (
+                        <Switch
+                            label="Download with Debrid service"
+                            value={isDebrid}
+                            onValueChange={v => setIsDebrid(v)}
                         />
-                    </div>}
-                >
-                    Open in browser
-                </Tooltip>
-            ))}
-
-            {isDebrid ? (
-                <>
-                    {(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
-                        <Button
-                            data-torrent-confirmation-modal-debrid-button
-                            leftIcon={<AiOutlineCloudServer className="text-2xl" />}
-                            intent="white"
-                            onClick={() => handleDebridAddTorrents()}
-                            disabled={isDisabled}
-                            loading={isDownloadingDebrid}
-                            className="w-full"
-                        >
-                            Download with Debrid service
-                        </Button>
                     )}
-                </>
-            ) : (
-                <>
-                    <div className="space-y-2" data-torrent-confirmation-modal-download-buttons>
 
-                        <div className="flex w-full gap-2" data-torrent-confirmation-modal-download-buttons-left>
-                            {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
-                                data-torrent-confirmation-modal-download-files-button
-                                leftIcon={<BiDownload />}
-                                intent="gray-outline"
-                                onClick={() => handleDownloadFiles()}
-                                disabled={isDisabled}
-                                loading={isDownloadingFiles}
-                                className="w-full"
-                            >Download '.torrent' files</Button>}
+                    <DirectorySelector
+                        name="destination"
+                        label="Destination"
+                        leftIcon={<FcFolder />}
+                        value={destination}
+                        defaultValue={destination}
+                        onSelect={setDestination}
+                        shouldExist={false}
+                    />
 
-                            {selectedTorrents.length > 0 && (
+                    {selectedTorrents.map(torrent => (
+                        <Tooltip
+                            data-torrent-confirmation-modal-tooltip
+                            key={`${torrent.link}`}
+                            trigger={<div
+                                className={cn(
+                                    "ml-12 gap-2 p-2 border rounded-[--radius-md] hover:bg-gray-800 relative",
+                                )}
+                                key={torrent.name}
+                                data-torrent-confirmation-modal-torrent-item
+                            >
+                                <div
+                                    data-torrent-confirmation-modal-torrent-item-content
+                                    className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
+                                    onClick={() => openTab(torrent.link)}
+                                >
+                                    <span className="text-lg" data-torrent-confirmation-modal-torrent-item-icon>
+                                        {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
+                                            <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
+                                    </span>
+                                    <p className="line-clamp-1" data-torrent-confirmation-modal-torrent-item-name>
+                                        {torrent.name}
+                                    </p>
+                                </div>
+                                <IconButton
+                                    icon={<BiX />}
+                                    className="absolute right-2 top-2 rounded-full"
+                                    size="xs"
+                                    intent="gray-outline"
+                                    onClick={() => {
+                                        onToggleTorrent(torrent)
+                                    }}
+                                    data-torrent-confirmation-modal-torrent-item-close-button
+                                />
+                            </div>}
+                        >
+                            Open in browser
+                        </Tooltip>
+                    ))}
+
+                    {isDebrid ? (
+                        <>
+                            {(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
                                 <Button
-                                    data-torrent-confirmation-modal-download-button
-                                    leftIcon={<BiDownload />}
+                                    data-torrent-confirmation-modal-debrid-button
+                                    leftIcon={<AiOutlineCloudServer className="text-2xl" />}
                                     intent="white"
-                                    onClick={() => handleLaunchDownload(false)}
-                                    disabled={isDisabled || serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.NONE}
-                                    loading={isPending}
+                                    onClick={() => handleDebridAddTorrents()}
+                                    disabled={isDisabled}
+                                    loading={isDownloadingDebrid}
                                     className="w-full"
                                 >
-                                    {!serverStatus?.debridSettings?.enabled
-                                        ? (canSmartSelect ? "Download all" : "Download")
-                                        : "Download with torrent client"}
+                                    Download with Debrid service
                                 </Button>
                             )}
-                        </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="space-y-2" data-torrent-confirmation-modal-download-buttons>
 
-                        {(selectedTorrents.length > 0 && canSmartSelect) && (
-                            <Button
-                                data-torrent-confirmation-modal-download-missing-episodes-button
-                                leftIcon={<BiCollection />}
-                                intent="gray-outline"
-                                onClick={() => handleLaunchDownload(true)}
-                                disabled={isDisabled}
-                                loading={isPending}
-                                className="w-full"
-                            >
-                                Download missing episodes
-                            </Button>
-                        )}
+                                <div className="flex w-full gap-2" data-torrent-confirmation-modal-download-buttons-left>
+                                    {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
+                                        data-torrent-confirmation-modal-download-files-button
+                                        leftIcon={<BiDownload />}
+                                        intent="gray-outline"
+                                        onClick={() => handleDownloadFiles()}
+                                        disabled={isDisabled}
+                                        loading={isDownloadingFiles}
+                                        className="w-full"
+                                    >Download '.torrent' files</Button>}
 
-                    </div>
-                </>
-            )}
-        </Modal>
+                                    {selectedTorrents.length > 0 && (
+                                        <Button
+                                            data-torrent-confirmation-modal-download-button
+                                            leftIcon={<BiDownload />}
+                                            intent="white"
+                                            onClick={() => handleLaunchDownload(false)}
+                                            disabled={isDisabled || serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.NONE}
+                                            loading={isPending}
+                                            className="w-full"
+                                        >
+                                            {!serverStatus?.debridSettings?.enabled
+                                                ? (canSmartSelect ? "Download all" : "Download")
+                                                : "Download with torrent client"}
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {(selectedTorrents.length > 0 && canSmartSelect) && (
+                                    <Button
+                                        data-torrent-confirmation-modal-download-missing-episodes-button
+                                        leftIcon={<BiCollection />}
+                                        intent="gray-outline"
+                                        onClick={() => handleLaunchDownload(true)}
+                                        disabled={isDisabled}
+                                        loading={isPending}
+                                        className="w-full"
+                                    >
+                                        Download missing episodes
+                                    </Button>
+                                )}
+
+                            </div>
+                        </>
+                    )}
+                </AppLayoutStack>
+            </VaulContent>
+        </Vaul>
     )
 
 }
@@ -287,8 +299,8 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
     return (
         <Button
             data-torrent-search-confirmation-continue-button
-            intent="primary"
-            className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo"
+            intent="white"
+            className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo font-bold"
             size="lg"
             onClick={() => {
                 if (type === "download") {

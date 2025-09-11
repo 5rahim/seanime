@@ -343,13 +343,13 @@ export function EntrySectionTabs(props: EntrySectionTabs) {
     return (
         <>
             <div
-                className="w-full max-w-fit rounded-full border lg:border-transparent mx-auto lg:mx-0 overflow-hidden"
+                className="w-full max-w-fit rounded-md lg:rounded-full border lg:border-transparent mx-auto lg:mx-0 overflow-hidden"
                 data-anime-entry-page-tabs-container
             >
                 <StaticTabs
                     className="lg:h-10 flex-wrap lg:flex-nowrap overflow-hidden justify-center lg:justify-start"
-                    triggerClass="px-4 py-1 text-[1.1rem] border border-transparent lg:data-[current=true]:border-[--subtle]"
-                    iconClass="size-5"
+                    triggerClass="px-4 py-1 text-[1.1rem] border border-transparent opacity-80 lg:data-[current=true]:border-[--subtle] lg:data-[current=true]:opacity-100 rounded-md lg:rounded-full"
+                    iconClass="size-5 hidden data-[current=true]:block"
                     items={[
                         { name: "Library", iconType: IoLibraryOutline, isCurrent: isLibraryView, onClick: () => setView("library") },
                         ...(serverStatus?.torrentstreamSettings?.enabled ? [{
@@ -373,15 +373,6 @@ export function EntrySectionTabs(props: EntrySectionTabs) {
                     ]}
                 />
             </div>
-            {/*<AnimeMetaActionButton*/}
-            {/*    data-torrent-stream-button*/}
-            {/*    intent={isTorrentStreamingView ? "gray-subtle" : "white-subtle"}*/}
-            {/*    size="md"*/}
-            {/*    leftIcon={isTorrentStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <PiMonitorPlayDuotone className="text-2xl" />}*/}
-            {/*    onClick={() => toggleTorrentStreamingView()}*/}
-            {/*>*/}
-            {/*    {isTorrentStreamingView ? "Close torrent streaming" : "Torrent streaming"}*/}
-            {/*</AnimeMetaActionButton>*/}
         </>
     )
 }

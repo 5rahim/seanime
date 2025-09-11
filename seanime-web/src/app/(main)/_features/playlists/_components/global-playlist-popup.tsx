@@ -54,7 +54,7 @@ const PlaylistManagerPopup: React.FC<PlaylistManagerPopupProps> = ({
 
     return (
         <div
-            className={cn(`fixed ${containerConfig.positions[position]} z-[9999]`, className)}
+            className={cn(`fixed ${containerConfig.positions[position]} z-[25]`, className)}
             {...props}
         >
             <div
