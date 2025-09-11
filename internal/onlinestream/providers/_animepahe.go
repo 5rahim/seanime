@@ -39,7 +39,7 @@ type (
 
 func NewAnimepahe(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Animepahe{
-		BaseURL:   "https://animepahe.ru",
+		BaseURL:   "https://animepahe.si",
 		Client:    http.Client{},
 		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
