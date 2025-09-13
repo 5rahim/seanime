@@ -52,6 +52,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
                     aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
                     episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                     chosenFileIndex: undefined,
+                    batchEpisodeFiles: undefined,
                 })
                 // Close torrent search
                 setTorrentSearch(undefined)
@@ -80,6 +81,7 @@ export function useTorrentSearchSelection({ type = "download", entry }: { type: 
                     aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
                     episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                     chosenFileId: "",
+                    batchEpisodeFiles: undefined,
                 })
                 // Close torrent search
                 setTorrentSearch(undefined)

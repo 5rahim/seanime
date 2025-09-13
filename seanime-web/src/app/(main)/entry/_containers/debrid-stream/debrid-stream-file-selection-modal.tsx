@@ -1,5 +1,7 @@
-import { Anime_Entry } from "@/api/generated/types"
+import { Anime_Entry, HibikeTorrent_BatchEpisodeFiles } from "@/api/generated/types"
 import { useDebridGetTorrentFilePreviews } from "@/api/hooks/debrid.hooks"
+import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { useSelectedDebridService } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -10,9 +12,13 @@ import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Vaul, VaulContent } from "@/components/vaul"
+import { logger } from "@/lib/helpers/debug"
+import { DEBRID_SERVICE } from "@/lib/server/settings"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { IoPlayCircle } from "react-icons/io5"
+
+const log = logger("DEBRID STREAM FILE SELECTION")
 
 type DebridStreamFileSelectionModalProps = {
     entry: Anime_Entry
@@ -32,16 +38,35 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const { torrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
+    const { selectedDebridService } = useSelectedDebridService()
+
     const { data: previews, isLoading } = useDebridGetTorrentFilePreviews({
         torrent: selectedTorrent!,
         media: entry.media,
         episodeNumber: torrentSearchStreamEpisode?.episodeNumber,
     }, !!selectedTorrent)
 
+    const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
+
     const { handleStreamSelection } = useHandleStartDebridStream()
 
     function onStream(selectedFileId: string) {
         if (selectedFileId == "" || !selectedTorrent || !torrentSearchStreamEpisode || !torrentSearchStreamEpisode.aniDBEpisode) return
+
+        // save to autoplay
+        // autoplay will increment selectedFileIdx by 1 to play the next file
+        // Devnote: Torbox isn't supported because we can't use indexes to identify files
+        let batchFiles: HibikeTorrent_BatchEpisodeFiles | undefined = undefined
+        if (selectedDebridService !== DEBRID_SERVICE.TORBOX) {
+            batchFiles = {
+                current: parseInt(selectedFileId),
+                files: previews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path } }) || [],
+                currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
+                currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
+            }
+            log.info("Saving torrent for auto play", { batchFiles })
+            setAutoPlayTorrent(selectedTorrent, entry, batchFiles)
+        }
 
         handleStreamSelection({
             torrent: selectedTorrent,
@@ -49,6 +74,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
             episodeNumber: torrentSearchStreamEpisode.episodeNumber,
             chosenFileId: selectedFileId,
+            batchEpisodeFiles: batchFiles,
         })
 
         setSelectedTorrent(undefined)
@@ -119,19 +145,6 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                     /> : (
                         <AppLayoutStack className="mt-4">
 
-                            <div className="flex">
-                                <div className="flex flex-1"></div>
-                                <Button
-                                    intent="primary"
-                                    className=""
-                                    rightIcon={<IoPlayCircle className="text-xl" />}
-                                    disabled={selectedFileId === "" || isLoading}
-                                    onClick={() => onStream(selectedFileId)}
-                                >
-                                    Stream
-                                </Button>
-                            </div>
-
                             <ScrollArea viewportRef={scrollRef} className="h-[75dvh] overflow-y-auto p-4 border rounded-[--radius-md]">
                                 <FileTreeSelector
                                     filePreviews={previews || []}
@@ -143,6 +156,16 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                                     likelyMatchRef={likelyMatchRef}
                                 />
                             </ScrollArea>
+
+                            <Button
+                                intent="primary"
+                                className="w-full"
+                                rightIcon={<IoPlayCircle className="text-xl" />}
+                                disabled={selectedFileId === "" || isLoading}
+                                onClick={() => onStream(selectedFileId)}
+                            >
+                                Stream
+                            </Button>
 
                         </AppLayoutStack>
                     )}

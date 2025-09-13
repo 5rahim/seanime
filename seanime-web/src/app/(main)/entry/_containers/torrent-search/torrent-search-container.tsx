@@ -348,23 +348,25 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                             />
                         )}
                     </>}
+
+                    {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && Object.keys(warnings)?.map((key) => {
+                        if ((warnings as any)[key]) {
+                            return <Alert
+                                data-torrent-search-container-warning
+                                key={key}
+                                intent="warning"
+                                description={<>
+                                    {key === "extensionDoesNotSupportAdult" && "This provider does not support adult content"}
+                                    {key === "extensionDoesNotSupportSmartSearch" && "This provider does not support smart search"}
+                                    {key === "extensionDoesNotSupportBestRelease" && "This provider does not support best release search"}
+                                </>}
+                            />
+                        }
+                        return null
+                    })}
+
                 </div>
 
-                {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && Object.keys(warnings)?.map((key) => {
-                    if ((warnings as any)[key]) {
-                        return <Alert
-                            data-torrent-search-container-warning
-                            key={key}
-                            intent="warning"
-                            description={<>
-                                {key === "extensionDoesNotSupportAdult" && "This provider does not support adult content"}
-                                {key === "extensionDoesNotSupportSmartSearch" && "This provider does not support smart search"}
-                                {key === "extensionDoesNotSupportBestRelease" && "This provider does not support best release search"}
-                            </>}
-                        />
-                    }
-                    return null
-                })}
 
                 {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") ? (
                     <>
@@ -450,7 +452,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
     const { handleStreamSelection: handleTorrentstreamSelection } = useHandleStartTorrentStream()
     const { handleStreamSelection: handleDebridstreamSelection } = useHandleStartDebridStream()
     const { torrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
-    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_fileSelectionTorrentAtom)
+    const setTorrentFileSelection = useSetAtom(__torrentSearch_fileSelectionTorrentAtom)
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
     const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
@@ -477,6 +479,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                             aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
                             episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                             chosenFileIndex: undefined,
+                            batchEpisodeFiles: undefined,
                         })
                         setTorrentSearch(undefined)
                     } else if (type === "debridstream-select") {
@@ -487,12 +490,13 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                             aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
                             episodeNumber: torrentSearchStreamEpisode.episodeNumber,
                             chosenFileId: "",
+                            batchEpisodeFiles: undefined,
                         })
                         setTorrentSearch(undefined)
                     } else if (type === "torrentstream-select-file" || type === "debridstream-select-file") {
                         // Open the drawer to select the file
                         // This opens the file selection drawer
-                        setTorrentstreamSelectedTorrent(batchHistory?.torrent)
+                        setTorrentFileSelection(batchHistory?.torrent)
                     }
                 }}
             />

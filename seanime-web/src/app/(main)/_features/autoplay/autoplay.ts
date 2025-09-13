@@ -1,4 +1,4 @@
-import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles } from "@/api/generated/types"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { PlaybackManager_PlaybackState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -8,6 +8,7 @@ import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
 import { toast } from "sonner"
 
@@ -29,15 +30,29 @@ type AutoplayInfo = {
     aniDBEpisode: string
     type: "torrentstream" | "debridstream"
 }
-const __autoPlay_stateAtom = atom<AutoplayInfo | null>(null)
-const __autoPlay_streamTorrentAtom = atom<{ entry: Anime_Entry, torrent: HibikeTorrent_AnimeTorrent } | null>(null)
+// Stores info about the entry that's being streamed
+const __autoPlay_stateAtom = atomWithStorage<AutoplayInfo | null>("sea-autoplay-info", null, undefined, { getOnInit: true })
+// Stores the torrent that was selected for the current stream
+// Used by autoplay manager to determine the next stream
+const __autoPlay_selectedTorrentAtom = atomWithStorage<{
+    entry: Anime_Entry,
+    torrent: HibikeTorrent_AnimeTorrent,
+    batchFiles?: HibikeTorrent_BatchEpisodeFiles // Used when user manually selects a file from a batch
+} | null>("sea-autoplay-selected-torrent", null, undefined, { getOnInit: true })
 
 export function useAutoPlaySelectedTorrent() {
-    const [selectedTorrent, setSelectedTorrent] = useAtom(__autoPlay_streamTorrentAtom)
+    const [selectedTorrent, setSelectedTorrent] = useAtom(__autoPlay_selectedTorrentAtom)
 
     return {
         autoPlayTorrent: selectedTorrent,
-        setAutoPlayTorrent: (torrent: HibikeTorrent_AnimeTorrent, entry: Anime_Entry) => setSelectedTorrent({ entry, torrent }),
+        setAutoPlayTorrent: (torrent: HibikeTorrent_AnimeTorrent,
+            entry: Anime_Entry,
+            batchFiles?: HibikeTorrent_BatchEpisodeFiles,
+        ) => setSelectedTorrent({
+            entry,
+            torrent,
+            batchFiles,
+        }),
     }
 }
 
@@ -52,6 +67,14 @@ export function useTorrentstreamAutoplay() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
+        let fileIndex: number | undefined = undefined
+        if (autoPlayTorrent?.batchFiles) {
+            const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
+            if (file) {
+                fileIndex = file.index
+            }
+        }
+
         if (autoPlayTorrent?.torrent?.isBatch) {
             // If the user provided a torrent, use it
             handleStreamSelection({
@@ -59,11 +82,21 @@ export function useTorrentstreamAutoplay() {
                 episodeNumber: episodeNumber,
                 aniDBEpisode: aniDBEpisode,
                 torrent: autoPlayTorrent.torrent,
-                chosenFileIndex: undefined,
+                chosenFileIndex: fileIndex,
+                batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
+                    ...autoPlayTorrent.batchFiles,
+                    current: fileIndex,
+                    currentEpisodeNumber: episodeNumber,
+                    currentAniDBEpisode: aniDBEpisode,
+                } : undefined,
             })
         } else {
             // Otherwise, use the auto-select function
-            handleAutoSelectStream({ mediaId: entry.mediaId, episodeNumber: episodeNumber, aniDBEpisode })
+            handleAutoSelectStream({
+                mediaId: entry.mediaId,
+                episodeNumber: episodeNumber,
+                aniDBEpisode,
+            })
         }
 
         const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
@@ -85,6 +118,7 @@ export function useTorrentstreamAutoplay() {
 
 
     return {
+        torrentstreamAutoplayInfo: info?.type === "torrentstream" ? info : null,
         hasNextTorrentstreamEpisode: !!info && info.type === "torrentstream",
         setTorrentstreamAutoplayInfo: setInfo,
         autoplayNextTorrentstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
@@ -104,13 +138,28 @@ export function useDebridstreamAutoplay() {
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
         if (autoPlayTorrent?.torrent?.isBatch) {
+
+            let fileIndex: number | undefined = undefined
+            if (autoPlayTorrent?.batchFiles) {
+                const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
+                if (file) {
+                    fileIndex = file.index
+                }
+            }
+
             // If the user provided a torrent, use it
             handleStreamSelection({
                 mediaId: entry.mediaId,
                 episodeNumber: episodeNumber,
                 aniDBEpisode: aniDBEpisode,
                 torrent: autoPlayTorrent.torrent,
-                chosenFileId: "",
+                chosenFileId: fileIndex !== undefined ? String(fileIndex) : "",
+                batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
+                    ...autoPlayTorrent.batchFiles,
+                    current: fileIndex,
+                    currentEpisodeNumber: episodeNumber,
+                    currentAniDBEpisode: aniDBEpisode,
+                } : undefined,
             })
         } else {
             // Otherwise, use the auto-select function
@@ -136,6 +185,7 @@ export function useDebridstreamAutoplay() {
 
 
     return {
+        debridstreamAutoplayInfo: info?.type === "debridstream" ? info : null,
         hasNextDebridstreamEpisode: !!info && info.type === "debridstream",
         setDebridstreamAutoplayInfo: setInfo,
         autoplayNextDebridstreamEpisode: handleAutoplayNextTorrentstreamEpisode,

@@ -52,6 +52,14 @@ export function useHasOnlineStreaming() {
     }
 }
 
+export function useSelectedDebridService() {
+    const serverStatus = useServerStatus()
+    return {
+        selectedDebridService: React.useMemo(() => serverStatus?.debridSettings?.provider,
+            [serverStatus?.debridSettings]),
+    }
+}
+
 export function useHasTorrentOrDebridInclusion() {
     const serverStatus = useServerStatus()
     const { hasDebridService } = useHasDebridService()

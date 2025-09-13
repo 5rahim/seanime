@@ -20,6 +20,7 @@ import type {
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
     HibikeTorrent_AnimeTorrent,
+    HibikeTorrent_BatchEpisodeFiles,
     Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DebridSettings,
@@ -524,6 +525,7 @@ export type DebridStartStream_Variables = {
     fileIndex?: number
     playbackType: DebridClient_StreamPlaybackType
     clientId: string
+    batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**
@@ -1797,6 +1799,7 @@ export type TorrentstreamStartStream_Variables = {
     fileIndex?: number
     playbackType: Torrentstream_PlaybackType
     clientId: string
+    batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**

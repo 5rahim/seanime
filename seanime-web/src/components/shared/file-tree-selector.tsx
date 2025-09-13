@@ -1,8 +1,27 @@
 import { cn } from "@/components/ui/core/styling"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
-import { FiChevronDown, FiChevronRight, FiFile } from "react-icons/fi"
+import { FiChevronDown, FiChevronRight, FiFile, FiSearch } from "react-icons/fi"
 import { MdVerified } from "react-icons/md"
+
+const filterFilePreviews = (filePreviews: any[], searchTerm: string): any[] => {
+    if (!searchTerm.trim()) {
+        return filePreviews
+    }
+
+    const lowerSearchTerm = searchTerm.toLowerCase()
+    return filePreviews.filter(filePreview => {
+        const searchableText = [
+            filePreview.displayTitle,
+            filePreview.displayPath,
+            filePreview.path,
+        ].join(" ").toLowerCase()
+
+        return searchableText.includes(lowerSearchTerm)
+    })
+}
 
 export type FileTreeNode = {
     name: string
@@ -61,7 +80,7 @@ export type FileTreeSelectorProps = {
     filePreviews: any[]
     selectedValue: string | number
     onFileSelect: (value: string | number) => void
-    getFileValue: (filePreview: any) => string | number // Functio to extract the selection value from file preview
+    getFileValue: (filePreview: any) => string | number
     hasLikelyMatch: boolean
     hasOneLikelyMatch: boolean
     likelyMatchRef: React.RefObject<HTMLDivElement>
@@ -193,27 +212,47 @@ export const FileTreeSelector: React.FC<FileTreeSelectorProps> = ({
     hasOneLikelyMatch,
     likelyMatchRef,
 }) => {
+    const [searchTerm, setSearchTerm] = React.useState("")
+    const debouncedSearchTerm = useDebounce(searchTerm, 300)
+
     if (!filePreviews || filePreviews.length === 0) {
         return null
     }
 
-    const fileTree = buildFileTree(filePreviews)
+    const filteredFilePreviews = filterFilePreviews(filePreviews, debouncedSearchTerm)
+    const fileTree = buildFileTree(filteredFilePreviews)
 
     return (
-        <div className="flex flex-col gap-1">
-            {fileTree.children?.map((child, index) => (
-                <FileTreeNodeComponent
-                    key={index}
-                    node={child}
-                    selectedValue={selectedValue}
-                    onFileSelect={onFileSelect}
-                    getFileValue={getFileValue}
-                    hasLikelyMatch={hasLikelyMatch || false}
-                    hasOneLikelyMatch={hasOneLikelyMatch || false}
-                    likelyMatchRef={likelyMatchRef}
-                    level={0}
-                />
-            ))}
+        <div className="flex flex-col gap-3">
+            <TextInput
+                value={searchTerm}
+                onValueChange={setSearchTerm}
+                placeholder="Search files..."
+                className="focus:ring-0 active:ring-0"
+            />
+
+            <div className="flex flex-col gap-1">
+                {fileTree.children && fileTree.children.length > 0 ? (
+                    fileTree.children.map((child, index) => (
+                        <FileTreeNodeComponent
+                            key={index}
+                            node={child}
+                            selectedValue={selectedValue}
+                            onFileSelect={onFileSelect}
+                            getFileValue={getFileValue}
+                            hasLikelyMatch={hasLikelyMatch || false}
+                            hasOneLikelyMatch={hasOneLikelyMatch || false}
+                            likelyMatchRef={likelyMatchRef}
+                            level={0}
+                        />
+                    ))
+                ) : debouncedSearchTerm.trim() ? (
+                    <div className="text-center py-8 text-[--muted]">
+                        <FiSearch className="mx-auto mb-2 size-8 opacity-50" />
+                        <p>No files found matching "{debouncedSearchTerm}"</p>
+                    </div>
+                ) : null}
+            </div>
         </div>
     )
 }

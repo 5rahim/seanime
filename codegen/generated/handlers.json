@@ -2327,6 +2327,15 @@
           "typescriptType": "string",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "BatchEpisodeFiles",
+          "jsonName": "batchEpisodeFiles",
+          "goType": "hibiketorrent.BatchEpisodeFiles",
+          "usedStructType": "hibiketorrent.BatchEpisodeFiles",
+          "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "bool",
@@ -9468,6 +9477,15 @@
           "usedStructType": "",
           "typescriptType": "string",
           "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "BatchEpisodeFiles",
+          "jsonName": "batchEpisodeFiles",
+          "goType": "hibiketorrent.BatchEpisodeFiles",
+          "usedStructType": "hibiketorrent.BatchEpisodeFiles",
+          "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
+          "required": false,
           "descriptions": []
         }
       ],

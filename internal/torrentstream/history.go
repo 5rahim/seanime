@@ -2,6 +2,7 @@ package torrentstream
 
 import (
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/events"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 
@@ -9,8 +10,9 @@ import (
 )
 
 type BatchHistoryResponse struct {
-	Torrent  *hibiketorrent.AnimeTorrent `json:"torrent"`
-	Metadata *habari.Metadata            `json:"metadata"`
+	Torrent           *hibiketorrent.AnimeTorrent      `json:"torrent"`
+	Metadata          *habari.Metadata                 `json:"metadata"`
+	BatchEpisodeFiles *hibiketorrent.BatchEpisodeFiles `json:"batchEpisodeFiles"`
 }
 
 func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
@@ -18,7 +20,7 @@ func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
 		ret = &BatchHistoryResponse{}
 	})
 
-	torrent, err := db_bridge.GetTorrentstreamHistory(r.db, mId)
+	torrent, batchFiles, err := db_bridge.GetTorrentstreamHistory(r.db, mId)
 	if err != nil {
 		return &BatchHistoryResponse{}
 	}
@@ -28,13 +30,16 @@ func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
 	return &BatchHistoryResponse{
 		torrent,
 		metadata,
+		batchFiles,
 	}
 }
 
-func (r *Repository) AddBatchHistory(mId int, torrent *hibiketorrent.AnimeTorrent) {
+func (r *Repository) AddBatchHistory(mId int, torrent *hibiketorrent.AnimeTorrent, files *hibiketorrent.BatchEpisodeFiles) {
 	go func() {
 		defer util.HandlePanicInModuleThen("torrentstream/AddBatchHistory", func() {})
 
-		_ = db_bridge.InsertTorrentstreamHistory(r.db, mId, torrent)
+		_ = db_bridge.InsertTorrentstreamHistory(r.db, mId, torrent, files)
+
+		r.wsEventManager.SendEvent(events.InvalidateQueries, []string{events.GetTorrentstreamBatchHistoryEndpoint})
 	}()
 }

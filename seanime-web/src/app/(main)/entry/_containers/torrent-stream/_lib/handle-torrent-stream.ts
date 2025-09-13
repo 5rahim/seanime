@@ -1,4 +1,4 @@
-import { HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import {
     ElectronPlaybackMethod,
@@ -11,7 +11,9 @@ import {
     __torrentstream__loadingStateAtom,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React from "react"
@@ -22,6 +24,7 @@ type ManualTorrentStreamSelectionProps = {
     episodeNumber: number
     aniDBEpisode: string
     chosenFileIndex: number | undefined | null
+    batchEpisodeFiles: HibikeTorrent_BatchEpisodeFiles | undefined
 }
 type AutoSelectTorrentStreamProps = {
     mediaId: number
@@ -32,6 +35,7 @@ type AutoSelectTorrentStreamProps = {
 export function useHandleStartTorrentStream() {
 
     const { mutate, isPending } = useTorrentstreamStartStream()
+    const qc = useQueryClient()
 
     const setLoadingState = useSetAtom(__torrentstream__loadingStateAtom)
     const setIsLoaded = useSetAtom(__torrentstream__isLoadedAtom)
@@ -50,6 +54,7 @@ export function useHandleStartTorrentStream() {
     }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
 
     const handleStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
+        logger("TORRENT STREAM SELECTION").info("Starting torrent stream", params)
         mutate({
             mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
@@ -59,6 +64,7 @@ export function useHandleStartTorrentStream() {
             fileIndex: params.chosenFileIndex ?? undefined,
             playbackType: playbackType,
             clientId: clientId || "",
+            batchEpisodeFiles: params.batchEpisodeFiles,
         }, {
             onSuccess: () => {
                 // setLoadingState(null)

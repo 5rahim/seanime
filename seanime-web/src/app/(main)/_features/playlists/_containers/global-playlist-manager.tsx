@@ -255,6 +255,7 @@ export function GlobalPlaylistManager() {
                                         aniDBEpisode: episode.episode?.aniDBEpisode!,
                                         torrent: autoPlayTorrent.torrent,
                                         chosenFileIndex: undefined,
+                                        batchEpisodeFiles: undefined,
                                     })
                                     return
                                 } else {
@@ -284,6 +285,7 @@ export function GlobalPlaylistManager() {
                                         aniDBEpisode: episode.episode?.aniDBEpisode!,
                                         torrent: autoPlayTorrent.torrent,
                                         chosenFileId: "",
+                                        batchEpisodeFiles: undefined,
                                     })
                                     return
                                 } else {
@@ -409,7 +411,7 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
                 "px-2.5 py-2 bg-[--background] rounded-md border flex gap-3 relative",
                 "opacity-50 hover:opacity-70",
                 playlist_isSameEpisode(currentPlaylistEpisode,
-                    episode) && "opacity-100 hover:opacity-100 border-[rgba(255,255,255,0.5)] sticky top-0 z-10 shadow-xl",
+                    episode) && "opacity-100 hover:opacity-100 border-[rgba(255,255,255,0.5)] sticky top-0 bottom-0 z-10 shadow-xl",
             )}
         >
             <div className="size-20 aspect-square flex-none rounded-md overflow-hidden relative transition bg-[--background]">

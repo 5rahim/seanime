@@ -41,16 +41,17 @@ type (
 	}
 
 	StartStreamOptions struct {
-		MediaId       int
-		EpisodeNumber int                         // RELATIVE Episode number to identify the file
-		AniDBEpisode  string                      // Anizip episode
-		Torrent       *hibiketorrent.AnimeTorrent // Selected torrent
-		FileId        string                      // File ID or index
-		FileIndex     *int                        // Index of the file to stream (Manual selection)
-		UserAgent     string
-		ClientId      string
-		PlaybackType  StreamPlaybackType
-		AutoSelect    bool
+		MediaId           int
+		EpisodeNumber     int                         // RELATIVE Episode number to identify the file
+		AniDBEpisode      string                      // Anizip episode
+		Torrent           *hibiketorrent.AnimeTorrent // Selected torrent
+		FileId            string                      // File ID or index
+		FileIndex         *int                        // Index of the file to stream (Manual selection)
+		UserAgent         string
+		ClientId          string
+		PlaybackType      StreamPlaybackType
+		AutoSelect        bool
+		BatchEpisodeFiles *hibiketorrent.BatchEpisodeFiles
 	}
 
 	CancelStreamOptions struct {
@@ -517,7 +518,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 		go func() {
 			defer util.HandlePanicInModuleThen("debridstream/AddBatchHistory", func() {})
 
-			_ = db_bridge.InsertTorrentstreamHistory(s.repository.db, media.GetID(), selectedTorrent)
+			_ = db_bridge.InsertTorrentstreamHistory(s.repository.db, media.GetID(), selectedTorrent, opts.BatchEpisodeFiles)
+
+			s.repository.wsEventManager.SendEvent(events.InvalidateQueries, []string{events.GetTorrentstreamBatchHistoryEndpoint})
 		}()
 	}(ctx)
 

@@ -39,6 +39,7 @@ type StartStreamOptions struct {
 	ClientId           string
 	PlaybackType       PlaybackType
 	IsNakamaWatchParty bool // If this is a nakama stream (watch party)
+	BatchEpisodeFiles  *hibiketorrent.BatchEpisodeFiles
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -112,7 +113,7 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
-			r.AddBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
+			r.AddBatchHistory(opts.MediaId, opts.Torrent, opts.BatchEpisodeFiles) // ran in goroutine
 		}
 	}()
 

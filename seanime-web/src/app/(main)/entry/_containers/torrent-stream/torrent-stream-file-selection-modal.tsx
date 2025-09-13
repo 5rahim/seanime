@@ -1,5 +1,6 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles } from "@/api/generated/types"
 import { useGetTorrentstreamTorrentFilePreviews } from "@/api/hooks/torrentstream.hooks"
+import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
 import { __torrentSearch_selectionAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
@@ -9,10 +10,13 @@ import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Vaul, VaulContent } from "@/components/vaul"
+import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { IoPlayCircle } from "react-icons/io5"
+
+const log = logger("TORRENT STREAM FILE SELECTION")
 
 export const __torrentSearch_fileSelectionTorrentAtom = atom<HibikeTorrent_AnimeTorrent | undefined>(undefined)
 
@@ -33,15 +37,30 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
 
     const { handleStreamSelection } = useHandleStartTorrentStream()
 
+    const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
+
     function onStream() {
         if (selectedFileIdx == -1 || !selectedTorrent || !torrentSearchStreamEpisode || !torrentSearchStreamEpisode.aniDBEpisode) return
 
+        // save to autoplay
+        // autoplay will increment selectedFileIdx by 1 to play the next file
+        const batchFiles: HibikeTorrent_BatchEpisodeFiles = {
+            current: selectedFileIdx,
+            files: filePreviews?.map(n => { return { index: n.index, name: n.displayPath, path: n.path } }) || [],
+            currentEpisodeNumber: torrentSearchStreamEpisode.episodeNumber,
+            currentAniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
+        }
+        log.info("Saving torrent for auto play", { batchFiles })
+        setAutoPlayTorrent(selectedTorrent, entry, batchFiles)
+
+        // start stream
         handleStreamSelection({
             torrent: selectedTorrent,
             mediaId: entry.mediaId,
             aniDBEpisode: torrentSearchStreamEpisode.aniDBEpisode,
             episodeNumber: torrentSearchStreamEpisode.episodeNumber,
             chosenFileIndex: selectedFileIdx,
+            batchEpisodeFiles: batchFiles,
         })
 
         setSelectedTorrent(undefined)
@@ -82,7 +101,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                         behavior: "smooth",
                     })
                 }
-            }, 1000) // Increased timeout to ensure DOM is ready
+            }, 500)
             return () => clearTimeout(t)
         }
     }, [hasOneLikelyMatch, likelyMatchRef.current])
@@ -104,19 +123,6 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                     {isLoading ? <LoadingSpinner /> : (
                         <AppLayoutStack className="pb-0">
 
-                            <div className="flex">
-                                <div className="flex flex-1"></div>
-                                <Button
-                                    intent="primary"
-                                    className=""
-                                    rightIcon={<IoPlayCircle className="text-xl" />}
-                                    disabled={selectedFileIdx === -1 || isLoading}
-                                    onClick={onStream}
-                                >
-                                    Stream
-                                </Button>
-                            </div>
-
                             <ScrollArea
                                 viewportRef={scrollRef}
                                 className="h-[80dvh] lg:h-[60dvh] overflow-y-auto p-4 border rounded-[--radius-md]"
@@ -131,6 +137,16 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                                     likelyMatchRef={likelyMatchRef}
                                 />
                             </ScrollArea>
+
+                            <Button
+                                intent="primary"
+                                className="w-full"
+                                rightIcon={<IoPlayCircle className="text-xl" />}
+                                disabled={selectedFileIdx === -1 || isLoading}
+                                onClick={onStream}
+                            >
+                                Stream
+                            </Button>
 
                         </AppLayoutStack>
                     )}

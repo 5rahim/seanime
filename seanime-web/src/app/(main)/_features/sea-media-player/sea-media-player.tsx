@@ -149,6 +149,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     // Track last focused element
     const lastFocusedElementRef = React.useRef<HTMLElement | null>(null)
+    // Track fullscreen state
+    const wasFullscreenRef = React.useRef<boolean>(false)
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(media?.idMal, progress.currentEpisodeNumber ?? -1)
@@ -328,7 +330,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
         canPlayRef.current = true
 
-        if (__isDesktop__ && wentToNextEpisodeRef.current) {
+        if (__isDesktop__ && wentToNextEpisodeRef.current && wasFullscreenRef.current) {
             logger("MEDIA PLAYER").info("Restoring fullscreen")
             try {
                 playerRef.current?.enterFullscreen()
@@ -534,6 +536,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         onProviderChange={onProviderChange}
                         onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
                         onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
+                            // Track fullscreen state
+                            wasFullscreenRef.current = isFullscreen
+                            
                             if (isFullscreen) {
                                 // Store the currently focused element
                                 lastFocusedElementRef.current = document.activeElement as HTMLElement

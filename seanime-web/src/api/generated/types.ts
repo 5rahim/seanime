@@ -2773,6 +2773,29 @@ export type HibikeTorrent_AnimeTorrent = {
     confirmed: boolean
 }
 
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeTorrentFile = {
+    index: number
+    path: string
+    name: string
+}
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_BatchEpisodeFiles = {
+    current: number
+    currentEpisodeNumber: number
+    currentAniDBEpisode: string
+    files?: Array<HibikeTorrent_AnimeTorrentFile>
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Local
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4285,6 +4308,7 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
 export type Torrentstream_BatchHistoryResponse = {
     torrent?: HibikeTorrent_AnimeTorrent
     metadata?: Habari_Metadata
+    batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**
@@ -4343,6 +4367,7 @@ export type Torrentstream_StartStreamOptions = {
      * If this is a nakama stream (watch party)
      */
     IsNakamaWatchParty: boolean
+    BatchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**

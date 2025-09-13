@@ -7,6 +7,7 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
+	"slices"
 	"sync"
 
 	"github.com/5rahim/habari"
@@ -124,6 +125,11 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 	}
 
 	wg.Wait()
+
+	// sort by index
+	slices.SortFunc(ret, func(a, b *FilePreview) int {
+		return a.Index - b.Index
+	})
 
 	r.logger.Debug().Str("hash", opts.Torrent.InfoHash).Msg("torrentstream: Got file previews for torrent selection, dropping torrent")
 	go selectedTorrent.Drop()

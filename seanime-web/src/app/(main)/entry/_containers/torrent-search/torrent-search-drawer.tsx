@@ -78,7 +78,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawe
 
             <VaulContent
                 className={cn(
-                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-85 firefox:bg-opacity-100 ",
+                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-85 firefox:bg-opacity-100 lg:mx-[2rem]",
                     selectionType === "download" && "lg:h-[92.5%] xl:mx-[10rem] 2xl:mx-[20rem]",
                     selectionType === undefined && "lg:h-[80%] xl:mx-[10rem] 2xl:mx-[20rem]",
                 )}

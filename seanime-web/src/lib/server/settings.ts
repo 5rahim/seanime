@@ -22,6 +22,11 @@ export const enum TORRENT_PROVIDER {
     NONE = "none",
 }
 
+export const enum DEBRID_SERVICE {
+    TORBOX = "torbox",
+    REALDEBRID = "realdebrid",
+}
+
 export const _gettingStartedSchema = z.object({
     enableTranscode: z.boolean().optional().default(false),
     enableTorrentStreaming: z.boolean().optional().default(false),

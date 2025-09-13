@@ -417,10 +417,12 @@ type TorrentstreamSettings struct {
 	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
 }
 
+// TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media.
 type TorrentstreamHistory struct {
 	BaseModel
-	MediaId int    `gorm:"column:media_id" json:"mediaId"`
-	Torrent []byte `gorm:"column:torrent" json:"torrent"`
+	MediaId           int    `gorm:"column:media_id" json:"mediaId"`
+	Torrent           []byte `gorm:"column:torrent" json:"torrent"`
+	BatchEpisodeFiles []byte `gorm:"column:batch_episode_files" json:"batchEpisodeFiles"`
 }
 
 // +---------------------+

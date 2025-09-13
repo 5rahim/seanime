@@ -158,13 +158,26 @@ export function useVideoCorePlaylist() {
         // If a torrent was selected for auto play (i.e. user manually select torrent with auto select file)
         if (autoPlayTorrent?.torrent?.isBatch) {
             log.info("Previous torrent selected for auto play", autoPlayTorrent)
+            let fileIndex: number | undefined = undefined
+            if (autoPlayTorrent?.batchFiles) {
+                const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
+                if (file) {
+                    fileIndex = file.index
+                }
+            }
             if (streamType === "torrent") {
                 handleTorrentstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                     torrent: autoPlayTorrent.torrent,
-                    chosenFileIndex: undefined,
+                    chosenFileIndex: fileIndex,
+                    batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
+                        ...autoPlayTorrent.batchFiles,
+                        current: fileIndex,
+                        currentEpisodeNumber: episode.episodeNumber,
+                        currentAniDBEpisode: episode.aniDBEpisode,
+                    } : undefined,
                 })
             } else if (streamType === "debrid") {
                 handleDebridstreamSelection({
@@ -172,7 +185,13 @@ export function useVideoCorePlaylist() {
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                     torrent: autoPlayTorrent.torrent,
-                    chosenFileId: "",
+                    chosenFileId: fileIndex !== undefined ? String(fileIndex) : "",
+                    batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
+                        ...autoPlayTorrent.batchFiles,
+                        current: fileIndex,
+                        currentEpisodeNumber: episode.episodeNumber,
+                        currentAniDBEpisode: episode.aniDBEpisode,
+                    } : undefined,
                 })
             }
         } else {

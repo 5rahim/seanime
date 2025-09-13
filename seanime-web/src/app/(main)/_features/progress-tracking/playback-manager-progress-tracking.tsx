@@ -38,6 +38,8 @@ type Props = {
     asSidebarButton?: boolean
 }
 
+const log = logger("PLAYBACK MANAGER")
+
 export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props) {
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
 
@@ -129,7 +131,7 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Tracking started", data)
+            log.info("Tracking started", data)
             setIsTracking(true)
             setIsCompleted(false)
             setShowModal(true) // Show the modal when tracking starts
@@ -141,7 +143,7 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Video completed", data)
+            log.info("Video completed", data)
             setIsCompleted(true)
             setState(data)
         },
@@ -151,14 +153,15 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<string>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Tracking stopped", data, "Completion percentage:", state?.completionPercentage)
+            log.info("Tracking stopped", data, "Completion percentage:", state?.completionPercentage)
             setIsTracking(false)
             // Letting 'isCompleted' be true if the progress hasn't been updated
             // so the modal is left available for the user to update the progress manually
             if (state?.progressUpdated) {
                 // Setting 'isCompleted' to 'false' to hide the modal
-                logger("PlaybackManagerProgressTracking").info("Progress updated, setting isCompleted to false")
+                log.info("Progress updated, setting isCompleted to false")
                 setIsCompleted(false)
+                setState(null)
             }
 
             if (data === "Player closed") {
@@ -181,7 +184,7 @@ export function PlaybackManagerProgressTracking() {
                     startAutoplay(state, nextEpisodeToPlay || undefined, "local")
                 }
             }
-            setState(null)
+            // setState(null)
         },
     })
 

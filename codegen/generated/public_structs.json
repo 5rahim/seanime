@@ -30592,9 +30592,20 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "BatchEpisodeFiles",
+        "jsonName": "batchEpisodeFiles",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
-    "comments": [],
+    "comments": [
+      " TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media."
+    ],
     "embeddedStructNames": [
       "models.BaseModel"
     ]
@@ -31786,6 +31797,17 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BatchEpisodeFiles",
+        "jsonName": "BatchEpisodeFiles",
+        "goType": "hibiketorrent.BatchEpisodeFiles",
+        "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedTypescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedStructName": "hibiketorrent.BatchEpisodeFiles",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -38102,6 +38124,91 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/torrent/types.go",
+    "filename": "types.go",
+    "name": "AnimeTorrentFile",
+    "formattedName": "HibikeTorrent_AnimeTorrentFile",
+    "package": "hibiketorrent",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/torrent/types.go",
+    "filename": "types.go",
+    "name": "BatchEpisodeFiles",
+    "formattedName": "HibikeTorrent_BatchEpisodeFiles",
+    "package": "hibiketorrent",
+    "fields": [
+      {
+        "name": "Current",
+        "jsonName": "current",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisodeNumber",
+        "jsonName": "currentEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentAniDBEpisode",
+        "jsonName": "currentAniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]AnimeTorrentFile",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrentFile\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrentFile",
+        "usedStructName": "hibiketorrent.AnimeTorrentFile",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -78949,6 +79056,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "BatchEpisodeFiles",
+        "jsonName": "batchEpisodeFiles",
+        "goType": "hibiketorrent.BatchEpisodeFiles",
+        "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedTypescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedStructName": "hibiketorrent.BatchEpisodeFiles",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -79707,6 +79825,17 @@
         "comments": [
           " If this is a nakama stream (watch party)"
         ]
+      },
+      {
+        "name": "BatchEpisodeFiles",
+        "jsonName": "BatchEpisodeFiles",
+        "goType": "hibiketorrent.BatchEpisodeFiles",
+        "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedTypescriptType": "HibikeTorrent_BatchEpisodeFiles",
+        "usedStructName": "hibiketorrent.BatchEpisodeFiles",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
