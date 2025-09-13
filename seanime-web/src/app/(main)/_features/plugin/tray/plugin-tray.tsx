@@ -4,7 +4,9 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
+import { Vaul, VaulContent } from "@/components/vaul"
 import { getPixelsFromLength } from "@/lib/helpers/css"
+import { useIsMobile } from "@/lib/theme/hooks"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { useAtom, useAtomValue } from "jotai"
 import Image from "next/image"
@@ -44,6 +46,7 @@ export const PluginTrayContext = React.createContext<TrayPluginProps>({
         extensionName: "",
         iconUrl: "",
         withContent: false,
+        isDrawer: false,
         tooltipText: "",
         badgeNumber: 0,
         badgeIntent: "info",
@@ -185,10 +188,66 @@ export function PluginTray(props: TrayPluginProps) {
         </div>
     }
 
+    React.useEffect(() => {
+        if (open && props.trayIcon.isDrawer) {
+            setTimeout(() => {
+                document.body.style.pointerEvents = "auto"
+            }, 500)
+        }
+    }, [props.trayIcon.isDrawer, open])
+
+    const { isMobile } = useIsMobile()
+
 
     // console.log("popoverWidth", popoverWidth)
     // console.log("designatedWidthPx", designatedWidthPx)
     // console.log("props.width", props.width)
+
+    if (props.trayIcon.isDrawer) {
+        return (
+            <>
+                <div
+                    data-plugin-tray-icon-trigger={props.trayIcon.extensionId}
+                    onClick={() => setOpen(true)}
+                    className="cursor-pointer"
+                    data-plugin-tray-icon-trigger-drawer
+                >
+                    {!!tooltipText ? <Tooltip
+                        side={props.place === "sidebar" ? "right" : "bottom"}
+                        trigger={<div data-plugin-tray-icon-tooltip-trigger>
+                            <TrayIcon />
+                        </div>}
+                        data-plugin-tray-icon-tooltip
+                    >
+                        {tooltipText}
+                    </Tooltip> : <TrayIcon />}
+                </div>
+                <Vaul
+                    open={open}
+                    onOpenChange={setOpen}
+                    modal={false}
+                >
+                    <VaulContent
+                        className={cn(PopoverAnatomy.root(), "bg-gray-950 p-0 rounded-t-xl mx-auto")}
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                        style={{
+                            width: isMobile ? "100vw" : popoverWidth,
+                            minHeight: props.trayIcon.minHeight || "auto",
+                        }}
+                        data-plugin-tray-popover-content={props.trayIcon.extensionId}
+                    >
+                        <PluginTrayProvider props={props}>
+                            <PluginTrayContent
+                                open={open}
+                                setOpen={setOpen}
+                                {...props}
+                            />
+                        </PluginTrayProvider>
+                    </VaulContent>
+                </Vaul>
+            </>
+        )
+    }
 
     return (
         <>

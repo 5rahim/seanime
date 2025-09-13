@@ -222,6 +222,7 @@ type ServerTrayIconEventPayload struct {
 	BadgeIntent   string `json:"badgeIntent"`
 	Width         string `json:"width,omitempty"`
 	MinHeight     string `json:"minHeight,omitempty"`
+	IsDrawer      bool   `json:"isDrawer,omitempty"`
 }
 
 type ServerTrayBadgeUpdatedEventPayload struct {

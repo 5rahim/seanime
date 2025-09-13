@@ -70200,6 +70200,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsDrawer",
+        "jsonName": "isDrawer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -71348,6 +71357,15 @@
         "jsonName": "minHeight",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDrawer",
+        "jsonName": "isDrawer",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
