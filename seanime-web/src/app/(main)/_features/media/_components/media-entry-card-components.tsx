@@ -234,7 +234,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
         <>
             <div data-media-entry-card-hover-popup-title className="select-none">
                 <SeaLink
-                    href={link}
+                    href={!onClick ? link : undefined}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
                     onClick={onClick}
                 >
@@ -333,7 +333,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
     return (
         <>
             <SeaLink
-                href={link}
+                href={!onClick ? link : undefined}
                 onClick={onClick}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
                 data-media-entry-card-body-link
@@ -494,7 +494,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
-    return <SeaLink tabIndex={-1} href={link} onClick={onClick} data-media-entry-card-hover-popup-banner-link>
+    return <SeaLink tabIndex={-1} href={!onClick ? link : undefined} onClick={onClick} data-media-entry-card-hover-popup-banner-link>
         <div data-media-entry-card-hover-popup-banner-container className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div

@@ -266,7 +266,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             </div>}
 
                             {type === "manga" && <SeaLink
-                                href={MANGA_LINK}
+                                href={!onClick ? MANGA_LINK : undefined}
                                 onClick={onClick}
                             >
                                 <Button

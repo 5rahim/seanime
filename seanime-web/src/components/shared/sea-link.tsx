@@ -18,13 +18,20 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
 
     const router = useRouter()
 
-    if (!href || !!onClick) return (
+    if (!href) return (
         <a
             className={cn(
                 "cursor-pointer",
                 className,
             )}
-            onClick={onClick}
+            onClick={e => {
+                if (onClick) {
+                    onClick(e)
+                } else {
+                    router.push(href as string)
+                }
+            }}
+            data-current={(rest as any)["data-current"]}
             {...rest}
         >
             {children}
