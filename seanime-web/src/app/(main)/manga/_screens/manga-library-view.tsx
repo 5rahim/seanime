@@ -199,7 +199,7 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                     heading: "Currently Reading",
                     priority: 100,
                     render: () => (
-                        <CommandItemMedia media={entry.media!} />
+                        <CommandItemMedia media={entry.media!} type="manga" />
                     ),
                     onSelect: () => {
                         router.push(`/manga/entry?id=${entry.mediaId}`)

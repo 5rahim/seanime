@@ -66,6 +66,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     nakamaLibraryData?: T extends "anime" ? Anime_NakamaEntryLibraryData : never
     hideUnseenCountBadge?: boolean
     hideAnilistEntryEditButton?: boolean
+    onClick?: () => void
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -82,6 +83,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         withAudienceScore = true,
         hideUnseenCountBadge = false,
         hideAnilistEntryEditButton = false,
+        onClick,
     } = props
 
     const router = useRouter()
@@ -232,6 +234,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 link={link}
                                 listStatus={listData?.status}
                                 status={media.status}
+                                onClick={onClick}
                             />
 
                             <MediaEntryCardHoverPopupTitleSection
@@ -240,6 +243,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 season={media.season}
                                 format={media.format}
                                 link={link}
+                                onClick={onClick}
                             />
 
                             {type === "anime" && (
@@ -263,6 +267,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
                             {type === "manga" && <SeaLink
                                 href={MANGA_LINK}
+                                onClick={onClick}
                             >
                                 <Button
                                     leftIcon={<IoLibrarySharp />}
@@ -316,6 +321,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 isAdult={media.isAdult}
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
+                onClick={onClick}
             >
                 <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge

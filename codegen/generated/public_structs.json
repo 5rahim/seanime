@@ -27723,6 +27723,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LibraryExplorer",
+        "jsonName": "LibraryExplorer",
+        "goType": "library_explorer.LibraryExplorer",
+        "typescriptType": "LibraryExplorer_LibraryExplorer",
+        "usedTypescriptType": "LibraryExplorer_LibraryExplorer",
+        "usedStructName": "library_explorer.LibraryExplorer",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -49755,6 +49766,433 @@
         "typescriptType": "Summary_ScanSummary",
         "usedTypescriptType": "Summary_ScanSummary",
         "usedStructName": "summary.ScanSummary",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/explorer.go",
+    "filename": "explorer.go",
+    "name": "LibraryExplorer",
+    "formattedName": "LibraryExplorer_LibraryExplorer",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedTypescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "libraryPaths",
+        "jsonName": "libraryPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "database",
+        "jsonName": "database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileTree",
+        "jsonName": "fileTree",
+        "goType": "FileTree",
+        "typescriptType": "LibraryExplorer_FileTree",
+        "usedTypescriptType": "LibraryExplorer_FileTree",
+        "usedStructName": "library_explorer.FileTree",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "filePaths",
+        "jsonName": "filePaths",
+        "goType": "map[string][]string",
+        "typescriptType": "Record\u003cstring, Array\u003cstring\u003e\u003e",
+        "required": false,
+        "public": false,
+        "comments": [
+          " latest scanned file paths, keyed by library path"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/explorer.go",
+    "filename": "explorer.go",
+    "name": "NewLibraryExplorerOptions",
+    "formattedName": "LibraryExplorer_NewLibraryExplorerOptions",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedTypescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/filetree.go",
+    "filename": "filetree.go",
+    "name": "NodeKind",
+    "formattedName": "LibraryExplorer_NodeKind",
+    "package": "library_explorer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"directory\"",
+        "\"file\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/filetree.go",
+    "filename": "filetree.go",
+    "name": "FileTreeNode",
+    "formattedName": "LibraryExplorer_FileTreeNode",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Kind",
+        "jsonName": "Kind",
+        "goType": "NodeKind",
+        "typescriptType": "LibraryExplorer_NodeKind",
+        "usedTypescriptType": "LibraryExplorer_NodeKind",
+        "usedStructName": "library_explorer.NodeKind",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NormalizedPath",
+        "jsonName": "NormalizedPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFile",
+        "jsonName": "LocalFile",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "MediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " For directory nodes"
+        ]
+      },
+      {
+        "name": "Children",
+        "jsonName": "Children",
+        "goType": "[]FileTreeNode",
+        "typescriptType": "Array\u003cLibraryExplorer_FileTreeNode\u003e",
+        "usedTypescriptType": "LibraryExplorer_FileTreeNode",
+        "usedStructName": "library_explorer.FileTreeNode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "cachedSize",
+        "jsonName": "cachedSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " 0 by default, has to be requested by the client"
+        ]
+      },
+      {
+        "name": "parent",
+        "jsonName": "parent",
+        "goType": "FileTreeNode",
+        "typescriptType": "LibraryExplorer_FileTreeNode",
+        "usedTypescriptType": "LibraryExplorer_FileTreeNode",
+        "usedStructName": "library_explorer.FileTreeNode",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/filetree.go",
+    "filename": "filetree.go",
+    "name": "FileTreeNodeJSON",
+    "formattedName": "LibraryExplorer_FileTreeNodeJSON",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NormalizedPath",
+        "jsonName": "normalizedPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Kind",
+        "jsonName": "kind",
+        "goType": "NodeKind",
+        "typescriptType": "LibraryExplorer_NodeKind",
+        "usedTypescriptType": "LibraryExplorer_NodeKind",
+        "usedStructName": "library_explorer.NodeKind",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Children",
+        "jsonName": "children",
+        "goType": "[]FileTreeNodeJSON",
+        "typescriptType": "Array\u003cLibraryExplorer_FileTreeNodeJSON\u003e",
+        "usedTypescriptType": "LibraryExplorer_FileTreeNodeJSON",
+        "usedStructName": "library_explorer.FileTreeNodeJSON",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFile",
+        "jsonName": "localFile",
+        "goType": "anime.LocalFile",
+        "typescriptType": "Anime_LocalFile",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFileCount",
+        "jsonName": "localFileCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MatchedLocalFileCount",
+        "jsonName": "matchedLocalFileCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/filetree.go",
+    "filename": "filetree.go",
+    "name": "FileTree",
+    "formattedName": "LibraryExplorer_FileTree",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Root",
+        "jsonName": "Root",
+        "goType": "FileTreeNode",
+        "typescriptType": "LibraryExplorer_FileTreeNode",
+        "usedTypescriptType": "LibraryExplorer_FileTreeNode",
+        "usedStructName": "library_explorer.FileTreeNode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library_explorer/filetree.go",
+    "filename": "filetree.go",
+    "name": "FileTreeJSON",
+    "formattedName": "LibraryExplorer_FileTreeJSON",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Root",
+        "jsonName": "root",
+        "goType": "FileTreeNodeJSON",
+        "typescriptType": "LibraryExplorer_FileTreeNodeJSON",
+        "usedTypescriptType": "LibraryExplorer_FileTreeNodeJSON",
+        "usedStructName": "library_explorer.FileTreeNodeJSON",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "map[string]anime.LocalFile",
+        "typescriptType": "Record\u003cstring, Anime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
         "required": false,
         "public": true,
         "comments": []

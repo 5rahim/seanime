@@ -240,6 +240,15 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
 
 	//
+	// Library Explorer
+	//
+	v1LibraryExplorer := v1Library.Group("/explorer")
+
+	v1LibraryExplorer.GET("/file-tree", h.HandleGetLibraryExplorerFileTree)
+	v1LibraryExplorer.POST("/file-tree/refresh", h.HandleRefreshLibraryExplorerFileTree)
+	v1LibraryExplorer.POST("/directory-children", h.HandleLoadLibraryExplorerDirectoryChildren)
+
+	//
 	// Anime
 	//
 	v1.GET("/anime/episode-collection/:id", h.HandleGetAnimeEpisodeCollection)

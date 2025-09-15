@@ -215,6 +215,7 @@ type MediaEntryCardHoverPopupTitleSectionProps = {
     season?: string
     year?: number
     format?: string
+    onClick?: () => void
 }
 
 export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverPopupTitleSectionProps) {
@@ -225,6 +226,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
         season,
         year,
         format,
+        onClick,
         ...rest
     } = props
 
@@ -234,6 +236,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
                 <SeaLink
                     href={link}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
+                    onClick={onClick}
                 >
                     {title}
                 </SeaLink>
@@ -302,6 +305,7 @@ type MediaEntryCardBodyProps = {
     showLibraryBadge?: boolean
     children?: React.ReactNode
     blurAdultContent?: boolean
+    onClick?: () => void
 }
 
 export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
@@ -322,6 +326,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         showLibraryBadge,
         children,
         blurAdultContent,
+        onClick,
         ...rest
     } = props
 
@@ -329,6 +334,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         <>
             <SeaLink
                 href={link}
+                onClick={onClick}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
                 data-media-entry-card-body-link
             >
@@ -459,6 +465,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     link,
     listStatus,
     status,
+    onClick,
 }: {
     mediaId: number
     trailerId?: string
@@ -473,6 +480,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     isAdult?: boolean
     listStatus?: AL_MediaListStatus
     status?: AL_MediaStatus
+    onClick?: () => void
 }) => {
 
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
@@ -486,7 +494,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
-    return <SeaLink tabIndex={-1} href={link} data-media-entry-card-hover-popup-banner-link>
+    return <SeaLink tabIndex={-1} href={link} onClick={onClick} data-media-entry-card-hover-popup-banner-link>
         <div data-media-entry-card-hover-popup-banner-container className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div

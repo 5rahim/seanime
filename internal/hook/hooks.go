@@ -47,7 +47,7 @@ type Manager interface {
 	OnAnimeEntryDownloadInfoRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeEntryDownloadInfo() *Hook[hook_resolver.Resolver]
 
-	OnAnimEpisodeCollectionRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeEpisodeCollectionRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeEpisodeCollection() *Hook[hook_resolver.Resolver]
 
 	// Anime library collection events
@@ -613,7 +613,7 @@ func (m *ManagerImpl) OnAnimeEntryDownloadInfo() *Hook[hook_resolver.Resolver] {
 	return m.onAnimeEntryDownloadInfo
 }
 
-func (m *ManagerImpl) OnAnimEpisodeCollectionRequested() *Hook[hook_resolver.Resolver] {
+func (m *ManagerImpl) OnAnimeEpisodeCollectionRequested() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}

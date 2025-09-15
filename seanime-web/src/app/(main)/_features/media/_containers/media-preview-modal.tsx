@@ -12,6 +12,7 @@ import {
 import { MediaPageHeaderEntryDetails } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
+import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
@@ -291,6 +292,12 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                     </div>
 
                     {detailsLoading ? <LoadingSpinner /> : <div className="space-y-6 pt-6">
+                        {(type === "anime" && (entry as Anime_Entry).libraryData) && <EpisodeSection
+                            entry={entry as Anime_Entry}
+                            details={details as AL_AnimeDetailsById_Media}
+                            bottomSection={<></>}
+                            hideCarousel
+                        />}
                         {type === "anime" && <RelationsRecommendationsSection entry={entry as Anime_Entry} details={details} />}
                         {type === "manga" && <MangaRecommendations entry={entry as Manga_Entry} details={details} />}
                     </div>}

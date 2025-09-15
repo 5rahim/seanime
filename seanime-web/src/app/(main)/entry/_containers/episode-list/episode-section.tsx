@@ -22,9 +22,10 @@ type EpisodeSectionProps = {
     entry: Anime_Entry
     details: AL_AnimeDetailsById_Media | undefined
     bottomSection: React.ReactNode
+    hideCarousel?: boolean
 }
 
-export function EpisodeSection({ entry, details, bottomSection }: EpisodeSectionProps) {
+export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: EpisodeSectionProps) {
     const ts = useThemeSettings()
     const serverStatus = useServerStatus()
     const { currentView } = useAnimeEntryPageView()
@@ -124,7 +125,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                 />}
 
 
-                {episodesToWatch.length > 0 && (
+                {(episodesToWatch.length > 0 && !hideCarousel) && (
                     <>
                         <Carousel
                             className="w-full max-w-full"

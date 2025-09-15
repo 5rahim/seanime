@@ -776,6 +776,41 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/filecache/mediastream/videofiles",
         },
     },
+    LIBRARY_EXPLORER: {
+        /**
+         *  @description
+         *  Route returns the file tree structure of the library directories.
+         *  This returns a hierarchical representation of all directories and media files in the library.
+         *  The tree includes LocalFile associations and media IDs for each file and directory.
+         */
+        GetLibraryExplorerFileTree: {
+            key: "LIBRARY-EXPLORER-get-library-explorer-file-tree",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/explorer/file-tree",
+        },
+        /**
+         *  @description
+         *  Route refreshes the file tree structure of the library directories.
+         *  This clears the cached file tree and rebuilds it from the current library state.
+         *  Use this when the library structure has changed and you want to update the tree.
+         */
+        RefreshLibraryExplorerFileTree: {
+            key: "LIBRARY-EXPLORER-refresh-library-explorer-file-tree",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/explorer/file-tree/refresh",
+        },
+        /**
+         *  @description
+         *  Route loads the children of a specific directory into the file tree.
+         *  This endpoint loads directory children into the cached file tree. Frontend should re-fetch the tree afterwards.
+         *  The directory path must be within the configured library paths for security.
+         */
+        LoadLibraryExplorerDirectoryChildren: {
+            key: "LIBRARY-EXPLORER-load-library-explorer-directory-children",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/explorer/directory-children",
+        },
+    },
     LOCAL: {
         /**
          *  @description

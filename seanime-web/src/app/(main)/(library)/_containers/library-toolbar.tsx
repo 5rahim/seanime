@@ -8,6 +8,7 @@ import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanne
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
+import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -21,6 +22,7 @@ import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
+import { LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbFileSad, TbReload } from "react-icons/tb"
@@ -57,6 +59,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const setUnmatchedFileManagerOpen = useSetAtom(__unmatchedFileManagerIsOpen)
     const setIgnoredFileManagerOpen = useSetAtom(__ignoredFileManagerIsOpen)
     const setUnknownMediaManagerOpen = useSetAtom(__unknownMedia_drawerIsOpen)
+    const setLibraryExplorerDrawerOpen = useSetAtom(libraryExplorer_drawerOpenAtom)
     const { setModalOpen } = usePlaylistEditorManager()
 
     const [libraryView, setLibraryView] = useAtom(__library_viewAtom)
@@ -138,6 +141,18 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             icon={<BiDotsVerticalRounded />} intent="gray-basic"
                         />}
                     >
+
+                        <DropdownMenuItem
+                            data-library-toolbar-open-library-explorer-button
+                            disabled={!hasLibraryPath}
+                            className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}
+                            onClick={() => {
+                                setLibraryExplorerDrawerOpen(true)
+                            }}
+                        >
+                            <LuFolderTree />
+                            <span>Library explorer</span>
+                        </DropdownMenuItem>
 
                         <DropdownMenuItem
                             data-library-toolbar-open-directory-button

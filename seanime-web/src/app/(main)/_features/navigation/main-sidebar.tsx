@@ -6,7 +6,7 @@ import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
-import { useOpenSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
+import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-queue-count"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -69,7 +69,7 @@ export function MainSidebar() {
     const setServerStatus = useSetServerStatus()
     const user = useCurrentUser()
 
-    const { setSeaCommandOpen } = useOpenSeaCommand()
+    const { setSeaCommandOpen } = useSeaCommand()
 
     const missingEpisodeCount = useMissingEpisodeCount()
     const autoDownloaderQueueCount = useAutoDownloaderQueueCount()

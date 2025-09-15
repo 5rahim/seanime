@@ -58,7 +58,7 @@ export function SeaCommandUserMediaNavigation() {
                                 })
                             }}
                         >
-                            <CommandItemMedia media={n} />
+                            <CommandItemMedia media={n} type="anime" />
                         </CommandItem>
                     ))}
                 </CommandGroup>
@@ -74,7 +74,7 @@ export function SeaCommandUserMediaNavigation() {
                                 })
                             }}
                         >
-                            <CommandItemMedia media={n} />
+                            <CommandItemMedia media={n} type="manga" />
                         </CommandItem>
                     ))}
                 </CommandGroup>

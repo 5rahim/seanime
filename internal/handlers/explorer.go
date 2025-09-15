@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 	"seanime/internal/util"
 	"strings"
@@ -24,6 +25,14 @@ func (h *Handler) HandleOpenInExplorer(c echo.Context) error {
 	p := new(body)
 	if err := c.Bind(p); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	stat, err := os.Stat(p.Path)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	if !stat.IsDir() {
+		p.Path = filepath.Dir(p.Path)
 	}
 
 	OpenDirInExplorer(p.Path)

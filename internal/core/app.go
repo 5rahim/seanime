@@ -22,6 +22,7 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/library/scanner"
+	"seanime/internal/library_explorer"
 	"seanime/internal/local"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
@@ -121,6 +122,7 @@ type (
 		NakamaManager      *nakama.Manager
 		ServerPasswordHash string // SHA-256 hash of the server password
 		PlaylistManager    *playlist.Manager
+		LibraryExplorer    *library_explorer.LibraryExplorer
 	}
 )
 
@@ -350,6 +352,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
 		NativePlayer:                  nil, // Initialized in App.initModulesOnce
 		NakamaManager:                 nil, // Initialized in App.initModulesOnce
+		LibraryExplorer:               nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules

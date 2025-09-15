@@ -2,6 +2,8 @@ import { Anime_UnmatchedGroup } from "@/api/generated/types"
 import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
+import { useSeaCommandSearchSelectMedia } from "@/app/(main)/_features/sea-command/sea-command-search"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -123,6 +125,14 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
     const handleFetchSuggestions = React.useCallback(() => {
         fetchSuggestions({
             dir: currentGroup.dir,
+        }, {
+            onSuccess: () => {
+                setTimeout(() => {
+                    if (!suggestions?.length) {
+                        toast.warning("No suggestions found, try searching manually")
+                    }
+                }, 500)
+            },
         })
     }, [currentGroup?.dir, fetchSuggestions])
 
@@ -145,6 +155,29 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
             setIsOpen(false)
         }
     }, [currentGroup])
+
+    // Search
+    const { setSeaCommandInput, setSeaCommandOpen } = useSeaCommand()
+    const { searchAndSelectMedia, selectedAnime, onAcknowledgeSelection } = useSeaCommandSearchSelectMedia()
+
+    function handleSearchAnime() {
+        searchAndSelectMedia("anime")
+        setSeaCommandOpen(true)
+        setTimeout(() => {
+            setSeaCommandInput("/search " + (currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || ""))
+        }, 200)
+    }
+
+    // user selected an anime
+    React.useEffect(() => {
+        if (selectedAnime) {
+            setAnilistId(selectedAnime.id)
+            setR(r => r + 1)
+            onAcknowledgeSelection()
+            setSeaCommandOpen(false)
+            toast.success("Anime selected")
+        }
+    }, [selectedAnime])
 
     if (!currentGroup) return null
 
@@ -276,16 +309,17 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         Fetch suggestions
                     </Button>
 
-                    <SeaLink
-                        target="_blank"
-                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}
-                    >
+                    {/*<SeaLink*/}
+                    {/*    target="_blank"*/}
+                    {/*    href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}*/}
+                    {/*>*/}
                         <Button
                             intent="white-link"
+                            onClick={handleSearchAnime}
                         >
                             Search on AniList
                         </Button>
-                    </SeaLink>
+                    {/*</SeaLink>*/}
 
                     <div className="flex flex-1"></div>
 

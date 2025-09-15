@@ -2797,6 +2797,45 @@ export type HibikeTorrent_BatchEpisodeFiles = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LibraryExplorer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_FileTreeJSON = {
+    root?: LibraryExplorer_FileTreeNodeJSON
+    localFiles?: Record<string, Anime_LocalFile>
+}
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_FileTreeNodeJSON = {
+    name: string
+    path: string
+    normalizedPath: string
+    kind: LibraryExplorer_NodeKind
+    children?: Array<LibraryExplorer_FileTreeNodeJSON>
+    size?: number
+    localFile?: Anime_LocalFile
+    mediaIds?: Array<number>
+    localFileCount?: number
+    matchedLocalFileCount?: number
+}
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_NodeKind = "directory" | "file"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Local
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

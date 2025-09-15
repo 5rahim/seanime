@@ -2,6 +2,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { PluginAnimePageDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
@@ -25,7 +26,7 @@ import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi"
 import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
-import { LuGlobe, LuImage } from "react-icons/lu"
+import { LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
@@ -46,6 +47,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
     const setAnimeEntryUnmatchFilesModalOpen = useSetAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
     const setDownloadFilesModalOpen = useSetAtom(__animeEntryDownloadFilesModalIsOpenAtom)
 
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
+
     return (
         <>
             <DropdownMenu
@@ -64,6 +67,11 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     >
                         <BiFolder /> Open directory
                     </DropdownMenuItem>
+                    {!!entry.libraryData?.sharedPath && <DropdownMenuItem
+                        onClick={() => openDirInLibraryExplorer(entry.libraryData?.sharedPath || "")}
+                    >
+                        <LuFolderTree /> Open in library explorer
+                    </DropdownMenuItem>}
 
                     {/*{serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem*/}
                     {/*    onClick={() => startDefaultMediaPlayer()}*/}

@@ -16,6 +16,7 @@ import (
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/library_explorer"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
@@ -286,6 +287,15 @@ func (a *App) initModulesOnce() {
 		Logger:                  a.Logger,
 	})
 
+	// +---------------------+
+	// |   Anime Library     |
+	// +---------------------+
+	a.LibraryExplorer = library_explorer.NewLibraryExplorer(library_explorer.NewLibraryExplorerOptions{
+		Platform: a.AnilistPlatform,
+		Logger:   a.Logger,
+		Database: a.Database,
+	})
+
 }
 
 // HandleNewDatabaseEntries initializes essential database collections.
@@ -360,6 +370,10 @@ func (a *App) InitOrRefreshModules() {
 		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
 			DefaultAnimeProvider: settings.Library.TorrentProvider,
 		})
+
+		if a.LibraryExplorer != nil {
+			a.LibraryExplorer.SetLibraryPaths(settings.GetLibrary().GetLibraryPaths())
+		}
 	}
 
 	if settings.MediaPlayer != nil {

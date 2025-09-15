@@ -256,7 +256,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	b.Dir = strings.ToLower(b.Dir)
+	b.Dir = util.NormalizePath(b.Dir)
 
 	suggestions, found := entriesSuggestionsCache.Get(b.Dir)
 	if found {

@@ -21,6 +21,8 @@ import { LuPlus } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { toast } from "sonner"
 
+// todo: select checkbox, group actions
+
 export function PlaylistListModal() {
     const serverStatus = useServerStatus()
     const { isModalOpen, setModalOpen, setSelectedMedia, selectedMedia } = usePlaylistEditorManager()

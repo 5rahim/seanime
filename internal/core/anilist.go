@@ -76,6 +76,9 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to DirectStreamManager
 	a.DirectStreamManager.SetAnimeCollection(ret)
 
+	// Save the collection to LibraryExplorer
+	a.LibraryExplorer.SetAnimeCollection(ret)
+
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
 
 	return ret, nil

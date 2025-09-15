@@ -965,6 +965,41 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// library_explorer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useGetLibraryExplorerFileTree() {
+//     return useServerQuery<LibraryExplorer_FileTreeJSON>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.methods[0],
+//         queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useRefreshLibraryExplorerFileTree() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.methods[0],
+//         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLoadLibraryExplorerDirectoryChildren() {
+//     return useServerMutation<boolean, LoadLibraryExplorerDirectoryChildren_Variables>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.methods[0],
+//         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // local
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

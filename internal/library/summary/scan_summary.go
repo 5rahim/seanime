@@ -355,6 +355,9 @@ func (l *ScanSummaryLogger) getFileLogs(lf *anime.LocalFile) []*ScanSummaryLog {
 		return logs
 	}
 	for _, log := range l.Logs {
+		if log == nil || lf == nil {
+			continue
+		}
 		if lf.HasSamePath(log.FilePath) {
 			logs = append(logs, log)
 		}

@@ -3820,6 +3820,112 @@
     }
   },
   {
+    "name": "HandleGetLibraryExplorerFileTree",
+    "trimmedName": "GetLibraryExplorerFileTree",
+    "comments": [
+      "HandleGetLibraryExplorerFileTree",
+      "",
+      "\t@summary returns the file tree structure of the library directories.",
+      "\t@desc This returns a hierarchical representation of all directories and media files in the library.",
+      "\t@desc The tree includes LocalFile associations and media IDs for each file and directory.",
+      "\t@route /api/v1/library/explorer/file-tree [GET]",
+      "\t@returns library_explorer.FileTreeJSON",
+      ""
+    ],
+    "filepath": "internal/handlers/library_explorer.go",
+    "filename": "library_explorer.go",
+    "api": {
+      "summary": "returns the file tree structure of the library directories.",
+      "descriptions": [
+        "This returns a hierarchical representation of all directories and media files in the library.",
+        "The tree includes LocalFile associations and media IDs for each file and directory."
+      ],
+      "endpoint": "/api/v1/library/explorer/file-tree",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "library_explorer.FileTreeJSON",
+      "returnGoType": "library_explorer.FileTreeJSON",
+      "returnTypescriptType": "LibraryExplorer_FileTreeJSON"
+    }
+  },
+  {
+    "name": "HandleRefreshLibraryExplorerFileTree",
+    "trimmedName": "RefreshLibraryExplorerFileTree",
+    "comments": [
+      "HandleRefreshLibraryExplorerFileTree",
+      "",
+      "\t@summary refreshes the file tree structure of the library directories.",
+      "\t@desc This clears the cached file tree and rebuilds it from the current library state.",
+      "\t@desc Use this when the library structure has changed and you want to update the tree.",
+      "\t@route /api/v1/library/explorer/file-tree/refresh [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/library_explorer.go",
+    "filename": "library_explorer.go",
+    "api": {
+      "summary": "refreshes the file tree structure of the library directories.",
+      "descriptions": [
+        "This clears the cached file tree and rebuilds it from the current library state.",
+        "Use this when the library structure has changed and you want to update the tree."
+      ],
+      "endpoint": "/api/v1/library/explorer/file-tree/refresh",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleLoadLibraryExplorerDirectoryChildren",
+    "trimmedName": "LoadLibraryExplorerDirectoryChildren",
+    "comments": [
+      "HandleLoadLibraryExplorerDirectoryChildren",
+      "",
+      "\t@summary loads the children of a specific directory into the file tree.",
+      "\t@desc This endpoint loads directory children into the cached file tree. Frontend should re-fetch the tree afterwards.",
+      "\t@desc The directory path must be within the configured library paths for security.",
+      "\t@route /api/v1/library/explorer/directory-children [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/library_explorer.go",
+    "filename": "library_explorer.go",
+    "api": {
+      "summary": "loads the children of a specific directory into the file tree.",
+      "descriptions": [
+        "This endpoint loads directory children into the cached file tree. Frontend should re-fetch the tree afterwards.",
+        "The directory path must be within the configured library paths for security."
+      ],
+      "endpoint": "/api/v1/library/explorer/directory-children",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "DirectoryPath",
+          "jsonName": "directoryPath",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleSetOfflineMode",
     "trimmedName": "SetOfflineMode",
     "comments": [
