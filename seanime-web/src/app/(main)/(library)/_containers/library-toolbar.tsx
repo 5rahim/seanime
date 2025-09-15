@@ -92,6 +92,19 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             Switch view
                         </Tooltip>
 
+                        {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) && <Tooltip
+                            trigger={<IconButton
+                                data-library-toolbar-switch-view-button
+                                intent={"white-subtle"}
+                                icon={<LuFolderTree className="text-2xl" />}
+                                onClick={() => {
+                                    setLibraryExplorerDrawerOpen(true)
+                                }}
+                            />}
+                        >
+                            Library Explorer
+                        </Tooltip>}
+
                         <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-playlists-button

@@ -4,6 +4,8 @@ import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { LibraryExplorerSuperUpdate } from "@/app/(main)/_features/library-explorer/library-explorer-super-update"
+import { LibraryExplorerSuperUpdateDrawer } from "@/app/(main)/_features/library-explorer/library-explorer-super-update-drawer"
 import {
     libraryExplorer_collectFilePaths,
     libraryExplorer_collectLocalFileNodes,
@@ -22,11 +24,11 @@ import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
 import { ContextMenuGroup } from "@radix-ui/react-context-menu"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import Image from "next/image"
 import React, { memo } from "react"
-import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiRefresh, BiSearch } from "react-icons/bi"
+import { BiChevronDown, BiChevronRight, BiEditAlt, BiFolder, BiListCheck, BiLockOpenAlt, BiRefresh, BiSearch } from "react-icons/bi"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
 import { LuFileQuestion } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineEdit, MdOutlineRemoveDone, MdOutlineRemoveFromQueue, MdVideoFile } from "react-icons/md"
@@ -46,6 +48,7 @@ import {
     libraryExplorer_openDirectoryAtom,
     libraryExplorer_selectedNodeAtom,
     libraryExplorer_selectedPathsAtom,
+    libraryExplorer_superUpdateDrawerOpenAtom,
 } from "./library-explorer.atoms"
 
 interface FlattenedTreeItem {
@@ -113,7 +116,6 @@ export function LibraryExplorer() {
 
     const ref = React.useRef<VirtuosoHandle>(null)
 
-    // File actions for TreeNode components
     const { mutate: updateLocalFiles } = useUpdateLocalFiles()
     const { mutate: openInExplorer } = useOpenInExplorer()
     const [, setUnmatchedFileManagerOpen] = useAtom(__unmatchedFileManagerIsOpen)
@@ -341,12 +343,15 @@ export function LibraryExplorer() {
                     <div className="flex-1 flex flex-col border-r border-gray-800">
                         <div className="p-4 border-b border-gray-800 space-y-3">
                             <div className="flex items-center gap-2">
-                                <h2 className="text-lg font-semibold text-gray-100">Library Explorer</h2>
+                                <h2 className="text-lg font-semibold text-gray-100"></h2>
                                 <div className="flex flex-1"></div>
                                 <LibraryExplorerBulkActions
                                     fileNodes={fileNodes}
                                     handleMatchFiles={handleMatchFiles}
                                     handleUnmatchFiles={handleUnmatchFiles}
+                                />
+                                <LibraryExplorerSuperUpdate
+                                    fileNodes={fileNodes}
                                 />
                                 <Button
                                     leftIcon={<BiListCheck className="text-xl" />}
@@ -435,6 +440,10 @@ export function LibraryExplorer() {
                         },
                     ]}
                 />
+
+                <LibraryExplorerSuperUpdateDrawer
+                    fileNodes={fileNodes}
+                />
             </ScopeProvider>
         </>
     )
@@ -474,7 +483,7 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
                     <Button
                         leftIcon={<BiListCheck className="text-xl" />}
                         size="sm"
-                        intent={shouldShowUnmatchFiles ? "warning-link" : "white-link"}
+                        intent={shouldShowUnmatchFiles ? "warning-link" : "success-link"}
                         onClick={handleMatchOrUnmatch}
                     >
                         {shouldShowUnmatchFiles ? "Unmatch" : "Match"} {selectedPathFileNodes.length} files
@@ -529,7 +538,8 @@ const VirtualizedTreeNode = memo(({
 
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
     const isSelectingPaths = useAtomValue(libraryExplorer_isSelectingPathsAtom)
-
+    const setSelectedPaths = useSetAtom(libraryExplorer_selectedPathsAtom)
+    const setSuperUpdateDrawerOpen = useSetAtom(libraryExplorer_superUpdateDrawerOpenAtom)
     const [isMetadataModalOpen, setMetadataModalOpen] = React.useState(false)
     const { updateLocalFile } = useUpdateLocalFileData()
 
@@ -676,6 +686,21 @@ const VirtualizedTreeNode = memo(({
         setPreviewModalMediaId(media?.id ?? 0, "anime")
     }
 
+    function handleOpenSuperUpdate() {
+        if (isDirectory) {
+            const paths = libraryExplorer_collectFilePaths(node)
+            setSelectedPaths(new Set(paths))
+            React.startTransition(() => {
+                setSuperUpdateDrawerOpen(true)
+            })
+        } else {
+            setSelectedPaths(new Set([node.path]))
+            React.startTransition(() => {
+                setSuperUpdateDrawerOpen(true)
+            })
+        }
+    }
+
     const isScannedFile = !!node.localFile
 
     const [contextMenuOpen, setContextMenuOpen] = React.useState(false)
@@ -694,6 +719,9 @@ const VirtualizedTreeNode = memo(({
                         >
                             Preview anime
                         </ContextMenuItem>}
+                        <ContextMenuItem onClick={handleOpenSuperUpdate}>
+                            <BiEditAlt /> Update{isDirectory ? " files" : " file"}
+                        </ContextMenuItem>
                         <ContextMenuItem onClick={handleOpenInExplorerClick}>
                             <BiFolder /> Open in explorer
                         </ContextMenuItem>

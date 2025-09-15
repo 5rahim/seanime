@@ -1171,6 +1171,17 @@
 //     })
 // }
 
+// export function useSuperUpdateLocalFiles() {
+//     return useServerMutation<boolean, SuperUpdateLocalFiles_Variables>({
+//         endpoint: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.endpoint,
+//         method: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useUpdateLocalFiles() {
 //     return useServerMutation<boolean, UpdateLocalFiles_Variables>({
 //         endpoint: API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.endpoint,

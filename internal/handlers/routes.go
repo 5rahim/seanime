@@ -219,6 +219,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.GET("/local-files/dump", h.HandleDumpLocalFilesToFile)
 	v1Library.POST("/local-files/import", h.HandleImportLocalFiles)
 	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
+	v1Library.PATCH("/local-files/super-update", h.HandleSuperUpdateLocalFiles)
 
 	v1Library.GET("/collection", h.HandleGetLibraryCollection)
 	v1Library.GET("/schedule", h.HandleGetAnimeCollectionSchedule)

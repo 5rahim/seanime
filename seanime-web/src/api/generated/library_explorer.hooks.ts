@@ -1,6 +1,8 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
+import { SuperUpdateLocalFiles_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { LibraryExplorer_FileTreeJSON } from "@/api/generated/types"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function useGetLibraryExplorerFileTree() {
     return useServerQuery<LibraryExplorer_FileTreeJSON>({
@@ -18,6 +20,18 @@ export function useRefreshLibraryExplorerFileTree() {
         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.key],
         onSuccess: async () => {
 
+        },
+    })
+}
+
+export function useSuperUpdateLocalFiles() {
+    const qc = useQueryClient()
+    return useServerMutation<boolean, SuperUpdateLocalFiles_Variables>({
+        endpoint: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.endpoint,
+        method: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.methods[0],
+        mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
+        onSuccess: async () => {
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }

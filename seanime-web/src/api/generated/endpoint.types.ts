@@ -21,6 +21,7 @@ import type {
     DebridClient_StreamPlaybackType,
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
+    LibraryExplorer_SuperUpdateFileOptions,
     Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DebridSettings,
@@ -937,6 +938,17 @@ export type UpdateLocalFileData_Variables = {
     locked: boolean
     ignored: boolean
     mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/localfiles.go
+ * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-files/super-update
+ * @description
+ * Route updates local files with the given paths.
+ */
+export type SuperUpdateLocalFiles_Variables = {
+    files: Array<LibraryExplorer_SuperUpdateFileOptions>
 }
 
 /**

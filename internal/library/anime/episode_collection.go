@@ -84,7 +84,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 		Metadata:          opts.AnimeMetadata,
 		EpisodeCollection: &EpisodeCollection{},
 	}
-	err = hook.GlobalHookManager.OnAnimEpisodeCollectionRequested().Trigger(reqEvent)
+	err = hook.GlobalHookManager.OnAnimeEpisodeCollectionRequested().Trigger(reqEvent)
 	if err != nil {
 		return nil, err
 	}

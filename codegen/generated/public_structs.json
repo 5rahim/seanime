@@ -50201,6 +50201,45 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library_explorer/superupdate.go",
+    "filename": "superupdate.go",
+    "name": "SuperUpdateFileOptions",
+    "formattedName": "LibraryExplorer_SuperUpdateFileOptions",
+    "package": "library_explorer",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NewName",
+        "jsonName": "newName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Metadata",
+        "jsonName": "metadata",
+        "goType": "anime.LocalFileMetadata",
+        "typescriptType": "Anime_LocalFileMetadata",
+        "usedTypescriptType": "Anime_LocalFileMetadata",
+        "usedStructName": "anime.LocalFileMetadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/local/database.go",
     "filename": "database.go",
     "name": "Database",

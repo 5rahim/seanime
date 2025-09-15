@@ -198,6 +198,7 @@ const (
 	StartDefaultMediaPlayerEndpoint                    = "MEDIAPLAYER-start-default-media-player"
 	StartMangaDownloadQueueEndpoint                    = "MANGA-DOWNLOAD-start-manga-download-queue"
 	StopMangaDownloadQueueEndpoint                     = "MANGA-DOWNLOAD-stop-manga-download-queue"
+	SuperUpdateLocalFilesEndpoint                      = "LOCALFILES-super-update-local-files"
 	TestDumpEndpoint                                   = "MANUAL-DUMP-test-dump"
 	ToggleAnimeEntrySilenceStatusEndpoint              = "ANIME-ENTRIES-toggle-anime-entry-silence-status"
 	TorrentClientActionEndpoint                        = "TORRENT-CLIENT-torrent-client-action"

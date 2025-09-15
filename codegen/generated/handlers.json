@@ -4525,6 +4525,46 @@
     }
   },
   {
+    "name": "HandleSuperUpdateLocalFiles",
+    "trimmedName": "SuperUpdateLocalFiles",
+    "comments": [
+      "HandleSuperUpdateLocalFiles",
+      "",
+      "\t@summary updates local files with the given paths.",
+      "\t@desc The client should refetch the entire library collection and media entry.",
+      "\t@route /api/v1/library/local-files/super-update [PATCH]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/localfiles.go",
+    "filename": "localfiles.go",
+    "api": {
+      "summary": "updates local files with the given paths.",
+      "descriptions": [
+        "The client should refetch the entire library collection and media entry."
+      ],
+      "endpoint": "/api/v1/library/local-files/super-update",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Files",
+          "jsonName": "files",
+          "goType": "[]library_explorer.SuperUpdateFileOptions",
+          "usedStructType": "library_explorer.SuperUpdateFileOptions",
+          "typescriptType": "Array\u003cLibraryExplorer_SuperUpdateFileOptions\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleUpdateLocalFiles",
     "trimmedName": "UpdateLocalFiles",
     "comments": [

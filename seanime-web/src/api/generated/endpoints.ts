@@ -937,6 +937,16 @@ export const API_ENDPOINTS = {
          *  Route updates local files with the given paths.
          *  The client should refetch the entire library collection and media entry.
          */
+        SuperUpdateLocalFiles: {
+            key: "LOCALFILES-super-update-local-files",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/library/local-files/super-update",
+        },
+        /**
+         *  @description
+         *  Route updates local files with the given paths.
+         *  The client should refetch the entire library collection and media entry.
+         */
         UpdateLocalFiles: {
             key: "LOCALFILES-update-local-files",
             methods: ["PATCH"],

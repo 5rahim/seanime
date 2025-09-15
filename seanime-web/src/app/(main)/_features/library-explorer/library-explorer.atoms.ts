@@ -13,6 +13,8 @@ export const libraryExplorer_matchLocalFilesAtom = atom<Anime_LocalFile[]>([])
 
 export const libraryExplorer_openDirectoryAtom = atom<string | null>(null)
 
+export const libraryExplorer_superUpdateDrawerOpenAtom = atom(false)
+
 export function useLibraryExplorer() {
     const [open, setOpen] = useAtom(libraryExplorer_drawerOpenAtom)
     const [openDirInLibraryExplorer, setOpenDirInLibraryExplorer] = useAtom(libraryExplorer_openDirectoryAtom)
