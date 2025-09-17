@@ -1,14 +1,15 @@
 import { Anime_UnknownGroup } from "@/api/generated/types"
 import { useAddUnknownMedia } from "@/api/hooks/anime_collection.hooks"
 import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
-import { SeaLink } from "@/components/shared/sea-link"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { useCallback } from "react"
-import { BiLinkExternal, BiPlus } from "react-icons/bi"
+import { BiPlus } from "react-icons/bi"
+import { LuScanEye } from "react-icons/lu"
 import { TbDatabasePlus } from "react-icons/tb"
 import { toast } from "sonner"
 
@@ -57,6 +58,8 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
         })
     }, [])
 
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
     if (unknownGroups.length === 0) return null
 
     return (
@@ -75,11 +78,12 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
             <AppLayoutStack className="mt-4">
 
                 <p className="">
-                    Seanime matched {unknownGroups.length} group{unknownGroups.length === 1 ? "" : "s"} to media that {unknownGroups.length === 1
+                    Seanime matched {unknownGroups.length} group{unknownGroups.length === 1 ? "" : "s"} to {unknownGroups.length === 1 ? "a " : ""}series
+                    that {unknownGroups.length === 1
                     ? "is"
                     : "are"} absent from your
                     AniList collection.<br />
-                    Add the media to be able to see the entry in your library or unmatch them if incorrect.
+                    Add the media to be able to see entries in your library or unmatch them if incorrect.
                 </p>
 
                 <Button
@@ -99,13 +103,12 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                 <div className="flex items-center w-full justify-between">
                                     <h4 className="font-semibold flex gap-2 items-center">
                                         <span>Anilist ID:{" "}</span>
-                                        <SeaLink
-                                            href={`https://anilist.co/anime/${group.mediaId}`}
-                                            target="_blank"
-                                            className="underline text-brand-200 flex gap-1.5 items-center"
+                                        <p
+                                            className="underline cursor-pointer text-brand-200 flex gap-1.5 items-center"
+                                            onClick={() => { setPreviewModalMediaId(group.mediaId, "anime") }}
                                         >
-                                            {group.mediaId} <BiLinkExternal />
-                                        </SeaLink>
+                                            {group.mediaId} <LuScanEye />
+                                        </p>
                                     </h4>
                                     <div className="flex gap-2 items-center">
                                         <Button

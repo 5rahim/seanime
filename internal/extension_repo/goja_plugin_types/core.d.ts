@@ -86,6 +86,8 @@ declare function $toBytes(value: any): Uint8Array
  */
 declare function $sleep(milliseconds: number): void
 
+declare function $await<T>(promise: Promise<T>): void
+
 /**
  *
  * @param model

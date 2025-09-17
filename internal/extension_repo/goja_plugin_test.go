@@ -320,7 +320,7 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(2000 * time.Millisecond)
 		fmt.Fprint(w, `{"test": "data"}`)
 	}))
 	defer server.Close()
