@@ -175,7 +175,6 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
             setR(r => r + 1)
             onAcknowledgeSelection()
             setSeaCommandOpen(false)
-            toast.success("Anime selected")
         }
     }, [selectedAnime])
 

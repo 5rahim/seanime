@@ -27,7 +27,7 @@ import { ANIME_COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { getYear } from "date-fns"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -67,7 +67,16 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         stats,
         libraryCollectionList,
         libraryGenres,
+        libraryEntries,
     } = useHandleDetailedLibraryCollection()
+
+    const [selectedList, setSelectedList] = useAtom(__library_selectedListAtom)
+
+    React.useLayoutEffect(() => {
+        if (selectedList !== "-" && selectedList !== "all") {
+            setSelectedList("-")
+        }
+    }, [])
 
     if (isLoading) return <LoadingSpinner />
 
@@ -137,17 +146,19 @@ export function DetailedLibraryView(props: LibraryViewProps) {
 
             <GenreSelector genres={libraryGenres} />
 
-            {libraryCollectionList.map(collection => {
+            {selectedList !== "all" && libraryCollectionList.map(collection => {
                 if (!collection.entries?.length) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} />
             })}
+
+            {selectedList === "all" && <MergedLibraryCollectionList entries={libraryEntries} streamingMediaIds={streamingMediaIds} />}
         </PageWrapper>
     )
 }
 
 const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { list: Anime_LibraryCollectionList, streamingMediaIds: number[] }) => {
 
-    const selectedList = useAtomValue(__library_selectedListAtom)
+    const [selectedList, setSelectedList] = useAtom(__library_selectedListAtom)
 
     if (selectedList !== "-" && selectedList !== list.type) return null
 
@@ -156,6 +167,22 @@ const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { lis
             <h2>{getLibraryCollectionTitle(list.type)} <span className="text-[--muted] font-medium ml-3">{list?.entries?.length ?? 0}</span></h2>
             <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
+                })}
+            </MediaCardLazyGrid>
+        </React.Fragment>
+    )
+})
+
+const MergedLibraryCollectionList = React.memo(({ entries, streamingMediaIds }: {
+    entries: Anime_LibraryCollectionEntry[],
+    streamingMediaIds: number[]
+}) => {
+
+    return (
+        <React.Fragment>
+            <MediaCardLazyGrid itemCount={entries?.length || 0}>
+                {entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
                 })}
             </MediaCardLazyGrid>
@@ -221,7 +248,8 @@ export function SearchOptions() {
                     className="h-10 w-fit pb-6"
                     triggerClass="px-4 py-1"
                     items={[
-                        { name: "All", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },
+                        { name: "Lists", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },
+                        { name: "All", isCurrent: selectedIndex === "all", onClick: () => setSelectedIndex("all") },
                         { name: "Watching", isCurrent: selectedIndex === "CURRENT", onClick: () => setSelectedIndex("CURRENT") },
                         { name: "Planning", isCurrent: selectedIndex === "PLANNING", onClick: () => setSelectedIndex("PLANNING") },
                         { name: "Paused", isCurrent: selectedIndex === "PAUSED", onClick: () => setSelectedIndex("PAUSED") },

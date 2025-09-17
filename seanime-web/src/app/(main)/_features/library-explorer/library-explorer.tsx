@@ -30,7 +30,7 @@ import Image from "next/image"
 import React, { memo } from "react"
 import { BiChevronDown, BiChevronRight, BiEditAlt, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
-import { LuClipboardPlus, LuClipboardX, LuFilePen, LuFileQuestion, LuFolderSync } from "react-icons/lu"
+import { LuClipboardPlus, LuClipboardX, LuFilePen, LuFileQuestion, LuFileVideo2, LuFolderSync } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
@@ -241,6 +241,12 @@ export function LibraryExplorer() {
     }, [])
 
     const [selectedPaths, setSelectedPaths] = useAtom(libraryExplorer_selectedPathsAtom)
+
+    React.useEffect(() => {
+        if (!isSelectingPaths) {
+            setSelectedPaths(new Set())
+        }
+    }, [isSelectingPaths])
 
     const handlePathSelection = React.useCallback((node: LibraryExplorer_FileTreeNodeJSON, checked: boolean) => {
         setSelectedPaths(prev => {
@@ -543,29 +549,29 @@ const VirtualizedTreeNode = memo(({
 
     const getFileIcon = () => {
         if (isDirectory) {
-            if (level === 0) return <FiHardDrive className="w-4 h-4 text-brand-400" />
+            if (level === 0) return <FiHardDrive className="size-5 text-brand-400" />
             return isExpanded ?
                 <RiFolderOpenFill
                     className={cn(
-                        "w-4 h-4 text-brand-400",
+                        "size-5 text-brand-400/90",
                         !node.mediaIds?.length && "text-[--muted]",
                     )}
                 /> :
                 <FiFolder
                     className={cn(
-                        "w-4 h-4 text-brand-400",
+                        "size-5 text-brand-400/80",
                         !node.mediaIds?.length && "text-[--muted]",
                     )}
                 />
         }
 
-        if (!node.localFile) return <LuFileQuestion className="w-4 h-4 text-[--muted]" />
+        if (!node.localFile) return <LuFileQuestion className="size-5 text-[--muted]" />
 
-        return <MdVideoFile
+        return <LuFileVideo2
             className={cn(
-                "w-4 h-4 text-[--muted]",
-                node.localFile.metadata?.type === "main" && "text-cyan-200/80",
-                node.localFile.metadata?.type === "special" && "text-fuchsia-200/50",
+                "size-5 text-[--muted]",
+                node.localFile.metadata?.type === "main" && "text-brand-400/70",
+                node.localFile.metadata?.type === "special" && "text-cyan-200/50",
                 node.localFile.metadata?.type === "nc" && "text-gray-200/30",
             )}
         />
@@ -750,12 +756,12 @@ const VirtualizedTreeNode = memo(({
                             </ContextMenuItem>}
                         </>}
                         {(!isDirectory && isScannedFile) && <>
-                            <ContextMenuItem
+                            {!!node.localFile?.mediaId && <ContextMenuItem
                                 onClick={() => setMetadataModalOpen(true)}
                                 className={cn("text-[--blue]", isPending && "opacity-50 pointer-events-none")}
                             >
                                 <LuFilePen className="text-lg" /> Edit metadata
-                            </ContextMenuItem>
+                            </ContextMenuItem>}
                             {!!node.localFile?.mediaId && <ContextMenuItem
                                 onClick={handleUnmatchSingleFile}
                                 className={cn("text-[--orange]", isPending && "opacity-50 pointer-events-none")}
@@ -845,7 +851,7 @@ const VirtualizedTreeNode = memo(({
                                         !isDirectory && !isScannedFile && "text-red-200",
                                         !isDirectory && node.localFile?.ignored && "text-[--muted] italic",
                                     )}
-                                >{node.name}</span>
+                                >{node.name === "root" ? "Libraries" : node.name}</span>
                                 {!!media && (
                                     <span
                                         className={cn(
@@ -1010,7 +1016,14 @@ function LibraryInfoPanel({ localFiles }: { localFiles: Record<string, Anime_Loc
                             )}
                         />
                     ) : (
-                        <MdVideoFile className="w-12 h-12 text-[--muted]" />
+                        <MdVideoFile
+                            className={cn(
+                                "w-12 h-12 text-[--muted]",
+                                selectedNode.localFile?.metadata?.type === "main" && "text-brand-400/80",
+                                selectedNode.localFile?.metadata?.type === "special" && "text-cyan-200/50",
+                                selectedNode.localFile?.metadata?.type === "nc" && "text-gray-200/30",
+                            )}
+                        />
                     )}
                 </div>
                 <h3 className="font-semibold text-gray-100 break-all text-sm leading-tight">
