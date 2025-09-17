@@ -28,10 +28,10 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import Image from "next/image"
 import React, { memo } from "react"
-import { BiChevronDown, BiChevronRight, BiEditAlt, BiFolder, BiListCheck, BiLockOpenAlt, BiRefresh, BiSearch } from "react-icons/bi"
+import { BiChevronDown, BiChevronRight, BiEditAlt, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
-import { LuFileQuestion } from "react-icons/lu"
-import { MdOutlineAdd, MdOutlineEdit, MdOutlineRemoveDone, MdOutlineRemoveFromQueue, MdVideoFile } from "react-icons/md"
+import { LuClipboardPlus, LuClipboardX, LuFilePen, LuFileQuestion, LuFolderSync } from "react-icons/lu"
+import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
 import { useWindowSize } from "react-use"
@@ -168,11 +168,7 @@ export function LibraryExplorer() {
     }
 
     const handleRefresh = () => {
-        refreshMutation.mutate(undefined, {
-            onSuccess: () => {
-                refetch()
-            },
-        })
+        refreshMutation.mutate()
     }
 
     const handleToggleExpand = React.useCallback((nodePath: string) => {
@@ -365,7 +361,7 @@ export function LibraryExplorer() {
                                     Select{isSelectingPaths ? "ing" : ""}
                                 </Button>
                                 <IconButton
-                                    icon={<BiRefresh />}
+                                    icon={<LuFolderSync />}
                                     size="sm"
                                     intent="gray-subtle"
                                     onClick={handleRefresh}
@@ -481,12 +477,14 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
             {isSelectingPaths && !!selectedPathFileNodes?.length && (
                 <>
                     <Button
-                        leftIcon={<BiListCheck className="text-xl" />}
+                        leftIcon={<MdOutlineRemoveDone className="text-xl" />}
                         size="sm"
                         intent={shouldShowUnmatchFiles ? "warning-link" : "success-link"}
                         onClick={handleMatchOrUnmatch}
                     >
-                        {shouldShowUnmatchFiles ? "Unmatch" : "Match"} {selectedPathFileNodes.length} files
+                        {shouldShowUnmatchFiles ? "Unmatch" : "Match"} {selectedPathFileNodes.length} file{selectedPathFileNodes.length != 1
+                        ? "s"
+                        : ""}
                     </Button>
                 </>
             )}
@@ -742,13 +740,13 @@ const VirtualizedTreeNode = memo(({
                                 onClick={handleIgnoreDirectory}
                                 className={cn("", isPending && "opacity-50 pointer-events-none")}
                             >
-                                <MdOutlineRemoveFromQueue className="text-lg" /> Ignore files
+                                <LuClipboardX className="text-lg" /> Ignore files
                             </ContextMenuItem>}
                             {allFileIgnored && <ContextMenuItem
                                 onClick={handleUnignoreDirectory}
                                 className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
                             >
-                                <MdOutlineRemoveFromQueue className="text-lg" /> Un-ignore files
+                                <LuClipboardPlus className="text-lg" /> Un-ignore files
                             </ContextMenuItem>}
                         </>}
                         {(!isDirectory && isScannedFile) && <>
@@ -756,7 +754,7 @@ const VirtualizedTreeNode = memo(({
                                 onClick={() => setMetadataModalOpen(true)}
                                 className={cn("text-[--blue]", isPending && "opacity-50 pointer-events-none")}
                             >
-                                <MdOutlineEdit className="text-lg" /> Edit metadata
+                                <LuFilePen className="text-lg" /> Edit metadata
                             </ContextMenuItem>
                             {!!node.localFile?.mediaId && <ContextMenuItem
                                 onClick={handleUnmatchSingleFile}
@@ -774,13 +772,13 @@ const VirtualizedTreeNode = memo(({
                                 onClick={handleIgnoreSingleFile}
                                 className={cn("", isPending && "opacity-50 pointer-events-none")}
                             >
-                                <MdOutlineRemoveFromQueue className="text-lg" /> Ignore file
+                                <LuClipboardX className="text-lg" /> Ignore file
                             </ContextMenuItem>}
                             {node?.localFile?.ignored && <ContextMenuItem
                                 onClick={handleUnignoreSingleFile}
                                 className={cn("text-purple-300", isPending && "opacity-50 pointer-events-none")}
                             >
-                                <MdOutlineRemoveFromQueue className="text-lg" /> Un-ignore file
+                                <LuClipboardPlus className="text-lg" /> Un-ignore file
                             </ContextMenuItem>}
                         </>}
                     </ContextMenuGroup>

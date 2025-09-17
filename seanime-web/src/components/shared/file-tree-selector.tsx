@@ -110,15 +110,16 @@ const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
     const [isOpen, setIsOpen] = React.useState(level === 0 || level === 1)
 
     const toggleOpen = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        if (node.type === "directory") {
-            setIsOpen(!isOpen)
-        }
+
     }
 
-    const handleFileSelect = () => {
+    const handleFileSelect = (e: React.MouseEvent) => {
+        e.stopPropagation()
         if (node.type === "file" && node.filePreview) {
             onFileSelect(getFileValue(node.filePreview))
+        }
+        if (node.type === "directory") {
+            setIsOpen(!isOpen)
         }
     }
 
@@ -129,7 +130,7 @@ const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
         <div>
             <div
                 className={cn(
-                    "flex items-center py-1.5 px-2 transition border border-transparent rounded-[--radius]",
+                    "flex items-center py-1.5 px-2 border border-transparent rounded-[--radius]",
                     node.type === "file" && "cursor-pointer",
                     node.type === "file" && !isSelected && "hover:bg-[--subtle]",
                     isSelected && "bg-white dark:bg-gray-950 border border-[--brand]",
@@ -138,7 +139,7 @@ const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
                 onClick={handleFileSelect}
                 ref={hasOneLikelyMatch && isLikelyMatch ? likelyMatchRef : undefined}
             >
-                <div className="flex items-center" onClick={toggleOpen}>
+                <div className="flex items-center">
                     {node.type === "directory" && (
                         <span className="mr-1 cursor-pointer">
                             {isOpen ? (
@@ -155,7 +156,7 @@ const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
                     )}
                 </div>
 
-                <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex flex-col flex-1 min-w-0 cursor-pointer">
                     {node.type === "file" && node.filePreview ? (
                         <>
                             <p className="mb-1 line-clamp-1 font-medium">

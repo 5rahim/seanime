@@ -330,7 +330,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                                     trigger={
                                                         <AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90" />}
                                                 >
-                                                    The next file will be played from this batch.
+                                                    The next episode will be played from this batch.
                                                 </Tooltip>
                                             </div>
                                             <p className="line-clamp-1 text-[--muted] text-xs tracking-wide w-0 transition-all duration-300 ease-in-out group-hover/torrent-stream-batch-history:w-[20rem]">

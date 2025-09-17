@@ -29,7 +29,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
 
     return (
         <>
-            <div className="rounded-[--radius] bg-gray-900 hover:bg-gray-800 transition-colors">
+            <div className="rounded-[--radius] bg-gray-900 hover:bg-gray-800/50 transition-colors">
                 <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
                     <div className="space-y-1 w-full">

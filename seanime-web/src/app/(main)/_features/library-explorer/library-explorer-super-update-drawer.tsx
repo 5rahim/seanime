@@ -805,7 +805,7 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                     </div>
 
                                     {form.watch("editMetadata") && (
-                                        <div className="mb-4 p-4 bg-gray-900 border rounded-md max-h-[300px] overflow-y-auto">
+                                        <div className="mb-4 p-4 bg-gray-900 border rounded-md max-h-[230px] overflow-y-auto">
                                             <div className="flex items-center justify-between mb-3">
                                                 <h4 className="text-sm font-medium text-gray-300"></h4>
                                                 <Button
@@ -868,7 +868,7 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                             </Button>
                         </div>
 
-                        <div className={cn("overflow-y-auto flex-1 bg-gray-900 rounded-md p-4 pb-10 h-[calc(100%-20px)]")}>
+                        <div className={cn("overflow-y-auto flex-1 bg-gray-950 border rounded-md p-2 h-[calc(100%-55px)]")}>
                             {previewItems.length === 0 ? (
                                 <div className="text-center text-gray-500 py-8">
                                     No files selected
@@ -879,8 +879,10 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                         <div
                                             key={item.originalPath}
                                             className={cn(
-                                                "flex items-center gap-3 p-3 rounded",
-                                                (item.willChange || item.metadataWillChange) ? "bg-green-900/20" : "bg-gray-800/50",
+                                                "flex items-center gap-3 p-2 rounded",
+                                                (item.willChange || item.metadataWillChange)
+                                                    ? "bg-green-900/20"
+                                                    : "bg-gray-800/20 hover:bg-gray-800/30",
                                             )}
                                         >
                                             <div className="flex-1 min-w-0">
@@ -889,7 +891,7 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                                                 </div>
                                                 {item.willChange && (
                                                     <div className="text-md text-green-200 truncate tracking-wide">
-                                                        → {item.newName}
+                                                        {item.newName}
                                                     </div>
                                                 )}
                                                 {item.metadataWillChange && item.originalMetadata && item.newMetadata && (

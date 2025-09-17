@@ -14,6 +14,8 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
+import { BiAddToQueue } from "react-icons/bi"
+import { LuDock } from "react-icons/lu"
 import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type EpisodeCardProps = {
@@ -119,6 +121,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     </ContextMenuLabel>
 
                     {pathname !== "/entry" && <>
+                        {!serverStatus?.isOffline && <ContextMenuItem
+                            onClick={() => {
+                                setPreviewModalMediaId(anime?.id || 0, "anime")
+                            }}
+                        >
+                            Preview
+                        </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={() => {
                                 if (!serverStatus?.isOffline) {
@@ -128,22 +137,15 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 }
                             }}
                         >
-                            Open page
+                            <LuDock /> Open page
                         </ContextMenuItem>
-                        {!serverStatus?.isOffline && <ContextMenuItem
-                            onClick={() => {
-                                setPreviewModalMediaId(anime?.id || 0, "anime")
-                            }}
-                        >
-                            Preview
-                        </ContextMenuItem>}
                     </>}
                     {(props.episode && anime?.id && props.episode?.aniDBEpisode) && <ContextMenuItem
                         onClick={() => {
                             selectEpisodeToAddAndOpenEditor(anime.id!, props.episode?.aniDBEpisode!)
                         }}
                     >
-                        Add to Playlist
+                        <BiAddToQueue /> Add to Playlist
                     </ContextMenuItem>}
 
                     <PluginEpisodeCardContextMenuItems episode={props.episode} />

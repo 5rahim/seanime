@@ -70,7 +70,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     {!!entry.libraryData?.sharedPath && <DropdownMenuItem
                         onClick={() => openDirInLibraryExplorer(entry.libraryData?.sharedPath || "")}
                     >
-                        <LuFolderTree /> Open in library explorer
+                        <LuFolderTree /> Open in Library Explorer
                     </DropdownMenuItem>}
 
                     {/*{serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem*/}

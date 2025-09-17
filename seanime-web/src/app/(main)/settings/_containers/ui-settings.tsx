@@ -280,7 +280,7 @@ export function UISettings() {
                         triggerClass={tabsTriggerClass}
                         listClass={tabsListClass}
                     >
-                        <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-lg">
+                        <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                             <TabsTrigger value="main">Theme</TabsTrigger>
                             <TabsTrigger value="media">Media</TabsTrigger>
                             <TabsTrigger value="navigation">Navigation</TabsTrigger>

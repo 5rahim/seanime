@@ -11,6 +11,7 @@ import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { AnimeEntryCardUnwatchedBadge } from "@/app/(main)/_features/anime/_containers/anime-entry-card-unwatched-badge"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import {
     __mediaEntryCard_hoveredPopupId,
     AnimeEntryCardNextAiring,
@@ -43,8 +44,9 @@ import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import { usePathname, useRouter } from "next/navigation"
 import React, { useState } from "react"
-import { BiPlay } from "react-icons/bi"
+import { BiAddToQueue, BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
+import { LuFolderTree } from "react-icons/lu"
 import { RiCalendarLine } from "react-icons/ri"
 import { PluginMediaCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
@@ -170,6 +172,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     }, [media.id])
 
     const { setPreviewModalMediaId } = useMediaPreviewModal()
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
 
     if (!media) return null
 
@@ -202,7 +205,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             selectMediaAndOpenEditor(media.id!)
                         }}
                     >
-                        Add to Playlist
+                        <BiAddToQueue /> Add to Playlist
+                    </ContextMenuItem>}
+                    {(!!libraryData) && <ContextMenuItem
+                        onClick={() => {
+                            openDirInLibraryExplorer(libraryData?.sharedPath)
+                        }}
+                    >
+                        <LuFolderTree /> Open in Library Explorer
                     </ContextMenuItem>}
 
                     <PluginMediaCardContextMenuItems for={type} media={media} />

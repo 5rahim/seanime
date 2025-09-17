@@ -69,8 +69,11 @@ export function PlaylistListModal() {
     React.useEffect(() => {
         if (selectedMedia) {
             if (!allEntries.find(n => n?.mediaId === selectedMedia)) {
-                toast.warning("This anime is not in your collection")
+                toast.warning("This anime is not in your library or currently watching collection.")
                 setSelectedMedia(null)
+                React.startTransition(() => {
+                    setModalOpen(false)
+                })
             }
         }
     }, [selectedMedia, allEntries])

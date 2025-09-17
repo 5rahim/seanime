@@ -7,10 +7,10 @@ import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_conta
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
-import { tabsListClass, tabsTriggerClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -59,10 +59,10 @@ export function AutoDownloaderPage() {
 
             <Tabs
                 defaultValue="rules"
-                triggerClass={tabsTriggerClass}
-                listClass={tabsListClass}
+                triggerClass={"text-base px-6 h-auto py-2 rounded-[--radius-md] w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white"}
+                listClass={"w-full flex flex-wrap md:flex-nowrap h-fit"}
             >
-                <TabsList>
+                <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                     <TabsTrigger value="rules">Rules</TabsTrigger>
                     <TabsTrigger value="queue">
                         Queue
@@ -115,22 +115,24 @@ export function AutoDownloaderPage() {
                                     </Button>
                                 </div>
 
-                                <ul className="text-base text-[--muted]">
-                                    <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
-                                                                                 parameters you set.
-                                    </li>
-                                </ul>
+                                <Card className="p-4 space-y-2">
+                                    <ul className="text-base text-[--muted]">
+                                        <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
+                                                                                     parameters you set.
+                                        </li>
+                                    </ul>
 
-                                {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
-                                {(!!data?.length) && <div className="space-y-4">
-                                    {data?.map(rule => (
-                                        <AutoDownloaderRuleItem
-                                            key={rule.dbId}
-                                            rule={rule}
-                                            userMedia={userMedia}
-                                        />
-                                    ))}
-                                </div>}
+                                    {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
+                                    {(!!data?.length) && <div className="space-y-2">
+                                        {data?.map(rule => (
+                                            <AutoDownloaderRuleItem
+                                                key={rule.dbId}
+                                                rule={rule}
+                                                userMedia={userMedia}
+                                            />
+                                        ))}
+                                    </div>}
+                                </Card>
                             </div>
                         )}
                     </div>

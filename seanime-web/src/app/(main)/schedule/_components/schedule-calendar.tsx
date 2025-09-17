@@ -134,24 +134,25 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
 
     return (
         <>
-            <div className="hidden lg:flex lg:h-full lg:flex-col rounded-[--radius-md] border">
-                <header className="relative flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-[--radius-md] rounded-tl-[--radius-md] border-b bg-[--background]">
+            <div className="flex h-full flex-col rounded-[--radius-md] border">
+                <header className="relative flex items-center justify-center py-3 px-4 lg:py-4 lg:px-6 gap-3 lg:gap-4 flex-none rounded-tr-[--radius-md] rounded-tl-[--radius-md] border-b bg-[--background]">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
-                            "text-lg font-semibold text-[--muted] text-center w-[200px]",
+                            "text-base lg:text-lg font-semibold text-[--muted] text-center flex-1 min-w-0",
                             isSameMonth(currentDate, new Date()) && "text-gray-100",
                         )}
                     >
                         <time dateTime={format(currentDate, "yyyy-MM")}>
-                            {format(currentDate, "MMMM yyyy")}
+                            <span className="hidden lg:inline">{format(currentDate, "MMMM yyyy")}</span>
+                            <span className="lg:hidden">{format(currentDate, "MMM yyyy")}</span>
                         </time>
                     </h1>
                     <IconButton icon={<AiOutlineArrowRight />} onClick={goToNextMonth} rounded intent="gray-outline" size="sm" />
 
                     <Popover
-                        trigger={<IconButton icon={<BiCog />} intent="gray-basic" className="absolute right-3 top-4" size="sm" />}
-                        className="w-[400px] space-y-2"
+                        trigger={<IconButton icon={<BiCog />} intent="gray-basic" size="sm" />}
+                        className="w-[300px] lg:w-[400px] space-y-2"
                     >
                         <RadioGroup
                             label="Week starts on" options={[
@@ -191,8 +192,8 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                         />
                     </Popover>
                 </header>
-                <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-[--radius-md] rounded-bl-[--radius-md] overflow-hidden">
-                    <div className="grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
+                <div className="flex flex-auto flex-col rounded-br-[--radius-md] rounded-bl-[--radius-md] overflow-hidden">
+                    <div className="hidden lg:grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 flex-none">
                         {weekStartsOn === 0 && <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">un</span>
                         </div>}
@@ -218,51 +219,19 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                             S<span className="sr-only sm:not-sr-only">un</span>
                         </div>}
                     </div>
-                    <div className="flex bg-[--background] text-xs leading-6 text-gray-200 lg:flex-auto">
-                        <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-2 p-2">
+
+                    <div className="lg:hidden flex-auto bg-[--background] overflow-y-auto">
+                        <MobileCalendarList days={days} />
+                    </div>
+
+                    <div className="hidden lg:flex bg-[--background] text-xs leading-6 text-gray-200 flex-auto">
+                        <div className="w-full grid grid-cols-7 grid-rows-6 gap-2 p-2">
                             {days.map((day, index) => (
                                 <CalendarDay
                                     key={index}
                                     day={day}
                                     index={index}
                                 />
-                            ))}
-                        </div>
-                        <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-                            {days.map((day, index) => (
-                                <button
-                                    key={index}
-                                    type="button"
-                                    className={cn(
-                                        day.isCurrentMonth ? "bg-gray-950" : "bg-gray-900",
-                                        (day.isSelected || day.isToday) && "font-semibold",
-                                        day.isSelected && "text-white",
-                                        !day.isSelected && day.isToday && "text-brand",
-                                        !day.isSelected && day.isCurrentMonth && !day.isToday && "text-gray-100",
-                                        !day.isSelected && !day.isCurrentMonth && !day.isToday && "text-gray-500",
-                                        "flex h-14 flex-col py-2 px-3 hover:bg-gray-800 focus:z-10",
-                                    )}
-                                >
-                                    <time
-                                        dateTime={day.date}
-                                        className={cn(
-                                            day.isSelected && "flex h-6 w-6 items-center justify-center rounded-full",
-                                            day.isSelected && day.isToday && "bg-brand",
-                                            day.isSelected && !day.isToday && "bg-gray-900",
-                                            "ml-auto",
-                                        )}
-                                    >
-                                        {day.date.split("-")?.pop()?.replace(/^0/, "")}
-                                    </time>
-                                    <span className="sr-only">{day.events.length} events</span>
-                                    {day.events.length > 0 && (
-                                        <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                                            {day.events.map((event) => (
-                                                <span key={event.id} className={cn("mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400")} />
-                                            ))}
-                                        </span>
-                                    )}
-                                </button>
                             ))}
                         </div>
                     </div>
@@ -283,6 +252,154 @@ type CalendarEvent = {
     isSeasonFinale: boolean
     isMovie: boolean
     isWatched: boolean
+}
+
+interface MobileCalendarListProps {
+    days: any[]
+}
+
+function MobileCalendarList({ days }: MobileCalendarListProps) {
+    const calendarParams = useAtomValue(calendarParamsAtom)
+
+    // Filter days to only show those with events or today
+    const relevantDays = days.filter(day =>
+        day.events.length > 0 || day.isToday,
+    )
+
+    if (relevantDays.length === 0) {
+        return (
+            <div className="p-6 text-center text-[--muted]">
+                <p>No scheduled episodes for this month</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="divide-y divide-gray-800">
+            {relevantDays.map((day, index) => (
+                <MobileDayItem
+                    key={day.date}
+                    day={day}
+                    calendarParams={calendarParams}
+                />
+            ))}
+        </div>
+    )
+}
+
+interface MobileDayItemProps {
+    day: any
+    calendarParams: CalendarParams
+}
+
+function MobileDayItem({ day, calendarParams }: MobileDayItemProps) {
+    const dayName = format(new Date(day.date), "EEEE")
+    const dayNumber = day.date.split("-")?.pop()?.replace(/^0/, "")
+    const monthDay = format(new Date(day.date), "MMM d")
+
+    return (
+        <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                    <div
+                        className={cn(
+                            "flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-full font-bold text-sm lg:text-base",
+                            day.isToday
+                                ? "bg-brand text-white"
+                                : "bg-gray-800 text-gray-300",
+                        )}
+                    >
+                        {dayNumber}
+                    </div>
+                    <div>
+                        <h3
+                            className={cn(
+                                "font-semibold",
+                                day.isToday ? "text-brand" : "text-gray-200",
+                            )}
+                        >
+                            {dayName}
+                        </h3>
+                        <p className="text-sm text-[--muted]">{monthDay}</p>
+                    </div>
+                </div>
+                {day.events.length > 0 && (
+                    <div className="text-xs text-[--muted] bg-gray-800 px-2 py-1 rounded-full">
+                        {day.events.length} episode{day.events.length !== 1 ? "s" : ""}
+                    </div>
+                )}
+            </div>
+
+            {day.events.length > 0 && (
+                <div className="space-y-3 ml-0 lg:ml-13">
+                    {day.events.map((event: CalendarEvent) => (
+                        <MobileEventItem
+                            key={event.id}
+                            event={event}
+                            calendarParams={calendarParams}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {day.isToday && day.events.length === 0 && (
+                <div className="ml-0 lg:ml-13 text-sm text-[--muted] italic">
+                    No episodes scheduled for today
+                </div>
+            )}
+        </div>
+    )
+}
+
+interface MobileEventItemProps {
+    event: CalendarEvent
+    calendarParams: any
+}
+
+function MobileEventItem({ event, calendarParams }: MobileEventItemProps) {
+    return (
+        <SeaLink href={event.href} className="block">
+            <div className="flex items-start gap-2 lg:gap-3 p-2 lg:p-3 rounded-lg bg-gray-900/50 hover:bg-gray-800/50 transition-colors">
+                <div className="relative w-10 h-14 lg:w-12 lg:h-16 rounded overflow-hidden flex-shrink-0">
+                    <Image
+                        src={event.image || ""}
+                        alt={event.name}
+                        fill
+                        className="object-cover"
+                    />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <p
+                            className={cn(
+                                "font-medium text-md text-gray-100 line-clamp-2",
+                                event.isWatched && calendarParams.indicateWatchedEpisodes && "text-[--muted]",
+                            )}
+                        >
+                            {event.name}
+                        </p>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                            {event.isSeasonFinale && !event.isWatched && (
+                                <FaFlag className="size-3 text-[--blue]" />
+                            )}
+                            {event.isWatched && calendarParams.indicateWatchedEpisodes && (
+                                <FaCheck className="size-3 text-[--muted]" />
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-2 text-sm text-[--muted]">
+                        <span className="font-medium">Episode {event.episode}</span>
+                        {event.time && <span>• {event.time}</span>}
+                        {event.isSeasonFinale && (
+                            <span className="text-[--blue] font-medium">• Finale</span>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </SeaLink>
+    )
 }
 
 interface CalendarDayBackgroundProps {
@@ -364,7 +481,7 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
     const calendarParams = useAtomValue(calendarParamsAtom)
 
     return (
-        <ol className="mt-2 relative z-[1]">
+        <ol className="mt-1 sm:mt-2 relative z-[1] space-y-0.5 sm:space-y-1">
             {events.slice(0, MAX_EVENT_COUNT).map((event) => (
                 <li
                     key={event.id}
@@ -372,22 +489,33 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                     onMouseLeave={handleEventMouseLeave}
                 >
                     <SeaLink className="group flex" href={event.href}>
-                        <p
-                            className={cn("flex-auto truncate font-medium text-gray-100 flex items-center gap-2",
-                                event.isWatched && calendarParams.indicateWatchedEpisodes ? "text-[--muted]" : "group-hover:text-gray-200")}
-                        >
-                            {event.isSeasonFinale && !event.isWatched &&
-                                <FaFlag className="size-3 text-[--blue] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
-                            {event.isWatched && calendarParams.indicateWatchedEpisodes &&
-                                <FaCheck className="size-3 text-[--muted] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
-                            {event.name}
-                        </p>
+                        <div className="flex-auto truncate">
+                            <p
+                                className={cn(
+                                    "truncate font-medium text-gray-100 flex items-center gap-1",
+                                    "text-xs lg:text-sm",
+                                    event.isWatched && calendarParams.indicateWatchedEpisodes ? "text-[--muted]" : "group-hover:text-gray-200",
+                                )}
+                            >
+                                {event.isSeasonFinale && !event.isWatched &&
+                                    <FaFlag className="size-2 lg:size-3 text-[--blue] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
+                                {event.isWatched && calendarParams.indicateWatchedEpisodes &&
+                                    <FaCheck className="size-2 lg:size-3 text-[--muted] flex-none group-hover:scale-[1.15] transition-transform duration-300" />}
+                                <span className="truncate">
+                                    {event.name.length > 20 ? event.name.slice(0, 17) + "..." : event.name}
+                                </span>
+                            </p>
+                            <p className="text-xs text-[--muted] lg:hidden">
+                                Ep. {event.episode}
+                                {event.time && <span className="ml-1">• {event.time}</span>}
+                            </p>
+                        </div>
                         <time
                             dateTime={event.datetime}
-                            className="ml-3 hidden flex-none text-[--muted] group-hover:text-gray-200 xl:flex items-center"
+                            className="ml-3 hidden flex-none text-[--muted] group-hover:text-gray-200 lg:flex items-center"
                         >
                             <span className="mr-1 text-sm group-hover:text-[--foreground] font-semibold ">
-                                {`{{ICON}}`} {event.episode}
+                                Ep. {event.episode}
                             </span>
                         </time>
                     </SeaLink>
@@ -395,12 +523,12 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
             ))}
             {events.length > MAX_EVENT_COUNT && (
                 <Popover
-                    className="w-full max-w-sm lg:max-w-sm"
+                    className="w-[280px] lg:w-full max-w-sm lg:max-w-sm"
                     trigger={
-                        <li className="text-[--muted] cursor-pointer">+ {events.length - MAX_EVENT_COUNT} more</li>
+                        <li className="text-[--muted] cursor-pointer text-xs lg:text-sm py-1">+ {events.length - MAX_EVENT_COUNT} more</li>
                     }
                 >
-                    <ol className="text-sm max-w-full block">
+                    <ol className="text-sm max-w-full block space-y-2">
                         {events.slice(MAX_EVENT_COUNT).map((event) => (
                             <li key={event.id}>
                                 <SeaLink className="group flex gap-2" href={event.href}>
@@ -450,7 +578,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
             key={index}
             className={cn(
                 day.isCurrentMonth ? "bg-[--background]" : "opacity-20",
-                "relative py-2 px-3 h-40 rounded-md",
+                "relative py-1 px-1 sm:py-2 sm:px-3 h-24 sm:h-32 lg:h-40 rounded-md",
                 "flex flex-col justify-between group",
             )}
         >
@@ -462,8 +590,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                 />
             )}
 
-            {/* Title display for hovered event */}
-            <div className="absolute -top-2 left-10 right-1 z-[5] pointer-events-none">
+            <div className="absolute -top-2 left-10 right-1 z-[5] pointer-events-none hidden lg:block">
                 <div
                     className={cn(
                         "transition-all duration-300 ease-out",
@@ -489,8 +616,8 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                 dateTime={day.date}
                 className={
                     day.isToday
-                        ? "z-[1] relative flex h-7 w-7 text-lg items-center justify-center rounded-full bg-brand font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-white"
-                        : "text-xs md:text-base group-hover:text-white group-hover:font-bold transition-transform duration-300 ease-out"
+                        ? "z-[1] relative flex h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-sm sm:text-base lg:text-lg items-center justify-center rounded-full bg-brand font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-white"
+                        : "text-xs sm:text-sm lg:text-base group-hover:text-white group-hover:font-bold transition-transform duration-300 ease-out"
                 }
             >
                 {day.date.split("-")?.pop()?.replace(/^0/, "")}

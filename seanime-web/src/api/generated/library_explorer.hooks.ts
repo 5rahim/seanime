@@ -14,24 +14,25 @@ export function useGetLibraryExplorerFileTree() {
 }
 
 export function useRefreshLibraryExplorerFileTree() {
+    const queryClient = useQueryClient()
     return useServerMutation<boolean>({
         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.endpoint,
         method: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.methods[0],
         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.key],
         onSuccess: async () => {
-
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }
 
 export function useSuperUpdateLocalFiles() {
-    const qc = useQueryClient()
+    const queryClient = useQueryClient()
     return useServerMutation<boolean, SuperUpdateLocalFiles_Variables>({
         endpoint: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.endpoint,
         method: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
         onSuccess: async () => {
-            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }
