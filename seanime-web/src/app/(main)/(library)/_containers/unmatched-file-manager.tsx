@@ -4,6 +4,7 @@ import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
 import { useSeaCommandSearchSelectMedia } from "@/app/(main)/_features/sea-command/sea-command-search"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,6 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { upath } from "@/lib/helpers/upath"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
@@ -351,7 +351,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                     {media.coverImage?.medium && <div
                                         className="h-28 w-28 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                     >
-                                        <Image
+                                        <SeaImage
                                             src={media.coverImage.medium}
                                             alt={""}
                                             fill

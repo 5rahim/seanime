@@ -1,7 +1,7 @@
 import { AL_BaseAnime } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
-import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
@@ -88,7 +88,7 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
                     >
                         {actionIcon && actionIcon}
                     </div>}
-                    {(image || media.coverImage?.medium) && <Image
+                    {(image || media.coverImage?.medium) && <SeaImage
                         src={image || media.coverImage?.medium || ""}
                         alt="episode image"
                         fill

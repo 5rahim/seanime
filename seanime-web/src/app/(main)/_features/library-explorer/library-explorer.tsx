@@ -11,10 +11,11 @@ import {
     libraryExplorer_collectLocalFileNodes,
     libraryExplorer_getCheckboxState,
 } from "@/app/(main)/_features/library-explorer/library-explorer.utils"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -26,9 +27,9 @@ import { upath } from "@/lib/helpers/upath"
 import { ContextMenuGroup } from "@radix-ui/react-context-menu"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
-import Image from "next/image"
 import React, { memo } from "react"
-import { BiChevronDown, BiChevronRight, BiEditAlt, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
+import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
+import { FaRegEdit } from "react-icons/fa"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
 import { LuClipboardPlus, LuClipboardX, LuFilePen, LuFileQuestion, LuFileVideo2, LuFolderSync } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
@@ -342,8 +343,8 @@ export function LibraryExplorer() {
         <>
             <ScopeProvider atoms={[__unmatchedFileManagerIsOpen]}>
                 <div className="hidden lg:flex h-full">
-                    <div className="flex-1 flex flex-col border-r border-gray-800">
-                        <div className="p-4 border-b border-gray-800 space-y-3">
+                    <div className="flex-1 flex flex-col border-r bg-gray-950">
+                        <div className="p-4 border-b space-y-3">
                             <div className="flex items-center gap-2">
                                 <h2 className="text-lg font-semibold text-gray-100"></h2>
                                 <div className="flex flex-1"></div>
@@ -565,11 +566,11 @@ const VirtualizedTreeNode = memo(({
                 />
         }
 
-        if (!node.localFile) return <LuFileQuestion className="size-5 text-[--muted]" />
+        if (!node.localFile) return <LuFileQuestion className="size-4 text-[--muted]" />
 
         return <LuFileVideo2
             className={cn(
-                "size-5 text-[--muted]",
+                "size-4 text-[--muted]",
                 node.localFile.metadata?.type === "main" && "text-brand-400/70",
                 node.localFile.metadata?.type === "special" && "text-cyan-200/50",
                 node.localFile.metadata?.type === "nc" && "text-gray-200/30",
@@ -723,11 +724,11 @@ const VirtualizedTreeNode = memo(({
                         >
                             Preview anime
                         </ContextMenuItem>}
-                        <ContextMenuItem onClick={handleOpenSuperUpdate}>
-                            <BiEditAlt /> Update{isDirectory ? " files" : " file"}
-                        </ContextMenuItem>
-                        <ContextMenuItem onClick={handleOpenInExplorerClick}>
-                            <BiFolder /> Open in explorer
+                        <ContextMenuItem
+                            onClick={handleOpenSuperUpdate}
+                            className={cn("text-[--violet]")}
+                        >
+                            <FaRegEdit /> Super update
                         </ContextMenuItem>
                         {(isDirectory && !!fileCount) && <>
                             {allFileMatched && <ContextMenuItem
@@ -787,6 +788,10 @@ const VirtualizedTreeNode = memo(({
                                 <LuClipboardPlus className="text-lg" /> Un-ignore file
                             </ContextMenuItem>}
                         </>}
+                        <ContextMenuSeparator className="!my-2" />
+                        <ContextMenuItem onClick={handleOpenInExplorerClick}>
+                            <BiFolder /> Open in explorer
+                        </ContextMenuItem>
                     </ContextMenuGroup>
                 }
             >
@@ -827,7 +832,7 @@ const VirtualizedTreeNode = memo(({
                             </div>
                             {isDirectory && !!media &&
                                 <div className="size-6 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden ml-2">
-                                    <Image
+                                    <SeaImage
                                         src={media.coverImage?.medium || ""}
                                         alt={media.title?.userPreferred || ""}
                                         fill
@@ -855,7 +860,7 @@ const VirtualizedTreeNode = memo(({
                                 {!!media && (
                                     <span
                                         className={cn(
-                                            "hidden 2xl:flex text-[--muted] text-sm flex-shrink whitespace-nowrap line-clamp-1 items-center gap-1",
+                                            "hidden tracking-normal 2xl:flex text-[--muted] text-sm flex-shrink whitespace-nowrap line-clamp-1 items-center gap-1",
                                         )}
                                         style={{ maxWidth: 200 }}
                                     >

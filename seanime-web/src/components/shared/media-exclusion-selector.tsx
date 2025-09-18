@@ -3,13 +3,13 @@
 import { Anime_LibraryCollectionEntry } from "@/api/generated/types"
 import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { BasicField } from "@/components/ui/basic-field"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { useAtomValue } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { BiEdit } from "react-icons/bi"
 import { RiCloseCircleFill } from "react-icons/ri"
@@ -182,7 +182,7 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
                                                 key={entry.mediaId}
                                                 className="size-8 rounded-md overflow-hidden border-2 border-white dark:border-gray-900"
                                             >
-                                                <Image
+                                                <SeaImage
                                                     src={entry.media?.coverImage?.medium || entry.media?.coverImage?.large || ""}
                                                     placeholder={imageShimmer(200, 280)}
                                                     width={32}
@@ -371,7 +371,7 @@ function MediaExclusionItem(props: {
             )}
             onClick={onToggle}
         >
-            <Image
+            <SeaImage
                 src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
                 placeholder={imageShimmer(700, 475)}
                 sizes="10rem"

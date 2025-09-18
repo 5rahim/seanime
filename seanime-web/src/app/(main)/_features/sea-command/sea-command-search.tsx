@@ -3,12 +3,12 @@ import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { CommandGroup, CommandItem } from "@/components/ui/command"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useDebounce } from "@/hooks/use-debounce"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { CommandHelperText, CommandItemMedia } from "./_components/command-utils"
@@ -117,7 +117,7 @@ export function SeaCommandSearch() {
                             {<div
                                 className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                             >
-                                <Image
+                                <SeaImage
                                     src="/luffy-01.png"
                                     alt={""}
                                     fill

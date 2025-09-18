@@ -5,6 +5,7 @@ import {
     TorrentResolutionBadge,
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -12,7 +13,6 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { uniqBy } from "lodash"
-import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
@@ -217,7 +217,7 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
             {(image || fallbackImage) &&
                 <div className="absolute left-0 top-0 w-full h-full max-w-[200px] overflow-hidden" data-torrent-preview-item-image-container>
-                    {(image || fallbackImage) && <Image
+                    {(image || fallbackImage) && <SeaImage
                         data-torrent-preview-item-image
                         src={image || fallbackImage!}
                         alt="episode image"
@@ -235,7 +235,7 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 </div>}
             {!image && !!fallbackImage &&
                 <div className="absolute right-0 top-0 w-full h-full max-w-[200px] overflow-hidden" data-torrent-preview-item-image-container>
-                    {(fallbackImage) && <Image
+                    {(fallbackImage) && <SeaImage
                         data-torrent-preview-item-image
                         src={fallbackImage!}
                         alt="episode image"

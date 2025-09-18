@@ -3,6 +3,7 @@ import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useHasDebridService, useHasOnlineStreaming, useHasTorrentStreaming } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -16,7 +17,6 @@ import { DndContext, DragEndEvent } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import Image from "next/image"
 import React from "react"
 import { BiPlus, BiTrash } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -207,7 +207,7 @@ function PlaylistMediaEntryTrigger(props: PlaylistMediaEntryTriggerProps) {
                 >{added}</Badge>
             </div>}
 
-            <Image
+            <SeaImage
                 src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
                 placeholder={imageShimmer(700, 475)}
                 sizes="10rem"
@@ -338,7 +338,7 @@ function SortableItem({ id, episode, setEpisodes }: {
                     onPointerDown={(e) => e.stopPropagation()}
                 />
                 <div className="size-24 aspect-square flex-none rounded-md overflow-hidden relative transition bg-[--background]">
-                    {episode.episode!.episodeMetadata?.image && <Image
+                    {episode.episode!.episodeMetadata?.image && <SeaImage
                         data-episode-card-image
                         src={getImageUrl(episode.episode!.episodeMetadata?.image)}
                         alt={""}
@@ -477,7 +477,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                         onClick={() => handleSelect(ep)}
                     >
                         <div className="w-16 flex-none aspect-square rounded-md overflow-hidden relative transition bg-[--background]">
-                            {ep.episode!.episodeMetadata?.image && <Image
+                            {ep.episode!.episodeMetadata?.image && <SeaImage
                                 data-episode-card-image
                                 src={getImageUrl(ep.episode!.episodeMetadata?.image)}
                                 alt={""}

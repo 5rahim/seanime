@@ -12,6 +12,7 @@ import {
 import { __discover_mangaTotalItemsAtom } from "@/app/(main)/discover/_containers/discover-trending-country"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,6 @@ import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
@@ -32,7 +32,7 @@ import { __discover_mangaRandomNumberAtom, __discover_setMangaRandomNumberAtom }
 export const __discover_hoveringHeaderAtom = atom(false)
 export const __discover_clickedCarouselDotAtom = atom(0)
 
-const MotionImage = motion.create(Image)
+const MotionImage = motion.create(SeaImage)
 const MotionIframe = motion.create("iframe")
 
 type HeaderCarouselDotsProps = {
@@ -318,7 +318,7 @@ export function DiscoverPageHeader() {
                                         className="w-[180px] h-[280px] relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md"
                                         data-discover-page-header-metadata-media-image-inner-container
                                     >
-                                        <Image
+                                        <SeaImage
                                             src={randomTrending.coverImage.large}
                                             alt="cover image"
                                             fill

@@ -8,6 +8,7 @@ import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inje
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaImage } from "@/components/shared/sea-image"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -16,7 +17,6 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { seaCommand_compareMediaTitles } from "../../_features/sea-command/utils"
@@ -118,7 +118,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 render: () => (
                     <>
                         <div className="w-12 aspect-[6/5] flex-none rounded-[--radius-md] relative overflow-hidden">
-                            <Image
+                            <SeaImage
                                 src={episode.episodeMetadata?.image || ""}
                                 alt="episode image"
                                 fill

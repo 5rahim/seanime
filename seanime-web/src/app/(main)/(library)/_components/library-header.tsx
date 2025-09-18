@@ -2,13 +2,13 @@
 import { Anime_Episode } from "@/api/generated/types"
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
+import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
 import { ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
-import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { useWindowScroll } from "react-use"
 
@@ -17,7 +17,7 @@ export const __libraryHeaderImageAtom = atom<{ bannerImage?: string | null, epis
     episodeImage: null,
 })
 
-const MotionImage = motion.create(Image)
+const MotionImage = motion.create(SeaImage)
 
 export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 

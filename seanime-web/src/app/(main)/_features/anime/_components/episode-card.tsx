@@ -5,12 +5,12 @@ import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/m
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
@@ -173,7 +173,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     {...rest}
                 >
                     <div data-episode-card-image-container className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
-                        {!!image ? <Image
+                        {!!image ? <SeaImage
                             data-episode-card-image
                             src={getImageUrl(image)}
                             alt={""}
@@ -227,7 +227,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             data-episode-card-anime-image-container
                             className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative"
                         >
-                            {!!anime?.image && <Image
+                            {!!anime?.image && <SeaImage
                                 data-episode-card-anime-image
                                 src={getImageUrl(anime.image)}
                                 alt={""}

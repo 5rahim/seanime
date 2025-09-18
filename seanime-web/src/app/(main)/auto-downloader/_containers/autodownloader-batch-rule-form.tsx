@@ -9,6 +9,7 @@ import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-load
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -18,7 +19,6 @@ import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
-import Image from "next/image"
 import React from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
@@ -319,7 +319,7 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                                     <div
                                         className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                                     >
-                                        {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <Image
+                                        {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <SeaImage
                                             src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}
                                             alt="banner"
                                             fill

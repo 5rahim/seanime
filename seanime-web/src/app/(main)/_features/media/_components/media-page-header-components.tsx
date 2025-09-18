@@ -2,6 +2,7 @@ import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -13,14 +14,13 @@ import { getImageUrl } from "@/lib/server/assets"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useIsMobile, useThemeSettings } from "@/lib/theme/hooks"
 import capitalize from "lodash/capitalize"
 import { motion } from "motion/react"
-import Image from "next/image"
 import React from "react"
 import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
 import { MdOutlineSegment } from "react-icons/md"
 import { RiSignalTowerFill } from "react-icons/ri"
 import { useWindowScroll, useWindowSize } from "react-use"
 
-const MotionImage = motion.create(Image)
+const MotionImage = motion.create(SeaImage)
 
 type MediaPageHeaderProps = {
     children?: React.ReactNode
@@ -79,7 +79,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     shouldShowBlurredBackground && "opacity-100",
                 )}
             >
-                <Image
+                <SeaImage
                     data-media-page-header-blurred-background-image
                     src={getImageUrl(bannerImage || "")}
                     alt={""}

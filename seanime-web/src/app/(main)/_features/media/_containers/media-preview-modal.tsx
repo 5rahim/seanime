@@ -21,6 +21,7 @@ import {
     TorrentSearchDrawer,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -34,7 +35,6 @@ import { usePrevious } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { BiX } from "react-icons/bi"
@@ -162,7 +162,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                         "absolute top-0 left-0 w-full h-full",
                     )}
                 >
-                    {(!!bannerImage) && <Image
+                    {(!!bannerImage) && <SeaImage
                         src={getImageUrl(bannerImage || "")}
                         alt="banner image"
                         fill
@@ -304,7 +304,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                 </div>
 
                 {/*<div className="absolute top-0 left-0 w-full h-full z-[0] bg-[--background] rounded-xl">*/}
-                {/*    <Image*/}
+                {/*    <SeaImage*/}
                 {/*        src={media?.bannerImage || ""}*/}
                 {/*        alt={""}*/}
                 {/*        fill*/}

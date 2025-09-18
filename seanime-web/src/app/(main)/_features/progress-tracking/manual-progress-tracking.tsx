@@ -1,12 +1,12 @@
 import { usePlaybackCancelManualTracking, usePlaybackStartManualTracking, usePlaybackSyncCurrentProgress } from "@/api/hooks/playback_manager.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { PiPopcornFill } from "react-icons/pi"
 import { PlaybackManager_PlaybackState } from "./_lib/playback-manager.types"
@@ -116,7 +116,7 @@ export function ManualProgressTracking() {
                 {state && <div data-manual-progress-tracking-modal-content className="text-center relative overflow-hidden space-y-2">
                     <p className="text-[--muted]">Playing externally</p>
                     {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
-                        <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
+                        <SeaImage src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
                     </div>}
                     <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
                     <p className="text-2xl font-bold">Episode {state?.episodeNumber}

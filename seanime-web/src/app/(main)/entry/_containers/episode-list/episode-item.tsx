@@ -5,6 +5,7 @@ import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useNakamaHMACAuth, useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -15,7 +16,6 @@ import { getImageUrl } from "@/lib/server/assets"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
-import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
@@ -265,7 +265,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
         {episode.episodeMetadata?.image && <div
             className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0] rounded-t-lg"
         >
-            <Image
+            <SeaImage
                 src={getImageUrl(episode.episodeMetadata?.image)}
                 alt="banner"
                 fill

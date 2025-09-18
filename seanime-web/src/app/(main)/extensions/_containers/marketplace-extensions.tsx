@@ -8,6 +8,7 @@ import {
 import { DEFAULT_MARKETPLACE_URL, marketplaceUrlAtom } from "@/app/(main)/extensions/_lib/marketplace.atoms"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaImage } from "@/components/shared/sea-image"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -21,7 +22,6 @@ import { TextInput } from "@/components/ui/text-input"
 import { useAtom } from "jotai/react"
 import { orderBy } from "lodash"
 import capitalize from "lodash/capitalize"
-import Image from "next/image"
 import React, { useMemo } from "react"
 import { BiSearch } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
@@ -483,7 +483,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
                         {!!extension.icon ? (
-                            <Image
+                            <SeaImage
                                 src={extension.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"

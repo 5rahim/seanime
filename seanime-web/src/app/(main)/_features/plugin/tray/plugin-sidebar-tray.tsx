@@ -8,6 +8,7 @@ import {
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -16,7 +17,6 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
@@ -127,7 +127,7 @@ const ExtensionList = ({
                                     }}
                                 >
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative flex-none">
-                                        {trayIcon.iconUrl ? <Image
+                                        {trayIcon.iconUrl ? <SeaImage
                                             src={trayIcon.iconUrl}
                                             alt="logo"
                                             fill

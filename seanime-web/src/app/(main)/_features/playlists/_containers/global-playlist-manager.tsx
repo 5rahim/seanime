@@ -21,6 +21,7 @@ import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { websocketConnectedAtom } from "@/app/websocket-provider"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -31,7 +32,6 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { BiX } from "react-icons/bi"
@@ -415,7 +415,7 @@ function EpisodeItem({ episode }: { episode: Anime_PlaylistEpisode }) {
             )}
         >
             <div className="size-20 aspect-square flex-none rounded-md overflow-hidden relative transition bg-[--background]">
-                {episode.episode!.episodeMetadata?.image && <Image
+                {episode.episode!.episodeMetadata?.image && <SeaImage
                     data-episode-card-image
                     src={getImageUrl(episode.episode!.episodeMetadata?.image)}
                     alt={""}

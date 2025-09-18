@@ -84,7 +84,7 @@ export function AutoplayCountdownModal({
                 {/*<div className="space-y-2">*/}
                 {/*    {episodeInfo.image && (*/}
                 {/*        <div className="size-16 rounded-full relative mx-auto overflow-hidden">*/}
-                {/*            <Image*/}
+                {/*            <SeaImage*/}
                 {/*                src={episodeInfo.image}*/}
                 {/*                alt="episode thumbnail"*/}
                 {/*                fill*/}

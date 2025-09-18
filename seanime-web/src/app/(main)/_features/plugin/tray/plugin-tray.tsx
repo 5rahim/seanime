@@ -1,4 +1,5 @@
 import { PluginProvider, registry, RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -9,7 +10,6 @@ import { getPixelsFromLength } from "@/lib/helpers/css"
 import { useIsMobile } from "@/lib/theme/hooks"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { useAtom, useAtomValue } from "jotai"
-import Image from "next/image"
 import React from "react"
 import { LuCircleDashed } from "react-icons/lu"
 import {
@@ -147,7 +147,7 @@ export function PluginTray(props: TrayPluginProps) {
                 onClick={handleClick}
             >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative" data-plugin-tray-icon-inner-container>
-                    {props.trayIcon.iconUrl ? <Image
+                    {props.trayIcon.iconUrl ? <SeaImage
                         src={props.trayIcon.iconUrl}
                         alt="logo"
                         fill

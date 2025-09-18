@@ -1,5 +1,6 @@
 import { AL_MediaListStatus, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeCollectionSchedule } from "@/api/hooks/anime_collection.hooks"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
 import { CheckboxGroup } from "@/components/ui/checkbox"
@@ -14,7 +15,6 @@ import { useImmerAtom } from "jotai-immer"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { sortBy } from "lodash"
-import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
@@ -400,7 +400,7 @@ function MobileEventItem({ event, calendarParams }: MobileEventItemProps) {
                     className="relative w-10 h-14 lg:w-12 lg:h-16 rounded overflow-hidden flex-shrink-0"
                     data-schedule-calendar-mobile-list-day-item-event-image-container
                 >
-                    <Image
+                    <SeaImage
                         src={event.image || ""}
                         alt={event.name}
                         fill
@@ -491,7 +491,7 @@ function CalendarDayBackground({ events, isToday, hoveredEventId }: CalendarDayB
                 )}
                 data-schedule-calendar-day-background
             >
-                <Image
+                <SeaImage
                     src={displayedEvent?.image || ""}
                     alt="banner"
                     fill

@@ -8,12 +8,12 @@ import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/p
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import Image from "next/image"
 import React from "react"
 import { BiEditAlt } from "react-icons/bi"
 import { FaCirclePlay } from "react-icons/fa6"
@@ -167,7 +167,7 @@ function PlaylistLists({ libraryCollection }: { libraryCollection: Anime_Library
                             // onClick={() => handleSelect(lf.path)}
                         >
                             <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-md transition relative overflow-hidden">
-                                {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image
+                                {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <SeaImage
                                     src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}
                                     placeholder={imageShimmer(700, 475)}
                                     sizes="10rem"

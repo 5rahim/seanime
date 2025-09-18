@@ -10,6 +10,7 @@ import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extensio
 import { ExtensionUserConfigModal } from "@/app/(main)/extensions/_containers/extension-user-config"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { SeaImage } from "@/components/shared/sea-image"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -18,7 +19,6 @@ import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
-import Image from "next/image"
 import React from "react"
 import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
@@ -140,7 +140,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-md size-12 flex-none bg-gray-900 overflow-hidden">
                         {!!extension.icon ? (
-                            <Image
+                            <SeaImage
                                 src={extension.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"

@@ -4,6 +4,7 @@ import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_component
 import { __ui_fixBorderRenderingArtifacts } from "@/app/(main)/settings/_containers/ui-settings"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
@@ -15,7 +16,6 @@ import { atom, useAtom } from "jotai/index"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
-import Image from "next/image"
 import React, { memo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -122,7 +122,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                     data-media-entry-card-hover-popup-image-container
                     className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden"
                 >
-                    <Image
+                    <SeaImage
                         data-media-entry-card-hover-popup-image
                         src={getImageUrl(coverImage || "")}
                         alt={"cover image"}
@@ -386,7 +386,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
 
                     {children}
 
-                    <Image
+                    <SeaImage
                         data-media-entry-card-body-image
                         src={getImageUrl(bannerImage || "")}
                         alt={""}
@@ -520,7 +520,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 </Tooltip>
             </div>}
 
-            {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full rounded-[--radius] overflow-hidden"><Image
+            {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full rounded-[--radius] overflow-hidden"><SeaImage
                 data-media-entry-card-hover-popup-banner-image
                 src={getImageUrl(bannerImage || "")}
                 alt={"banner"}

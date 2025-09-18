@@ -702,6 +702,11 @@ export function LibraryExplorerSuperUpdateDrawer(props: LibraryExplorerSuperUpda
                     "bg-gray-950 h-[90%] lg:h-[85%] bg-opacity-95 firefox:bg-opacity-100 lg:mx-[2rem]",
                 )}
             >
+                <p className="p-4 pb-0">
+                    <span className="text-sm text-[--muted]">
+                        Update multiple file names and metadata at once.
+                    </span>
+                </p>
                 <div className="p-6 flex-1 overflow-hidden flex flex-col">
                     <div className="mb-6">
                         <Form

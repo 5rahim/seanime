@@ -2,11 +2,11 @@ import { Extension_InvalidExtension } from "@/api/generated/types"
 import { useGrantPluginPermissions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
 import { ExtensionSettings } from "@/app/(main)/extensions/_containers/extension-card"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
-import Image from "next/image"
 import React from "react"
 import { BiCog, BiInfoCircle } from "react-icons/bi"
 import { FaCode } from "react-icons/fa"
@@ -104,7 +104,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                         {!!extension.extension?.icon ? (
-                            <Image
+                            <SeaImage
                                 src={extension.extension?.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"
@@ -259,7 +259,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                         {!!extension.extension?.icon ? (
-                            <Image
+                            <SeaImage
                                 src={extension.extension?.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"

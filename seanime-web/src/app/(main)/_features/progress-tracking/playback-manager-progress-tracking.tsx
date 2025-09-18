@@ -13,6 +13,7 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -23,7 +24,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import mousetrap from "mousetrap"
-import Image from "next/image"
 import React from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
 import { MdCancel } from "react-icons/md"
@@ -322,7 +322,7 @@ export function PlaybackManagerProgressTracking() {
                 </div>}
                 {state && <div data-progress-tracking-main-content className="text-center relative overflow-hidden py-2 space-y-2">
                     {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
-                        <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
+                        <SeaImage src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
                     </div>}
                     {/*<p className="text-[--muted]">Currently watching</p>*/}
                     <div data-progress-tracking-title>
@@ -409,7 +409,7 @@ export function PlaybackManagerProgressTracking() {
                                     }
                                 }}
                             >
-                                {(playlistState.next?.mediaImage) && <Image
+                                {(playlistState.next?.mediaImage) && <SeaImage
                                     data-progress-tracking-playlist-next-episode-button-image
                                     src={playlistState.next?.mediaImage || ""}
                                     placeholder={imageShimmer(700, 475)}

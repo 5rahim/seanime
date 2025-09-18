@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useAtom } from "jotai/index"
 import React from "react"
-import { BiEditAlt } from "react-icons/bi"
+import { FaRegEdit } from "react-icons/fa"
 
 type LibraryExplorerSuperUpdateProps = {
     fileNodes: LibraryExplorer_FileTreeNodeJSON[]
@@ -33,12 +33,12 @@ export function LibraryExplorerSuperUpdate(props: LibraryExplorerSuperUpdateProp
             {isSelectingPaths && !!selectedPathFileNodes?.length && (
                 <>
                     <Button
-                        leftIcon={<BiEditAlt className="text-xl" />}
+                        leftIcon={<FaRegEdit className="text-xl" />}
                         size="sm"
                         intent={"white-link"}
                         onClick={handleOpenSuperUpdate}
                     >
-                        Update
+                        Super update
                     </Button>
                 </>
             )}

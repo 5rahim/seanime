@@ -3,6 +3,7 @@ import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
@@ -11,7 +12,6 @@ import { Select } from "@/components/ui/select"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
-import Image from "next/image"
 import React from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
@@ -189,7 +189,7 @@ export default function Page() {
                                                         <div
                                                             className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
                                                         >
-                                                            <Image
+                                                            <SeaImage
                                                                 src={group.mediaImage}
                                                                 alt="banner"
                                                                 fill
