@@ -3565,18 +3565,18 @@ declare namespace $app {
      * - Filepath: internal/api/metadata/types.go
      */
     interface Metadata_AnimeMappings {
-        animeplanetId: string;
-        kitsuId: number;
-        malId: number;
-        type: string;
-        anilistId: number;
-        anisearchId: number;
-        anidbId: number;
-        notifymoeId: string;
-        livechartId: number;
-        thetvdbId: number;
-        imdbId: string;
-        themoviedbId: string;
+        animeplanetId?: string;
+        kitsuId?: number;
+        malId?: number;
+        type?: string;
+        anilistId?: number;
+        anisearchId?: number;
+        anidbId?: number;
+        notifymoeId?: string;
+        livechartId?: number;
+        thetvdbId?: number;
+        imdbId?: string;
+        themoviedbId?: string;
     }
 
     /**

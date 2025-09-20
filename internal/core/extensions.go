@@ -13,6 +13,21 @@ import (
 	"github.com/rs/zerolog"
 )
 
+func (a *App) AddExtensionBankToConsumers() {
+
+	var consumers = []extension.Consumer{
+		a.MangaRepository,
+		a.OnlinestreamRepository,
+		a.TorrentRepository,
+		a.AnilistPlatform,
+		a.MetadataProvider,
+	}
+
+	for _, consumer := range consumers {
+		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	}
+}
+
 func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zerolog.Logger, config *Config) {
 
 	//
@@ -55,18 +70,6 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
 	}, manga_providers.NewMangadex(logger))
 
-	//extensionRepository.ReloadBuiltInExtension(extension.Extension{
-	//	ID:          "manganato",
-	//	Name:        "Manganato",
-	//	Version:     "",
-	//	ManifestURI: "builtin",
-	//	Language:    extension.LanguageGo,
-	//	Type:        extension.TypeMangaProvider,
-	//	Author:      "Seanime",
-	//	Lang:        "en",
-	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
-	//}, manga_providers.NewManganato(logger))
-
 	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          manga_providers.LocalProvider,
 		Name:        "Local",
@@ -82,30 +85,6 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	//
 	// Built-in online stream providers
 	//
-
-	//extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-	//	ID:          "gogoanime",
-	//	Name:        "Gogoanime",
-	//	Version:     "",
-	//	ManifestURI: "builtin",
-	//	Language:    extension.LanguageGo,
-	//	Type:        extension.TypeOnlinestreamProvider,
-	//	Author:      "Seanime",
-	//	Lang:        "en",
-	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
-	//}, onlinestream_providers.NewGogoanime(logger))
-
-	//extensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-	//	ID:          "zoro",
-	//	Name:        "Hianime",
-	//	Version:     "",
-	//	ManifestURI: "builtin",
-	//	Language:    extension.LanguageGo,
-	//	Type:        extension.TypeOnlinestreamProvider,
-	//	Author:      "Seanime",
-	//	Lang:        "en",
-	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
-	//}, onlinestream_providers.NewZoro(logger))
 
 	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          "animepahe",
@@ -221,17 +200,4 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	}, seadex.NewProvider(logger))
 
 	extensionRepository.ReloadExternalExtensions()
-}
-
-func (a *App) AddExtensionBankToConsumers() {
-
-	var consumers = []extension.Consumer{
-		a.MangaRepository,
-		a.OnlinestreamRepository,
-		a.TorrentRepository,
-	}
-
-	for _, consumer := range consumers {
-		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-	}
 }

@@ -2205,7 +2205,7 @@ export type Extension_SavedUserConfig = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "plugin"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "custom-source" | "plugin"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2274,6 +2274,22 @@ export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
      */
     lang: string
     settings?: HibikeTorrent_AnimeProviderSettings
+}
+
+/**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_CustomSourceExtensionItem = {
+    id: string
+    extensionIdentifier: number
+    name: string
+    /**
+     * ISO 639-1 language code
+     */
+    lang: string
+    settings?: HibikeCustomSource_Settings
 }
 
 /**
@@ -2632,6 +2648,32 @@ export type Status = {
     featureFlags?: INTERNAL_FeatureFlags
     serverReady: boolean
     serverHasPassword: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hibikecustomsource
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
+export type HibikeCustomSource_ListAnimeResponse = {
+    media?: Array<AL_BaseAnime>
+    page: number
+    totalPages: number
+    total: number
+}
+
+/**
+ * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
+export type HibikeCustomSource_Settings = {
+    supportsAnime: boolean
+    supportsManga: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3127,18 +3169,18 @@ export type Mediastream_StreamType = "transcode" | "optimized" | "direct"
  * - Package: metadata
  */
 export type Metadata_AnimeMappings = {
-    animeplanetId: string
-    kitsuId: number
-    malId: number
-    type: string
-    anilistId: number
-    anisearchId: number
-    anidbId: number
-    notifymoeId: string
-    livechartId: number
-    thetvdbId: number
-    imdbId: string
-    themoviedbId: string
+    animeplanetId?: string
+    kitsuId?: number
+    malId?: number
+    type?: string
+    anilistId?: number
+    anisearchId?: number
+    anidbId?: number
+    notifymoeId?: string
+    livechartId?: number
+    thetvdbId?: number
+    imdbId?: string
+    themoviedbId?: string
 }
 
 /**

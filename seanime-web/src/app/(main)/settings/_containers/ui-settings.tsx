@@ -86,6 +86,11 @@ const tabsListClass = cn(
     "w-full flex flex-row lg:flex-row flex-wrap h-fit",
 )
 
+const tabContentClass = cn(
+    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+)
+
+
 export function UISettings() {
     const themeSettings = useThemeSettings()
     const serverStatus = useServerStatus()
@@ -270,7 +275,7 @@ export function UISettings() {
         >
             {(f) => (
                 <>
-                    <SettingsIsDirty className="-top-14" />
+                    <SettingsIsDirty className="" />
                     <ObserveColorSettings />
 
                     <Tabs
@@ -287,7 +292,7 @@ export function UISettings() {
                             <TabsTrigger value="browser-client">Rendering</TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="main" className="space-y-4">
+                        <TabsContent value="main" className={tabContentClass}>
 
                             <SettingsCard title="Color scheme">
                                 <Field.Switch
@@ -496,7 +501,7 @@ export function UISettings() {
 
                         </TabsContent>
 
-                        <TabsContent value="navigation" className="space-y-4">
+                        <TabsContent value="navigation" className={tabContentClass}>
 
                             <SettingsCard title="Sidebar">
 
@@ -592,19 +597,19 @@ export function UISettings() {
 
                         </TabsContent>
 
-                        <TabsContent value="media" className="space-y-4">
+                        <TabsContent value="media" className={tabContentClass}>
 
                             <SettingsCard title="Collection screens">
 
                                 {!serverStatus?.settings?.library?.enableWatchContinuity && (
-                                    f.watch('continueWatchingDefaultSorting').includes("LAST_WATCHED") ||
-                                    f.watch('animeLibraryCollectionDefaultSorting').includes("LAST_WATCHED")
+                                    f.watch("continueWatchingDefaultSorting").includes("LAST_WATCHED") ||
+                                    f.watch("animeLibraryCollectionDefaultSorting").includes("LAST_WATCHED")
                                 ) && (
-                                        <Alert
-                                            intent="alert"
-                                            description="Watch continuity needs to be enabled to use the last watched sorting options."
-                                        />
-                                    )}
+                                    <Alert
+                                        intent="alert"
+                                        description="Watch continuity needs to be enabled to use the last watched sorting options."
+                                    />
+                                )}
 
                                 <Field.RadioCards
                                     label="Banner type"
@@ -715,9 +720,9 @@ export function UISettings() {
                             <SettingsCard title="Episode card">
 
                                 {/* <Field.Switch
-                                    side="right"
-                                    label="Legacy episode cards"
-                                    name="useLegacyEpisodeCard"
+                                 side="right"
+                                 label="Legacy episode cards"
+                                 name="useLegacyEpisodeCard"
                                  /> */}
 
                                 <Field.Switch
@@ -759,7 +764,7 @@ export function UISettings() {
 
                         </TabsContent>
 
-                        <TabsContent value="browser-client" className="space-y-4">
+                        <TabsContent value="browser-client" className={tabContentClass}>
 
                             <SettingsCard>
                                 <Switch

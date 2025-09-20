@@ -1,7 +1,7 @@
 package torrent
 
 import (
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"sync"
@@ -16,7 +16,7 @@ type (
 		animeProviderSearchCaches      *result.Map[string, *result.Cache[string, *SearchData]]
 		animeProviderSmartSearchCaches *result.Map[string, *result.Cache[string, *SearchData]]
 		settings                       RepositorySettings
-		metadataProvider               metadata.Provider
+		metadataProvider               metadata_provider.Provider
 		mu                             sync.Mutex
 	}
 
@@ -27,7 +27,7 @@ type (
 
 type NewRepositoryOptions struct {
 	Logger           *zerolog.Logger
-	MetadataProvider metadata.Provider
+	MetadataProvider metadata_provider.Provider
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -49,20 +49,15 @@ func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 	defer r.mu.Unlock()
 	r.extensionBank = bank
 
-	go func() {
-		for {
-			select {
-			case <-bank.OnExtensionAdded():
-				//r.logger.Debug().Msg("torrent repo: Anime provider extension added")
-				r.OnExtensionReloaded()
-			}
-		}
-	}()
+	sub := bank.Subscribe("torrent-repository")
 
 	go func() {
 		for {
 			select {
-			case <-bank.OnExtensionRemoved():
+			case <-sub.OnExtensionAdded():
+				//r.logger.Debug().Msg("torrent repo: Anime provider extension added")
+				r.OnExtensionReloaded()
+			case <-sub.OnExtensionRemoved():
 				r.OnExtensionReloaded()
 			}
 		}

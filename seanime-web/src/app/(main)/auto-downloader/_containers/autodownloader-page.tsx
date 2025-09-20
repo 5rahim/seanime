@@ -24,6 +24,10 @@ import { BiPlus } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
 import { toast } from "sonner"
 
+const tabContentClass = cn(
+    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+)
+
 const settingsSchema = defineSchema(({ z }) => z.object({
     interval: z.number().transform(n => {
         if (n < 15) {
@@ -74,7 +78,7 @@ export function AutoDownloaderPage() {
                     </TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
-                <TabsContent value="rules">
+                <TabsContent value="rules" className={tabContentClass}>
                     <div className="pt-4">
                         {isLoading && <LoadingSpinner />}
                         {!isLoading && (
@@ -139,7 +143,7 @@ export function AutoDownloaderPage() {
                 </TabsContent>
 
 
-                <TabsContent value="queue">
+                <TabsContent value="queue" className={tabContentClass}>
 
                     <div className="pt-4">
                         <AutoDownloaderItemList items={items} isLoading={itemsLoading} />
@@ -147,7 +151,7 @@ export function AutoDownloaderPage() {
 
                 </TabsContent>
 
-                <TabsContent value="settings">
+                <TabsContent value="settings" className={tabContentClass}>
                     <div className="pt-4">
                         <Form
                             schema={settingsSchema}
@@ -162,7 +166,7 @@ export function AutoDownloaderPage() {
                                 enableSeasonCheck: serverStatus?.settings?.autoDownloader?.enableSeasonCheck ?? false,
                                 useDebrid: serverStatus?.settings?.autoDownloader?.useDebrid ?? false,
                             }}
-                            stackClass="space-y-6"
+                            stackClass="space-y-4"
                         >
                             {(f) => (
                                 <>

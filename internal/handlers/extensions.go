@@ -218,6 +218,16 @@ func (h *Handler) HandleListAnimeTorrentProviderExtensions(c echo.Context) error
 	return h.RespondWithData(c, extensions)
 }
 
+// HandleListCustomSourceExtensions
+//
+//	@summary returns the installed torrent providers.
+//	@route /api/v1/extensions/list/custom-source [GET]
+//	@returns []extension_repo.CustomSourceExtensionItem
+func (h *Handler) HandleListCustomSourceExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListCustomSourceExtensions()
+	return h.RespondWithData(c, extensions)
+}
+
 // HandleGetPluginSettings
 //
 //	@summary returns the plugin settings.

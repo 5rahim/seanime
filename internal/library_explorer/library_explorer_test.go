@@ -22,7 +22,7 @@ func TestLibraryExplorer_LogFileTreeStructure(t *testing.T) {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
 
 	explorer := NewLibraryExplorer(NewLibraryExplorerOptions{
 		Platform: anilistPlatform,

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
@@ -27,7 +28,7 @@ type FileHydrator struct {
 	AllMedia           []*anime.NormalizedMedia // All media used to hydrate local files
 	CompleteAnimeCache *anilist.CompleteAnimeCache
 	Platform           platform.Platform
-	MetadataProvider   metadata.Provider
+	MetadataProvider   metadata_provider.Provider
 	AnilistRateLimiter *limiter.Limiter
 	Logger             *zerolog.Logger
 	ScanLogger         *ScanLogger                // optional

@@ -25905,58 +25905,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/api/metadata/anime.go",
-    "filename": "anime.go",
-    "name": "AnimeWrapperImpl",
-    "formattedName": "Metadata_AnimeWrapperImpl",
-    "package": "metadata",
-    "fields": [
-      {
-        "name": "metadata",
-        "jsonName": "metadata",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "baseAnime",
-        "jsonName": "baseAnime",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedTypescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "fileCacher",
-        "jsonName": "fileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedTypescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/api/metadata/hook_events.go",
     "filename": "hook_events.go",
     "name": "AnimeMetadataRequestedEvent",
@@ -26127,90 +26075,6 @@
     ]
   },
   {
-    "filepath": "../internal/api/metadata/provider.go",
-    "filename": "provider.go",
-    "name": "ProviderImpl",
-    "formattedName": "Metadata_ProviderImpl",
-    "package": "metadata",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "fileCacher",
-        "jsonName": "fileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedTypescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeMetadataCache",
-        "jsonName": "animeMetadataCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "singleflight",
-        "jsonName": "singleflight",
-        "goType": "singleflight.Group",
-        "typescriptType": "Group",
-        "usedTypescriptType": "Group",
-        "usedStructName": "singleflight.Group",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/metadata/provider.go",
-    "filename": "provider.go",
-    "name": "NewProviderImplOptions",
-    "formattedName": "Metadata_NewProviderImplOptions",
-    "package": "metadata",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileCacher",
-        "jsonName": "FileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedTypescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/api/metadata/types.go",
     "filename": "types.go",
     "name": "Platform",
@@ -26307,7 +26171,7 @@
         "jsonName": "animeplanetId",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26316,7 +26180,7 @@
         "jsonName": "kitsuId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26325,7 +26189,7 @@
         "jsonName": "malId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26334,7 +26198,7 @@
         "jsonName": "type",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26343,7 +26207,7 @@
         "jsonName": "anilistId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26352,7 +26216,7 @@
         "jsonName": "anisearchId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26361,7 +26225,7 @@
         "jsonName": "anidbId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26370,7 +26234,7 @@
         "jsonName": "notifymoeId",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26379,7 +26243,7 @@
         "jsonName": "livechartId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26388,7 +26252,7 @@
         "jsonName": "thetvdbId",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26397,7 +26261,7 @@
         "jsonName": "imdbId",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -26406,7 +26270,7 @@
         "jsonName": "themoviedbId",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -26547,6 +26411,186 @@
         "comments": [
           " Indicates if the episode has a real image"
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata_provider/anime.go",
+    "filename": "anime.go",
+    "name": "AnimeWrapperImpl",
+    "formattedName": "AnimeWrapperImpl",
+    "package": "metadata_provider",
+    "fields": [
+      {
+        "name": "metadata",
+        "jsonName": "metadata",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseAnime",
+        "jsonName": "baseAnime",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedTypescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata_provider/provider.go",
+    "filename": "provider.go",
+    "name": "ProviderImpl",
+    "formattedName": "ProviderImpl",
+    "package": "metadata_provider",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedTypescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeMetadataCache",
+        "jsonName": "animeMetadataCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "singleflight",
+        "jsonName": "singleflight",
+        "goType": "singleflight.Group",
+        "typescriptType": "Group",
+        "usedTypescriptType": "Group",
+        "usedStructName": "singleflight.Group",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "customSourceManager",
+        "jsonName": "customSourceManager",
+        "goType": "customsource.Manager",
+        "typescriptType": "CustomSource_Manager",
+        "usedTypescriptType": "CustomSource_Manager",
+        "usedStructName": "customsource.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata_provider/provider.go",
+    "filename": "provider.go",
+    "name": "NewProviderImplOptions",
+    "formattedName": "NewProviderImplOptions",
+    "package": "metadata_provider",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedTypescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -27404,10 +27448,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -28429,6 +28473,91 @@
         "usedStructName": "core.App",
         "required": false,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/customsource/customsource.go",
+    "filename": "customsource.go",
+    "name": "Manager",
+    "formattedName": "CustomSource_Manager",
+    "package": "customsource",
+    "fields": [
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBankSubscriber",
+        "jsonName": "extensionBankSubscriber",
+        "goType": "extension.BankSubscriber",
+        "typescriptType": "Extension_BankSubscriber",
+        "usedTypescriptType": "Extension_BankSubscriber",
+        "usedStructName": "extension.BankSubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "customSources",
+        "jsonName": "customSources",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " key is extension identifier"
+        ]
+      },
+      {
+        "name": "customSourcesById",
+        "jsonName": "customSourcesById",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " key is extension ID"
+        ]
+      },
+      {
+        "name": "closedCh",
+        "jsonName": "closedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "once",
+        "jsonName": "once",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -30963,6 +31092,52 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "CustomSourceCollection",
+    "formattedName": "Models_CustomSourceCollection",
+    "package": "models",
+    "fields": [
+      {
+        "name": "ExtensionId",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Marshalled struct"
+        ]
+      }
+    ],
+    "comments": [
+      " CustomSourceCollection is parallel to the AniList collection, it stores custom source media."
+    ],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "StringSlice",
     "formattedName": "Models_StringSlice",
     "package": "models",
@@ -31432,10 +31607,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -31539,10 +31714,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -33610,10 +33785,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -33842,10 +34017,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -36255,6 +36430,45 @@
         "comments": []
       },
       {
+        "name": "subscribers",
+        "jsonName": "subscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/bank.go",
+    "filename": "bank.go",
+    "name": "BankSubscriber",
+    "formattedName": "Extension_BankSubscriber",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "extensionAddedCh",
         "jsonName": "extensionAddedCh",
         "goType": "",
@@ -36273,13 +36487,74 @@
         "comments": []
       },
       {
+        "name": "customSourcesChangedCh",
+        "jsonName": "customSourcesChangedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mu",
         "jsonName": "mu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedTypescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedTypescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/custom_source.go",
+    "filename": "custom_source.go",
+    "name": "CustomSourceExtensionImpl",
+    "formattedName": "Extension_CustomSourceExtensionImpl",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedTypescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "hibikecustomsource.Provider",
+        "typescriptType": "HibikeCustomSource_Provider",
+        "usedTypescriptType": "HibikeCustomSource_Provider",
+        "usedStructName": "hibikecustomsource.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionIdentifier",
+        "jsonName": "extensionIdentifier",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -36300,6 +36575,7 @@
         "\"anime-torrent-provider\"",
         "\"manga-provider\"",
         "\"onlinestream-provider\"",
+        "\"custom-source\"",
         "\"plugin\""
       ]
     },
@@ -36823,6 +37099,130 @@
         "jsonName": "label",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/customsource/types.go",
+    "filename": "types.go",
+    "name": "Settings",
+    "formattedName": "HibikeCustomSource_Settings",
+    "package": "hibikecustomsource",
+    "fields": [
+      {
+        "name": "SupportsAnime",
+        "jsonName": "supportsAnime",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsManga",
+        "jsonName": "supportsManga",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/customsource/types.go",
+    "filename": "types.go",
+    "name": "ListAnimeResponse",
+    "formattedName": "HibikeCustomSource_ListAnimeResponse",
+    "package": "hibikecustomsource",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]anilist.BaseAnime",
+        "typescriptType": "Array\u003cAL_BaseAnime\u003e",
+        "usedTypescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Page",
+        "jsonName": "page",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalPages",
+        "jsonName": "totalPages",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Total",
+        "jsonName": "total",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/customsource/types.go",
+    "filename": "types.go",
+    "name": "ListMangaResponse",
+    "formattedName": "HibikeCustomSource_ListMangaResponse",
+    "package": "hibikecustomsource",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "[]anilist.BaseManga",
+        "typescriptType": "Array\u003cAL_BaseManga\u003e",
+        "usedTypescriptType": "AL_BaseManga",
+        "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Page",
+        "jsonName": "page",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalPages",
+        "jsonName": "totalPages",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Total",
+        "jsonName": "total",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
@@ -38598,10 +38998,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -38795,6 +39195,37 @@
     "formattedName": "ExtensionRepo_GojaAnimeTorrentProvider",
     "package": "extension_repo",
     "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaProviderBase"
+    ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_custom_source.go",
+    "filename": "goja_custom_source.go",
+    "name": "GojaCustomSource",
+    "formattedName": "ExtensionRepo_GojaCustomSource",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "extId",
+        "jsonName": "extId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionIdentifier",
+        "jsonName": "extensionIdentifier",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "extension_repo.gojaProviderBase"
@@ -39442,6 +39873,65 @@
         "typescriptType": "HibikeTorrent_AnimeProviderSettings",
         "usedTypescriptType": "HibikeTorrent_AnimeProviderSettings",
         "usedStructName": "hibiketorrent.AnimeProviderSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "CustomSourceExtensionItem",
+    "formattedName": "ExtensionRepo_CustomSourceExtensionItem",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExtensionIdentifier",
+        "jsonName": "extensionIdentifier",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Lang",
+        "jsonName": "lang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ISO 639-1 language code"
+        ]
+      },
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "hibikecustomsource.Settings",
+        "typescriptType": "HibikeCustomSource_Settings",
+        "usedTypescriptType": "HibikeCustomSource_Settings",
+        "usedStructName": "hibikecustomsource.Settings",
         "required": false,
         "public": true,
         "comments": []
@@ -42722,10 +43212,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -42987,10 +43477,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -43191,10 +43681,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -43849,10 +44339,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": [
@@ -43976,10 +44466,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -44052,10 +44542,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -45195,10 +45685,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -45627,10 +46117,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -45759,10 +46249,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -46223,10 +46713,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -46328,10 +46818,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -47012,10 +47502,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -47735,10 +48225,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -48587,10 +49077,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -48953,10 +49443,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -49049,10 +49539,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -49299,10 +49789,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -50919,10 +51409,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -50952,10 +51442,10 @@
       {
         "name": "offlineMetadataProvider",
         "jsonName": "offlineMetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -51141,10 +51631,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -62381,10 +62871,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -64795,10 +65285,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -65073,10 +65563,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -65357,6 +65847,39 @@
         "jsonName": "completeAnimeCache",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "customSourceManager",
+        "jsonName": "customSourceManager",
+        "goType": "customsource.Manager",
+        "typescriptType": "CustomSource_Manager",
+        "usedTypescriptType": "CustomSource_Manager",
+        "usedStructName": "customsource.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": false,
         "comments": []
@@ -65945,6 +66468,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -66103,6 +66637,17 @@
         "typescriptType": "Limiter",
         "usedTypescriptType": "Limiter",
         "usedStructName": "limiter.Limiter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
         "required": false,
         "public": false,
         "comments": []
@@ -66809,10 +67354,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -77086,10 +77631,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -77182,10 +77727,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -77585,10 +78130,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -77747,10 +78292,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -78838,10 +79383,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -78902,10 +79447,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -79471,10 +80016,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -79909,10 +80454,10 @@
       {
         "name": "metadataProvider",
         "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -80122,10 +80667,10 @@
       {
         "name": "MetadataProvider",
         "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedTypescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
+        "goType": "metadata_provider.Provider",
+        "typescriptType": "Provider",
+        "usedTypescriptType": "Provider",
+        "usedStructName": "metadata_provider.Provider",
         "required": false,
         "public": true,
         "comments": []

@@ -601,6 +601,9 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
 		loadingErr = r.loadExternalAnimeTorrentProviderExtension(ext)
+	case extension.TypeCustomSource:
+		// Load torrent provider
+		loadingErr = r.loadExternalCustomSourceProviderExtension(ext)
 	case extension.TypePlugin:
 		// Load plugin
 		loadingErr = r.loadPlugin(ext)

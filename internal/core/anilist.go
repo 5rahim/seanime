@@ -28,7 +28,14 @@ func (a *App) GetUserAnilistToken() string {
 
 // UpdatePlatform changes the current platform to the provided one.
 func (a *App) UpdatePlatform(platform platform.Platform) {
+	if a.AnilistPlatform != nil {
+		a.AnilistPlatform.Close()
+	}
 	a.AnilistPlatform = platform
+	a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	a.AddOnRefreshAnilistCollectionFunc("anilist-platform", func() {
+		a.AnilistPlatform.ClearCache()
+	})
 }
 
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.

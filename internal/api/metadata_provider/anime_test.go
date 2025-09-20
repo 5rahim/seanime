@@ -1,4 +1,4 @@
-package metadata
+package metadata_provider
 
 import (
 	"testing"

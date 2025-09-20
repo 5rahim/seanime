@@ -501,6 +501,18 @@ type PluginData struct {
 	Data     []byte `gorm:"column:data" json:"data"`
 }
 
+// +---------------------+
+// |   Custom Source    |
+// +---------------------+
+
+// CustomSourceCollection is parallel to the AniList collection, it stores custom source media.
+type CustomSourceCollection struct {
+	BaseModel
+	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
+	Type        string `gorm:"column:type" json:"type"`   // "anime" or "manga"
+	Value       []byte `gorm:"column:value" json:"value"` // Marshalled struct
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 type StringSlice []string

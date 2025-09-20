@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
@@ -45,7 +46,7 @@ type (
 		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
-		metadataProvider        metadata.Provider
+		metadataProvider        metadata_provider.Provider
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
 		startCh                 chan struct{}
@@ -60,7 +61,7 @@ type (
 		TorrentRepository       *torrent.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
-		MetadataProvider        metadata.Provider
+		MetadataProvider        metadata_provider.Provider
 		DebridClientRepository  *debrid_client.Repository
 		IsOffline               *bool
 	}

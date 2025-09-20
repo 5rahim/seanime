@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
@@ -16,7 +17,7 @@ import (
 type (
 	MediaTreeAnalysisOptions struct {
 		tree             *anilist.CompleteAnimeRelationTree
-		metadataProvider metadata.Provider
+		metadataProvider metadata_provider.Provider
 		rateLimiter      *limiter.Limiter
 	}
 

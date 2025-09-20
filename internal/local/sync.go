@@ -3,6 +3,7 @@ package local
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
@@ -558,7 +559,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	}
 
 	var animeMetadata *metadata.AnimeMetadata
-	var metadataWrapper metadata.AnimeMetadataWrapper
+	var metadataWrapper metadata_provider.AnimeMetadataWrapper
 	if diff.DiffType == DiffTypeMissing || diff.DiffType == DiffTypeMetadata {
 		// Get the anime metadata
 		var err error

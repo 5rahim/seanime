@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
@@ -25,7 +25,7 @@ type (
 	HydrateHostAnimeLibraryOptions struct {
 		AnimeCollection   *anilist.AnimeCollection
 		LibraryCollection *anime.LibraryCollection
-		MetadataProvider  metadata.Provider
+		MetadataProvider  metadata_provider.Provider
 	}
 
 	NakamaAnimeLibrary struct {

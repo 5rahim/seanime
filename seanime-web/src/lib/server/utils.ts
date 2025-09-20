@@ -24,3 +24,23 @@ export function formatDateAndTimeShort(date: string) {
         timeStyle: "short",
     })
 }
+
+export function isCustomSource(mId: number) { return mId > (2 ^ 31) }
+
+export function getCustomSourceExtensionId(m: { siteUrl?: string } | null | undefined) {
+    if (!m?.siteUrl) return null
+    let s = m.siteUrl.replace("ext_custom_source_", "")
+    if (s.includes("|END|")) {
+        s = s.split("|END|")[0]
+    }
+    return s
+}
+
+export function getCustomSourceMediaSiteUrl(m: { siteUrl?: string } | null | undefined) {
+    if (!m?.siteUrl) return null
+    let s = m.siteUrl.replace("ext_custom_source_", "")
+    if (s.includes("|END|")) {
+        s = s.split("|END|")?.[1] ?? null
+    }
+    return s
+}

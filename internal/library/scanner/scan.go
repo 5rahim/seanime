@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
@@ -33,7 +33,7 @@ type Scanner struct {
 	SkipIgnoredFiles   bool
 	ScanSummaryLogger  *summary.ScanSummaryLogger
 	ScanLogger         *ScanLogger
-	MetadataProvider   metadata.Provider
+	MetadataProvider   metadata_provider.Provider
 	MatchingThreshold  float64
 	MatchingAlgorithm  string
 }

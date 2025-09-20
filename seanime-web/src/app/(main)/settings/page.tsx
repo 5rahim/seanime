@@ -23,6 +23,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
@@ -52,20 +53,8 @@ import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence
 import { LocalSettings } from "./_containers/local-settings"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
-const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
-
-const tabsTriggerClass = cn(
-    "text-base px-6 rounded-[--radius-md] w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-    "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
-)
-
-const tabsListClass = cn(
-    "w-full flex flex-wrap lg:flex-nowrap h-fit xl:h-10",
-    "lg:block p-2 lg:p-0",
-)
-
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 slide-in-from-right-2 duration-300",
+    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
 )
 
 export const dynamic = "force-static"
@@ -127,7 +116,7 @@ export default function Page() {
     return (
         <>
             <CustomLibraryBanner discrete />
-            <PageWrapper data-settings-page-container className="p-4 sm:p-8 space-y-4">
+            <PageWrapper data-settings-page-container className="p-4 sm:p-8 space-y-4 relative">
                 {/*<Separator/>*/}
 
 
@@ -135,24 +124,30 @@ export default function Page() {
                 <Tabs
                     value={tab}
                     onValueChange={setTab}
-                    className={tabsRootClass}
-                    triggerClass={tabsTriggerClass}
-                    listClass={tabsListClass}
+                    className={cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")}
+                    triggerClass={cn(
+                        "text-base px-6 rounded-[--radius-md] w-fit lg:w-full rounded-lg border-0 data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+                        "h-9 lg:justify-start px-3 transition-all duration-200 hover:bg-[--subtle]/50 hover:transform",
+                    )}
+                    listClass={cn(
+                        "w-full flex flex-wrap lg:flex-nowrap h-fit",
+                        "lg:block p-2 lg:p-0",
+                    )}
                     data-settings-page-tabs
                 >
-                    <TabsList className="flex-wrap max-w-full lg:space-y-2">
+                    <TabsList className="flex-wrap max-w-full lg:space-y-2 sticky top-10">
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
-                                <div className="space-y-2 my-3 px-2">
-                                    <h4 className="text-center md:text-left text-xl font-bold">Settings</h4>
+                                <div className="space-y-2 p-4 w-full">
+                                    <h4 className="text-center text-xl font-bold">Settings</h4>
                                     <div className="space-y-1">
-                                        <p className="text-[--muted] text-sm text-center md:text-left flex items-center gap-2">
+                                        <p className="text-[--muted] text-sm text-center w-full">
                                             {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isTauriDesktop__ &&
                                             <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
                                             <span className="font-medium"> - Denshi</span>}
                                         </p>
                                         {/* <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
-                                            <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
+                                         <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
                                          <span className="font-medium">- Denshi</span>}</p> */}
                                     </div>
                                 </div>
@@ -160,101 +155,112 @@ export default function Page() {
 
                                 </div>
                             </div>
-                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll h-40 lg:h-auto rounded-[--radius-md] border lg:border-none space-y-1 lg:space-y-0">
-                                <TabsTrigger
-                                    value="seanime"
-                                    className="group"
-                                ><LuWandSparkles className="text-lg mr-3 transition-transform duration-200" /> App</TabsTrigger>
-                                {/* <TabsTrigger
-                                    value="local"
-                                    className="group"
-                                 ><LuUserCog className="text-lg mr-3 transition-transform duration-200" /> Local Account</TabsTrigger> */}
-                                <TabsTrigger
-                                    value="library"
-                                    className="group"
-                                ><IoLibrary className="text-lg mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
 
-                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
-                                    Anime playback
-                                </div>
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <TabsTrigger
+                                        value="seanime"
+                                        className="group"
+                                    ><LuWandSparkles className="text-xl mr-3 transition-transform duration-200" /> App</TabsTrigger>
+                                    {/* <TabsTrigger
+                                     value="local"
+                                     className="group"
+                                     ><LuUserCog className="text-xl mr-3 transition-transform duration-200" /> Local Account</TabsTrigger> */}
+                                    <TabsTrigger
+                                        value="library"
+                                        className="group"
+                                    ><IoLibrary className="text-xl mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+                                </Card>
 
-                                <TabsTrigger
-                                    value="playback"
-                                    className="group"
-                                ><IoPlayBackCircleSharp className="text-lg mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
-                                <TabsTrigger
-                                    value="media-player"
-                                    className="group"
-                                ><LuLaptop className="text-lg mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
-                                <TabsTrigger
-                                    value="external-player-link"
-                                    className="group"
-                                ><LuExternalLink className="text-lg mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
-                                <TabsTrigger
-                                    value="mediastream"
-                                    className="relative group"
-                                ><MdOutlineBroadcastOnHome className="text-lg mr-3 transition-transform duration-200" /> Transcoding / Direct
-                                                                                                                         play</TabsTrigger>
+                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*    Anime playback*/}
+                                {/*</div>*/}
 
-                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
-                                    Torrenting
-                                </div>
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <TabsTrigger
+                                        value="playback"
+                                        className="group"
+                                    ><IoPlayBackCircleSharp className="text-xl mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
+                                    <TabsTrigger
+                                        value="media-player"
+                                        className="group"
+                                    ><LuLaptop className="text-xl mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
+                                    <TabsTrigger
+                                        value="external-player-link"
+                                        className="group"
+                                    ><LuExternalLink className="text-xl mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
+                                    <TabsTrigger
+                                        value="mediastream"
+                                        className="relative group"
+                                    ><MdOutlineBroadcastOnHome className="text-xl mr-3 transition-transform duration-200" /> Transcoding / Direct
+                                                                                                                             play</TabsTrigger>
+                                </Card>
 
-                                <TabsTrigger
-                                    value="torrent"
-                                    className="group"
-                                ><CgPlayListSearch className="text-lg mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
-                                <TabsTrigger
-                                    value="torrent-client"
-                                    className="group"
-                                ><MdOutlineDownloading className="text-lg mr-3 transition-transform duration-200" /> Torrent Client</TabsTrigger>
-                                <TabsTrigger
-                                    value="torrentstream"
-                                    className="relative group"
-                                ><SiBittorrent className="text-lg mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
-                                <TabsTrigger
-                                    value="debrid"
-                                    className="group"
-                                ><HiOutlineServerStack className="text-lg mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
+                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*    Torrenting*/}
+                                {/*</div>*/}
 
-                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
-                                    Other features
-                                </div>
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <TabsTrigger
+                                        value="torrent"
+                                        className="group"
+                                    ><CgPlayListSearch className="text-xl mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
+                                    <TabsTrigger
+                                        value="torrent-client"
+                                        className="group"
+                                    ><MdOutlineDownloading className="text-xl mr-3 transition-transform duration-200" /> Torrent Client</TabsTrigger>
+                                    <TabsTrigger
+                                        value="torrentstream"
+                                        className="relative group"
+                                    ><SiBittorrent className="text-xl mr-3 transition-transform duration-200" /> Torrent Streaming</TabsTrigger>
+                                    <TabsTrigger
+                                        value="debrid"
+                                        className="group"
+                                    ><HiOutlineServerStack className="text-xl mr-3 transition-transform duration-200" /> Debrid Service</TabsTrigger>
+                                </Card>
 
-                                <TabsTrigger
-                                    value="onlinestream"
-                                    className="group"
-                                ><CgMediaPodcast className="text-lg mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
+                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*    Other features*/}
+                                {/*</div>*/}
 
-                                <TabsTrigger
-                                    value="manga"
-                                    className="group"
-                                ><FaBookReader className="text-lg mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
-                                <TabsTrigger
-                                    value="nakama"
-                                    className="group relative"
-                                ><MdOutlineConnectWithoutContact className="text-lg mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
-                                <TabsTrigger
-                                    value="discord"
-                                    className="group"
-                                ><FaDiscord className="text-lg mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <TabsTrigger
+                                        value="onlinestream"
+                                        className="group"
+                                    ><CgMediaPodcast className="text-xl mr-3 transition-transform duration-200" /> Online Streaming</TabsTrigger>
 
-                                <div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">
-                                    Server & Interface
-                                </div>
+                                    <TabsTrigger
+                                        value="manga"
+                                        className="group"
+                                    ><FaBookReader className="text-xl mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
+                                    <TabsTrigger
+                                        value="nakama"
+                                        className="group relative"
+                                    ><MdOutlineConnectWithoutContact className="text-xl mr-3 transition-transform duration-200" /> Nakama</TabsTrigger>
+                                    <TabsTrigger
+                                        value="discord"
+                                        className="group"
+                                    ><FaDiscord className="text-xl mr-3 transition-transform duration-200" /> Discord</TabsTrigger>
+                                </Card>
 
-                                <TabsTrigger
-                                    value="ui"
-                                    className="group"
-                                ><MdOutlinePalette className="text-lg mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
-                                {/* <TabsTrigger
-                                    value="cache"
-                                    className="group"
-                                 ><TbDatabaseExclamation className="text-lg mr-3 transition-transform duration-200" /> Cache</TabsTrigger> */}
-                                <TabsTrigger
-                                    value="logs"
-                                    className="group"
-                                ><LuBookKey className="text-lg mr-3 transition-transform duration-200" /> Logs & Cache</TabsTrigger>
+                                {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
+                                {/*    Server & Interface*/}
+                                {/*</div>*/}
+
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <TabsTrigger
+                                        value="ui"
+                                        className="group"
+                                    ><MdOutlinePalette className="text-xl mr-3 transition-transform duration-200" /> User Interface</TabsTrigger>
+                                    {/* <TabsTrigger
+                                     value="cache"
+                                     className="group"
+                                     ><TbDatabaseExclamation className="text-xl mr-3 transition-transform duration-200" /> Cache</TabsTrigger> */}
+                                    <TabsTrigger
+                                        value="logs"
+                                        className="group"
+                                    ><LuBookKey className="text-xl mr-3 transition-transform duration-200" /> Logs & Cache</TabsTrigger>
+                                </Card>
                             </div>
                         </SettingsNavCard>
 
@@ -755,13 +761,13 @@ export default function Page() {
 
                         {/* <TabsContent value="cache" className={tabContentClass}>
 
-                            <SettingsPageHeader
-                                title="Cache"
-                                description="Manage the cache"
-                                icon={TbDatabaseExclamation}
-                            />
+                         <SettingsPageHeader
+                         title="Cache"
+                         description="Manage the cache"
+                         icon={TbDatabaseExclamation}
+                         />
 
-                            <FilecacheSettings />
+                         <FilecacheSettings />
 
                          </TabsContent> */}
 

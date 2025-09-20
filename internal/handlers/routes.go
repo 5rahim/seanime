@@ -447,6 +447,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
 	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
 	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
+	v1Extensions.GET("/list/custom-source", h.HandleListCustomSourceExtensions)
 	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
 	v1Extensions.GET("/marketplace", h.HandleGetMarketplaceExtensions)
@@ -529,6 +530,12 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
 	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
 	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
+
+	//
+	// Custom Source
+	//
+	v1CustomSource := v1.Group("/custom-source")
+	v1CustomSource.POST("/provider/list/anime", h.HandleCustomSourceListAnime)
 
 }
 

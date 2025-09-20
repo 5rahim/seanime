@@ -18,7 +18,7 @@ import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
 import { LuBlocks, LuDownload } from "react-icons/lu"
 import { PiBookFill } from "react-icons/pi"
-import { RiFolderDownloadFill } from "react-icons/ri"
+import { RiFolderDownloadFill, RiFunctionAddLine } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
 import { toast } from "sonner"
 
@@ -64,6 +64,7 @@ export function ExtensionList(props: ExtensionListProps) {
     const animeTorrentExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "anime-torrent-provider")
     const mangaExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "manga-provider")
     const onlinestreamExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "onlinestream-provider")
+    const customSourceExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "custom-source")
 
     const nonvalidExtensions = (allExtensions?.invalidExtensions ?? []).filter(n => n.code !== "plugin_permissions_not_granted")
         .sort((a, b) => a.id.localeCompare(b.id))
@@ -201,6 +202,24 @@ export function ExtensionList(props: ExtensionListProps) {
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
                                 allowReload={true}
+                            />
+                        ))}
+                    </div>
+                </Card>
+            )}
+
+            {!!customSourceExtensions?.length && (
+                <Card className="p-4 space-y-6">
+                    <h3 className="flex gap-3 items-center"><RiFunctionAddLine />Custom Source</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {customSourceExtensions.map(extension => (
+                            <ExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                                userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                allowReload
                             />
                         ))}
                     </div>

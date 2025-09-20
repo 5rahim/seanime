@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/result"
@@ -32,7 +33,7 @@ type NewEpisodeCollectionOptions struct {
 	// AnimeMetadata can be nil, if not provided, it will be fetched from the metadata provider.
 	AnimeMetadata    *metadata.AnimeMetadata
 	Media            *anilist.BaseAnime
-	MetadataProvider metadata.Provider
+	MetadataProvider metadata_provider.Provider
 	Logger           *zerolog.Logger
 }
 
@@ -196,7 +197,7 @@ type NewEpisodeCollectionFromLocalFilesOptions struct {
 	Media            *anilist.BaseAnime
 	AnimeCollection  *anilist.AnimeCollection
 	Platform         platform.Platform
-	MetadataProvider metadata.Provider
+	MetadataProvider metadata_provider.Provider
 	Logger           *zerolog.Logger
 }
 

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
@@ -135,7 +136,7 @@ func DownloadAnimeImages(
 	assetsDir string,
 	entry *anilist.AnimeListEntry,
 	animeMetadata *metadata.AnimeMetadata, // This is updated
-	metadataWrapper metadata.AnimeMetadataWrapper,
+	metadataWrapper metadata_provider.AnimeMetadataWrapper,
 	lfs []*anime.LocalFile,
 ) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})

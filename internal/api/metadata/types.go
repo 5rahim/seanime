@@ -1,8 +1,6 @@
 package metadata
 
 import (
-	"seanime/internal/api/anilist"
-	"seanime/internal/util/result"
 	"strings"
 	"time"
 )
@@ -14,23 +12,6 @@ const (
 
 type (
 	Platform string
-
-	Provider interface {
-		// GetAnimeMetadata fetches anime metadata for the given platform from a source.
-		// In this case, the source is api.ani.zip.
-		GetAnimeMetadata(platform Platform, mId int) (*AnimeMetadata, error)
-		GetCache() *result.BoundedCache[string, *AnimeMetadata]
-		// GetAnimeMetadataWrapper creates a wrapper for anime metadata.
-		GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *AnimeMetadata) AnimeMetadataWrapper
-	}
-
-	// AnimeMetadataWrapper is a container for anime metadata.
-	// This wrapper is used to get a more complete metadata object by getting data from multiple sources in the Provider.
-	// The user can request metadata to be fetched from TVDB as well, which will be stored in the cache.
-	AnimeMetadataWrapper interface {
-		// GetEpisodeMetadata combines metadata from multiple sources to create a single EpisodeMetadata object.
-		GetEpisodeMetadata(episodeNumber int) EpisodeMetadata
-	}
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,18 +28,18 @@ type (
 	}
 
 	AnimeMappings struct {
-		AnimeplanetId string `json:"animeplanetId"`
-		KitsuId       int    `json:"kitsuId"`
-		MalId         int    `json:"malId"`
-		Type          string `json:"type"`
-		AnilistId     int    `json:"anilistId"`
-		AnisearchId   int    `json:"anisearchId"`
-		AnidbId       int    `json:"anidbId"`
-		NotifymoeId   string `json:"notifymoeId"`
-		LivechartId   int    `json:"livechartId"`
-		ThetvdbId     int    `json:"thetvdbId"`
-		ImdbId        string `json:"imdbId"`
-		ThemoviedbId  string `json:"themoviedbId"`
+		AnimeplanetId string `json:"animeplanetId,omitempty"`
+		KitsuId       int    `json:"kitsuId,omitempty"`
+		MalId         int    `json:"malId,omitempty"`
+		Type          string `json:"type,omitempty"`
+		AnilistId     int    `json:"anilistId,omitempty"`
+		AnisearchId   int    `json:"anisearchId,omitempty"`
+		AnidbId       int    `json:"anidbId,omitempty"`
+		NotifymoeId   string `json:"notifymoeId,omitempty"`
+		LivechartId   int    `json:"livechartId,omitempty"`
+		ThetvdbId     int    `json:"thetvdbId,omitempty"`
+		ImdbId        string `json:"imdbId,omitempty"`
+		ThemoviedbId  string `json:"themoviedbId,omitempty"`
 	}
 
 	EpisodeMetadata struct {
@@ -90,7 +71,7 @@ func (m *AnimeMetadata) GetTitle() string {
 }
 
 func (m *AnimeMetadata) GetMappings() *AnimeMappings {
-	if m == nil {
+	if m == nil || m.Mappings == nil {
 		return &AnimeMappings{}
 	}
 	return m.Mappings

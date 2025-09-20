@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/mal"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
@@ -32,7 +33,7 @@ type MediaFetcher struct {
 type MediaFetcherOptions struct {
 	Enhanced               bool
 	Platform               platform.Platform
-	MetadataProvider       metadata.Provider
+	MetadataProvider       metadata_provider.Provider
 	LocalFiles             []*anime.LocalFile
 	CompleteAnimeCache     *anilist.CompleteAnimeCache
 	Logger                 *zerolog.Logger
@@ -194,7 +195,7 @@ func FetchMediaFromLocalFiles(
 	platform platform.Platform,
 	localFiles []*anime.LocalFile,
 	completeAnime *anilist.CompleteAnimeCache,
-	metadataProvider metadata.Provider,
+	metadataProvider metadata_provider.Provider,
 	anilistRateLimiter *limiter.Limiter,
 	scanLogger *ScanLogger,
 ) (ret []*anilist.CompleteAnime, ok bool) {
@@ -259,7 +260,7 @@ func FetchMediaFromLocalFiles(
 	lop.ForEach(malIds, func(id int, index int) {
 		rateLimiter2.Wait()
 		//_, _ = metadataProvider.GetAnimeMetadata(metadata.MalPlatform, id)
-		_, _ = metadataProvider.GetCache().GetOrSet(metadata.GetAnimeMetadataCacheKey(metadata.MalPlatform, id), func() (*metadata.AnimeMetadata, error) {
+		_, _ = metadataProvider.GetCache().GetOrSet(metadata_provider.GetAnimeMetadataCacheKey(metadata.MalPlatform, id), func() (*metadata.AnimeMetadata, error) {
 			res, err := metadataProvider.GetAnimeMetadata(metadata.MalPlatform, id)
 			return res, err
 		})

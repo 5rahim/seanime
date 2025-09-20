@@ -22,12 +22,17 @@ import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-act
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { SeaLink } from "@/components/shared/sea-link"
+import { Badge } from "@/components/ui/badge"
 import { Button, ButtonProps, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Tooltip } from "@/components/ui/tooltip"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
+import { getCustomSourceExtensionId, getCustomSourceMediaSiteUrl, isCustomSource } from "@/lib/server/utils"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
+import { BiExtension } from "react-icons/bi"
 import { IoInformationCircle } from "react-icons/io5"
+import { LuExternalLink } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { SiAnilist } from "react-icons/si"
 import { useNakamaStatus } from "../../_features/nakama/nakama-manager"
@@ -58,31 +63,6 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
     const { hasDebridService } = useHasDebridService()
     const { currentView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
 
-    const Details = () => (
-        <div
-            data-anime-meta-section-details
-            className={cn(
-                "flex gap-3 flex-wrap items-center",
-                "justify-center lg:justify-start lg:max-w-[65vw]",
-            )}
-        >
-            <MediaEntryAudienceScore meanScore={details?.meanScore} badgeClass="bg-transparent" />
-
-            <AnimeEntryStudio studios={details?.studios} />
-
-            <MediaEntryGenresList genres={details?.genres} />
-
-            <div
-                data-anime-meta-section-rankings-container
-                className={cn(
-                    "w-full",
-                )}
-            >
-                <AnimeEntryRankings rankings={details?.rankings} />
-            </div>
-        </div>
-    )
-
     return (
         <MediaPageHeader
             backgroundImage={entry.media?.bannerImage}
@@ -106,7 +86,39 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     media={entry.media}
                     type="anime"
                 >
-                    <Details />
+                    <div
+                        data-anime-meta-section-details
+                        className={cn(
+                            "flex gap-3 flex-wrap items-center",
+                            "justify-center lg:justify-start lg:max-w-[65vw]",
+                        )}
+                    >
+
+                        <MediaEntryAudienceScore meanScore={entry.media?.meanScore} badgeClass="bg-transparent" />
+
+
+                        {!isCustomSource(entry.mediaId) ? <AnimeEntryStudio studios={details?.studios} /> : (
+                            <Badge
+                                size="lg"
+                                intent="gray"
+                                className="rounded-full px-0 border-transparent bg-transparent transition-all hover:bg-transparent hover:text-white hover:-translate-y-0.5"
+                                data-anime-entry-studio-badge
+                            >
+                                {details?.studios?.nodes?.[0]?.name}
+                            </Badge>
+                        )}
+
+                        <MediaEntryGenresList genres={details?.genres} />
+
+                        <div
+                            data-anime-meta-section-rankings-container
+                            className={cn(
+                                "w-full",
+                            )}
+                        >
+                            <AnimeEntryRankings rankings={details?.rankings} />
+                        </div>
+                    </div>
                 </MediaPageHeaderEntryDetails>
 
 
@@ -118,9 +130,31 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     )}
                 >
 
-                    <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                    {isCustomSource(entry.mediaId) && (
+                        <Tooltip
+                            trigger={<div>
+                                <SeaLink href={`/custom-source/${getCustomSourceExtensionId(entry.media)}`}>
+                                    <IconButton size="sm" intent="gray-link" className="px-0" icon={<BiExtension className="text-lg" />} />
+                                </SeaLink>
+                            </div>}
+                        >
+                            Custom source
+                        </Tooltip>
+                    )}
+
+                    {!isCustomSource(entry.mediaId) && <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                         <IconButton size="sm" intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
-                    </SeaLink>
+                    </SeaLink>}
+
+                    {isCustomSource(entry.mediaId) && !!getCustomSourceMediaSiteUrl(entry.media) && <Tooltip
+                        trigger={<div>
+                            <SeaLink href={getCustomSourceMediaSiteUrl(entry.media)!} target="_blank">
+                                <IconButton size="sm" intent="gray-link" className="px-0" icon={<LuExternalLink className="text-lg" />} />
+                            </SeaLink>
+                        </div>}
+                    >
+                        Open in website
+                    </Tooltip>}
 
                     {!!entry?.media?.trailer?.id && <TrailerModal
                         trailerId={entry?.media?.trailer?.id} trigger={
@@ -184,7 +218,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 </p>}
 
 
-                {(!entry.anidbId || entry.anidbId === 0) && (
+                {(!entry.anidbId || entry.anidbId === 0) && !isCustomSource(entry.mediaId) && (
                     <p
                         className={cn(
                             "text-center text-gray-200 opacity-50 text-sm flex gap-1 items-center",

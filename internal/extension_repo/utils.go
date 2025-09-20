@@ -73,6 +73,7 @@ func manifestSanityCheck(ext *extension.Extension) error {
 	if ext.Type != extension.TypeMangaProvider &&
 		ext.Type != extension.TypeOnlinestreamProvider &&
 		ext.Type != extension.TypeAnimeTorrentProvider &&
+		ext.Type != extension.TypeCustomSource &&
 		ext.Type != extension.TypePlugin {
 		return fmt.Errorf("unsupported extension type: %v", ext.Type)
 	}

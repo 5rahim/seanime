@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/events"
@@ -42,7 +42,7 @@ type Manager interface {
 	// UpdateLocalMangaCollection updates the local manga collection using the online data.
 	UpdateLocalMangaCollection(mc *anilist.MangaCollection)
 	// GetOfflineMetadataProvider returns the offline metadata provider.
-	GetOfflineMetadataProvider() metadata.Provider
+	GetOfflineMetadataProvider() metadata_provider.Provider
 	// GetSyncer returns the syncer (used to synchronize the anime and manga snapshots in the local database).
 	GetSyncer() *Syncer
 	AutoTrackCurrentMedia() (bool, error)
@@ -98,10 +98,10 @@ type (
 		isOffline      bool
 
 		logger                  *zerolog.Logger
-		metadataProvider        metadata.Provider
+		metadataProvider        metadata_provider.Provider
 		mangaRepository         *manga.Repository
 		wsEventManager          events.WSEventManagerInterface
-		offlineMetadataProvider metadata.Provider
+		offlineMetadataProvider metadata_provider.Provider
 		anilistPlatform         platform.Platform
 
 		syncer *Syncer
@@ -134,7 +134,7 @@ type (
 		LocalDir         string
 		AssetDir         string
 		Logger           *zerolog.Logger
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 		MangaRepository  *manga.Repository
 		Database         *db.Database
 		WSEventManager   events.WSEventManagerInterface
@@ -192,7 +192,7 @@ func (m *ManagerImpl) GetSyncer() *Syncer {
 	return m.syncer
 }
 
-func (m *ManagerImpl) GetOfflineMetadataProvider() metadata.Provider {
+func (m *ManagerImpl) GetOfflineMetadataProvider() metadata_provider.Provider {
 	return m.offlineMetadataProvider
 }
 

@@ -421,6 +421,19 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/continuity/history",
         },
     },
+    CUSTOM_SOURCE: {
+        /**
+         *  @description
+         *  Route returns a paginated list of anime from the provider.
+         *  This will search for torrents and return a list of torrents with previews.
+         *  If smart search is enabled, it will filter the torrents based on search parameters.
+         */
+        CustomSourceListAnime: {
+            key: "CUSTOM-SOURCE-custom-source-list-anime",
+            methods: ["POST"],
+            endpoint: "/api/v1/custom-source/provider/list/anime",
+        },
+    },
     DEBRID: {
         /**
          *  @description
@@ -691,6 +704,11 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-list-anime-torrent-provider-extensions",
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list/anime-torrent-provider",
+        },
+        ListCustomSourceExtensions: {
+            key: "EXTENSIONS-list-custom-source-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/custom-source",
         },
         GetPluginSettings: {
             key: "EXTENSIONS-get-plugin-settings",

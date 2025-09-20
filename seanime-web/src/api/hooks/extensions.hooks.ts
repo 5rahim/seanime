@@ -16,6 +16,7 @@ import {
     Extension_Extension,
     ExtensionRepo_AllExtensions,
     ExtensionRepo_AnimeTorrentProviderExtensionItem,
+    ExtensionRepo_CustomSourceExtensionItem,
     ExtensionRepo_ExtensionInstallResponse,
     ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
@@ -147,6 +148,15 @@ export function useListOnlinestreamProviderExtensions() {
         endpoint: API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.methods[0],
         queryKey: [API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.key],
+        enabled: true,
+    })
+}
+
+export function useListCustomSourceExtensions() {
+    return useServerQuery<Array<ExtensionRepo_CustomSourceExtensionItem>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.key],
         enabled: true,
     })
 }

@@ -1,4 +1,4 @@
-package anilist_platform
+package platform
 
 import (
 	"seanime/internal/api/anilist"

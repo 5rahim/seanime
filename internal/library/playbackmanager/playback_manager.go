@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
@@ -56,7 +56,7 @@ type (
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
 		platform                   platform.Platform
-		metadataProvider           metadata.Provider
+		metadataProvider           metadata_provider.Provider
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.RWMutex
@@ -184,7 +184,7 @@ type (
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
 		Platform                   platform.Platform
-		MetadataProvider           metadata.Provider
+		MetadataProvider           metadata_provider.Provider
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence

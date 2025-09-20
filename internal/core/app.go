@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/constants"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -88,7 +88,7 @@ type (
 		FileCacher                      *filecache.Cacher
 		OnlinestreamRepository          *onlinestream.Repository
 		MangaRepository                 *manga.Repository
-		MetadataProvider                metadata.Provider
+		MetadataProvider                metadata_provider.Provider
 		DiscordPresence                 *discordrpc_presence.Presence
 		MangaDownloader                 *manga.Downloader
 		ContinuityManager               *continuity.Manager
@@ -235,9 +235,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize metadata provider for media information
-	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
+	metadataProvider := metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
+		Database:   database,
 	})
 
 	// Set initial metadata provider (will change if offline mode is enabled)
@@ -255,7 +256,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Initialize Anilist platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger, database)
 
 	// Update plugin context with new modules
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
@@ -292,7 +293,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Initialize simulated platform for unauthenticated operations
-	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger)
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger, database)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize simulated platform")
 	}

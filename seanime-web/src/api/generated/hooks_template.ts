@@ -442,6 +442,21 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// custom_source
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useCustomSourceListAnime() {
+//     return useServerMutation<HibikeCustomSource_ListAnimeResponse, CustomSourceListAnime_Variables>({
+//         endpoint: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.endpoint,
+//         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.methods[0],
+//         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -845,6 +860,15 @@
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.endpoint,
 //         method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
 //         queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useListCustomSourceExtensions() {
+//     return useServerQuery<Array<ExtensionRepo_CustomSourceExtensionItem>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.key],
 //         enabled: true,
 //     })
 // }

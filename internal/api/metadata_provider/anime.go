@@ -1,8 +1,9 @@
-package metadata
+package metadata_provider
 
 import (
 	"regexp"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -14,19 +15,19 @@ import (
 
 type (
 	AnimeWrapperImpl struct {
-		metadata   mo.Option[*AnimeMetadata]
+		metadata   mo.Option[*metadata.AnimeMetadata]
 		baseAnime  *anilist.BaseAnime
 		fileCacher *filecache.Cacher
 		logger     *zerolog.Logger
 	}
 )
 
-func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) {
+func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeMetadata) {
 	if aw == nil || aw.baseAnime == nil {
 		return
 	}
 
-	ret = EpisodeMetadata{
+	ret = metadata.EpisodeMetadata{
 		AnidbId:               0,
 		TvdbId:                0,
 		Title:                 "",
@@ -44,7 +45,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 
 	defer util.HandlePanicInModuleThen("api/metadata/GetEpisodeMetadata", func() {})
 
-	reqEvent := &AnimeEpisodeMetadataRequestedEvent{}
+	reqEvent := &metadata.AnimeEpisodeMetadataRequestedEvent{}
 	reqEvent.MediaId = aw.baseAnime.GetID()
 	reqEvent.EpisodeNumber = epNum
 	reqEvent.EpisodeMetadata = &ret
@@ -63,7 +64,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	// Process
 	//
 
-	episode := mo.None[*EpisodeMetadata]()
+	episode := mo.None[*metadata.EpisodeMetadata]()
 	if aw.metadata.IsAbsent() {
 		ret.Image = aw.baseAnime.GetBannerImageSafe()
 	} else {
@@ -92,7 +93,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	}
 
 	// Event
-	event := &AnimeEpisodeMetadataEvent{
+	event := &metadata.AnimeEpisodeMetadataEvent{
 		EpisodeMetadata: &ret,
 		EpisodeNumber:   epNum,
 		MediaId:         aw.baseAnime.GetID(),

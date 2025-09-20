@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"strconv"
@@ -24,7 +25,7 @@ type (
 	HydrateStreamCollectionOptions struct {
 		AnimeCollection   *anilist.AnimeCollection
 		LibraryCollection *anime.LibraryCollection
-		MetadataProvider  metadata.Provider
+		MetadataProvider  metadata_provider.Provider
 	}
 )
 

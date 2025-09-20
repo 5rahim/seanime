@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/directstream"
@@ -40,7 +40,7 @@ type (
 		completeAnimeCache              *anilist.CompleteAnimeCache
 		platform                        platform.Platform
 		wsEventManager                  events.WSEventManagerInterface
-		metadataProvider                metadata.Provider
+		metadataProvider                metadata_provider.Provider
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
@@ -67,7 +67,7 @@ type (
 		BaseAnimeCache      *anilist.BaseAnimeCache
 		CompleteAnimeCache  *anilist.CompleteAnimeCache
 		Platform            platform.Platform
-		MetadataProvider    metadata.Provider
+		MetadataProvider    metadata_provider.Provider
 		PlaybackManager     *playbackmanager.PlaybackManager
 		WSEventManager      events.WSEventManagerInterface
 		Database            *db.Database

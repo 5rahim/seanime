@@ -1839,6 +1839,66 @@
     }
   },
   {
+    "name": "HandleCustomSourceListAnime",
+    "trimmedName": "CustomSourceListAnime",
+    "comments": [
+      "HandleCustomSourceListAnime",
+      "",
+      "\t@summary returns a paginated list of anime from the provider.",
+      "\t@desc This will search for torrents and return a list of torrents with previews.",
+      "\t@desc If smart search is enabled, it will filter the torrents based on search parameters.",
+      "\t@route /api/v1/custom-source/provider/list/anime [POST]",
+      "\t@returns hibikecustomsource.ListAnimeResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/custom_source.go",
+    "filename": "custom_source.go",
+    "api": {
+      "summary": "returns a paginated list of anime from the provider.",
+      "descriptions": [
+        "This will search for torrents and return a list of torrents with previews.",
+        "If smart search is enabled, it will filter the torrents based on search parameters."
+      ],
+      "endpoint": "/api/v1/custom-source/provider/list/anime",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Page",
+          "jsonName": "page",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "PerPage",
+          "jsonName": "perPage",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "hibikecustomsource.ListAnimeResponse",
+      "returnGoType": "hibikecustomsource.ListAnimeResponse",
+      "returnTypescriptType": "HibikeCustomSource_ListAnimeResponse"
+    }
+  },
+  {
     "name": "HandleGetDebridSettings",
     "trimmedName": "GetDebridSettings",
     "comments": [
@@ -3435,6 +3495,33 @@
       "returns": "[]extension_repo.AnimeTorrentProviderExtensionItem",
       "returnGoType": "extension_repo.AnimeTorrentProviderExtensionItem",
       "returnTypescriptType": "Array\u003cExtensionRepo_AnimeTorrentProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleListCustomSourceExtensions",
+    "trimmedName": "ListCustomSourceExtensions",
+    "comments": [
+      "HandleListCustomSourceExtensions",
+      "",
+      "\t@summary returns the installed torrent providers.",
+      "\t@route /api/v1/extensions/list/custom-source [GET]",
+      "\t@returns []extension_repo.CustomSourceExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the installed torrent providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/custom-source",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.CustomSourceExtensionItem",
+      "returnGoType": "extension_repo.CustomSourceExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_CustomSourceExtensionItem\u003e"
     }
   },
   {

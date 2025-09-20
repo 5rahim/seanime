@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/util/limiter"
 	"sort"
@@ -24,7 +25,7 @@ type (
 		AnimeCollection  *anilist.AnimeCollection
 		LocalFiles       []*LocalFile
 		SilencedMediaIds []int
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 	}
 )
 

@@ -3,9 +3,7 @@ package torrent_client
 import (
 	"context"
 	"errors"
-	"github.com/hekmon/transmissionrpc/v3"
-	"github.com/rs/zerolog"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/qbittorrent/model"
@@ -13,6 +11,9 @@ import (
 	"seanime/internal/torrents/torrent"
 	"strconv"
 	"time"
+
+	"github.com/hekmon/transmissionrpc/v3"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -28,7 +29,7 @@ type (
 		transmission                *transmission.Transmission
 		torrentRepository           *torrent.Repository
 		provider                    string
-		metadataProvider            metadata.Provider
+		metadataProvider            metadata_provider.Provider
 		activeTorrentCountCtxCancel context.CancelFunc
 		activeTorrentCount          *ActiveCount
 	}
@@ -39,7 +40,7 @@ type (
 		Transmission      *transmission.Transmission
 		TorrentRepository *torrent.Repository
 		Provider          string
-		MetadataProvider  metadata.Provider
+		MetadataProvider  metadata_provider.Provider
 	}
 
 	ActiveCount struct {

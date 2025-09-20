@@ -3,7 +3,7 @@ package autoscanner
 import (
 	"context"
 	"errors"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
@@ -35,7 +35,7 @@ type (
 		wsEventManager   events.WSEventManagerInterface
 		db               *db.Database                   // Database instance is required to update the local files.
 		autoDownloader   *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
-		metadataProvider metadata.Provider
+		metadataProvider metadata_provider.Provider
 		logsDir          string
 	}
 	NewAutoScannerOptions struct {
@@ -46,7 +46,7 @@ type (
 		Enabled          bool
 		AutoDownloader   *autodownloader.AutoDownloader
 		WaitTime         time.Duration
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 		LogsDir          string
 	}
 )
