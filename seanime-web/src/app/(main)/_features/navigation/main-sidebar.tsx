@@ -34,15 +34,16 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
+import { FaRegCompass } from "react-icons/fa6"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill, PiListChecksFill } from "react-icons/pi"
-import { SiAnilist } from "react-icons/si"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
+import { RiListCheck3 } from "react-icons/ri"
 import { TbWorldDownload } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
@@ -156,15 +157,15 @@ export function MainSidebar() {
         }] : [],
         {
             id: "discover",
-            iconType: BiNews,
+            iconType: FaRegCompass,
             name: "Discover",
             href: "/discover",
             isCurrent: pathname === "/discover",
         },
         {
             id: "anilist",
-            iconType: user?.isSimulated ? PiListChecksFill : SiAnilist,
-            name: user?.isSimulated ? "My lists" : "AniList",
+            iconType: RiListCheck3,
+            name: "My lists",
             href: "/anilist",
             isCurrent: pathname === "/anilist",
         },

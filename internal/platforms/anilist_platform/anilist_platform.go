@@ -569,6 +569,9 @@ func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 		return err
 	}
 
+	// Merge the custom entries into the collection
+	ap.customSourceManager.MergeAnimeEntries(collection)
+
 	// Save the raw collection to App (retains the lists with no status)
 	collectionCopy := *collection
 	ap.rawAnimeCollection = mo.Some(&collectionCopy)
@@ -585,10 +588,6 @@ func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 
 	// Save the collection to App
 	ap.animeCollection = mo.Some(collection)
-
-	// Merge custom source entries into both collections
-	ap.customSourceManager.MergeAnimeEntries(ap.animeCollection.MustGet())
-	ap.customSourceManager.MergeAnimeEntries(ap.rawAnimeCollection.MustGet())
 
 	return nil
 }
@@ -713,6 +712,9 @@ func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 		return err
 	}
 
+	// Merge the custom entries into the collection
+	ap.customSourceManager.MergeMangaEntries(collection)
+
 	// Save the raw collection to App (retains the lists with no status)
 	collectionCopy := *collection
 	ap.rawMangaCollection = mo.Some(&collectionCopy)
@@ -749,10 +751,6 @@ func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 
 	// Save the collection to App
 	ap.mangaCollection = mo.Some(collection)
-
-	// Merge custom source entries into both collections
-	ap.customSourceManager.MergeMangaEntries(ap.mangaCollection.MustGet())
-	ap.customSourceManager.MergeMangaEntries(ap.rawMangaCollection.MustGet())
 
 	return nil
 }

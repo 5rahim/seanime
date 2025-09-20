@@ -25,7 +25,7 @@ export function formatDateAndTimeShort(date: string) {
     })
 }
 
-export function isCustomSource(mId: number) { return mId > (2 ^ 31) }
+export function isCustomSource(mId: number) { return mId >= 0x80000000 }
 
 export function getCustomSourceExtensionId(m: { siteUrl?: string } | null | undefined) {
     if (!m?.siteUrl) return null

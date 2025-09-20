@@ -17,8 +17,9 @@ import { BiDotsVerticalRounded } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
 import { LuBlocks, LuDownload } from "react-icons/lu"
+import { MdDataSaverOn } from "react-icons/md"
 import { PiBookFill } from "react-icons/pi"
-import { RiFolderDownloadFill, RiFunctionAddLine } from "react-icons/ri"
+import { RiFolderDownloadFill } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
 import { toast } from "sonner"
 
@@ -210,7 +211,7 @@ export function ExtensionList(props: ExtensionListProps) {
 
             {!!customSourceExtensions?.length && (
                 <Card className="p-4 space-y-6">
-                    <h3 className="flex gap-3 items-center"><RiFunctionAddLine />Custom Source</h3>
+                    <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Source</h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {customSourceExtensions.map(extension => (
                             <ExtensionCard
