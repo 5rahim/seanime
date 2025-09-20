@@ -30,6 +30,7 @@ import { Modal } from "@/components/ui/modal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getImageUrl } from "@/lib/server/assets"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
+import { isCustomSource } from "@/lib/server/utils"
 import { ThemeMediaPageBannerSize, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { usePrevious } from "@uidotdev/usehooks"
 import { atom } from "jotai"
@@ -272,9 +273,9 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                             </Button>}
                         />}
 
-                        <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
+                        {isCustomSource(media?.id) && <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
                             <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
-                        </SeaLink>
+                        </SeaLink>}
 
                         {(
                             type === "anime" &&

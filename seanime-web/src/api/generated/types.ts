@@ -2671,6 +2671,18 @@ export type HibikeCustomSource_ListAnimeResponse = {
  * - Filename: types.go
  * - Package: hibikecustomsource
  */
+export type HibikeCustomSource_ListMangaResponse = {
+    media?: Array<AL_BaseManga>
+    page: number
+    totalPages: number
+    total: number
+}
+
+/**
+ * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
 export type HibikeCustomSource_Settings = {
     supportsAnime: boolean
     supportsManga: boolean

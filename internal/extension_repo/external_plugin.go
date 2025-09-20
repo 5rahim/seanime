@@ -12,8 +12,10 @@ import (
 	"github.com/samber/lo"
 )
 
-const PluginSettingsKey = "1"
-const PluginSettingsBucket = "plugin-settings"
+const (
+	PluginSettingsKey    = "1"
+	PluginSettingsBucket = "plugin-settings"
+)
 
 var (
 	ErrPluginPermissionsNotGranted = fmt.Errorf("plugin: permissions not granted")

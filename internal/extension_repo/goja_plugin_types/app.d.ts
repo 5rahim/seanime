@@ -38,263 +38,6 @@ declare namespace $app {
 
 
     /**
-     * @package anilist_platform
-     */
-
-    /**
-     * @event GetAnimeEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetAnime(cb: (event: GetAnimeEvent) => void): void;
-
-    interface GetAnimeEvent {
-        next(): void;
-
-        anime?: AL_BaseAnime;
-    }
-
-    /**
-     * @event GetAnimeDetailsEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void): void;
-
-    interface GetAnimeDetailsEvent {
-        next(): void;
-
-        anime?: AL_AnimeDetailsById_Media;
-    }
-
-    /**
-     * @event GetMangaEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetManga(cb: (event: GetMangaEvent) => void): void;
-
-    interface GetMangaEvent {
-        next(): void;
-
-        manga?: AL_BaseManga;
-    }
-
-    /**
-     * @event GetMangaDetailsEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void): void;
-
-    interface GetMangaDetailsEvent {
-        next(): void;
-
-        manga?: AL_MangaDetailsById_Media;
-    }
-
-    /**
-     * @event GetCachedAnimeCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
-
-    interface GetCachedAnimeCollectionEvent {
-        next(): void;
-
-        animeCollection?: AL_AnimeCollection;
-    }
-
-    /**
-     * @event GetCachedMangaCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
-
-    interface GetCachedMangaCollectionEvent {
-        next(): void;
-
-        mangaCollection?: AL_MangaCollection;
-    }
-
-    /**
-     * @event GetAnimeCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void): void;
-
-    interface GetAnimeCollectionEvent {
-        next(): void;
-
-        animeCollection?: AL_AnimeCollection;
-    }
-
-    /**
-     * @event GetMangaCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void): void;
-
-    interface GetMangaCollectionEvent {
-        next(): void;
-
-        mangaCollection?: AL_MangaCollection;
-    }
-
-    /**
-     * @event GetCachedRawAnimeCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
-
-    interface GetCachedRawAnimeCollectionEvent {
-        next(): void;
-
-        animeCollection?: AL_AnimeCollection;
-    }
-
-    /**
-     * @event GetCachedRawMangaCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
-
-    interface GetCachedRawMangaCollectionEvent {
-        next(): void;
-
-        mangaCollection?: AL_MangaCollection;
-    }
-
-    /**
-     * @event GetRawAnimeCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void): void;
-
-    interface GetRawAnimeCollectionEvent {
-        next(): void;
-
-        animeCollection?: AL_AnimeCollection;
-    }
-
-    /**
-     * @event GetRawMangaCollectionEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void): void;
-
-    interface GetRawMangaCollectionEvent {
-        next(): void;
-
-        mangaCollection?: AL_MangaCollection;
-    }
-
-    /**
-     * @event GetStudioDetailsEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void): void;
-
-    interface GetStudioDetailsEvent {
-        next(): void;
-
-        studio?: AL_StudioDetails;
-    }
-
-    /**
-     * @event PreUpdateEntryEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     * @description
-     * PreUpdateEntryEvent is triggered when an entry is about to be updated.
-     * Prevent default to skip the default update and override the update.
-     */
-    function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void): void;
-
-    interface PreUpdateEntryEvent {
-        next(): void;
-
-        preventDefault(): void;
-
-        mediaId?: number;
-        status?: AL_MediaListStatus;
-        scoreRaw?: number;
-        progress?: number;
-        startedAt?: AL_FuzzyDateInput;
-        completedAt?: AL_FuzzyDateInput;
-    }
-
-    /**
-     * @event PostUpdateEntryEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void): void;
-
-    interface PostUpdateEntryEvent {
-        next(): void;
-
-        mediaId?: number;
-    }
-
-    /**
-     * @event PreUpdateEntryProgressEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     * @description
-     * PreUpdateEntryProgressEvent is triggered when an entry's progress is about to be updated.
-     * Prevent default to skip the default update and override the update.
-     */
-    function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void): void;
-
-    interface PreUpdateEntryProgressEvent {
-        next(): void;
-
-        preventDefault(): void;
-
-        mediaId?: number;
-        progress?: number;
-        totalCount?: number;
-        status?: AL_MediaListStatus;
-    }
-
-    /**
-     * @event PostUpdateEntryProgressEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void): void;
-
-    interface PostUpdateEntryProgressEvent {
-        next(): void;
-
-        mediaId?: number;
-    }
-
-    /**
-     * @event PreUpdateEntryRepeatEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     * @description
-     * PreUpdateEntryRepeatEvent is triggered when an entry's repeat is about to be updated.
-     * Prevent default to skip the default update and override the update.
-     */
-    function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void): void;
-
-    interface PreUpdateEntryRepeatEvent {
-        next(): void;
-
-        preventDefault(): void;
-
-        mediaId?: number;
-        repeat?: number;
-    }
-
-    /**
-     * @event PostUpdateEntryRepeatEvent
-     * @file internal/platforms/anilist_platform/hook_events.go
-     */
-    function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void): void;
-
-    interface PostUpdateEntryRepeatEvent {
-        next(): void;
-
-        mediaId?: number;
-    }
-
-
-    /**
      * @package animap
      */
 
@@ -1365,6 +1108,263 @@ declare namespace $app {
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
         episodeNumber: number;
         mediaId: number;
+    }
+
+
+    /**
+     * @package platform
+     */
+
+    /**
+     * @event GetAnimeEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetAnime(cb: (event: GetAnimeEvent) => void): void;
+
+    interface GetAnimeEvent {
+        anime?: AL_BaseAnime;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetAnimeDetailsEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void): void;
+
+    interface GetAnimeDetailsEvent {
+        anime?: AL_AnimeDetailsById_Media;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetMangaEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetManga(cb: (event: GetMangaEvent) => void): void;
+
+    interface GetMangaEvent {
+        manga?: AL_BaseManga;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetMangaDetailsEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void): void;
+
+    interface GetMangaDetailsEvent {
+        manga?: AL_MangaDetailsById_Media;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedAnimeCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
+
+    interface GetCachedAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedMangaCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
+
+    interface GetCachedMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetAnimeCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void): void;
+
+    interface GetAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetMangaCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void): void;
+
+    interface GetMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedRawAnimeCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
+
+    interface GetCachedRawAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetCachedRawMangaCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
+
+    interface GetCachedRawMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetRawAnimeCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void): void;
+
+    interface GetRawAnimeCollectionEvent {
+        animeCollection?: AL_AnimeCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetRawMangaCollectionEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void): void;
+
+    interface GetRawMangaCollectionEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next(): void;
+    }
+
+    /**
+     * @event GetStudioDetailsEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void): void;
+
+    interface GetStudioDetailsEvent {
+        studio?: AL_StudioDetails;
+
+        next(): void;
+    }
+
+    /**
+     * @event PreUpdateEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     * @description
+     * PreUpdateEntryEvent is triggered when an entry is about to be updated.
+     * Prevent default to skip the default update and override the update.
+     */
+    function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void): void;
+
+    interface PreUpdateEntryEvent {
+        mediaId?: number;
+        status?: AL_MediaListStatus;
+        scoreRaw?: number;
+        progress?: number;
+        startedAt?: AL_FuzzyDateInput;
+        completedAt?: AL_FuzzyDateInput;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event PostUpdateEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void): void;
+
+    interface PostUpdateEntryEvent {
+        mediaId?: number;
+
+        next(): void;
+    }
+
+    /**
+     * @event PreUpdateEntryProgressEvent
+     * @file internal/platforms/platform/hook_events.go
+     * @description
+     * PreUpdateEntryProgressEvent is triggered when an entry's progress is about to be updated.
+     * Prevent default to skip the default update and override the update.
+     */
+    function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void): void;
+
+    interface PreUpdateEntryProgressEvent {
+        mediaId?: number;
+        progress?: number;
+        totalCount?: number;
+        status?: AL_MediaListStatus;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event PostUpdateEntryProgressEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void): void;
+
+    interface PostUpdateEntryProgressEvent {
+        mediaId?: number;
+
+        next(): void;
+    }
+
+    /**
+     * @event PreUpdateEntryRepeatEvent
+     * @file internal/platforms/platform/hook_events.go
+     * @description
+     * PreUpdateEntryRepeatEvent is triggered when an entry's repeat is about to be updated.
+     * Prevent default to skip the default update and override the update.
+     */
+    function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void): void;
+
+    interface PreUpdateEntryRepeatEvent {
+        mediaId?: number;
+        repeat?: number;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event PostUpdateEntryRepeatEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void): void;
+
+    interface PostUpdateEntryRepeatEvent {
+        mediaId?: number;
+
+        next(): void;
     }
 
 

@@ -5,10 +5,16 @@ import (
 	"math/rand"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"seanime/internal/util/filecache"
+)
+
+const (
+	CustomSourceIdentifierKey    = "1"
+	CustomSourceIdentifierBucket = "customer-source-identifier"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Online streaming
+// Custom source
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) loadExternalCustomSourceProviderExtension(ext *extension.Extension) (err error) {
@@ -30,29 +36,60 @@ func (r *Repository) loadExternalCustomSourceProviderExtension(ext *extension.Ex
 
 // generateExtensionIdentifier generates a unique extension identifier for a custom source provider extension
 // it ensures that the extension identifier is unique across all custom source provider extensions
-func (r *Repository) generateExtensionIdentifier() int {
-	customSourceProviderExtensions := r.ListCustomSourceExtensions()
+func (r *Repository) generateExtensionIdentifier(extId string) int {
+	bucket := filecache.NewPermanentBucket(CustomSourceIdentifierBucket)
 
-	//return rand.Intn(65535) + 1
+	identifiers := make(map[string]int)
+	found, _ := r.fileCacher.GetPerm(bucket, CustomSourceIdentifierKey, &identifiers)
+	if !found {
+		r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+	}
 
-	identifier := 1
-	for {
-		found := false
-		for _, ext := range customSourceProviderExtensions {
-			if ext.ExtensionIdentifier == identifier {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return identifier
-		}
-		identifier++
+	// Clean up old entries for extensions that no longer exist
+	customSourceExtensions := r.ListCustomSourceExtensions()
+	existingExtIds := make(map[string]bool)
+	for _, ext := range customSourceExtensions {
+		existingExtIds[ext.ID] = true
+	}
 
-		if identifier > 65535 {
-			return rand.Intn(65535) + 1
+	// Remove stale entries from the cache
+	changed := false
+	for cachedExtId := range identifiers {
+		if !existingExtIds[cachedExtId] && cachedExtId != extId {
+			delete(identifiers, cachedExtId)
+			changed = true
 		}
 	}
+
+	// Save cleaned identifiers if any were removed
+	if changed {
+		r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+	}
+
+	if identifier, ok := identifiers[extId]; ok {
+		return identifier
+	}
+
+	// Get all existing extension identifiers to avoid conflicts
+	usedIdentifiers := make(map[int]bool)
+	for _, identifier := range identifiers {
+		usedIdentifiers[identifier] = true
+	}
+
+	// Generate a new unique identifier (1-65535)
+	var newIdentifier int
+	for {
+		newIdentifier = rand.Intn(65535) + 1
+		if !usedIdentifiers[newIdentifier] {
+			break
+		}
+	}
+
+	// Store the new identifier
+	identifiers[extId] = newIdentifier
+	r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+
+	return newIdentifier
 }
 
 func (r *Repository) loadExternalCustomSourceExtensionJS(ext *extension.Extension, language extension.Language) error {
@@ -63,7 +100,7 @@ func (r *Repository) loadExternalCustomSourceExtensionJS(ext *extension.Extensio
 
 	// Add the extension to the map
 	retExt := extension.NewCustomSourceExtension(ext, provider)
-	retExt.SetExtensionIdentifier(r.generateExtensionIdentifier())
+	retExt.SetExtensionIdentifier(r.generateExtensionIdentifier(ext.ID))
 	gojaExt.extensionIdentifier = retExt.GetExtensionIdentifier()
 	r.extensionBank.Set(ext.ID, retExt)
 	r.gojaExtensions.Set(ext.ID, gojaExt)

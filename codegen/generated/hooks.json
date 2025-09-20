@@ -5511,13 +5511,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetAnimeEvent",
       "formattedName": "GetAnimeEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "Anime",
@@ -5565,13 +5565,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetAnimeDetailsEvent",
       "formattedName": "GetAnimeDetailsEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "Anime",
@@ -5619,13 +5619,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetMangaEvent",
       "formattedName": "GetMangaEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "Manga",
@@ -5673,13 +5673,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetMangaDetailsEvent",
       "formattedName": "GetMangaDetailsEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "Manga",
@@ -5727,13 +5727,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetCachedAnimeCollectionEvent",
       "formattedName": "GetCachedAnimeCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "AnimeCollection",
@@ -5781,13 +5781,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetCachedMangaCollectionEvent",
       "formattedName": "GetCachedMangaCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MangaCollection",
@@ -5835,13 +5835,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetAnimeCollectionEvent",
       "formattedName": "GetAnimeCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "AnimeCollection",
@@ -5889,13 +5889,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetMangaCollectionEvent",
       "formattedName": "GetMangaCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MangaCollection",
@@ -5943,13 +5943,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetCachedRawAnimeCollectionEvent",
       "formattedName": "GetCachedRawAnimeCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "AnimeCollection",
@@ -5997,13 +5997,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetCachedRawMangaCollectionEvent",
       "formattedName": "GetCachedRawMangaCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MangaCollection",
@@ -6051,13 +6051,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetRawAnimeCollectionEvent",
       "formattedName": "GetRawAnimeCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "AnimeCollection",
@@ -6105,13 +6105,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetRawMangaCollectionEvent",
       "formattedName": "GetRawMangaCollectionEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MangaCollection",
@@ -6159,13 +6159,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "GetStudioDetailsEvent",
       "formattedName": "GetStudioDetailsEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "Studio",
@@ -6213,13 +6213,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PreUpdateEntryEvent",
       "formattedName": "PreUpdateEntryEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",
@@ -6319,13 +6319,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PostUpdateEntryEvent",
       "formattedName": "PostUpdateEntryEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",
@@ -6371,13 +6371,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PreUpdateEntryProgressEvent",
       "formattedName": "PreUpdateEntryProgressEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",
@@ -6455,13 +6455,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PostUpdateEntryProgressEvent",
       "formattedName": "PostUpdateEntryProgressEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",
@@ -6507,13 +6507,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PreUpdateEntryRepeatEvent",
       "formattedName": "PreUpdateEntryRepeatEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",
@@ -6571,13 +6571,13 @@
     }
   },
   {
-    "package": "anilist_platform",
+    "package": "platform",
     "goStruct": {
-      "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+      "filepath": "../internal/platforms/platform/hook_events.go",
       "filename": "hook_events.go",
       "name": "PostUpdateEntryRepeatEvent",
       "formattedName": "PostUpdateEntryRepeatEvent",
-      "package": "anilist_platform",
+      "package": "platform",
       "fields": [
         {
           "name": "MediaID",

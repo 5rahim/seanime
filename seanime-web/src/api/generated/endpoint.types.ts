@@ -436,6 +436,21 @@ export type GetContinuityWatchHistoryItem_Variables = {
  */
 export type CustomSourceListAnime_Variables = {
     provider: string
+    search: string
+    page: number
+    perPage: number
+}
+
+/**
+ * - Filepath: internal/handlers/custom_source.go
+ * - Filename: custom_source.go
+ * - Endpoint: /api/v1/custom-source/provider/list/manga
+ * @description
+ * Route returns a paginated list of manga from the provider.
+ */
+export type CustomSourceListManga_Variables = {
+    provider: string
+    search: string
     page: number
     perPage: number
 }

@@ -456,6 +456,17 @@
 //     })
 // }
 
+// export function useCustomSourceListManga() {
+//     return useServerMutation<HibikeCustomSource_ListMangaResponse, CustomSourceListManga_Variables>({
+//         endpoint: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.endpoint,
+//         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.methods[0],
+//         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -536,6 +536,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	//
 	v1CustomSource := v1.Group("/custom-source")
 	v1CustomSource.POST("/provider/list/anime", h.HandleCustomSourceListAnime)
+	v1CustomSource.POST("/provider/list/manga", h.HandleCustomSourceListManga)
 
 }
 

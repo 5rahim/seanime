@@ -15,6 +15,7 @@ const (
 	CreateAutoDownloaderRuleEndpoint                   = "AUTO-DOWNLOADER-create-auto-downloader-rule"
 	CreatePlaylistEndpoint                             = "PLAYLIST-create-playlist"
 	CustomSourceListAnimeEndpoint                      = "CUSTOM-SOURCE-custom-source-list-anime"
+	CustomSourceListMangaEndpoint                      = "CUSTOM-SOURCE-custom-source-list-manga"
 	DebridAddTorrentsEndpoint                          = "DEBRID-debrid-add-torrents"
 	DebridCancelDownloadEndpoint                       = "DEBRID-debrid-cancel-download"
 	DebridCancelStreamEndpoint                         = "DEBRID-debrid-cancel-stream"

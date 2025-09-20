@@ -241,7 +241,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 <div
                                     data-torrent-search-smart-search-provider-param-container
                                     className={cn(
-                                        "Sea-TorrentSearchContainer__providerParamContainer flex flex-col items-center flex-wrap justify-around gap-3 md:flex-row w-full border rounded-[--radius] p-3",
+                                        "Sea-TorrentSearchContainer__providerParamContainer flex flex-col items-center flex-wrap justify-around gap-3 md:flex-row w-full border rounded-xl p-3",
                                         {
                                             "hidden": !selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") &&
                                                 !selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution")

@@ -211,7 +211,7 @@ export function ExtensionList(props: ExtensionListProps) {
 
             {!!customSourceExtensions?.length && (
                 <Card className="p-4 space-y-6">
-                    <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Source</h3>
+                    <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Sources</h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {customSourceExtensions.map(extension => (
                             <ExtensionCard

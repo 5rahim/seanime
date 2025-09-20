@@ -133,7 +133,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     {isCustomSource(entry.mediaId) && (
                         <Tooltip
                             trigger={<div>
-                                <SeaLink href={`/custom-source/${getCustomSourceExtensionId(entry.media)}`}>
+                                <SeaLink href={`/custom-sources?provider=${getCustomSourceExtensionId(entry.media)}`}>
                                     <IconButton size="sm" intent="gray-link" className="px-0" icon={<BiExtension className="text-lg" />} />
                                 </SeaLink>
                             </div>}

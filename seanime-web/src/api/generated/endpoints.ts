@@ -425,13 +425,22 @@ export const API_ENDPOINTS = {
         /**
          *  @description
          *  Route returns a paginated list of anime from the provider.
-         *  This will search for torrents and return a list of torrents with previews.
-         *  If smart search is enabled, it will filter the torrents based on search parameters.
+         *  This will search for media from the provider.
          */
         CustomSourceListAnime: {
             key: "CUSTOM-SOURCE-custom-source-list-anime",
             methods: ["POST"],
             endpoint: "/api/v1/custom-source/provider/list/anime",
+        },
+        /**
+         *  @description
+         *  Route returns a paginated list of manga from the provider.
+         *  This will search for media from the provider.
+         */
+        CustomSourceListManga: {
+            key: "CUSTOM-SOURCE-custom-source-list-manga",
+            methods: ["POST"],
+            endpoint: "/api/v1/custom-source/provider/list/manga",
         },
     },
     DEBRID: {

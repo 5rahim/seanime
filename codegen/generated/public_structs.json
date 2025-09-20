@@ -65843,6 +65843,15 @@
         "comments": []
       },
       {
+        "name": "baseMangaCache",
+        "jsonName": "baseMangaCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "completeAnimeCache",
         "jsonName": "completeAnimeCache",
         "goType": "",
@@ -65888,11 +65897,68 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/offline_platform/offline_platform.go",
+    "filename": "offline_platform.go",
+    "name": "OfflinePlatform",
+    "formattedName": "OfflinePlatform",
+    "package": "offline_platform",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localManager",
+        "jsonName": "localManager",
+        "goType": "local.Manager",
+        "typescriptType": "Local_Manager",
+        "usedTypescriptType": "Local_Manager",
+        "usedStructName": "local.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "anilist.AnilistClient",
+        "typescriptType": "AL_AnilistClient",
+        "usedTypescriptType": "AL_AnilistClient",
+        "usedStructName": "anilist.AnilistClient",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedTypescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " OfflinePlatform used when offline.",
+      " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetAnimeEvent",
     "formattedName": "GetAnimeEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "Anime",
@@ -65912,11 +65978,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetAnimeDetailsEvent",
     "formattedName": "GetAnimeDetailsEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "Anime",
@@ -65936,11 +66002,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetMangaEvent",
     "formattedName": "GetMangaEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "Manga",
@@ -65960,11 +66026,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetMangaDetailsEvent",
     "formattedName": "GetMangaDetailsEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "Manga",
@@ -65984,11 +66050,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetCachedAnimeCollectionEvent",
     "formattedName": "GetCachedAnimeCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "AnimeCollection",
@@ -66008,11 +66074,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetCachedMangaCollectionEvent",
     "formattedName": "GetCachedMangaCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MangaCollection",
@@ -66032,11 +66098,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetAnimeCollectionEvent",
     "formattedName": "GetAnimeCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "AnimeCollection",
@@ -66056,11 +66122,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetMangaCollectionEvent",
     "formattedName": "GetMangaCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MangaCollection",
@@ -66080,11 +66146,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetCachedRawAnimeCollectionEvent",
     "formattedName": "GetCachedRawAnimeCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "AnimeCollection",
@@ -66104,11 +66170,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetCachedRawMangaCollectionEvent",
     "formattedName": "GetCachedRawMangaCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MangaCollection",
@@ -66128,11 +66194,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetRawAnimeCollectionEvent",
     "formattedName": "GetRawAnimeCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "AnimeCollection",
@@ -66152,11 +66218,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetRawMangaCollectionEvent",
     "formattedName": "GetRawMangaCollectionEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MangaCollection",
@@ -66176,11 +66242,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "GetStudioDetailsEvent",
     "formattedName": "GetStudioDetailsEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "Studio",
@@ -66200,11 +66266,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PreUpdateEntryEvent",
     "formattedName": "PreUpdateEntryEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66276,11 +66342,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PostUpdateEntryEvent",
     "formattedName": "PostUpdateEntryEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66298,11 +66364,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PreUpdateEntryProgressEvent",
     "formattedName": "PreUpdateEntryProgressEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66352,11 +66418,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PostUpdateEntryProgressEvent",
     "formattedName": "PostUpdateEntryProgressEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66374,11 +66440,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PreUpdateEntryRepeatEvent",
     "formattedName": "PreUpdateEntryRepeatEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66408,11 +66474,11 @@
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filepath": "../internal/platforms/platform/hook_events.go",
     "filename": "hook_events.go",
     "name": "PostUpdateEntryRepeatEvent",
     "formattedName": "PostUpdateEntryRepeatEvent",
-    "package": "anilist_platform",
+    "package": "platform",
     "fields": [
       {
         "name": "MediaID",
@@ -66427,63 +66493,6 @@
     "comments": [],
     "embeddedStructNames": [
       "hook_resolver.Event"
-    ]
-  },
-  {
-    "filepath": "../internal/platforms/offline_platform/offline_platform.go",
-    "filename": "offline_platform.go",
-    "name": "OfflinePlatform",
-    "formattedName": "OfflinePlatform",
-    "package": "offline_platform",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localManager",
-        "jsonName": "localManager",
-        "goType": "local.Manager",
-        "typescriptType": "Local_Manager",
-        "usedTypescriptType": "Local_Manager",
-        "usedStructName": "local.Manager",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "client",
-        "jsonName": "client",
-        "goType": "anilist.AnilistClient",
-        "typescriptType": "AL_AnilistClient",
-        "usedTypescriptType": "AL_AnilistClient",
-        "usedStructName": "anilist.AnilistClient",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionBank",
-        "jsonName": "extensionBank",
-        "goType": "extension.UnifiedBank",
-        "typescriptType": "Extension_UnifiedBank",
-        "usedTypescriptType": "Extension_UnifiedBank",
-        "usedStructName": "extension.UnifiedBank",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " OfflinePlatform used when offline.",
-      " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
     ]
   },
   {
@@ -66583,6 +66592,33 @@
         "comments": []
       },
       {
+        "name": "baseAnimeCache",
+        "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseMangaCache",
+        "jsonName": "baseMangaCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completeAnimeCache",
+        "jsonName": "completeAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
@@ -66648,6 +66684,28 @@
         "typescriptType": "Extension_UnifiedBank",
         "usedTypescriptType": "Extension_UnifiedBank",
         "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "customSourceManager",
+        "jsonName": "customSourceManager",
+        "goType": "customsource.Manager",
+        "typescriptType": "CustomSource_Manager",
+        "usedTypescriptType": "CustomSource_Manager",
+        "usedStructName": "customsource.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedTypescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": false,
         "comments": []

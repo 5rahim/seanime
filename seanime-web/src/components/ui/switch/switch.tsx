@@ -19,8 +19,8 @@ export const SwitchAnatomy = defineStyleAnatomy({
         "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border transition-colors",
         "disabled:cursor-not-allowed data-[disabled=true]:opacity-50",
         "outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-1",
-        "data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-800", // Unchecked
-        "data-[state=unchecked]:hover:bg-gray-300 dark:data-[state=unchecked]:hover:bg-gray-700", // Unchecked hover
+        "data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-900", // Unchecked
+        "data-[state=unchecked]:hover:bg-gray-300 dark:data-[state=unchecked]:hover:bg-gray-800", // Unchecked hover
         "data-[state=checked]:bg-brand", // Checked
         "data-[error=true]:border-red-500", // Checked
     ], {
@@ -51,8 +51,8 @@ export const SwitchAnatomy = defineStyleAnatomy({
     }),
     thumb: cva([
         "UI-Switch__thumb",
-        "pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform",
-        "data-[state=unchecked]:translate-x-1",
+        "pointer-events-none block rounded-full data-[state=checked]:bg-white shadow-lg ring-0 transition-transform",
+        "data-[state=unchecked]:translate-x-1 data-[state=unchecked]:bg-gray-400",
     ], {
         variants: {
             size: {

@@ -10,7 +10,7 @@ import { useHandleMangaChapters } from "@/app/(main)/manga/_lib/handle-manga-cha
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
-import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
+import { monochromeCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
@@ -426,14 +426,14 @@ export function ChapterList(props: ChapterListProps) {
                                             value={showUnreadChapter}
                                             onValueChange={v => setShowUnreadChapter(v as boolean)}
                                             fieldClass="w-fit"
-                                            {...primaryPillCheckboxClasses}
+                                            {...monochromeCheckboxClasses}
                                         />
                                         {selectedProvider !== "local-manga" && <Checkbox
                                             label={<span className="flex gap-2 items-center"><IoLibrary /> Show downloaded</span>}
                                             value={showDownloadedChapters}
                                             onValueChange={v => setShowDownloadedChapters(v as boolean)}
                                             fieldClass="w-fit"
-                                            {...primaryPillCheckboxClasses}
+                                            {...monochromeCheckboxClasses}
                                         />}
                                     </div>
 

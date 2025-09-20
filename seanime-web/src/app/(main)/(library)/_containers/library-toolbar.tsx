@@ -22,10 +22,10 @@ import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
-import { LuFolderTree } from "react-icons/lu"
+import { LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { TbFileSad, TbReload } from "react-icons/tb"
+import { TbFileSad } from "react-icons/tb"
 import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
 export type LibraryToolbarProps = {
@@ -119,12 +119,12 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         {/*Show up even when there's no local entries*/}
                         {!isNakamaLibrary && hasLibraryPath && <Button
                             data-library-toolbar-scan-button
-                            intent={hasEntries ? "primary-subtle" : "primary"}
-                            leftIcon={hasEntries ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
+                            intent={hasEntries ? "white-subtle" : "primary"}
+                            leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <FiSearch className="text-xl" />}
                             onClick={() => setScannerModalOpen(true)}
                             hideTextOnSmallScreen
                         >
-                            {hasEntries ? "Refresh library" : "Scan your library"}
+                            {hasEntries ? "Refresh" : "Scan your library"}
                         </Button>}
                     </>
                 )}

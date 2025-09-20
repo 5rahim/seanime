@@ -1845,8 +1845,7 @@
       "HandleCustomSourceListAnime",
       "",
       "\t@summary returns a paginated list of anime from the provider.",
-      "\t@desc This will search for torrents and return a list of torrents with previews.",
-      "\t@desc If smart search is enabled, it will filter the torrents based on search parameters.",
+      "\t@desc This will search for media from the provider.",
       "\t@route /api/v1/custom-source/provider/list/anime [POST]",
       "\t@returns hibikecustomsource.ListAnimeResponse",
       ""
@@ -1856,8 +1855,7 @@
     "api": {
       "summary": "returns a paginated list of anime from the provider.",
       "descriptions": [
-        "This will search for torrents and return a list of torrents with previews.",
-        "If smart search is enabled, it will filter the torrents based on search parameters."
+        "This will search for media from the provider."
       ],
       "endpoint": "/api/v1/custom-source/provider/list/anime",
       "methods": [
@@ -1868,6 +1866,15 @@
         {
           "name": "Provider",
           "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Search",
+          "jsonName": "search",
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
@@ -1896,6 +1903,73 @@
       "returns": "hibikecustomsource.ListAnimeResponse",
       "returnGoType": "hibikecustomsource.ListAnimeResponse",
       "returnTypescriptType": "HibikeCustomSource_ListAnimeResponse"
+    }
+  },
+  {
+    "name": "HandleCustomSourceListManga",
+    "trimmedName": "CustomSourceListManga",
+    "comments": [
+      "HandleCustomSourceListManga",
+      "",
+      "\t@summary returns a paginated list of manga from the provider.",
+      "\t@desc This will search for media from the provider.",
+      "\t@route /api/v1/custom-source/provider/list/manga [POST]",
+      "\t@returns hibikecustomsource.ListMangaResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/custom_source.go",
+    "filename": "custom_source.go",
+    "api": {
+      "summary": "returns a paginated list of manga from the provider.",
+      "descriptions": [
+        "This will search for media from the provider."
+      ],
+      "endpoint": "/api/v1/custom-source/provider/list/manga",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Search",
+          "jsonName": "search",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Page",
+          "jsonName": "page",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "PerPage",
+          "jsonName": "perPage",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "hibikecustomsource.ListMangaResponse",
+      "returnGoType": "hibikecustomsource.ListMangaResponse",
+      "returnTypescriptType": "HibikeCustomSource_ListMangaResponse"
     }
   },
   {
