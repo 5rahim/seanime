@@ -623,6 +623,9 @@ export function VideoCore(props: VideoCoreProps) {
             if (!debouncedCursorBusy) {
                 togglePlay()
             }
+            setTimeout(() => {
+                setBusy(false)
+            }, 100)
         }
 
         if (e.type === "contextmenu") {

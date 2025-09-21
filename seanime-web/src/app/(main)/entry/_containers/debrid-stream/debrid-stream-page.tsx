@@ -250,9 +250,9 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
             >
                 <div className="h-10 lg:h-0" />
                 <AppLayoutStack data-debrid-stream-page>
-                    <div className="absolute right-0 top-[-3rem]" data-debrid-stream-page-title-container>
-                        <h2 className="text-xl lg:text-3xl flex items-center gap-3">Debrid streaming</h2>
-                    </div>
+                    {/*<div className="absolute right-0 top-[-3rem]" data-debrid-stream-page-title-container>*/}
+                    {/*    <h2 className="text-xl lg:text-3xl flex items-center gap-3">Debrid streaming</h2>*/}
+                    {/*</div>*/}
 
                     <div
                         className="flex flex-col flex-wrap items-start md:items-center md:flex-row gap-2 md:gap-6 2xl:py-0 md:h-12"

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "2.10.0"
+	Version              = "3.0.0-alpha.0"
 	VersionName          = "iOSOS"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

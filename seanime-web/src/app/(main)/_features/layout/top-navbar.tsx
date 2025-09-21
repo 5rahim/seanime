@@ -17,8 +17,8 @@ import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { FaDownload } from "react-icons/fa"
 import { IoReload } from "react-icons/io5"
+import { LuFolderDown } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
@@ -117,8 +117,8 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                     },
                     ...(isMangaPage ? [
                         {
-                            iconType: FaDownload,
-                            name: "Manga downloads",
+                            iconType: LuFolderDown,
+                            name: "Manga Downloads",
                             onClick: () => {
                                 openDownloadQueue(true)
                             },

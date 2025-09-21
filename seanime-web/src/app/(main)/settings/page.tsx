@@ -37,15 +37,25 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { BiDonateHeart } from "react-icons/bi"
-import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
-import { FaBookReader, FaDiscord } from "react-icons/fa"
+import { CgMediaPodcast } from "react-icons/cg"
+import { FaDiscord } from "react-icons/fa"
 import { HiOutlineServerStack } from "react-icons/hi2"
-import { ImDownload } from "react-icons/im"
-import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey, LuExternalLink, LuLaptop, LuLibrary, LuPalette, LuWandSparkles } from "react-icons/lu"
-import { MdOutlineBroadcastOnHome, MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
+import { IoLibrary } from "react-icons/io5"
+import {
+    LuBookKey,
+    LuBookOpen,
+    LuCircleArrowOutUpRight,
+    LuCirclePlay,
+    LuFileSearch,
+    LuLibrary,
+    LuMonitorPlay,
+    LuPalette,
+    LuTabletSmartphone,
+    LuWandSparkles,
+} from "react-icons/lu"
+import { MdOutlineConnectWithoutContact, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { RiFolderDownloadFill } from "react-icons/ri"
-import { SiBittorrent } from "react-icons/si"
+import { SiBittorrent, SiQbittorrent, SiTransmission } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard, SettingsPageHeader } from "./_components/settings-card"
@@ -138,26 +148,24 @@ export default function Page() {
                     <TabsList className="flex-wrap max-w-full lg:space-y-2 sticky top-10">
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
-                                <div className="space-y-2 p-4 w-full">
-                                    <h4 className="text-center text-xl font-bold">Settings</h4>
-                                    <div className="space-y-1">
-                                        <p className="text-[--muted] text-sm text-center w-full">
-                                            {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isTauriDesktop__ &&
-                                            <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
-                                            <span className="font-medium"> - Denshi</span>}
-                                        </p>
-                                        {/* <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
-                                         <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
-                                         <span className="font-medium">- Denshi</span>}</p> */}
-                                    </div>
-                                </div>
-                                <div>
 
-                                </div>
                             </div>
                             <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
 
                                 <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                    <div className="space-y-2 p-4 w-full">
+                                        <h4 className="text-center text-xl font-bold">Settings</h4>
+                                        <div className="space-y-1">
+                                            <p className="text-[--muted] text-sm text-center w-full">
+                                                {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isTauriDesktop__ &&
+                                                <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
+                                                <span className="font-medium"> - Denshi</span>}
+                                            </p>
+                                            {/* <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {__isTauriDesktop__ &&
+                                             <span className="font-medium">- Tauri</span>}{__isElectronDesktop__ &&
+                                             <span className="font-medium">- Denshi</span>}</p> */}
+                                        </div>
+                                    </div>
                                     <TabsTrigger
                                         value="seanime"
                                         className="group"
@@ -170,6 +178,10 @@ export default function Page() {
                                         value="library"
                                         className="group"
                                     ><IoLibrary className="text-xl mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+                                    <TabsTrigger
+                                        value="playback"
+                                        className="group"
+                                    ><LuCirclePlay className="text-xl mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
                                 </Card>
 
                                 {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
@@ -177,22 +189,20 @@ export default function Page() {
                                 {/*</div>*/}
 
                                 <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
-                                    <TabsTrigger
-                                        value="playback"
-                                        className="group"
-                                    ><IoPlayBackCircleSharp className="text-xl mr-3 transition-transform duration-200" /> Video Playback</TabsTrigger>
+
                                     <TabsTrigger
                                         value="media-player"
                                         className="group"
-                                    ><LuLaptop className="text-xl mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
+                                    ><LuMonitorPlay className="text-xl mr-3 transition-transform duration-200" /> Desktop Media Player</TabsTrigger>
                                     <TabsTrigger
                                         value="external-player-link"
                                         className="group"
-                                    ><LuExternalLink className="text-xl mr-3 transition-transform duration-200" /> External Player Link</TabsTrigger>
+                                    ><LuCircleArrowOutUpRight className="text-xl mr-3 transition-transform duration-200" /> External Player
+                                                                                                                            Link</TabsTrigger>
                                     <TabsTrigger
                                         value="mediastream"
                                         className="relative group"
-                                    ><MdOutlineBroadcastOnHome className="text-xl mr-3 transition-transform duration-200" /> Transcoding / Direct
+                                    ><LuTabletSmartphone className="text-xl mr-3 transition-transform duration-200" /> Transcoding / Direct
                                                                                                                              play</TabsTrigger>
                                 </Card>
 
@@ -204,7 +214,7 @@ export default function Page() {
                                     <TabsTrigger
                                         value="torrent"
                                         className="group"
-                                    ><CgPlayListSearch className="text-xl mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
+                                    ><LuFileSearch className="text-xl mr-3 transition-transform duration-200" /> Torrent Provider</TabsTrigger>
                                     <TabsTrigger
                                         value="torrent-client"
                                         className="group"
@@ -232,7 +242,7 @@ export default function Page() {
                                     <TabsTrigger
                                         value="manga"
                                         className="group"
-                                    ><FaBookReader className="text-xl mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
+                                    ><LuBookOpen className="text-xl mr-3 transition-transform duration-200" /> Manga</TabsTrigger>
                                     <TabsTrigger
                                         value="nakama"
                                         className="group relative"
@@ -575,13 +585,13 @@ export default function Page() {
                                         <SettingsPageHeader
                                             title="Torrent Provider"
                                             description="Configure the torrent provider"
-                                            icon={CgPlayListSearch}
+                                            icon={LuFileSearch}
                                         />
 
                                         <SettingsCard>
                                             <Field.Select
                                                 name="torrentProvider"
-                                                // label="Torrent Provider"
+                                                label="Default Torrent Provider"
                                                 help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results. Select 'None' if you don't need torrent support."
                                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                                 options={[
@@ -639,7 +649,7 @@ export default function Page() {
                                         <SettingsCard>
                                             <Field.Select
                                                 name="defaultTorrentClient"
-                                                label="Default torrent client"
+                                                label="Default Torrent Client"
                                                 options={[
                                                     { label: "qBittorrent", value: "qbittorrent" },
                                                     { label: "Transmission", value: "transmission" },
@@ -648,19 +658,20 @@ export default function Page() {
                                             />
                                         </SettingsCard>
 
-                                        <SettingsCard>
+                                        {/*<SettingsCard>*/}
                                             <Accordion
                                                 type="single"
-                                                className=""
-                                                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black transition-all duration-200 hover:translate-x-1"
-                                                itemClass="border-b border-[--border] rounded-[--radius] transition-all duration-200 hover:border-[--brand]/30"
-                                                contentClass="pb-8 animate-in slide-in-from-top-2 duration-300"
+                                                className="group/settings-card relative bg-gray-950/70 rounded-xl border overflow-hidden"
+                                                triggerClass="px-4 py-3 text-[--muted] dark:data-[state=open]:text-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white !font-medium transition-all duration-200 hover:translate-x-1"
+                                                itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30"
+                                                contentClass="!p-4 animate-in slide-in-from-top-2 duration-300"
                                                 collapsible
                                                 defaultValue={status?.settings?.torrent?.defaultTorrentClient}
                                             >
                                                 <AccordionItem value="qbittorrent">
                                                     <AccordionTrigger>
-                                                        <h4 className="flex gap-2 items-center"><ImDownload className="text-blue-400" /> qBittorrent
+                                                        <h4 className="flex gap-2 items-center">
+                                                            <SiQbittorrent className="text-blue-400" /> qBittorrent
                                                         </h4>
                                                     </AccordionTrigger>
                                                     <AccordionContent className="p-0 py-4 space-y-4">
@@ -699,7 +710,7 @@ export default function Page() {
                                                 <AccordionItem value="transmission">
                                                     <AccordionTrigger>
                                                         <h4 className="flex gap-2 items-center">
-                                                            <ImDownload className="text-orange-200" /> Transmission</h4>
+                                                            <SiTransmission className="text-orange-200" /> Transmission</h4>
                                                     </AccordionTrigger>
                                                     <AccordionContent className="p-0 py-4 space-y-4">
                                                         <Field.Text
@@ -730,7 +741,7 @@ export default function Page() {
                                                     </AccordionContent>
                                                 </AccordionItem>
                                             </Accordion>
-                                        </SettingsCard>
+                                        {/*</SettingsCard>*/}
 
                                         <SettingsCard title="User Interface">
                                             <Field.Switch
@@ -772,12 +783,6 @@ export default function Page() {
                          </TabsContent> */}
 
                         <TabsContent value="mediastream" className={tabContentClass}>
-
-                            <SettingsPageHeader
-                                title="Transcoding / Direct play"
-                                description="Manage transcoding and direct play settings"
-                                icon={MdOutlineBroadcastOnHome}
-                            />
 
                             <MediastreamSettings />
 
@@ -838,12 +843,6 @@ export default function Page() {
                         {/*</TabsContent>*/}
 
                         <TabsContent value="debrid" className={tabContentClass}>
-
-                            <SettingsPageHeader
-                                title="Debrid Service"
-                                description="Configure your debrid service integration"
-                                icon={HiOutlineServerStack}
-                            />
 
                             <DebridSettings />
 

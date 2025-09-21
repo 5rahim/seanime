@@ -67,7 +67,7 @@ type (
 func (l *LibraryExplorer) buildFileTree() (*FileTree, error) {
 	ret := &FileTree{}
 
-	l.logger.Debug().Msg("library explorer: building complete file tree from media file paths")
+	l.logger.Debug().Msg("library explorer: Building complete file tree from media file paths")
 
 	// The root node
 	ret.Root = &FileTreeNode{
@@ -92,7 +92,7 @@ func (l *LibraryExplorer) buildFileTree() (*FileTree, error) {
 
 			filePaths, err := filesystem.GetMediaFilePathsFromDirS(libPath)
 			if err != nil {
-				l.logger.Err(err).Str("path", libPath).Msg("library explorer: could not get file paths from library path")
+				l.logger.Err(err).Str("path", libPath).Msg("library explorer: Could not get file paths from library path")
 				return
 			}
 
@@ -104,7 +104,7 @@ func (l *LibraryExplorer) buildFileTree() (*FileTree, error) {
 
 	wg.Wait()
 
-	l.logger.Debug().Int("count", len(allMediaFiles)).Msg("library explorer: found media files")
+	l.logger.Debug().Int("count", len(allMediaFiles)).Msg("library explorer: Found media files")
 
 	// Build the tree from all file paths
 	l.buildTreeFromFilePaths(ret.Root, allMediaFiles)
@@ -300,12 +300,12 @@ func (l *LibraryExplorer) sortTreeChildren(node *FileTreeNode) {
 
 // hydrateLocalFileData hydrates the file tree with LocalFile data and MediaIds
 func (l *LibraryExplorer) hydrateLocalFileData(tree *FileTree) (map[string]*anime.LocalFile, error) {
-	l.logger.Debug().Msg("library explorer: hydrating file tree with local file data")
+	l.logger.Debug().Msg("library explorer: Hydrating file tree with local file data")
 
 	// Get all local files
 	localFiles, _, err := db_bridge.GetLocalFiles(l.database)
 	if err != nil {
-		l.logger.Warn().Err(err).Msg("library explorer: failed to get local files, skipping hydration")
+		l.logger.Warn().Err(err).Msg("library explorer: Failed to get local files, skipping hydration")
 		return nil, nil // Don't fail the entire operation
 	}
 

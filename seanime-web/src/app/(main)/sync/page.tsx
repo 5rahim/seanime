@@ -138,7 +138,7 @@ export default function Page() {
                 intent="gray-subtle"
                 rounded
                 className=""
-                leftIcon={serverStatus?.isOffline ? <LuCloudOff className="text-2xl" /> : <LuCloud className="text-2xl" />}
+                leftIcon={!serverStatus?.isOffline ? <LuCloudOff className="text-2xl" /> : <LuCloud className="text-2xl" />}
                 loading={isSettingOfflineMode}
                 onClick={() => {
                     setOfflineMode({
@@ -168,7 +168,7 @@ export default function Page() {
                             return setSyncModalOpen(v)
                         }}
                         trigger={<Button
-                            intent="white-subtle"
+                            intent="white"
                             rounded
                             leftIcon={<LuFolderSync className="text-2xl" />}
                             loading={isSyncingLocal}
@@ -191,7 +191,7 @@ export default function Page() {
                             </Button>
                             <p className="text-sm">
                                 Update your local snapshots with the data from AniList.
-                                This will overwrite your offline changes. You can automate this in <kbd>Settings {`>`} Seanime {`>`} Offline</kbd>.
+                                This will overwrite your offline changes. You can automate this in <kbd>Settings {`>`} App {`>`} Offline mode</kbd>.
                             </p>
                             <Separator />
                             <Button
@@ -211,7 +211,7 @@ export default function Page() {
                             </p>
 
                             <Alert
-                                intent="warning-basic"
+                                intent="warning"
                                 description="Changes are irreversible."
                             />
                         </div>

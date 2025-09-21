@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/customsource"
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
 	"seanime/internal/hook"
 	"seanime/internal/local"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util/limiter"
-	"seanime/internal/util/result"
 	"sync"
 	"time"
 
@@ -34,29 +33,23 @@ type SimulatedPlatform struct {
 	// Cache for collections
 	animeCollection                *anilist.AnimeCollection
 	mangaCollection                *anilist.MangaCollection
-	baseAnimeCache                 *result.BoundedCache[int, *anilist.BaseAnime]
-	baseMangaCache                 *result.BoundedCache[int, *anilist.BaseManga]
-	completeAnimeCache             *result.BoundedCache[int, *anilist.CompleteAnime]
 	mu                             sync.RWMutex
 	collectionMu                   sync.RWMutex // used to protect access to collections
 	lastAnimeCollectionRefetchTime time.Time    // used to prevent refetching too many times
 	lastMangaCollectionRefetchTime time.Time    // used to prevent refetching too many times
 	anilistRateLimit               *limiter.Limiter
-	extensionBank                  *extension.UnifiedBank
-	customSourceManager            *customsource.Manager
+	helper                         *shared_platform.PlatformHelper
 	db                             *db.Database
 }
 
 func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger, db *db.Database) (platform.Platform, error) {
 	sp := &SimulatedPlatform{
-		logger:             logger,
-		localManager:       localManager,
-		client:             client,
-		anilistRateLimit:   limiter.NewAnilistLimiter(),
-		baseAnimeCache:     result.NewBoundedCache[int, *anilist.BaseAnime](50),
-		baseMangaCache:     result.NewBoundedCache[int, *anilist.BaseManga](50),
-		completeAnimeCache: result.NewBoundedCache[int, *anilist.CompleteAnime](10),
-		db:                 db,
+		logger:           logger,
+		localManager:     localManager,
+		client:           client,
+		anilistRateLimit: limiter.NewAnilistLimiter(),
+		helper:           shared_platform.NewPlatformHelper(logger),
+		db:               db,
 	}
 
 	return sp, nil
@@ -67,8 +60,7 @@ func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClie
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (sp *SimulatedPlatform) InitExtensionBank(bank *extension.UnifiedBank) {
-	sp.extensionBank = bank
-	sp.customSourceManager = customsource.NewManager(sp.extensionBank, sp.db)
+	sp.helper.InitExtensionBank(bank, sp.db)
 }
 
 func (sp *SimulatedPlatform) SetUsername(username string) {
@@ -76,15 +68,11 @@ func (sp *SimulatedPlatform) SetUsername(username string) {
 }
 
 func (sp *SimulatedPlatform) Close() {
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.Close()
-	}
+	sp.helper.Close()
 }
 
 func (sp *SimulatedPlatform) ClearCache() {
-	sp.baseAnimeCache.Clear()
-	sp.baseMangaCache.Clear()
-	sp.completeAnimeCache.Clear()
+	sp.helper.ClearCache()
 }
 
 func (sp *SimulatedPlatform) SetAnilistClient(client anilist.AnilistClient) {
@@ -96,298 +84,164 @@ func (sp *SimulatedPlatform) SetAnilistClient(client anilist.AnilistClient) {
 func (sp *SimulatedPlatform) UpdateEntry(ctx context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Updating entry")
 
-	event := new(platform.PreUpdateEntryEvent)
-	event.MediaID = &mediaID
-	event.Status = status
-	event.ScoreRaw = scoreRaw
-	event.Progress = progress
-	event.StartedAt = startedAt
-	event.CompletedAt = completedAt
-
-	err := hook.GlobalHookManager.OnPreUpdateEntry().Trigger(event)
-	if err != nil {
-		return err
-	}
-
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	// Check if this is a custom source entry
-	if sp.customSourceManager != nil && customsource.IsExtensionId(mediaID) {
-		err := sp.customSourceManager.UpdateEntry(ctx, mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-		if err != nil {
+	return sp.helper.TriggerUpdateEntryHooks(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, func(event *platform.PreUpdateEntryEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := sp.helper.HandleCustomSourceUpdateEntry(ctx, mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt); handled {
 			return err
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-		return err
-	}
 
-	sp.mu.Lock()
-	defer sp.mu.Unlock()
+		sp.mu.Lock()
+		defer sp.mu.Unlock()
 
-	// Try anime first
-	animeWrapper := sp.GetAnimeCollectionWrapper()
-	if _, err := animeWrapper.FindEntry(mediaID); err == nil {
-		err := animeWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-		if err != nil {
-			return err
+		// Try anime first
+		animeWrapper := sp.GetAnimeCollectionWrapper()
+		if _, err := animeWrapper.FindEntry(mediaID); err == nil {
+			return animeWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-		return err
-	}
 
-	// Try manga
-	mangaWrapper := sp.GetMangaCollectionWrapper()
-	if _, err := mangaWrapper.FindEntry(mediaID); err == nil {
-		err := mangaWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-		if err != nil {
-			return err
+		// Try manga
+		mangaWrapper := sp.GetMangaCollectionWrapper()
+		if _, err := mangaWrapper.FindEntry(mediaID); err == nil {
+			return mangaWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-		return err
-	}
 
-	// Entry doesn't exist, determine media type and add it
-	defaultStatus := anilist.MediaListStatusPlanning
-	if event.Status != nil {
-		defaultStatus = *event.Status
-	}
-
-	// Try to fetch as anime first
-	if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
-		// It's an anime, add it to anime collection
-		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry")
-		if err := animeWrapper.AddEntry(mediaID, defaultStatus); err != nil {
-			return err
+		// Entry doesn't exist, determine media type and add it
+		defaultStatus := anilist.MediaListStatusPlanning
+		if event.Status != nil {
+			defaultStatus = *event.Status
 		}
-		// Update with provided values if there are additional updates needed
-		if event.Status != &defaultStatus || event.ScoreRaw != nil || event.Progress != nil || event.StartedAt != nil || event.CompletedAt != nil {
-			err := animeWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-			if err != nil {
+
+		// Try to fetch as anime first
+		if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
+			// It's an anime, add it to anime collection
+			sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry")
+			if err := animeWrapper.AddEntry(mediaID, defaultStatus); err != nil {
 				return err
 			}
+			// Update with provided values if there are additional updates needed
+			if event.Status != &defaultStatus || event.ScoreRaw != nil || event.Progress != nil || event.StartedAt != nil || event.CompletedAt != nil {
+				return animeWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
+			}
+			return nil
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-		return err
-	}
 
-	// Try to fetch as manga
-	if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
-		// It's a manga, add it to manga collection
-		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry")
-		if err := mangaWrapper.AddEntry(mediaID, defaultStatus); err != nil {
-			return err
-		}
-		// Update with provided values if there are additional updates needed
-		if event.Status != &defaultStatus || event.ScoreRaw != nil || event.Progress != nil || event.StartedAt != nil || event.CompletedAt != nil {
-			err := mangaWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-			if err != nil {
+		// Try to fetch as manga
+		if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
+			// It's a manga, add it to manga collection
+			sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry")
+			if err := mangaWrapper.AddEntry(mediaID, defaultStatus); err != nil {
 				return err
 			}
+			// Update with provided values if there are additional updates needed
+			if event.Status != &defaultStatus || event.ScoreRaw != nil || event.Progress != nil || event.StartedAt != nil || event.CompletedAt != nil {
+				return mangaWrapper.UpdateEntry(mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
+			}
+			return nil
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-		return err
-	}
 
-	// Media not found in either anime or manga
-	return errors.New("media not found on AniList")
+		// Media not found in either anime or manga
+		return errors.New("media not found on AniList")
+	})
 }
 
 func (sp *SimulatedPlatform) UpdateEntryProgress(ctx context.Context, mediaID int, progress int, totalEpisodes *int) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Int("progress", progress).Msg("simulated platform: Updating entry progress")
 
-	event := new(platform.PreUpdateEntryProgressEvent)
-	event.MediaID = &mediaID
-	event.Progress = &progress
-	event.TotalCount = totalEpisodes
-	currentStatus := anilist.MediaListStatusCurrent
-	event.Status = &currentStatus
-
-	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
-	if err != nil {
-		return err
-	}
-
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	// Check if this is a custom source entry
-	if sp.customSourceManager != nil && customsource.IsExtensionId(mediaID) {
-		err := sp.customSourceManager.UpdateEntryProgress(ctx, mediaID, *event.Progress, event.TotalCount)
-		if err != nil {
+	return sp.helper.TriggerUpdateEntryProgressHooks(ctx, mediaID, progress, totalEpisodes, func(event *platform.PreUpdateEntryProgressEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := sp.helper.HandleCustomSourceUpdateEntryProgress(ctx, mediaID, *event.Progress, event.TotalCount); handled {
 			return err
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryProgressEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-		return err
-	}
 
-	sp.mu.Lock()
-	defer sp.mu.Unlock()
+		sp.mu.Lock()
+		defer sp.mu.Unlock()
 
-	status := anilist.MediaListStatusCurrent
-	if event.TotalCount != nil && *event.Progress >= *event.TotalCount {
-		status = anilist.MediaListStatusCompleted
-		*event.Status = status
-	}
-
-	// Try anime first
-	animeWrapper := sp.GetAnimeCollectionWrapper()
-	if _, err := animeWrapper.FindEntry(mediaID); err == nil {
-		err := animeWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
-		if err != nil {
-			return err
+		status := anilist.MediaListStatusCurrent
+		if event.TotalCount != nil && *event.Progress >= *event.TotalCount {
+			status = anilist.MediaListStatusCompleted
+			*event.Status = status
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryProgressEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-		return err
-	}
 
-	// Try manga
-	mangaWrapper := sp.GetMangaCollectionWrapper()
-	if _, err := mangaWrapper.FindEntry(mediaID); err == nil {
-		err := mangaWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
-		if err != nil {
-			return err
+		// Try anime first
+		animeWrapper := sp.GetAnimeCollectionWrapper()
+		if _, err := animeWrapper.FindEntry(mediaID); err == nil {
+			return animeWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryProgressEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-		return err
-	}
 
-	// Entry doesn't exist, determine media type and add it
-	// Try to fetch as anime first
-	if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
-		// It's an anime, add it to anime collection
-		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry for progress update")
-		if err := animeWrapper.AddEntry(mediaID, status); err != nil {
-			return err
+		// Try manga
+		mangaWrapper := sp.GetMangaCollectionWrapper()
+		if _, err := mangaWrapper.FindEntry(mediaID); err == nil {
+			return mangaWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
 		}
-		err := animeWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
-		if err != nil {
-			return err
-		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryProgressEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-		return err
-	}
 
-	// Try to fetch as manga
-	if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
-		// It's a manga, add it to manga collection
-		sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry for progress update")
-		if err := mangaWrapper.AddEntry(mediaID, status); err != nil {
-			return err
+		// Entry doesn't exist, determine media type and add it
+		// Try to fetch as anime first
+		if _, err := sp.client.BaseAnimeByID(ctx, &mediaID); err == nil {
+			// It's an anime, add it to anime collection
+			sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new anime entry for progress update")
+			if err := animeWrapper.AddEntry(mediaID, status); err != nil {
+				return err
+			}
+			return animeWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
 		}
-		err := mangaWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
-		if err != nil {
-			return err
-		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryProgressEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-		return err
-	}
 
-	// Media not found in either anime or manga
-	return errors.New("media not found on AniList")
+		// Try to fetch as manga
+		if _, err := sp.client.BaseMangaByID(ctx, &mediaID); err == nil {
+			// It's a manga, add it to manga collection
+			sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Adding new manga entry for progress update")
+			if err := mangaWrapper.AddEntry(mediaID, status); err != nil {
+				return err
+			}
+			return mangaWrapper.UpdateEntryProgress(mediaID, *event.Progress, event.TotalCount)
+		}
+
+		// Media not found in either anime or manga
+		return errors.New("media not found on AniList")
+	})
 }
 
 func (sp *SimulatedPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int) error {
 	sp.logger.Trace().Int("mediaID", mediaID).Int("repeat", repeat).Msg("simulated platform: Updating entry repeat")
 
-	event := new(platform.PreUpdateEntryRepeatEvent)
-	event.MediaID = &mediaID
-	event.Repeat = &repeat
-
-	err := hook.GlobalHookManager.OnPreUpdateEntryRepeat().Trigger(event)
-	if err != nil {
-		return err
-	}
-
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	// Check if this is a custom source entry
-	if sp.customSourceManager != nil && customsource.IsExtensionId(mediaID) {
-		err := sp.customSourceManager.UpdateEntryRepeat(ctx, mediaID, *event.Repeat)
-		if err != nil {
+	return sp.helper.TriggerUpdateEntryRepeatHooks(ctx, mediaID, repeat, func(event *platform.PreUpdateEntryRepeatEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := sp.helper.HandleCustomSourceUpdateEntryRepeat(ctx, mediaID, *event.Repeat); handled {
 			return err
 		}
-		// Trigger post event
-		postEvent := new(platform.PostUpdateEntryRepeatEvent)
-		postEvent.MediaID = &mediaID
-		err = hook.GlobalHookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
-		return err
-	}
 
-	sp.mu.Lock()
-	defer sp.mu.Unlock()
+		sp.mu.Lock()
+		defer sp.mu.Unlock()
 
-	// Try anime first
-	wrapper := sp.GetAnimeCollectionWrapper()
-	if entry, err := wrapper.FindEntry(mediaID); err == nil {
-		if animeEntry, ok := entry.(*anilist.AnimeCollection_MediaListCollection_Lists_Entries); ok {
-			animeEntry.Repeat = event.Repeat
-			sp.localManager.SaveSimulatedAnimeCollection(sp.animeCollection)
-			// Trigger post event
-			postEvent := new(platform.PostUpdateEntryRepeatEvent)
-			postEvent.MediaID = &mediaID
-			err = hook.GlobalHookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
-			return err
+		// Try anime first
+		wrapper := sp.GetAnimeCollectionWrapper()
+		if entry, err := wrapper.FindEntry(mediaID); err == nil {
+			if animeEntry, ok := entry.(*anilist.AnimeCollection_MediaListCollection_Lists_Entries); ok {
+				animeEntry.Repeat = event.Repeat
+				sp.localManager.SaveSimulatedAnimeCollection(sp.animeCollection)
+				return nil
+			}
 		}
-	}
 
-	// Try manga
-	wrapper = sp.GetMangaCollectionWrapper()
-	if entry, err := wrapper.FindEntry(mediaID); err == nil {
-		if mangaEntry, ok := entry.(*anilist.MangaCollection_MediaListCollection_Lists_Entries); ok {
-			mangaEntry.Repeat = event.Repeat
-			sp.localManager.SaveSimulatedMangaCollection(sp.mangaCollection)
-			// Trigger post event
-			postEvent := new(platform.PostUpdateEntryRepeatEvent)
-			postEvent.MediaID = &mediaID
-			err = hook.GlobalHookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
-			return err
+		// Try manga
+		wrapper = sp.GetMangaCollectionWrapper()
+		if entry, err := wrapper.FindEntry(mediaID); err == nil {
+			if mangaEntry, ok := entry.(*anilist.MangaCollection_MediaListCollection_Lists_Entries); ok {
+				mangaEntry.Repeat = event.Repeat
+				sp.localManager.SaveSimulatedMangaCollection(sp.mangaCollection)
+				return nil
+			}
 		}
-	}
 
-	return ErrMediaNotFound
+		return ErrMediaNotFound
+	})
 }
 
 func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, entryId int) error {
 	sp.logger.Trace().Int("entryId", entryId).Msg("simulated platform: Deleting entry")
 
 	// Check if this is a custom source entry
-	if sp.customSourceManager != nil && customsource.IsExtensionId(entryId) {
-		return sp.customSourceManager.DeleteEntry(ctx, entryId)
+	if handled, err := sp.helper.HandleCustomSourceDeleteEntry(ctx, entryId); handled {
+		return err
 	}
 
 	sp.mu.Lock()
@@ -411,69 +265,58 @@ func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, entryId int) error
 func (sp *SimulatedPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime")
 
-	if cachedAnime, ok := sp.baseAnimeCache.Get(mediaID); ok {
+	if cachedAnime, ok := sp.helper.GetCachedBaseAnime(mediaID); ok {
 		sp.logger.Trace().Msg("simulated platform: Returning anime from cache")
-		event := new(platform.GetAnimeEvent)
-		event.Anime = cachedAnime
-		err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
+		return sp.helper.TriggerGetAnimeEvent(cachedAnime)
+	}
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := sp.helper.HandleCustomSourceAnime(ctx, mediaID); isCustom {
 		if err != nil {
 			return nil, err
 		}
-		return event.Anime, nil
-	}
 
-	var media *anilist.BaseAnime
-
-	if sp.customSourceManager != nil {
-		if customSource, localId, isCustom, hasExtension := sp.customSourceManager.GetProviderFromId(mediaID); isCustom {
-			if !hasExtension {
-				return nil, errors.New("simulated platform: Custom source does not exist or identifier has changed")
-			}
-			ret, err := customSource.GetProvider().GetAnime(ctx, []int{localId})
-			if err != nil {
-				return nil, err
-			}
-			if len(ret) == 0 {
-				return nil, errors.New("simulated platform: No anime found")
-			}
-			media = ret[0]
-			customsource.NormalizeMedia(customSource.GetExtensionIdentifier(), customSource.GetID(), media)
-		} else {
-			// Get anime from anilist
-			resp, err := sp.client.BaseAnimeByID(ctx, &mediaID)
-			if err != nil {
-				return nil, err
-			}
-			media = resp.GetMedia()
-		}
-	} else {
-		// Get anime from anilist
-		resp, err := sp.client.BaseAnimeByID(ctx, &mediaID)
+		triggeredMedia, err := sp.helper.TriggerGetAnimeEvent(media)
 		if err != nil {
 			return nil, err
 		}
-		media = resp.GetMedia()
+
+		sp.helper.SetCachedBaseAnime(mediaID, triggeredMedia)
+
+		// Update media data in collection if it exists (simulated platform specific)
+		sp.mu.Lock()
+		wrapper := sp.GetAnimeCollectionWrapper()
+		if _, err := wrapper.FindEntry(mediaID); err == nil {
+			_ = wrapper.UpdateMediaData(mediaID, triggeredMedia)
+		}
+		sp.mu.Unlock()
+
+		return triggeredMedia, nil
 	}
 
-	event := new(platform.GetAnimeEvent)
-	event.Anime = media
+	// Get anime from anilist
+	resp, err := sp.client.BaseAnimeByID(ctx, &mediaID)
+	if err != nil {
+		return nil, err
+	}
+	media := resp.GetMedia()
 
-	err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
+	triggeredMedia, err := sp.helper.TriggerGetAnimeEvent(media)
 	if err != nil {
 		return nil, err
 	}
 
-	sp.baseAnimeCache.SetT(mediaID, event.Anime, time.Minute*30)
+	sp.helper.SetCachedBaseAnime(mediaID, triggeredMedia)
 
-	// Update media data in collection if it exists
+	// Update media data in collection if it exists (simulated platform specific)
 	sp.mu.Lock()
 	wrapper := sp.GetAnimeCollectionWrapper()
 	if _, err := wrapper.FindEntry(mediaID); err == nil {
-		_ = wrapper.UpdateMediaData(mediaID, event.Anime)
+		_ = wrapper.UpdateMediaData(mediaID, triggeredMedia)
 	}
 	sp.mu.Unlock()
 
-	return event.Anime, nil
+	return triggeredMedia, nil
 }
 
 func (sp *SimulatedPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*anilist.BaseAnime, error) {
@@ -485,211 +328,145 @@ func (sp *SimulatedPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*a
 	}
 
 	media := resp.GetMedia()
-
-	event := new(platform.GetAnimeEvent)
-	event.Anime = media
-
-	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)
+	triggeredMedia, err := sp.helper.TriggerGetAnimeEvent(media)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update media data in collection if it exists
-	if event.Anime != nil {
+	// Update media data in collection if it exists (simulated platform specific)
+	if triggeredMedia != nil {
 		sp.mu.Lock()
 		wrapper := sp.GetAnimeCollectionWrapper()
-		if _, err := wrapper.FindEntry(event.Anime.GetID()); err == nil {
-			_ = wrapper.UpdateMediaData(event.Anime.GetID(), event.Anime)
+		if _, err := wrapper.FindEntry(triggeredMedia.GetID()); err == nil {
+			_ = wrapper.UpdateMediaData(triggeredMedia.GetID(), triggeredMedia)
 		}
 		sp.mu.Unlock()
 	}
 
-	return event.Anime, nil
+	return triggeredMedia, nil
 }
 
 func (sp *SimulatedPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime details")
 
-	var media *anilist.AnimeDetailsById_Media
-
-	if sp.customSourceManager != nil {
-		if customSource, localId, isCustom, hasExtension := sp.customSourceManager.GetProviderFromId(mediaID); isCustom {
-			if !hasExtension {
-				return nil, errors.New("simulated platform: Custom source does not exist or identifier has changed")
-			}
-			ret, err := customSource.GetProvider().GetAnimeDetails(ctx, localId)
-			if err != nil {
-				return nil, err
-			}
-			media = ret
-			customsource.NormalizeMedia(customSource.GetExtensionIdentifier(), customSource.GetID(), media)
-		} else {
-			resp, err := sp.client.AnimeDetailsByID(ctx, &mediaID)
-			if err != nil {
-				return nil, err
-			}
-			media = resp.GetMedia()
-		}
-	} else {
-		resp, err := sp.client.AnimeDetailsByID(ctx, &mediaID)
+	// Check if this is a custom source entry
+	if media, isCustom, err := sp.helper.HandleCustomSourceAnimeDetails(ctx, mediaID); isCustom {
 		if err != nil {
 			return nil, err
 		}
-		media = resp.GetMedia()
+		return sp.helper.TriggerGetAnimeDetailsEvent(media)
 	}
 
-	event := new(platform.GetAnimeDetailsEvent)
-	event.Anime = media
-
-	err := hook.GlobalHookManager.OnGetAnimeDetails().Trigger(event)
+	// Get from AniList
+	resp, err := sp.client.AnimeDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
+	media := resp.GetMedia()
 
-	return event.Anime, nil
+	return sp.helper.TriggerGetAnimeDetailsEvent(media)
 }
 
 func (sp *SimulatedPlatform) GetAnimeWithRelations(ctx context.Context, mediaID int) (*anilist.CompleteAnime, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting anime with relations")
 
-	if cachedAnime, ok := sp.completeAnimeCache.Get(mediaID); ok {
+	if cachedAnime, ok := sp.helper.GetCachedCompleteAnime(mediaID); ok {
 		sp.logger.Trace().Msg("simulated platform: Cache HIT for anime with relations")
 		return cachedAnime, nil
 	}
 
-	var media *anilist.CompleteAnime
-
-	if sp.customSourceManager != nil {
-		if customSource, localId, isCustom, hasExtension := sp.customSourceManager.GetProviderFromId(mediaID); isCustom {
-			if !hasExtension {
-				return nil, errors.New("simulated platform: Custom source does not exist or identifier has changed")
-			}
-			ret, err := customSource.GetProvider().GetAnimeWithRelations(ctx, localId)
-			if err != nil {
-				return nil, err
-			}
-			media = ret
-			customsource.NormalizeMedia(customSource.GetExtensionIdentifier(), customSource.GetID(), media)
-		} else {
-			resp, err := sp.client.CompleteAnimeByID(ctx, &mediaID)
-			if err != nil {
-				return nil, err
-			}
-			media = resp.GetMedia()
-		}
-	} else {
-		resp, err := sp.client.CompleteAnimeByID(ctx, &mediaID)
+	// Check if this is a custom source entry
+	if media, isCustom, err := sp.helper.HandleCustomSourceAnimeWithRelations(ctx, mediaID); isCustom {
 		if err != nil {
 			return nil, err
 		}
-		media = resp.GetMedia()
+		sp.helper.SetCachedCompleteAnime(mediaID, media)
+		return media, nil
 	}
 
-	sp.completeAnimeCache.SetT(mediaID, media, 4*time.Hour)
+	// Get from AniList
+	resp, err := sp.client.CompleteAnimeByID(ctx, &mediaID)
+	if err != nil {
+		return nil, err
+	}
+	media := resp.GetMedia()
 
+	sp.helper.SetCachedCompleteAnime(mediaID, media)
 	return media, nil
 }
 
 func (sp *SimulatedPlatform) GetManga(ctx context.Context, mediaID int) (*anilist.BaseManga, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting manga")
 
-	if cachedManga, ok := sp.baseMangaCache.Get(mediaID); ok {
+	if cachedManga, ok := sp.helper.GetCachedBaseManga(mediaID); ok {
 		sp.logger.Trace().Msg("simulated platform: Returning manga from cache")
-		event := new(platform.GetMangaEvent)
-		event.Manga = cachedManga
-		err := hook.GlobalHookManager.OnGetManga().Trigger(event)
+		return sp.helper.TriggerGetMangaEvent(cachedManga)
+	}
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := sp.helper.HandleCustomSourceManga(ctx, mediaID); isCustom {
 		if err != nil {
 			return nil, err
 		}
-		return event.Manga, nil
-	}
 
-	var media *anilist.BaseManga
-
-	if sp.customSourceManager != nil {
-		if customSource, localId, isCustom, hasExtension := sp.customSourceManager.GetProviderFromId(mediaID); isCustom {
-			if !hasExtension {
-				return nil, errors.New("simulated platform: Custom source does not exist or identifier has changed")
-			}
-			ret, err := customSource.GetProvider().GetManga(ctx, []int{localId})
-			if err != nil {
-				return nil, err
-			}
-			if len(ret) == 0 {
-				return nil, errors.New("simulated platform: No manga found")
-			}
-			media = ret[0]
-			customsource.NormalizeMedia(customSource.GetExtensionIdentifier(), customSource.GetID(), media)
-		} else {
-			// Get manga from anilist
-			resp, err := sp.client.BaseMangaByID(ctx, &mediaID)
-			if err != nil {
-				return nil, err
-			}
-			media = resp.GetMedia()
-		}
-	} else {
-		// Get manga from anilist
-		resp, err := sp.client.BaseMangaByID(ctx, &mediaID)
+		triggeredMedia, err := sp.helper.TriggerGetMangaEvent(media)
 		if err != nil {
 			return nil, err
 		}
-		media = resp.GetMedia()
+
+		sp.helper.SetCachedBaseManga(mediaID, triggeredMedia)
+
+		// Update media data in collection if it exists (simulated platform specific)
+		sp.mu.Lock()
+		wrapper := sp.GetMangaCollectionWrapper()
+		if _, err := wrapper.FindEntry(mediaID); err == nil {
+			_ = wrapper.UpdateMediaData(mediaID, triggeredMedia)
+		}
+		sp.mu.Unlock()
+
+		return triggeredMedia, nil
 	}
 
-	event := new(platform.GetMangaEvent)
-	event.Manga = media
+	// Get manga from anilist
+	resp, err := sp.client.BaseMangaByID(ctx, &mediaID)
+	if err != nil {
+		return nil, err
+	}
+	media := resp.GetMedia()
 
-	err := hook.GlobalHookManager.OnGetManga().Trigger(event)
+	triggeredMedia, err := sp.helper.TriggerGetMangaEvent(media)
 	if err != nil {
 		return nil, err
 	}
 
-	sp.baseMangaCache.SetT(mediaID, event.Manga, time.Minute*30)
+	sp.helper.SetCachedBaseManga(mediaID, triggeredMedia)
 
-	// Update media data in collection if it exists
+	// Update media data in collection if it exists (simulated platform specific)
 	sp.mu.Lock()
 	wrapper := sp.GetMangaCollectionWrapper()
 	if _, err := wrapper.FindEntry(mediaID); err == nil {
-		_ = wrapper.UpdateMediaData(mediaID, event.Manga)
+		_ = wrapper.UpdateMediaData(mediaID, triggeredMedia)
 	}
 	sp.mu.Unlock()
 
-	return event.Manga, nil
+	return triggeredMedia, nil
 }
 
 func (sp *SimulatedPlatform) GetMangaDetails(ctx context.Context, mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	sp.logger.Trace().Int("mediaID", mediaID).Msg("simulated platform: Getting manga details")
 
-	var media *anilist.MangaDetailsById_Media
-
-	if sp.customSourceManager != nil {
-		if customSource, localId, isCustom, hasExtension := sp.customSourceManager.GetProviderFromId(mediaID); isCustom {
-			if !hasExtension {
-				return nil, errors.New("simulated platform: Custom source does not exist or identifier has changed")
-			}
-			ret, err := customSource.GetProvider().GetMangaDetails(ctx, localId)
-			if err != nil {
-				return nil, err
-			}
-			media = ret
-			customsource.NormalizeMedia(customSource.GetExtensionIdentifier(), customSource.GetID(), media)
-		} else {
-			resp, err := sp.client.MangaDetailsByID(ctx, &mediaID)
-			if err != nil {
-				return nil, err
-			}
-			media = resp.GetMedia()
-		}
-	} else {
-		resp, err := sp.client.MangaDetailsByID(ctx, &mediaID)
-		if err != nil {
-			return nil, err
-		}
-		media = resp.GetMedia()
+	// Check if this is a custom source entry
+	if media, isCustom, err := sp.helper.HandleCustomSourceMangaDetails(ctx, mediaID); isCustom {
+		return media, err
 	}
 
-	return media, nil
+	// Get from AniList
+	resp, err := sp.client.MangaDetailsByID(ctx, &mediaID)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetMedia(), nil
 }
 
 func (sp *SimulatedPlatform) GetAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
@@ -715,9 +492,7 @@ func (sp *SimulatedPlatform) GetAnimeCollection(ctx context.Context, bypassCache
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeAnimeEntries(collection)
-	}
+	sp.helper.MergeCustomSourceAnimeEntries(collection)
 
 	event := new(platform.GetAnimeCollectionEvent)
 	event.AnimeCollection = collection
@@ -753,9 +528,7 @@ func (sp *SimulatedPlatform) GetRawAnimeCollection(ctx context.Context, bypassCa
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeAnimeEntries(collection)
-	}
+	sp.helper.MergeCustomSourceAnimeEntries(collection)
 
 	event := new(platform.GetRawAnimeCollectionEvent)
 	event.AnimeCollection = collection
@@ -778,9 +551,7 @@ func (sp *SimulatedPlatform) RefreshAnimeCollection(ctx context.Context) (*anili
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeAnimeEntries(collection)
-	}
+	sp.helper.MergeCustomSourceAnimeEntries(collection)
 
 	event := new(platform.GetAnimeCollectionEvent)
 	event.AnimeCollection = collection
@@ -849,9 +620,7 @@ func (sp *SimulatedPlatform) GetMangaCollection(ctx context.Context, bypassCache
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeMangaEntries(collection)
-	}
+	sp.helper.MergeCustomSourceMangaEntries(collection)
 
 	event := new(platform.GetMangaCollectionEvent)
 	event.MangaCollection = collection
@@ -887,9 +656,7 @@ func (sp *SimulatedPlatform) GetRawMangaCollection(ctx context.Context, bypassCa
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeMangaEntries(collection)
-	}
+	sp.helper.MergeCustomSourceMangaEntries(collection)
 
 	event := new(platform.GetRawMangaCollectionEvent)
 	event.MangaCollection = collection
@@ -912,9 +679,7 @@ func (sp *SimulatedPlatform) RefreshMangaCollection(ctx context.Context) (*anili
 	}
 
 	// Merge custom source entries if available
-	if sp.customSourceManager != nil {
-		sp.customSourceManager.MergeMangaEntries(collection)
-	}
+	sp.helper.MergeCustomSourceMangaEntries(collection)
 
 	event := new(platform.GetMangaCollectionEvent)
 	event.MangaCollection = collection
@@ -959,15 +724,7 @@ func (sp *SimulatedPlatform) GetStudioDetails(ctx context.Context, studioID int)
 		return nil, err
 	}
 
-	event := new(platform.GetStudioDetailsEvent)
-	event.Studio = ret
-
-	err = hook.GlobalHookManager.OnGetStudioDetails().Trigger(event)
-	if err != nil {
-		return nil, err
-	}
-
-	return event.Studio, nil
+	return sp.helper.TriggerGetStudioDetailsEvent(ret)
 }
 
 func (sp *SimulatedPlatform) GetAnilistClient() anilist.AnilistClient {
@@ -984,87 +741,7 @@ func (sp *SimulatedPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anili
 		return nil, err
 	}
 
-	mediaIds := make([]*int, 0)
-	for _, list := range collection.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			mediaIds = append(mediaIds, &[]int{entry.GetMedia().GetID()}[0])
-		}
-	}
-
-	var ret *anilist.AnimeAiringSchedule
-
-	now := time.Now()
-	currentSeason, currentSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindCurrent)
-	previousSeason, previousSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindPrevious)
-	nextSeason, nextSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindNext)
-
-	ret, err = sp.client.AnimeAiringSchedule(ctx, mediaIds, &currentSeason, &currentSeasonYear, &previousSeason, &previousSeasonYear, &nextSeason, &nextSeasonYear)
-	if err != nil {
-		return nil, err
-	}
-
-	type animeScheduleMedia interface {
-		GetMedia() []*anilist.AnimeSchedule
-	}
-
-	foundIds := make(map[int]struct{})
-	addIds := func(n animeScheduleMedia) {
-		for _, m := range n.GetMedia() {
-			if m == nil {
-				continue
-			}
-			foundIds[m.GetID()] = struct{}{}
-		}
-	}
-	addIds(ret.GetOngoing())
-	addIds(ret.GetOngoingNext())
-	addIds(ret.GetPreceding())
-	addIds(ret.GetUpcoming())
-	addIds(ret.GetUpcomingNext())
-
-	missingIds := make([]*int, 0)
-	for _, list := range collection.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			if _, found := foundIds[entry.GetMedia().GetID()]; found {
-				continue
-			}
-			endDate := entry.GetMedia().GetEndDate()
-			// Ignore if ended more than 2 months ago
-			if endDate == nil || endDate.GetYear() == nil || endDate.GetMonth() == nil {
-				missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
-				continue
-			}
-			endTime := time.Date(*endDate.GetYear(), time.Month(*endDate.GetMonth()), 1, 0, 0, 0, 0, time.UTC)
-			if endTime.Before(now.AddDate(0, -2, 0)) {
-				continue
-			}
-			missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
-		}
-	}
-
-	if len(missingIds) > 0 {
-		retB, err := sp.client.AnimeAiringScheduleRaw(ctx, missingIds)
-		if err != nil {
-			return nil, err
-		}
-		if len(retB.GetPage().GetMedia()) > 0 {
-			// Add to ongoing next
-			for _, m := range retB.Page.GetMedia() {
-				if ret.OngoingNext == nil {
-					ret.OngoingNext = &anilist.AnimeAiringSchedule_OngoingNext{
-						Media: make([]*anilist.AnimeSchedule, 0),
-					}
-				}
-				if m == nil {
-					continue
-				}
-
-				ret.OngoingNext.Media = append(ret.OngoingNext.Media, m)
-			}
-		}
-	}
-
-	return ret, nil
+	return sp.helper.BuildAnimeAiringSchedule(ctx, collection, sp.client)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

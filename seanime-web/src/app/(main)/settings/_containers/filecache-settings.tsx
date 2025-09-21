@@ -40,7 +40,7 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
                 )}
             </div>
 
-            <SettingsCard title="Features">
+            <SettingsCard>
                 <div className="flex gap-2 flex-wrap items-center">
                     <Button intent="warning-subtle" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
                         Clear manga cache
@@ -55,11 +55,11 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
             </SettingsCard>
 
 
-            <SettingsCard title="TVDB" description="Episode image metadata fetched from TVDB.">
-                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
-                    Clear metadata
-                </Button>
-            </SettingsCard>
+            {/*<SettingsCard title="TVDB" description="Episode image metadata fetched from TVDB.">*/}
+            {/*    <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>*/}
+            {/*        Clear metadata*/}
+            {/*    </Button>*/}
+            {/*</SettingsCard>*/}
 
         </div>
     )

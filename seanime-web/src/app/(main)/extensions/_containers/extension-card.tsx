@@ -19,11 +19,12 @@ import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
 import { HiOutlineAdjustments } from "react-icons/hi"
-import { LuEllipsisVertical, LuRefreshCcw } from "react-icons/lu"
+import { LuEllipsisVertical, LuRefreshCcw, LuSearch } from "react-icons/lu"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
 import { toast } from "sonner"
@@ -46,6 +47,8 @@ export function ExtensionCard(props: ExtensionCardProps) {
         allowReload,
         ...rest
     } = props
+
+    const router = useRouter()
 
     const isBuiltin = extension.manifestURI === "builtin"
 
@@ -157,8 +160,19 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     </div>
 
                     <div>
-                        <p className="font-semibold line-clamp-1">
+                        <p
+                            className={cn(
+                                "font-semibold line-clamp-1 flex items-center gap-1",
+                                extension.type === "custom-source" && "cursor-pointer hover:underline hover:underline-offset-2 hover:decoration-2 hover:decoration-solid hover:decoration-gray-500",
+                            )}
+                            onClick={() => {
+                                if (extension.type === "custom-source") {
+                                    router.push(`/custom-sources?provider=${extension.id}`)
+                                }
+                            }}
+                        >
                             {extension.name}
+                            {extension.type === "custom-source" && <LuSearch className="ml-1 text-lg inline-block" />}
                         </p>
                         <Popover
                             className="text-sm cursor-pointer" trigger={<p className="opacity-30 mt-1 text-xs line-clamp-1 tracking-wide">

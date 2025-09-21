@@ -41,6 +41,7 @@ func (a *App) SetOfflineMode(enabled bool) {
 			Logger:     a.Logger,
 			FileCacher: a.FileCacher,
 		})
+		a.MetadataProvider.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
 		a.InitOrRefreshAnilistData()
 	}
 	a.AddOnRefreshAnilistCollectionFunc("anilist-platform", func() {

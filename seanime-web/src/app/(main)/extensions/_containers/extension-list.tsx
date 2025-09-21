@@ -4,6 +4,7 @@ import { AddExtensionModal } from "@/app/(main)/extensions/_containers/add-exten
 import { ExtensionCard } from "@/app/(main)/extensions/_containers/extension-card"
 import { InvalidExtensionCard, UnauthorizedExtensionPluginCard } from "@/app/(main)/extensions/_containers/invalid-extension-card"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -211,7 +212,12 @@ export function ExtensionList(props: ExtensionListProps) {
 
             {!!customSourceExtensions?.length && (
                 <Card className="p-4 space-y-6">
-                    <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Sources</h3>
+                    <div className="flex items-center gap-4">
+                        <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Sources</h3>
+                        <SeaLink href="/custom-sources" className="text-sm underline underline-offset-2 text-[--muted] hover:text-[--foreground]">
+                            Browse all media
+                        </SeaLink>
+                    </div>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {customSourceExtensions.map(extension => (
                             <ExtensionCard

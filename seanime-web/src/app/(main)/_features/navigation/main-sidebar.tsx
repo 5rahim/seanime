@@ -34,13 +34,13 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
-import { FaBookReader } from "react-icons/fa"
+import { BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FaRegCompass } from "react-icons/fa6"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
-import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
+import { IoCloudOfflineOutline, IoLibraryOutline } from "react-icons/io5"
+import { LuBookOpen, LuCalendar } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
 import { RiListCheck3 } from "react-icons/ri"
@@ -125,7 +125,7 @@ export function MainSidebar() {
     const items = [
         {
             id: "library",
-            iconType: IoLibrary,
+            iconType: IoLibraryOutline,
             name: "Library",
             href: "/",
             isCurrent: pathname === "/",
@@ -139,7 +139,7 @@ export function MainSidebar() {
         }] : []),
         {
             id: "schedule",
-            iconType: BiCalendarAlt,
+            iconType: LuCalendar,
             name: "Schedule",
             href: "/schedule",
             isCurrent: pathname === "/schedule",
@@ -150,7 +150,7 @@ export function MainSidebar() {
         },
         ...serverStatus?.settings?.library?.enableManga ? [{
             id: "manga",
-            iconType: FaBookReader,
+            iconType: LuBookOpen,
             name: "Manga",
             href: "/manga",
             isCurrent: pathname.startsWith("/manga"),

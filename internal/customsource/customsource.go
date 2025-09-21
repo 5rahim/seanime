@@ -14,6 +14,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 )
 
@@ -24,8 +25,8 @@ const (
 
 const (
 	// ExtensionIdOffset uses the sign bit to separate custom source IDs from AniList IDs
-	// AniList IDs: 0 to 2^31-1 (2,147,483,647)
-	// Extension IDs: 2^31 to 2^32-1 (2,147,483,648 to 4,294,967,295)
+	// AniList IDs: 0 to 2^31-1
+	// Extension IDs: 2^31 to 2^32-1
 	ExtensionIdOffset      = 0x80000000 // 2^31
 	MaxLocalId             = 0x7FFF     // 32,767
 	MaxExtensionIdentifier = 0xFFFF     // 65,535
@@ -40,12 +41,13 @@ type (
 		closedCh                chan struct{}
 		once                    sync.Once
 		db                      *db.Database
+		logger                  *zerolog.Logger
 	}
 )
 
 // NewManager creates a new custom source manager.
 // Should be created each time the extension bank is updated.
-func NewManager(extensionBank *extension.UnifiedBank, db *db.Database) *Manager {
+func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *zerolog.Logger) *Manager {
 	id := uuid.New().String()
 	ret := &Manager{
 		extensionBank:           extensionBank,
@@ -54,20 +56,24 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database) *Manager 
 		customSourcesById:       result.NewResultMap[string, extension.CustomSourceExtension](),
 		closedCh:                make(chan struct{}),
 		db:                      db,
+		logger:                  logger,
 	}
 
 	go func() {
 		for {
 			select {
 			case <-ret.extensionBankSubscriber.OnCustomSourcesChanged():
+				logger.Debug().Msg("custom source: Custom sources changed")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
 				extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
+					logger.Debug().Str("extension", id).Msg("custom source: Extension loaded")
 					ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 					ret.customSourcesById.Set(ext.GetID(), ext)
 					return true
 				})
 			case <-ret.closedCh:
+				logger.Trace().Msg("custom source: Closed manager")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
 				return
@@ -75,8 +81,11 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database) *Manager 
 		}
 	}()
 
+	logger.Debug().Str("extension", id).Msg("custom source: Manager created, loading extensions")
 	extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
+		logger.Debug().Str("extension", ext.GetID()).Msg("custom source: Extension loaded")
 		ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
+		ret.customSourcesById.Set(ext.GetID(), ext)
 		return true
 	})
 

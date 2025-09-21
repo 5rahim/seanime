@@ -66,11 +66,16 @@ export function SettingsCard({ title, description, children, className }: Settin
                         background: `radial-gradient(700px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                     }}
                  /> */}
-                {title && <CardHeader className="p-0 pb-4 flex flex-row items-center gap-0 mx-3 mt-3">
+                {title && <CardHeader className="p-0 pb-2 flex flex-row items-center gap-0 mx-3 mt-3 space-y-0">
                     {/* <CardTitle className="font-semibold tracking-wide text-base transition-colors duration-300 group-hover/settings-card:text-white bg-gradient-to-br group-hover/settings-card:from-brand-500/10 group-hover/settings-card:to-purple-500/5 px-4 py-2 bg-[--subtle] w-fit rounded-tl-md rounded-br-md ">
                      {title}
                      </CardTitle> */}
-                    <CardTitle className="font-medium text-[1rem] tracking-wide transition-colors duration-300 px-4 py-1 border w-fit rounded-xl bg-gray-800/40">
+                    <CardTitle
+                        className={cn(
+                            "font-semibold text-[1rem] tracking-wide transition-colors duration-300 px-4 py-1 border w-fit rounded-xl bg-gray-800/40",
+                            "group-hover/settings-card:bg-brand-500/10 group-hover/settings-card:text-white",
+                        )}
+                    >
                         {title}
                     </CardTitle>
                     {description && <CardDescription className="px-4 w-fit">
@@ -93,7 +98,7 @@ export function SettingsCard({ title, description, children, className }: Settin
 export function SettingsPageHeader({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) {
     return (
         <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500/20 to-purple-500/20 border border-brand-500/20">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-brand-500/10 to-purple-500/10 border border-brand-500/15">
                 <Icon className="text-2xl text-brand-600 dark:text-brand-400" />
             </div>
             <div>

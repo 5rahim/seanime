@@ -54,9 +54,10 @@ type AnilistClient interface {
 type (
 	// AnilistClientImpl is a wrapper around the AniList API client.
 	AnilistClientImpl struct {
-		Client *Client
-		logger *zerolog.Logger
-		token  string // The token used for authentication with the AniList API
+		Client     *Client
+		logger     *zerolog.Logger
+		token      string // The token used for authentication with the AniList API
+		localCache *LocalCache
 	}
 )
 

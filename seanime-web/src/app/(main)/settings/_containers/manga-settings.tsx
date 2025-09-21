@@ -3,8 +3,7 @@ import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_compone
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Field } from "@/components/ui/form"
 import React from "react"
-import { FaBookReader } from "react-icons/fa"
-import { LuBook, LuBookDashed, LuBookKey } from "react-icons/lu"
+import { LuBookOpen } from "react-icons/lu"
 
 type MangaSettingsProps = {
     isPending: boolean
@@ -34,7 +33,7 @@ export function MangaSettings(props: MangaSettingsProps) {
             <SettingsPageHeader
                 title="Manga"
                 description="Manage your manga library"
-                icon={FaBookReader}
+                icon={LuBookOpen}
             />
 
             <SettingsCard>
@@ -44,6 +43,15 @@ export function MangaSettings(props: MangaSettingsProps) {
                     label={<span className="flex gap-1 items-center">Enable</span>}
                     help="Read manga series, download chapters and track your progress."
                 />
+            </SettingsCard>
+
+            <SettingsCard>
+                <Field.Select
+                    name="defaultMangaProvider"
+                    label="Default Provider"
+                    help="Select the default provider for manga series."
+                    options={options}
+                />
                 <Field.Switch
                     side="right"
                     name="mangaAutoUpdateProgress"
@@ -52,13 +60,7 @@ export function MangaSettings(props: MangaSettingsProps) {
                 />
             </SettingsCard>
 
-            <SettingsCard title="Sources">
-                <Field.Select
-                    name="defaultMangaProvider"
-                    label="Default Provider"
-                    help="Select the default provider for manga series."
-                    options={options}
-                />
+            <SettingsCard title="Local" description="Local manga provider">
 
                 <Field.DirectorySelector
                     name="mangaLocalSourceDirectory"

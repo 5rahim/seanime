@@ -41,12 +41,12 @@ export function SyncAddMediaModal(props: SyncAddMediaModalProps) {
             title="Saved media"
             contentClass="max-w-4xl"
             trigger={<Button
-                intent="white"
+                intent="gray-subtle"
                 rounded
                 leftIcon={<MdOutlineDownloadForOffline className="text-2xl" />}
                 loading={isAdding}
             >
-                Save media
+                Select media to save
             </Button>}
         >
 

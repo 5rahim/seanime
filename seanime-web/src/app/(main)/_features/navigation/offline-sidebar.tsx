@@ -10,9 +10,9 @@ import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { FaBookReader } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi"
-import { IoCloudyOutline, IoLibrary } from "react-icons/io5"
+import { IoCloudyOutline, IoLibraryOutline } from "react-icons/io5"
+import { LuBookOpen } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 
@@ -79,13 +79,13 @@ export function OfflineSidebar() {
                         itemClass="relative"
                         items={[
                             {
-                                iconType: IoLibrary,
+                                iconType: IoLibraryOutline,
                                 name: "Library",
                                 href: "/offline",
                                 isCurrent: pathname === "/offline",
                             },
                             ...[serverStatus?.settings?.library?.enableManga && {
-                                iconType: FaBookReader,
+                                iconType: LuBookOpen,
                                 name: "Manga",
                                 href: "/offline/manga",
                                 isCurrent: pathname.startsWith("/offline/manga"),

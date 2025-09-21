@@ -131,7 +131,7 @@ export default function Page() {
                                 draft.page = 1 // Reset page when changing type
                                 return
                             })}
-                            fieldClass="w-[300px]"
+                            fieldClass="w-[240px]"
                         />
                         <TextInput
                             leftIcon={<FiSearch />}

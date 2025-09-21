@@ -3,6 +3,7 @@ package extension
 import (
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 )
 
 type UnifiedBank struct {
@@ -18,6 +19,7 @@ type BankSubscriber struct {
 	customSourcesChangedCh chan struct{}
 	mu                     sync.Mutex
 	closeOnce              sync.Once
+	closed                 atomic.Bool
 }
 
 func NewUnifiedBank() *UnifiedBank {
@@ -59,6 +61,7 @@ func (b *UnifiedBank) Unsubscribe(id string) {
 			return true
 		}
 		sub.closeOnce.Do(func() {
+			sub.closed.Store(true)
 			b.mu.Lock()
 			close(sub.extensionAddedCh)
 			close(sub.extensionRemovedCh)
@@ -93,6 +96,9 @@ func (b *UnifiedBank) Set(id string, ext BaseExtension) {
 
 	go func() {
 		b.subscribers.Range(func(id string, sub *BankSubscriber) bool {
+			if sub.closed.Load() {
+				return true
+			}
 			sub.mu.Lock()
 			sub.extensionAddedCh <- struct{}{}
 			if ext.GetType() == TypeCustomSource {
@@ -124,6 +130,9 @@ func (b *UnifiedBank) Delete(id string) {
 
 	go func() {
 		b.subscribers.Range(func(id string, sub *BankSubscriber) bool {
+			if sub.closed.Load() {
+				return true
+			}
 			sub.mu.Lock()
 			sub.extensionRemovedCh <- struct{}{}
 			if ext.GetType() == TypeCustomSource {

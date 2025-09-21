@@ -134,16 +134,16 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="autoSyncOfflineLocalData"
-                    label="Update local metadata automatically"
+                    label="Download metadata automatically for offline use"
                     help="If disabled, you will need to manually refresh your local metadata by clicking 'Sync now' in the offline mode page."
-                    moreHelp="Only if no offline changes have been made."
+                    moreHelp="Will be paused if you have made changes offline and have not synced them to AniList yet."
                 />
 
                 <Field.Switch
                     side="right"
                     name="autoSaveCurrentMediaOffline"
                     label="Save all currently watched/read media for offline use"
-                    help="If enabled, Seanime will automatically save all currently watched/read media for offline use."
+                    help="If enabled, Seanime will automatically save all media you're currently watching/reading for offline use."
                 />
 
             </SettingsCard>

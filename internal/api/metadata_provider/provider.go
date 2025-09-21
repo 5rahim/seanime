@@ -80,7 +80,7 @@ func NewProvider(options *NewProviderImplOptions) Provider {
 
 func (p *ProviderImpl) InitExtensionBank(bank *extension.UnifiedBank) {
 	p.extensionBank = bank
-	p.customSourceManager = customsource.NewManager(bank, p.db)
+	p.customSourceManager = customsource.NewManager(bank, p.db, p.logger)
 }
 
 func (p *ProviderImpl) Close() {
