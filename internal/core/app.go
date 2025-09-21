@@ -2,6 +2,7 @@ package core
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
@@ -108,6 +109,7 @@ type (
 		ReportRepository   *report.Repository
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string
+		AnilistCacheDir    string
 		IsDesktopSidecar   bool
 		animeCollection    *anilist.AnimeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
@@ -202,9 +204,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Get Anilist token from database if available
 	anilistToken := database.GetAnilistToken()
 
+	anilistCacheDir := filepath.Join(cfg.Cache.Dir, "anilist")
+
 	// Initialize Anilist API client with the token
 	// If the token is empty, the client will not be authenticated
-	anilistCW := anilist.NewAnilistClient(anilistToken)
+	anilistCW := anilist.NewAnilistClient(anilistToken, anilistCacheDir)
 
 	// Initialize WebSocket event manager for real-time communication
 	wsEventManager := events.NewWSEventManager(logger)
@@ -330,6 +334,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		OfflinePlatform:               offlinePlatform,
 		LocalManager:                  localManager,
 		WSEventManager:                wsEventManager,
+		AnilistCacheDir:               anilistCacheDir,
 		Logger:                        logger,
 		Version:                       constants.Version,
 		Updater:                       updater.New(constants.Version, logger, wsEventManager),

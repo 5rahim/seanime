@@ -10,6 +10,7 @@ import (
 )
 
 func ListMissedSequels(
+	client AnilistClient,
 	animeCollectionWithRelations *AnimeCollectionWithRelations,
 	logger *zerolog.Logger,
 	token string,
@@ -100,7 +101,7 @@ func ListMissedSequels(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +132,7 @@ func ListMissedSequels(
 }
 
 func ListAnimeM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -189,7 +191,7 @@ func ListAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +209,7 @@ func ListAnimeM(
 }
 
 func ListMangaM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -266,7 +269,7 @@ func ListMangaM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -284,6 +287,7 @@ func ListMangaM(
 }
 
 func ListRecentAiringAnimeM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -328,7 +332,7 @@ func ListRecentAiringAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}

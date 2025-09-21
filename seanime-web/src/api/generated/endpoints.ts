@@ -114,6 +114,26 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/anilist/stats",
         },
+        /**
+         *  @description
+         *  Route returns the status of the AniList cache layer.
+         *  This returns the status of the AniList cache layer.
+         */
+        GetAnilistCacheLayerStatus: {
+            key: "ANILIST-get-anilist-cache-layer-status",
+            methods: ["GET"],
+            endpoint: "/api/v1/anilist/cache-layer/status",
+        },
+        /**
+         *  @description
+         *  Route toggles the status of the AniList cache layer.
+         *  This toggles the status of the AniList cache layer.
+         */
+        ToggleAnilistCacheLayerStatus: {
+            key: "ANILIST-toggle-anilist-cache-layer-status",
+            methods: ["POST"],
+            endpoint: "/api/v1/anilist/cache-layer/status",
+        },
     },
     ANIME: {
         /**

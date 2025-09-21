@@ -3472,6 +3472,7 @@ export type Models_AnilistSettings = {
     hideAudienceScore: boolean
     enableAdultContent: boolean
     blurAdultContent: boolean
+    disableCacheLayer: boolean
 }
 
 /**

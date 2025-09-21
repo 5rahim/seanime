@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util/result"
 	"strconv"
 	"time"
@@ -318,6 +319,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -379,6 +381,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListRecentAiringAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -422,6 +425,7 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListMissedSequels(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		animeCollection,
 		h.App.Logger,
 		h.App.GetUserAnilistToken(),
@@ -467,4 +471,27 @@ func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 	anilistStatsCache.SetT(0, ret, time.Hour*1)
 
 	return h.RespondWithData(c, ret)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetAnilistCacheLayerStatus
+//
+//	@summary returns the status of the AniList cache layer.
+//	@desc This returns the status of the AniList cache layer.
+//	@route /api/v1/anilist/cache-layer/status [GET]
+//	@returns bool
+func (h *Handler) HandleGetAnilistCacheLayerStatus(c echo.Context) error {
+	return h.RespondWithData(c, shared_platform.IsWorking.Load())
+}
+
+// HandleToggleAnilistCacheLayerStatus
+//
+//	@summary toggles the status of the AniList cache layer.
+//	@desc This toggles the status of the AniList cache layer.
+//	@route /api/v1/anilist/cache-layer/status [POST]
+//	@returns bool
+func (h *Handler) HandleToggleAnilistCacheLayerStatus(c echo.Context) error {
+	shared_platform.IsWorking.Store(!shared_platform.IsWorking.Load())
+	return h.RespondWithData(c, shared_platform.IsWorking.Load())
 }

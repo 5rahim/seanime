@@ -135,7 +135,10 @@ export function useServerQuery<R, V = any>(
                 return
             }
             console.log("Server error", props.error)
-            toast.error(_handleSeaError(props.error?.response?.data))
+            const errorMsg = _handleSeaError(props.error?.response?.data)
+            if (!!errorMsg) {
+                toast.error(errorMsg)
+            }
         }
     }, [props.error, props.isError, muteError])
 
@@ -163,6 +166,9 @@ function _handleSeaError(data: any): string {
         return "AniList error"
     }
     catch (e) {
+        if (err.includes("no cached data") || err.includes("cache lookup failed")) {
+            return ""
+        }
         return "Error: " + err
     }
 }

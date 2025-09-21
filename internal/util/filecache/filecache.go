@@ -55,6 +55,7 @@ type Cacher struct {
 type cacheItem struct {
 	Value      interface{} `json:"value"`
 	Expiration *time.Time  `json:"expiration,omitempty"`
+	UpdatedAt  *time.Time  `json:"updated_at,omitempty"`
 }
 
 // NewCacher creates a new instance of Cacher.
@@ -268,7 +269,7 @@ func (c *Cacher) SetPerm(bucket PermanentBucket, key string, value interface{}) 
 	}
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	store.data[key] = &cacheItem{Value: value, Expiration: nil} // No expiration
+	store.data[key] = &cacheItem{Value: value, Expiration: nil, UpdatedAt: lo.ToPtr(time.Now())} // No expiration
 	return store.saveToFile()
 }
 
@@ -300,6 +301,30 @@ func (c *Cacher) DeletePerm(bucket PermanentBucket, key string) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	delete(store.data, key)
+	return store.saveToFile()
+}
+
+// DeletePermOldest deletes the oldest value from the permanent bucket.
+func (c *Cacher) DeletePermOldest(bucket PermanentBucket) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	oldestKey := ""
+	oldestTime := time.Now()
+	for key, item := range store.data {
+		updatedAt := time.Time{} // Default to 0 time
+		if item.UpdatedAt != nil {
+			updatedAt = *item.UpdatedAt
+		}
+		if updatedAt.Before(oldestTime) {
+			oldestKey = key
+			oldestTime = updatedAt
+		}
+	}
+	delete(store.data, oldestKey)
 	return store.saveToFile()
 }
 

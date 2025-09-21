@@ -8,6 +8,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/manga"
 	manga_providers "seanime/internal/manga/providers"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util/result"
 	"strconv"
 	"strings"
@@ -393,6 +394,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListMangaM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		p.Page,
 		p.Search,
 		p.PerPage,

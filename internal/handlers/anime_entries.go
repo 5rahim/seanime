@@ -12,6 +12,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/result"
@@ -289,6 +290,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 	h.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
 
 	res, err := anilist.ListAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		lo.ToPtr(1),
 		&title,
 		lo.ToPtr(8),

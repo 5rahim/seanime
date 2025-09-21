@@ -368,7 +368,12 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 		// Fetch the media
 		media, err = r.platform.GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			baseAnime, lErr := r.platform.GetAnime(ctx, mediaId)
+			if lErr != nil {
+				return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			}
+			media = baseAnime.ToCompleteAnime()
+			err = nil
 		}
 	}
 

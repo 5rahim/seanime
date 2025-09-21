@@ -1122,9 +1122,9 @@ declare namespace $app {
     function onGetAnime(cb: (event: GetAnimeEvent) => void): void;
 
     interface GetAnimeEvent {
-        anime?: AL_BaseAnime;
-
         next(): void;
+
+        anime?: AL_BaseAnime;
     }
 
     /**
@@ -1134,9 +1134,9 @@ declare namespace $app {
     function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void): void;
 
     interface GetAnimeDetailsEvent {
-        anime?: AL_AnimeDetailsById_Media;
-
         next(): void;
+
+        anime?: AL_AnimeDetailsById_Media;
     }
 
     /**
@@ -1146,9 +1146,9 @@ declare namespace $app {
     function onGetManga(cb: (event: GetMangaEvent) => void): void;
 
     interface GetMangaEvent {
-        manga?: AL_BaseManga;
-
         next(): void;
+
+        manga?: AL_BaseManga;
     }
 
     /**
@@ -1158,9 +1158,9 @@ declare namespace $app {
     function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void): void;
 
     interface GetMangaDetailsEvent {
-        manga?: AL_MangaDetailsById_Media;
-
         next(): void;
+
+        manga?: AL_MangaDetailsById_Media;
     }
 
     /**
@@ -1170,9 +1170,9 @@ declare namespace $app {
     function onGetCachedAnimeCollection(cb: (event: GetCachedAnimeCollectionEvent) => void): void;
 
     interface GetCachedAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -1182,9 +1182,9 @@ declare namespace $app {
     function onGetCachedMangaCollection(cb: (event: GetCachedMangaCollectionEvent) => void): void;
 
     interface GetCachedMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -1194,9 +1194,9 @@ declare namespace $app {
     function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void): void;
 
     interface GetAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -1206,9 +1206,9 @@ declare namespace $app {
     function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void): void;
 
     interface GetMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -1218,9 +1218,9 @@ declare namespace $app {
     function onGetCachedRawAnimeCollection(cb: (event: GetCachedRawAnimeCollectionEvent) => void): void;
 
     interface GetCachedRawAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -1230,9 +1230,9 @@ declare namespace $app {
     function onGetCachedRawMangaCollection(cb: (event: GetCachedRawMangaCollectionEvent) => void): void;
 
     interface GetCachedRawMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -1242,9 +1242,9 @@ declare namespace $app {
     function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void): void;
 
     interface GetRawAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection;
-
         next(): void;
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -1254,9 +1254,9 @@ declare namespace $app {
     function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void): void;
 
     interface GetRawMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next(): void;
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -1266,9 +1266,9 @@ declare namespace $app {
     function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void): void;
 
     interface GetStudioDetailsEvent {
-        studio?: AL_StudioDetails;
-
         next(): void;
+
+        studio?: AL_StudioDetails;
     }
 
     /**
@@ -1281,16 +1281,16 @@ declare namespace $app {
     function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void): void;
 
     interface PreUpdateEntryEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         mediaId?: number;
         status?: AL_MediaListStatus;
         scoreRaw?: number;
         progress?: number;
         startedAt?: AL_FuzzyDateInput;
         completedAt?: AL_FuzzyDateInput;
-
-        next(): void;
-
-        preventDefault(): void;
     }
 
     /**
@@ -1300,9 +1300,9 @@ declare namespace $app {
     function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void): void;
 
     interface PostUpdateEntryEvent {
-        mediaId?: number;
-
         next(): void;
+
+        mediaId?: number;
     }
 
     /**
@@ -1315,14 +1315,14 @@ declare namespace $app {
     function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void): void;
 
     interface PreUpdateEntryProgressEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         mediaId?: number;
         progress?: number;
         totalCount?: number;
         status?: AL_MediaListStatus;
-
-        next(): void;
-
-        preventDefault(): void;
     }
 
     /**
@@ -1332,9 +1332,9 @@ declare namespace $app {
     function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void): void;
 
     interface PostUpdateEntryProgressEvent {
-        mediaId?: number;
-
         next(): void;
+
+        mediaId?: number;
     }
 
     /**
@@ -1347,12 +1347,12 @@ declare namespace $app {
     function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void): void;
 
     interface PreUpdateEntryRepeatEvent {
-        mediaId?: number;
-        repeat?: number;
-
         next(): void;
 
         preventDefault(): void;
+
+        mediaId?: number;
+        repeat?: number;
     }
 
     /**
@@ -1362,9 +1362,9 @@ declare namespace $app {
     function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void): void;
 
     interface PostUpdateEntryRepeatEvent {
-        mediaId?: number;
-
         next(): void;
+
+        mediaId?: number;
     }
 
 

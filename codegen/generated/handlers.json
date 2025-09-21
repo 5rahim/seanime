@@ -587,6 +587,66 @@
     }
   },
   {
+    "name": "HandleGetAnilistCacheLayerStatus",
+    "trimmedName": "GetAnilistCacheLayerStatus",
+    "comments": [
+      "HandleGetAnilistCacheLayerStatus",
+      "",
+      "\t@summary returns the status of the AniList cache layer.",
+      "\t@desc This returns the status of the AniList cache layer.",
+      "\t@route /api/v1/anilist/cache-layer/status [GET]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "returns the status of the AniList cache layer.",
+      "descriptions": [
+        "This returns the status of the AniList cache layer."
+      ],
+      "endpoint": "/api/v1/anilist/cache-layer/status",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleToggleAnilistCacheLayerStatus",
+    "trimmedName": "ToggleAnilistCacheLayerStatus",
+    "comments": [
+      "HandleToggleAnilistCacheLayerStatus",
+      "",
+      "\t@summary toggles the status of the AniList cache layer.",
+      "\t@desc This toggles the status of the AniList cache layer.",
+      "\t@route /api/v1/anilist/cache-layer/status [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "toggles the status of the AniList cache layer.",
+      "descriptions": [
+        "This toggles the status of the AniList cache layer."
+      ],
+      "endpoint": "/api/v1/anilist/cache-layer/status",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetAnimeEpisodeCollection",
     "trimmedName": "GetAnimeEpisodeCollection",
     "comments": [

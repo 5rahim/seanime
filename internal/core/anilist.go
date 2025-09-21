@@ -41,7 +41,7 @@ func (a *App) UpdatePlatform(platform platform.Platform) {
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClient = anilist.NewAnilistClient(token)
+	a.AnilistClient = anilist.NewAnilistClient(token, a.AnilistCacheDir)
 	a.AnilistPlatform.SetAnilistClient(a.AnilistClient) // Update Anilist Client Wrapper in Platform
 }
 

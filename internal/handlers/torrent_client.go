@@ -136,9 +136,11 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("could not contact torrent client, verify your settings or make sure it's running"))
 	}
 
-	completeAnime, err := h.App.AnilistPlatform.GetAnimeWithRelations(c.Request().Context(), b.Media.ID)
+	var completeAnime *anilist.CompleteAnime
+	var err error
+	completeAnime, err = h.App.AnilistPlatform.GetAnimeWithRelations(c.Request().Context(), b.Media.ID)
 	if err != nil {
-		return h.RespondWithError(c, err)
+		completeAnime = b.Media.ToCompleteAnime()
 	}
 
 	if b.SmartSelect.Enabled {

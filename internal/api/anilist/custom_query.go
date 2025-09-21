@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"seanime/internal/constants"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"strconv"
@@ -49,7 +50,7 @@ func customQuery(body []byte, logger *zerolog.Logger, token ...string) (data int
 	client := http.DefaultClient
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", "https://graphql.anilist.co", bytes.NewBuffer(body))
+	req, err = http.NewRequest("POST", constants.AnilistApiUrl, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}

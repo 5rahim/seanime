@@ -110,6 +110,7 @@ export const settingsSchema = z.object({
     includeNakamaAnimeLibrary: z.boolean().optional().default(false),
     nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
     autoSaveCurrentMediaOffline: z.boolean().optional().default(false),
+    disableCacheLayer: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -200,6 +201,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         hideAudienceScore: false,
         enableAdultContent: data.enableAdultContent,
         blurAdultContent: false,
+        disableCacheLayer: false,
     },
     enableTorrentStreaming: data.enableTorrentStreaming,
     enableTranscode: data.enableTranscode,

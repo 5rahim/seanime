@@ -46,7 +46,7 @@ func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClie
 	sp := &SimulatedPlatform{
 		logger:           logger,
 		localManager:     localManager,
-		client:           client,
+		client:           shared_platform.NewCacheLayer(client),
 		anilistRateLimit: limiter.NewAnilistLimiter(),
 		helper:           shared_platform.NewPlatformHelper(logger),
 		db:               db,

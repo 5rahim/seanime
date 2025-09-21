@@ -122,6 +122,26 @@
 //     })
 // }
 
+// export function useGetAnilistCacheLayerStatus() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useToggleAnilistCacheLayerStatus() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.endpoint,
+//         method: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.methods[0],
+//         mutationKey: [API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // anime
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

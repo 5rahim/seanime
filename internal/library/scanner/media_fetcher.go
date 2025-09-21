@@ -283,21 +283,30 @@ func FetchMediaFromLocalFiles(
 	anilistMedia := make([]*anilist.CompleteAnime, 0)
 	lop.ForEach(anilistIds, func(id int, index int) {
 		anilistRateLimiter.Wait()
-		media, err := platform.GetAnimeWithRelations(ctx, id)
+		var media *anilist.CompleteAnime
+		var err error
+		media, err = platform.GetAnimeWithRelations(ctx, id)
+		if err != nil {
+			baseMedia, lErr := platform.GetAnime(ctx, id)
+			if lErr == nil {
+				media = baseMedia.ToCompleteAnime()
+				err = nil
+			}
+		}
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
 			if scanLogger != nil {
 				scanLogger.LogMediaFetcher(zerolog.DebugLevel).
 					Str("module", "Enhanced").
 					Str("title", media.GetTitleSafe()).
-					Msg("Fetched Anilist media from MAL id")
+					Msg("Fetched Anilist media")
 			}
 		} else {
 			if scanLogger != nil {
 				scanLogger.LogMediaFetcher(zerolog.WarnLevel).
 					Str("module", "Enhanced").
 					Int("id", id).
-					Msg("Failed to fetch Anilist media from MAL id")
+					Msg("Failed to fetch Anilist media")
 			}
 		}
 	})

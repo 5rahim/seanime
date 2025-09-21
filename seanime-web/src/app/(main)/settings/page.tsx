@@ -382,6 +382,7 @@ export default function Page() {
                                         hideAudienceScore: data.hideAudienceScore,
                                         enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: data.blurAdultContent,
+                                        disableCacheLayer: data.disableCacheLayer,
                                     },
                                     notifications: {
                                         disableNotifications: data?.disableNotifications ?? false,
@@ -743,7 +744,7 @@ export default function Page() {
                                             </Accordion>
                                         {/*</SettingsCard>*/}
 
-                                        <SettingsCard title="User Interface">
+                                        <SettingsCard title="Integration">
                                             <Field.Switch
                                                 side="right"
                                                 name="hideTorrentList"
@@ -754,6 +755,11 @@ export default function Page() {
                                                 name="showActiveTorrentCount"
                                                 label="Show active torrent count"
                                                 help="Show the number of active torrents in the sidebar. (Memory intensive)"
+                                            />
+                                            <Field.Switch
+                                                side="right"
+                                                name="openTorrentClientOnStart"
+                                                label="Open torrent client on startup"
                                             />
                                         </SettingsCard>
 

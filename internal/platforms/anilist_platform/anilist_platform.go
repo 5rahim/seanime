@@ -36,7 +36,7 @@ type (
 
 func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger, db *db.Database) platform.Platform {
 	ap := &AnilistPlatform{
-		anilistClient:      anilistClient,
+		anilistClient:      shared_platform.NewCacheLayer(anilistClient),
 		logger:             logger,
 		username:           mo.None[string](),
 		animeCollection:    mo.None[*anilist.AnimeCollection](),

@@ -58,6 +58,7 @@ type AnilistSettings struct {
 	HideAudienceScore  bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
 	EnableAdultContent bool `gorm:"column:enable_adult_content" json:"enableAdultContent"`
 	BlurAdultContent   bool `gorm:"column:blur_adult_content" json:"blurAdultContent"`
+	DisableCacheLayer  bool `gorm:"column:disable_cache_layer" json:"disableCacheLayer"`
 }
 
 type LibrarySettings struct {

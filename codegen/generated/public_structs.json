@@ -38,6 +38,15 @@
         "comments": [
           " The token used for authentication with the AniList API"
         ]
+      },
+      {
+        "name": "cacheDir",
+        "jsonName": "cacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -27617,6 +27626,15 @@
         "comments": []
       },
       {
+        "name": "AnilistCacheDir",
+        "jsonName": "AnilistCacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "IsDesktopSidecar",
         "jsonName": "IsDesktopSidecar",
         "goType": "bool",
@@ -28559,6 +28577,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -28943,6 +28972,15 @@
       {
         "name": "BlurAdultContent",
         "jsonName": "blurAdultContent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableCacheLayer",
+        "jsonName": "disableCacheLayer",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -36513,6 +36551,17 @@
         "typescriptType": "Once",
         "usedTypescriptType": "Once",
         "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
         "required": false,
         "public": false,
         "comments": []
@@ -65834,50 +65883,12 @@
         "comments": []
       },
       {
-        "name": "baseAnimeCache",
-        "jsonName": "baseAnimeCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "baseMangaCache",
-        "jsonName": "baseMangaCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "completeAnimeCache",
-        "jsonName": "completeAnimeCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionBank",
-        "jsonName": "extensionBank",
-        "goType": "extension.UnifiedBank",
-        "typescriptType": "Extension_UnifiedBank",
-        "usedTypescriptType": "Extension_UnifiedBank",
-        "usedStructName": "extension.UnifiedBank",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "customSourceManager",
-        "jsonName": "customSourceManager",
-        "goType": "customsource.Manager",
-        "typescriptType": "CustomSource_Manager",
-        "usedTypescriptType": "CustomSource_Manager",
-        "usedStructName": "customsource.Manager",
+        "name": "helper",
+        "jsonName": "helper",
+        "goType": "shared_platform.PlatformHelper",
+        "typescriptType": "PlatformHelper",
+        "usedTypescriptType": "PlatformHelper",
+        "usedStructName": "shared_platform.PlatformHelper",
         "required": false,
         "public": false,
         "comments": []
@@ -66496,6 +66507,142 @@
     ]
   },
   {
+    "filepath": "../internal/platforms/shared_platform/cachelayer.go",
+    "filename": "cachelayer.go",
+    "name": "CacheLayer",
+    "formattedName": "CacheLayer",
+    "package": "shared_platform",
+    "fields": [
+      {
+        "name": "anilistClient",
+        "jsonName": "anilistClient",
+        "goType": "anilist.AnilistClient",
+        "typescriptType": "AL_AnilistClient",
+        "usedTypescriptType": "AL_AnilistClient",
+        "usedStructName": "anilist.AnilistClient",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedTypescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "buckets",
+        "jsonName": "buckets",
+        "goType": "map[string]filecache.PermanentBucket",
+        "typescriptType": "Record\u003cstring, Filecache_PermanentBucket\u003e",
+        "usedTypescriptType": "Filecache_PermanentBucket",
+        "usedStructName": "filecache.PermanentBucket",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "collectionMediaIDs",
+        "jsonName": "collectionMediaIDs",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track which media IDs are in collections"
+        ]
+      },
+      {
+        "name": "lastCollectionUpdate",
+        "jsonName": "lastCollectionUpdate",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " When collections were last fetched"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platforms/shared_platform/shared.go",
+    "filename": "shared.go",
+    "name": "PlatformHelper",
+    "formattedName": "PlatformHelper",
+    "package": "shared_platform",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "customSourceManager",
+        "jsonName": "customSourceManager",
+        "goType": "customsource.Manager",
+        "typescriptType": "CustomSource_Manager",
+        "usedTypescriptType": "CustomSource_Manager",
+        "usedStructName": "customsource.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseAnimeCache",
+        "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseMangaCache",
+        "jsonName": "baseMangaCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completeAnimeCache",
+        "jsonName": "completeAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/platforms/simulated_platform/helpers.go",
     "filename": "helpers.go",
     "name": "CollectionWrapper",
@@ -66592,33 +66739,6 @@
         "comments": []
       },
       {
-        "name": "baseAnimeCache",
-        "jsonName": "baseAnimeCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "baseMangaCache",
-        "jsonName": "baseMangaCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "completeAnimeCache",
-        "jsonName": "completeAnimeCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
@@ -66678,23 +66798,12 @@
         "comments": []
       },
       {
-        "name": "extensionBank",
-        "jsonName": "extensionBank",
-        "goType": "extension.UnifiedBank",
-        "typescriptType": "Extension_UnifiedBank",
-        "usedTypescriptType": "Extension_UnifiedBank",
-        "usedStructName": "extension.UnifiedBank",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "customSourceManager",
-        "jsonName": "customSourceManager",
-        "goType": "customsource.Manager",
-        "typescriptType": "CustomSource_Manager",
-        "usedTypescriptType": "CustomSource_Manager",
-        "usedStructName": "customsource.Manager",
+        "name": "helper",
+        "jsonName": "helper",
+        "goType": "shared_platform.PlatformHelper",
+        "typescriptType": "PlatformHelper",
+        "usedTypescriptType": "PlatformHelper",
+        "usedStructName": "shared_platform.PlatformHelper",
         "required": false,
         "public": false,
         "comments": []

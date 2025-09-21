@@ -39,6 +39,8 @@ func (g *GojaCustomSource) GetExtensionIdentifier() int {
 func (g *GojaCustomSource) ListAnime(ctx context.Context, search string, page int, perPage int) (ret *hibikecustomsource.ListAnimeResponse, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".ListAnime", &err)
 
+	g.logger.Debug().Str("extension", g.extId).Str("search", search).Msg("custom source: Fetching anime")
+
 	method, err := g.callClassMethod(ctx, "listAnime", search, page, perPage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
@@ -59,6 +61,8 @@ func (g *GojaCustomSource) ListAnime(ctx context.Context, search string, page in
 
 func (g *GojaCustomSource) ListManga(ctx context.Context, search string, page int, perPage int) (ret *hibikecustomsource.ListMangaResponse, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".ListManga", &err)
+
+	g.logger.Debug().Str("extension", g.extId).Str("search", search).Msg("custom source: Fetching manga")
 
 	method, err := g.callClassMethod(ctx, "listManga", search, page, perPage)
 	if err != nil {
@@ -99,7 +103,7 @@ func (g *GojaCustomSource) GetSettings() (ret hibikecustomsource.Settings) {
 func (g *GojaCustomSource) GetAnime(ctx context.Context, id []int) (ret []*anilist.BaseAnime, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetAnime", &err)
 
-	g.logger.Debug().Ints("ids", id).Msg("custom source: Getting anime")
+	g.logger.Debug().Str("extension", g.extId).Ints("ids", id).Msg("custom source: Getting anime")
 
 	method, err := g.callClassMethod(ctx, "getAnime", id)
 	if err != nil {
@@ -121,6 +125,8 @@ func (g *GojaCustomSource) GetAnime(ctx context.Context, id []int) (ret []*anili
 
 func (g *GojaCustomSource) GetAnimeWithRelations(ctx context.Context, id int) (ret *anilist.CompleteAnime, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetAnimeWithRelations", &err)
+
+	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime with relations")
 
 	method, err := g.callClassMethod(ctx, "getAnimeWithRelations", id)
 	if err != nil {
@@ -145,7 +151,9 @@ func (g *GojaCustomSource) GetAnimeWithRelations(ctx context.Context, id int) (r
 }
 
 func (g *GojaCustomSource) GetAnimeMetadata(ctx context.Context, id int) (ret *metadata.AnimeMetadata, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetAnimeWithRelations", &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetAnimeMetadata", &err)
+
+	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime metadata")
 
 	method, err := g.callClassMethod(ctx, "getAnimeMetadata", id)
 	if err != nil {
@@ -168,6 +176,8 @@ func (g *GojaCustomSource) GetAnimeMetadata(ctx context.Context, id int) (ret *m
 func (g *GojaCustomSource) GetAnimeDetails(ctx context.Context, id int) (ret *anilist.AnimeDetailsById_Media, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetAnimeDetails", &err)
 
+	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting anime details")
+
 	method, err := g.callClassMethod(ctx, "getAnimeDetails", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
@@ -189,6 +199,8 @@ func (g *GojaCustomSource) GetAnimeDetails(ctx context.Context, id int) (ret *an
 func (g *GojaCustomSource) GetManga(ctx context.Context, id []int) (ret []*anilist.BaseManga, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetManga", &err)
 
+	g.logger.Debug().Str("extension", g.extId).Ints("ids", id).Msg("custom source: Getting manga")
+
 	method, err := g.callClassMethod(ctx, "getManga", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call search method: %w", err)
@@ -209,6 +221,8 @@ func (g *GojaCustomSource) GetManga(ctx context.Context, id []int) (ret []*anili
 
 func (g *GojaCustomSource) GetMangaDetails(ctx context.Context, id int) (ret *anilist.MangaDetailsById_Media, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetMangaDetails", &err)
+
+	g.logger.Debug().Str("extension", g.extId).Int("id", id).Msg("custom source: Getting manga details")
 
 	method, err := g.callClassMethod(ctx, "getMangaDetails", id)
 	if err != nil {

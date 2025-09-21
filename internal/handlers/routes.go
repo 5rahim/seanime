@@ -194,6 +194,10 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Anilist.GET("/stats", h.HandleGetAniListStats)
 
+	v1Anilist.GET("/cache-layer/status", h.HandleGetAnilistCacheLayerStatus)
+
+	v1Anilist.POST("/cache-layer/status", h.HandleToggleAnilistCacheLayerStatus)
+
 	//
 	// MAL
 	//

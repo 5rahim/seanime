@@ -1,11 +1,12 @@
 package notifier
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"path/filepath"
 	"seanime/internal/database/models"
 	"sync"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -63,12 +64,12 @@ func (n *Notifier) canProceed(id Notification) bool {
 		return false
 	}
 
-	switch id {
-	case AutoDownloader:
-		return !n.settings.MustGet().DisableAutoDownloaderNotifications
-	case AutoScanner:
-		return !n.settings.MustGet().DisableAutoScannerNotifications
-	}
+	//switch id {
+	//case AutoDownloader:
+	//	return !n.settings.MustGet().DisableAutoDownloaderNotifications
+	//case AutoScanner:
+	//	return !n.settings.MustGet().DisableAutoScannerNotifications
+	//}
 
 	return false
 }

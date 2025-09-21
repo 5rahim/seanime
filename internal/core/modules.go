@@ -27,6 +27,7 @@ import (
 	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
@@ -342,6 +343,10 @@ func (a *App) InitOrRefreshModules() {
 	a.Settings = settings // Store settings instance in app
 	if settings.Library != nil {
 		a.LibraryDir = settings.GetLibrary().LibraryPath
+	}
+
+	if settings.Anilist != nil {
+		shared_platform.ShouldCache.Store(!settings.Anilist.DisableCacheLayer)
 	}
 
 	// +---------------------+
