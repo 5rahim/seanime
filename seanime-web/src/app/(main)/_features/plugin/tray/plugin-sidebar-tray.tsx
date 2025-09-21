@@ -42,6 +42,7 @@ const ExtensionList = ({
     trayIcons,
     settings,
     width,
+    isSideBarExpanded,
 }: {
     place: "sidebar" | "top";
     developmentModeExtensions: Extension_Extension[];
@@ -50,6 +51,7 @@ const ExtensionList = ({
     trayIcons: TrayIcon[];
     settings: ExtensionRepo_StoredPluginSettingsData | undefined;
     width: number | null;
+    isSideBarExpanded: boolean;
 }) => {
 
     const { mutate: setPluginSettingsPinnedTrays, isPending: isSettingPluginSettingsPinnedTrays } = useSetPluginSettingsPinnedTrays()
@@ -80,13 +82,16 @@ const ExtensionList = ({
         }
     }, "")
 
+
     return (
         <>
             <div
                 data-plugin-sidebar-tray
                 className={cn(
                     "w-10 mx-auto p-1 my-2",
-                    "flex flex-col gap-1 items-center border border-transparent justify-center rounded-full transition-all duration-300 select-none",
+                    "flex gap-1 border border-transparent justify-center rounded-full transition-all duration-300 select-none",
+                    isSideBarExpanded ? "flex-wrap w-full p-2" : "flex-col items-center ",
+                    "border border-transparent justify-center rounded-full transition-all duration-300 select-none",
                     place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
                     pinnedTrayIcons.length > 0 && "border-[--border]",
                 )}
@@ -98,7 +103,7 @@ const ExtensionList = ({
                     side={place === "top" ? "bottom" : "right"}
                     trigger={<div>
                         <Tooltip
-                            side="right"
+                            side={isSideBarExpanded ? "top" : "right"}
                             trigger={<IconButton
                                 intent="gray-basic"
                                 size="sm"
@@ -260,7 +265,7 @@ const ExtensionList = ({
     )
 }
 
-export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
+export function PluginSidebarTray({ place, isSideBarExpanded }: { place: "sidebar" | "top", isSideBarExpanded: boolean }) {
     const { width } = useWindowSize()
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
 
@@ -384,7 +389,6 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
 
 
     if (!trayIcons) return null
-
     return (
         <>
             {!isMobile && place === "sidebar" && <ExtensionList
@@ -395,6 +399,7 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
                 trayIcons={trayIcons}
                 settings={pluginSettings}
                 width={width}
+                isSideBarExpanded={isSideBarExpanded}
             />}
             {isMobile && place === "top" && <div className="">
                 <Popover
@@ -422,6 +427,7 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
                         trayIcons={trayIcons}
                         settings={pluginSettings}
                         width={width}
+                        isSideBarExpanded={isSideBarExpanded}
                     />
                 </Popover>
             </div>}

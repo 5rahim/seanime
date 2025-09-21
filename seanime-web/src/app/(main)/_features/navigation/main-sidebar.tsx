@@ -325,7 +325,7 @@ export function MainSidebar() {
                         </HoverCard>
                     </div>}
 
-                    <PluginSidebarTray place="sidebar" />
+                    <PluginSidebarTray place="sidebar" isSideBarExpanded={expandedSidebar}/>
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
