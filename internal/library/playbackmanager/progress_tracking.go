@@ -115,8 +115,13 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 		Filepath:      pm.currentLocalFile.MustGet().GetPath(),
 	})
 
-	// ------- Playlist ------- //
-	go pm.playlistHub.onVideoStart(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
+	// append next episode to media player if no playlist is active
+	if !pm.isPlaylistActive.Load() {
+		if nextEpisode, ok := currentLocalFileWrapperEntry.FindNextEpisode(currentLocalFile); ok {
+			pm.Logger.Debug().Msg("playback manager: Appending next episode file path to media player")
+			_ = pm.MediaPlayerRepository.Append(nextEpisode.Path)
+		}
+	}
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
@@ -168,10 +173,6 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Push the video playback state to the history
 	pm.historyMap[status.Filename] = _ps
 
-	// ------- Playlist ------- //
-	if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() {
-		go pm.playlistHub.onVideoCompleted(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
-	}
 }
 
 func (pm *PlaybackManager) handleTrackingStopped(reason string) {
@@ -205,9 +206,6 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	if pm.currentMediaPlaybackStatus != nil {
 		pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 	}
-
-	// ------- Playlist ------- //
-	go pm.playlistHub.onTrackingStopped()
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
@@ -245,11 +243,6 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	// Send the playback state to the client
 	pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
-	// ------- Playlist ------- //
-	if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() {
-		go pm.playlistHub.onPlaybackStatus(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
-	}
-
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
 		go pm.discordPresence.UpdateAnimeActivity(int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds), int(pm.currentMediaPlaybackStatus.DurationInSeconds), !pm.currentMediaPlaybackStatus.Playing)
@@ -259,9 +252,6 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 func (pm *PlaybackManager) handleTrackingRetry(reason string) {
 	// DEVNOTE: This event is not sent to the client
 	// We notify the playlist hub, so it can play the next episode (it's assumed that the user closed the player)
-
-	// ------- Playlist ------- //
-	go pm.playlistHub.onTrackingError()
 
 	// Notify subscribers
 	go func() {

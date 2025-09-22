@@ -18,6 +18,8 @@ import (
 	"github.com/samber/lo"
 )
 
+// devnote: I got lazy and used global variables
+
 var ShouldCache = atomic.Bool{}
 var IsWorking = atomic.Bool{}
 var AnilistClient = atomic.Value{}
@@ -431,7 +433,6 @@ func (c *CacheLayer) updateCollectionTrackingFromAnimeCollection(collection *ani
 	c.lastCollectionUpdate = time.Now()
 }
 
-// updateCollectionTrackingFromAnimeCollectionWithRelations updates collection tracking from anime collection with relations
 func (c *CacheLayer) updateCollectionTrackingFromAnimeCollectionWithRelations(collection *anilist.AnimeCollectionWithRelations) {
 	if !ShouldCache.Load() {
 		return
@@ -453,7 +454,6 @@ func (c *CacheLayer) updateCollectionTrackingFromAnimeCollectionWithRelations(co
 	c.lastCollectionUpdate = time.Now()
 }
 
-// updateCollectionTrackingFromMangaCollection updates collection tracking from manga collection
 func (c *CacheLayer) updateCollectionTrackingFromMangaCollection(collection *anilist.MangaCollection) {
 	if !ShouldCache.Load() {
 		return

@@ -287,6 +287,8 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 	playbackManagerSubscriber := m.playbackManager.SubscribeToPlaybackStatus("playlist-manager")
 	nativePlayerSubscriber := m.nativePlayer.Subscribe("playlist-manager")
 
+	m.playbackManager.SetPlaylistActive(true)
+
 	// continue in goroutine
 	go func() {
 		for {
@@ -515,6 +517,7 @@ func (m *Manager) markCurrentAsCompleted() {
 }
 
 func (m *Manager) resetPlaylist() {
+	m.playbackManager.SetPlaylistActive(false)
 	m.currentPlaylistData = mo.None[*playlistData]()
 	m.currentEpisode = mo.None[*anime.PlaylistEpisode]()
 	m.cancel = nil
