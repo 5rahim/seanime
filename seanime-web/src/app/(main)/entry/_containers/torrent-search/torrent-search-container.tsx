@@ -31,6 +31,7 @@ import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
+import { FiSearch } from "react-icons/fi"
 import { LuCornerLeftDown } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
@@ -345,6 +346,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                             <TextInput
                                 value={globalFilter}
                                 onValueChange={setGlobalFilter}
+                                leftIcon={<FiSearch className="text-lg" />}
                             />
                         )}
                     </>}

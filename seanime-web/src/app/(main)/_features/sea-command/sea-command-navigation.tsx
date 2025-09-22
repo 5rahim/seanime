@@ -123,9 +123,9 @@ export function SeaCommandNavigation() {
             show: !serverStatus?.isOffline,
         },
         {
-            name: "AniList",
-            href: "/anilist",
-            flag: "anilist",
+            name: "My lists",
+            href: "/lists",
+            flag: "lists",
             show: !serverStatus?.isOffline,
         },
         {

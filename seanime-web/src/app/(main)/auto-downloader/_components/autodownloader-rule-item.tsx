@@ -52,7 +52,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                             {!!media ? (
                                 <>
                                     {media.status === "FINISHED" &&
-                                        <span className="text-orange-300 opacity-70">This anime is no longer airing</span>}
+                                        <span className="text-orange-300 opacity-70">No longer airing</span>}
                                 </>
                             ) : (
                                 <span className="text-red-300">This anime is not in your library</span>

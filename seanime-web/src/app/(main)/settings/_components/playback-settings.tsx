@@ -100,7 +100,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             <div className="flex-1">
                                 <Switch
                                     label="Use built-in player"
-                                    help="When enabled, all media will use the built-in player (overrides settings below)"
+                                    help="When enabled, all media playback will use the built-in player (overrides settings below)"
                                     value={electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer}
                                     onValueChange={v => {
                                         setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Default)

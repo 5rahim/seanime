@@ -32,6 +32,7 @@ func (c *ComponentManager) jsDiv(call goja.FunctionCall) goja.Value {
 	return defineComponent(c.ctx.vm, call, "div", []ComponentProp{
 		{Name: "items", Type: "array", Required: false, OptionalFirstArg: true},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "onClick", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "className", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }

@@ -97,7 +97,8 @@ const (
 	SearchBaseAnimeByIdsBucket     = "search-base-anime-by-ids"
 	CustomQueryBucket              = "custom-query"
 
-	maxNonCollectionCacheEntries = 10
+	maxNonCollectionCacheEntries      = 10
+	maxNonCollectionMediaCacheEntries = 50
 	// Collection update interval (refresh collection tracking every 30 minutes)
 	collectionUpdateInterval = 30 * time.Minute
 )
@@ -396,7 +397,7 @@ func (c *CacheLayer) boundedCacheSet(bucketName string, cacheKey string, data in
 	}
 
 	// If we're at the limit, remove the oldest entry (simple FIFO for now)
-	if len(allData) >= maxNonCollectionCacheEntries {
+	if len(allData) >= maxNonCollectionMediaCacheEntries {
 		// Remove the first key we find (this is a simple implementation)
 		for key := range allData {
 			if err := c.fileCacher.DeletePerm(bucket, key); err == nil {

@@ -248,7 +248,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     />
                 </div>}
 
-                {selectedMedia?.status === "FINISHED" && <div className="py-2 text-red-300 text-center">This anime is no longer airing</div>}
+                {selectedMedia?.status === "FINISHED" && <div className="py-2 text-[--orange] text-center">No longer airing</div>}
 
                 <Field.DirectorySelector
                     name="destination"

@@ -163,11 +163,11 @@ export function MainSidebar() {
             isCurrent: pathname === "/discover",
         },
         {
-            id: "anilist",
+            id: "lists",
             iconType: RiListCheck3,
             name: "My lists",
-            href: "/anilist",
-            isCurrent: pathname === "/anilist",
+            href: "/lists",
+            isCurrent: pathname === "/lists",
         },
         ...serverStatus?.settings?.nakama?.enabled ? [{
             id: "nakama",

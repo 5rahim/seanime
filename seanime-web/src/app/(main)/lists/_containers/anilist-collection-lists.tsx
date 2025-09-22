@@ -2,13 +2,13 @@ import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/ty
 import { useGetAniListStats } from "@/api/hooks/anilist.hooks"
 import { AnilistAnimeEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { AnilistStats } from "@/app/(main)/anilist/_containers/anilist-stats"
+import { AnilistStats } from "@/app/(main)/lists/_containers/anilist-stats"
 import {
     __myLists_selectedTypeAtom,
     __myListsSearch_paramsAtom,
     __myListsSearch_paramsInputAtom,
     useHandleUserAnilistLists,
-} from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
+} from "@/app/(main)/lists/_lib/handle-user-anilist-lists"
 import {
     ADVANCED_SEARCH_FORMATS,
     ADVANCED_SEARCH_MEDIA_GENRES,

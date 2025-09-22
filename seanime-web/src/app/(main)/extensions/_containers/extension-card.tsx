@@ -58,7 +58,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-md p-3",
+                "bg-gray-950 rounded-xl p-3",
                 !!updateData && "border-[--green]",
             )}
         >

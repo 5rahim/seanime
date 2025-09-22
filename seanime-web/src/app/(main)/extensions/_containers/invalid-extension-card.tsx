@@ -32,7 +32,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card relative overflow-hidden",
-                "bg-gray-950 border border-[rgb(255_255_255_/_5%)] rounded-[--radius-md] p-3",
+                "bg-gray-950 border border-[rgb(255_255_255_/_5%)] rounded-xl p-3",
             )}
         >
             <div
