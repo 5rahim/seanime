@@ -337,6 +337,16 @@ type Theme struct {
 
 	// v2.9+
 	UnpinnedMenuItems StringSlice `gorm:"column:unpinned_menu_items;type:text" json:"unpinnedMenuItems"`
+
+	// v3+
+	HomeItems []byte `gorm:"column:home_items;type:text" json:"homeItems"`
+}
+
+type HomeItem struct {
+	ID            string      `json:"id"`
+	Type          string      `json:"type"`
+	Options       interface{} `json:"options,omitempty"` // options chosen by the user
+	SchemaVersion int         `json:"schemaVersion"`     // checks if it's still valid on the client
 }
 
 // +---------------------+

@@ -144,6 +144,7 @@ func ListAnimeM(
 	SeasonYear *int,
 	Format *MediaFormat,
 	IsAdult *bool,
+	CountryOfOrigin *string,
 	logger *zerolog.Logger,
 	token string,
 ) (*ListAnime, error) {
@@ -182,7 +183,9 @@ func ListAnimeM(
 	if IsAdult != nil {
 		variables["isAdult"] = *IsAdult
 	}
-
+	if CountryOfOrigin != nil {
+		variables["countryOfOrigin"] = *CountryOfOrigin
+	}
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"query":     ListAnimeDocument,
 		"variables": variables,
@@ -363,6 +366,7 @@ func ListAnimeCacheKey(
 	SeasonYear *int,
 	Format *MediaFormat,
 	IsAdult *bool,
+	CountryOfOrigin *string,
 ) string {
 
 	key := "ListAnime"
@@ -399,7 +403,9 @@ func ListAnimeCacheKey(
 	if IsAdult != nil {
 		key += fmt.Sprintf("_%t", *IsAdult)
 	}
-
+	if CountryOfOrigin != nil {
+		key += fmt.Sprintf("_%s", *CountryOfOrigin)
+	}
 	return key
 
 }
@@ -418,7 +424,7 @@ func ListMangaCacheKey(
 	IsAdult *bool,
 ) string {
 
-	key := "ListAnime"
+	key := "ListManga"
 	if Page != nil {
 		key += fmt.Sprintf("_%d", *Page)
 	}

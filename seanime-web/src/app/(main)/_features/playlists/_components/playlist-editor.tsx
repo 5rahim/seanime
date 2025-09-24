@@ -324,7 +324,7 @@ function SortableItem({ id, episode, setEpisodes }: {
     return (
         <li ref={setNodeRef} style={style}>
             <div
-                className="px-2.5 py-2 bg-[--background] rounded-md border flex gap-3 relative cursor-move"
+                className="px-2.5 py-2 bg-gray-900 hover:bg-gray-900/80 rounded-xl border flex gap-3 relative cursor-move"
                 {...attributes} {...listeners}
             >
                 <IconButton
@@ -353,7 +353,7 @@ function SortableItem({ id, episode, setEpisodes }: {
                     />}
                 </div>
                 <div className="max-w-full space-y-1">
-                    <p className="text-sm text-[--muted]">{episode.episode?.baseAnime?.title?.userPreferred}</p>
+                    <p className="text-sm text-[--muted] font-medium">{episode.episode?.baseAnime?.title?.userPreferred}</p>
                     <p className="">{episode.episode?.baseAnime?.format !== "MOVIE"
                         ? `Episode ${episode.episode!.episodeNumber}`
                         : "Movie"}{episode.isCompleted ? ` (Watched)` : ""}</p>

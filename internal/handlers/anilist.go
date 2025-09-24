@@ -282,6 +282,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		SeasonYear          *int                   `json:"seasonYear,omitempty"`
 		Format              *anilist.MediaFormat   `json:"format,omitempty"`
 		IsAdult             *bool                  `json:"isAdult,omitempty"`
+		CountryOfOrigin     *string                `json:"countryOfOrigin,omitempty"`
 	}
 
 	p := new(body)
@@ -311,6 +312,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.SeasonYear,
 		p.Format,
 		&isAdult,
+		p.CountryOfOrigin,
 	)
 
 	cached, ok := anilistListAnimeCache.Get(cacheKey)
@@ -331,6 +333,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.SeasonYear,
 		p.Format,
 		&isAdult,
+		p.CountryOfOrigin,
 		h.App.Logger,
 		h.App.GetUserAnilistToken(),
 	)

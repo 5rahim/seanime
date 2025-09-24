@@ -37,9 +37,8 @@ import React from "react"
 import { BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FaRegCompass } from "react-icons/fa6"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
-import { IoCloudOfflineOutline, IoLibraryOutline } from "react-icons/io5"
+import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
 import { LuBookOpen, LuCalendar } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
@@ -124,19 +123,19 @@ export function MainSidebar() {
 
     const items = [
         {
-            id: "library",
-            iconType: IoLibraryOutline,
-            name: "Library",
+            id: "home",
+            iconType: IoHomeOutline,
+            name: "Home",
             href: "/",
             isCurrent: pathname === "/",
         },
-        ...(process.env.NODE_ENV === "development" ? [{
-            id: "test",
-            iconType: GrTest,
-            name: "Test",
-            href: "/test",
-            isCurrent: pathname === "/test",
-        }] : []),
+        // ...(process.env.NODE_ENV === "development" ? [{
+        //     id: "test",
+        //     iconType: GrTest,
+        //     name: "Test",
+        //     href: "/test",
+        //     isCurrent: pathname === "/test",
+        // }] : []),
         {
             id: "schedule",
             iconType: LuCalendar,
@@ -156,18 +155,18 @@ export function MainSidebar() {
             isCurrent: pathname.startsWith("/manga"),
         }] : [],
         {
-            id: "discover",
-            iconType: FaRegCompass,
-            name: "Discover",
-            href: "/discover",
-            isCurrent: pathname === "/discover",
-        },
-        {
             id: "lists",
             iconType: RiListCheck3,
             name: "My lists",
             href: "/lists",
             isCurrent: pathname === "/lists",
+        },
+        {
+            id: "discover",
+            iconType: FaRegCompass,
+            name: "Discover",
+            href: "/discover",
+            isCurrent: pathname === "/discover",
         },
         ...serverStatus?.settings?.nakama?.enabled ? [{
             id: "nakama",

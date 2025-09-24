@@ -38,6 +38,7 @@ type EpisodeCardProps = {
     badge?: React.ReactNode
     percentageComplete?: number
     minutesRemaining?: number
+    isSingleContainer?: boolean
     anime?: {
         id?: number
         image?: string
@@ -72,6 +73,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         minutesRemaining,
         anime,
         episode,
+        isSingleContainer,
         ...rest
     } = props
 
@@ -103,7 +105,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         ? "- " + anime.title
                         : ""}</span>
                 </p>
-                {(!!meta || !!length) && (
+                {(!!meta || !!length) && !isSingleContainer && (
                     <p data-episode-card-meta-text className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
                         {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
                     </p>)}
@@ -172,7 +174,10 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     data-progress-number={progressNumber}
                     {...rest}
                 >
-                    <div data-episode-card-image-container className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
+                    <div
+                        data-episode-card-image-container
+                        className="w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]"
+                    >
                         {!!image ? <SeaImage
                             data-episode-card-image
                             src={getImageUrl(image)}
@@ -182,7 +187,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             placeholder={imageShimmer(700, 475)}
                             sizes="20rem"
                             className={cn(
-                                "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-500",
                                 imageClass,
                             )}
                         /> : <div
@@ -190,7 +195,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                         ></div>}
                         {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                        <EpisodeItemBottomGradient />
+                        <EpisodeItemBottomGradient isSingleContainer={isSingleContainer} />
+
+                        {isSingleContainer && (
+                            <div className="absolute bottom-0 left-0 w-full h-fit z-[3] p-4">
+                                <Meta />
+                            </div>
+                        )}
 
                         {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
                             <div
@@ -222,7 +233,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
                                                                                                                                      found</p>}
                     </div>
-                    {(showAnimeInfo) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
+                    {(showAnimeInfo && !isSingleContainer) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
                         <div
                             data-episode-card-anime-image-container
                             className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative"
@@ -242,7 +253,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             />}
                         </div>
                         <Meta />
-                    </div> : <Meta />}
+                    </div> : !isSingleContainer ? <Meta /> : null}
                 </div>
             </ContextMenuTrigger>
         </SeaContextMenu>

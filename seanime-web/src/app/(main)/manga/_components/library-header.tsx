@@ -16,7 +16,7 @@ export const __mangaLibraryHeaderMangaAtom = atom<AL_BaseManga | null>(null)
 
 const MotionImage = motion.create(SeaImage)
 
-export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
+export function MangaLibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
 
     const ts = useThemeSettings()
 

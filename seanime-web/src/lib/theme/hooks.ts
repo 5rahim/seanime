@@ -23,10 +23,10 @@ export const ThemeMediaPageBannerTypeOptions = [
         value: ThemeMediaPageBannerType.Default as string, label: "Default",
         description: "Always show a banner image. If not available, the cover image will be used instead.",
     },
-    // {
-    //     value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
-    //     description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
-    // },
+    {
+        value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
+        description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
+    },
     {
         value: ThemeMediaPageBannerType.DimWhenUnavailable as string, label: "Dim if unavailable",
         description: "Show the banner image if available. If not available, the banner will be dimmed.",

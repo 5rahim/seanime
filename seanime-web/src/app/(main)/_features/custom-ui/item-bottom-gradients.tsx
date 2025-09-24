@@ -28,7 +28,7 @@ export function MediaCardBodyBottomGradient() {
 }
 
 
-export function EpisodeItemBottomGradient() {
+export function EpisodeItemBottomGradient({ isSingleContainer }: { isSingleContainer?: boolean }) {
 
     const ts = useThemeSettings()
 
@@ -40,7 +40,7 @@ export function EpisodeItemBottomGradient() {
     //     )
     // }
 
-    if (ts.useLegacyEpisodeCard) {
+    if (isSingleContainer) {
         return <div
             data-episode-item-bottom-gradient
             className="z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-90 md:h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent"

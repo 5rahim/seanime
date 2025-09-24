@@ -26,6 +26,7 @@ import type {
     Models_AnilistSettings,
     Models_DebridSettings,
     Models_DiscordSettings,
+    Models_HomeItem,
     Models_LibrarySettings,
     Models_MangaSettings,
     Models_MediaPlayerSettings,
@@ -124,6 +125,7 @@ export type AnilistListAnime_Variables = {
     seasonYear?: number
     format?: AL_MediaFormat
     isAdult?: boolean
+    countryOfOrigin?: string
 }
 
 /**
@@ -1507,17 +1509,6 @@ export type PlaybackPlayVideo_Variables = {
 /**
  * - Filepath: internal/handlers/playback_manager.go
  * - Filename: playback_manager.go
- * - Endpoint: /api/v1/playback-manager/start-playlist
- * @description
- * Route starts playing a playlist.
- */
-export type PlaybackStartPlaylist_Variables = {
-    dbId: number
-}
-
-/**
- * - Filepath: internal/handlers/playback_manager.go
- * - Filename: playback_manager.go
  * - Endpoint: /api/v1/playback-manager/manual-tracking/start
  * @description
  * Route starts manual tracking of a media.
@@ -1725,6 +1716,17 @@ export type DeleteLogs_Variables = {
  */
 export type GetAnnouncements_Variables = {
     platform: string
+}
+
+/**
+ * - Filepath: internal/handlers/status.go
+ * - Filename: status.go
+ * - Endpoint: /api/v1/status/home-items
+ * @description
+ * Route updates the home items.
+ */
+export type UpdateHomeItems_Variables = {
+    items: Array<Models_HomeItem>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

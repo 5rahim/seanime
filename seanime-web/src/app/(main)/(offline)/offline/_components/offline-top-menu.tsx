@@ -23,7 +23,7 @@ export const OfflineTopMenu: React.FC<OfflineTopMenuProps> = (props) => {
                 href: "/offline",
                 // icon: IoLibrary,
                 isCurrent: pathname === "/offline",
-                name: "My library",
+                name: "Anime Library",
             },
             ...[serverStatus?.settings?.library?.enableManga && {
                 href: "/offline/manga",

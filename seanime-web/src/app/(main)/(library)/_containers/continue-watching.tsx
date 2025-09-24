@@ -23,10 +23,11 @@ import { seaCommand_compareMediaTitles } from "../../_features/sea-command/utils
 
 export const __libraryHeaderEpisodeAtom = atom<Anime_Episode | null>(null)
 
-export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
+export function ContinueWatching({ episodes, isLoading, linkTemplate, withTitle }: {
     episodes: Anime_Episode[],
     isLoading: boolean
     linkTemplate?: string
+    withTitle?: boolean
 }) {
 
     const router = useRouter()
@@ -154,7 +155,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     if (episodes.length > 0) return (
         <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]" data-continue-watching-container>
             <h2 data-continue-watching-title>Continue watching</h2>
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime) && <TextGenerateEffect
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime && withTitle) && <TextGenerateEffect
                 data-continue-watching-media-title
                 words={headerEpisode?.baseAnime?.title?.userPreferred || ""}
                 className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"

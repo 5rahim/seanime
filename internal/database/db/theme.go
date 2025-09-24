@@ -1,8 +1,10 @@
 package db
 
 import (
-	"gorm.io/gorm/clause"
 	"seanime/internal/database/models"
+
+	"github.com/goccy/go-json"
+	"gorm.io/gorm/clause"
 )
 
 var themeCache *models.Theme
@@ -25,6 +27,37 @@ func (db *Database) GetTheme() (*models.Theme, error) {
 	return &theme, nil
 }
 
+var themeCopyCache *models.Theme
+
+// GetThemeCopy returns a copy of the theme settings.
+// The copy will have the HomeItems removed.
+func (db *Database) GetThemeCopy() (*models.Theme, error) {
+
+	if themeCopyCache != nil {
+		return themeCopyCache, nil
+	}
+
+	theme, err := db.GetTheme()
+	if err != nil {
+		return nil, err
+	}
+
+	marshaledTheme, err := json.Marshal(theme)
+	if err != nil {
+		return nil, err
+	}
+
+	var themeCopy models.Theme
+	err = json.Unmarshal(marshaledTheme, &themeCopy)
+	if err != nil {
+		return nil, err
+	}
+
+	themeCopyCache = &themeCopy
+
+	return &themeCopy, nil
+}
+
 // UpsertTheme updates the theme settings.
 func (db *Database) UpsertTheme(settings *models.Theme) (*models.Theme, error) {
 
@@ -41,6 +74,7 @@ func (db *Database) UpsertTheme(settings *models.Theme) (*models.Theme, error) {
 	db.Logger.Debug().Msg("db: Theme saved")
 
 	themeCache = settings
+	themeCopyCache = nil
 
 	return settings, nil
 

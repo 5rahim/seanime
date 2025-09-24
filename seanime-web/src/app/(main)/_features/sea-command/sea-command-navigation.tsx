@@ -93,9 +93,9 @@ export function SeaCommandNavigation() {
 
     const pages = [
         {
-            name: "My library",
+            name: "Home",
             href: "/",
-            flag: "library",
+            flag: "home",
             show: !serverStatus?.isOffline,
         },
         {

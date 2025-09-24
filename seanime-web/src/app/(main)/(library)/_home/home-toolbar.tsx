@@ -7,7 +7,8 @@ import { PlayRandomEpisodeButton } from "@/app/(main)/(library)/_containers/play
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
-import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
+import { __home_currentView } from "@/app/(main)/(library)/_home/home-screen"
+import { HomeSettingsButton } from "@/app/(main)/(library)/_home/home-settings-button"
 import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -16,19 +17,19 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Tooltip } from "@/components/ui/tooltip"
-import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
-import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
+import { IoHome, IoLibrary, IoLibrarySharp } from "react-icons/io5"
 import { LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbFileSad } from "react-icons/tb"
 import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
-export type LibraryToolbarProps = {
+export type HomeToolbarProps = {
     collectionList: Anime_LibraryCollectionList[]
     ignoredLocalFiles: Anime_LocalFile[]
     unmatchedLocalFiles: Anime_LocalFile[]
@@ -37,9 +38,10 @@ export type LibraryToolbarProps = {
     hasEntries: boolean
     isStreamingOnly: boolean
     isNakamaLibrary: boolean
+    className?: string
 }
 
-export function LibraryToolbar(props: LibraryToolbarProps) {
+export function HomeToolbar(props: HomeToolbarProps) {
 
     const {
         collectionList,
@@ -49,6 +51,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         hasEntries,
         isStreamingOnly,
         isNakamaLibrary,
+        className,
     } = props
 
     const ts = useThemeSettings()
@@ -62,7 +65,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const setLibraryExplorerDrawerOpen = useSetAtom(libraryExplorer_drawerOpenAtom)
     const { setModalOpen } = usePlaylistEditorManager()
 
-    const [libraryView, setLibraryView] = useAtom(__library_viewAtom)
+    const [homeView, setHomeView] = useAtom(__home_currentView)
 
     const { mutate: openInExplorer } = useOpenInExplorer()
 
@@ -70,27 +73,21 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     return (
         <>
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasEntries) && <div
-                className={cn(
-                    "h-28",
-                    ts.hideTopNavbar && "h-40",
-                )}
-                data-library-toolbar-top-padding
-            ></div>}
-            <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]" data-library-toolbar-container>
-                <div className="flex flex-1" data-library-toolbar-spacer></div>
+            <div className={cn("flex flex-wrap w-full justify-end gap-1 p-4 relative z-[10]", className)} data-library-toolbar-container>
+                <div className="flex flex-1 pointer-events-none" data-library-toolbar-spacer></div>
                 {(hasEntries) && (
                     <>
-                        <Tooltip
+
+                        {(!isStreamingOnly && !isNakamaLibrary) && <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-switch-view-button
-                                intent={libraryView === "base" ? "white-subtle" : "white"}
-                                icon={<IoLibrary className="text-2xl" />}
-                                onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
+                                intent={homeView === "base" ? "white-subtle" : "white"}
+                                icon={homeView === "base" ? <IoLibrary className="text-2xl" /> : <IoHome className="text-2xl" />}
+                                onClick={() => setHomeView(p => p === "detailed" ? "base" : "detailed")}
                             />}
                         >
-                            Switch view
-                        </Tooltip>
+                            {homeView === "base" ? "Local library" : "Home"}
+                        </Tooltip>}
 
                         {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) && <Tooltip
                             trigger={<IconButton
@@ -114,7 +111,6 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             />}
                         >Playlists</Tooltip>
 
-                        {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
 
                         {/*Show up even when there's no local entries*/}
                         {!isNakamaLibrary && hasLibraryPath && <Button
@@ -147,6 +143,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
 
+                <HomeSettingsButton type="toolbar" />
+
                 {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) &&
                     <DropdownMenu
                         trigger={<IconButton
@@ -155,17 +153,17 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         />}
                     >
 
-                        <DropdownMenuItem
-                            data-library-toolbar-open-library-explorer-button
-                            disabled={!hasLibraryPath}
-                            className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}
-                            onClick={() => {
-                                setLibraryExplorerDrawerOpen(true)
-                            }}
-                        >
-                            <LuFolderTree />
-                            <span>Library explorer</span>
-                        </DropdownMenuItem>
+                        {/*<DropdownMenuItem*/}
+                        {/*    data-library-toolbar-open-library-explorer-button*/}
+                        {/*    disabled={!hasLibraryPath}*/}
+                        {/*    className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}*/}
+                        {/*    onClick={() => {*/}
+                        {/*        setLibraryExplorerDrawerOpen(true)*/}
+                        {/*    }}*/}
+                        {/*>*/}
+                        {/*    <LuFolderTree />*/}
+                        {/*    <span>Library explorer</span>*/}
+                        {/*</DropdownMenuItem>*/}
 
                         <DropdownMenuItem
                             data-library-toolbar-open-directory-button
@@ -208,6 +206,16 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                                 <span>Scan summaries</span>
                             </DropdownMenuItem>
                         </SeaLink>
+
+                        {/*<DropdownMenuItem*/}
+                        {/*    data-library-toolbar-scan-summaries-button*/}
+                        {/*    // className={cn({ "!text-[--muted]": !hasEntries })}*/}
+                        {/*>*/}
+                        {/*    <LuSettings />*/}
+                        {/*    <span>My Library Settings</span>*/}
+                        {/*</DropdownMenuItem>*/}
+
+                        {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
 
                         <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}

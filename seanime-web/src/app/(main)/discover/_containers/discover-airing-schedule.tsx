@@ -11,6 +11,7 @@ import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { LuDock } from "react-icons/lu"
 
 
 export function DiscoverAiringSchedule() {
@@ -112,17 +113,17 @@ export function DiscoverAiringSchedule() {
                                                         </ContextMenuLabel>
                                                         <ContextMenuItem
                                                             onClick={() => {
-                                                                router.push(`/entry?id=${event.media?.id}`)
-                                                            }}
-                                                        >
-                                                            Open page
-                                                        </ContextMenuItem>
-                                                        <ContextMenuItem
-                                                            onClick={() => {
                                                                 setPreviewModalMediaId(event.media?.id || 0, "anime")
                                                             }}
                                                         >
                                                             Preview
+                                                        </ContextMenuItem>
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                router.push(`/entry?id=${event.media?.id}`)
+                                                            }}
+                                                        >
+                                                            <LuDock /> Open page
                                                         </ContextMenuItem>
                                                     </ContextMenuGroup>}
                                                 >

@@ -10,6 +10,7 @@ import (
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -23,6 +24,23 @@ import (
 var ShouldCache = atomic.Bool{}
 var IsWorking = atomic.Bool{}
 var AnilistClient = atomic.Value{}
+
+type failureRecord struct {
+	timestamp time.Time
+	err       error
+}
+
+var (
+	failureTracking      = make([]failureRecord, 0)
+	failureTrackingMutex sync.RWMutex
+)
+
+const (
+	failureWindow     = 30 * time.Second // time window to consider failures
+	failureThreshold  = 3                // number of failures needed to mark as down
+	cleanupInterval   = 5 * time.Minute  // how often to clean up old failure records
+	maxFailureRecords = 50               // maximum number of failure records to keep
+)
 
 func init() {
 	ShouldCache.Store(true)
@@ -55,6 +73,15 @@ func init() {
 				events.GlobalWSEventManager.SendEvent(events.InfoToast, "The AniList API is back online")
 				IsWorking.Store(true)
 			}
+		}
+	}()
+
+	// periodic cleanup of old failure records
+	go func() {
+		ticker := time.NewTicker(cleanupInterval)
+		defer ticker.Stop()
+		for range ticker.C {
+			cleanupOldFailures()
 		}
 	}()
 }
@@ -104,6 +131,66 @@ const (
 	// Collection update interval (refresh collection tracking every 30 minutes)
 	collectionUpdateInterval = 30 * time.Minute
 )
+
+// addFailureRecord adds a new failure record to the tracking
+func addFailureRecord(err error) {
+	failureTrackingMutex.Lock()
+	defer failureTrackingMutex.Unlock()
+
+	now := time.Now()
+	failureTracking = append(failureTracking, failureRecord{
+		timestamp: now,
+		err:       err,
+	})
+
+	// keep only the most recent records
+	if len(failureTracking) > maxFailureRecords {
+		failureTracking = failureTracking[len(failureTracking)-maxFailureRecords:]
+	}
+}
+
+// getRecentFailureCount returns the number of failures within the failure window
+func getRecentFailureCount() int {
+	failureTrackingMutex.RLock()
+	defer failureTrackingMutex.RUnlock()
+
+	now := time.Now()
+	cutoff := now.Add(-failureWindow)
+	count := 0
+
+	for _, record := range failureTracking {
+		if record.timestamp.After(cutoff) {
+			count++
+		}
+	}
+
+	return count
+}
+
+// cleanupOldFailures removes failure records older than the failure window
+func cleanupOldFailures() {
+	failureTrackingMutex.Lock()
+	defer failureTrackingMutex.Unlock()
+
+	now := time.Now()
+	cutoff := now.Add(-failureWindow)
+	validRecords := make([]failureRecord, 0, len(failureTracking))
+
+	for _, record := range failureTracking {
+		if record.timestamp.After(cutoff) {
+			validRecords = append(validRecords, record)
+		}
+	}
+
+	failureTracking = validRecords
+}
+
+// clearFailureTracking clears all failure records (called when API comes back online)
+func clearFailureTracking() {
+	failureTrackingMutex.Lock()
+	defer failureTrackingMutex.Unlock()
+	failureTracking = failureTracking[:0]
+}
 
 func NewCacheLayer(anilistClient anilist.AnilistClient) anilist.AnilistClient {
 	fileCacher, err := filecache.NewCacher(anilistClient.GetCacheDir())
@@ -220,16 +307,43 @@ func (c *CacheLayer) CustomQuery(body []byte, logger *zerolog.Logger, token ...s
 // checkAndUpdateWorkingState checks if the API client is working and updates the state
 func (c *CacheLayer) checkAndUpdateWorkingState(err error) {
 	if err != nil {
-		if IsWorking.Load() && !errors.Is(err, context.Canceled) {
-			c.logger.Warn().Err(err).Msg("anilist cache: API client is not working, switching to cache-only mode.")
-			events.GlobalWSEventManager.SendEvent(events.WarningToast, "The AniList API is not working, switching to cache-only mode.")
-			IsWorking.Store(false)
+		// Skip context.Canceled errors, not indicative of API issues
+		if errors.Is(err, context.Canceled) {
+			return
+		}
+
+		// Add failure to tracking
+		addFailureRecord(err)
+
+		// Only mark as down if we have enough recent failures and are currently marked as working
+		if IsWorking.Load() {
+			recentFailures := getRecentFailureCount()
+			if recentFailures >= failureThreshold {
+				c.logger.Warn().
+					Err(err).
+					Int("recent_failures", recentFailures).
+					Dur("within_window", failureWindow).
+					Msg("anilist cache: Multiple API failures detected, switching to cache-only mode.")
+				events.GlobalWSEventManager.SendEvent(events.WarningToast,
+					fmt.Sprintf("The AniList API is experiencing issues (%d failures in %v), switching to cache-only mode.",
+						recentFailures, failureWindow))
+				IsWorking.Store(false)
+			} else {
+				c.logger.Debug().
+					Err(err).
+					Int("recent_failures", recentFailures).
+					Int("threshold", failureThreshold).
+					Msg("anilist cache: API failure recorded, monitoring for more failures")
+			}
 		}
 	} else {
+		// clear failure tracking and mark as working if not already
 		if !IsWorking.Load() {
 			c.logger.Info().Msg("anilist cache: API client is working again, switching back to network-first mode.")
+			events.GlobalWSEventManager.SendEvent(events.InfoToast, "The AniList API is back online")
 			IsWorking.Store(true)
 		}
+		clearFailureTracking()
 	}
 }
 

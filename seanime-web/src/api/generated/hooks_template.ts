@@ -1996,7 +1996,7 @@
 // }
 
 // export function usePlaybackStartPlaylist() {
-//     return useServerMutation<boolean, PlaybackStartPlaylist_Variables>({
+//     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.endpoint,
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.key],
@@ -2330,6 +2330,26 @@
 //         endpoint: API_ENDPOINTS.STATUS.ForceGC.endpoint,
 //         method: API_ENDPOINTS.STATUS.ForceGC.methods[0],
 //         mutationKey: [API_ENDPOINTS.STATUS.ForceGC.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetHomeItems() {
+//     return useServerQuery<Array<Models_HomeItem>>({
+//         endpoint: API_ENDPOINTS.STATUS.GetHomeItems.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetHomeItems.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetHomeItems.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useUpdateHomeItems() {
+//     return useServerMutation<null, UpdateHomeItems_Variables>({
+//         endpoint: API_ENDPOINTS.STATUS.UpdateHomeItems.endpoint,
+//         method: API_ENDPOINTS.STATUS.UpdateHomeItems.methods[0],
+//         mutationKey: [API_ENDPOINTS.STATUS.UpdateHomeItems.key],
 //         onSuccess: async () => {
 // 
 //         },

@@ -263,3 +263,5 @@ export function useHandleLibraryCollection() {
     }
 
 }
+
+export type HandleLibraryCollectionProps = ReturnType<typeof useHandleLibraryCollection>

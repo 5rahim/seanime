@@ -27,7 +27,7 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                 href: "/",
                 // icon: IoLibrary,
                 isCurrent: pathname === "/",
-                name: "My library",
+                name: "Home",
             },
             {
                 href: "/schedule",

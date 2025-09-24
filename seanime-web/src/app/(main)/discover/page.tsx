@@ -98,7 +98,7 @@ export default function Page() {
                 <AnimatePresence mode="wait" initial={false}>
                     {pageType === "anime" && <PageWrapper
                         key="anime"
-                        className="relative 2xl:order-first pb-10 pt-4"
+                        className="relative 2xl:order-first pb-10 pt-4 space-y-8"
                         {...{
                             initial: { opacity: 0, y: 60 },
                             animate: { opacity: 1, y: 0 },
@@ -170,7 +170,7 @@ export default function Page() {
                         {/*</div>*/}
                         <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-container>
                             <h2>Trending Manga</h2>
-                            <DiscoverTrendingCountry country="JP" />
+                            <DiscoverTrendingCountry country="JP" forDiscoverHeader />
                         </div>
                         <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-manhwa-container>
                             <h2>Trending Manhwa</h2>

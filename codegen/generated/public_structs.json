@@ -30363,12 +30363,71 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HomeItems",
+        "jsonName": "homeItems",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
     "embeddedStructNames": [
       "models.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "HomeItem",
+    "formattedName": "Models_HomeItem",
+    "package": "models",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Options",
+        "jsonName": "options",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": [
+          " options chosen by the user"
+        ]
+      },
+      {
+        "name": "SchemaVersion",
+        "jsonName": "schemaVersion",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " checks if it's still valid on the client"
+        ]
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/database/models/models.go",
@@ -38669,6 +38728,34 @@
         "usedTypescriptType": "HibikeTorrent_AnimeTorrentFile",
         "usedStructName": "hibiketorrent.AnimeTorrentFile",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/tracker/types.go",
+    "filename": "types.go",
+    "name": "Settings",
+    "formattedName": "HibikeCustomSource_Settings",
+    "package": "hibikecustomsource",
+    "fields": [
+      {
+        "name": "SupportsAnime",
+        "jsonName": "supportsAnime",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsManga",
+        "jsonName": "supportsManga",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -47774,19 +47861,6 @@
         "comments": []
       },
       {
-        "name": "playlistHub",
-        "jsonName": "playlistHub",
-        "goType": "playlistHub",
-        "typescriptType": "PlaybackManager_playlistHub",
-        "usedTypescriptType": "PlaybackManager_playlistHub",
-        "usedStructName": "playbackmanager.playlistHub",
-        "required": false,
-        "public": false,
-        "comments": [
-          " The playlist hub"
-        ]
-      },
-      {
         "name": "isOffline",
         "jsonName": "isOffline",
         "goType": "bool",
@@ -47809,6 +47883,17 @@
         "jsonName": "playbackStatusSubscribers",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isPlaylistActive",
+        "jsonName": "isPlaylistActive",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
         "required": false,
         "public": false,
         "comments": []

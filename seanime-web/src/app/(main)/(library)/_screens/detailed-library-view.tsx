@@ -45,6 +45,7 @@ type LibraryViewProps = {
     hasEntries: boolean
     streamingMediaIds: number[]
     isNakamaLibrary: boolean
+    showStats?: boolean
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -56,6 +57,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         hasEntries,
         streamingMediaIds,
         isNakamaLibrary,
+        showStats,
         ...rest
     } = props
 
@@ -83,7 +85,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     if (!hasEntries) return null
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
+        <PageWrapper className="px-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
 
             {/* <div
              className={cn(
@@ -101,7 +103,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                         size="sm"
                         onClick={() => setView("base")}
                     />
-                    {!isNakamaLibrary && <h3 className="text-ellipsis truncate">Library</h3>}
+                    {!isNakamaLibrary && <h3 className="text-ellipsis truncate">Home</h3>}
                     {isNakamaLibrary &&
                         <h3 className="text-ellipsis truncate">{nakamaStatus?.hostConnectionStatus?.username || "Host"}'s Library</h3>}
                 </div>
@@ -109,7 +111,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                 <SearchInput />
             </div>
 
-            <div
+            {(showStats !== false) && <div
                 className={cn(
                     "grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]",
                     isNakamaLibrary && "lg:grid-cols-5",
@@ -140,7 +142,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                     <h3>{stats?.totalSpecials}</h3>
                     <p>Specials</p>
                 </div>
-            </div>
+            </div>}
 
             <SearchOptions />
 
@@ -203,7 +205,7 @@ const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
             showListDataButton
             withAudienceScore={false}
             type="anime"
-            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
+            // showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
         />
     )
 })

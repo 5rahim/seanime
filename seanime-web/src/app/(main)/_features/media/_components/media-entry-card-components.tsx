@@ -96,7 +96,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
         <div
             data-media-entry-card-hover-popup
             className={cn(
-                !ts.enableMediaCardBlurredBackground ? "bg-[--media-card-popup-background]" : "bg-[--background]",
+                !ts.enableMediaCardBlurredBackground ? "bg-[--media-card-popup-background]" : "bg-gray-950/90 backdrop-blur-sm",
                 "absolute z-[15] opacity-0 scale-100 border border-[rgb(255_255_255_/_5%)] duration-150",
                 "group-hover/media-entry-card:opacity-100 group-hover/media-entry-card:scale-100",
                 "group-focus-visible/media-entry-card:opacity-100 group-focus-visible/media-entry-card:scale-100",
@@ -117,31 +117,31 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                 // movementDuration={4}
                 className="opacity-15"
             />
-            {(ts.enableMediaCardBlurredBackground && !!coverImage) &&
-                <div
-                    data-media-entry-card-hover-popup-image-container
-                    className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden"
-                >
-                    <SeaImage
-                        data-media-entry-card-hover-popup-image
-                        src={getImageUrl(coverImage || "")}
-                        alt={"cover image"}
-                        fill
-                        placeholder={imageShimmer(700, 475)}
-                        quality={100}
-                    sizes="20rem"
-                    className="object-cover object-center transition opacity-20"
-                />
+            {/*{(ts.enableMediaCardBlurredBackground && !!coverImage) &&*/}
+            {/*    <div*/}
+            {/*        data-media-entry-card-hover-popup-image-container*/}
+            {/*        className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden"*/}
+            {/*    >*/}
+            {/*        <SeaImage*/}
+            {/*            data-media-entry-card-hover-popup-image*/}
+            {/*            src={getImageUrl(coverImage || "")}*/}
+            {/*            alt={"cover image"}*/}
+            {/*            fill*/}
+            {/*            placeholder={imageShimmer(700, 475)}*/}
+            {/*            quality={100}*/}
+            {/*            sizes="20rem"*/}
+            {/*            className="object-cover object-center transition opacity-20"*/}
+            {/*        />*/}
 
-                <div
-                    data-media-entry-card-hover-popup-image-blur-overlay
-                    className="absolute top-0 w-full h-full backdrop-blur-xl z-[0]"
-                ></div>
-            </div>}
+            {/*        <div*/}
+            {/*            data-media-entry-card-hover-popup-image-blur-overlay*/}
+            {/*            className="absolute top-0 w-full h-full backdrop-blur-xl z-[0]"*/}
+            {/*        ></div>*/}
+            {/*    </div>}*/}
 
             {ts.enableMediaCardBlurredBackground && <div
                 data-media-entry-card-hover-popup-image-blur-gradient
-                className="w-full absolute top-0 h-full opacity-60 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2] rounded-[--radius]"
+                className="w-full absolute top-0 h-[50%] opacity-60 bg-gradient-to-b from-30% from-[--background] to-transparent z-[2] rounded-[--radius]"
             />}
 
             <div data-media-entry-card-hover-popup-content className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
@@ -380,8 +380,8 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     {/*RELEASING BADGE*/}
                     {(status === "RELEASING" || status === "NOT_YET_RELEASED") &&
                         <div data-media-entry-card-body-releasing-badge-container className="absolute z-[10] right-1 top-2">
-                        <Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>
-                    </div>}
+                            <Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>
+                        </div>}
 
 
                     {children}
@@ -513,12 +513,12 @@ export const MediaEntryCardHoverPopupBanner = memo(({
 
             {(status === "RELEASING" || status === "NOT_YET_RELEASED") &&
                 <div data-media-entry-card-hover-popup-banner-releasing-badge-container className="absolute z-[10] right-1 top-2">
-                <Tooltip
-                    trigger={<Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>}
-                >
-                    {status === "RELEASING" ? "Releasing" : "Not yet released"}
-                </Tooltip>
-            </div>}
+                    <Tooltip
+                        trigger={<Badge intent={status === "RELEASING" ? "primary-solid" : "zinc-solid"} size="lg"><RiSignalTowerLine /></Badge>}
+                    >
+                        {status === "RELEASING" ? "Releasing" : "Not yet released"}
+                    </Tooltip>
+                </div>}
 
             {(!!bannerImage) ? <div className="absolute object-cover top-0 object-center w-full h-full rounded-[--radius] overflow-hidden"><SeaImage
                 data-media-entry-card-hover-popup-banner-image
@@ -560,7 +560,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             >
                 <iframe
                     data-media-entry-card-hover-popup-banner-trailer
-                    src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja`}
+                    src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja&enablejsapi=true`}
                     className={cn(
                         "aspect-video w-full absolute left-0",
                     )}
@@ -578,7 +578,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 data-media-entry-card-hover-popup-banner-gradient
                 className={cn(
                     "w-full absolute -bottom-1 h-[80%] from-10% bg-gradient-to-t from-[--media-card-popup-background] to-transparent z-[2]",
-                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-[--radius] opacity-80",
+                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-[--radius] opacity-60",
                 )}
             />}
         </div>

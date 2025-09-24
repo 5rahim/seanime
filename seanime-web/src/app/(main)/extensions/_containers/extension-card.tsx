@@ -58,14 +58,14 @@ export function ExtensionCard(props: ExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-xl p-3",
+                "bg-gray-900 rounded-xl p-3",
                 !!updateData && "border-[--green]",
             )}
         >
             <div
                 className={cn(
                     "absolute z-[0] right-0 top-0 h-full w-full max-w-[150px] bg-gradient-to-l to-gray-950",
-                    !isBuiltin && "max-w-[50%] from-indigo-950/20",
+                    // !isBuiltin && "max-w-[50%] from-indigo-950/20",
                 )}
             ></div>
 
@@ -141,7 +141,12 @@ export function ExtensionCard(props: ExtensionCardProps) {
 
             <div className="z-[1] relative flex flex-col h-full">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 flex-none bg-gray-900 overflow-hidden">
+                    <div
+                        className={cn(
+                            "relative rounded-md size-12 flex-none bg-gray-950 overflow-hidden",
+                            !!extension.icon && "bg-gray-900",
+                        )}
+                    >
                         {!!extension.icon ? (
                             <SeaImage
                                 src={extension.icon}
@@ -188,13 +193,13 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
-                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : undefined}>
+                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>
                         {extension.version}{!!updateData ? " → " + updateData.version : ""}
                     </Badge>}
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="border-transparent rounded-md" intent="unstyled">
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
                     </Badge>

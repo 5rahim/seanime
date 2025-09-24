@@ -425,6 +425,15 @@
           "typescriptType": "boolean",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "CountryOfOrigin",
+          "jsonName": "countryOfOrigin",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "anilist.ListAnime",
@@ -7812,17 +7821,7 @@
         "POST"
       ],
       "params": [],
-      "bodyFields": [
-        {
-          "name": "DbId",
-          "jsonName": "dbId",
-          "goType": "uint",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        }
-      ],
+      "bodyFields": [],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
@@ -9211,6 +9210,70 @@
       "returns": "handlers.MemoryStatsResponse",
       "returnGoType": "handlers.MemoryStatsResponse",
       "returnTypescriptType": "MemoryStatsResponse"
+    }
+  },
+  {
+    "name": "HandleGetHomeItems",
+    "trimmedName": "GetHomeItems",
+    "comments": [
+      "HandleGetHomeItems",
+      "",
+      "\t@summary returns the home items.",
+      "\t@route /api/v1/status/home-items [GET]",
+      "\t@returns []models.HomeItem",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns the home items.",
+      "descriptions": [],
+      "endpoint": "/api/v1/status/home-items",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]models.HomeItem",
+      "returnGoType": "models.HomeItem",
+      "returnTypescriptType": "Array\u003cModels_HomeItem\u003e"
+    }
+  },
+  {
+    "name": "HandleUpdateHomeItems",
+    "trimmedName": "UpdateHomeItems",
+    "comments": [
+      "HandleUpdateHomeItems",
+      "",
+      "\t@summary updates the home items.",
+      "\t@route /api/v1/status/home-items [POST]",
+      "\t@returns nil",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "updates the home items.",
+      "descriptions": [],
+      "endpoint": "/api/v1/status/home-items",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Items",
+          "jsonName": "items",
+          "goType": "[]models.HomeItem",
+          "usedStructType": "models.HomeItem",
+          "typescriptType": "Array\u003cModels_HomeItem\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "nil",
+      "returnGoType": "nil",
+      "returnTypescriptType": "null"
     }
   },
   {

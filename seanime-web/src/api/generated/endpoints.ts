@@ -1933,6 +1933,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/memory/gc",
         },
+        GetHomeItems: {
+            key: "STATUS-get-home-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/status/home-items",
+        },
+        UpdateHomeItems: {
+            key: "STATUS-update-home-items",
+            methods: ["POST"],
+            endpoint: "/api/v1/status/home-items",
+        },
     },
     THEME: {
         GetTheme: {

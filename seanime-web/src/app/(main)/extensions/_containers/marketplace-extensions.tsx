@@ -457,7 +457,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-md p-3",
+                "bg-gray-900 rounded-xl p-3",
                 !!updateData && "border-[--green]",
             )}
         >
@@ -481,7 +481,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
 
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
+                    <div className={cn("relative rounded-md size-12 bg-gray-950 overflow-hidden", !!extension.icon && "bg-gray-900")}>
                         {!!extension.icon ? (
                             <SeaImage
                                 src={extension.icon}
@@ -526,13 +526,16 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                         {extension.version}
                     </Badge>}
                     {<Badge className="rounded-md" intent="unstyled">
-                        By {extension.author}
+                        {extension.author}
                     </Badge>}
-                    <Badge className="rounded-md" intent={extension.lang !== "multi" && extension.lang !== "en" ? "blue" : "unstyled"}>
+                    <Badge
+                        className="border-transparent rounded-md"
+                        intent={extension.lang !== "multi" && extension.lang !== "en" ? "blue" : "unstyled"}
+                    >
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
                     </Badge>
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="border-transparent rounded-md text-[--muted]" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>
                     {!!updateData && <Badge className="rounded-md" intent="success">

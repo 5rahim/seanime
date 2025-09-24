@@ -2679,7 +2679,7 @@ export type HibikeCustomSource_ListMangaResponse = {
 }
 
 /**
- * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filepath: internal/extension/hibike/tracker/types.go
  * - Filename: types.go
  * - Package: hibikecustomsource
  */
@@ -3566,6 +3566,24 @@ export type Models_DiscordSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_HomeItem = {
+    id: string
+    type: string
+    /**
+     * options chosen by the user
+     */
+    options?: any
+    /**
+     * checks if it's still valid on the client
+     */
+    schemaVersion: number
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_IntSlice = Array<number>
 
 /**
@@ -3790,6 +3808,7 @@ export type Models_Theme = {
     customCSS: string
     mobileCustomCSS: string
     unpinnedMenuItems: Models_StringSlice
+    homeItems?: Array<string>
     id: number
     createdAt?: string
     updatedAt?: string

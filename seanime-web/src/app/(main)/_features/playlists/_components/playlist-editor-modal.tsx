@@ -96,8 +96,13 @@ export function PlaylistEditorModal(props: PlaylistEditorModalProps) {
                         )
                     })}
 
-                    <div className="">
-                        <Button disabled={episodes.length === 0} onClick={handleSubmit} loading={isCreating || isDeleting || isUpdating}>
+                    <div className="w-full">
+                        <Button
+                            disabled={episodes.length === 0}
+                            onClick={handleSubmit}
+                            loading={isCreating || isDeleting || isUpdating}
+                            className="w-full"
+                        >
                             {isUpdate ? "Update" : "Create"}
                         </Button>
                     </div>
