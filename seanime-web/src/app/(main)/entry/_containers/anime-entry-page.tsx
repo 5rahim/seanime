@@ -290,6 +290,7 @@ export function AnimeEntryPage() {
                                     hideBackButton
                                 />
                                 <MediaEntryCharactersSection details={animeDetails} />
+                                    <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                             </div>
                         </PageWrapper>}
 
