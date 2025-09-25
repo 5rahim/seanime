@@ -2,7 +2,6 @@ package qbittorrent
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -14,6 +13,8 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent/torrent"
 	"seanime/internal/torrent_clients/qbittorrent/transfer"
 	"strings"
+
+	"github.com/rs/zerolog"
 
 	"golang.org/x/net/publicsuffix"
 )
@@ -50,11 +51,21 @@ type NewClientOptions struct {
 }
 
 func NewClient(opts *NewClientOptions) *Client {
+
 	baseURL := fmt.Sprintf("http://%s:%d/api/v2", opts.Host, opts.Port)
 
 	if strings.HasPrefix(opts.Host, "https://") {
 		opts.Host = strings.TrimPrefix(opts.Host, "https://")
 		baseURL = fmt.Sprintf("https://%s:%d/api/v2", opts.Host, opts.Port)
+	}
+
+	if opts.Port == 0 {
+		baseURL = fmt.Sprintf("http://%s/api/v2", opts.Host)
+
+		if strings.HasPrefix(opts.Host, "https://") {
+			opts.Host = strings.TrimPrefix(opts.Host, "https://")
+			baseURL = fmt.Sprintf("https://%s/api/v2", opts.Host)
+		}
 	}
 
 	client := &http.Client{}

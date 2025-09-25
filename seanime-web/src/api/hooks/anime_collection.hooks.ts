@@ -5,12 +5,12 @@ import { AL_AnimeCollection, Anime_LibraryCollection, Anime_ScheduleItem } from 
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useGetLibraryCollection() {
+export function useGetLibraryCollection({ enabled }: { enabled?: boolean } = { enabled: true }) {
     return useServerQuery<Anime_LibraryCollection>({
         endpoint: API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.endpoint,
         method: API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key],
-        enabled: true,
+        enabled: enabled,
     })
 }
 

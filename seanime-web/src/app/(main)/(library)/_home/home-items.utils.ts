@@ -217,8 +217,25 @@ export const HOME_ITEMS = {
     "local-anime-library": {
         name: "Local Anime Library",
         kind: ["row"],
-        schemaVersion: 1,
+        schemaVersion: 2,
         description: "Display a complete grid of anime you have in your local library.",
+        options: [
+            {
+                label: "Layout",
+                name: "layout",
+                type: "select",
+                options: [
+                    {
+                        label: "Grid",
+                        value: "grid",
+                    },
+                    {
+                        label: "Carousel",
+                        value: "carousel",
+                    },
+                ],
+            },
+        ],
     },
     "library-upcoming-episodes": {
         name: "Upcoming Library Episodes",
@@ -238,7 +255,7 @@ export const HOME_ITEMS = {
         schemaVersion: 1,
         description: "Display a calendar of anime episodes based on their airing schedule.",
     },
-    "anime-library-stats": {
+    "local-anime-library-stats": {
         name: "Anime Library Stats",
         kind: ["row"],
         schemaVersion: 1,

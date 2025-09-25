@@ -1,5 +1,6 @@
 import { Models_HomeItem } from "@/api/generated/types"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
+import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { useGetHomeItems } from "@/api/hooks/status.hooks"
 import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
@@ -128,6 +129,13 @@ export function HomeScreen() {
                 </>
             )}
 
+            <div
+                className={cn(
+                    "h-12 lg:hidden",
+                )}
+                data-library-toolbar-top-padding
+            ></div>
+
             {(
                 (ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasEntries) &&
                 (homeItems[0]?.type === "anime-continue-watching" || homeItems[0]?.type === "manga-library")
@@ -186,7 +194,7 @@ export function HomeScreen() {
                         return (
                             <React.Fragment key={item.id}>
                                 {(index !== 0 &&
-                                    !(item?.type === "manga-library" || item?.type === "anime-library" || item?.type === "anime-continue-watching")
+                                    !(item?.type === "manga-library" || item?.type === "anime-library" || item?.type === "anime-continue-watching" || item.type === "anime-library-stats")
                                 ) && <div data-home-screen-item-divider className="h-8" />}
                                 <HomeScreenItem
                                     item={item}
@@ -275,12 +283,14 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         isNakamaLibrary,
     } = props.libraryCollectionProps
 
+
     const ts = useThemeSettings()
 
     const schema = HOME_ITEMS[_item.type as keyof typeof HOME_ITEMS]
 
     // remove item options if schema version has changed
     const item = React.useMemo(() => {
+        if (!schema || !_item) return undefined
         if (!_item.schemaVersion || _item.schemaVersion !== schema.schemaVersion) {
             return {
                 ..._item,
@@ -291,7 +301,10 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         return _item
     }, [_item, schema])
 
-    if (!schema) return <div>
+    const { data } = useGetLibraryCollection({ enabled: item?.type === "anime-library-stats" })
+
+
+    if (!schema || !item) return <div>
         Item not found
     </div>
 
@@ -381,11 +394,75 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         )
     }
 
+    if (item.type === "local-anime-library") {
+        return (
+            <>
+                <LocalAnimeLibrary libraryCollectionProps={props.libraryCollectionProps} item={item} index={index} />
+            </>
+        )
+    }
+
+    if (item.type === "anime-library-stats") {
+        return (
+            <PageWrapper>
+                <div
+                    className={cn(
+                        "grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted] py-4",
+                        isNakamaLibrary && "lg:grid-cols-5",
+                    )}
+                    data-detailed-library-view-stats-container
+                >
+                    {!isNakamaLibrary && <div>
+                        <h3>{data?.stats?.totalSize ?? "-"}</h3>
+                        <p>Library</p>
+                    </div>}
+                    <div>
+                        <h3>{data?.stats?.totalFiles ?? "-"}</h3>
+                        <p>Files</p>
+                    </div>
+                    <div>
+                        <h3>{data?.stats?.totalEntries ?? "-"}</h3>
+                        <p>Entries</p>
+                    </div>
+                    <div>
+                        <h3>{data?.stats?.totalShows ?? "-"}</h3>
+                        <p>TV Shows</p>
+                    </div>
+                    <div>
+                        <h3>{data?.stats?.totalMovies ?? "-"}</h3>
+                        <p>Movies</p>
+                    </div>
+                    <div>
+                        <h3>{data?.stats?.totalSpecials ?? "-"}</h3>
+                        <p>Specials</p>
+                    </div>
+                </div>
+            </PageWrapper>
+        )
+    }
+
     return <div>
         Item not found ({item.type})
     </div>
 }
 
+function LocalAnimeLibrary(props: { libraryCollectionProps: HandleLibraryCollectionProps, item: Models_HomeItem, index: number }) {
+    return (
+        <>
+            <DetailedLibraryView
+                isHomeItem={true}
+                collectionList={props.libraryCollectionProps.libraryCollectionList}
+                continueWatchingList={props.libraryCollectionProps.continueWatchingList}
+                isLoading={props.libraryCollectionProps.isLoading}
+                hasEntries={props.libraryCollectionProps.hasEntries}
+                streamingMediaIds={props.libraryCollectionProps.streamingMediaIds}
+                isNakamaLibrary={props.libraryCollectionProps.isNakamaLibrary}
+                type={props.item?.options?.layout || "grid"}
+            />
+        </>
+    )
+
+}
 function MangaLibrary(props: { libraryCollectionProps: HandleLibraryCollectionProps, item: Models_HomeItem, index: number }) {
     const { libraryCollectionProps, item, index } = props
     const {} = libraryCollectionProps
@@ -487,7 +564,7 @@ function AnimeCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                                 key={media.id}
                                 media={media}
                                 showLibraryBadge
-                                containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                                 showTrailer
                                 type="anime"
                             />
@@ -542,7 +619,7 @@ function MangaCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                             <MediaEntryCard
                                 key={media.id}
                                 media={media}
-                                containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                                 type="manga"
                             />
                         )

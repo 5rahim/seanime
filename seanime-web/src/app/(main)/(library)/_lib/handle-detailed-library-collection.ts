@@ -22,7 +22,7 @@ export const __library_selectedListAtom = atomWithStorage<string>("sea-detailed-
 
 export const __library_debouncedSearchInputAtom = atomWithImmer<string>("")
 
-export function useHandleDetailedLibraryCollection() {
+export function useHandleDetailedLibraryCollection({ enabled = true }: { enabled?: boolean } = { enabled: true }) {
     const serverStatus = useServerStatus()
 
     const { animeLibraryCollectionDefaultSorting } = useThemeSettings()
@@ -32,7 +32,7 @@ export function useHandleDetailedLibraryCollection() {
     /**
      * Fetch the library collection data
      */
-    const { data, isLoading } = useGetLibraryCollection()
+    const { data, isLoading } = useGetLibraryCollection({ enabled })
 
     const [paramsToDebounce, setParamsToDebounce] = useAtom(__library_paramsAtom)
     const debouncedParams = useDebounce(paramsToDebounce, 500)

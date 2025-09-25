@@ -293,7 +293,7 @@ function EpisodeCardSidebar({ episode, isTransitioning }: EpisodeCardSidebarProp
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
-                    className="xl:w-[500px] w-[400px] border rounded-xl overflow-hidden"
+                    className="2xl:w-[500px] xl:w-[400px] lg:w-[300px] border rounded-xl overflow-hidden"
                 >
                     {/* <div className="w-[160%] h-[120%] -left-[30%] -top-0 opacity-50 absolute z-[1]">
                      <img src="/radial-shadow.png" alt="radial shadow" className="w-full h-full object-contain" />
@@ -311,11 +311,11 @@ function EpisodeCardSidebar({ episode, isTransitioning }: EpisodeCardSidebarProp
                         hasDiscrepancy={episode.episodeNumber !== episode.progressNumber}
                         percentageComplete={getEpisodePercentageComplete(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
                         minutesRemaining={getEpisodeMinutesRemaining(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
-                        // anime={{
-                        //     id: episode?.baseAnime?.id || 0,
-                        //     image: episode?.baseAnime?.coverImage?.medium,
-                        //     title: episode?.baseAnime?.title?.userPreferred,
-                        // }}
+                        anime={{
+                            id: episode?.baseAnime?.id || 0,
+                            image: episode?.baseAnime?.coverImage?.medium,
+                            title: episode?.baseAnime?.title?.userPreferred,
+                        }}
                         isSingleContainer
                         onClick={handleEpisodeClick}
                         className={cn(

@@ -36,7 +36,7 @@ const HOME_ITEM_ICONS = {
     "library-upcoming-episodes": LuClock,
     "aired-recently": LuCalendarClock,
     "anime-schedule-calendar": LuCalendar,
-    "anime-library-stats": BiStats,
+    "local-anime-library-stats": BiStats,
     "discover-header": FaRegCompass,
     "anime-carousel": FaRegCompass,
     "manga-carousel": FaRegCompass,
@@ -59,8 +59,36 @@ export function HomeSettingsModal() {
         return !currentItems.some(item => item.type === type)
     })
 
+    const checkTimeRef = React.useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        setCurrentItems(_homeItems || DEFAULT_HOME_ITEMS)
+        const homeItems = _homeItems || DEFAULT_HOME_ITEMS
+        setCurrentItems(homeItems)
+
+        if (checkTimeRef.current) {
+            clearTimeout(checkTimeRef.current)
+            checkTimeRef.current = null
+        }
+
+        // Check if an item doesn't exist anymore and remove it
+        checkTimeRef.current = setTimeout(() => {
+            const newItems = normalizeHomeItems(currentItems)
+
+            if (newItems.length !== homeItems.length) {
+                setCurrentItems(newItems)
+                updateHomeItems({ items: newItems }, {
+                    onSuccess: () => {
+                        console.log("Home items updated")
+                    },
+                })
+            }
+        }, 500)
+
+        return () => {
+            if (checkTimeRef.current) {
+                clearTimeout(checkTimeRef.current)
+                checkTimeRef.current = null
+            }
+        }
     }, [_homeItems])
 
     const handleDragEnd = React.useCallback((event: DragEndEvent) => {
@@ -70,7 +98,7 @@ export function HomeSettingsModal() {
             const oldIndex = currentItems.findIndex(item => item.id === active.id)
             const newIndex = currentItems.findIndex(item => item.id === over?.id)
 
-            const newItems = arrayMove(currentItems, oldIndex, newIndex)
+            const newItems = normalizeHomeItems(arrayMove(currentItems, oldIndex, newIndex))
             setCurrentItems(newItems)
             updateHomeItems({ items: newItems }, {
                 onSuccess: () => {

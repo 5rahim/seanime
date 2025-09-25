@@ -188,7 +188,7 @@ export const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds
             showListDataButton
             withAudienceScore={false}
             type="anime"
-            containerClassName={type === "carousel" ? "basis-[200px] md:basis-[250px] mx-2 my-8" : undefined}
+            containerClassName={type === "carousel" ? "basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0" : undefined}
             showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId) && entry.listData?.status === "CURRENT"}
         />
     )

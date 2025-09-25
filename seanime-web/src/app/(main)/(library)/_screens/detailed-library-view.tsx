@@ -16,6 +16,7 @@ import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_SEASONS, ADVANCED_SEARCH_STATU
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
+import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -45,7 +46,8 @@ type LibraryViewProps = {
     hasEntries: boolean
     streamingMediaIds: number[]
     isNakamaLibrary: boolean
-    showStats?: boolean
+    isHomeItem?: boolean
+    type?: "carousel" | "grid"
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -57,7 +59,8 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         hasEntries,
         streamingMediaIds,
         isNakamaLibrary,
-        showStats,
+        isHomeItem,
+        type = "grid",
         ...rest
     } = props
 
@@ -94,7 +97,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
              )}
              /> */}
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between" data-detailed-library-view-header-container>
+            {!isHomeItem && <div className="flex flex-col md:flex-row gap-4 justify-between" data-detailed-library-view-header-container>
                 <div className="flex gap-4 items-center relative w-fit">
                     <IconButton
                         icon={<AiOutlineArrowLeft />}
@@ -109,9 +112,9 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                 </div>
 
                 <SearchInput />
-            </div>
+            </div>}
 
-            {(showStats !== false) && <div
+            {(!isHomeItem) && <div
                 className={cn(
                     "grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]",
                     isNakamaLibrary && "lg:grid-cols-5",
@@ -150,15 +153,19 @@ export function DetailedLibraryView(props: LibraryViewProps) {
 
             {selectedList !== "all" && libraryCollectionList.map(collection => {
                 if (!collection.entries?.length) return null
-                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} />
+                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} type={type} />
             })}
 
-            {selectedList === "all" && <MergedLibraryCollectionList entries={libraryEntries} streamingMediaIds={streamingMediaIds} />}
+            {selectedList === "all" && <MergedLibraryCollectionList entries={libraryEntries} streamingMediaIds={streamingMediaIds} type={type} />}
         </PageWrapper>
     )
 }
 
-const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { list: Anime_LibraryCollectionList, streamingMediaIds: number[] }) => {
+const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds, type }: {
+    list: Anime_LibraryCollectionList,
+    streamingMediaIds: number[],
+    type: "grid" | "carousel"
+}) => {
 
     const [selectedList, setSelectedList] = useAtom(__library_selectedListAtom)
 
@@ -167,34 +174,70 @@ const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { lis
     return (
         <React.Fragment key={list.type}>
             <h2>{getLibraryCollectionTitle(list.type)} <span className="text-[--muted] font-medium ml-3">{list?.entries?.length ?? 0}</span></h2>
-            <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
+            {type === "grid" && <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
                 })}
-            </MediaCardLazyGrid>
+            </MediaCardLazyGrid>}
+
+            {type === "carousel" && <Carousel
+                className={cn("w-full max-w-full !mt-0")}
+                gap="xl"
+                opts={{
+                    align: "start",
+                    dragFree: true,
+                }}
+                autoScroll={false}
+            >
+                <CarouselDotButtons className="-top-2" />
+                <CarouselContent className="px-6">
+                    {list.entries?.filter(Boolean)?.map(entry => {
+                        return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
+                    })}
+                </CarouselContent>
+            </Carousel>}
         </React.Fragment>
     )
 })
 
-const MergedLibraryCollectionList = React.memo(({ entries, streamingMediaIds }: {
+const MergedLibraryCollectionList = React.memo(({ entries, streamingMediaIds, type }: {
     entries: Anime_LibraryCollectionEntry[],
     streamingMediaIds: number[]
+    type: "grid" | "carousel"
 }) => {
 
     return (
         <React.Fragment>
-            <MediaCardLazyGrid itemCount={entries?.length || 0}>
+            {type === "grid" && <MediaCardLazyGrid itemCount={entries?.length || 0}>
                 {entries?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
                 })}
-            </MediaCardLazyGrid>
+            </MediaCardLazyGrid>}
+
+            {type === "carousel" && <Carousel
+                className={cn("w-full max-w-full !mt-0")}
+                gap="xl"
+                opts={{
+                    align: "start",
+                    dragFree: true,
+                }}
+                autoScroll={false}
+            >
+                <CarouselDotButtons className="-top-2" />
+                <CarouselContent className="px-6">
+                    {entries?.filter(Boolean)?.map(entry => {
+                        return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
+                    })}
+                </CarouselContent>
+            </Carousel>}
         </React.Fragment>
     )
 })
 
-const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
+const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds, type }: {
     entry: Anime_LibraryCollectionEntry,
     streamingMediaIds: number[]
+    type: "grid" | "carousel"
 }) => {
     return (
         <MediaEntryCard
@@ -205,6 +248,7 @@ const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
             showListDataButton
             withAudienceScore={false}
             type="anime"
+            containerClassName={type === "carousel" ? "basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0" : undefined}
             // showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
         />
     )

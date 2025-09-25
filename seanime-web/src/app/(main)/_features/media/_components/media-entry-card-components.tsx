@@ -1,7 +1,6 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
-import { __ui_fixBorderRenderingArtifacts } from "@/app/(main)/settings/_containers/ui-settings"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
@@ -13,7 +12,6 @@ import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai/index"
-import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import React, { memo } from "react"
@@ -90,7 +88,8 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
     } = props
 
     const ts = useThemeSettings()
-    const markBorderRenderingArtifacts = useAtomValue(__ui_fixBorderRenderingArtifacts)
+    // const markBorderRenderingArtifacts = useAtomValue(__ui_fixBorderRenderingArtifacts)
+    const markBorderRenderingArtifacts = true
 
     return (
         <div

@@ -84,7 +84,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const { setPreviewModalMediaId } = useMediaPreviewModal()
     const { selectEpisodeToAddAndOpenEditor } = usePlaylistEditorManager()
 
-    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
+    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime && !isSingleContainer
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
