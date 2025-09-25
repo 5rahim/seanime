@@ -69,6 +69,13 @@ jobs:
             id: seanime-server-linux
             go_flags: -trimpath -ldflags="-s -w"
 
+          # These are the Linux binaries used for the server build and the Tauri Linux build
+          # for android
+          - os: ubuntu-latest # seanime-server-linux-android-arm64, seanime-server-linux-android-amd64
+            id: seanime-server-linux-android
+            go_env: GOOS=android
+            go_flags: -trimpath -ldflags="-s -w" -tags netcgo
+
           # These are the macOS binaries used for the server build and the Tauri macOS build
           - os: macos-latest # seanime-server-darwin-arm64, seanime-server-darwin-amd64
             id: seanime-server-darwin
