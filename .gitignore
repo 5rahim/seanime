@@ -52,6 +52,7 @@ seanime-web/out
 seanime-web/out-desktop
 seanime-web/out-denshi
 seanime-web/web
+seanime-web/web-desktop
 seanime-web/.next
 seanime-web/.idea
 # dependencies
@@ -82,6 +83,7 @@ seanime-web/logs
 seanime-web/analyze
 seanime-web/TODO-priv.md
 seanime-web/CHANGELOG-priv.md
+seanime-desktop/src-tauri/binaries/*
 
 codegen/generated/hooks.mdx
 
