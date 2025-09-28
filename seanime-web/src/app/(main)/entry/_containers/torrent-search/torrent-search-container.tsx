@@ -10,7 +10,8 @@ import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
 import { useTorrentSearchSelectedStreamEpisode } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
-import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentDownloadFileSelection } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-file-selection"
+import { TorrentDownloadModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-modal"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
@@ -430,11 +431,13 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 </div>}
             </AppLayoutStack>
 
-            {type === "download" && <TorrentConfirmationModal
+            {type === "download" && <TorrentDownloadModal
                 onToggleTorrent={handleToggleTorrent}
                 media={entry.media!!}
                 entry={entry}
             />}
+
+            {type === "download" && <TorrentDownloadFileSelection entry={entry} />}
 
             {type === "torrentstream-select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
             {type === "debridstream-select-file" && <DebridStreamFileSelectionModal entry={entry} />}

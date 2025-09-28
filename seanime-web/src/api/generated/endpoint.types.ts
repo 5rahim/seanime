@@ -1764,6 +1764,18 @@ export type TorrentClientAction_Variables = {
 /**
  * - Filepath: internal/handlers/torrent_client.go
  * - Filename: torrent_client.go
+ * - Endpoint: /api/v1/torrent-client/get-files
+ * @description
+ * Route gets the files of a torrent.
+ */
+export type TorrentClientGetFiles_Variables = {
+    hash: string
+    magnet: string
+}
+
+/**
+ * - Filepath: internal/handlers/torrent_client.go
+ * - Filename: torrent_client.go
  * - Endpoint: /api/v1/torrent-client/download
  * @description
  * Route adds torrents to the torrent client.
@@ -1772,6 +1784,7 @@ export type TorrentClientDownload_Variables = {
     torrents: Array<HibikeTorrent_AnimeTorrent>
     destination: string
     smartSelect: { enabled: boolean; missingEpisodeNumbers: Array<number>; }
+    deselect?: { enabled: boolean; indices: Array<number>; }
     media?: AL_BaseAnime
 }
 

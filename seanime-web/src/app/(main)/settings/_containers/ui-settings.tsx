@@ -289,7 +289,7 @@ export function UISettings() {
                             <TabsTrigger value="main">Theme</TabsTrigger>
                             <TabsTrigger value="media">Media</TabsTrigger>
                             <TabsTrigger value="navigation">Navigation</TabsTrigger>
-                            <TabsTrigger value="browser-client">Rendering</TabsTrigger>
+                            {/*<TabsTrigger value="browser-client">Rendering</TabsTrigger>*/}
                         </TabsList>
 
                         <TabsContent value="main" className={tabContentClass}>
@@ -719,11 +719,11 @@ export function UISettings() {
 
                             <SettingsCard title="Episode card">
 
-                                {/* <Field.Switch
-                                 side="right"
-                                 label="Legacy episode cards"
-                                 name="useLegacyEpisodeCard"
-                                 /> */}
+                                <Field.Switch
+                                    side="right"
+                                    label="Legacy episode cards"
+                                    name="useLegacyEpisodeCard"
+                                />
 
                                 <Field.Switch
                                     side="right"
@@ -764,27 +764,27 @@ export function UISettings() {
 
                         </TabsContent>
 
-                        <TabsContent value="browser-client" className={tabContentClass}>
+                        {/*<TabsContent value="browser-client" className={tabContentClass}>*/}
 
-                            <SettingsCard>
-                                <Switch
-                                    side="right"
-                                    label="Fix border rendering artifacts (client-specific)"
-                                    name="enableMediaCardStyleFix"
-                                    help="Seanime will try to fix border rendering artifacts. This setting only affects this client/browser."
-                                    value={fixBorderRenderingArtifacts}
-                                    onValueChange={(v) => {
-                                        setFixBorerRenderingArtifacts(v)
-                                        if (v) {
-                                            toast.success("Handling border rendering artifacts")
-                                        } else {
-                                            toast.success("Border rendering artifacts are no longer handled")
-                                        }
-                                    }}
-                                />
-                            </SettingsCard>
+                        {/*    <SettingsCard>*/}
+                        {/*        <Switch*/}
+                        {/*            side="right"*/}
+                        {/*            label="Fix border rendering artifacts (client-specific)"*/}
+                        {/*            name="enableMediaCardStyleFix"*/}
+                        {/*            help="Seanime will try to fix border rendering artifacts. This setting only affects this client/browser."*/}
+                        {/*            value={fixBorderRenderingArtifacts}*/}
+                        {/*            onValueChange={(v) => {*/}
+                        {/*                setFixBorerRenderingArtifacts(v)*/}
+                        {/*                if (v) {*/}
+                        {/*                    toast.success("Handling border rendering artifacts")*/}
+                        {/*                } else {*/}
+                        {/*                    toast.success("Border rendering artifacts are no longer handled")*/}
+                        {/*                }*/}
+                        {/*            }}*/}
+                        {/*        />*/}
+                        {/*    </SettingsCard>*/}
 
-                        </TabsContent>
+                        {/*</TabsContent>*/}
 
                         {tab !== "browser-client" && <div className="mt-4">
                             <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>

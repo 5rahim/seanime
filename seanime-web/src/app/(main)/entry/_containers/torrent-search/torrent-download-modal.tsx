@@ -3,6 +3,10 @@ import { useDebridAddTorrents } from "@/api/hooks/debrid.hooks"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import {
+    __torrentDownload_fileSelectionAtom,
+    getDefaultDestination,
+} from "@/app/(main)/entry/_containers/torrent-search/torrent-download-file-selection"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
@@ -26,7 +30,7 @@ import { LuDownload, LuPlay } from "react-icons/lu"
 
 const confirmationModalOpenAtom = atom(false)
 
-export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
+export function TorrentDownloadModal({ onToggleTorrent, media, entry }: {
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void,
     media: AL_BaseAnime,
     entry: Anime_Entry
@@ -36,14 +40,14 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const serverStatus = useServerStatus()
     const libraryPath = serverStatus?.settings?.library?.libraryPath
 
+    const setFileSelection = useSetAtom(__torrentDownload_fileSelectionAtom)
+
     /**
      * Default path for the destination folder
      */
     const defaultPath = useMemo(() => {
-        const fPath = entry.localFiles?.findLast(n => n)?.path // file path
-        const newPath = libraryPath ? upath.join(libraryPath, sanitizeDirectoryName(media.title?.romaji || "")) : ""
-        return fPath ? upath.normalize(upath.dirname(fPath)) : newPath
-    }, [libraryPath, entry.localFiles, media.title?.romaji])
+        return getDefaultDestination(entry, libraryPath)
+    }, [entry, libraryPath])
 
     const [destination, setDestination] = useState(defaultPath)
 
@@ -95,8 +99,8 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     const isDisabled = isPending || isDownloadingFiles || isDownloadingDebrid
 
-    function handleLaunchDownload(smartSelect: boolean) {
-        if (smartSelect) {
+    function handleLaunchDownload(type: "default" | "smart-select" | "deselect") {
+        if (type === "smart-select") {
             mutate({
                 torrents: selectedTorrents,
                 destination,
@@ -106,7 +110,12 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 },
                 media,
             })
-        } else {
+        } else if (type === "deselect") {
+            setFileSelection({
+                torrent: selectedTorrents[0],
+                destination,
+            })
+        } else if (type === "default") {
             mutate({
                 torrents: selectedTorrents,
                 destination,
@@ -252,7 +261,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                             data-torrent-confirmation-modal-download-button
                                             leftIcon={<BiDownload />}
                                             intent="white"
-                                            onClick={() => handleLaunchDownload(false)}
+                                            onClick={() => handleLaunchDownload("default")}
                                             disabled={isDisabled || serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.NONE}
                                             loading={isPending}
                                             className="w-full"
@@ -264,12 +273,26 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                     )}
                                 </div>
 
+                                {(selectedTorrents.length === 1) && (
+                                    <Button
+                                        data-torrent-confirmation-modal-download-select-episodes-button
+                                        leftIcon={<BiCollection />}
+                                        intent="gray-outline"
+                                        onClick={() => handleLaunchDownload("deselect")}
+                                        disabled={isDisabled}
+                                        loading={isPending}
+                                        className="w-full"
+                                    >
+                                        Choose files to download
+                                    </Button>
+                                )}
+
                                 {(selectedTorrents.length > 0 && canSmartSelect) && (
                                     <Button
                                         data-torrent-confirmation-modal-download-missing-episodes-button
                                         leftIcon={<BiCollection />}
                                         intent="gray-outline"
-                                        onClick={() => handleLaunchDownload(true)}
+                                        onClick={() => handleLaunchDownload("smart-select")}
                                         disabled={isDisabled}
                                         loading={isPending}
                                         className="w-full"

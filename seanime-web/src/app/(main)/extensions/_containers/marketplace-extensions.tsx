@@ -18,6 +18,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
 import { Select } from "@/components/ui/select"
+import { StaticTabs } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useAtom } from "jotai/react"
 import { orderBy } from "lodash"
@@ -25,8 +26,7 @@ import capitalize from "lodash/capitalize"
 import React, { useMemo } from "react"
 import { BiSearch } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
-import { LuBlocks, LuCheck, LuDownload, LuSettings } from "react-icons/lu"
-import { PiBookFill } from "react-icons/pi"
+import { LuBlocks, LuBookOpen, LuCheck, LuDownload, LuSettings } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { toast } from "sonner"
 
@@ -303,20 +303,44 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
 
             {/* Search and filter */}
             <div className="flex flex-wrap gap-4">
+                <StaticTabs
+                    className="h-10 w-fit border rounded-full"
+                    triggerClass="px-4 py-1 text-sm"
+                    items={[
+                        {
+                            name: "All Types",
+                            isCurrent: filterType === "all",
+                            onClick: () => setFilterType("all"),
+                            // iconType: IoGrid,
+                        },
+                        {
+                            name: "Plugins",
+                            isCurrent: filterType === "plugin",
+                            onClick: () => setFilterType("plugin"),
+                            // iconType: LuBlocks,
+                        },
+                        {
+                            name: "Anime Torrents",
+                            isCurrent: filterType === "anime-torrent-provider",
+                            onClick: () => setFilterType("anime-torrent-provider"),
+                            // iconType: RiFolderDownloadFill,
+                        },
+                        {
+                            name: "Manga",
+                            isCurrent: filterType === "manga-provider",
+                            onClick: () => setFilterType("manga-provider"),
+                            // iconType: LuBookOpen,
+                        },
+                        {
+                            name: "Online Streaming",
+                            isCurrent: filterType === "onlinestream-provider",
+                            onClick: () => setFilterType("onlinestream-provider"),
+                            // iconType: CgMediaPodcast,
+                        },
+                    ]}
+                />
 
                 <div className="flex flex-col lg:flex-row w-full gap-2">
-                    <Select
-                        value={filterType}
-                        onValueChange={setFilterType}
-                        options={[
-                            { value: "all", label: "All Types" },
-                            { value: "plugin", label: "Plugins" },
-                            { value: "anime-torrent-provider", label: "Anime Torrents" },
-                            { value: "manga-provider", label: "Manga" },
-                            { value: "onlinestream-provider", label: "Online Streaming" },
-                        ]}
-                        fieldClass="lg:max-w-[200px]"
-                    />
                     <Select
                         value={filterLanguage}
                         onValueChange={setFilterLanguage}
@@ -331,17 +355,6 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                         leftIcon={<BiSearch />}
                     />
                 </div>
-                {/*<SelectTrigger className="w-[180px]">*/}
-                {/*    <SelectValue placeholder="Filter by type" />*/}
-                {/*</SelectTrigger>*/}
-                {/*<SelectContent>*/}
-                {/*    <SelectItem value="all">All Types</SelectItem>*/}
-                {/*    <SelectItem value="plugin">Plugins</SelectItem>*/}
-                {/*    <SelectItem value="anime-torrent-provider">Anime Torrent</SelectItem>*/}
-                {/*    <SelectItem value="manga-provider">Manga</SelectItem>*/}
-                {/*    <SelectItem value="onlinestream-provider">Online Streaming</SelectItem>*/}
-                {/*</SelectContent>*/}
-                {/*</Select>*/}
             </div>
 
             {isLoadingMarketplace && <LoadingSpinner />}
@@ -390,7 +403,7 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
 
             {!!mangaExtensions?.length && (
                 <Card className="p-4 space-y-6">
-                    <h3 className="flex gap-3 items-center"><PiBookFill />Manga</h3>
+                    <h3 className="flex gap-3 items-center"><LuBookOpen />Manga</h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {mangaExtensions.map(extension => (
                             <MarketplaceExtensionCard
@@ -528,13 +541,13 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                     {<Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    <Badge
+                    {extension.lang?.toUpperCase() !== "MULTI" && <Badge
                         className="border-transparent rounded-md"
-                        intent={extension.lang !== "multi" && extension.lang !== "en" ? "blue" : "unstyled"}
+                        intent={extension.lang !== "multi" ? "blue" : "unstyled"}
                     >
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
-                    </Badge>
+                    </Badge>}
                     <Badge className="border-transparent rounded-md text-[--muted]" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>

@@ -158,7 +158,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate, withTitle 
             {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime && withTitle) && <TextGenerateEffect
                 data-continue-watching-media-title
                 words={headerEpisode?.baseAnime?.title?.userPreferred || ""}
-                className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
+                className="w-full text-xl lg:text-[2.8rem] lg:max-w-[50%] h-[3.3rem] !mt-1 line-clamp-1 truncate leading-[3rem] text-ellipsis hidden lg:block pb-1"
             />}
             <Carousel
                 className="w-full max-w-full"
@@ -251,6 +251,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
                     })
                 })
             }}
+            allowAnimeInfo
             mRef={mRef}
             onClick={() => {
                 if (!overrideLink) {

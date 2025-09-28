@@ -301,8 +301,7 @@ function VideoCoreTimeRangeSegment(props: {
                 <div
                     className={cn(
                         "vc-time-range-chapter-progress-bar",
-                        "bg-white absolute w-full h-full left-0 transform-gpu hover:duration-[30ms] z-[10]",
-                        focused && "duration-[30ms]",
+                        "bg-white absolute w-full h-full left-0 transform-gpu z-[10]",
                     )}
                     style={{
                         "--tw-translate-x": duration > 1 ? `${getChapterBarPosition(chapter, progressPercentage)}%` : "-100%",

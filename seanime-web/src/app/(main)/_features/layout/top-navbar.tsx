@@ -10,15 +10,13 @@ import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-d
 import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator/separator"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { IoReload } from "react-icons/io5"
-import { LuFolderDown } from "react-icons/lu"
+import { LuFolderDown, LuRefreshCw } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
@@ -96,9 +94,9 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
 
     return (
         <div data-sidebar-navbar className="flex flex-col gap-1">
-            <div data-sidebar-navbar-spacer className="px-4 lg:py-1">
-                <Separator className="px-4" />
-            </div>
+            {/*<div data-sidebar-navbar-spacer className="px-4 lg:py-1">*/}
+            {/*    <Separator className="px-4" />*/}
+            {/*</div>*/}
             {!serverStatus?.isOffline && <VerticalMenu
                 data-sidebar-navbar-vertical-menu
                 className="px-4"
@@ -108,7 +106,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 onMouseLeave={handleUnexpandedSidebar}
                 items={[
                     {
-                        iconType: IoReload,
+                        iconType: LuRefreshCw,
                         name: "Refresh AniList",
                         onClick: () => {
                             if (isRefreshingAC) return

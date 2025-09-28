@@ -1,4 +1,5 @@
 import { Anime_Episode, Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { __home_currentView } from "@/app/(main)/(library)/_home/home-screen"
 import {
     __library_debouncedSearchInputAtom,
     __library_paramsAtom,
@@ -6,7 +7,6 @@ import {
     DETAILED_LIBRARY_DEFAULT_PARAMS,
     useHandleDetailedLibraryCollection,
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
-import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -65,7 +65,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     } = props
 
     const ts = useThemeSettings()
-    const setView = useSetAtom(__library_viewAtom)
+    const setView = useSetAtom(__home_currentView)
     const nakamaStatus = useNakamaStatus()
 
     const {

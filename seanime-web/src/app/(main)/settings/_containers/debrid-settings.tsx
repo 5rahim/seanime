@@ -10,6 +10,7 @@ import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { LuCirclePlay } from "react-icons/lu"
+import { toast } from "sonner"
 
 const debridSettingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean().default(false),
@@ -64,6 +65,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
+                                    toast.success("Settings saved")
                                 },
                             },
                         )

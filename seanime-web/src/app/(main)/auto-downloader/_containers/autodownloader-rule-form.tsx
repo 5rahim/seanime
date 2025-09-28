@@ -453,7 +453,7 @@ export function TextArrayField<T extends string | number>(props: TextArrayFieldP
                 </React.Fragment>
             ))}
             <IconButton
-                intent="success"
+                intent="success-glass"
                 className="rounded-full"
                 onClick={() => append(props.type === "number" ? 1 : "")}
                 icon={<BiPlus />}

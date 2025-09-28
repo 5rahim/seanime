@@ -63,6 +63,9 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
     const { hasDebridService } = useHasDebridService()
     const { currentView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
 
+    const listData = entry.listData
+    const type = "anime"
+
     return (
         <MediaPageHeader
             backgroundImage={entry.media?.bannerImage}
@@ -218,7 +221,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 </p>}
 
 
-                {(!entry.anidbId || entry.anidbId === 0) && !isCustomSource(entry.mediaId) && (
+                {(!entry.anidbId || entry.anidbId === 0) && !isCustomSource(entry.mediaId) && entry.media?.status !== "NOT_YET_RELEASED" && (
                     <p
                         className={cn(
                             "text-center text-gray-200 opacity-50 text-sm flex gap-1 items-center",

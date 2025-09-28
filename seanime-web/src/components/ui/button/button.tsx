@@ -16,7 +16,8 @@ export const ButtonAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             intent: {
-                "primary": "bg-brand-500 hover:bg-brand-600 active:bg-brand-700 border border-transparent",
+                // "primary": "bg-brand-500 hover:bg-brand-600 active:bg-brand-700 border border-transparent",
+                "primary": "shadow-none text-white border bg-brand-500 border-brand-400/20 active:bg-opacity-100 dark:bg-opacity-70 dark:hover:bg-opacity-90",
                 "primary-outline": "text-[--brand] border border-[--brand] bg-transparent hover:bg-brand-500 active:bg-brand-600 active:border-transparent hover:text-white dark:hover:border-brand-500 dark:active:bg-brand-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
                 "primary-subtle": "shadow-none text-[--brand] border bg-brand-50 border-transparent hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "primary-glass": "shadow-none text-[--brand] border bg-brand-50 border-brand-300/20 hover:bg-brand-100 active:bg-brand-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
@@ -52,6 +53,8 @@ export const ButtonAnatomy = defineStyleAnatomy({
                 "gray-basic": "shadow-none text-[--gray] border border-transparent bg-transparent hover:bg-gray-100 active:bg-gray-200 dark:active:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-10 dark:active:text-gray-200",
 
                 "white": "text-[#000] bg-white hover:bg-gray-200 active:bg-gray-300 border border-transparent",
+                // "white": "shadow-none text-black border bg-white/70 border-white/90 active:bg-opacity-100 dark:bg-opacity-70
+                // dark:hover:bg-opacity-90",
                 "white-outline": "text-white border border-gray-200 bg-transparent hover:bg-white hover:text-black active:bg-gray-100 active:text-[#000]",
                 "white-subtle": "shadow-none text-white bg-white bg-opacity-15 hover:bg-opacity-20 border border-transparent active:bg-opacity-25",
                 "white-glass": "shadow-none text-white bg-white bg-opacity-15 hover:bg-opacity-20 border border-[--border] active:bg-opacity-25",

@@ -105,7 +105,7 @@ const ExtensionList = ({
                                 icon={<LuShapes className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
-                        >Tray plugins</Tooltip>
+                        >Tray Plugins</Tooltip>
                     </div>}
                     className="p-2 w-[300px]"
                     data-plugin-sidebar-debug-popover

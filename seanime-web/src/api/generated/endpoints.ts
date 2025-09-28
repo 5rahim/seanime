@@ -1984,6 +1984,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route gets the files of a torrent.
+         *  This handler is used to get the files of a torrent.
+         */
+        TorrentClientGetFiles: {
+            key: "TORRENT-CLIENT-torrent-client-get-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrent-client/get-files",
+        },
+        /**
+         *  @description
          *  Route adds torrents to the torrent client.
          *  It fetches the magnets from the provided URLs and adds them to the torrent client.
          *  If smart select is enabled, it will try to select the best torrent based on the missing episodes.

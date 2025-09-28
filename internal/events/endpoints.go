@@ -210,6 +210,7 @@ const (
 	TorrentClientActionEndpoint                        = "TORRENT-CLIENT-torrent-client-action"
 	TorrentClientAddMagnetFromRuleEndpoint             = "TORRENT-CLIENT-torrent-client-add-magnet-from-rule"
 	TorrentClientDownloadEndpoint                      = "TORRENT-CLIENT-torrent-client-download"
+	TorrentClientGetFilesEndpoint                      = "TORRENT-CLIENT-torrent-client-get-files"
 	TorrentstreamDropTorrentEndpoint                   = "TORRENTSTREAM-torrentstream-drop-torrent"
 	TorrentstreamStartStreamEndpoint                   = "TORRENTSTREAM-torrentstream-start-stream"
 	TorrentstreamStopStreamEndpoint                    = "TORRENTSTREAM-torrentstream-stop-stream"

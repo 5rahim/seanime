@@ -9433,6 +9433,55 @@
     }
   },
   {
+    "name": "HandleTorrentClientGetFiles",
+    "trimmedName": "TorrentClientGetFiles",
+    "comments": [
+      "HandleTorrentClientGetFiles",
+      "",
+      "\t@summary gets the files of a torrent.",
+      "\t@desc This handler is used to get the files of a torrent.",
+      "\t@route /api/v1/torrent-client/get-files [POST]",
+      "\t@returns []string",
+      ""
+    ],
+    "filepath": "internal/handlers/torrent_client.go",
+    "filename": "torrent_client.go",
+    "api": {
+      "summary": "gets the files of a torrent.",
+      "descriptions": [
+        "This handler is used to get the files of a torrent."
+      ],
+      "endpoint": "/api/v1/torrent-client/get-files",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Hash",
+          "jsonName": "hash",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Magnet",
+          "jsonName": "magnet",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]string",
+      "returnGoType": "string",
+      "returnTypescriptType": "Array\u003cstring\u003e"
+    }
+  },
+  {
     "name": "HandleTorrentClientDownload",
     "trimmedName": "TorrentClientDownload",
     "comments": [
@@ -9485,6 +9534,16 @@
           "usedStructType": "",
           "typescriptType": "{ enabled: boolean; missingEpisodeNumbers: Array\u003cnumber\u003e; }",
           "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Deselect",
+          "jsonName": "deselect",
+          "goType": "__STRUCT__",
+          "inlineStructType": "struct{\nEnabled bool `json:\"enabled\"`\nIndices []int `json:\"indices\"`}",
+          "usedStructType": "",
+          "typescriptType": "{ enabled: boolean; indices: Array\u003cnumber\u003e; }",
+          "required": false,
           "descriptions": []
         },
         {

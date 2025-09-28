@@ -25,8 +25,7 @@ import { FiSearch } from "react-icons/fi"
 import { IoHome, IoLibrary, IoLibrarySharp } from "react-icons/io5"
 import { LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
-import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { TbFileSad } from "react-icons/tb"
+import { TbFileSad, TbReportSearch } from "react-icons/tb"
 import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
 export type HomeToolbarProps = {
@@ -86,7 +85,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                                 onClick={() => setHomeView(p => p === "detailed" ? "base" : "detailed")}
                             />}
                         >
-                            {homeView === "base" ? "Local library" : "Home"}
+                            {homeView === "base" ? "Local Anime Library" : "Home"}
                         </Tooltip>}
 
                         {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) && <Tooltip
@@ -113,15 +112,21 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
 
                         {/*Show up even when there's no local entries*/}
-                        {!isNakamaLibrary && hasLibraryPath && <Button
-                            data-library-toolbar-scan-button
-                            intent={hasEntries ? "white-subtle" : "primary"}
-                            leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <FiSearch className="text-xl" />}
-                            onClick={() => setScannerModalOpen(true)}
-                            hideTextOnSmallScreen
+                        {!isNakamaLibrary && hasLibraryPath && <Tooltip
+                            trigger={<div>
+                                <Button
+                                    data-library-toolbar-scan-button
+                                    intent={hasEntries ? "white-subtle" : "primary"}
+                                    leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <FiSearch className="text-xl" />}
+                                    onClick={() => setScannerModalOpen(true)}
+                                    hideTextOnSmallScreen
+                                >
+                                    {hasEntries ? "Refresh" : "Scan"}
+                                </Button>
+                            </div>}
                         >
-                            {hasEntries ? "Refresh" : "Scan your library"}
-                        </Button>}
+                            {hasEntries ? "Refresh Anime Library" : "Scan Anime Library"}
+                        </Tooltip>}
                     </>
                 )}
                 {(unmatchedLocalFiles.length > 0) && <Button
@@ -202,7 +207,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                                 data-library-toolbar-scan-summaries-button
                                 // className={cn({ "!text-[--muted]": !hasEntries })}
                             >
-                                <PiClockCounterClockwiseFill />
+                                <TbReportSearch />
                                 <span>Scan summaries</span>
                             </DropdownMenuItem>
                         </SeaLink>

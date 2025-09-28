@@ -1,7 +1,7 @@
 import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useTorrentSearchSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
-import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"

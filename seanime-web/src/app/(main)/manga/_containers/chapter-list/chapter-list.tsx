@@ -387,7 +387,17 @@ export function ChapterList(props: ChapterListProps) {
             )}
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
-                chapterContainerError ? <LuffyError title="No chapters found"><p>Try another source</p></LuffyError> : (
+                chapterContainerError ? <LuffyError title="No chapters found">
+                    <MangaManualMappingModal entry={entry}>
+                        <Button
+                            leftIcon={<LuSearch className="text-lg" />}
+                            intent="gray-glass"
+                            size="md"
+                        >
+                            Manual match
+                        </Button>
+                    </MangaManualMappingModal>
+                </LuffyError> : (
                     <>
 
                         {chapterContainer?.chapters?.length === 0 && (

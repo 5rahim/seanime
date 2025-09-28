@@ -83,17 +83,22 @@ export function AnimeEntryPage() {
         }
     }, [animeEntry])
 
-    // useWebsocketSendEffect({
-    //     type: WebviewEvents.ANIME_ENTRY_PAGE_VIEWED,
-    //     payload: {
-    //         animeEntry,
-    //     },
-    // }, animeEntry)
-
     const switchedView = React.useRef(false)
-    React.useLayoutEffect(() => {
-        if (!animeEntryLoading &&
-            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+    React.useEffect(() => {
+        if (animeEntryLoading) {
+            switchedView.current = false
+            return
+        }
+
+        if (animeEntry?.media?.status === "NOT_YET_RELEASED" && // Anime is not yet released
+            !switchedView.current // View has not been switched yet
+        ) {
+            switchedView.current = true
+            setView("library")
+            return
+        }
+
+        if (animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
             searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
             !switchedView.current // View has not been switched yet
         ) {
@@ -107,8 +112,7 @@ export function AnimeEntryPage() {
             }
         }
 
-        if (!animeEntryLoading &&
-            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+        if (animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (
@@ -129,7 +133,11 @@ export function AnimeEntryPage() {
             }
         }
 
-    }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
+        return () => {
+            switchedView.current = false
+        }
+
+    }, [animeEntry, animeEntryLoading, searchParams, serverStatus, currentView])
 
     React.useEffect(() => {
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {

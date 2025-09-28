@@ -257,3 +257,258 @@ export const FileTreeSelector: React.FC<FileTreeSelectorProps> = ({
         </div>
     )
 }
+
+export type FileTreeMultiSelectorProps = {
+    filePreviews: any[]
+    selectedIndices: number[]
+    onSelectionChange: (indices: number[]) => void
+    getFileValue: (filePreview: any) => number
+}
+
+type FileTreeMultiNodeProps = {
+    node: FileTreeNode
+    selectedIndices: number[]
+    onSelectionChange: (indices: number[]) => void
+    getFileValue: (filePreview: any) => number
+    level?: number
+}
+
+const FileTreeMultiNodeComponent: React.FC<FileTreeMultiNodeProps> = ({
+    node,
+    selectedIndices,
+    onSelectionChange,
+    getFileValue,
+    level = 0,
+}) => {
+    const [isOpen, setIsOpen] = React.useState(level === 0 || level === 1)
+
+    const toggleOpen = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setIsOpen(!isOpen)
+    }
+
+    const handleFileSelection = React.useCallback((checked: boolean) => {
+        if (node.type === "file" && node.filePreview) {
+            const fileValue = getFileValue(node.filePreview)
+            let newIndices: number[]
+
+            if (checked) {
+                // Add the file if not already selected
+                newIndices = selectedIndices.includes(fileValue)
+                    ? selectedIndices
+                    : [...selectedIndices, fileValue]
+            } else {
+                // Remove the file
+                newIndices = selectedIndices.filter(idx => idx !== fileValue)
+            }
+
+            onSelectionChange(newIndices)
+        }
+    }, [node, selectedIndices, onSelectionChange, getFileValue])
+
+    const handleDirectorySelection = React.useCallback((checked: boolean) => {
+        if (node.type === "directory" && node.children) {
+            const getAllFileIndicesInDirectory = (n: FileTreeNode): number[] => {
+                const indices: number[] = []
+                if (n.type === "file" && n.filePreview) {
+                    indices.push(getFileValue(n.filePreview))
+                } else if (n.children) {
+                    n.children.forEach(child => {
+                        indices.push(...getAllFileIndicesInDirectory(child))
+                    })
+                }
+                return indices
+            }
+
+            const directoryFileIndices = getAllFileIndicesInDirectory(node)
+
+            if (checked) {
+                // Add all directory files that aren't already selected
+                const newIndices = [...selectedIndices]
+                directoryFileIndices.forEach(idx => {
+                    if (!newIndices.includes(idx)) {
+                        newIndices.push(idx)
+                    }
+                })
+                onSelectionChange(newIndices)
+            } else {
+                // Remove all directory files
+                onSelectionChange(selectedIndices.filter(idx => !directoryFileIndices.includes(idx)))
+            }
+        }
+    }, [node, selectedIndices, onSelectionChange, getFileValue])
+
+    const isFileSelected = node.type === "file" && node.filePreview && selectedIndices.includes(getFileValue(node.filePreview))
+
+    // Check if directory is fully/partially selected
+    const getDirectorySelectionState = React.useMemo(() => {
+        if (node.type === "file") return { isSelected: isFileSelected, isPartial: false }
+
+        const getAllFileIndicesInDirectory = (n: FileTreeNode): number[] => {
+            const indices: number[] = []
+            if (n.type === "file" && n.filePreview) {
+                indices.push(getFileValue(n.filePreview))
+            } else if (n.children) {
+                n.children.forEach(child => {
+                    indices.push(...getAllFileIndicesInDirectory(child))
+                })
+            }
+            return indices
+        }
+
+        const directoryFileIndices = getAllFileIndicesInDirectory(node)
+        const selectedCount = directoryFileIndices.filter(idx => selectedIndices.includes(idx)).length
+
+        return {
+            isSelected: selectedCount === directoryFileIndices.length && directoryFileIndices.length > 0,
+            isPartial: selectedCount > 0 && selectedCount < directoryFileIndices.length,
+        }
+    }, [node, selectedIndices, getFileValue])
+
+    return (
+        <div>
+            <div
+                className={cn(
+                    "flex items-center py-1.5 px-2 border rounded-[--radius] cursor-pointer transition-colors",
+                    // File selection styles
+                    node.type === "file" && isFileSelected && "border bg-gray-900 text-white",
+                    node.type === "file" && !isFileSelected && "border-transparent",
+                    // Directory selection styles
+                    node.type === "directory" && getDirectorySelectionState.isSelected && "border bg-gray-900",
+                    node.type === "directory" && getDirectorySelectionState.isPartial && "bg-gray-900",
+                    node.type === "directory" && !getDirectorySelectionState.isSelected && !getDirectorySelectionState.isPartial && "border-transparent",
+                )}
+                onClick={(e) => {
+                    e.stopPropagation()
+
+                    if (node.type === "file") {
+                        const currentlySelected = isFileSelected
+                        handleFileSelection(!currentlySelected)
+                    } else {
+                        const currentlySelected = getDirectorySelectionState.isSelected
+                        handleDirectorySelection(!currentlySelected)
+                    }
+                }}
+            >
+                <div className="flex items-center">
+                    {node.type === "directory" && (
+                        <span
+                            className="mr-1 cursor-pointer" onClick={(e) => {
+                            e.stopPropagation()
+                            toggleOpen(e)
+                        }}
+                        >
+                            {isOpen ? (
+                                <FiChevronDown className="size-5" />
+                            ) : (
+                                <FiChevronRight className="size-5" />
+                            )}
+                        </span>
+                    )}
+                    {node.type === "directory" ? (
+                        <FcFolder
+                            className="size-5 mr-2 text-[--white] cursor-pointer"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                toggleOpen(e)
+                            }}
+                        />
+                    ) : (
+                        <FiFile className="size-5 mr-2 text-[--muted]" />
+                    )}
+                </div>
+
+                <div className="flex flex-col flex-1 min-w-0">
+                    {node.type === "file" && node.filePreview ? (
+                        <>
+                            <p className="mb-1 line-clamp-1 font-medium">
+                                {node.filePreview.displayTitle}
+                            </p>
+                            <p className="font-normal line-clamp-2 text-sm text-[--muted]">{node.filePreview.displayPath}</p>
+                        </>
+                    ) : (
+                        <span className="font-medium text-[--white]">
+                            {node.name}
+                        </span>
+                    )}
+                </div>
+
+                {/* Selection indicator */}
+                <div className="ml-2 flex items-center">
+                    {node.type === "file" && isFileSelected && (
+                        <div className="w-2 h-2 bg-brand rounded-full" />
+                    )}
+                    {node.type === "directory" && getDirectorySelectionState.isSelected && (
+                        <div className="w-2 h-2 bg-brand rounded-full" />
+                    )}
+                    {node.type === "directory" && getDirectorySelectionState.isPartial && (
+                        <div className="w-2 h-2 bg-brand/60 rounded-full" />
+                    )}
+                </div>
+            </div>
+
+            {node.type === "directory" && isOpen && node.children && (
+                <div className="ml-4 border-l pl-2">
+                    {node.children.map((child, index) => (
+                        <FileTreeMultiNodeComponent
+                            key={index}
+                            node={child}
+                            selectedIndices={selectedIndices}
+                            onSelectionChange={onSelectionChange}
+                            getFileValue={getFileValue}
+                            level={level + 1}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+export const FileTreeMultiSelector: React.FC<FileTreeMultiSelectorProps> = ({
+    filePreviews,
+    selectedIndices,
+    onSelectionChange,
+    getFileValue,
+}) => {
+    const [searchTerm, setSearchTerm] = React.useState("")
+    const debouncedSearchTerm = useDebounce(searchTerm, 300)
+
+    if (!filePreviews || filePreviews.length === 0) {
+        return null
+    }
+
+    const filteredFilePreviews = filterFilePreviews(filePreviews, debouncedSearchTerm)
+    const fileTree = buildFileTree(filteredFilePreviews)
+
+    return (
+        <div className="flex flex-col gap-3">
+            <TextInput
+                value={searchTerm}
+                onValueChange={setSearchTerm}
+                placeholder="Search files..."
+                className="focus:ring-0 active:ring-0"
+            />
+
+            <div className="flex flex-col gap-2">
+                {fileTree.children && fileTree.children.length > 0 ? (
+                    fileTree.children.map((child, index) => (
+                        <FileTreeMultiNodeComponent
+                            key={index}
+                            node={child}
+                            selectedIndices={selectedIndices}
+                            onSelectionChange={onSelectionChange}
+                            getFileValue={getFileValue}
+                            level={0}
+                        />
+                    ))
+                ) : debouncedSearchTerm.trim() ? (
+                    <div className="text-center py-8 text-[--muted]">
+                        <FiSearch className="mx-auto mb-2 size-8 opacity-50" />
+                        <p>No files found matching "{debouncedSearchTerm}"</p>
+                    </div>
+                ) : null}
+            </div>
+        </div>
+    )
+}

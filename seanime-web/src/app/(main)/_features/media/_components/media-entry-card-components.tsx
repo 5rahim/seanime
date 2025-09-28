@@ -561,14 +561,14 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     data-media-entry-card-hover-popup-banner-trailer
                     src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja&enablejsapi=true`}
                     className={cn(
-                        "aspect-video w-full absolute left-0",
+                        "aspect-video w-full absolute left-0 h-[calc(100%+120px)] top-[50%] -translate-y-1/2",
                     )}
                     // playsInline
                     // preload="none"
                     // loop
                     allow="autoplay"
                     // muted
-                    onLoad={() => setTrailerLoaded(true)}
+                    onLoad={() => setTimeout(() => setTrailerLoaded(true), 1000)}
                     onError={() => setTrailerEnabled(false)}
                 />
             </div>}

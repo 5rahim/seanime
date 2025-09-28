@@ -49,7 +49,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                             <MediaEntryCard
                                 media={sourceManga!}
                                 overlay={<p
-                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
+                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
                                 >Manga</p>}
                                 type="manga"
                             /></div>}
@@ -58,7 +58,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                                 <MediaEntryCard
                                     media={edge.node!}
                                     overlay={<p
-                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
+                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
                                     >{edge.node?.format === "MOVIE"
                                         ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
                                         : capitalize(edge.relationType || "").replace("_", " ")}</p>}

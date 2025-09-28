@@ -78030,6 +78030,56 @@
   {
     "filepath": "../internal/torrent_clients/torrent_client/smart_select.go",
     "filename": "smart_select.go",
+    "name": "DeselectAndDownloadParams",
+    "formattedName": "TorrentClient_DeselectAndDownloadParams",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileIndices",
+        "jsonName": "FileIndices",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " indices of the files to deselect"
+        ]
+      },
+      {
+        "name": "Destination",
+        "jsonName": "Destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShouldAddTorrent",
+        "jsonName": "ShouldAddTorrent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/smart_select.go",
+    "filename": "smart_select.go",
     "name": "SmartSelectParams",
     "formattedName": "TorrentClient_SmartSelectParams",
     "package": "torrent_client",

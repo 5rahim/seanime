@@ -21,10 +21,8 @@ import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { useRouter } from "next/navigation"
 import React from "react"
-import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
-import { HiOutlineAdjustments } from "react-icons/hi"
-import { LuEllipsisVertical, LuRefreshCcw, LuSearch } from "react-icons/lu"
+import { LuCode, LuEllipsisVertical, LuRefreshCcw, LuSearch, LuSettings2 } from "react-icons/lu"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
 import { toast } from "sonner"
@@ -81,7 +79,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                         trigger={<IconButton
                                             size="sm"
                                             intent={userConfigError ? "alert" : "gray-basic"}
-                                            icon={<HiOutlineAdjustments />}
+                                            icon={<LuSettings2 />}
                                             className={cn(
                                                 userConfigError && "animate-bounce",
                                             )}
@@ -112,7 +110,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                     trigger={<IconButton
                                         size="sm"
                                         intent="gray-basic"
-                                        icon={<FaCode />}
+                                        icon={<LuCode />}
                                     />}
                                     side="left"
                                 >Code</Tooltip>
@@ -199,10 +197,10 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    <Badge className="border-transparent rounded-md" intent="unstyled">
+                    {extension.lang?.toUpperCase() !== "MULTI" && <Badge className="border-transparent rounded-md" intent="unstyled">
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
-                    </Badge>
+                    </Badge>}
                     {/*<Badge className="rounded-md" intent="unstyled">*/}
                     {/*    {capitalize(extension.language)}*/}
                     {/*</Badge>*/}

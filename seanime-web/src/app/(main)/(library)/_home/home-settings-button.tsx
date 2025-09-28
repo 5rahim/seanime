@@ -4,7 +4,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
-import { BsHouseGear } from "react-icons/bs"
+import { LuSettings2 } from "react-icons/lu"
 
 // by default, the button will be highlighted until the user clicks it for the first time
 // this is not applied to the empty home page
@@ -49,13 +49,13 @@ export function HomeSettingsButton(props: HomeSettingsButtonProps) {
                 trigger={<IconButton
                     data-library-toolbar-switch-view-button
                     intent="white-subtle"
-                    icon={<BsHouseGear className="text-2xl" />}
+                    icon={<LuSettings2 className="text-2xl" />}
                     onClick={() => {
                         setIsModalOpen(true)
                     }}
                 />}
             >
-                Home settings
+                Home Settings
             </Tooltip>
         </>
     )

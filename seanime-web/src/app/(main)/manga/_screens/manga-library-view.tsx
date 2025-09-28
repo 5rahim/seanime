@@ -396,7 +396,7 @@ const CollectionListItem = memo(({ list, storedProviders, showStatuses, type, wi
                         return <div
                             key={entry.media?.id}
                             className={type === "carousel"
-                                ? "relative basis-[200px] col-span-1 place-content-stretch flex-none md:basis-[250px] mx-2 my-8"
+                                ? "relative basis-[200px] col-span-1 place-content-stretch flex-none md:basis-[250px] mx-2 mt-8 mb-0"
                                 : undefined}
                             onMouseEnter={() => {
                                 if (list.type === "CURRENT" && entry.media?.bannerImage) {

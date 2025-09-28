@@ -66,7 +66,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
     return (
         <>
             <SettingsPageHeader
-                title="Transcoding / Direct play"
+                title="Transcoding / Direct Play"
                 description="Manage transcoding and direct play settings"
                 icon={LuTabletSmartphone}
             />
@@ -151,7 +151,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                          )}
                          </SettingsCard> */}
 
-                        <SettingsCard title="Direct play">
+                        <SettingsCard title="Direct Play">
 
                             <Field.Switch
                                 side="right"

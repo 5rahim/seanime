@@ -111,7 +111,7 @@ export function PlaylistEditor(props: PlaylistEditorProps) {
                     contentClass="max-w-4xl"
                     trigger={<Button
                         leftIcon={<BiPlus className="text-2xl" />}
-                        intent="white"
+                        intent="white-glass"
                         className="rounded-full"
                         disabled={episodes.length >= 10}
                     >Add episodes</Button>}
@@ -363,8 +363,8 @@ function SortableItem({ id, episode, setEpisodes }: {
                             return <div
                                 key={option.value}
                                 className={cn(
-                                    "text-sm flex w-fit py-1 px-1.5 rounded-md bg-[--subtle] border border-transparent cursor-pointer",
-                                    option.value === episode.watchType && "border-[rgba(255,255,255,0.4)]",
+                                    "text-sm flex w-fit py-1 px-2 rounded-xl hover:bg-[--subtle] transition border border-transparent cursor-pointer",
+                                    option.value === episode.watchType && "border-white/20 bg-[--subtle] text-white",
                                 )}
                                 onPointerDown={e => e.stopPropagation()}
                                 onClick={e => {

@@ -23,7 +23,7 @@ export const DEFAULT_HOME_ITEMS: Models_HomeItem[] = [
 type HomeItemSchema = {
     name: string
     kind: ("row" | "header")[]
-    options?: any
+    options?: { label: string, name: string, type: string, options?: any[] }[]
     schemaVersion: number
     description?: string
 }
@@ -256,7 +256,7 @@ export const HOME_ITEMS = {
         description: "Display a calendar of anime episodes based on their airing schedule.",
     },
     "local-anime-library-stats": {
-        name: "Anime Library Stats",
+        name: "Local Anime Library Stats",
         kind: ["row"],
         schemaVersion: 1,
         description: "Display the stats for your local anime library.",
@@ -265,7 +265,7 @@ export const HOME_ITEMS = {
         name: "Discover Header",
         kind: ["header"],
         schemaVersion: 1,
-        description: "Display a header with a carousel of anime based on the what's trending.",
+        description: "Display a header with a carousel of anime that are trending.",
     },
     "anime-carousel": {
         name: "Anime Carousel",
@@ -336,7 +336,7 @@ export const HOME_ITEMS = {
             },
         ],
     },
-} satisfies Record<string, HomeItemSchema>
+} as Record<string, HomeItemSchema>
 
 export const HOME_ITEM_IDS = Object.keys(HOME_ITEMS) as (keyof typeof HOME_ITEMS)[]
 

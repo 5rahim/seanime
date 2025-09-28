@@ -268,16 +268,6 @@ function EpisodeCardSidebar({ episode, isTransitioning }: EpisodeCardSidebarProp
 
     return (
         <motion.div
-            {...{
-                initial: { opacity: 0, x: 40 },
-                animate: { opacity: 1, x: 0 },
-                exit: { opacity: 0, x: 20 },
-                transition: {
-                    type: "spring",
-                    damping: 20,
-                    stiffness: 100,
-                },
-            }}
             className={cn(
                 "absolute right-6 w-fit h-[25rem] z-[3] hidden lg:block overflow-hidden",
                 "top-[5rem]",
@@ -290,10 +280,20 @@ function EpisodeCardSidebar({ episode, isTransitioning }: EpisodeCardSidebarProp
         >
             <div className="p-6 w-fit">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="2xl:w-[500px] xl:w-[400px] lg:w-[300px] border rounded-xl overflow-hidden"
+                    // initial={{ opacity: 0, scale: 0.9 }}
+                    // animate={{ opacity: 1, scale: 1 }}
+                    // transition={{ duration: 0.5, delay: 0.3 }}
+                    {...{
+                        initial: { opacity: 0, x: 40 },
+                        animate: { opacity: 1, x: 0 },
+                        exit: { opacity: 0, x: 20 },
+                        transition: {
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 100,
+                        },
+                    }}
+                    className="2xl:w-[500px] xl:w-[400px] lg:w-[300px] rounded-xl overflow-hidden"
                 >
                     {/* <div className="w-[160%] h-[120%] -left-[30%] -top-0 opacity-50 absolute z-[1]">
                      <img src="/radial-shadow.png" alt="radial shadow" className="w-full h-full object-contain" />
@@ -316,7 +316,7 @@ function EpisodeCardSidebar({ episode, isTransitioning }: EpisodeCardSidebarProp
                             image: episode?.baseAnime?.coverImage?.medium,
                             title: episode?.baseAnime?.title?.userPreferred,
                         }}
-                        isSingleContainer
+                        forceSingleContainer
                         onClick={handleEpisodeClick}
                         className={cn(
                             "transition-opacity duration-1000",
@@ -348,7 +348,6 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
             )}
         >
-            {/* Gradients */}
             <div className="w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent" />
             <div className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent" />
             <div
@@ -358,7 +357,6 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
                 )}
             />
 
-            {/* Banner Image */}
             <AnimatePresence>
                 <div className="w-full h-full absolute z-[1] overflow-hidden">
                     {bannerImage && (
@@ -440,7 +438,7 @@ export function ContinueWatchingHeader({ episodes, className }: ContinueWatching
     return (
         <motion.div
             className={cn(
-                "__header lg:h-[28rem] overflow-hidden",
+                "__header lg:h-[28rem] max-w-full overflow-hidden",
                 ts.hideTopNavbar && "lg:h-[32rem]",
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
                 (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",

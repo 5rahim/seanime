@@ -152,12 +152,15 @@ export default function Page() {
                             </div>
                             <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <div className="space-y-2 p-4 w-full">
                                         <h4 className="text-center text-xl font-bold">Settings</h4>
                                         <div className="space-y-1">
                                             <p className="text-[--muted] text-sm text-center w-full">
-                                                {status?.version} {status?.versionName} - {capitalize(status?.os)}{__isTauriDesktop__ &&
+                                                {status?.version} {status?.versionName}
+                                            </p>
+                                            <p className="text-[--muted] text-sm text-center w-full">
+                                                {capitalize(status?.os)}{__isTauriDesktop__ &&
                                                 <span className="font-medium"> - Tauri</span>}{__isElectronDesktop__ &&
                                                 <span className="font-medium"> - Denshi</span>}
                                             </p>
@@ -166,6 +169,8 @@ export default function Page() {
                                              <span className="font-medium">- Denshi</span>}</p> */}
                                         </div>
                                     </div>
+                                </Card>
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <TabsTrigger
                                         value="seanime"
                                         className="group"
@@ -188,7 +193,7 @@ export default function Page() {
                                 {/*    Anime playback*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
 
                                     <TabsTrigger
                                         value="media-player"
@@ -203,14 +208,14 @@ export default function Page() {
                                         value="mediastream"
                                         className="relative group"
                                     ><LuTabletSmartphone className="text-xl mr-3 transition-transform duration-200" /> Transcoding / Direct
-                                                                                                                             play</TabsTrigger>
+                                                                                                                       Play</TabsTrigger>
                                 </Card>
 
                                 {/*<div className="text-xs lg:text-[--muted] text-center py-1.5 uppercase px-3 border-gray-800 tracking-wide font-medium">*/}
                                 {/*    Torrenting*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <TabsTrigger
                                         value="torrent"
                                         className="group"
@@ -233,7 +238,7 @@ export default function Page() {
                                 {/*    Other features*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <TabsTrigger
                                         value="onlinestream"
                                         className="group"
@@ -257,7 +262,7 @@ export default function Page() {
                                 {/*    Server & Interface*/}
                                 {/*</div>*/}
 
-                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-[--paper]">
+                                <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <TabsTrigger
                                         value="ui"
                                         className="group"
@@ -660,96 +665,96 @@ export default function Page() {
                                         </SettingsCard>
 
                                         {/*<SettingsCard>*/}
-                                            <Accordion
-                                                type="single"
-                                                className="group/settings-card relative bg-gray-950/70 rounded-xl border overflow-hidden"
-                                                triggerClass="px-4 py-3 text-[--muted] dark:data-[state=open]:text-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white !font-medium transition-all duration-200 hover:translate-x-1"
-                                                itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30"
-                                                contentClass="!p-4 animate-in slide-in-from-top-2 duration-300"
-                                                collapsible
-                                                defaultValue={status?.settings?.torrent?.defaultTorrentClient}
-                                            >
-                                                <AccordionItem value="qbittorrent">
-                                                    <AccordionTrigger>
-                                                        <h4 className="flex gap-2 items-center">
-                                                            <SiQbittorrent className="text-blue-400" /> qBittorrent
-                                                        </h4>
-                                                    </AccordionTrigger>
-                                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                        <Accordion
+                                            type="single"
+                                            className="group/settings-card relative bg-gray-950/70 rounded-xl border overflow-hidden"
+                                            triggerClass="px-4 py-3 text-[--muted] dark:data-[state=open]:text-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white !font-medium transition-all duration-200 hover:translate-x-1"
+                                            itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30"
+                                            contentClass="!p-4 animate-in slide-in-from-top-2 duration-300"
+                                            collapsible
+                                            defaultValue={status?.settings?.torrent?.defaultTorrentClient}
+                                        >
+                                            <AccordionItem value="qbittorrent">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center">
+                                                        <SiQbittorrent className="text-blue-400" /> qBittorrent
+                                                    </h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="p-0 py-4 space-y-4">
+                                                    <Field.Text
+                                                        name="qbittorrentHost"
+                                                        label="Host"
+                                                    />
+                                                    <div className="flex flex-col md:flex-row gap-4">
                                                         <Field.Text
-                                                            name="qbittorrentHost"
-                                                            label="Host"
-                                                        />
-                                                        <div className="flex flex-col md:flex-row gap-4">
-                                                            <Field.Text
-                                                                name="qbittorrentUsername"
-                                                                label="Username"
-                                                            />
-                                                            <Field.Text
-                                                                name="qbittorrentPassword"
-                                                                label="Password"
-                                                            />
-                                                            <Field.Number
-                                                                name="qbittorrentPort"
-                                                                label="Port"
-                                                                formatOptions={{
-                                                                    useGrouping: false,
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        <Field.Text
-                                                            name="qbittorrentPath"
-                                                            label="Executable"
+                                                            name="qbittorrentUsername"
+                                                            label="Username"
                                                         />
                                                         <Field.Text
-                                                            name="qbittorrentTags"
-                                                            label="Tags"
-                                                            help="Comma separated tags to apply to downloaded torrents. e.g. seanime,anime"
+                                                            name="qbittorrentPassword"
+                                                            label="Password"
                                                         />
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value="transmission">
-                                                    <AccordionTrigger>
-                                                        <h4 className="flex gap-2 items-center">
-                                                            <SiTransmission className="text-orange-200" /> Transmission</h4>
-                                                    </AccordionTrigger>
-                                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                                        <Field.Number
+                                                            name="qbittorrentPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Field.Text
+                                                        name="qbittorrentPath"
+                                                        label="Executable"
+                                                    />
+                                                    <Field.Text
+                                                        name="qbittorrentTags"
+                                                        label="Tags"
+                                                        help="Comma separated tags to apply to downloaded torrents. e.g. seanime,anime"
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="transmission">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center">
+                                                        <SiTransmission className="text-orange-200" /> Transmission</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="p-0 py-4 space-y-4">
+                                                    <Field.Text
+                                                        name="transmissionHost"
+                                                        label="Host"
+                                                    />
+                                                    <div className="flex flex-col md:flex-row gap-4">
                                                         <Field.Text
-                                                            name="transmissionHost"
-                                                            label="Host"
+                                                            name="transmissionUsername"
+                                                            label="Username"
                                                         />
-                                                        <div className="flex flex-col md:flex-row gap-4">
-                                                            <Field.Text
-                                                                name="transmissionUsername"
-                                                                label="Username"
-                                                            />
-                                                            <Field.Text
-                                                                name="transmissionPassword"
-                                                                label="Password"
-                                                            />
-                                                            <Field.Number
-                                                                name="transmissionPort"
-                                                                label="Port"
-                                                                formatOptions={{
-                                                                    useGrouping: false,
-                                                                }}
-                                                            />
-                                                        </div>
                                                         <Field.Text
-                                                            name="transmissionPath"
-                                                            label="Executable"
+                                                            name="transmissionPassword"
+                                                            label="Password"
                                                         />
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
+                                                        <Field.Number
+                                                            name="transmissionPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Field.Text
+                                                        name="transmissionPath"
+                                                        label="Executable"
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        </Accordion>
                                         {/*</SettingsCard>*/}
 
                                         <SettingsCard title="Integration">
-                                            <Field.Switch
-                                                side="right"
-                                                name="hideTorrentList"
-                                                label="Hide torrent list navigation icon"
-                                            />
+                                            {/*<Field.Switch*/}
+                                            {/*    side="right"*/}
+                                            {/*    name="hideTorrentList"*/}
+                                            {/*    label="Hide torrent list navigation icon"*/}
+                                            {/*/>*/}
                                             <Field.Switch
                                                 side="right"
                                                 name="showActiveTorrentCount"

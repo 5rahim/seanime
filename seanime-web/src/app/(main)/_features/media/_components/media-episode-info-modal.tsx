@@ -27,7 +27,7 @@ function IsomorphicPopover(props: PopoverProps & ModalProps) {
     if (width && width > 1024) {
         return <Popover
             {...rest}
-            className="max-w-xl !w-full overflow-hidden min-w-md"
+            className="max-w-xl !w-full overflow-clip min-w-[400px] min-h-[9rem]"
         >
             {children}
         </Popover>
@@ -76,7 +76,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
 
                 {image && <div
                     data-media-episode-info-modal-image-container
-                    className="h-[8rem] rounded-t-md w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
+                    className="h-[8rem] rounded-t-xl w-full flex-none border border-transparent object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
                 >
                     <SeaImage
                         data-media-episode-info-modal-image

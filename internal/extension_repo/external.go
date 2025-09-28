@@ -505,7 +505,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		c, err := semver.NewConstraint(ext.SemverConstraint)
 		v, _ := semver.NewVersion(constants.Version)
 		if err == nil {
-			if !c.Check(v) {
+			if !c.Check(v) && v.Prerelease() == "" {
 				r.invalidExtensions.Set(invalidExtensionID, &extension.InvalidExtension{
 					ID:        invalidExtensionID,
 					Reason:    fmt.Sprintf("Incompatible with this version of Seanime (%s): %s", constants.Version, ext.SemverConstraint),

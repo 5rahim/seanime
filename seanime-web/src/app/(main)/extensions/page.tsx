@@ -10,7 +10,7 @@ import { useAtom } from "jotai"
 import { AnimatePresence } from "motion/react"
 import React from "react"
 import { FaExclamation } from "react-icons/fa"
-import { LuDownload, LuGlobe } from "react-icons/lu"
+import { LuPackageCheck, LuShoppingBasket } from "react-icons/lu"
 
 export default function Page() {
 
@@ -25,14 +25,14 @@ export default function Page() {
                 {/*<div className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-lg">*/}
                 <StaticTabs
                     data-anilist-collection-lists-tabs
-                    className="h-10 w-fit border rounded-full"
+                    className="h-10 w-fit border rounded-full mx-auto"
                     triggerClass="px-4 py-1 text-md"
                     items={[
                         {
                             name: "Installed",
                             isCurrent: page === "installed",
                             onClick: () => setPage("installed"),
-                            iconType: LuDownload,
+                            iconType: LuPackageCheck,
                             addon: unauthorizedPluginCount > 0 && (
                                 <span className="ml-2 bottom-1 right-1 rounded-full relative">
                                     <FaExclamation className="text-[--orange] animate-bounce size-6" />
@@ -43,7 +43,7 @@ export default function Page() {
                             name: "Marketplace",
                             isCurrent: page === "marketplace",
                             onClick: () => setPage("marketplace"),
-                            iconType: LuGlobe,
+                            iconType: LuShoppingBasket,
                         },
                     ]}
                 />

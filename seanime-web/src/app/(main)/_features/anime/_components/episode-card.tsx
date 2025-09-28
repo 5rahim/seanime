@@ -38,7 +38,8 @@ type EpisodeCardProps = {
     badge?: React.ReactNode
     percentageComplete?: number
     minutesRemaining?: number
-    isSingleContainer?: boolean
+    allowAnimeInfo?: boolean
+    forceSingleContainer?: boolean
     anime?: {
         id?: number
         image?: string
@@ -71,9 +72,10 @@ export function EpisodeCard(props: EpisodeCardProps) {
         badge,
         percentageComplete,
         minutesRemaining,
+        allowAnimeInfo,
+        forceSingleContainer,
         anime,
         episode,
-        isSingleContainer,
         ...rest
     } = props
 
@@ -84,15 +86,20 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const { setPreviewModalMediaId } = useMediaPreviewModal()
     const { selectEpisodeToAddAndOpenEditor } = usePlaylistEditorManager()
 
-    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime && !isSingleContainer
+    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime && allowAnimeInfo
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
+
+    const isSingleContainer = ts.useLegacyEpisodeCard || forceSingleContainer
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
             <p
                 data-episode-card-title
-                className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
+                className={cn(
+                    "w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold",
+                    isSingleContainer && "text-sm max-w-[80%] text-white/60",
+                )}
             >
                 {topTitle?.replaceAll("`", "'")}
             </p>
@@ -101,11 +108,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
                         <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                         : ``}</span>
-                    <span className="text-[--muted] text-base md:text-xl ml-2 font-normal line-clamp-1">{showAnimeInfo
+                    <span className="text-[--muted] text-base md:text-lg ml-2 font-normal line-clamp-1">{showAnimeInfo
                         ? "- " + anime.title
                         : ""}</span>
                 </p>
-                {(!!meta || !!length) && !isSingleContainer && (
+                {(!!meta || !!length) && (!isSingleContainer || !minutesRemaining) && (
                     <p data-episode-card-meta-text className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
                         {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
                     </p>)}
@@ -159,7 +166,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <div
                     ref={mRef}
                     className={cn(
-                        "rounded-lg overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
+                        "rounded-xl overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
                         "select-none",
                         type === "carousel" && "w-full",
                         type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
@@ -192,13 +199,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             )}
                         /> : <div
                             data-episode-card-image-bottom-gradient
-                            className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+                            className="h-full block rounded-xl absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                         ></div>}
                         {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                        <EpisodeItemBottomGradient isSingleContainer={isSingleContainer} />
+                        <EpisodeItemBottomGradient isSingleContainer={isSingleContainer} className="rounded-b-xl" />
 
                         {isSingleContainer && (
-                            <div className="absolute bottom-0 left-0 w-full h-fit z-[3] p-4">
+                            <div className="absolute bottom-0 left-0 w-full h-fit z-[3] p-3">
                                 <Meta />
                             </div>
                         )}
@@ -213,8 +220,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 data-progress-number={progressNumber}
                             >
                                 <ProgressBar value={percentageComplete} size="xs" />
-                                {minutesRemaining && <div className="absolute bottom-2 right-2">
-                                    <p className="text-[--muted] text-sm">{minutesRemaining}m left</p>
+                                {minutesRemaining && <div
+                                    className={cn(
+                                        "absolute bottom-2 right-2 text-[--muted]",
+                                        isSingleContainer && "right-4 bottom-4 ",
+                                    )}
+                                >
+                                    <span>{minutesRemaining}m left</span>
                                 </div>}
                             </div>}
 
@@ -236,7 +248,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     {(showAnimeInfo && !isSingleContainer) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
                         <div
                             data-episode-card-anime-image-container
-                            className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative"
+                            className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative hidden"
                         >
                             {!!anime?.image && <SeaImage
                                 data-episode-card-anime-image

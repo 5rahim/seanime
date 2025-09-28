@@ -4,7 +4,6 @@ import { PlaylistEditor, PlaylistMediaEntry } from "@/app/(main)/_features/playl
 import { Button } from "@/components/ui/button"
 import { DangerZone } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import React from "react"
 import { toast } from "sonner"
@@ -81,8 +80,6 @@ export function PlaylistEditorModal(props: PlaylistEditorModalProps) {
                         value={name}
                         onChange={e => setName(e.target.value)}
                     />
-
-                    <Separator />
 
                     <PlaylistEditor
                         episodes={episodes}

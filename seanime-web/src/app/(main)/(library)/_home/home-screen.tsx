@@ -74,7 +74,7 @@ export function HomeScreen() {
 
     const ts = useThemeSettings()
 
-    const homeItems = !isNakamaLibrary ? (_homeItems || DEFAULT_HOME_ITEMS) : DEFAULT_HOME_ITEMS
+    const homeItems = !isNakamaLibrary ? (!!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS) : DEFAULT_HOME_ITEMS
     const [view, setView] = useAtom(__home_currentView)
     const [discoverHeaderType, setDiscoverHeaderType] = useAtom(__home_discoverHeaderType)
     const [discoverPageType, setDiscoverPageType] = useAtom(__discord_pageTypeAtom)
@@ -286,7 +286,7 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
 
     const ts = useThemeSettings()
 
-    const schema = HOME_ITEMS[_item.type as keyof typeof HOME_ITEMS]
+    const schema = HOME_ITEMS[_item.type]
 
     // remove item options if schema version has changed
     const item = React.useMemo(() => {
@@ -301,7 +301,7 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         return _item
     }, [_item, schema])
 
-    const { data } = useGetLibraryCollection({ enabled: item?.type === "anime-library-stats" })
+    const { data } = useGetLibraryCollection({ enabled: item?.type === "local-anime-library-stats" })
 
 
     if (!schema || !item) return <div>
@@ -402,7 +402,7 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         )
     }
 
-    if (item.type === "anime-library-stats") {
+    if (item.type === "local-anime-library-stats") {
         return (
             <PageWrapper>
                 <div
@@ -514,7 +514,7 @@ function AnimeScheduleCalendar(props: { libraryCollectionProps: HandleLibraryCol
 
     const missingEpisodes = useMissingEpisodes()
 
-    return <PageWrapper className="space-y-0 px-4">
+    return <PageWrapper className="space-y-0 px-4 py-4">
         <ScheduleCalendar missingEpisodes={missingEpisodes} />
     </PageWrapper>
 }
@@ -633,11 +633,11 @@ function MangaCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
 function InvalidHomeItem(props: { item: Models_HomeItem }) {
     const { item } = props
 
-    const schema = HOME_ITEMS[item.type as keyof typeof HOME_ITEMS]
+    const schema = HOME_ITEMS[item.type]
 
     return (
-        <PageWrapper className="rounded-xl bg-gray-800 border p-4">
-            <p className="text-sm text-gray-400">
+        <PageWrapper className="rounded-xl bg-gray-900 border-2 border-dashed border-orange-400 p-4 !my-4">
+            <p className="text-sm font-medium text-gray-400">
                 Item "{schema?.name}" cannot be displayed because it is missing some required options.
             </p>
             {/* <pre>

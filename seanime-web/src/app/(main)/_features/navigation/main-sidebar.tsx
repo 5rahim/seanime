@@ -34,16 +34,16 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
-import { FaRegCompass } from "react-icons/fa6"
-import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
+import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
+import { FiLogIn, FiSearch } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
-import { LuBookOpen, LuCalendar } from "react-icons/lu"
+import { LuBookOpen, LuCalendar, LuCompass, LuRss, LuSettings } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone } from "react-icons/pi"
 import { RiListCheck3 } from "react-icons/ri"
-import { TbWorldDownload } from "react-icons/tb"
+import { SiQbittorrent, SiTransmission } from "react-icons/si"
+import { TbReportSearch } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
@@ -163,7 +163,7 @@ export function MainSidebar() {
         },
         {
             id: "discover",
-            iconType: FaRegCompass,
+            iconType: LuCompass,
             name: "Discover",
             href: "/discover",
             isCurrent: pathname === "/discover",
@@ -186,24 +186,12 @@ export function MainSidebar() {
                 ></div>}
             </>,
         }] : [],
-        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
-            id: "auto-downloader",
-            iconType: TbWorldDownload,
-            name: "Auto Downloader",
-            href: "/auto-downloader",
-            isCurrent: pathname === "/auto-downloader",
-            addon: autoDownloaderQueueCount > 0 ? <Badge
-                className="absolute right-0 top-0" size="sm"
-                intent="alert-solid"
-            >{autoDownloaderQueueCount}</Badge> : undefined,
-        }] : [],
         ...(
             serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-            && !serverStatus?.settings?.torrent?.hideTorrentList
             && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
             ? [{
                 id: "torrent-list",
-                iconType: BiDownload,
+                iconType: serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.QBITTORRENT ? SiQbittorrent : SiTransmission,
                 name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
                     ? "Torrent list"
                     : `Torrent list (${activeTorrentCount.seeding} seeding)`,
@@ -225,11 +213,22 @@ export function MainSidebar() {
         }] : [],
         {
             id: "scan-summaries",
-            iconType: PiClockCounterClockwiseFill,
+            iconType: TbReportSearch,
             name: "Scan summaries",
             href: "/scan-summaries",
             isCurrent: pathname === "/scan-summaries",
         },
+        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+            id: "auto-downloader",
+            iconType: LuRss,
+            name: "Auto Downloader",
+            href: "/auto-downloader",
+            isCurrent: pathname === "/auto-downloader",
+            addon: autoDownloaderQueueCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{autoDownloaderQueueCount}</Badge> : undefined,
+        }] : [],
         {
             id: "search",
             iconType: FiSearch,
@@ -278,8 +277,17 @@ export function MainSidebar() {
                 ></div>}
 
                 <div>
-                    <div className="mb-4 p-4 pb-0 flex justify-center w-full">
-                        <img src="/logo.png" alt="logo" className="w-15 h-10" />
+                    <div
+                        className={cn(
+                            "mb-4 p-4 pb-0 flex justify-center w-full",
+                            __isDesktop__ && "mt-2",
+                        )}
+                    >
+                        <img
+                            src="/logo.png"
+                            alt="logo"
+                            className="w-15 h-10 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                        />
                     </div>
                     <VerticalMenu
                         className="px-4"
@@ -377,7 +385,7 @@ export function MainSidebar() {
                                         : undefined,
                                 },
                                 {
-                                    iconType: FiSettings,
+                                    iconType: LuSettings,
                                     name: "Settings",
                                     href: "/settings",
                                     isCurrent: pathname === ("/settings"),

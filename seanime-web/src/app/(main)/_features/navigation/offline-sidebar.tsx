@@ -10,9 +10,8 @@ import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { FiSettings } from "react-icons/fi"
 import { IoCloudyOutline, IoLibraryOutline } from "react-icons/io5"
-import { LuBookOpen } from "react-icons/lu"
+import { LuBookOpen, LuSettings } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 
@@ -117,7 +116,7 @@ export function OfflineSidebar() {
                                     },
                                 },
                                 {
-                                    iconType: FiSettings,
+                                    iconType: LuSettings,
                                     name: "Settings",
                                     href: "/settings",
                                     isCurrent: pathname === ("/settings"),

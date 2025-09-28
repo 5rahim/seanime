@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
@@ -88,6 +89,56 @@ func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 
 }
 
+// HandleTorrentClientGetFiles
+//
+//	@summary gets the files of a torrent.
+//	@desc This handler is used to get the files of a torrent.
+//	@route /api/v1/torrent-client/get-files [POST]
+//	@returns []string
+func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
+
+	type body struct {
+		Hash   string `json:"hash"`
+		Magnet string `json:"magnet"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if b.Hash == "" {
+		return h.RespondWithError(c, errors.New("missing arguments"))
+	}
+
+	tempDir, err := os.MkdirTemp("", "torrent-")
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	exists := h.App.TorrentClientRepository.TorrentExists(b.Hash)
+
+	if !exists {
+		// Add the torrent
+		err = h.App.TorrentClientRepository.AddMagnets([]string{b.Magnet}, tempDir)
+		if err != nil {
+			return err
+		}
+	}
+
+	files, err := h.App.TorrentClientRepository.GetFiles(b.Hash)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if !exists {
+		_ = h.App.TorrentClientRepository.RemoveTorrents([]string{b.Hash})
+	}
+
+	return h.RespondWithData(c, files)
+}
+
 // HandleTorrentClientDownload
 //
 //	@summary adds torrents to the torrent client.
@@ -104,6 +155,10 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 			Enabled               bool  `json:"enabled"`
 			MissingEpisodeNumbers []int `json:"missingEpisodeNumbers"`
 		} `json:"smartSelect"`
+		Deselect struct {
+			Enabled bool  `json:"enabled"`
+			Indices []int `json:"indices"`
+		} `json:"deselect,omitempty"`
 		Media *anilist.BaseAnime `json:"media"`
 	}
 
@@ -155,6 +210,18 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 			Media:            completeAnime,
 			Destination:      b.Destination,
 			Platform:         h.App.AnilistPlatform,
+			ShouldAddTorrent: true,
+		})
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+	}
+
+	if b.Deselect.Enabled {
+		err = h.App.TorrentClientRepository.DeselectAndDownload(&torrent_client.DeselectAndDownloadParams{
+			Torrent:          &b.Torrents[0],
+			FileIndices:      b.Deselect.Indices,
+			Destination:      b.Destination,
 			ShouldAddTorrent: true,
 		})
 		if err != nil {

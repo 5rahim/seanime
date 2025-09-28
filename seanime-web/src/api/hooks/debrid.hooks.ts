@@ -33,7 +33,6 @@ export function useSaveDebridSettings() {
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.DEBRID.GetDebridSettings.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
-            toast.success("Settings saved")
         },
     })
 }
