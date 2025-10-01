@@ -1,6 +1,5 @@
+import { HIDE_IMAGES } from "@/types/constants"
 import NextImage, { ImageProps } from "next/image"
-
-const HIDE_IMAGES = false
 
 export function SeaImage(props: ImageProps) {
 
