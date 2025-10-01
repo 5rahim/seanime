@@ -21,9 +21,8 @@ import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
-import { FiSearch } from "react-icons/fi"
 import { IoHome, IoLibrary, IoLibrarySharp } from "react-icons/io5"
-import { LuFolderSync, LuFolderTree } from "react-icons/lu"
+import { LuFolderSearch, LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { TbFileSad, TbReportSearch } from "react-icons/tb"
 import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
@@ -109,26 +108,24 @@ export function HomeToolbar(props: HomeToolbarProps) {
                                 onClick={() => setModalOpen(true)}
                             />}
                         >Playlists</Tooltip>
-
-
-                        {/*Show up even when there's no local entries*/}
-                        {!isNakamaLibrary && hasLibraryPath && <Tooltip
-                            trigger={<div>
-                                <Button
-                                    data-library-toolbar-scan-button
-                                    intent={hasEntries ? "white-subtle" : "primary"}
-                                    leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <FiSearch className="text-xl" />}
-                                    onClick={() => setScannerModalOpen(true)}
-                                    hideTextOnSmallScreen
-                                >
-                                    {hasEntries ? "Refresh" : "Scan"}
-                                </Button>
-                            </div>}
-                        >
-                            {hasEntries ? "Refresh Anime Library" : "Scan Anime Library"}
-                        </Tooltip>}
                     </>
                 )}
+                {/*Shows up even when there's no local entries*/}
+                {!isNakamaLibrary && hasLibraryPath && <Tooltip
+                    trigger={<div>
+                        <Button
+                            data-library-toolbar-scan-button
+                            intent={hasEntries ? "white-subtle" : "primary"}
+                            leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <LuFolderSearch className="text-xl" />}
+                            onClick={() => setScannerModalOpen(true)}
+                            hideTextOnSmallScreen
+                        >
+                            {hasEntries ? "Refresh" : "Scan"}
+                        </Button>
+                    </div>}
+                >
+                    {hasEntries ? "Refresh Anime Library" : "Scan Anime Library"}
+                </Tooltip>}
                 {(unmatchedLocalFiles.length > 0) && <Button
                     data-library-toolbar-unmatched-button
                     intent="alert"

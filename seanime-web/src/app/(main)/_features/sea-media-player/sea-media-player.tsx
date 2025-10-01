@@ -538,7 +538,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
                             // Track fullscreen state
                             wasFullscreenRef.current = isFullscreen
-                            
+
                             if (isFullscreen) {
                                 // Store the currently focused element
                                 lastFocusedElementRef.current = document.activeElement as HTMLElement
@@ -649,9 +649,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     >
                         <LoadingSpinner
                             spinner={
-                                <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
+                                <div className="w-8 h-8 lg:size-10 relative">
                                     <Image
-                                        src="/logo_2.png"
+                                        src="/senime-logo.png"
                                         alt="Loading..."
                                         priority
                                         fill

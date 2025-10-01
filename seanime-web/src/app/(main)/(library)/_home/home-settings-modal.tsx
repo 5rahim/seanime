@@ -50,7 +50,7 @@ const HOME_ITEM_ICONS = {
     "manga-library": LuBookOpen,
 } as const
 
-export function HomeSettingsModal() {
+export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) {
     const serverStatus = useServerStatus()
     const [isModalOpen, setIsModalOpen] = useAtom(__home_settingsModalOpen)
     const [optionsModalOpen, setOptionsModalOpen] = React.useState<string | null>(null)
@@ -170,9 +170,9 @@ export function HomeSettingsModal() {
         "stream"
         : "local"
 
-    const { mutate: updateSettings, isPending: isSavingSettings } = useSaveSettings()
-    const { mutate: updateTorrentstreamSettings, isPending: isSavingTorrentstreamSettings } = useSaveTorrentstreamSettings()
-    const { mutate: updateDebridSettings, isPending: isSavingDebridSettings } = useSaveDebridSettings()
+    const { mutateAsync: updateSettings, isPending: isSavingSettings } = useSaveSettings()
+    const { mutateAsync: updateTorrentstreamSettings, isPending: isSavingTorrentstreamSettings } = useSaveTorrentstreamSettings()
+    const { mutateAsync: updateDebridSettings, isPending: isSavingDebridSettings } = useSaveDebridSettings()
     const queryClient = useQueryClient()
 
     return (
@@ -207,26 +207,31 @@ export function HomeSettingsModal() {
                         <RadioGroup
                             value={animeLibraryType}
                             onValueChange={value => {
-                                updateSettings({
-                                    ...(serverStatus?.settings as any),
-                                    library: {
-                                        ...(serverStatus?.settings?.library as any)!,
-                                        includeOnlineStreamingInLibrary: value === "stream",
-                                    },
-                                })
-                                updateTorrentstreamSettings({
-                                    settings: {
-                                        ...(serverStatus?.torrentstreamSettings as any),
-                                        includeInLibrary: value === "stream",
-                                    },
-                                })
-                                updateDebridSettings({
-                                    settings: {
-                                        ...(serverStatus?.debridSettings as any),
-                                        includeDebridStreamInLibrary: value === "stream",
-                                    },
-                                })
-                                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+                                (async () => {
+                                    await Promise.all([
+                                        updateSettings({
+                                            ...(serverStatus?.settings as any),
+                                            library: {
+                                                ...(serverStatus?.settings?.library as any)!,
+                                                includeOnlineStreamingInLibrary: value === "stream",
+                                            },
+                                        }),
+                                        updateTorrentstreamSettings({
+                                            settings: {
+                                                ...(serverStatus?.torrentstreamSettings as any),
+                                                includeInLibrary: value === "stream",
+                                            },
+                                        }),
+                                        updateDebridSettings({
+                                            settings: {
+                                                ...(serverStatus?.debridSettings as any),
+                                                includeDebridStreamInLibrary: value === "stream",
+                                            },
+                                        }),
+                                    ])
+                                    await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+                                    await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
+                                })()
                             }}
                             disabled={isSavingSettings || isSavingTorrentstreamSettings || isSavingDebridSettings}
                             options={[
@@ -270,7 +275,11 @@ export function HomeSettingsModal() {
 
                     </div>
 
-                    <div>
+                    <div
+                        className={cn(
+                            // emptyLibrary && "pointer-events-none opacity-30"
+                        )}
+                    >
                         <div className="flex items-center gap-2 mb-4">
                             <LuLayoutPanelLeft className="size-5" />
                             <h4 className="text-lg font-semibold">Home Layout</h4>
@@ -309,9 +318,12 @@ export function HomeSettingsModal() {
                         )}
                     </div>
 
-                    {/*<Separator />*/}
 
-                    <div>
+                    <div
+                        className={cn(
+                            // emptyLibrary && "pointer-events-none opacity-30"
+                        )}
+                    >
                         <div className="flex items-center gap-2 mb-4">
                             <BiPlus className="size-5" />
                             <h4 className="text-lg font-semibold">Available Items</h4>

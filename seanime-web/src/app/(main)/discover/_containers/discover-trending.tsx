@@ -39,8 +39,9 @@ export function DiscoverTrending() {
         setAnimeRandomNumber(randomNumber)
     }, [randomNumber])
 
+    const t = React.useRef<NodeJS.Timeout | null>(null)
     useEffect(() => {
-        const t = setInterval(() => {
+        t.current = setInterval(() => {
             setHeaderIsTransitioning(true)
             setTimeout(() => {
                 setRandomNumber(p => {
@@ -48,11 +49,11 @@ export function DiscoverTrending() {
                 })
                 setHeaderIsTransitioning(false)
             }, 900)
-        }, 6000)
+        }, 12000)
         if (isHoveringHeader) {
-            clearInterval(t)
+            clearInterval(t.current)
         }
-        return () => clearInterval(t)
+        return () => { if (t.current) clearInterval(t.current) }
     }, [isHoveringHeader, clickedHeaderDot])
 
     // Update randomNumber when animeRandomNumber changes from outside

@@ -9,7 +9,11 @@ import {
     __discover_randomTrendingAtom,
     __discover_setAnimeRandomNumberAtom,
 } from "@/app/(main)/discover/_containers/discover-trending"
-import { __discover_mangaTotalItemsAtom } from "@/app/(main)/discover/_containers/discover-trending-country"
+import {
+    __discover_mangaRandomNumberAtom,
+    __discover_mangaTotalItemsAtom,
+    __discover_setMangaRandomNumberAtom,
+} from "@/app/(main)/discover/_containers/discover-trending-country"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
@@ -18,6 +22,7 @@ import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
@@ -26,7 +31,6 @@ import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
-import { __discover_mangaRandomNumberAtom, __discover_setMangaRandomNumberAtom } from "../_containers/discover-trending-country"
 
 // Atoms for state management
 export const __discover_hoveringHeaderAtom = atom(false)
@@ -327,7 +331,7 @@ function MediaMetadata({ media, pageType, isTransitioning, onHoverChange }: Medi
     )
 }
 
-export function DiscoverPageHeader() {
+export function DiscoverPageHeader({ playTrailer }: { playTrailer?: boolean }) {
     const ts = useThemeSettings()
     const pathname = usePathname()
 
@@ -336,9 +340,13 @@ export function DiscoverPageHeader() {
     const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
     const [isHoveringHeader, setHoveringHeader] = useAtom(__discover_hoveringHeaderAtom)
 
+
     const [showTrailer, setShowTrailer] = React.useState(false)
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
+    const [trailerPlaying, setTrailerPlaying] = React.useState(false)
     const hoverTimerRef = React.useRef<NodeJS.Timeout | null>(null)
+    const trailerPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null)
+    const trailerStopTimerRef = React.useRef<NodeJS.Timeout | null>(null)
 
     const shouldBlurBanner = ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable &&
         !randomTrending?.bannerImage
@@ -350,19 +358,22 @@ export function DiscoverPageHeader() {
         }
     }, [pathname])
 
-    // Handle hover with timer for trailer
     React.useEffect(() => {
-        if (isHoveringHeader && !showTrailer && (randomTrending as AL_BaseAnime)?.trailer?.id) {
+        if (isTransitioning) {
+            setShowTrailer(false)
+            setTrailerLoaded(false)
+            setTrailerPlaying(false)
+        }
+        if ((isHoveringHeader || playTrailer) && randomTrending && !isTransitioning && (randomTrending as AL_BaseAnime)?.trailer?.id) {
             hoverTimerRef.current = setTimeout(() => {
                 setShowTrailer(true)
             }, 1000)
-        } else if (!isHoveringHeader) {
-            if (hoverTimerRef.current) {
-                clearTimeout(hoverTimerRef.current)
-                hoverTimerRef.current = null
-            }
+        }
+
+        if (!isHoveringHeader && !playTrailer) {
             setShowTrailer(false)
             setTrailerLoaded(false)
+            setTrailerPlaying(false)
         }
 
         return () => {
@@ -371,15 +382,57 @@ export function DiscoverPageHeader() {
                 hoverTimerRef.current = null
             }
         }
-    }, [isHoveringHeader, showTrailer, randomTrending])
+    }, [isHoveringHeader, randomTrending, isTransitioning, playTrailer])
 
-    const handleTrailerLoad = () => setTrailerLoaded(true)
+    React.useEffect(() => {
+        if (trailerLoaded && !trailerPlaying && !isHoveringHeader && (randomTrending as AL_BaseAnime)?.trailer?.id) {
+            trailerPlayTimerRef.current = setTimeout(() => {
+                if (!isHoveringHeader) {
+                    setTrailerPlaying(true)
+
+                    trailerStopTimerRef.current = setTimeout(() => {
+                        if (!isHoveringHeader) {
+                            setShowTrailer(false)
+                            setTrailerLoaded(false)
+                            setTrailerPlaying(false)
+                        }
+                    }, 6000)
+                }
+            }, 1000)
+        }
+
+        return () => {
+            if (trailerPlayTimerRef.current) {
+                clearTimeout(trailerPlayTimerRef.current)
+                trailerPlayTimerRef.current = null
+            }
+            if (trailerStopTimerRef.current) {
+                clearTimeout(trailerStopTimerRef.current)
+                trailerStopTimerRef.current = null
+            }
+        }
+    }, [trailerLoaded, trailerPlaying, isHoveringHeader, randomTrending])
+
+    const handleTrailerLoad = () => {
+        setTimeout(() => {
+            setTrailerLoaded(true)
+        }, 1000)
+    }
     const handleTrailerError = () => {
         setShowTrailer(false)
         setTrailerLoaded(false)
     }
 
-    if (!randomTrending) return null
+    if (!randomTrending) return <div>
+        <Skeleton
+            className={cn(
+                "__header lg:h-[28rem] overflow-hidden",
+                ts.hideTopNavbar && "lg:h-[32rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
+                (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",
+            )}
+        />
+    </div>
 
     return (
         <motion.div

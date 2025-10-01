@@ -284,9 +284,9 @@ export function MainSidebar() {
                         )}
                     >
                         <img
-                            src="/logo.png"
+                            src="/seanime-logo.png"
                             alt="logo"
-                            className="w-15 h-10 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                            className="w-15 h-10 transition-all duration-300"
                         />
                     </div>
                     <VerticalMenu

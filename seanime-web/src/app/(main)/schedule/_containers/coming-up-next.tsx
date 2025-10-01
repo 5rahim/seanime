@@ -33,11 +33,7 @@ export function ComingUpNext() {
         }
     }, [animeCollection])
 
-    // if (media.length === 0) return (
-    //     <LuffyError title="No upcoming episodes">
-    //         <p>There are no upcoming episodes based on your anime list.</p>
-    //     </LuffyError>
-    // )
+    if (!media?.length) return null
 
     return (
         <AppLayoutStack>

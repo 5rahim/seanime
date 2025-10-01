@@ -67,6 +67,8 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 	}
 	b.Library.LibraryPath = filepath.ToSlash(b.Library.LibraryPath)
 
+	b.Library.IncludeOnlineStreamingInLibrary = b.Library.EnableOnlinestream
+
 	settings, err := h.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
@@ -99,7 +101,7 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 			prev, found := h.App.Database.GetTorrentstreamSettings()
 			if found {
 				prev.Enabled = true
-				//prev.IncludeInLibrary = true
+				prev.IncludeInLibrary = true
 				_, _ = h.App.Database.UpsertTorrentstreamSettings(prev)
 			}
 		}()
@@ -124,7 +126,7 @@ func (h *Handler) HandleGettingStarted(c echo.Context) error {
 				prev.Enabled = true
 				prev.Provider = b.DebridProvider
 				prev.ApiKey = b.DebridApiKey
-				//prev.IncludeDebridStreamInLibrary = true
+				prev.IncludeDebridStreamInLibrary = true
 				_, _ = h.App.Database.UpsertDebridSettings(prev)
 			}
 		}()

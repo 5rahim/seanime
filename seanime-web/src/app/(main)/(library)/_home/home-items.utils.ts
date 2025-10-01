@@ -1,4 +1,4 @@
-import { Models_HomeItem } from "@/api/generated/types"
+import { Models_HomeItem, Nullish } from "@/api/generated/types"
 import { ADVANCED_SEARCH_COUNTRIES_MANGA, ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 
 export const MAX_HOME_ITEMS = 10
@@ -19,6 +19,24 @@ export const DEFAULT_HOME_ITEMS: Models_HomeItem[] = [
         },
     },
 ]
+
+export function isAnimeLibraryItemsOnly(items: Nullish<Models_HomeItem[]>) {
+    if (!items) return true
+
+    for (const item of items) {
+        if (![
+            "anime-continue-watching",
+            "anime-library",
+            "anime-continue-watching-header",
+            "local-anime-library",
+            "local-anime-library-stats",
+            "library-upcoming-episodes",
+        ].includes(item.type)) {
+            return false
+        }
+    }
+    return true
+}
 
 type HomeItemSchema = {
     name: string

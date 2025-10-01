@@ -521,7 +521,7 @@ export default function Page() {
                                     <TabsContent value="library" className={tabContentClass}>
 
                                         <SettingsPageHeader
-                                            title="Anime Library"
+                                            title="Local Anime Library"
                                             description="Manage your local anime library"
                                             icon={LuLibrary}
                                         />

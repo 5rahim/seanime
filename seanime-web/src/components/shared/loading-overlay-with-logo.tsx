@@ -8,11 +8,11 @@ import React from "react"
 export function LoadingOverlayWithLogo({ refetch, title }: { refetch?: () => void, title?: string }) {
     return <LoadingOverlay showSpinner={false}>
         <Image
-            src="/logo_2.png"
+            src="/seanime-logo.png"
             alt="Loading..."
             priority
-            width={180}
-            height={180}
+            width={100}
+            height={100}
             className="animate-pulse"
         />
         <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={title ?? "S e a n i m e"} />

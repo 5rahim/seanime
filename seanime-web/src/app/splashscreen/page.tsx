@@ -9,11 +9,11 @@ export default function Page() {
     return (
         <LoadingOverlay showSpinner={false}>
             <Image
-                src="/logo_2.png"
+                src="/seanime-logo.png"
                 alt="Launching..."
                 priority
-                width={180}
-                height={180}
+                width={100}
+                height={100}
                 className="animate-pulse"
             />
             Launching...

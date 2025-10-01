@@ -72,33 +72,34 @@ export function AnimeEntryPage() {
     const ts = useThemeSettings()
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
+    const switchedView = React.useRef(false)
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         try {
             if (animeEntry?.media?.title?.userPreferred) {
                 document.title = `${animeEntry?.media?.title?.userPreferred} | Seanime`
+                switchedView.current = false
             }
         }
         catch {
         }
     }, [animeEntry])
 
-    const switchedView = React.useRef(false)
     React.useEffect(() => {
-        if (animeEntryLoading) {
-            switchedView.current = false
-            return
-        }
+        // if (animeEntryLoading) {
+        //     switchedView.current = false
+        //     return
+        // }
 
-        if (animeEntry?.media?.status === "NOT_YET_RELEASED" && // Anime is not yet released
-            !switchedView.current // View has not been switched yet
+        if (
+            animeEntry?.media?.status === "NOT_YET_RELEASED"
         ) {
             switchedView.current = true
             setView("library")
             return
         }
 
-        if (animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+        if (
             searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
             !switchedView.current // View has not been switched yet
         ) {
@@ -112,7 +113,7 @@ export function AnimeEntryPage() {
             }
         }
 
-        if (animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+        if (
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (
@@ -133,11 +134,11 @@ export function AnimeEntryPage() {
             }
         }
 
-        return () => {
-            switchedView.current = false
-        }
+        // return () => {
+        //     switchedView.current = false
+        // }
 
-    }, [animeEntry, animeEntryLoading, searchParams, serverStatus, currentView])
+    }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView])
 
     React.useEffect(() => {
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {

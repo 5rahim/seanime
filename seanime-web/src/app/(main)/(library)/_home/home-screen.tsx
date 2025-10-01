@@ -8,25 +8,34 @@ import { BulkActionModal } from "@/app/(main)/(library)/_containers/bulk-action-
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { IgnoredFileManager } from "@/app/(main)/(library)/_containers/ignored-file-manager"
+import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
-import { DEFAULT_HOME_ITEMS, HOME_ITEMS } from "@/app/(main)/(library)/_home/home-items.utils"
-import { HomeSettingsModal } from "@/app/(main)/(library)/_home/home-settings-modal"
+import { DEFAULT_HOME_ITEMS, HOME_ITEMS, isAnimeLibraryItemsOnly } from "@/app/(main)/(library)/_home/home-items.utils"
+import { __home_settingsModalOpen, HomeSettingsModal } from "@/app/(main)/(library)/_home/home-settings-modal"
 import { HomeToolbar } from "@/app/(main)/(library)/_home/home-toolbar"
 import { HandleLibraryCollectionProps, useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-library-view"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
+import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { atom } from "jotai/index"
+import { HIDE_IMAGES } from "@/types/constants"
+import { useAtomValue } from "jotai"
+import { atom, useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, useInView } from "motion/react"
 import React from "react"
+import { FiSearch } from "react-icons/fi"
+import { LiaPlayCircle } from "react-icons/lia"
+import { LuPlus } from "react-icons/lu"
 import { MediaEntryCard } from "../../_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "../../_features/media/_components/media-entry-card-skeleton"
 import { MediaEntryPageLoadingDisplay } from "../../_features/media/_components/media-entry-page-loading-display"
@@ -51,6 +60,8 @@ export function HomeScreen() {
     const serverStatus = useServerStatus()
     const { data: _homeItems, isLoading: isLoadingItems } = useGetHomeItems()
 
+    const allUserMedia = useAtomValue(__anilist_userAnimeMediaAtom)
+    const noMediaInCollection = !allUserMedia?.length
 
     const {
         libraryGenres,
@@ -78,10 +89,19 @@ export function HomeScreen() {
     const [view, setView] = useAtom(__home_currentView)
     const [discoverHeaderType, setDiscoverHeaderType] = useAtom(__home_discoverHeaderType)
     const [discoverPageType, setDiscoverPageType] = useAtom(__discord_pageTypeAtom)
+    const setHomeSettingsModalOpen = useSetAtom(__home_settingsModalOpen)
 
     React.useEffect(() => {
         setDiscoverPageType(discoverPageType)
     }, [discoverPageType])
+
+    const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
+
+    const animeLibraryType = (serverStatus?.torrentstreamSettings?.includeInLibrary || serverStatus?.debridSettings?.includeDebridStreamInLibrary || serverStatus?.settings?.library?.includeOnlineStreamingInLibrary)
+        ?
+        "stream"
+        : "local"
+
 
     if (isLoading || isLoadingItems) return <React.Fragment>
         <div className="p-4 space-y-4 relative z-[4]">
@@ -107,6 +127,104 @@ export function HomeScreen() {
             </div>
         </div>
     </React.Fragment>
+
+    if (!hasEntries && isAnimeLibraryItemsOnly(homeItems) && !isLoading) {
+        return (
+            <div data-home-screen="no-entries" className="contents">
+                <React.Fragment>
+                    <DiscoverPageHeader playTrailer={!HIDE_IMAGES} />
+                    <div className="h-0 visibility-hidden pointer-events-none opacity-0">
+                        {/*{discoverHeaderType === "anime" && <DiscoverTrending />}*/}
+                        {discoverHeaderType === "manga" && <DiscoverTrendingCountry country="JP" forDiscoverHeader />}
+                    </div>
+                </React.Fragment>
+
+                <HomeToolbar
+                    collectionList={libraryCollectionList}
+                    unmatchedLocalFiles={unmatchedLocalFiles}
+                    ignoredLocalFiles={ignoredLocalFiles}
+                    unknownGroups={unknownGroups}
+                    isLoading={isLoading}
+                    hasEntries={hasEntries}
+                    isStreamingOnly={isStreamingOnly}
+                    isNakamaLibrary={isNakamaLibrary}
+                    className={cn(
+                        (homeItems[0]?.type === "discover-header" || homeItems[0]?.type === "anime-continue-watching-header") && "!mt-[-4rem] !mb-[-1rem]",
+                    )}
+                />
+
+                <div className="text-center space-y-6 py-10">
+                    <h2>Your home screen is empty</h2>
+
+                    {!!serverStatus?.settings?.library?.libraryPath && <>
+                        <Button
+                            intent="primary-glass"
+                            leftIcon={<FiSearch />}
+                            size="xl"
+                            rounded
+                            onClick={() => setScannerModalOpen(true)}
+                        >
+                            Scan your library
+                        </Button>
+                    </>}
+
+                    {!serverStatus?.settings?.library?.libraryPath && noMediaInCollection && <>
+                        <SeaLink href="/discover" className="block">
+                            <Button
+                                intent="gray-glass"
+                                leftIcon={<LuPlus />}
+                                size="lg"
+                                rounded
+                            >
+                                Add series to your collection
+                            </Button>
+                        </SeaLink>
+                    </>}
+
+                    {!serverStatus?.settings?.library?.libraryPath && !noMediaInCollection && <>
+                        {animeLibraryType === "local" && <Button
+                            intent="gray-glass"
+                            leftIcon={<LiaPlayCircle className="text-2xl" />}
+                            size="lg"
+                            rounded
+                            onClick={() => {
+                                setHomeSettingsModalOpen(true)
+                            }}
+                        >
+                            Add currently watched series to the library
+                        </Button>}
+
+                        {animeLibraryType === "stream" && <div className="p-4 border w-fit mx-auto border-dashed rounded-xl">
+                            <p>
+                                No series are currently being watched
+                            </p>
+                            <p className="text-[--muted]">
+                                Add series to your 'Currently watching' list to get started
+                            </p>
+                        </div>}
+                    </>}
+
+
+                </div>
+
+                <h3>Trending Right Now</h3>
+                <DiscoverTrending />
+
+                <HomeSettingsModal emptyLibrary />
+
+                <UnmatchedFileManager
+                    unmatchedGroups={unmatchedGroups}
+                />
+                <UnknownMediaManager
+                    unknownGroups={unknownGroups}
+                />
+                <IgnoredFileManager
+                    files={ignoredLocalFiles}
+                />
+                <BulkActionModal />
+            </div>
+        )
+    }
 
     return (
         <div data-home-screen className="contents">
@@ -463,6 +581,7 @@ function LocalAnimeLibrary(props: { libraryCollectionProps: HandleLibraryCollect
     )
 
 }
+
 function MangaLibrary(props: { libraryCollectionProps: HandleLibraryCollectionProps, item: Models_HomeItem, index: number }) {
     const { libraryCollectionProps, item, index } = props
     const {} = libraryCollectionProps
@@ -500,7 +619,9 @@ function MangaLibrary(props: { libraryCollectionProps: HandleLibraryCollectionPr
 
 function LibraryUpcomingEpisodes(props: { libraryCollectionProps: HandleLibraryCollectionProps, item: Models_HomeItem }) {
     const { libraryCollectionProps, item } = props
-    const {} = libraryCollectionProps
+    const { hasEntries } = libraryCollectionProps
+
+    if (!hasEntries) return null
 
     return <PageWrapper className="space-y-0 px-4">
         <ComingUpNext />

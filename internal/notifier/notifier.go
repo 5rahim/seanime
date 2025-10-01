@@ -50,7 +50,7 @@ func (n *Notifier) SetSettings(datadir string, settings *models.NotificationSett
 	n.mu.Lock()
 	n.dataDir = mo.Some(datadir)
 	n.settings = mo.Some(settings)
-	n.logoPath = filepath.Join(datadir, "logo.png")
+	n.logoPath = filepath.Join(datadir, "seanime-logo.png")
 	n.logger = mo.Some(logger)
 	n.mu.Unlock()
 }

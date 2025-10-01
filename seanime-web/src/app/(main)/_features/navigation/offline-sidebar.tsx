@@ -70,7 +70,11 @@ export function OfflineSidebar() {
 
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
-                        <img src="/logo.png" alt="logo" className="w-15 h-10" />
+                        <img
+                            src="/seanime-logo.png"
+                            alt="logo"
+                            className="w-15 h-10 transition-all duration-300"
+                        />
                     </div>
                     <VerticalMenu
                         className="px-4"
@@ -79,7 +83,7 @@ export function OfflineSidebar() {
                         items={[
                             {
                                 iconType: IoLibraryOutline,
-                                name: "Library",
+                                name: "Anime Library",
                                 href: "/offline",
                                 isCurrent: pathname === "/offline",
                             },
