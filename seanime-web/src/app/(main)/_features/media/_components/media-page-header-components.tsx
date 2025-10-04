@@ -455,7 +455,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         {(listData?.status || listData?.repeat) &&
                             <div
                                 data-media-page-header-entry-details-status
-                                className="text-base text-white md:text-lg flex items-center"
+                                className="text-base text-white md:text-md font-medium tracking-wide flex items-center"
                             >{capitalize(listData?.status === "CURRENT"
                                 ? type === "anime" ? "watching" : "reading"
                                 : listData?.status)}

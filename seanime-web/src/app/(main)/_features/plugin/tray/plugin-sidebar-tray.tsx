@@ -34,6 +34,8 @@ export const __plugin_hasNavigatedAtom = atom<boolean>(false)
 
 export const __plugin_unpinnedTrayIconClickedAtom = atom<TrayIcon | null>(null)
 
+export const __plugin_openedTrayPlugin = atom<string | null>(null)
+
 const ExtensionList = ({
     place,
     developmentModeExtensions,
@@ -59,6 +61,8 @@ const ExtensionList = ({
     const isPinned = (extensionId: string) => pinnedTrayPluginIds.includes(extensionId)
 
     const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
+    const [openedTrayPlugin, setOpenedTrayPlugin] = useAtom(__plugin_openedTrayPlugin)
+
 
     const [trayIconListOpen, setTrayIconListOpen] = React.useState(false)
 
@@ -69,14 +73,18 @@ const ExtensionList = ({
 
         if (!isPinned(data.extensionId)) {
             setUnpinnedTrayIconClicked(trayIcons.find(t => t.extensionId === data.extensionId) || null)
+            setOpenedTrayPlugin(data.extensionId)
         }
     }, "")
 
     usePluginListenTrayCloseEvent((data) => {
         if (!data.extensionId) return
 
-        if (!isPinned(data.extensionId)) {
+        if (!isPinned(data.extensionId) && unpinnedTrayIconClicked?.extensionId === data.extensionId) {
             setUnpinnedTrayIconClicked(null)
+        }
+        if (openedTrayPlugin === data.extensionId) {
+            setOpenedTrayPlugin(null)
         }
     }, "")
 
@@ -248,9 +256,9 @@ const ExtensionList = ({
 
                 {pinnedTrayIcons.map((trayIcon, index) => (
                     <PluginTray
+                        key={trayIcon.extensionId}
                         trayIcon={trayIcon}
                         isPinned={isPinned(trayIcon.extensionId)}
-                        key={index}
                         place={place}
                         width={width}
                     />

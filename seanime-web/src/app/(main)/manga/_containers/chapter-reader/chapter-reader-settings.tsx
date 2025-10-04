@@ -55,7 +55,7 @@ const radioGroupClasses = {
         "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
         "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
     ),
-    stackClass: "space-y-0 flex flex-row gap-2",
+    stackClass: "space-y-0 flex flex-wrap lg:flex-nowrap lg:flex-row gap-2",
     itemIndicatorClass: "hidden",
     itemLabelClass: "font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
     itemContainerClass: cn(
@@ -272,11 +272,11 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             const keyStr = `${e.metaKey ? "meta+" : ""}${e.ctrlKey ? "ctrl+" : ""}${e.altKey ? "alt+" : ""}${e.shiftKey
                 ? "shift+"
                 : ""}${e.key.toLowerCase()
-                    .replace("arrow", "")
-                    .replace("insert", "ins")
-                    .replace("delete", "del")
-                    .replace(" ", "space")
-                    .replace("+", "plus")}`
+                .replace("arrow", "")
+                .replace("insert", "ins")
+                .replace("delete", "del")
+                .replace(" ", "space")
+                .replace("+", "plus")}`
 
             const kbsSetter = {
                 [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: setKbsChapterLeft,
@@ -329,6 +329,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             setFullscreen(true)
         }
     }
+
     return (
         <>
             <DropdownMenu
@@ -493,129 +494,129 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                     </Card>
 
 
-                    <Card className="p-4 space-y-4">
-                        {!isMobile && (
-                            <>
-                                <div>
-                                    <h4>Editable Keybinds</h4>
-                                    <p className="text-[--muted] text-xs">Click to edit</p>
-                                </div>
+                    {!isMobile && (<Card className="p-4 space-y-4">
 
-                                {[
-                                    {
-                                        key: MANGA_KBS_ATOM_KEYS.kbsChapterLeft,
-                                        label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
-                                        value: kbsChapterLeft,
-                                        // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
-                                    },
-                                    {
-                                        key: MANGA_KBS_ATOM_KEYS.kbsChapterRight,
-                                        label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
-                                        value: kbsChapterRight,
-                                        // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
-                                    },
-                                    {
-                                        key: MANGA_KBS_ATOM_KEYS.kbsPageLeft,
-                                        label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
-                                        value: kbsPageLeft,
-                                        // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
-                                    },
-                                    {
-                                        key: MANGA_KBS_ATOM_KEYS.kbsPageRight,
-                                        label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
-                                        value: kbsPageRight,
-                                        // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
-                                    },
-                                ].map(item => {
-                                    return (
-                                        <div className="flex gap-2 items-center" key={item.key}>
-                                            <div className="">
+                        <>
+                            <div>
+                                <h4>Editable Keybinds</h4>
+                                <p className="text-[--muted] text-xs">Click to edit</p>
+                            </div>
+
+                            {[
+                                {
+                                    key: MANGA_KBS_ATOM_KEYS.kbsChapterLeft,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
+                                    value: kbsChapterLeft,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
+                                },
+                                {
+                                    key: MANGA_KBS_ATOM_KEYS.kbsChapterRight,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
+                                    value: kbsChapterRight,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
+                                },
+                                {
+                                    key: MANGA_KBS_ATOM_KEYS.kbsPageLeft,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
+                                    value: kbsPageLeft,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
+                                },
+                                {
+                                    key: MANGA_KBS_ATOM_KEYS.kbsPageRight,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
+                                    value: kbsPageRight,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
+                                },
+                            ].map(item => {
+                                return (
+                                    <div className="flex gap-2 items-center" key={item.key}>
+                                        <div className="">
+                                            <Button
+                                                onKeyDownCapture={(e) => setKbs(e, item.key)}
+                                                className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1 focus-visible:ring-2 focus-visible:ring-[--brand] focus-visible:ring-offset-1"
+                                                size="sm"
+                                                intent="primary-subtle"
+                                                id={`chapter-reader-settings-kbs-${item.key}`}
+                                                onClick={() => {
+                                                    const el = document.getElementById(`chapter-reader-settings-kbs-${item.key}`)
+                                                    if (el) {
+                                                        el.focus()
+                                                    }
+                                                }}
+                                            >
+                                                {item.value}
+                                            </Button>
+                                        </div>
+                                        <label className="text-[--gray]">
+                                            <span className="font-semibold">{item.label}</span>
+                                            {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
+                                        </label>
+                                        {
+                                            item.value !== (MANGA_DEFAULT_KBS as any)[item.key] && (
                                                 <Button
-                                                    onKeyDownCapture={(e) => setKbs(e, item.key)}
-                                                    className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1 focus-visible:ring-2 focus-visible:ring-[--brand] focus-visible:ring-offset-1"
-                                                    size="sm"
-                                                    intent="primary-subtle"
-                                                    id={`chapter-reader-settings-kbs-${item.key}`}
                                                     onClick={() => {
-                                                        const el = document.getElementById(`chapter-reader-settings-kbs-${item.key}`)
-                                                        if (el) {
-                                                            el.focus()
-                                                        }
+                                                        resetKeyDefault(item.key)
                                                     }}
-                                                >
-                                                    {item.value}
-                                                </Button>
-                                            </div>
-                                            <label className="text-[--gray]">
-                                                <span className="font-semibold">{item.label}</span>
-                                                {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
-                                            </label>
-                                            {
-                                                item.value !== (MANGA_DEFAULT_KBS as any)[item.key] && (
-                                                    <Button
-                                                        onClick={() => {
-                                                            resetKeyDefault(item.key)
-                                                        }}
-                                                        className="rounded-full"
-                                                        size="sm"
-                                                        intent="warning-subtle"
-                                                        leftIcon={<FaRedo />}
-                                                    >
-                                                        Reset
-                                                    </Button>
-                                                )
-                                            }
-                                        </div>
-                                    )
-                                })}
-
-                                <Separator />
-
-                                <h4>Keyboard Shortcuts</h4>
-
-                                {[{
-                                    key: "u",
-                                    label: "Update progress and go to next chapter",
-                                }, {
-                                    key: "b",
-                                    label: "Toggle bottom bar visibility",
-                                }, {
-                                    key: "m",
-                                    label: "Switch reading mode",
-                                }, {
-                                    key: "d",
-                                    label: "Switch reading direction",
-                                }, {
-                                    key: "f",
-                                    label: "Switch page fit",
-                                }, {
-                                    key: "s",
-                                    label: "Switch page stretch",
-                                }, {
-                                    key: "shift+right",
-                                    label: "Increment double page offset",
-                                }, {
-                                    key: "shift+left",
-                                    label: "Decrement double page offset",
-                                }].map(item => {
-                                    return (
-                                        <div className="flex gap-2 items-center" key={item.key}>
-                                            <div>
-                                                <Button
+                                                    className="rounded-full"
                                                     size="sm"
-                                                    intent="gray-outline"
-                                                    className="pointer-events-none"
+                                                    intent="warning-subtle"
+                                                    leftIcon={<FaRedo />}
                                                 >
-                                                    {item.key}
+                                                    Reset
                                                 </Button>
-                                            </div>
-                                            <p>{item.label}</p>
+                                            )
+                                        }
+                                    </div>
+                                )
+                            })}
+
+                            <Separator />
+
+                            <h4>Keyboard Shortcuts</h4>
+
+                            {[{
+                                key: "u",
+                                label: "Update progress and go to next chapter",
+                            }, {
+                                key: "b",
+                                label: "Toggle bottom bar visibility",
+                            }, {
+                                key: "m",
+                                label: "Switch reading mode",
+                            }, {
+                                key: "d",
+                                label: "Switch reading direction",
+                            }, {
+                                key: "f",
+                                label: "Switch page fit",
+                            }, {
+                                key: "s",
+                                label: "Switch page stretch",
+                            }, {
+                                key: "shift+right",
+                                label: "Increment double page offset",
+                            }, {
+                                key: "shift+left",
+                                label: "Decrement double page offset",
+                            }].map(item => {
+                                return (
+                                    <div className="flex gap-2 items-center" key={item.key}>
+                                        <div>
+                                            <Button
+                                                size="sm"
+                                                intent="gray-outline"
+                                                className="pointer-events-none"
+                                            >
+                                                {item.key}
+                                            </Button>
                                         </div>
-                                    )
-                                })}
-                            </>
-                        )}
-                    </Card>
+                                        <p>{item.label}</p>
+                                    </div>
+                                )
+                            })}
+                        </>
+
+                    </Card>)}
 
                 </div>
             </Drawer>

@@ -16,8 +16,8 @@ import { normalizeDate } from "@/lib/helpers/date"
 import { getImageUrl } from "@/lib/server/assets"
 import { useWindowSize } from "@uidotdev/usehooks"
 import React, { Fragment } from "react"
-import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
+import { TbEdit } from "react-icons/tb"
 import { useToggle } from "react-use"
 
 type AnilistMediaEntryModalProps = {
@@ -111,7 +111,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                 {(!listData) && <Tooltip
                     trigger={<IconButton
                         data-anilist-media-entry-modal-add-button
-                        intent="primary-subtle"
+                        intent="gray-subtle"
                         icon={<BiPlus />}
                         rounded
                         size="sm"
@@ -142,7 +142,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                         {!!listData && <IconButton
                             data-anilist-media-entry-modal-edit-button
                             intent="white-subtle"
-                            icon={<AiFillEdit />}
+                            icon={<TbEdit />}
                             rounded
                             size="sm"
                             loading={isPending || isDeleting}
