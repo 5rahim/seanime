@@ -15,7 +15,8 @@ import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { getAssetUrl } from "@/lib/server/assets"
+import { ThemeLibraryScreenBannerType, ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -337,7 +338,9 @@ interface BannerImageProps {
 
 function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImageProps) {
     const ts = useThemeSettings()
-    const bannerImage = episode?.baseAnime?.bannerImage || episode?.baseAnime?.coverImage?.extraLarge
+    const bannerImage = (!!ts.libraryScreenCustomBannerImage
+        && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom) ? getAssetUrl(ts.libraryScreenCustomBannerImage) :
+        episode?.baseAnime?.bannerImage || episode?.baseAnime?.coverImage?.extraLarge
 
     return (
         <div

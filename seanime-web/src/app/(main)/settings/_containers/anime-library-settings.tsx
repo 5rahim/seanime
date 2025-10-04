@@ -11,7 +11,7 @@ type LibrarySettingsProps = {
     isPending: boolean
 }
 
-export function LibrarySettings(props: LibrarySettingsProps) {
+export function AnimeLibrarySettings(props: LibrarySettingsProps) {
 
     const {
         isPending,

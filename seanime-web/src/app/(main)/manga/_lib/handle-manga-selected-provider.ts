@@ -30,7 +30,8 @@ const getDefaultMangaProvider = (
     serverStatus: Status | undefined,
     extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined,
 ) => {
-    return serverStatus?.settings?.manga?.defaultMangaProvider || extensions?.[0]?.id || null
+    const firstExt = (!!extensions?.length && extensions?.length > 1 ? extensions?.filter(n => n.id !== "local-manga")?.[0]?.id : extensions?.[0]?.id)
+    return serverStatus?.settings?.manga?.defaultMangaProvider || firstExt || null
 }
 
 /**

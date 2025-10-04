@@ -50,7 +50,7 @@ const HOME_ITEM_ICONS = {
     "manga-library": LuBookOpen,
 } as const
 
-export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) {
+export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibrary?: boolean, isNakamaLibrary: boolean }) {
     const serverStatus = useServerStatus()
     const [isModalOpen, setIsModalOpen] = useAtom(__home_settingsModalOpen)
     const [optionsModalOpen, setOptionsModalOpen] = React.useState<string | null>(null)
@@ -184,7 +184,7 @@ export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) 
                     <IoHomeOutline className="size-5" />
                     Home <BetaBadge className="ml-0 mt-0.5" />
                 </div>}
-                contentClass="max-w-5xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
+                contentClass="max-w-5xl bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
                 overlayClass="bg-gray-950/70 backdrop-blur-sm"
             >
                 <GlowingEffect
@@ -236,7 +236,7 @@ export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) 
                             disabled={isSavingSettings || isSavingTorrentstreamSettings || isSavingDebridSettings}
                             options={[
                                 { label: "Local anime only", value: "local" },
-                                { label: "Local anime + All currently watching", value: "stream" },
+                                { label: "Local anime + Streaming", value: "stream" },
                             ]}
 
                             {...{
@@ -277,7 +277,7 @@ export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) 
 
                     <div
                         className={cn(
-                            // emptyLibrary && "pointer-events-none opacity-30"
+                            isNakamaLibrary && "pointer-events-none opacity-30",
                         )}
                     >
                         <div className="flex items-center gap-2 mb-4">
@@ -321,7 +321,7 @@ export function HomeSettingsModal({ emptyLibrary }: { emptyLibrary?: boolean }) 
 
                     <div
                         className={cn(
-                            // emptyLibrary && "pointer-events-none opacity-30"
+                            isNakamaLibrary && "pointer-events-none opacity-30",
                         )}
                     >
                         <div className="flex items-center gap-2 mb-4">
@@ -653,12 +653,12 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
                             </button>
                         ))}
                     </div>
-                    {selectedValues.length > 0 && (
-                        <div className="text-xs text-gray-400">
-                            {selectedValues.length} selected: {selectedValues.slice(0, 3).join(", ")}
-                            {selectedValues.length > 3 && ` +${selectedValues.length - 3} more`}
-                        </div>
-                    )}
+                    {/*{selectedValues.length > 0 && (*/}
+                    {/*    <div className="text-xs text-gray-400">*/}
+                    {/*        {selectedValues.length} selected: {selectedValues.slice(0, 3).join(", ")}*/}
+                    {/*        {selectedValues.length > 3 && ` +${selectedValues.length - 3} more`}*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
                 </div>
             )
 

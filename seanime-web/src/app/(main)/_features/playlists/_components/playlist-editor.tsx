@@ -363,8 +363,8 @@ function SortableItem({ id, episode, setEpisodes }: {
                             return <div
                                 key={option.value}
                                 className={cn(
-                                    "text-sm flex w-fit py-1 px-2 rounded-xl hover:bg-[--subtle] transition border border-transparent cursor-pointer",
-                                    option.value === episode.watchType && "border-white/20 bg-[--subtle] text-white",
+                                    "text-sm flex w-fit py-1 px-2 rounded-xl hover:bg-[--subtle] text-[--muted] hover:text-[--foreground] transition border border-transparent cursor-pointer",
+                                    option.value === episode.watchType && "border-white/20 bg-[--subtle] text-white hover:text-white",
                                 )}
                                 onPointerDown={e => e.stopPropagation()}
                                 onClick={e => {

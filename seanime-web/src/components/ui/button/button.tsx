@@ -38,7 +38,8 @@ export const ButtonAnatomy = defineStyleAnatomy({
                 "success-link": "shadow-none text-[--green] border border-transparent bg-transparent hover:underline active:text-green-700 dark:active:text-green-300",
                 "success-basic": "shadow-none text-[--green] border border-transparent bg-transparent hover:bg-green-100 active:bg-green-200 dark:hover:bg-opacity-10 dark:active:text-green-300",
 
-                "alert": "bg-red-500 hover:bg-red-600 active:bg-red-700 border border-transparent",
+                // "alert": "bg-red-500 hover:bg-red-600 active:bg-red-700 border border-transparent",
+                "alert": "shadow-none text-white border bg-red-500 border-red-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "alert-outline": "text-[--red] border border-[--red] bg-transparent hover:bg-red-500 active:bg-red-600 active:border-transparent hover:text-white dark:hover:border-red-500 dark:active:bg-red-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
                 "alert-subtle": "shadow-none text-[--red] border bg-red-50 border-transparent hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "alert-glass": "shadow-none text-[--red] border bg-red-50 border-red-300/20 hover:bg-red-100 active:bg-red-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",

@@ -168,7 +168,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         hideDownloadedEpisodeCardFilename: getThemeValue("hideDownloadedEpisodeCardFilename", serverStatus?.themeSettings),
         customCSS: getThemeValue("customCSS", serverStatus?.themeSettings),
         mobileCustomCSS: getThemeValue("mobileCustomCSS", serverStatus?.themeSettings),
-        unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings),
+        unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings)
+            ?.filter((n: string) => n !== "anilist" && n !== "nakama" && n !== "library"),
     }
 }
 

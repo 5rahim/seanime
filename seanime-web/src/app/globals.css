@@ -260,6 +260,10 @@ h6 {
     body[data-scroll-locked] .scroll-locked-offset-fixed {
         width: calc(100vw - 8px) !important;
     }
+
+    body[data-scroll-locked] .scroll-locked-offset-custom-library-banner {
+        width: calc(100vw + 5rem - 8px) !important;
+    }
 }
 
 body[data-scroll-locked] .media-page-header-scroll-locked {

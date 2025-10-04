@@ -75,11 +75,12 @@ export function AnimeEntryPage() {
     const switchedView = React.useRef(false)
 
     React.useLayoutEffect(() => {
+        if (!animeEntry) return
         try {
             if (animeEntry?.media?.title?.userPreferred) {
                 document.title = `${animeEntry?.media?.title?.userPreferred} | Seanime`
-                switchedView.current = false
             }
+            switchedView.current = false
         }
         catch {
         }
@@ -92,6 +93,8 @@ export function AnimeEntryPage() {
         // }
 
         if (
+            !animeEntryLoading &&
+            animeEntry &&
             animeEntry?.media?.status === "NOT_YET_RELEASED"
         ) {
             switchedView.current = true
@@ -100,6 +103,7 @@ export function AnimeEntryPage() {
         }
 
         if (
+            !animeEntryLoading &&
             searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
             !switchedView.current // View has not been switched yet
         ) {
@@ -114,6 +118,7 @@ export function AnimeEntryPage() {
         }
 
         if (
+            !animeEntryLoading &&
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (

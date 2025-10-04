@@ -10,9 +10,9 @@ import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/se
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { AnimeLibrarySettings } from "@/app/(main)/settings/_containers/anime-library-settings"
 import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
-import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
 import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
 import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
@@ -40,7 +40,6 @@ import { BiDonateHeart } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { FaDiscord } from "react-icons/fa"
 import { HiOutlineServerStack } from "react-icons/hi2"
-import { IoLibrary } from "react-icons/io5"
 import {
     LuBookKey,
     LuBookOpen,
@@ -64,7 +63,7 @@ import { LocalSettings } from "./_containers/local-settings"
 import { NakamaSettings } from "./_containers/nakama-settings"
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+    "space-y-4 animate-in fade-in-0 duration-300",
 )
 
 export const dynamic = "force-static"
@@ -182,7 +181,7 @@ export default function Page() {
                                     <TabsTrigger
                                         value="library"
                                         className="group"
-                                    ><IoLibrary className="text-xl mr-3 transition-transform duration-200" /> Anime Library</TabsTrigger>
+                                    ><LuLibrary className="text-xl mr-3 transition-transform duration-200" /> Local Anime Library</TabsTrigger>
                                     <TabsTrigger
                                         value="playback"
                                         className="group"
@@ -526,7 +525,7 @@ export default function Page() {
                                             icon={LuLibrary}
                                         />
 
-                                        <LibrarySettings isPending={isPending} />
+                                        <AnimeLibrarySettings isPending={isPending} />
 
                                     </TabsContent>
 

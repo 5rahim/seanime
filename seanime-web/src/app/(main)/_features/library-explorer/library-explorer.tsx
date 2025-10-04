@@ -26,7 +26,6 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
 import { ContextMenuGroup } from "@radix-ui/react-context-menu"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { ScopeProvider } from "jotai-scope"
 import React, { memo } from "react"
 import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FaRegEdit } from "react-icons/fa"
@@ -158,7 +157,7 @@ export function LibraryExplorer() {
     }
 
     const handleMatchFiles = (nodes: LibraryExplorer_FileTreeNodeJSON[]) => {
-        setMatchLocalFiles(nodes?.map(n => n.localFile)?.filter(Boolean) ?? [])
+        setMatchLocalFiles(nodes?.filter(n => n.localFile && !n.localFile?.mediaId)?.map(n => n.localFile!) ?? [])
         React.startTransition(() => {
             setUnmatchedFileManagerOpen(true)
         })
@@ -331,6 +330,9 @@ export function LibraryExplorer() {
         }
     }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm])
 
+    const hasUnlockedFiles = fileNodes?.some(n => n.localFile && !!n.localFile.mediaId && !n.localFile.locked && !n.localFile.ignored)
+    const unmatchedFiles = fileNodes?.filter(n => !!n.localFile && !n.localFile.mediaId && !n.localFile.ignored)
+
     if (isLoading) {
         return (
             <div className="p-4 lg:p-8 flex-1 overflow-y-auto flex items-center justify-center">
@@ -341,113 +343,126 @@ export function LibraryExplorer() {
 
     return (
         <>
-            <ScopeProvider atoms={[__unmatchedFileManagerIsOpen]}>
-                <div className="hidden lg:flex h-full">
-                    <div className="flex-1 flex flex-col border-r bg-gray-950">
-                        <div className="p-4 border-b space-y-3">
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-lg font-semibold text-gray-100"></h2>
-                                <div className="flex flex-1"></div>
-                                <LibraryExplorerBulkActions
-                                    fileNodes={fileNodes}
-                                    handleMatchFiles={handleMatchFiles}
-                                    handleUnmatchFiles={handleUnmatchFiles}
-                                />
-                                <LibraryExplorerSuperUpdate
-                                    fileNodes={fileNodes}
-                                />
-                                <Button
-                                    leftIcon={<BiListCheck className="text-xl" />}
-                                    size="sm"
-                                    intent={isSelectingPaths ? "white" : "gray-subtle"}
-                                    onClick={handleToggleSelectingPaths}
-                                    className={cn(
-                                        isSelectingPaths && "animate-pulse",
-                                    )}
-                                >
-                                    Select{isSelectingPaths ? "ing" : ""}
-                                </Button>
-                                <IconButton
-                                    icon={<LuFolderSync />}
-                                    size="sm"
-                                    intent="gray-subtle"
-                                    onClick={handleRefresh}
-                                    loading={refreshMutation.isPending}
-                                />
-                            </div>
-                            <TextInput
-                                placeholder="Search files and folders..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                leftIcon={<BiSearch />}
-                                size="sm"
-                            />
-
-                            {hasUnscannedFiles && (
-                                <Alert
-                                    intent="warning"
-                                    description="Some files have not been scanned yet. Please scan the library to be able to perform actions on them."
-                                />
-                            )}
-                        </div>
-
-                        <div className="flex-1 library-explorer-tree-container">
-                            <Virtuoso
-                                ref={ref}
-                                data={flattenedItems}
-                                itemContent={(index, item) => (
-                                    <VirtualizedTreeNode
-                                        key={item.node.path}
-                                        item={item}
-                                        isExpanded={expandedNodes.has(item.node.path)}
-                                        onToggleExpand={handleToggleExpand}
-                                        onSelect={handleSelectNode}
-                                        selectedPath={selectedNode?.path}
-                                        localFiles={fileTree?.localFiles}
-                                        selectedPaths={selectedPaths}
-                                        onPathSelection={handlePathSelection}
-                                        windowWidth={width}
-                                        onUnmatchFiles={handleUnmatchFiles}
-                                        onLockFiles={handleLockFiles}
-                                        onUnlockFiles={handleUnlockFiles}
-                                        onIgnoreFiles={handleIgnoreFiles}
-                                        onUnignoreFiles={handleUnignoreFiles}
-                                        onMatchFiles={handleMatchFiles}
-                                        onOpenInExplorer={handleOpenInExplorer}
+            <div className="hidden lg:flex h-full">
+                <div className="flex-1 flex flex-col border-r bg-gray-950">
+                    <div className="p-4 border-b space-y-3">
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h2 className="text-lg font-semibold text-gray-100 2xl:block hidden">Library Explorer</h2>
+                                {hasUnlockedFiles && (
+                                    <Alert intent="info" className="text-sm py-1 px-3" description="Lock all correctly matched files" />
+                                )}
+                                {!!unmatchedFiles?.length && (
+                                    <Alert
+                                        intent="warning"
+                                        className="text-sm py-1 px-3 cursor-pointer"
+                                        description={`${unmatchedFiles.length} unmatched file${unmatchedFiles.length != 1 ? "s" : ""}`}
+                                        onClick={() => {
+                                            setDirectoryToOpen(unmatchedFiles?.[0]?.path)
+                                        }}
                                     />
                                 )}
-                                style={{ height: "100%" }}
-                                components={{
-                                    Footer: () => (
-                                        <div className="p-2">
-                                            <p className="text-xs text-gray-400 text-center py-2">
-                                                End
-                                            </p>
-                                        </div>
-                                    ),
-                                }}
+                            </div>
+                            <div className="flex flex-1"></div>
+                            <LibraryExplorerBulkActions
+                                fileNodes={fileNodes}
+                                handleMatchFiles={handleMatchFiles}
+                                handleUnmatchFiles={handleUnmatchFiles}
+                            />
+                            <LibraryExplorerSuperUpdate
+                                fileNodes={fileNodes}
+                            />
+                            <Button
+                                leftIcon={<BiListCheck className="text-xl" />}
+                                size="sm"
+                                intent={isSelectingPaths ? "white" : "gray-subtle"}
+                                onClick={handleToggleSelectingPaths}
+                                className={cn(
+                                    isSelectingPaths && "animate-pulse",
+                                )}
+                            >
+                                Select{isSelectingPaths ? "ing" : ""}
+                            </Button>
+                            <IconButton
+                                icon={<LuFolderSync />}
+                                size="sm"
+                                intent="gray-subtle"
+                                onClick={handleRefresh}
+                                loading={refreshMutation.isPending}
                             />
                         </div>
+                        <TextInput
+                            placeholder="Search files and folders..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            leftIcon={<BiSearch />}
+                            size="sm"
+                        />
+
+                        {hasUnscannedFiles && (
+                            <Alert
+                                intent="warning"
+                                description="Some files have not been scanned yet. Please scan the library to be able to perform actions on them."
+                            />
+                        )}
                     </div>
 
-                    <div className="flex flex-col flex-none bg-gray-950/50 w-80">
-                        <LibraryInfoPanel localFiles={fileTree?.localFiles} />
+                    <div className="flex-1 library-explorer-tree-container">
+                        <Virtuoso
+                            ref={ref}
+                            data={flattenedItems}
+                            itemContent={(index, item) => (
+                                <VirtualizedTreeNode
+                                    key={item.node.path}
+                                    item={item}
+                                    isExpanded={expandedNodes.has(item.node.path)}
+                                    onToggleExpand={handleToggleExpand}
+                                    onSelect={handleSelectNode}
+                                    selectedPath={selectedNode?.path}
+                                    localFiles={fileTree?.localFiles}
+                                    selectedPaths={selectedPaths}
+                                    onPathSelection={handlePathSelection}
+                                    windowWidth={width}
+                                    onUnmatchFiles={handleUnmatchFiles}
+                                    onLockFiles={handleLockFiles}
+                                    onUnlockFiles={handleUnlockFiles}
+                                    onIgnoreFiles={handleIgnoreFiles}
+                                    onUnignoreFiles={handleUnignoreFiles}
+                                    onMatchFiles={handleMatchFiles}
+                                    onOpenInExplorer={handleOpenInExplorer}
+                                />
+                            )}
+                            style={{ height: "100%" }}
+                            components={{
+                                Footer: () => (
+                                    <div className="p-2">
+                                        <p className="text-xs text-gray-400 text-center py-2">
+                                            End
+                                        </p>
+                                    </div>
+                                ),
+                            }}
+                        />
                     </div>
                 </div>
 
-                <UnmatchedFileManager
-                    unmatchedGroups={[
-                        {
-                            dir: upath.dirname(matchLocalFiles[0]?.path || ""),
-                            localFiles: matchLocalFiles,
-                        },
-                    ]}
-                />
+                <div className="flex flex-col flex-none bg-gray-950/50 w-80">
+                    <LibraryInfoPanel localFiles={fileTree?.localFiles} />
+                </div>
+            </div>
 
-                <LibraryExplorerSuperUpdateDrawer
-                    fileNodes={fileNodes}
-                />
-            </ScopeProvider>
+            <UnmatchedFileManager
+                unmatchedGroups={[
+                    {
+                        dir: upath.dirname(matchLocalFiles[0]?.path || ""),
+                        localFiles: matchLocalFiles,
+                    },
+                ]}
+            />
+
+            <LibraryExplorerSuperUpdateDrawer
+                fileNodes={fileNodes}
+            />
         </>
     )
 }
@@ -726,7 +741,7 @@ const VirtualizedTreeNode = memo(({
                         </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={handleOpenSuperUpdate}
-                            className={cn("text-[--violet]")}
+                            // className={cn("text-[--violet]")}
                         >
                             <FaRegEdit /> Super update
                         </ContextMenuItem>
@@ -856,7 +871,7 @@ const VirtualizedTreeNode = memo(({
                                         !isDirectory && !isScannedFile && "text-red-200",
                                         !isDirectory && node.localFile?.ignored && "text-[--muted] italic",
                                     )}
-                                >{node.name === "root" ? "Libraries" : node.name}</span>
+                                >{node.name === "root" ? "Anime Libraries" : node.name}</span>
                                 {!!media && (
                                     <span
                                         className={cn(

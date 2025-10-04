@@ -681,7 +681,9 @@ app.whenReady().then(async () => {
             console.log('[Main] Checking for updates...');
             const result = await autoUpdater.checkForUpdates();
             return {
-                updateAvailable: !!result?.updateInfo, updateInfo: result?.updateInfo
+                updateAvailable: !!result?.updateInfo,
+                updateInfo: result?.updateInfo,
+                updateDownloaded: updateDownloaded
             };
         } catch (error) {
             console.error('[Main] Error checking for updates:', error);
@@ -692,7 +694,10 @@ app.whenReady().then(async () => {
     ipcMain.handle('install-update', async () => {
         try {
             if (!updateDownloaded) {
-                throw new Error('Update not downloaded yet');
+                console.log('[Main] Update not downloaded yet, triggering download...');
+                // Trigger download if not already downloaded
+                await autoUpdater.checkForUpdatesAndNotify();
+                throw new Error('Update download initiated. Please wait for download to complete.');
             }
             console.log('[Main] Installing update...');
             autoUpdater.quitAndInstall(false, true);

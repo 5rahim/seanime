@@ -126,9 +126,9 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         fetchSuggestions({
             dir: currentGroup.dir,
         }, {
-            onSuccess: () => {
+            onSuccess: data => {
                 setTimeout(() => {
-                    if (!suggestions?.length) {
+                    if (!data?.length) {
                         toast.warning("No suggestions found, try searching manually")
                     }
                 }, 500)
@@ -218,7 +218,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-900 border  p-2 px-4 rounded-[--radius-md] line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-900 border text-sm tracking-wide p-2 px-4 rounded-[--radius-md] line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer({
                         path: currentGroup.dir,
                     })}
@@ -302,7 +302,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 <div className="flex flex-wrap items-center gap-1">
                     <Button
                         leftIcon={<FiSearch />}
-                        intent="primary-subtle"
+                        intent="white-link"
                         onClick={handleFetchSuggestions}
                     >
                         Fetch suggestions
@@ -313,7 +313,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {/*    href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}*/}
                     {/*>*/}
                         <Button
-                            intent="white-link"
+                            intent="white-subtle"
                             onClick={handleSearchAnime}
                         >
                             Search on AniList

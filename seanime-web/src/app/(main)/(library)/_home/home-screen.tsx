@@ -164,7 +164,7 @@ export function HomeScreen() {
                             rounded
                             onClick={() => setScannerModalOpen(true)}
                         >
-                            Scan your library
+                            Scan your anime library
                         </Button>
                     </>}
 
@@ -210,7 +210,9 @@ export function HomeScreen() {
                 <h3>Trending Right Now</h3>
                 <DiscoverTrending />
 
-                <HomeSettingsModal emptyLibrary />
+                <div data-home-screen-item-divider className="h-8" />
+
+                <HomeSettingsModal emptyLibrary isNakamaLibrary={isNakamaLibrary} />
 
                 <UnmatchedFileManager
                     unmatchedGroups={unmatchedGroups}
@@ -229,6 +231,7 @@ export function HomeScreen() {
     return (
         <div data-home-screen className="contents">
 
+            {/*Discover Page Header*/}
             {homeItems[0]?.type === "discover-header" && <React.Fragment>
                 <DiscoverPageHeader />
                 <div className="h-0 visibility-hidden pointer-events-none opacity-0">
@@ -237,10 +240,12 @@ export function HomeScreen() {
                 </div>
             </React.Fragment>}
 
+            {/*Continue Watching Header*/}
             {homeItems[0]?.type === "anime-continue-watching-header" && <React.Fragment>
                 <ContinueWatchingHeader episodes={continueWatchingList} />
             </React.Fragment>}
 
+            {/*Manga Library Header*/}
             {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && homeItems[0]?.type === "manga-library") && (
                 <>
                     <MangaLibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
@@ -279,11 +284,24 @@ export function HomeScreen() {
                 )}
             />
 
+            {/*Custom Library Banner*/}
+            {(!!ts.libraryScreenCustomBannerImage
+                && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom
+                && homeItems[0]?.type !== "discover-header"
+                && homeItems[0]?.type !== "anime-continue-watching-header"
+            ) && <div
+                data-custom-library-banner-top-spacer
+                className={cn(
+                    "py-20",
+                    ts.hideTopNavbar && "py-28",
+                )}
+            ></div>}
             {(
                 hasEntries &&
                 ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom
                 && homeItems[0]?.type !== "discover-header"
-            ) && <CustomLibraryBanner isLibraryScreen />}
+                && homeItems[0]?.type !== "anime-continue-watching-header"
+            ) && <CustomLibraryBanner isLibraryScreen isHomeScreen />}
 
             {(hasEntries && homeItems.findIndex(n => n.type === "anime-continue-watching") !== -1) && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic &&
                 <div
@@ -336,6 +354,8 @@ export function HomeScreen() {
                             </React.Fragment>
                         )
                     })}
+
+                    <div data-home-screen-item-divider className="h-8" />
                 </PageWrapper>}
 
                 {view === "detailed" && <PageWrapper
@@ -361,7 +381,7 @@ export function HomeScreen() {
                 </PageWrapper>}
             </AnimatePresence>}
 
-            <HomeSettingsModal />
+            <HomeSettingsModal isNakamaLibrary={isNakamaLibrary} />
 
             <UnmatchedFileManager
                 unmatchedGroups={unmatchedGroups}
@@ -498,7 +518,7 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
 
     if (item.type === "aired-recently") {
         return (
-            <PageWrapper>
+            <PageWrapper className="px-4">
                 <RecentReleases />
             </PageWrapper>
         )

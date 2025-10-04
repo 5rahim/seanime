@@ -54,9 +54,9 @@ import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import mousetrap from "mousetrap"
-import Image from "next/image"
 import React from "react"
 import { LuSkipBack, LuSkipForward } from "react-icons/lu"
+import { PiSpinnerDuotone } from "react-icons/pi"
 
 export type SeaMediaPlayerProps = {
     url?: string | { src: string, type: string }
@@ -649,15 +649,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     >
                         <LoadingSpinner
                             spinner={
-                                <div className="w-8 h-8 lg:size-10 relative">
-                                    <Image
-                                        src="/senime-logo.png"
-                                        alt="Loading..."
-                                        priority
-                                        fill
-                                        className="animate-pulse"
-                                    />
-                                </div>
+                                <PiSpinnerDuotone className="size-14 lg:size-20 text-white animate-spin" />
                             }
                         />
                         <div className="text-center text-xs lg:text-sm">

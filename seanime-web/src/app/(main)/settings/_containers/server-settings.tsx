@@ -55,7 +55,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Alert
                     intent="warning-basic"
                     description={<div className="space-y-1">
-                        <p>AniList API is not working. All requests will be served from the cache.</p>
+                        <p>The AniList API is not working. All requests will be served from the cache.</p>
                         <p>You can disable this in the app settings.</p>
                     </div>}
                     className="fixed top-4 right-4 z-[50] hidden lg:block"
@@ -271,7 +271,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                     name="disableCacheLayer"
                     label="Disable AniList caching"
                     help="If enabled, Seanime will stop caching AniList requests to disk."
-                    moreHelp="The cache layer is used when AniList is down. Disable if too much data is being cached."
+                    moreHelp="By default, all requests made to AniList are cached. This allows Seanime to keep being usable when AniList goes down. The cache directory is modifiable in the config file."
                 />
                 {!f.watch("disableCacheLayer") && (
                     <div>

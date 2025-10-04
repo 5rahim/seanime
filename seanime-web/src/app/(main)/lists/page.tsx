@@ -15,16 +15,6 @@ export default function Home() {
             <PageWrapper
                 className="p-4 sm:p-8 pt-4 relative"
                 data-anilist-page
-                {...{
-                    initial: { opacity: 0, y: 10 },
-                    animate: { opacity: 1, y: 0 },
-                    exit: { opacity: 0, y: 10 },
-                    transition: {
-                        type: "spring",
-                        damping: 20,
-                        stiffness: 100,
-                    },
-                }}
             >
                 <AnilistCollectionLists />
             </PageWrapper>

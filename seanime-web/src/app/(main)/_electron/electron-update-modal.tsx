@@ -45,6 +45,9 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
     const [electronUpdate, setUpdate] = React.useState<boolean>(false)
     const [updateError, setUpdateError] = React.useState("")
     const [isInstalled, setIsInstalled] = useAtom(isUpdateInstalledAtom)
+    const [isDownloading, setIsDownloading] = React.useState(false)
+    const [isDownloaded, setIsDownloaded] = React.useState(false)
+    const [downloadProgress, setDownloadProgress] = React.useState(0)
 
     const checkElectronUpdate = React.useCallback(() => {
         try {
@@ -76,19 +79,36 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
         if (window.electron) {
             // Register listeners for update events
             const removeUpdateDownloaded = window.electron.on("update-downloaded", () => {
-                toast.info("Update downloaded and ready to install")
+                toast.success("Update downloaded and ready to install")
+                setIsDownloading(false)
+                setIsDownloaded(true)
+                setDownloadProgress(100)
             })
 
             const removeUpdateError = window.electron.on("update-error", (error: string) => {
                 logger("ELECTRON").error("Update error", error)
                 toast.error(`Update error: ${error}`)
                 setIsUpdating(false)
+                setIsDownloading(false)
+            })
+
+            const removeDownloadProgress = window.electron.on("download-progress", (progress: { percent: number }) => {
+                setDownloadProgress(Math.round(progress.percent))
+            })
+
+            const removeUpdateAvailable = window.electron.on("update-available", () => {
+                setIsDownloading(true)
+                setIsDownloaded(false)
+                setDownloadProgress(0)
+                toast.info("Update found, downloading...")
             })
 
             return () => {
                 // Clean up listeners
                 removeUpdateDownloaded?.()
                 removeUpdateError?.()
+                removeDownloadProgress?.()
+                removeUpdateAvailable?.()
             }
         }
     }, [])
@@ -99,15 +119,33 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
         }
     }, [updateData])
 
+    // Auto-install when download completes if user already clicked install
+    React.useEffect(() => {
+        if (isDownloaded && isUpdating && !isDownloading) {
+            // Retry installation now that download is complete
+            handleInstallUpdate()
+        }
+    }, [isDownloaded, isUpdating, isDownloading])
+
     async function handleInstallUpdate() {
         if (!electronUpdate || isUpdating) return
 
         try {
             setIsUpdating(true)
 
-            // Tell Electron to download and install the update
             if (window.electron) {
-                toast.info("Downloading update...")
+                // If not downloaded yet, trigger download first
+                if (!isDownloaded) {
+                    toast.info("Downloading update...")
+                    setIsDownloading(true)
+
+                    // Trigger update check which will start download
+                    await window.electron.checkForUpdates()
+
+                    // Wait for download to complete
+                    // The update-downloaded event will set isDownloaded to true
+                    return
+                }
 
                 // Kill the currently running server before installing update
                 try {
@@ -128,9 +166,10 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
             }
         }
         catch (e) {
-            logger("ELECTRON").error("Failed to download update", e)
-            toast.error(`Failed to download update: ${JSON.stringify(e)}`)
+            logger("ELECTRON").error("Failed to install update", e)
+            toast.error(`Failed to install update: ${JSON.stringify(e)}`)
             setIsUpdating(false)
+            setIsDownloading(false)
         }
     }
 
@@ -185,13 +224,14 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                     <UpdateChangelogBody updateData={updateData} />
 
                     <div className="flex gap-2 w-full !mt-4">
-                        {!!electronUpdate && <Button
+                        {electronUpdate && <Button
                             leftIcon={<GrInstall className="text-2xl" />}
                             onClick={handleInstallUpdate}
-                            loading={isUpdating}
+                            loading={isUpdating || isDownloading}
                             disabled={isLoading}
                         >
-                            Update now
+                            {isDownloading ? `Downloading... ${downloadProgress}%` :
+                                isDownloaded ? "Install now" : "Download & Install"}
                         </Button>}
                         <div className="flex flex-1" />
                         <SeaLink href={updateData?.release?.html_url || ""} target="_blank">

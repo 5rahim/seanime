@@ -19,7 +19,7 @@ import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { LuBlocks, LuCircleDashed, LuCircuitBoard, LuComponent, LuRefreshCw } from "react-icons/lu"
 import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import {
     usePluginListenTrayCloseEvent,
@@ -102,7 +102,7 @@ const ExtensionList = ({
                             trigger={<IconButton
                                 intent="gray-basic"
                                 size="sm"
-                                icon={<LuShapes className="size-5 text-[--muted]" />}
+                                icon={<LuComponent className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
                         >Tray Plugins</Tooltip>
@@ -211,7 +211,7 @@ const ExtensionList = ({
                         <IconButton
                             intent="warning-basic"
                             size="sm"
-                            icon={<LuBug className="size-4" />}
+                            icon={<LuCircuitBoard className="size-4" />}
                             className="rounded-full"
                         />
                     </div>}

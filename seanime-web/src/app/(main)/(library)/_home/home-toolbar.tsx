@@ -21,7 +21,7 @@ import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
-import { IoHome, IoLibrary, IoLibrarySharp } from "react-icons/io5"
+import { IoHome, IoLibraryOutline, IoLibrarySharp } from "react-icons/io5"
 import { LuFolderSearch, LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { TbFileSad, TbReportSearch } from "react-icons/tb"
@@ -75,12 +75,11 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 <div className="flex flex-1 pointer-events-none" data-library-toolbar-spacer></div>
                 {(hasEntries) && (
                     <>
-
                         {(!isStreamingOnly && !isNakamaLibrary) && <Tooltip
                             trigger={<IconButton
                                 data-library-toolbar-switch-view-button
                                 intent={homeView === "base" ? "white-subtle" : "white"}
-                                icon={homeView === "base" ? <IoLibrary className="text-2xl" /> : <IoHome className="text-2xl" />}
+                                icon={homeView === "base" ? <IoLibraryOutline className="text-2xl" /> : <IoHome className="text-2xl" />}
                                 onClick={() => setHomeView(p => p === "detailed" ? "base" : "detailed")}
                             />}
                         >
@@ -95,6 +94,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                                 onClick={() => {
                                     setLibraryExplorerDrawerOpen(true)
                                 }}
+                                className={cn(unmatchedLocalFiles.length > 0 && "animate-pulse")}
                             />}
                         >
                             Library Explorer

@@ -181,7 +181,7 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
             <div
                 className={cn(
                     "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
-                    "opacity-100 duration-500",
+                    "opacity-70 duration-500",
                 )}
             />
 

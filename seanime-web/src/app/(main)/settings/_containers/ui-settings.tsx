@@ -525,11 +525,6 @@ export function UISettings() {
                                     multiple
                                     options={[
                                         {
-                                            label: "Library",
-                                            textValue: "Library",
-                                            value: "library",
-                                        },
-                                        {
                                             label: "Schedule",
                                             textValue: "Schedule",
                                             value: "schedule",
@@ -545,14 +540,9 @@ export function UISettings() {
                                             value: "discover",
                                         },
                                         {
-                                            label: "AniList",
-                                            textValue: "AniList",
-                                            value: "anilist",
-                                        },
-                                        {
-                                            label: "Nakama",
-                                            textValue: "Nakama",
-                                            value: "nakama",
+                                            label: "My lists",
+                                            textValue: "My lists",
+                                            value: "lists",
                                         },
                                         {
                                             label: "Auto Downloader",
@@ -599,7 +589,7 @@ export function UISettings() {
 
                         <TabsContent value="media" className={tabContentClass}>
 
-                            <SettingsCard title="Collection screens">
+                            <SettingsCard title="Screens">
 
                                 {!serverStatus?.settings?.library?.enableWatchContinuity && (
                                     f.watch("continueWatchingDefaultSorting").includes("LAST_WATCHED") ||

@@ -10,6 +10,7 @@ import { useWindowScroll } from "react-use"
 
 type CustomLibraryBannerProps = {
     discrete?: boolean
+    isHomeScreen?: boolean
     isLibraryScreen?: boolean // Anime library or manga library
 }
 
@@ -18,7 +19,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
      * Library screens: Shows the custom banner IF theme settings are set to use a custom banner
      * Other pages: Shows the custom banner
      */
-    const { discrete, isLibraryScreen } = props
+    const { discrete, isLibraryScreen, isHomeScreen } = props
     const ts = useThemeSettings()
     const image = React.useMemo(() => ts.libraryScreenCustomBannerImage ? getAssetUrl(ts.libraryScreenCustomBannerImage) : "",
         [ts.libraryScreenCustomBannerImage])
@@ -39,7 +40,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
 
     return (
         <>
-            {!discrete && <div
+            {(!discrete && !isHomeScreen) && <div
                 data-custom-library-banner-top-spacer
                 className={cn(
                     "py-20",
@@ -55,7 +56,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
                     (!ts.libraryScreenCustomBackgroundImage && dimmed) && "opacity-5", // If the user has scrolled down, dim the banner
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     __isDesktop__ && "top-[-2rem]",
-                    "scroll-locked-offset",
+                    !ts.disableSidebarTransparency ? "scroll-locked-offset-custom-library-banner" : "scroll-locked-offset-fixed",
                 )}
             >
                 {(!ts.disableSidebarTransparency && !discrete) && <div

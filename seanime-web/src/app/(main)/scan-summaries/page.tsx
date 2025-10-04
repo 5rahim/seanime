@@ -111,7 +111,7 @@ export default function Page() {
                         <div>
                             <h2>Scan summaries</h2>
                             <p className="text-[--muted]">
-                                View the logs and details of your latest scans
+                                View the logs of your latest scans
                             </p>
                         </div>
                     </div>
@@ -122,23 +122,29 @@ export default function Page() {
                     {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
                     {!!data?.length && (
                         <div className="space-y-4">
-                            <Select
-                                value={selectedSummaryId || "-"}
-                                options={data?.filter(n => !!n.scanSummary)
-                                    .map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt!), value: summary.scanSummary!.id || "-" }))
-                                    .toReversed()}
-                                onValueChange={v => setSelectedSummaryId(v)}
-                            />
-                            {!!selectedSummary && (
-                                <div className="w-full lg:max-w-[50%]">
-                                    <TextInput
-                                        placeholder="Search filenames..."
-                                        value={searchQuery}
-                                        onValueChange={setSearchQuery}
-                                        leftIcon={<LuFileSearch className="text-[--muted]" />}
-                                    />
-                                </div>
-                            )}
+                            <div className="flex gap-2 items-center">
+                                <Select
+                                    value={selectedSummaryId || "-"}
+                                    options={data?.filter(n => !!n.scanSummary)
+                                        .map((summary) => ({
+                                            label: formatDateAndTimeShort(summary.createdAt!),
+                                            value: summary.scanSummary!.id || "-",
+                                        }))
+                                        .toReversed()}
+                                    onValueChange={v => setSelectedSummaryId(v)}
+                                    fieldClass="w-full lg:w-[280px]"
+                                />
+                                {!!selectedSummary && (
+                                    <div className="w-full">
+                                        <TextInput
+                                            placeholder="Search filenames..."
+                                            value={searchQuery}
+                                            onValueChange={setSearchQuery}
+                                            leftIcon={<LuFileSearch className="text-[--muted]" />}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                             {!!selectedSummary && (
                                 <div className="space-y-4 rounded-[--radius] ">
                                     <div>
@@ -162,17 +168,20 @@ export default function Page() {
 
                                     {!!filteredUnmatchedFiles?.length && <div className="space-y-2">
                                         <h5>Unmatched files</h5>
-                                        <Accordion type="single" collapsible>
-                                            <div className="grid grid-cols-1 gap-4">
-                                                {filteredUnmatchedFiles?.map(file => (
-                                                    <ScanSummaryGroupItem
-                                                        file={file}
-                                                        key={file.id}
-                                                        searchQuery={debouncedSearchQuery}
-                                                        isExpanded={expandedAccordions.has(file.localFile?.path || "")}
-                                                    />
-                                                ))}
-                                            </div>
+                                        <Accordion
+                                            type="single"
+                                            collapsible
+                                            triggerClass="py-0 px-3 dark:hover:bg-transparent text-[--muted] dark:hover:text-white"
+                                            className="p-0 bg-[--paper] border mt-4 rounded-[--radius] overflow-hidden relative gap-0"
+                                        >
+                                            {filteredUnmatchedFiles?.map(file => (
+                                                <ScanSummaryGroupItem
+                                                    file={file}
+                                                    key={file.id}
+                                                    searchQuery={debouncedSearchQuery}
+                                                    isExpanded={expandedAccordions.has(file.localFile?.path || "")}
+                                                />
+                                            ))}
                                         </Accordion>
                                     </div>}
 

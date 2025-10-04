@@ -168,24 +168,6 @@ export function MainSidebar() {
             href: "/discover",
             isCurrent: pathname === "/discover",
         },
-        ...serverStatus?.settings?.nakama?.enabled ? [{
-            id: "nakama",
-            iconType: MdOutlineConnectWithoutContact,
-            iconClass: "size-6",
-            name: "Nakama",
-            isCurrent: nakamaModalOpen,
-            onClick: () => setNakamaModalOpen(true),
-            addon: <>
-                {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
-                    className="absolute right-0 top-0" size="sm"
-                    intent="info"
-                >{nakamaStatus?.connectedPeers?.length}</Badge>}
-
-                {nakamaStatus?.isConnectedToHost && <div
-                    className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
-                ></div>}
-            </>,
-        }] : [],
         ...(
             serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
             && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
@@ -211,14 +193,14 @@ export function MainSidebar() {
             href: "/debrid",
             isCurrent: pathname === "/debrid",
         }] : [],
-        {
+        ...(!!serverStatus?.settings?.library?.libraryPath) ? [{
             id: "scan-summaries",
             iconType: TbReportSearch,
             name: "Scan summaries",
             href: "/scan-summaries",
             isCurrent: pathname === "/scan-summaries",
-        },
-        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+        }] : [],
+        ...(serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && !!serverStatus?.settings?.library?.libraryPath) ? [{
             id: "auto-downloader",
             iconType: LuRss,
             name: "Auto Downloader",
@@ -356,6 +338,23 @@ export function MainSidebar() {
                                 //         setSeaCommandOpen(true)
                                 //     }
                                 // },
+                                ...serverStatus?.settings?.nakama?.enabled ? [{
+                                    iconType: MdOutlineConnectWithoutContact,
+                                    iconClass: "size-6",
+                                    name: "Nakama",
+                                    isCurrent: nakamaModalOpen,
+                                    onClick: () => setNakamaModalOpen(true),
+                                    addon: <>
+                                        {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                                            className="absolute right-0 top-0" size="sm"
+                                            intent="info"
+                                        >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                                        {nakamaStatus?.isConnectedToHost && <div
+                                            className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                                        ></div>}
+                                    </>,
+                                }] : [],
                                 {
                                     iconType: BiExtension,
                                     name: "Extensions",
