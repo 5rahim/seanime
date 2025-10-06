@@ -33,8 +33,7 @@ import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { FiSearch } from "react-icons/fi"
-import { LuCornerLeftDown } from "react-icons/lu"
-import { RiFolderDownloadFill } from "react-icons/ri"
+import { LuCornerLeftDown, LuFileSearch } from "react-icons/lu"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
@@ -193,7 +192,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                 // leftAddon="Torrent Provider"
                                 value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
                                 onValueChange={setSelectedProviderExtensionId}
-                                leftIcon={<RiFolderDownloadFill className="text-[--brand]" />}
+                                leftIcon={<LuFileSearch />}
                                 options={[
                                     ...(providerExtensions?.map(ext => ({
                                         label: ext.name,
@@ -277,6 +276,20 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         className="max-w-[4rem]"
                                     />}
 
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
+                                        data-torrent-search-smart-search-batch-switch
+                                        label="Batches"
+                                        value={smartSearchBatch}
+                                        onValueChange={setSmartSearchBatch}
+                                        disabled={smartSearchBest || !downloadInfo?.canBatch}
+                                        fieldClass={cn(
+                                            "flex flex-none w-fit",
+                                            { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
+                                        )}
+                                        size="sm"
+                                        containerClass="flex-row-reverse gap-1"
+                                    />}
+
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution") && <Select
                                         data-torrent-search-smart-search-resolution-select
                                         label="Resolution"
@@ -298,20 +311,6 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         )}
                                         fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                         className="w-[6rem]"
-                                    />}
-
-                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
-                                        data-torrent-search-smart-search-batch-switch
-                                        label="Batches"
-                                        value={smartSearchBatch}
-                                        onValueChange={setSmartSearchBatch}
-                                        disabled={smartSearchBest || !downloadInfo?.canBatch}
-                                        fieldClass={cn(
-                                            "flex flex-none w-fit",
-                                            { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
-                                        )}
-                                        size="sm"
-                                        containerClass="flex-row-reverse gap-1"
                                     />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch

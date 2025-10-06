@@ -63,7 +63,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="__meta-page-header relative group/media-page-header"
             data-media-page-header
         >
@@ -163,7 +163,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         )}
                         initial={{ scale: 1.05, x: 0, y: -10, opacity: 0 }}
                         animate={{ scale: 1, x: 0, y: 1, opacity: shouldDimBanner ? 0.3 : 1 }}
-                        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                        transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                     />}
 
                     {shouldBlurBanner && <div
@@ -241,10 +241,10 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 className="relative z-[4]"
             >
                 <motion.div
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.7, delay: 0.4 }}
+                    exit={{ opacity: 0, x: 0 }}
+                    transition={{ duration: 0.5 }}
                     className="relative z-[4]"
                     data-media-page-header-details-container
                 >
@@ -346,7 +346,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         // scale: Math.max(1 - y * 0.0002, 0.96),
                         // y: Math.max(y * -0.1, -10)
                     }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.15 }}
                     data-media-page-header-entry-details-cover-image-container
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md block",
@@ -356,9 +356,9 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     )}
                 >
                     <motion.div
-                        initial={{ scale: 1.1, x: -10 }}
-                        animate={{ scale: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                        // initial={{ scale: 1.1, x: -10 }}
+                        // animate={{ scale: 1, x: 0 }}
+                        // transition={{ duration: 0.3, delay: 0.15, ease: "easeOut" }}
                         className="w-full h-full"
                     >
                         <MotionImage
@@ -371,7 +371,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             className="object-cover object-center"
                             initial={{ scale: 1.1, x: 0 }}
                             animate={{ scale: Math.min(1 + y * 0.0002, 1.05), x: 0 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
                         />
                     </motion.div>
                 </motion.div>}

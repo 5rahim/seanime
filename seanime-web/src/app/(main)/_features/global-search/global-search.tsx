@@ -105,7 +105,7 @@ export function GlobalSearch() {
                                     {({ activeOption }: any) => (
                                         <>
                                             <div
-                                                className="relative border bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 w-full rounded-lg "
+                                                className="relative border bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 w-full rounded-xl"
                                             >
                                                 <FiSearch
                                                     className="pointer-events-none absolute top-4 left-4 h-6 w-6 text-[--muted]"
@@ -133,7 +133,7 @@ export function GlobalSearch() {
                                             {(!!media && media.length > 0) && (
                                                 <Combobox.Options
                                                     as="div" static hold
-                                                    className="flex divide-[--border] bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-lg border "
+                                                    className="flex divide-[--border] bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-xl border"
                                                 >
                                                     <div
                                                         className={cn(

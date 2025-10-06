@@ -1,6 +1,4 @@
-import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { OfflineTopMenu } from "@/app/(main)/(offline)/offline/_components/offline-top-menu"
-import { RefreshAnilistButton } from "@/app/(main)/_features/anilist/refresh-anilist-button"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
 import { ManualProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
@@ -16,7 +14,7 @@ import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuFolderDown, LuRefreshCw } from "react-icons/lu"
+import { LuFolderDown } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
@@ -52,7 +50,7 @@ export function TopNavbar(props: TopNavbarProps) {
                         <div data-top-navbar-content-separator className="flex flex-1"></div>
                         <PluginSidebarTray place="top" />
                         {!isOffline && <ChapterDownloadsButton />}
-                        {!isOffline && <RefreshAnilistButton />}
+                        {/*{!isOffline && <RefreshAnilistButton />}*/}
                     </div>
                 </div>
                 <LayoutHeaderBackground />
@@ -84,12 +82,6 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
-    /**
-     * @description
-     * - Asks the server to fetch an up-to-date version of the user's AniList collection.
-     */
-    const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
-
     if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
@@ -104,15 +96,8 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 itemClass="relative"
                 onMouseEnter={handleExpandSidebar}
                 onMouseLeave={handleUnexpandedSidebar}
+                isSidebar
                 items={[
-                    {
-                        iconType: LuRefreshCw,
-                        name: "Refresh AniList",
-                        onClick: () => {
-                            if (isRefreshingAC) return
-                            refreshAC()
-                        },
-                    },
                     ...(isMangaPage ? [
                         {
                             iconType: LuFolderDown,

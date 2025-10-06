@@ -256,7 +256,7 @@ export function PluginTray(props: TrayPluginProps) {
                                     className="text-sm border font-medium text-gray-300 px-1.5 py-0.5 rounded-lg bg-black/60"
                                     data-plugin-tray-vaul-title
                                 >
-                                    {props.trayIcon.tooltipText || props.trayIcon.extensionName}
+                                    {props.trayIcon.extensionName}
                                 </p>
                                 <IconButton
                                     icon={<BiX />}

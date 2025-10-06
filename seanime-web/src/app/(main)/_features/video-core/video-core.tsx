@@ -75,6 +75,7 @@ import { useAtom, useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
+import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useMeasure } from "react-use"
@@ -1150,7 +1151,8 @@ export function VideoCore(props: VideoCoreProps) {
 
                                 {state.loadingState && <LoadingSpinner
                                     title={state.loadingState || "Loading..."}
-                                    spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
+                                    // spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
+                                    spinner={<ImSpinner2 className="size-20 text-white animate-spin" />}
                                     containerClass="z-[1]"
                                 />}
                             </div>

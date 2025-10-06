@@ -212,8 +212,8 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
                         { label: "NC/Other", value: "nc" },
                     ]}
                 />
-                <div className="w-full flex justify-end">
-                    <Field.Submit role="save" intent="success" loading={isPending}>Save</Field.Submit>
+                <div className="w-full">
+                    <Field.Submit role="save" intent="primary" className="w-full" loading={isPending}>Save</Field.Submit>
                 </div>
             </Form>
         </Modal>

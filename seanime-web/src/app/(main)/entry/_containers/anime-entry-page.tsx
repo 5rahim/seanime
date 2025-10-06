@@ -67,6 +67,7 @@ export function AnimeEntryPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
+    const tab = searchParams.get("tab")
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
     const ts = useThemeSettings()
@@ -80,17 +81,24 @@ export function AnimeEntryPage() {
             if (animeEntry?.media?.title?.userPreferred) {
                 document.title = `${animeEntry?.media?.title?.userPreferred} | Seanime`
             }
-            switchedView.current = false
+            // switchedView.current = false
         }
         catch {
         }
     }, [animeEntry])
 
+    const mediaIdRef = React.useRef(mediaId)
+
     React.useEffect(() => {
-        // if (animeEntryLoading) {
-        //     switchedView.current = false
-        //     return
-        // }
+        if (mediaIdRef.current !== mediaId) {
+            switchedView.current = false
+            mediaIdRef.current = mediaId
+        }
+
+        if (animeEntryLoading || !mediaId) {
+            switchedView.current = false
+            return
+        }
 
         if (
             !animeEntryLoading &&
@@ -101,18 +109,20 @@ export function AnimeEntryPage() {
             setView("library")
             return
         }
+        console.warn("tab", tab, switchedView.current)
 
         if (
             !animeEntryLoading &&
-            searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
+            !!tab &&
+            tab !== "library" && // Tab is not library
             !switchedView.current // View has not been switched yet
         ) {
             switchedView.current = true
-            if (serverStatus?.debridSettings?.enabled && searchParams.get("tab") === "debridstream") {
+            if (serverStatus?.debridSettings?.enabled && tab === "debridstream") {
                 setView("debridstream")
-            } else if (serverStatus?.torrentstreamSettings?.enabled && searchParams.get("tab") === "torrentstream") {
+            } else if (serverStatus?.torrentstreamSettings?.enabled && tab === "torrentstream") {
                 setView("torrentstream")
-            } else if (serverStatus?.settings?.library?.enableOnlinestream && searchParams.get("tab") === "onlinestream") {
+            } else if (serverStatus?.settings?.library?.enableOnlinestream && tab === "onlinestream") {
                 setView("onlinestream")
             }
         }
@@ -143,7 +153,7 @@ export function AnimeEntryPage() {
         //     switchedView.current = false
         // }
 
-    }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView])
+    }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView, tab])
 
     React.useEffect(() => {
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {
@@ -223,14 +233,14 @@ export function AnimeEntryPage() {
                     data-anime-entry-page-content
                     className="relative 2xl:order-first pb-10 lg:min-h-[calc(100vh-10rem)]"
                     {...{
-                        initial: { opacity: 0, y: 60 },
+                        initial: { opacity: 0, y: 20 },
                         animate: { opacity: 1, y: 0 },
-                        exit: { opacity: 0, y: 60 },
+                        exit: { opacity: 0, y: 20 },
                         transition: {
                             type: "spring",
-                            damping: 10,
+                            damping: 12,
                             stiffness: 80,
-                            delay: 0.6,
+                            delay: 0.5,
                         },
                     }}
                 >

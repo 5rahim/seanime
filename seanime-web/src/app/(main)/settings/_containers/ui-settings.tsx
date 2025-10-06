@@ -87,7 +87,7 @@ const tabsListClass = cn(
 )
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+    "space-y-4 animate-in fade-in-0 duration-300",
 )
 
 

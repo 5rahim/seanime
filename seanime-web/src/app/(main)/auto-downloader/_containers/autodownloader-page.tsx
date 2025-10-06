@@ -25,7 +25,7 @@ import { FaSquareRss } from "react-icons/fa6"
 import { toast } from "sonner"
 
 const tabContentClass = cn(
-    "space-y-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+    "space-y-4 animate-in fade-in-0 duration-300",
 )
 
 const settingsSchema = defineSchema(({ z }) => z.object({

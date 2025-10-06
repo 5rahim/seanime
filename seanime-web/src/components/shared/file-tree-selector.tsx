@@ -133,7 +133,7 @@ const FileTreeNodeComponent: React.FC<FileTreeNodeProps> = ({
                     "flex items-center py-1.5 px-2 border border-transparent rounded-[--radius]",
                     node.type === "file" && "cursor-pointer",
                     node.type === "file" && !isSelected && "hover:bg-[--subtle]",
-                    isSelected && "bg-white dark:bg-gray-950 border border-[--brand]",
+                    isSelected && "bg-white dark:bg-gray-950 border border-gray-400",
                     (hasLikelyMatch && !isSelected && !isLikelyMatch && node.type === "file") && "opacity-60",
                 )}
                 onClick={handleFileSelect}

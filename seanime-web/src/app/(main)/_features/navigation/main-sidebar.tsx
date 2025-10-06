@@ -1,4 +1,5 @@
 "use client"
+import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
@@ -38,7 +39,7 @@ import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
-import { LuBookOpen, LuCalendar, LuCompass, LuRss, LuSettings } from "react-icons/lu"
+import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone } from "react-icons/pi"
 import { RiListCheck3 } from "react-icons/ri"
@@ -120,6 +121,12 @@ export function MainSidebar() {
     const { data: updateData } = useGetExtensionUpdateData()
 
     const [loggingIn, setLoggingIn] = React.useState(false)
+
+    /**
+     * @description
+     * - Asks the server to fetch an up-to-date version of the user's AniList collection.
+     */
+    const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
 
     const items = [
         {
@@ -280,9 +287,18 @@ export function MainSidebar() {
                         items={[
                             ...pinnedMenuItems,
                             ...unpinnedMenuItems,
+                            {
+                                iconType: LuRefreshCw,
+                                name: "Refresh AniList",
+                                onClick: () => {
+                                    if (isRefreshingAC) return
+                                    refreshAC()
+                                },
+                            },
                         ]}
                         subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
                         onLinkItemClick={() => ctx.setOpen(false)}
+                        isSidebar
                     />
 
                     <SidebarNavbar
@@ -330,6 +346,7 @@ export function MainSidebar() {
                             onMouseEnter={() => { }}
                             onMouseLeave={() => { }}
                             onLinkItemClick={() => ctx.setOpen(false)}
+                            isSidebar
                             items={[
                                 // {
                                 //     iconType: RiSlashCommands2,
@@ -407,6 +424,7 @@ export function MainSidebar() {
                                 onMouseEnter={handleExpandSidebar}
                                 onMouseLeave={handleUnexpandedSidebar}
                                 onLinkItemClick={() => ctx.setOpen(false)}
+                                isSidebar
                                 items={[
                                     {
                                         iconType: FiLogIn,
