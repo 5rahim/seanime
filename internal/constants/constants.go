@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Version              = "3.0.0-alpha.0"
-	VersionName          = "iOSOS"
+	Version              = "2.15.0"
+	VersionName          = "Crimson"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

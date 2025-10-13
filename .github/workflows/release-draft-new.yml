@@ -11,49 +11,49 @@ permissions:
 
 jobs:
 
-  build-webapp: # TODO Uncomment if building web
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Web
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      # outputs in "seanime-web/out/" and "seanime-web/out-desktop/"
-      - name: Install dependencies and build Next.js app
-        run: |
-          cd seanime-web/
-          npm install
-          npm run build
-          npm run build:desktop
-          npm run build:denshi
-          cd ..
-      # Upload the output to be used in the next job
-      - name: Upload web folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: web
-          path: seanime-web/out # output dir of build
-      - name: Upload web folder (Electron)
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-desktop
-          path: seanime-web/out-desktop # output dir of build:desktop
-      - name: Upload web folder (Electron)
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-denshi
-          path: seanime-web/out-denshi # output dir of build:denshi
+  #  build-webapp: # TODO Uncomment if building web
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v4
+  #        with:
+  #          fetch-depth: 0
+  #
+  #      # Web
+  #      - name: Set up Node.js
+  #        uses: actions/setup-node@v4
+  #        with:
+  #          node-version: '20'
+  #
+  #      # outputs in "seanime-web/out/" and "seanime-web/out-desktop/"
+  #      - name: Install dependencies and build Next.js app
+  #        run: |
+  #          cd seanime-web/
+  #          npm install
+  #          npm run build
+  #          npm run build:desktop
+  #          npm run build:denshi
+  #          cd ..
+  #      # Upload the output to be used in the next job
+  #      - name: Upload web folder
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: web
+  #          path: seanime-web/out # output dir of build
+  #      - name: Upload web folder (Electron)
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: web-desktop
+  #          path: seanime-web/out-desktop # output dir of build:desktop
+  #      - name: Upload web folder (Electron)
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: web-denshi
+  #          path: seanime-web/out-denshi # output dir of build:denshi
 
   build-server:
-    needs: build-webapp # TODO Uncomment if building web
+    #    needs: build-webapp # TODO Uncomment if building web
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -97,13 +97,24 @@ jobs:
         with:
           go-version: '1.25.1'
 
-      # Download the web folders
-      # TODO Uncomment if building web
-      - name: Download web folder artifact
-        uses: actions/download-artifact@v4
+      # Cache Go modules
+      - name: Cache Go modules 💾
+        uses: actions/cache@v4
         with:
-          name: web
-          path: web
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      #      # Download the web folders
+      #      # TODO Uncomment if building web
+      #      - name: Download web folder artifact
+      #        uses: actions/download-artifact@v4
+      #        with:
+      #          name: web
+      #          path: web
 
       # Create the binary destination folder
       # ./binaries
@@ -208,7 +219,9 @@ jobs:
 
   build-electron:
     needs: build-server
-    uses: electron-build.yml
+    uses: ./.github/workflows/electron-build.yml
+    secrets:
+      SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
 
   release:
     runs-on: ubuntu-latest
@@ -225,6 +238,7 @@ jobs:
         with:
           pattern: electron-*
           path: ./artifacts
+          # ./artifacts
           merge-multiple: true
 
       - name: Determine version from tag name 🔎
@@ -317,17 +331,17 @@ jobs:
       - name: Move & Rename Electron assets 📝🗃️
         # Move Electron assets to the root directory and rename them
         run: |
-          if [ -f ./artifacts/seanime-denshi-darwin-arm64.dmg ]; then
-              mv ./artifacts/seanime-denshi-darwin-arm64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
           fi
-          if [ -f ./artifacts/seanime-denshi-darwin-x64.dmg ]; then
-              mv ./artifacts/seanime-denshi-darwin-x64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg
           fi
-          if [ -f ./artifacts/seanime-denshi-linux-x64.AppImage ]; then
-              mv ./artifacts/seanime-denshi-linux-x64.AppImage ./seanime-denshi-${{ env.VERSION }}_Linux_x64.AppImage
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage ./seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
           fi
-          if [ -f ./artifacts/seanime-denshi-windows-x64.exe ]; then
-              mv ./artifacts/seanime-denshi-windows-x64.exe ./seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe ./seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
           fi
 
           # Copy electron-builder YML files if they exist
@@ -378,8 +392,7 @@ jobs:
             latest-mac-arm64.yml
             # Electron Desktop builds
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
-            seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg
-            seanime-denshi-${{ env.VERSION }}_Linux_x64.AppImage
+            seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
             seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
             # Server builds
             seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz

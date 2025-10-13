@@ -1,14 +1,14 @@
 {
   "name": "seanime-denshi",
-  "version": "2.10.0",
+  "version": "2.15.0",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "scripts": {
     "dev": "NODE_ENV=development electron .",
     "build": "electron-builder build",
     "build:mac": "electron-builder build --mac",
-    "build:win": "electron-builder build --win",
-    "build:linux": "electron-builder build --linux"
+    "build:win": "electron-builder build --win --x64",
+    "build:linux": "electron-builder build --linux --x64"
   },
   "dependencies": {
     "electron-log": "^5.0.0",
@@ -19,11 +19,11 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "electron": "^36.1.2",
+    "electron": "^36.2.1",
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "electronDist": "/Users/rahim/IdeaProjects/electron-v36.2.1/archives/",
+    "electronDist": "../electron",
     "appId": "app.seanime.denshi",
     "productName": "Seanime Denshi",
     "asar": true,
@@ -47,7 +47,6 @@
         {
           "target": "dmg",
           "arch": [
-            "x64",
             "arm64"
           ]
         }
@@ -55,6 +54,7 @@
       "darkModeSupport": true,
       "notarize": false,
       "hardenedRuntime": true,
+      "identity": "-",
       "gatekeeperAssess": false,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
@@ -69,15 +69,15 @@
           ]
         }
       ],
-      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}"
+      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}",
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
       "target": [
         {
           "target": "AppImage",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         }
       ],
@@ -89,8 +89,10 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": true,
       "shortcutName": "Seanime Denshi",
-      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}"
+      "artifactName": "seanime-denshi-${version}_Windows_${arch}.${ext}",
+      "perMachine": true
     },
     "directories": {
       "buildResources": "assets",

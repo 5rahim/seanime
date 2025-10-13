@@ -2,6 +2,9 @@ name: Build Electron App
 
 on:
   workflow_call:
+    secrets:
+      SUBMODULE_PAT:
+        required: true
     outputs:
       appVersion:
         description: "The version of the app"
@@ -18,36 +21,34 @@ jobs:
         # - seanime-denshi-linux
         # - seanime-denshi-windows
         include:
-          # For Mac Universal
+          # For Mac
           - os: 'macos-latest'
             id: 'seanime-denshi-darwin-arm64'
             go_binary_id: 'seanime-server-darwin' # Artifact: go-seanime-server-darwin (contains both arm64 and x86_64)
             electron_args: '--mac --arm64'
-          # For Intel-based macs
-          - os: 'macos-latest'
-            id: 'seanime-denshi-darwin-x64'
-            go_binary_id: 'seanime-server-darwin' # Artifact: go-seanime-server-darwin (contains both arm64 and x86_64)
-            electron_args: '--mac --x64'
           # For Linux
           - os: 'ubuntu-latest'
             id: 'seanime-denshi-linux-x64'
             go_binary_id: 'seanime-server-linux' # Artifact: go-seanime-server-linux (contains x86_64)
-            electron_args: '--linux'
+            electron_args: '--linux --x64'
           # For Windows
           - os: 'windows-latest'
             id: 'seanime-denshi-windows-x64'
             go_binary_id: 'seanime-server-windows' # Artifact: go-seanime-server-windows (contains x86_64)
-            electron_args: '--win'
+            electron_args: '--win --x64'
 
     runs-on: ${{ matrix.os }}
     outputs:
       app_version: ${{ steps.get-version.outputs.version }}
 
     steps:
-      - name: Checkout code 📂
+      - name: Checkout code and submodules 📂
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
+          lfs: true
+          token: ${{ secrets.SUBMODULE_PAT }}
 
       - name: Setup Node.js 📦
         uses: actions/setup-node@v4
@@ -68,12 +69,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libnss3-dev libxss-dev libasound2-dev
 
-      # Download the web folders
-      - name: Download web folder artifact 📥
-        uses: actions/download-artifact@v4
-        with:
-          name: web-denshi
-          path: web-denshi
+      #      # Download the web folders
+      #      # TODO Uncomment if building web
+      #      - name: Download web folder artifact 📥
+      #        uses: actions/download-artifact@v4
+      #        with:
+      #          name: web-denshi
+      #          path: web-denshi
 
       # Move web-denshi folder into seanime-denshi
       - name: Move web-denshi folder 🚚
@@ -96,14 +98,14 @@ jobs:
           path: ./seanime-denshi/binaries
 
       # Extract server binaries
-      - name: Extract server binaries (macOS x64) 📂
-        if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-x64'
-        # Extracts seanime-server-darwin-arm64 and seanime-server-darwin-amd64
-        # Only keep seanime-server-darwin-amd64
-        run: |
-          tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
-          # Remove the other binary
-          rm -rf ./seanime-denshi/binaries/seanime-server-darwin-arm64
+      #      - name: Extract server binaries (macOS x64) 📂
+      #        if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-x64'
+      #        # Extracts seanime-server-darwin-arm64 and seanime-server-darwin-amd64
+      #        # Only keep seanime-server-darwin-amd64
+      #        run: |
+      #          tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
+      #          # Remove the other binary
+      #          rm -rf ./seanime-denshi/binaries/seanime-server-darwin-arm64
 
       - name: Extract server binaries (macOS arm64) 📂
         if: matrix.os == 'macos-latest' && matrix.id == 'seanime-denshi-darwin-arm64'
@@ -147,5 +149,5 @@ jobs:
         with:
           name: electron-${{ matrix.id }}
           path: |
-            ./seanime-denshi-*
+            ./seanime-denshi/dist/seanime-denshi-*
             ./seanime-denshi/dist/*.yml
