@@ -197,7 +197,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    {extension.lang?.toUpperCase() !== "MULTI" && <Badge className="border-transparent rounded-md" intent="unstyled">
+                    {extension.lang?.toUpperCase() !== "MULTI" && <Badge className="border-transparent rounded-md !px-0" intent="unstyled">
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
                     </Badge>}
