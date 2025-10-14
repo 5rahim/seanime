@@ -550,7 +550,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
                     </Badge>}
-                    <Badge className="border-transparent rounded-md text-[--muted]" intent="unstyled">
+                    <Badge className="border-transparent rounded-md text-[--muted] px-0" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>
                     {!!updateData && <Badge className="rounded-md" intent="success">

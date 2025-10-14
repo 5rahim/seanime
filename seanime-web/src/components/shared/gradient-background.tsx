@@ -53,6 +53,8 @@ interface GradientBackgroundProps {
      * @default 0
      */
     topOffset?: number;
+
+    duration?: number;
 }
 
 export const GradientBackground: React.FC<GradientBackgroundProps> = ({
@@ -72,6 +74,7 @@ export const GradientBackground: React.FC<GradientBackgroundProps> = ({
     breathingRange = 5,
     topOffset = 0,
     containerClassName = "",
+    duration = 2,
 }) => {
 
     if (gradientColors.length !== gradientStops.length) {
@@ -125,7 +128,7 @@ export const GradientBackground: React.FC<GradientBackgroundProps> = ({
                 opacity: 0.2,
                 scale: 1,
                 transition: {
-                    duration: 2,
+                    duration: duration,
                     ease: [0.25, 0.1, 0.25, 1], // Cubic bezier easing
                 },
             }}

@@ -60,6 +60,7 @@ import {
     __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { GradientBackground } from "@/components/shared/gradient-background"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
@@ -918,6 +919,7 @@ export function VideoCore(props: VideoCoreProps) {
                             // }
                             if (!isMiniPlayer) {
                                 setIsMiniPlayer(true)
+                                fullscreenManager?.exitFullscreen()
                             } else {
                                 onTerminateStream()
                             }
@@ -952,14 +954,14 @@ export function VideoCore(props: VideoCoreProps) {
                     />
 
                     {(state?.playbackError) && (
-                        <div className="h-full w-full bg-black/80 flex items-center justify-center z-[200] absolute p-4">
+                        <div className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4">
                             <div className="text-white text-center">
                                 {!isMiniPlayer ? (
                                     <LuffyError title="Playback Error" />
                                 ) : (
                                     <h1 className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback Error</h1>
                                 )}
-                                <p className={cn("text-base text-white/50", isMiniPlayer && "text-sm max-w-lg mx-auto")}>
+                                <p className={cn("text-base text-white/50 max-w-xl", isMiniPlayer && "text-sm max-w-lg mx-auto")}>
                                     {state.playbackError || "An error occurred while playing the stream. Please try again later."}
                                 </p>
                             </div>
@@ -1155,6 +1157,17 @@ export function VideoCore(props: VideoCoreProps) {
                                     spinner={<ImSpinner2 className="size-20 text-white animate-spin" />}
                                     containerClass="z-[1]"
                                 />}
+
+                                {!isMiniPlayer && <div className="opacity-50 absolute inset-0 z-[0] overflow-hidden">
+                                    <GradientBackground
+                                        duration={10} breathingRange={5}
+                                        // gradientColors={[
+                                        //     "transparent",
+                                        //     "#312887",
+                                        //     "#3D5AFE",
+                                        // ]} gradientStops={[35, 50, 100]}
+                                    />
+                                </div>}
                             </div>
                         )}
 

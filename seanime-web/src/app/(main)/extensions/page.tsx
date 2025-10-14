@@ -53,11 +53,11 @@ export default function Page() {
                     {page === "installed" && (
                         <PageWrapper
                             {...{
-                                initial: { opacity: 0, y: 60 },
+                                initial: { opacity: 0, y: 0 },
                                 animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
+                                exit: { opacity: 0 },
                                 transition: {
-                                    duration: 0.35,
+                                    duration: 0.15,
                                 },
                             }}
                             key="installed" className="pt-0 space-y-8 relative z-[4]"
@@ -68,11 +68,11 @@ export default function Page() {
                     {page === "marketplace" && (
                         <PageWrapper
                             {...{
-                                initial: { opacity: 0, y: 60 },
+                                initial: { opacity: 0, y: 0 },
                                 animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, scale: 0.99 },
+                                exit: { opacity: 0 },
                                 transition: {
-                                    duration: 0.35,
+                                    duration: 0.15,
                                 },
                             }}
                             key="marketplace" className="pt-0 space-y-8 relative z-[4]"

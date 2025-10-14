@@ -669,7 +669,7 @@ export default function Page() {
                                             className="group/settings-card relative bg-gray-950/70 rounded-xl border overflow-hidden"
                                             triggerClass="px-4 py-3 text-[--muted] dark:data-[state=open]:text-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white !font-medium transition-all duration-200 hover:translate-x-1"
                                             itemClass="border-b border-[--border] rounded-none transition-all duration-200 hover:border-[--brand]/30"
-                                            contentClass="!p-4 animate-in slide-in-from-top-2 duration-300"
+                                            contentClass="!p-4 animate-in duration-300"
                                             collapsible
                                             defaultValue={status?.settings?.torrent?.defaultTorrentClient}
                                         >
@@ -717,7 +717,7 @@ export default function Page() {
                                                     <h4 className="flex gap-2 items-center">
                                                         <SiTransmission className="text-orange-200" /> Transmission</h4>
                                                 </AccordionTrigger>
-                                                <AccordionContent className="p-0 py-4 space-y-4">
+                                                <AccordionContent className="p-0 py-4 space-y-4 !border-b-0">
                                                     <Field.Text
                                                         name="transmissionHost"
                                                         label="Host"
