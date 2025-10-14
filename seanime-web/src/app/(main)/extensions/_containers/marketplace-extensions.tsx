@@ -195,7 +195,6 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
 
     return (
         <AppLayoutStack className="gap-6">
-            {/* URL Change Modal */}
             <Modal
                 open={isUrlModalOpen}
                 onOpenChange={setIsUrlModalOpen}
@@ -301,7 +300,6 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                 </div>
             </div>
 
-            {/* Search and filter */}
             <div className="flex flex-wrap gap-4">
                 <StaticTabs
                     className="h-10 w-fit border rounded-full"
@@ -337,6 +335,12 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                             onClick: () => setFilterType("onlinestream-provider"),
                             // iconType: CgMediaPodcast,
                         },
+                        {
+                            name: "Custom Sources",
+                            isCurrent: filterType === "custom-source",
+                            onClick: () => setFilterType("custom-source"),
+                            // iconType: CgMediaPodcast,
+                        },
                     ]}
                 />
 
@@ -363,14 +367,12 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                 Could not get marketplace extensions.
             </LuffyError>}
 
-            {/* No results message */}
             {(!!marketplaceExtensions && filteredExtensions.length === 0) && (
                 <Card className="p-8 text-center">
                     <p className="text-[--muted]">No extensions found matching your criteria.</p>
                 </Card>
             )}
 
-            {/* Display extensions by type */}
             {!!pluginExtensions?.length && (
                 <Card className="p-4 space-y-6">
                     <h3 className="flex gap-3 items-center"><LuBlocks /> Plugins</h3>
