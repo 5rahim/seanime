@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "2.15.1",
+  "version": "2.15.0",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "scripts": {
@@ -54,7 +54,6 @@
       "darkModeSupport": true,
       "notarize": false,
       "hardenedRuntime": true,
-      "identity": "-",
       "gatekeeperAssess": false,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",

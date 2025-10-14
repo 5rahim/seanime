@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Version              = "2.15.1"
+	Version              = "2.15.0"
 	VersionName          = "Crimson"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

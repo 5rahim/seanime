@@ -115,16 +115,21 @@ jobs:
           tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
           # Remove the other binary
           rm -rf ./seanime-denshi/binaries/seanime-server-darwin-amd64
+          rm -rf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar
 
       - name: Extract server binaries (Linux) 📂
         if: matrix.os == 'ubuntu-latest' && matrix.id == 'seanime-denshi-linux-x64'
         # Extracts seanime-server-linux-amd64
-        run: tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
+        run: |
+          tar -xf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar -C ./seanime-denshi/binaries
+          rm -rf ./seanime-denshi/binaries/binaries-${{ matrix.go_binary_id }}.tar
 
       - name: Extract server binaries (Windows) 📂
         if: matrix.os == 'windows-latest'
         # Extracts seanime-server-windows-amd64
-        run: 7z x ".\seanime-denshi\binaries\binaries-${{ matrix.go_binary_id }}.zip" "-o./seanime-denshi/binaries/"
+        run: |
+          7z x ".\seanime-denshi\binaries\binaries-${{ matrix.go_binary_id }}.zip" "-o./seanime-denshi/binaries/"
+          del ".\seanime-denshi\binaries\binaries-${{ matrix.go_binary_id }}.zip"
 
       # Copy app icon
       - name: Copy app icon 📝

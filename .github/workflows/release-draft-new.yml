@@ -334,6 +334,9 @@ jobs:
           if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip ]; then
               mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip
           fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap
+          fi
           if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ]; then
               mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
           fi
@@ -407,6 +410,7 @@ jobs:
             latest-mac-arm64.yml
             # Electron Desktop builds
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip
+            seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
             seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap
             seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
