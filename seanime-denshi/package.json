@@ -1,6 +1,6 @@
 {
   "name": "seanime-denshi",
-  "version": "2.15.0",
+  "version": "2.15.1",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
   "scripts": {
@@ -45,7 +45,7 @@
       "category": "public.app-category.entertainment",
       "target": [
         {
-          "target": "dmg",
+          "target": "default",
           "arch": [
             "arm64"
           ]
