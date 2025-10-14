@@ -3,6 +3,7 @@
   "version": "2.15.0",
   "description": "Electron-based Desktop client for Seanime",
   "main": "src/main.js",
+  "author": "5rahim <talkwithrahim@gmail.com>",
   "scripts": {
     "dev": "NODE_ENV=development electron .",
     "build": "electron-builder build",
