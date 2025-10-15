@@ -3,8 +3,9 @@ export const PAGE_TRANSITION = {
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 0 },
     transition: {
-        type: "spring",
-        damping: 20,
-        stiffness: 100,
+        duration: 0.15,
+        // type: "spring",
+        // damping: 20,
+        // stiffness: 100,
     },
 }

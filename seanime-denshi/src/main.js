@@ -912,6 +912,12 @@ app.whenReady().then(async () => {
         }
     });
 
+    // Quit app handler
+    ipcMain.on('quit-app', () => {
+        console.log('EVENT quit-app');
+        cleanupAndExit();
+    });
+
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
             app.quit();

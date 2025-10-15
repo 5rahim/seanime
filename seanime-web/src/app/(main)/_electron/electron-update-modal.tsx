@@ -1,4 +1,5 @@
 "use client"
+import { useDownloadMacDenshiUpdate } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -37,7 +38,9 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
     useWebsocketMessageListener({
         type: WSEvents.CHECK_FOR_UPDATES,
         onMessage: () => {
-            refetch().then(() => checkElectronUpdate())
+            refetch().then(() => {
+                checkElectronUpdate()
+            })
         },
     })
 
@@ -49,11 +52,14 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
     const [isDownloaded, setIsDownloaded] = React.useState(false)
     const [downloadProgress, setDownloadProgress] = React.useState(0)
 
+    const isMacOS = window.electron?.platform === "darwin"
+    const { mutate: downloadMacUpdate, isPending: isMacUpdatePending } = useDownloadMacDenshiUpdate()
+
     const checkElectronUpdate = React.useCallback(() => {
         try {
             if (window.electron) {
                 // Check if the update is available
-                setUpdateLoading(true);
+                setUpdateLoading(true)
                 window.electron.checkForUpdates()
                     .then((updateAvailable: boolean) => {
                         setUpdate(updateAvailable)
@@ -70,7 +76,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
             logger("ELECTRON").error("Failed to check for updates", e)
             setIsUpdating(false)
         }
-    }, [])
+    }, [isMacOS])
 
     React.useEffect(() => {
         checkElectronUpdate()
@@ -87,13 +93,17 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
 
             const removeUpdateError = window.electron.on("update-error", (error: string) => {
                 logger("ELECTRON").error("Update error", error)
-                toast.error(`Update error: ${error}`)
-                setIsUpdating(false)
-                setIsDownloading(false)
+                if (!isMacOS) {
+                    toast.error(`Update error: ${error}`)
+                    setIsUpdating(false)
+                    setIsDownloading(false)
+                }
             })
 
             const removeDownloadProgress = window.electron.on("download-progress", (progress: { percent: number }) => {
-                setDownloadProgress(Math.round(progress.percent))
+                if (!isMacOS) {
+                    setDownloadProgress(Math.round(progress.percent))
+                }
             })
 
             const removeUpdateAvailable = window.electron.on("update-available", () => {
@@ -134,6 +144,52 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
             setIsUpdating(true)
 
             if (window.electron) {
+                // macOS: Use manual download and install flow
+                if (isMacOS) {
+                    if (!updateData?.release?.version) {
+                        toast.error("Update version not found")
+                        setIsUpdating(false)
+                        return
+                    }
+
+                    // Find the macOS arm64 asset
+                    const macAsset = updateData.release.assets?.find(asset =>
+                        asset.name.includes("denshi") && asset.name.includes("MacOS") && asset.name.includes("arm64") && asset.name.endsWith(".zip") && !asset.name.endsWith(
+                            ".txt"),
+                    )
+
+                    if (!macAsset) {
+                        toast.error("macOS update asset not found")
+                        setIsUpdating(false)
+                        return
+                    }
+
+                    toast.info("Downloading and installing update...")
+                    setIsDownloading(true)
+
+                    downloadMacUpdate({
+                        download_url: macAsset.browser_download_url,
+                        version: updateData.release.version,
+                    }, {
+                        onSuccess: () => {
+                            setIsInstalled(true)
+                            toast.success("Update installed! Closing app...")
+                            // Close the app after a short delay
+                            setTimeout(() => {
+                                window.electron?.send("quit-app")
+                            }, 2000)
+                        },
+                        onError: (error) => {
+                            logger("ELECTRON").error("Failed to install macOS update", error)
+                            toast.error(`Failed to install update: ${error.message}`)
+                            setIsUpdating(false)
+                            setIsDownloading(false)
+                        },
+                    })
+                    return
+                }
+
+                // Windows/Linux: Use electron-updater flow
                 // If not downloaded yet, trigger download first
                 if (!isDownloaded) {
                     toast.info("Downloading update...")
@@ -214,24 +270,39 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                         <span className="text-[--muted]">{updateData.current_version}</span> <FiArrowRight />
                         <span className="text-indigo-200">{updateData.release.version}</span></h4>
 
-                    {!electronUpdate && (
+                    {!electronUpdate && !isMacOS && (
                         <Alert intent="warning">
                             This update is not yet available for desktop clients.
                             Wait a few minutes or check the GitHub page for more information.
+                        </Alert>
+                    )}
+                    {isMacOS && (
+                        <Alert intent="info">
+                            The update will be downloaded to your Downloads folder, extracted, and moved to Applications.
+                            The app will close after installation completes.
                         </Alert>
                     )}
 
                     <UpdateChangelogBody updateData={updateData} />
 
                     <div className="flex gap-2 w-full !mt-4">
-                        {electronUpdate && <Button
+                        {electronUpdate && !isMacOS && <Button
                             leftIcon={<GrInstall className="text-2xl" />}
                             onClick={handleInstallUpdate}
-                            loading={isUpdating || isDownloading}
+                            loading={isUpdating || isDownloading || isMacUpdatePending}
                             disabled={isLoading}
                         >
+
                             {isDownloading ? `Downloading... ${downloadProgress}%` :
                                 isDownloaded ? "Install now" : "Download & Install"}
+                        </Button>}
+                        {electronUpdate && isMacOS && <Button
+                            leftIcon={<GrInstall className="text-2xl" />}
+                            onClick={handleInstallUpdate}
+                            loading={isUpdating || isMacUpdatePending}
+                            disabled={isLoading}
+                        >
+                            {(isMacUpdatePending) ? "Installing..." : "Install now"}
                         </Button>}
                         <div className="flex flex-1" />
                         <SeaLink href={updateData?.release?.html_url || ""} target="_blank">

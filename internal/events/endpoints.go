@@ -35,6 +35,7 @@ const (
 	DirectorySelectorEndpoint                          = "DIRECTORY-SELECTOR-directory-selector"
 	DirectstreamPlayLocalFileEndpoint                  = "DIRECTSTREAM-directstream-play-local-file"
 	DownloadIssueReportEndpoint                        = "REPORT-download-issue-report"
+	DownloadMacDenshiUpdateEndpoint                    = "DOWNLOAD-download-mac-denshi-update"
 	DownloadMangaChaptersEndpoint                      = "MANGA-DOWNLOAD-download-manga-chapters"
 	DownloadReleaseEndpoint                            = "DOWNLOAD-download-release"
 	DownloadTorrentFileEndpoint                        = "DOWNLOAD-download-torrent-file"

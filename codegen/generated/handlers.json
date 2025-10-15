@@ -3154,6 +3154,52 @@
     }
   },
   {
+    "name": "HandleDownloadMacDenshiUpdate",
+    "trimmedName": "DownloadMacDenshiUpdate",
+    "comments": [
+      "HandleDownloadMacDenshiUpdate",
+      "",
+      "\t@summary downloads, extracts, and installs macOS update, then closes the app",
+      "\t@route /api/v1/download-mac-denshi-update [POST]",
+      "\t@returns handlers.DownloadReleaseResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/download.go",
+    "filename": "download.go",
+    "api": {
+      "summary": "downloads, extracts, and installs macOS update, then closes the app",
+      "descriptions": [],
+      "endpoint": "/api/v1/download-mac-denshi-update",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "DownloadUrl",
+          "jsonName": "download_url",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Version",
+          "jsonName": "version",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "handlers.DownloadReleaseResponse",
+      "returnGoType": "handlers.DownloadReleaseResponse",
+      "returnTypescriptType": "DownloadReleaseResponse"
+    }
+  },
+  {
     "name": "HandleOpenInExplorer",
     "trimmedName": "OpenInExplorer",
     "comments": [
