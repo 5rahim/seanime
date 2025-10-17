@@ -85,10 +85,12 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
         if (window.electron) {
             // Register listeners for update events
             const removeUpdateDownloaded = window.electron.on("update-downloaded", () => {
-                toast.success("Update downloaded and ready to install")
-                setIsDownloading(false)
-                setIsDownloaded(true)
-                setDownloadProgress(100)
+                if (!isMacOS) {
+                    toast.success("Update downloaded and ready to install")
+                    setIsDownloading(false)
+                    setIsDownloaded(true)
+                    setDownloadProgress(100)
+                }
             })
 
             const removeUpdateError = window.electron.on("update-error", (error: string) => {
@@ -154,8 +156,10 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
 
                     // Find the macOS arm64 asset
                     const macAsset = updateData.release.assets?.find(asset =>
-                        asset.name.includes("denshi") && asset.name.includes("MacOS") && asset.name.includes("arm64") && asset.name.endsWith(".zip") && !asset.name.endsWith(
-                            ".txt"),
+                        asset.name.includes("denshi")
+                        && asset.name.includes("MacOS")
+                        && asset.name.includes("arm64")
+                        && asset.name.endsWith(".zip")
                     )
 
                     if (!macAsset) {
@@ -276,12 +280,6 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                             Wait a few minutes or check the GitHub page for more information.
                         </Alert>
                     )}
-                    {isMacOS && (
-                        <Alert intent="info">
-                            The update will be downloaded to your Downloads folder, extracted, and moved to Applications.
-                            The app will close after installation completes.
-                        </Alert>
-                    )}
 
                     <UpdateChangelogBody updateData={updateData} />
 
@@ -305,9 +303,9 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                             {(isMacUpdatePending) ? "Installing..." : "Install now"}
                         </Button>}
                         <div className="flex flex-1" />
-                        <SeaLink href={updateData?.release?.html_url || ""} target="_blank">
+                        {!updateData?.release?.tag_name?.includes("v2.") && <SeaLink href={updateData?.release?.html_url || ""} target="_blank">
                             <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
-                        </SeaLink>
+                        </SeaLink>}
                     </div>
                 </div>
             </Modal>

@@ -241,6 +241,7 @@ export function MainSidebar() {
                 name: "More",
                 subContent: <VerticalMenu
                     items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
+                    isSidebar
                 />,
             } as VerticalMenuItem,
         ]

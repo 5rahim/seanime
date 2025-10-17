@@ -602,19 +602,20 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
-    const [debouncedCursorBusy, setDebouncedCursorBusy] = React.useState(false)
+    const [debouncedMenuOpen, setDebouncedMenuOpen] = React.useState(false)
+    const menuOpen = useAtomValue(vc_menuOpen)
     React.useEffect(() => {
-        if (cursorBusy) {
-            setDebouncedCursorBusy(true)
+        if (!!menuOpen) {
+            setDebouncedMenuOpen(true)
             return
         }
         let t = setTimeout(() => {
-            setDebouncedCursorBusy(false)
+            setDebouncedMenuOpen(false)
         }, 800)
         return () => {
             clearTimeout(t)
         }
-    }, [cursorBusy])
+    }, [menuOpen])
 
     let lastClickTime = React.useRef(0)
 
@@ -622,7 +623,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Video clicked")
         // check if right click
         if (e.type === "click") {
-            if (!debouncedCursorBusy) {
+            if (!debouncedMenuOpen) {
                 togglePlay()
             }
             setTimeout(() => {
