@@ -3,7 +3,7 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { cn } from "@/components/ui/core/styling"
 import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { __isDesktop__ } from "@/types/constants"
+import { __isDesktop__, HIDE_IMAGES } from "@/types/constants"
 import { motion } from "motion/react"
 import React, { useEffect } from "react"
 import { useWindowScroll } from "react-use"
@@ -93,7 +93,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
                             "scroll-locked-offset",
                         )}
                         style={{
-                            backgroundImage: `url(${image})`,
+                            backgroundImage: `url(${HIDE_IMAGES ? "/no-cover.png" : image})`,
                             backgroundPosition: ts.libraryScreenCustomBannerPosition || "50% 50%",
                             opacity: (ts.libraryScreenCustomBannerOpacity || 100) / 100,
                             backgroundRepeat: "no-repeat",

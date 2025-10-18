@@ -153,12 +153,14 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			return
 		}
 
-		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
-			// Start a subtitle stream from the current position
-			subReader := s.file.NewReader()
-			subReader.SetResponsive()
-			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
-		}
+		go func() {
+			if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
+				// Start a subtitle stream from the current position
+				subReader := s.file.NewReader()
+				subReader.SetResponsive()
+				s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
+			}
+		}()
 
 		serveContentRange(w, r, s.manager.playbackCtx, tr, name, size, s.LoadContentType(), ra)
 	})

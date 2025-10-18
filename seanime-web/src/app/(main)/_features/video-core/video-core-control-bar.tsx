@@ -685,7 +685,7 @@ export function VideoCoreSettingsButton() {
                     <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
                     <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
-                    <VideoCoreMenuOption title="Keybinds" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
+                    <VideoCoreMenuOption title="Keybinds & Defaults" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
                 </VideoCoreMenuSectionBody>
                 <VideoCoreMenuSubmenuBody>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
@@ -761,7 +761,7 @@ export function VideoCoreSettingsButton() {
                         <Switch
                             label="Show Chapter Markers"
                             side="right"
-                            fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
                             size="sm"
                             value={showChapterMarkers}
                             onValueChange={setShowChapterMarkers}
@@ -769,15 +769,15 @@ export function VideoCoreSettingsButton() {
                         <Switch
                             label="Highlight OP/ED Chapters"
                             side="right"
-                            fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
                             size="sm"
                             value={highlightOPEDChapters}
                             onValueChange={setHighlightOPEDChapters}
                         />
                         <Switch
-                            label="Increase saturation"
+                            label="Increase Saturation"
                             side="right"
-                            fieldClass="hover:bg-transparent px-0 ml-0 w-full"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
                             size="sm"
                             value={beautifyImage}
                             onValueChange={setBeautifyImage}

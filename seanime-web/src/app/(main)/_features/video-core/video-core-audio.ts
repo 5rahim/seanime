@@ -42,11 +42,21 @@ export class VideoCoreAudioManager {
     }
 
     _selectDefaultTrack() {
-        const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (t.language || "eng") === this.settings.preferredAudioLanguage)
-        if (foundTracks?.length) {
-            // Find default or forced track
-            const defaultIndex = foundTracks.findIndex(t => t.forced)
-            this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number)
+        // Split preferred languages by comma and trim whitespace
+        const preferredLanguages = this.settings.preferredAudioLanguage
+            .split(",")
+            .map(lang => lang.trim())
+            .filter(lang => lang.length > 0)
+
+        // Try each preferred language in order
+        for (const preferredLang of preferredLanguages) {
+            const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (t.language || "eng") === preferredLang)
+            if (foundTracks?.length) {
+                // Find default or forced track
+                const defaultIndex = foundTracks.findIndex(t => t.forced)
+                this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number)
+                return
+            }
         }
     }
 

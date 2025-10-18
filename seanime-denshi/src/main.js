@@ -61,6 +61,11 @@ function setupChromiumFlags() {
 
     app.commandLine.appendSwitch('double-buffer-compositing');
     app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
+
+    if (process.platform === "linux") {
+        log.info(`Passing --gtk-version=3 to Electron`)
+        app.commandLine.appendSwitch('gtk-version', '3')
+    }
 }
 
 // Setup update events for logging
