@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { LuEye } from "react-icons/lu"
 
 export function RecentReleases() {
 
@@ -72,7 +73,7 @@ export function RecentReleases() {
                                                 setPreviewModalMediaId(item.media?.id || 0, "anime")
                                             }}
                                         >
-                                            Preview
+                                            <LuEye /> Preview
                                         </ContextMenuItem>
                                     </ContextMenuGroup>}
                                 >

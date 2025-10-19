@@ -12,9 +12,10 @@ import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
 import { EpisodeItemInfoModalButton } from "./episode-item"
 
-export function UndownloadedEpisodeList({ downloadInfo, media }: {
+export function UndownloadedEpisodeList({ downloadInfo, media, maxCol }: {
     downloadInfo: Anime_EntryDownloadInfo | undefined,
     media: AL_BaseAnime
+    maxCol?: number
 }) {
 
     const episodes = downloadInfo?.episodesToDownload
@@ -36,7 +37,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
             <p className={""}>
                 {text}
             </p>
-            <EpisodeListGrid>
+            <EpisodeListGrid maxCol={maxCol}>
                 {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).slice(0, 28).map((ep, idx) => {
                     if (!ep.episode) return null
                     const episode = ep.episode

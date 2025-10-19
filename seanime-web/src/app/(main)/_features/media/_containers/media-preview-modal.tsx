@@ -298,9 +298,10 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                             details={details as AL_AnimeDetailsById_Media}
                             bottomSection={<></>}
                             hideCarousel
+                            maxCol={2}
                         />}
-                        {type === "anime" && <RelationsRecommendationsSection entry={entry as Anime_Entry} details={details} />}
-                        {type === "manga" && <MangaRecommendations entry={entry as Manga_Entry} details={details} />}
+                        {type === "anime" && <RelationsRecommendationsSection entry={entry as Anime_Entry} details={details} maxCol={5} />}
+                        {type === "manga" && <MangaRecommendations entry={entry as Manga_Entry} details={details} maxCol={5} />}
                     </div>}
                 </div>
 

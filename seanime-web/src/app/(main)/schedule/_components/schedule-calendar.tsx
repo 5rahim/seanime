@@ -557,8 +557,11 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                                         data-schedule-calendar-event-item-watched-icon
                                     />}
                                 <span className="truncate" data-schedule-calendar-event-item-name>
-                                    {event.name.length > 20 ? event.name.slice(0, 17) + "..." : event.name}
+                                    {event.name}
                                 </span>
+                                {/*<span className="truncate hidden 2xl:inline-block" data-schedule-calendar-event-item-name>*/}
+                                {/*    {event.name.length > 40 ? event.name.slice(0, 37) + "..." : event.name}*/}
+                                {/*</span>*/}
                             </p>
                             <p className="text-xs text-[--muted] lg:hidden" data-schedule-calendar-event-item-episode>
                                 Ep. {event.episode}

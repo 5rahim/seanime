@@ -11,7 +11,7 @@ import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
 import { useRouter } from "next/navigation"
 import React from "react"
-import { LuDock } from "react-icons/lu"
+import { LuDock, LuEye } from "react-icons/lu"
 
 
 export function DiscoverAiringSchedule() {
@@ -116,7 +116,7 @@ export function DiscoverAiringSchedule() {
                                                                 setPreviewModalMediaId(event.media?.id || 0, "anime")
                                                             }}
                                                         >
-                                                            Preview
+                                                            <LuEye /> Preview
                                                         </ContextMenuItem>
                                                         <ContextMenuItem
                                                             onClick={() => {

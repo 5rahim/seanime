@@ -11,6 +11,7 @@ import {
     libraryExplorer_collectLocalFileNodes,
     libraryExplorer_getCheckboxState,
 } from "@/app/(main)/_features/library-explorer/library-explorer.utils"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
@@ -30,7 +31,7 @@ import React, { memo } from "react"
 import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FaRegEdit } from "react-icons/fa"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
-import { LuClipboardPlus, LuClipboardX, LuFilePen, LuFileQuestion, LuFileVideo2, LuFolderSync } from "react-icons/lu"
+import { LuClipboardPlus, LuClipboardX, LuEye, LuFilePen, LuFileQuestion, LuFileVideo2, LuFolderSync } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
@@ -276,7 +277,8 @@ export function LibraryExplorer() {
     const { width } = useWindowSize()
 
     const fileNodes = libraryExplorer_collectLocalFileNodes(fileTree?.root)
-    const hasUnscannedFiles = fileNodes?.some(n => !n.localFile)
+    const unignoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
+    const hasUnscannedFiles = unignoredFileNodes?.some(n => !n.localFile)
     // Calculate flattened tree items for virtualization
     const flattenedItems = React.useMemo(() => {
         if (!fileTree?.root) return []
@@ -330,8 +332,8 @@ export function LibraryExplorer() {
         }
     }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm])
 
-    const hasUnlockedFiles = fileNodes?.some(n => n.localFile && !!n.localFile.mediaId && !n.localFile.locked && !n.localFile.ignored)
-    const unmatchedFiles = fileNodes?.filter(n => !!n.localFile && !n.localFile.mediaId && !n.localFile.ignored)
+    const hasUnlockedFiles = unignoredFileNodes?.some(n => n.localFile && !!n.localFile.mediaId && !n.localFile.locked)
+    const unmatchedFiles = unignoredFileNodes?.filter(n => !!n.localFile && !n.localFile.mediaId)
 
     if (isLoading) {
         return (
@@ -368,6 +370,8 @@ export function LibraryExplorer() {
                                 fileNodes={fileNodes}
                                 handleMatchFiles={handleMatchFiles}
                                 handleUnmatchFiles={handleUnmatchFiles}
+                                handleIgnoreFiles={handleIgnoreFiles}
+                                handleUnignoreFiles={handleUnignoreFiles}
                             />
                             <LibraryExplorerSuperUpdate
                                 fileNodes={fileNodes}
@@ -471,6 +475,8 @@ type LibraryExplorerBulkActionsProps = {
     fileNodes: LibraryExplorer_FileTreeNodeJSON[]
     handleMatchFiles: (nodes: LibraryExplorer_FileTreeNodeJSON[]) => void
     handleUnmatchFiles: (paths: string[]) => void
+    handleIgnoreFiles: (paths: string[]) => void
+    handleUnignoreFiles: (paths: string[]) => void
 }
 
 export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProps) {
@@ -478,6 +484,8 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
         fileNodes,
         handleMatchFiles,
         handleUnmatchFiles,
+        handleIgnoreFiles,
+        handleUnignoreFiles,
     } = props
 
     const [isSelectingPaths] = useAtom(libraryExplorer_isSelectingPathsAtom)
@@ -485,12 +493,22 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
 
     const selectedPathFileNodes = fileNodes?.filter(n => selectedPaths.has(n.path))
     const shouldShowUnmatchFiles = selectedPathFileNodes?.some(n => n.kind === "file" && !!n.localFile && !!n.localFile?.mediaId)
+    const shouldShowIgnoreFiles = selectedPathFileNodes?.some(n => n.kind === "file" && !!n.localFile && !n.localFile.ignored)
+    const shouldShowUnIgnoreFiles = selectedPathFileNodes?.every(n => n.kind === "file" && !!n.localFile && n.localFile.ignored)
 
     function handleMatchOrUnmatch() {
         if (shouldShowUnmatchFiles) {
             handleUnmatchFiles(Array.from(selectedPaths))
         } else {
             handleMatchFiles(selectedPathFileNodes)
+        }
+    }
+
+    function handleToggleIgnore() {
+        if (shouldShowIgnoreFiles) {
+            handleIgnoreFiles(Array.from(selectedPaths))
+        } else if (shouldShowUnIgnoreFiles) {
+            handleUnignoreFiles(Array.from(selectedPaths))
         }
     }
 
@@ -508,6 +526,16 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
                         ? "s"
                         : ""}
                     </Button>
+                    {(shouldShowIgnoreFiles || shouldShowUnIgnoreFiles) && <Button
+                        leftIcon={<LuClipboardX className="text-xl" />}
+                        size="sm"
+                        intent={"gray-link"}
+                        onClick={handleToggleIgnore}
+                    >
+                        {shouldShowIgnoreFiles ? "Ignore" : "Un-ignore"} {selectedPathFileNodes.length} file{selectedPathFileNodes.length != 1
+                        ? "s"
+                        : ""}
+                    </Button>}
                 </>
             )}
         </>
@@ -554,6 +582,7 @@ const VirtualizedTreeNode = memo(({
     const { node, level } = item
     const isDirectory = node.kind === "directory"
     const isSelected = selectedPath === node.path
+    const hasDirectoryChildren = node.children && node.children.some(n => n.kind === "directory")
     const hasChildren = node.children && node.children.length > 0
 
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
@@ -618,16 +647,17 @@ const VirtualizedTreeNode = memo(({
     const media = node.mediaIds?.length === 1 ? userMedia?.find(n => n.id === node.mediaIds?.[0]) : undefined
 
     const fileNodes = libraryExplorer_collectLocalFileNodes(node)
-    const matchedFileNodes = fileNodes?.filter(n => !!n.localFile?.mediaId)
+    const nonIgnoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
+    const matchedFileNodes = nonIgnoredFileNodes?.filter(n => !!n.localFile?.mediaId)
 
-    const fileCount = fileNodes?.length ?? 0
+    const fileCount = nonIgnoredFileNodes?.length ?? 0
     const matchedFileCount = matchedFileNodes?.length ?? 0
 
-    const allFileMatched = fileNodes?.every(n => !!n.localFile?.mediaId) ?? false
+    const allFileMatched = nonIgnoredFileNodes?.every(n => !!n.localFile?.mediaId) ?? false
     const allFileIgnored = fileNodes?.every(n => !!n.localFile?.ignored)
-    const allFileScanned = fileNodes?.every(n => !!n.localFile)
+    const allFileScanned = nonIgnoredFileNodes?.every(n => !!n.localFile)
 
-    const _isLocked = fileNodes?.every(n => !!n.localFile?.locked || !n.localFile)
+    const _isLocked = nonIgnoredFileNodes?.every(n => !!n.localFile?.locked || !n.localFile)
     const [isLocked, setOptimisticIsLocked] = React.useState(_isLocked ?? false)
 
     React.useEffect(() => {
@@ -725,8 +755,19 @@ const VirtualizedTreeNode = memo(({
 
     const [contextMenuOpen, setContextMenuOpen] = React.useState(false)
 
+    const confirmDialog = useConfirmationDialog({
+        title: "Lock all files",
+        description: "This will lock all files in the directory. Are you sure you want to proceed?",
+        actionText: "Lock all",
+        actionIntent: "primary",
+        onConfirm: async () => {
+            handleToggleLockedClick(new MouseEvent("click") as any)
+        },
+    })
+
     return (
         <div className="px-2">
+            <ConfirmationDialog {...confirmDialog} />
             <SeaContextMenu
                 onOpenChange={setContextMenuOpen}
                 content={
@@ -737,7 +778,7 @@ const VirtualizedTreeNode = memo(({
                         {node.mediaIds?.length === 1 && <ContextMenuItem
                             onClick={handleOpenMediaPreview}
                         >
-                            Preview anime
+                            <LuEye /> Preview anime
                         </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={handleOpenSuperUpdate}
@@ -899,7 +940,8 @@ const VirtualizedTreeNode = memo(({
                         </div>
 
                         {isDirectory && !!fileCount && !allFileIgnored && (
-                            <span
+                            <Tooltip
+                                trigger={<span
                                 className={cn(
                                     "text-xs bg-green-500/20 text-[--green] px-2 py-0.5 rounded-full",
                                     fileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
@@ -907,7 +949,10 @@ const VirtualizedTreeNode = memo(({
                                 )}
                             >
                                 {matchedFileCount} / {fileCount}
-                            </span>
+                                </span>}
+                            >
+                                Matched files
+                            </Tooltip>
                         )}
 
                         {!isDirectory && isScannedFile && !node.localFile?.mediaId && !node.localFile?.ignored && (
@@ -921,7 +966,8 @@ const VirtualizedTreeNode = memo(({
                             </div>
                         )}
 
-                        {((isDirectory && matchedFileNodes?.length > 0) || (isScannedFile && !!node.localFile!.mediaId)) && <Tooltip
+                        {((isDirectory && !hasDirectoryChildren && matchedFileNodes?.length > 0) || (isScannedFile && !!node.localFile!.mediaId)) &&
+                            <Tooltip
                             trigger={
                                 <IconButton
                                     icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
@@ -930,6 +976,26 @@ const VirtualizedTreeNode = memo(({
                                     className="hover:opacity-60 ml-2"
                                     loading={isPending}
                                     onClick={handleToggleLockedClick}
+                                />
+                            }
+                        >
+                            {isLocked ? "Unlock all files" : "Lock all files"}
+                        </Tooltip>}
+                        {((isDirectory && hasDirectoryChildren && matchedFileNodes?.length > 0)) && <Tooltip
+                            trigger={
+                                <IconButton
+                                    icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
+                                    intent={isLocked ? "success-subtle" : "warning-subtle"}
+                                    size={"xs"}
+                                    className="hover:opacity-60 ml-2"
+                                    loading={isPending}
+                                    onClick={e => {
+                                        if (!isLocked) {
+                                            confirmDialog.open()
+                                        } else {
+                                            handleToggleLockedClick(e)
+                                        }
+                                    }}
                                 />
                             }
                         >

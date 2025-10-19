@@ -3,7 +3,6 @@ import { Anime_LibraryCollectionList, Anime_LocalFile, Anime_UnknownGroup } from
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { __ignoredFileManagerIsOpen } from "@/app/(main)/(library)/_containers/ignored-file-manager"
-import { PlayRandomEpisodeButton } from "@/app/(main)/(library)/_containers/play-random-episode-button"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
@@ -209,15 +208,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                             </DropdownMenuItem>
                         </SeaLink>
 
-                        {/*<DropdownMenuItem*/}
-                        {/*    data-library-toolbar-scan-summaries-button*/}
-                        {/*    // className={cn({ "!text-[--muted]": !hasEntries })}*/}
-                        {/*>*/}
-                        {/*    <LuSettings />*/}
-                        {/*    <span>My Library Settings</span>*/}
-                        {/*</DropdownMenuItem>*/}
-
-                        {!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}
+                        {/*{!(isStreamingOnly || isNakamaLibrary) && <PlayRandomEpisodeButton />}*/}
 
                         <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}

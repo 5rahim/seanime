@@ -23,9 +23,10 @@ type EpisodeSectionProps = {
     details: AL_AnimeDetailsById_Media | undefined
     bottomSection: React.ReactNode
     hideCarousel?: boolean
+    maxCol?: number
 }
 
-export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: EpisodeSectionProps) {
+export function EpisodeSection({ entry, details, bottomSection, hideCarousel, maxCol = 4 }: EpisodeSectionProps) {
     const ts = useThemeSettings()
     const serverStatus = useServerStatus()
     const { currentView } = useAnimeEntryPageView()
@@ -109,6 +110,7 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: 
                 {!entry._isNakamaEntry && <UndownloadedEpisodeList
                     downloadInfo={entry.downloadInfo}
                     media={media}
+                    maxCol={maxCol}
                 />}
                 {bottomSection}
             </div>
@@ -176,6 +178,7 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: 
 
                 <div className="space-y-10" data-episode-list-stack>
                     <EpisodeListPaginatedGrid
+                        maxCol={maxCol}
                         length={mainEpisodes.length}
                         renderItem={(index) => (
                             <EpisodeItem
@@ -193,11 +196,12 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: 
                     {!serverStatus?.isOffline && !entry._isNakamaEntry && <UndownloadedEpisodeList
                         downloadInfo={entry.downloadInfo}
                         media={media}
+                        maxCol={maxCol}
                     />}
 
                     {specialEpisodes.length > 0 && <>
                         <h2>Specials</h2>
-                        <EpisodeListGrid data-episode-list-specials>
+                        <EpisodeListGrid data-episode-list-specials maxCol={maxCol}>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}
@@ -211,7 +215,7 @@ export function EpisodeSection({ entry, details, bottomSection, hideCarousel }: 
 
                     {ncEpisodes.length > 0 && <>
                         <h2>Others</h2>
-                        <EpisodeListGrid data-episode-list-others>
+                        <EpisodeListGrid data-episode-list-others maxCol={maxCol}>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}

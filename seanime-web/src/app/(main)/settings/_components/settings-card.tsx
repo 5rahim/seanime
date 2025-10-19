@@ -73,7 +73,7 @@ export function SettingsCard({ title, description, children, className }: Settin
                     <CardTitle
                         className={cn(
                             "font-semibold text-[1rem] tracking-wide transition-colors duration-300 px-4 py-1 border w-fit rounded-xl bg-gray-800/40",
-                            "group-hover/settings-card:bg-brand-500/10 group-hover/settings-card:text-white",
+                            "group-hover/settings-card:bg-brand-500/10 group-hover/settings-card:text-white flex-none",
                         )}
                     >
                         {title}

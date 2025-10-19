@@ -103,7 +103,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                 "h-[105%] w-[100%] -top-[5%] rounded-[0.7rem] transition ease-in-out",
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                 "hidden lg:block", // Hide on small screens
-                markBorderRenderingArtifacts && "w-[101%] -left-[0.5%]",
+                markBorderRenderingArtifacts && "w-[102%] -left-[1%]",
             )}
             {...rest}
         >

@@ -7,6 +7,7 @@ import React from "react"
 type MangaRecommendationsProps = {
     entry: Nullish<Manga_Entry>
     details: Nullish<AL_MangaDetailsById_Media>
+    maxCol?: number
 }
 
 export function MangaRecommendations(props: MangaRecommendationsProps) {
@@ -14,6 +15,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
     const {
         entry,
         details,
+        maxCol,
         ...rest
     } = props
 
@@ -29,7 +31,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
             {!!anime?.length && (
                 <>
                     <h2>Relations</h2>
-                    <MediaCardGrid>
+                    <MediaCardGrid maxCol={maxCol}>
                         {anime?.toSorted((a, b) => (a.node?.format === "TV" && b.node?.format !== "TV")
                             ? -1
                             : (a.node?.format !== "TV" && b.node?.format === "TV") ? 1 : 0).map(edge => {
@@ -50,7 +52,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
             )}
             {recommendations.length > 0 && <>
                 <h2>Recommendations</h2>
-                <MediaCardGrid>
+                <MediaCardGrid maxCol={maxCol}>
                     {recommendations.map(media => {
                         return <div key={media.id} className="col-span-1">
                             <MediaEntryCard

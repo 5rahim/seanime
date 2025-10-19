@@ -144,12 +144,12 @@ export default function Page() {
                     )}
                     data-settings-page-tabs
                 >
-                    <TabsList className="flex-wrap max-w-full lg:space-y-2 sticky top-10">
+                    <TabsList className="flex-wrap max-w-full lg:space-y-2 lg:sticky lg:top-10">
                         <SettingsNavCard>
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
 
                             </div>
-                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
+                            <div className="overflow-x-none overflow-y-hidden rounded-[--radius-md] space-y-1 lg:space-y-3 flex justify-center flex-wrap lg:block">
 
                                 <Card className="lg:p-2 contents lg:block border-0 bg-transparent lg:border lg:bg-gray-950/80">
                                     <div className="space-y-2 p-4 w-full">

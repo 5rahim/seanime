@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 import { BiAddToQueue } from "react-icons/bi"
-import { LuDock } from "react-icons/lu"
+import { LuDock, LuEye } from "react-icons/lu"
 import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type EpisodeCardProps = {
@@ -135,7 +135,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 setPreviewModalMediaId(anime?.id || 0, "anime")
                             }}
                         >
-                            Preview
+                            <LuEye /> Preview
                         </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={() => {

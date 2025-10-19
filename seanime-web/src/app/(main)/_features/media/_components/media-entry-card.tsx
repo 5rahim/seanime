@@ -46,7 +46,7 @@ import { usePathname, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { BiAddToQueue, BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
-import { LuFolderTree } from "react-icons/lu"
+import { LuEye, LuFolderTree } from "react-icons/lu"
 import { RiCalendarLine } from "react-icons/ri"
 import { PluginMediaCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
@@ -198,7 +198,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             setPreviewModalMediaId(media.id!, type)
                         }}
                     >
-                        Preview
+                        <LuEye /> Preview
                     </ContextMenuItem>}
                     {(libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && <ContextMenuItem
                         onClick={() => {

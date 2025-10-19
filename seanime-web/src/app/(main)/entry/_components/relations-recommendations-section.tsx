@@ -9,6 +9,7 @@ type RelationsRecommendationsSectionProps = {
     entry: Nullish<Anime_Entry>
     details: Nullish<AL_AnimeDetailsById_Media>
     containerRef?: React.RefObject<HTMLElement>
+    maxCol?: number
 }
 
 export function RelationsRecommendationsSection(props: RelationsRecommendationsSectionProps) {
@@ -17,6 +18,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
         entry,
         details,
         containerRef,
+        maxCol,
         ...rest
     } = props
 
@@ -44,7 +46,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
             {(!!sourceManga || relations.length > 0) && (
                 <>
                     <h2>Relations</h2>
-                    <MediaCardGrid>
+                    <MediaCardGrid maxCol={maxCol}>
                         {!!sourceManga && <div className="col-span-1">
                             <MediaEntryCard
                                 media={sourceManga!}
@@ -73,7 +75,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
             )}
             {recommendations.length > 0 && <>
                 <h2>Recommendations</h2>
-                <MediaCardGrid>
+                <MediaCardGrid maxCol={maxCol}>
                     {recommendations.map(media => {
                         return <div key={media.id} className="col-span-1">
                             <MediaEntryCard
