@@ -612,6 +612,7 @@ function OptionField({ option, value, onChange }: OptionFieldProps) {
                         onValueChange={(valueAsNumber) => onChange(valueAsNumber)}
                         min={min}
                         max={max}
+                        formatOptions={{ useGrouping: false }}
                     />
                 </div>
             )
