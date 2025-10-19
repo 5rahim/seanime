@@ -538,7 +538,7 @@ export function VideoCoreAudioButton() {
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
                     options={audioTracks.map(track => ({
-                        label: `${track.name}`,
+                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                         value: track.number,
                         moreInfo: track.language?.toUpperCase(),
                     }))}
@@ -599,7 +599,7 @@ export function VideoCoreSubtitleButton() {
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
                     options={subtitleTracks.map(track => ({
-                        label: `${track.name}`,
+                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                         value: track.number,
                         moreInfo: track.language
                             ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
@@ -618,7 +618,7 @@ export function VideoCoreSubtitleButton() {
 function getSubtitleTrackType(codecID: string) {
     switch (codecID) {
         case "S_TEXT/ASS":
-            return "SSA"
+            return "ASS"
         case "S_TEXT/SSA":
             return "SSA"
         case "S_TEXT/UTF8":
@@ -813,6 +813,7 @@ export function VideoCorePipButton() {
 export function VideoCoreFullscreenButton() {
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const isFullscreen = useAtomValue(vc_isFullscreen)
+    const [isMiniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
 
     return (
         <VideoCoreControlButtonIcon
@@ -822,6 +823,7 @@ export function VideoCoreFullscreenButton() {
             ]}
             state={isFullscreen ? "fullscreen" : "default"}
             onClick={() => {
+                setMiniPlayer(false)
                 fullscreenManager?.toggleFullscreen()
             }}
         />

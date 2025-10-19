@@ -348,6 +348,7 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                                     help="Folder in your local library where the files will be saved"
                                     leftIcon={<FcFolder />}
                                     shouldExist={false}
+                                    value={field.destination}
                                     defaultValue={props.libraryPath}
                                 />
                                 <TextInput

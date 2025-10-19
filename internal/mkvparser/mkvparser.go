@@ -132,7 +132,7 @@ func getLanguageCode(track *TrackInfo) string {
 func getSubtitleTrackType(codecID string) string {
 	switch codecID {
 	case "S_TEXT/ASS":
-		return "SSA"
+		return "ASS"
 	case "S_TEXT/SSA":
 		return "SSA"
 	case "S_TEXT/UTF8":
@@ -288,6 +288,7 @@ func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.Element
 	case gomkv.TrackEntryElement:
 		if h.currentTrack != nil {
 			h.mp.tracks = append(h.mp.tracks, h.currentTrack)
+			util.Spew(h.currentTrack)
 		}
 		h.inTrackEntry = false
 		h.currentTrack = nil
@@ -298,7 +299,8 @@ func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.Element
 	case gomkv.EditionEntryElement:
 		h.inEditionEntry = false
 	case gomkv.ChapterAtomElement:
-		if h.currentChapter != nil && h.inEditionEntry {
+		// devnote: filter out chapters with end time
+		if h.currentChapter != nil && h.inEditionEntry && h.currentChapter.End == 0 {
 			h.mp.chapters = append(h.mp.chapters, h.currentChapter)
 		}
 		h.inChapterAtom = false

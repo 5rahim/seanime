@@ -63,6 +63,9 @@ func (r *Repository) DeselectAndDownload(p *DeselectAndDownloadParams) error {
 		return fmt.Errorf("error while deselecting files: %w", err)
 	}
 
+	// Unpause the torrent
+	_ = r.ResumeTorrents([]string{p.Torrent.InfoHash})
+
 	return nil
 }
 
