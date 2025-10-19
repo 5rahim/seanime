@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/database/models"
+	"sync"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -20,9 +21,12 @@ type Database struct {
 	Logger           *zerolog.Logger
 	CurrMediaFillers mo.Option[map[int]*MediaFillerItem]
 	cleanupManager   *CleanupManager
+	mu               sync.Mutex
 }
 
 func (db *Database) Gorm() *gorm.DB {
+	db.mu.Lock()
+	defer db.mu.Unlock()
 	return db.gormdb
 }
 
@@ -80,7 +84,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 	}
 
 	// Initialize cleanup manager
-	database.cleanupManager = NewCleanupManager(database)
+	database.cleanupManager = NewCleanupManager(database.gormdb, database.Logger)
 
 	return database, nil
 }
@@ -121,5 +125,7 @@ func migrateTables(db *gorm.DB) error {
 // RunDatabaseCleanup runs all database cleanup operations using the cleanup manager
 // This replaces the individual trim functions to prevent concurrent access issues
 func (db *Database) RunDatabaseCleanup() {
+	db.mu.Lock()
+	defer db.mu.Unlock()
 	db.cleanupManager.RunAllCleanupOperations()
 }

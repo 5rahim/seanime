@@ -8,7 +8,6 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/util"
 	"testing"
-	"time"
 )
 
 // TestDatabaseCleanupManager tests the new cleanup manager to ensure it prevents SQLite locking issues
@@ -38,9 +37,6 @@ func TestDatabaseCleanupManager(t *testing.T) {
 	// Test the new cleanup manager
 	t.Log("Running database cleanup using new manager...")
 	database.RunDatabaseCleanup()
-
-	// Wait for cleanup operations to complete
-	time.Sleep(2 * time.Second)
 
 	// Check final counts
 	checkTableCounts(t, database, "after cleanup")

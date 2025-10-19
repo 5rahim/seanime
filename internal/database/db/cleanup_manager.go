@@ -2,62 +2,60 @@ package db
 
 import (
 	"seanime/internal/database/models"
-	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 )
 
 // CleanupManager manages database cleanup operations to prevent concurrent access issues
 type CleanupManager struct {
-	db    *Database
-	mutex sync.Mutex
+	gormdb *gorm.DB
+	logger *zerolog.Logger
 }
 
 // NewCleanupManager creates a new cleanup manager
-func NewCleanupManager(db *Database) *CleanupManager {
+func NewCleanupManager(gormdb *gorm.DB, logger *zerolog.Logger) *CleanupManager {
 	return &CleanupManager{
-		db: db,
+		gormdb: gormdb,
+		logger: logger,
 	}
 }
 
 // RunAllCleanupOperations runs all cleanup operations sequentially to avoid database locks
 func (cm *CleanupManager) RunAllCleanupOperations() {
-	go func() {
-		cm.mutex.Lock()
-		defer cm.mutex.Unlock()
+	cm.logger.Debug().Msg("database: Starting cleanup operations")
 
-		cm.db.Logger.Debug().Msg("database: Starting cleanup operations")
+	// Run cleanup operations sequentially with small delays
+	cm.trimScanSummaryEntries()
+	time.Sleep(100 * time.Millisecond)
 
-		// Run cleanup operations sequentially with small delays
-		cm.trimScanSummaryEntries()
-		time.Sleep(100 * time.Millisecond)
+	cm.trimLocalFileEntries()
+	time.Sleep(100 * time.Millisecond)
 
-		cm.trimLocalFileEntries()
-		time.Sleep(100 * time.Millisecond)
+	cm.trimTorrentstreamHistory()
 
-		cm.trimTorrentstreamHistory()
-
-		cm.db.Logger.Debug().Msg("database: Cleanup operations completed")
-	}()
+	cm.logger.Debug().Msg("database: Cleanup operations completed")
 }
 
 // trimScanSummaryEntries trims scan summary entries (internal implementation)
 func (cm *CleanupManager) trimScanSummaryEntries() {
 	var count int64
-	err := cm.db.gormdb.Model(&models.ScanSummary{}).Count(&count).Error
+	err := cm.gormdb.Model(&models.ScanSummary{}).Count(&count).Error
 	if err != nil {
-		cm.db.Logger.Error().Err(err).Msg("database: Failed to count scan summary entries")
+		cm.logger.Error().Err(err).Msg("database: Failed to count scan summary entries")
 		return
 	}
 	if count > 10 {
 		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
-		err = cm.db.gormdb.Model(&models.ScanSummary{}).
+		err = cm.gormdb.Model(&models.ScanSummary{}).
 			Select("id").
 			Order("id ASC").
 			Limit(int(count-5)).
 			Pluck("id", &idsToDelete).Error
 		if err != nil {
-			cm.db.Logger.Error().Err(err).Msg("database: Failed to get scan summary IDs to delete")
+			cm.logger.Error().Err(err).Msg("database: Failed to get scan summary IDs to delete")
 			return
 		}
 
@@ -70,13 +68,13 @@ func (cm *CleanupManager) trimScanSummaryEntries() {
 					end = len(idsToDelete)
 				}
 				batch := idsToDelete[i:end]
-				err = cm.db.gormdb.Delete(&models.ScanSummary{}, batch).Error
+				err = cm.gormdb.Delete(&models.ScanSummary{}, batch).Error
 				if err != nil {
-					cm.db.Logger.Error().Err(err).Msg("database: Failed to delete old scan summary entries")
+					cm.logger.Error().Err(err).Msg("database: Failed to delete old scan summary entries")
 					return // Exit on first error
 				}
 			}
-			cm.db.Logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old scan summary entries")
+			cm.logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old scan summary entries")
 		}
 	}
 }
@@ -84,21 +82,21 @@ func (cm *CleanupManager) trimScanSummaryEntries() {
 // trimLocalFileEntries trims local file entries (internal implementation)
 func (cm *CleanupManager) trimLocalFileEntries() {
 	var count int64
-	err := cm.db.gormdb.Model(&models.LocalFiles{}).Count(&count).Error
+	err := cm.gormdb.Model(&models.LocalFiles{}).Count(&count).Error
 	if err != nil {
-		cm.db.Logger.Error().Err(err).Msg("database: Failed to count local file entries")
+		cm.logger.Error().Err(err).Msg("database: Failed to count local file entries")
 		return
 	}
 	if count > 10 {
 		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
-		err = cm.db.gormdb.Model(&models.LocalFiles{}).
+		err = cm.gormdb.Model(&models.LocalFiles{}).
 			Select("id").
 			Order("id ASC").
 			Limit(int(count-5)).
 			Pluck("id", &idsToDelete).Error
 		if err != nil {
-			cm.db.Logger.Error().Err(err).Msg("database: Failed to get local file IDs to delete")
+			cm.logger.Error().Err(err).Msg("database: Failed to get local file IDs to delete")
 			return
 		}
 
@@ -111,13 +109,13 @@ func (cm *CleanupManager) trimLocalFileEntries() {
 					end = len(idsToDelete)
 				}
 				batch := idsToDelete[i:end]
-				err = cm.db.gormdb.Delete(&models.LocalFiles{}, batch).Error
+				err = cm.gormdb.Delete(&models.LocalFiles{}, batch).Error
 				if err != nil {
-					cm.db.Logger.Error().Err(err).Msg("database: Failed to delete old local file entries")
+					cm.logger.Error().Err(err).Msg("database: Failed to delete old local file entries")
 					return // Exit on first error
 				}
 			}
-			cm.db.Logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old local file entries")
+			cm.logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old local file entries")
 		}
 	}
 }
@@ -125,21 +123,21 @@ func (cm *CleanupManager) trimLocalFileEntries() {
 // trimTorrentstreamHistory trims torrent stream history entries (internal implementation)
 func (cm *CleanupManager) trimTorrentstreamHistory() {
 	var count int64
-	err := cm.db.gormdb.Model(&models.TorrentstreamHistory{}).Count(&count).Error
+	err := cm.gormdb.Model(&models.TorrentstreamHistory{}).Count(&count).Error
 	if err != nil {
-		cm.db.Logger.Error().Err(err).Msg("database: Failed to count torrent stream history entries")
+		cm.logger.Error().Err(err).Msg("database: Failed to count torrent stream history entries")
 		return
 	}
 	if count > 50 {
 		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
-		err = cm.db.gormdb.Model(&models.TorrentstreamHistory{}).
+		err = cm.gormdb.Model(&models.TorrentstreamHistory{}).
 			Select("id").
 			Order("updated_at ASC").
 			Limit(int(count-40)).
 			Pluck("id", &idsToDelete).Error
 		if err != nil {
-			cm.db.Logger.Error().Err(err).Msg("database: Failed to get torrent stream history IDs to delete")
+			cm.logger.Error().Err(err).Msg("database: Failed to get torrent stream history IDs to delete")
 			return
 		}
 
@@ -152,13 +150,13 @@ func (cm *CleanupManager) trimTorrentstreamHistory() {
 					end = len(idsToDelete)
 				}
 				batch := idsToDelete[i:end]
-				err = cm.db.gormdb.Delete(&models.TorrentstreamHistory{}, batch).Error
+				err = cm.gormdb.Delete(&models.TorrentstreamHistory{}, batch).Error
 				if err != nil {
-					cm.db.Logger.Error().Err(err).Msg("database: Failed to delete old torrent stream history entries")
+					cm.logger.Error().Err(err).Msg("database: Failed to delete old torrent stream history entries")
 					return // Exit on first error
 				}
 			}
-			cm.db.Logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old torrent stream history entries")
+			cm.logger.Debug().Int("deleted", len(idsToDelete)).Msg("database: Deleted old torrent stream history entries")
 		}
 	}
 }
