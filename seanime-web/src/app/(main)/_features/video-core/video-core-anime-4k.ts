@@ -32,9 +32,9 @@ export const VideoCoreAnime4K = () => {
     // Update manager with real video size
     React.useEffect(() => {
         if (manager) {
-            manager.updateCanvasSize(realVideoSize)
+            manager.updateCanvasSize({ width: video?.videoWidth || 0, height: video?.videoHeight || 0 })
         }
-    }, [manager, realVideoSize])
+    }, [manager, video])
 
     // Handle option changes
     React.useEffect(() => {
@@ -49,11 +49,11 @@ export const VideoCoreAnime4K = () => {
     }, [video, manager, selectedOption, isMiniPlayer, isPip, seeking])
 
     // Handle option changes
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (video && manager) {
-            manager.reposition()
+            manager.resize()
         }
-    }, [paused, manager, video])
+    }, [realVideoSize])
 
     return null
 }

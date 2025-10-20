@@ -442,6 +442,11 @@ export function VideoCoreKeybindingController(props: {
             return
         }
 
+        // Ignore combinations with modifier keys
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
+            return
+        }
+
         if (!videoRef.current || !active) {
             return
         }

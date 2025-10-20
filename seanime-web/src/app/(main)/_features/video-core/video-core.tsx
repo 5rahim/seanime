@@ -1069,7 +1069,9 @@ export function VideoCore(props: VideoCoreProps) {
                                         style={{
                                             border: "none",
                                             width: "100%",
-                                            height: "auto",
+                                            height: "100%",
+                                            objectFit: "contain",
+                                            objectPosition: "center",
                                             filter: (settings.videoEnhancement.enabled && beautifyImage)
                                                 ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
                                                 : "none",
@@ -1245,3 +1247,4 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
 
     return <Content />
 }
+

@@ -45,8 +45,11 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
                     "cursor-pointer",
                     className,
                 )}
-                onClick={() => {
+                onClick={e => {
                     router.push(href as string)
+                    if (onClick) {
+                        onClick(e)
+                    }
                 }}
                 data-current={(rest as any)["data-current"]}
             >
