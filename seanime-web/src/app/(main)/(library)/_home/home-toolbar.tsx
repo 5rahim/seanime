@@ -22,7 +22,7 @@ import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
 import { IoHome, IoLibraryOutline, IoLibrarySharp } from "react-icons/io5"
 import { LuFolderSearch, LuFolderSync, LuFolderTree } from "react-icons/lu"
-import { MdOutlineVideoLibrary } from "react-icons/md"
+import { MdOutlineConnectWithoutContact, MdOutlineVideoLibrary } from "react-icons/md"
 import { TbFileSad, TbReportSearch } from "react-icons/tb"
 import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
@@ -72,6 +72,13 @@ export function HomeToolbar(props: HomeToolbarProps) {
         <>
             <div className={cn("flex flex-wrap w-full justify-end gap-1 p-4 relative z-[10]", className)} data-library-toolbar-container>
                 <div className="flex flex-1 pointer-events-none" data-library-toolbar-spacer></div>
+                {isNakamaLibrary && <Tooltip
+                    trigger={<div className="flex items-center px-2 h-10">
+                        <MdOutlineConnectWithoutContact className="size-8" />
+                    </div>}
+                >
+                    Nakama Library
+                </Tooltip>}
                 {(hasEntries) && (
                     <>
                         {(!isStreamingOnly && !isNakamaLibrary) && <Tooltip

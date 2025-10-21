@@ -75,6 +75,11 @@ export function NakamaManager() {
         })
     }
 
+    React.useEffect(() => {
+        // When the playback method changes, update the status
+        refetchStatus()
+    }, [electronPlaybackMethod])
+
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_STATUS,
         onMessage: (data: Nakama_NakamaStatus | null) => {

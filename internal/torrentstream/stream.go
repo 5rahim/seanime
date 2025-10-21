@@ -155,6 +155,9 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 				Torrent:            r.client.currentTorrent.MustGet(),
 				File:               r.client.currentFile.MustGet(),
 				IsNakamaWatchParty: opts.IsNakamaWatchParty,
+				OnTerminate: func() {
+					_ = r.StopStream(true)
+				},
 			})
 			if err != nil {
 				r.logger.Error().Err(err).Msg("torrentstream: Failed to prepare new stream")
@@ -302,7 +305,7 @@ type StartUntrackedStreamOptions struct {
 	PlaybackType PlaybackType
 }
 
-func (r *Repository) StopStream() error {
+func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 	defer func() {
 		if r := recover(); r != nil {
 		}
@@ -331,9 +334,11 @@ func (r *Repository) StopStream() error {
 	r.client.repository.mediaPlayerRepository.Stop()             // Stop the media player gracefully if it's running
 	r.client.mu.Unlock()
 
-	go func() {
-		r.nativePlayer.Stop()
-	}()
+	if len(fromNativePlayer) == 0 || fromNativePlayer[0] == false {
+		go func() {
+			r.nativePlayer.Stop()
+		}()
+	}
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
 

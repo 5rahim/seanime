@@ -85,7 +85,8 @@ export function HomeScreen() {
 
     const ts = useThemeSettings()
 
-    const homeItems = !isNakamaLibrary ? (!!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS) : DEFAULT_HOME_ITEMS
+    // const homeItems = !isNakamaLibrary ? (!!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS) : DEFAULT_HOME_ITEMS
+    const homeItems = !!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS
     const [view, setView] = useAtom(__home_currentView)
     const [discoverHeaderType, setDiscoverHeaderType] = useAtom(__home_discoverHeaderType)
     const [discoverPageType, setDiscoverPageType] = useAtom(__discord_pageTypeAtom)
@@ -237,12 +238,17 @@ export function HomeScreen() {
                 <div className="h-0 visibility-hidden pointer-events-none opacity-0">
                     {discoverHeaderType === "anime" && <DiscoverTrending />}
                     {discoverHeaderType === "manga" && <DiscoverTrendingCountry country="JP" forDiscoverHeader />}
-                </div>
+                </div>  
             </React.Fragment>}
 
             {/*Continue Watching Header*/}
             {homeItems[0]?.type === "anime-continue-watching-header" && <React.Fragment>
-                <ContinueWatchingHeader episodes={continueWatchingList} />
+                <div className="hidden lg:contents">
+                    <ContinueWatchingHeader episodes={continueWatchingList} />
+                </div>
+                {!homeItems.some(n => n.type === "anime-continue-watching") && <div className="lg:hidden contents">
+                    <ContinueWatching episodes={continueWatchingList} isLoading={isLoading} />
+                </div>}
             </React.Fragment>}
 
             {/*Manga Library Header*/}

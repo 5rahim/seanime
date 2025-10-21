@@ -277,7 +277,7 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
 
                     <div
                         className={cn(
-                            isNakamaLibrary && "pointer-events-none opacity-30",
+                            // isNakamaLibrary && "pointer-events-none opacity-30",
                         )}
                     >
                         <div className="flex items-center gap-2 mb-4">
@@ -321,7 +321,7 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
 
                     <div
                         className={cn(
-                            isNakamaLibrary && "pointer-events-none opacity-30",
+                            // isNakamaLibrary && "pointer-events-none opacity-30",
                         )}
                     >
                         <div className="flex items-center gap-2 mb-4">

@@ -289,7 +289,7 @@ func (l *LibraryExplorer) sortTreeChildren(node *FileTreeNode) {
 		if node.Children[i].Kind != node.Children[j].Kind {
 			return node.Children[i].Kind == DirectoryNode
 		}
-		return node.Children[i].Name < node.Children[j].Name
+		return strings.ToLower(node.Children[i].Name) < strings.ToLower(node.Children[j].Name)
 	})
 
 	// Recursively sort children

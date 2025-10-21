@@ -109,7 +109,6 @@ export function AnimeEntryPage() {
             setView("library")
             return
         }
-        console.warn("tab", tab, switchedView.current)
 
         if (
             !animeEntryLoading &&

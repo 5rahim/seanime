@@ -288,7 +288,6 @@ func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.Element
 	case gomkv.TrackEntryElement:
 		if h.currentTrack != nil {
 			h.mp.tracks = append(h.mp.tracks, h.currentTrack)
-			util.Spew(h.currentTrack)
 		}
 		h.inTrackEntry = false
 		h.currentTrack = nil

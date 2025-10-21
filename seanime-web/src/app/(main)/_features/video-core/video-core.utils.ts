@@ -71,11 +71,47 @@ export const vc_createChapterCues = (chapters: Array<MKVParser_ChapterInfo> | un
         return []
     }
 
-    return chapters.map((chapter, index) => ({
+    return vc_fillChapterCues(chapters.map((chapter, index) => ({
         startTime: chapter.start / 1e6,
         endTime: chapter.end ? chapter.end / 1e6 : (chapters[index + 1]?.start ? chapters[index + 1].start / 1e6 : duration),
         text: chapter.text || ``,
-    }))
+    })))
+}
+
+export const vc_fillChapterCues = (chapters: VideoCoreChapterCue[]): VideoCoreChapterCue[] => {
+    if (!chapters || chapters.length === 0) {
+        return []
+    }
+
+    const EPS = 1e-6
+    const sorted = [...chapters].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
+    const out: VideoCoreChapterCue[] = []
+
+    for (let i = 0; i < sorted.length; i++) {
+        const cur = sorted[i]
+        const next = sorted[i + 1]
+        const start = cur.startTime ?? 0
+        let end = typeof cur.endTime === "number" ? cur.endTime : (next ? (next.startTime ?? start) : start)
+        if (end < start) end = start
+
+        // leading gap
+        if (i === 0 && start > EPS) {
+            out.push({ startTime: 0, endTime: start, text: "" })
+        }
+
+        // gap between previous output end and this start
+        const prev = out[out.length - 1]
+        if (prev) {
+            const prevEnd = prev.endTime ?? prev.startTime
+            if (start > (prevEnd ?? 0) + EPS) {
+                out.push({ startTime: prevEnd ?? 0, endTime: start, text: "" })
+            }
+        }
+
+        out.push({ startTime: start, endTime: end, text: cur.text ?? "" })
+    }
+
+    return out
 }
 
 export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | undefined, duration: number) => {

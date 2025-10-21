@@ -9,6 +9,10 @@ export const libraryExplorer_selectedNodeAtom = atom<LibraryExplorer_FileTreeNod
 export const libraryExplorer_isSelectingPathsAtom = atom(false)
 export const libraryExplorer_selectedPathsAtom = atom<Set<string>>(new Set<string>())
 
+export type LibraryExplorer_Filter = "UNLOCKED" | "UNMATCHED" | "IGNORED" | undefined
+
+export const libraryExplorer_selectedFilterAtom = atom<LibraryExplorer_Filter>(undefined)
+
 export const libraryExplorer_matchLocalFilesAtom = atom<Anime_LocalFile[]>([])
 
 export const libraryExplorer_openDirectoryAtom = atom<string | null>(null)

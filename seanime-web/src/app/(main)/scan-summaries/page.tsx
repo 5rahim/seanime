@@ -2,10 +2,12 @@
 import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -16,7 +18,7 @@ import React from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { BsFileEarmarkExcelFill, BsFileEarmarkPlayFill } from "react-icons/bs"
-import { LuFileSearch, LuTextSelect } from "react-icons/lu"
+import { LuFileSearch, LuFolderTree, LuTextSelect } from "react-icons/lu"
 import { TbListSearch } from "react-icons/tb"
 
 export const dynamic = "force-static"
@@ -99,6 +101,8 @@ export default function Page() {
             setExpandedAccordions(new Set())
         }
     }, [debouncedSearchQuery, filteredUnmatchedFiles, filteredGroups])
+
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
 
     return (
         <>
@@ -238,6 +242,17 @@ export default function Page() {
 
                                                     <div>
 
+                                                        <div className="">
+                                                            <Button
+                                                                className="px-0 dark:text-[--muted] dark:hover:text-[--foreground]"
+                                                                intent="gray-link"
+                                                                leftIcon={<LuFolderTree />}
+                                                                onClick={() => openDirInLibraryExplorer(group.files?.[0]?.localFile?.path || "")}
+                                                            >
+                                                                Open in Library Explorer
+                                                            </Button>
+                                                        </div>
+
 
                                                         <Accordion type="single" collapsible value={expandedAccordions.has("i1") ? "i1" : undefined}>
                                                             <AccordionItem value="i1">
@@ -290,6 +305,8 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
     const hasErrors = file.logs?.some(log => log.level === "error")
     const hasWarnings = file.logs?.some(log => log.level === "warning")
 
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
+
     if (!file.localFile || !file.logs) return null
 
     return (
@@ -318,13 +335,23 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                 </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2 overflow-x-auto">
-                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">
+                <p className="text-sm text-left tracking-wide text-[--muted] italic line-clamp-1 max-w-full">
                     {searchQuery ? (
                         <HighlightedText text={file.localFile.path} searchQuery={searchQuery} />
                     ) : (
                         file.localFile.path
                     )}
                 </p>
+                <div className="">
+                    <Button
+                        className="px-0 dark:text-[--muted] dark:hover:text-[--foreground]"
+                        intent="gray-link"
+                        leftIcon={<LuFolderTree />}
+                        onClick={() => openDirInLibraryExplorer(file.localFile?.path || "")}
+                    >
+                        Open in Library Explorer
+                    </Button>
+                </div>
                 <ScanSummaryFileParsedData localFile={file.localFile} />
                 {file.logs.map(log => (
                     <ScanSummaryLog key={log.id} log={log} />

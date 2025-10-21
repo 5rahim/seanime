@@ -21,17 +21,19 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Popover } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { upath } from "@/lib/helpers/upath"
 import { ContextMenuGroup } from "@radix-ui/react-context-menu"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { pascalCase } from "pascal-case"
 import React, { memo } from "react"
 import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FaRegEdit } from "react-icons/fa"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
-import { LuClipboardPlus, LuClipboardX, LuEye, LuFilePen, LuFileQuestion, LuFileVideo2, LuFolderSync } from "react-icons/lu"
+import { LuClipboardPlus, LuClipboardX, LuEye, LuFilePen, LuFileQuestion, LuFileVideo2, LuFilter, LuFilterX, LuFolderSync } from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
@@ -44,6 +46,7 @@ import { MediaEntryCard } from "../media/_components/media-entry-card"
 import { useMediaPreviewModal } from "../media/_containers/media-preview-modal"
 import {
     libraryExplorer_drawerOpenAtom,
+    LibraryExplorer_Filter,
     libraryExplorer_isSelectingPathsAtom,
     libraryExplorer_matchLocalFilesAtom,
     libraryExplorer_openDirectoryAtom,
@@ -58,19 +61,36 @@ interface FlattenedTreeItem {
     index: number
 }
 
+function hasMatchingFiles(node: LibraryExplorer_FileTreeNodeJSON, filter: LibraryExplorer_Filter): boolean {
+    if (node.kind === "file") {
+        switch (filter) {
+            case "UNMATCHED":
+                return !!node.localFile && !node.localFile?.mediaId && !node.localFile.ignored
+            case "UNLOCKED":
+                return !!node.localFile?.mediaId && !node.localFile.locked && !node.localFile.ignored
+            case "IGNORED":
+                return !!node.localFile?.ignored
+            default:
+                return true
+        }
+    }
+    return node.children?.some(child => hasMatchingFiles(child, filter)) ?? false
+}
+
 // flatten the tree structure based on expanded nodes and search filter to avoid recursion
 function flattenTreeNodes(
     node: LibraryExplorer_FileTreeNodeJSON,
     expandedNodes: Set<string>,
     searchTerm: string,
+    filter: LibraryExplorer_Filter = undefined,
     level: number = 0,
     result: FlattenedTreeItem[] = [],
 ): FlattenedTreeItem[] {
     const isDirectory = node.kind === "directory"
     const hasChildren = node.children && node.children.length > 0
 
-    // Filter children based on search term
-    const filteredChildren = searchTerm && node.children
+    // Filter children based on search term first
+    let filteredChildren = searchTerm && node.children
         ? node.children.filter(child =>
             child.name.toLowerCase().includes(searchTerm) ||
             (child.children && child.children.some(grandchild =>
@@ -78,6 +98,36 @@ function flattenTreeNodes(
             )),
         )
         : node.children
+
+    // Apply additional filters based on file properties
+    if (filter && filteredChildren) {
+        // First check if this node should be included based on filter
+        if (isDirectory) {
+            // For directories, check if they have any valid files in their tree
+            if (!hasMatchingFiles(node, filter)) {
+                return result
+            }
+        }
+
+        // Filter the children
+        filteredChildren = filteredChildren.filter(child => {
+            if (child.kind === "directory") {
+                return hasMatchingFiles(child, filter)
+            }
+
+            // For files, apply the filter directly
+            switch (filter) {
+                case "UNMATCHED":
+                    return !child.localFile?.mediaId
+                case "UNLOCKED":
+                    return !!child.localFile?.mediaId && !child.localFile.locked
+                case "IGNORED":
+                    return !!child.localFile?.ignored
+                default:
+                    return true
+            }
+        })
+    }
 
     // Check if node should be shown
     const shouldShow = !searchTerm ||
@@ -95,9 +145,9 @@ function flattenTreeNodes(
 
     // Add children if directory is expanded
     if (isDirectory && hasChildren && expandedNodes.has(node.path)) {
-        const childrenToProcess = filteredChildren || node.children || []
+        const childrenToProcess = filteredChildren || []
         childrenToProcess.forEach(child => {
-            flattenTreeNodes(child, expandedNodes, searchTerm, level + 1, result)
+            flattenTreeNodes(child, expandedNodes, searchTerm, filter, level + 1, result)
         })
     }
 
@@ -105,13 +155,14 @@ function flattenTreeNodes(
 }
 
 export function LibraryExplorer() {
-    const { data: fileTree, isLoading, refetch } = useGetLibraryExplorerFileTree()
+    const { data: fileTree, isLoading } = useGetLibraryExplorerFileTree()
     const refreshMutation = useRefreshLibraryExplorerFileTree()
     const [selectedNode, setSelectedNode] = useAtom(libraryExplorer_selectedNodeAtom)
     const [searchTerm, setSearchTerm] = React.useState("")
     const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set())
-    const [open, setOpen] = useAtom(libraryExplorer_drawerOpenAtom)
+    const [open] = useAtom(libraryExplorer_drawerOpenAtom)
     const [isSelectingPaths, setIsSelectingPaths] = useAtom(libraryExplorer_isSelectingPathsAtom)
+    const [selectedFilter, setSelectedFilter] = React.useState<LibraryExplorer_Filter>(undefined)
 
     const [matchLocalFiles] = useAtom(libraryExplorer_matchLocalFilesAtom)
 
@@ -279,11 +330,12 @@ export function LibraryExplorer() {
     const fileNodes = libraryExplorer_collectLocalFileNodes(fileTree?.root)
     const unignoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
     const hasUnscannedFiles = unignoredFileNodes?.some(n => !n.localFile)
+
     // Calculate flattened tree items for virtualization
     const flattenedItems = React.useMemo(() => {
         if (!fileTree?.root) return []
-        return flattenTreeNodes(fileTree.root, expandedNodes, searchTerm.toLowerCase())
-    }, [fileTree?.root, expandedNodes, searchTerm])
+        return flattenTreeNodes(fileTree.root, expandedNodes, searchTerm.toLowerCase(), selectedFilter)
+    }, [fileTree?.root, expandedNodes, searchTerm, selectedFilter])
 
     // Select directory user wants to open
     const [directoryToOpen, setDirectoryToOpen] = useAtom(libraryExplorer_openDirectoryAtom)
@@ -320,7 +372,7 @@ export function LibraryExplorer() {
 
                 // Scroll to node after expansion
                 setTimeout(() => {
-                    const updatedItems = flattenTreeNodes(fileTree.root!, pathsToExpand, searchTerm.toLowerCase())
+                    const updatedItems = flattenTreeNodes(fileTree.root!, pathsToExpand, searchTerm.toLowerCase(), selectedFilter)
                     const nodeIndex = updatedItems.findIndex(n => n.node.path.toLowerCase() === directoryToOpen.toLowerCase())
                     if (nodeIndex >= 0) {
                         ref.current?.scrollToIndex({ index: nodeIndex, align: "start" })
@@ -330,10 +382,18 @@ export function LibraryExplorer() {
 
             setDirectoryToOpen(null)
         }
-    }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm])
+    }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm, selectedFilter])
 
     const hasUnlockedFiles = unignoredFileNodes?.some(n => n.localFile && !!n.localFile.mediaId && !n.localFile.locked)
     const unmatchedFiles = unignoredFileNodes?.filter(n => !!n.localFile && !n.localFile.mediaId)
+
+    const handleToggleFilter = (filter?: LibraryExplorer_Filter) => {
+        if (!filter) {
+            return setSelectedFilter(undefined)
+        }
+
+        setSelectedFilter(filter)
+    }
 
     if (isLoading) {
         return (
@@ -352,7 +412,14 @@ export function LibraryExplorer() {
                             <div className="flex items-center gap-3 flex-wrap">
                                 <h2 className="text-lg font-semibold text-gray-100 2xl:block hidden">Library Explorer</h2>
                                 {hasUnlockedFiles && (
-                                    <Alert intent="info" className="text-sm py-1 px-3" description="Lock all correctly matched files" />
+                                    <Alert
+                                        intent="info"
+                                        className="text-sm py-1 px-3 cursor-pointer"
+                                        description="Lock all correctly matched files"
+                                        onClick={() => {
+                                            setSelectedFilter("UNLOCKED")
+                                        }}
+                                    />
                                 )}
                                 {!!unmatchedFiles?.length && (
                                     <Alert
@@ -360,7 +427,7 @@ export function LibraryExplorer() {
                                         className="text-sm py-1 px-3 cursor-pointer"
                                         description={`${unmatchedFiles.length} unmatched file${unmatchedFiles.length != 1 ? "s" : ""}`}
                                         onClick={() => {
-                                            setDirectoryToOpen(unmatchedFiles?.[0]?.path)
+                                            setSelectedFilter("UNMATCHED")
                                         }}
                                     />
                                 )}
@@ -376,6 +443,42 @@ export function LibraryExplorer() {
                             <LibraryExplorerSuperUpdate
                                 fileNodes={fileNodes}
                             />
+                            {!selectedFilter && <Popover
+                                trigger={<Button
+                                    leftIcon={<LuFilter className="text-xl" />}
+                                    size="sm"
+                                    intent={!!selectedFilter ? "white" : "gray-subtle"}
+                                    onClick={() => {handleToggleFilter()}}
+                                    className={cn(
+                                        !!selectedFilter && "animate-pulse",
+                                    )}
+                                >
+                                    Filter
+                                </Button>}
+                            >
+                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNMATCHED")}>
+                                    Unmatched files
+                                </Button>
+                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNLOCKED")}>
+                                    Unlocked files
+                                </Button>
+                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("IGNORED")}>
+                                    Ignored files
+                                </Button>
+                            </Popover>}
+                            {!!selectedFilter && (
+                                <Button
+                                    leftIcon={<LuFilterX className="text-xl" />}
+                                    size="sm"
+                                    intent={"white"}
+                                    onClick={() => {handleToggleFilter()}}
+                                    className={cn(
+                                        "animate-pulse",
+                                    )}
+                                >
+                                    Filter: {!!selectedFilter ? pascalCase(selectedFilter) : ""}
+                                </Button>
+                            )}
                             <Button
                                 leftIcon={<BiListCheck className="text-xl" />}
                                 size="sm"
@@ -489,7 +592,7 @@ export function LibraryExplorerBulkActions(props: LibraryExplorerBulkActionsProp
     } = props
 
     const [isSelectingPaths] = useAtom(libraryExplorer_isSelectingPathsAtom)
-    const [selectedPaths, setSelectedPaths] = useAtom(libraryExplorer_selectedPathsAtom)
+    const [selectedPaths] = useAtom(libraryExplorer_selectedPathsAtom)
 
     const selectedPathFileNodes = fileNodes?.filter(n => selectedPaths.has(n.path))
     const shouldShowUnmatchFiles = selectedPathFileNodes?.some(n => n.kind === "file" && !!n.localFile && !!n.localFile?.mediaId)
@@ -942,13 +1045,13 @@ const VirtualizedTreeNode = memo(({
                         {isDirectory && !!fileCount && !allFileIgnored && (
                             <Tooltip
                                 trigger={<span
-                                className={cn(
-                                    "text-xs bg-green-500/20 text-[--green] px-2 py-0.5 rounded-full",
-                                    fileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
-                                    !allFileScanned && "bg-red-500/20 text-[--red]",
-                                )}
-                            >
-                                {matchedFileCount} / {fileCount}
+                                    className={cn(
+                                        "text-xs bg-green-500/20 text-[--green] px-2 py-0.5 rounded-full",
+                                        fileCount !== matchedFileCount && "bg-orange-500/20 text-[--orange]",
+                                        !allFileScanned && "bg-red-500/20 text-[--red]",
+                                    )}
+                                >
+                                    {matchedFileCount} / {fileCount}
                                 </span>}
                             >
                                 Matched files
@@ -968,19 +1071,19 @@ const VirtualizedTreeNode = memo(({
 
                         {((isDirectory && !hasDirectoryChildren && matchedFileNodes?.length > 0) || (isScannedFile && !!node.localFile!.mediaId)) &&
                             <Tooltip
-                            trigger={
-                                <IconButton
-                                    icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
-                                    intent={isLocked ? "success-subtle" : "warning-subtle"}
-                                    size={"xs"}
-                                    className="hover:opacity-60 ml-2"
-                                    loading={isPending}
-                                    onClick={handleToggleLockedClick}
-                                />
-                            }
-                        >
-                            {isLocked ? "Unlock all files" : "Lock all files"}
-                        </Tooltip>}
+                                trigger={
+                                    <IconButton
+                                        icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
+                                        intent={isLocked ? "success-subtle" : "warning-subtle"}
+                                        size={"xs"}
+                                        className="hover:opacity-60 ml-2"
+                                        loading={isPending}
+                                        onClick={handleToggleLockedClick}
+                                    />
+                                }
+                            >
+                                {isLocked ? "Unlock all files" : "Lock all files"}
+                            </Tooltip>}
                         {((isDirectory && hasDirectoryChildren && matchedFileNodes?.length > 0)) && <Tooltip
                             trigger={
                                 <IconButton
@@ -1063,7 +1166,7 @@ const VirtualizedTreeNode = memo(({
 })
 
 
-function LibraryInfoPanel({ localFiles }: { localFiles: Record<string, Anime_LocalFile> | undefined }) {
+function LibraryInfoPanel({}: { localFiles: Record<string, Anime_LocalFile> | undefined }) {
     const selectedNode = useAtomValue(libraryExplorer_selectedNodeAtom)
 
     const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)

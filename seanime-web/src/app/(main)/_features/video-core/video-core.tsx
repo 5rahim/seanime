@@ -419,6 +419,7 @@ export function VideoCore(props: VideoCoreProps) {
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
             setIsFullscreen(false)
+            setRestoreProgressTo(0)
             if (mediaSessionManager) {
                 mediaSessionManager.setVideo(null)
                 mediaSessionManager.destroy()
@@ -447,6 +448,9 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Loaded metadata", v.duration)
         log.info("Audio tracks", v.audioTracks)
         log.info("Text tracks", v.textTracks)
+
+        setSkipOpeningTime(null)
+        setSkipEndingTime(null)
 
         onCaptionsChange()
         onAudioChange()
@@ -777,6 +781,7 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const chapterCues = useMemo(() => {
+            if (!duration || duration <= 1) return []
             // If we have MKV chapters, use them
             if (state.playbackInfo?.mkvMetadata?.chapters?.length) {
                 const cues = vc_createChapterCues(state.playbackInfo.mkvMetadata.chapters, duration)

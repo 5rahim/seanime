@@ -28,6 +28,7 @@ type TorrentStream struct {
 	BaseStream
 	torrent       *torrent.Torrent
 	file          *torrent.File
+	onTerminate   func()
 	streamReadyCh chan struct{} // Closed by the initiator when the stream is ready
 }
 
@@ -166,6 +167,14 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 	})
 }
 
+// Terminate overrides BaseStream.Terminate to also terminate the torrent stream.
+func (s *TorrentStream) Terminate() {
+	s.onTerminate()
+
+	// Call the base implementation
+	s.BaseStream.Terminate()
+}
+
 type PlayTorrentStreamOptions struct {
 	ClientId           string
 	EpisodeNumber      int
@@ -174,6 +183,7 @@ type PlayTorrentStreamOptions struct {
 	Torrent            *torrent.Torrent
 	File               *torrent.File
 	IsNakamaWatchParty bool // Is the stream from Nakama (watch party)
+	OnTerminate        func()
 }
 
 // PlayTorrentStream is used by a module to load a new torrent stream.
@@ -197,8 +207,9 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 	}
 
 	stream := &TorrentStream{
-		torrent: opts.Torrent,
-		file:    opts.File,
+		torrent:     opts.Torrent,
+		file:        opts.File,
+		onTerminate: opts.OnTerminate,
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,

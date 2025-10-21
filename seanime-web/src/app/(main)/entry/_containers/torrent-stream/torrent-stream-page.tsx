@@ -285,7 +285,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                     {/*</div>*/}
 
                     <div
-                        className="flex flex-col flex-wrap items-start md:items-center md:flex-row gap-2 md:gap-6 2xl:py-0 md:h-12"
+                        className="flex flex-col flex-wrap lg:flex-nowrap items-start md:items-center md:flex-row gap-2 md:gap-6 2xl:py-0 lg:h-12"
                         data-torrent-stream-page-content-actions-container
                     >
                         <Switch
@@ -295,7 +295,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                 setAutoSelect(v)
                             }}
                             // moreHelp="Automatically select the best torrent and file to stream"
-                            fieldClass="w-fit"
+                            fieldClass="w-fit flex-none"
                         />
 
                         {!autoSelect && (
@@ -306,7 +306,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                     setAutoSelectFile(v)
                                 }}
                                 moreHelp="The episode file will be automatically selected from your chosen batch torrent"
-                                fieldClass="w-fit"
+                                fieldClass="w-fit flex-none"
                             />
                         )}
 
