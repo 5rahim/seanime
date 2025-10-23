@@ -170,6 +170,17 @@ const _carouselOptions = [
 ]
 
 export const HOME_ITEMS = {
+    "centered-title": {
+        name: "Centered title",
+        kind: ["row"],
+        schemaVersion: 1,
+        description: "Display a centered title text.",
+        options: [{
+            label: "Text",
+            type: "text",
+            name: "text",
+        }],
+    },
     "anime-continue-watching": {
         name: "Continue Watching",
         kind: ["row", "header"],

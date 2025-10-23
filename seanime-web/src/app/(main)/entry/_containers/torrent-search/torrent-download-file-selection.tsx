@@ -68,7 +68,7 @@ export function TorrentDownloadFileSelection({ entry }: { entry: Anime_Entry }) 
         }
     }, [fileSelection, setFileSelection])
 
-    const { data: filepaths, isLoading } = useTorrentClientGetFiles({ infoHash: selectedTorrent?.infoHash, magnet: selectedTorrent?.magnetLink })
+    const { data: filepaths, isLoading } = useTorrentClientGetFiles({ torrent: selectedTorrent, provider: selectedTorrent?.provider })
 
     // download via torrent client
     const { mutate, isPending } = useTorrentClientDownload(() => {

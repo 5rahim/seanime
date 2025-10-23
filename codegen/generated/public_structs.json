@@ -34745,6 +34745,15 @@
         "comments": []
       },
       {
+        "name": "onTerminate",
+        "jsonName": "onTerminate",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "streamReadyCh",
         "jsonName": "streamReadyCh",
         "goType": "",
@@ -34840,6 +34849,15 @@
         "comments": [
           " Is the stream from Nakama (watch party)"
         ]
+      },
+      {
+        "name": "OnTerminate",
+        "jsonName": "OnTerminate",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

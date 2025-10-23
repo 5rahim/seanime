@@ -443,7 +443,7 @@ export function ContinueWatchingHeader({ episodes, className }: ContinueWatching
             className={cn(
                 "__header lg:h-[28rem] max-w-full overflow-hidden",
                 ts.hideTopNavbar && "lg:h-[32rem]",
-                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[26rem]",
                 (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",
                 className,
             )}

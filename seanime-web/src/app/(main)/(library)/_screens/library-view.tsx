@@ -72,10 +72,6 @@ export function LibraryView(props: LibraryViewProps) {
 
     return (
         <>
-            {/*<ContinueWatching*/}
-            {/*    episodes={continueWatchingList}*/}
-            {/*    isLoading={isLoading}*/}
-            {/*/>*/}
 
             {(
                 !ts.disableLibraryScreenGenreSelector &&

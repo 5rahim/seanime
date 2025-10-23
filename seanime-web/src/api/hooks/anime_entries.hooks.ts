@@ -32,6 +32,7 @@ export function useAnimeEntryBulkAction(id?: Nullish<number>, onSuccess?: () => 
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
             onSuccess?.()
         },
     })

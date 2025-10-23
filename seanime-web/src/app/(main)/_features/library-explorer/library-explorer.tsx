@@ -1,7 +1,8 @@
 import { useGetLibraryExplorerFileTree, useRefreshLibraryExplorerFileTree } from "@/api/generated/library_explorer.hooks"
-import { Anime_LocalFile, Anime_LocalFileType, LibraryExplorer_FileTreeNodeJSON } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_LocalFile, Anime_LocalFileType, LibraryExplorer_FileTreeNodeJSON } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFileData, useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { __unknownMedia_drawerIsOpen, UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen, UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { LibraryExplorerSuperUpdate } from "@/app/(main)/_features/library-explorer/library-explorer-super-update"
@@ -14,6 +15,7 @@ import {
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Alert } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
@@ -33,7 +35,18 @@ import React, { memo } from "react"
 import { BiChevronDown, BiChevronRight, BiFolder, BiListCheck, BiLockOpenAlt, BiSearch } from "react-icons/bi"
 import { FaRegEdit } from "react-icons/fa"
 import { FiFolder, FiHardDrive } from "react-icons/fi"
-import { LuClipboardPlus, LuClipboardX, LuEye, LuFilePen, LuFileQuestion, LuFileVideo2, LuFilter, LuFilterX, LuFolderSync } from "react-icons/lu"
+import {
+    LuClipboardPlus,
+    LuClipboardX,
+    LuEye,
+    LuFilePen,
+    LuFileQuestion,
+    LuFileVideo2,
+    LuFilter,
+    LuFilterX,
+    LuFolderSync,
+    LuPlus,
+} from "react-icons/lu"
 import { MdOutlineAdd, MdOutlineRemoveDone, MdVideoFile } from "react-icons/md"
 import { RiFolderOpenFill } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
@@ -61,7 +74,7 @@ interface FlattenedTreeItem {
     index: number
 }
 
-function hasMatchingFiles(node: LibraryExplorer_FileTreeNodeJSON, filter: LibraryExplorer_Filter): boolean {
+function hasMatchingFiles(userMedia: AL_BaseAnime[] | undefined, node: LibraryExplorer_FileTreeNodeJSON, filter: LibraryExplorer_Filter): boolean {
     if (node.kind === "file") {
         switch (filter) {
             case "UNMATCHED":
@@ -70,15 +83,18 @@ function hasMatchingFiles(node: LibraryExplorer_FileTreeNodeJSON, filter: Librar
                 return !!node.localFile?.mediaId && !node.localFile.locked && !node.localFile.ignored
             case "IGNORED":
                 return !!node.localFile?.ignored
+            case "UNKNOWN_MEDIA":
+                return !!node.localFile?.mediaId && !userMedia?.find(m => m.id === node.localFile!.mediaId) && !node.localFile?.ignored
             default:
                 return true
         }
     }
-    return node.children?.some(child => hasMatchingFiles(child, filter)) ?? false
+    return node.children?.some(child => hasMatchingFiles(userMedia, child, filter)) ?? false
 }
 
 // flatten the tree structure based on expanded nodes and search filter to avoid recursion
 function flattenTreeNodes(
+    userMedia: AL_BaseAnime[] | undefined,
     node: LibraryExplorer_FileTreeNodeJSON,
     expandedNodes: Set<string>,
     searchTerm: string,
@@ -104,7 +120,7 @@ function flattenTreeNodes(
         // First check if this node should be included based on filter
         if (isDirectory) {
             // For directories, check if they have any valid files in their tree
-            if (!hasMatchingFiles(node, filter)) {
+            if (!hasMatchingFiles(userMedia, node, filter)) {
                 return result
             }
         }
@@ -112,17 +128,19 @@ function flattenTreeNodes(
         // Filter the children
         filteredChildren = filteredChildren.filter(child => {
             if (child.kind === "directory") {
-                return hasMatchingFiles(child, filter)
+                return hasMatchingFiles(userMedia, child, filter)
             }
 
             // For files, apply the filter directly
             switch (filter) {
                 case "UNMATCHED":
-                    return !child.localFile?.mediaId
+                    return !child.localFile?.mediaId && !child.localFile?.ignored
                 case "UNLOCKED":
-                    return !!child.localFile?.mediaId && !child.localFile.locked
+                    return !!child.localFile?.mediaId && !child.localFile.locked && !child.localFile?.ignored
                 case "IGNORED":
                     return !!child.localFile?.ignored
+                case "UNKNOWN_MEDIA":
+                    return !!child.localFile?.mediaId && !userMedia?.find(m => m.id === child.localFile!.mediaId) && !child.localFile?.ignored
                 default:
                     return true
             }
@@ -147,7 +165,7 @@ function flattenTreeNodes(
     if (isDirectory && hasChildren && expandedNodes.has(node.path)) {
         const childrenToProcess = filteredChildren || []
         childrenToProcess.forEach(child => {
-            flattenTreeNodes(child, expandedNodes, searchTerm, filter, level + 1, result)
+            flattenTreeNodes(userMedia, child, expandedNodes, searchTerm, filter, level + 1, result)
         })
     }
 
@@ -164,6 +182,8 @@ export function LibraryExplorer() {
     const [isSelectingPaths, setIsSelectingPaths] = useAtom(libraryExplorer_isSelectingPathsAtom)
     const [selectedFilter, setSelectedFilter] = React.useState<LibraryExplorer_Filter>(undefined)
 
+    const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
+
     const [matchLocalFiles] = useAtom(libraryExplorer_matchLocalFilesAtom)
 
     const ref = React.useRef<VirtuosoHandle>(null)
@@ -171,6 +191,7 @@ export function LibraryExplorer() {
     const { mutate: updateLocalFiles } = useUpdateLocalFiles()
     const { mutate: openInExplorer } = useOpenInExplorer()
     const [, setUnmatchedFileManagerOpen] = useAtom(__unmatchedFileManagerIsOpen)
+    const [, setUnknownMediaManagerOpen] = useAtom(__unknownMedia_drawerIsOpen)
     const [, setMatchLocalFiles] = useAtom(libraryExplorer_matchLocalFilesAtom)
 
     const handleUnmatchFiles = (paths: string[]) => {
@@ -212,6 +233,12 @@ export function LibraryExplorer() {
         setMatchLocalFiles(nodes?.filter(n => n.localFile && !n.localFile?.mediaId)?.map(n => n.localFile!) ?? [])
         React.startTransition(() => {
             setUnmatchedFileManagerOpen(true)
+        })
+    }
+    const handleResolveFileMedia = (lfs: Anime_LocalFile[]) => {
+        setMatchLocalFiles(lfs ?? [])
+        React.startTransition(() => {
+            setUnknownMediaManagerOpen(true)
         })
     }
 
@@ -334,8 +361,8 @@ export function LibraryExplorer() {
     // Calculate flattened tree items for virtualization
     const flattenedItems = React.useMemo(() => {
         if (!fileTree?.root) return []
-        return flattenTreeNodes(fileTree.root, expandedNodes, searchTerm.toLowerCase(), selectedFilter)
-    }, [fileTree?.root, expandedNodes, searchTerm, selectedFilter])
+        return flattenTreeNodes(userMedia, fileTree.root, expandedNodes, searchTerm.toLowerCase(), selectedFilter)
+    }, [fileTree?.root, expandedNodes, searchTerm, selectedFilter, userMedia])
 
     // Select directory user wants to open
     const [directoryToOpen, setDirectoryToOpen] = useAtom(libraryExplorer_openDirectoryAtom)
@@ -372,7 +399,7 @@ export function LibraryExplorer() {
 
                 // Scroll to node after expansion
                 setTimeout(() => {
-                    const updatedItems = flattenTreeNodes(fileTree.root!, pathsToExpand, searchTerm.toLowerCase(), selectedFilter)
+                    const updatedItems = flattenTreeNodes(userMedia, fileTree.root!, pathsToExpand, searchTerm.toLowerCase(), selectedFilter)
                     const nodeIndex = updatedItems.findIndex(n => n.node.path.toLowerCase() === directoryToOpen.toLowerCase())
                     if (nodeIndex >= 0) {
                         ref.current?.scrollToIndex({ index: nodeIndex, align: "start" })
@@ -382,10 +409,11 @@ export function LibraryExplorer() {
 
             setDirectoryToOpen(null)
         }
-    }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm, selectedFilter])
+    }, [directoryToOpen, open, fileTree?.root, findNodeAndParents, searchTerm, selectedFilter, userMedia])
 
     const hasUnlockedFiles = unignoredFileNodes?.some(n => n.localFile && !!n.localFile.mediaId && !n.localFile.locked)
     const unmatchedFiles = unignoredFileNodes?.filter(n => !!n.localFile && !n.localFile.mediaId)
+    const unknownMediaFiles = unignoredFileNodes?.filter(n => !!n.localFile && !!n.localFile.mediaId && userMedia?.findIndex(m => m.id === n.localFile!.mediaId) === -1)
 
     const handleToggleFilter = (filter?: LibraryExplorer_Filter) => {
         if (!filter) {
@@ -431,6 +459,16 @@ export function LibraryExplorer() {
                                         }}
                                     />
                                 )}
+                                {!!unknownMediaFiles?.length && (
+                                    <Alert
+                                        intent="warning"
+                                        className="text-sm py-1 px-3 cursor-pointer"
+                                        description={`${unknownMediaFiles.length} file${unknownMediaFiles.length != 1 ? "s" : ""} with hidden media`}
+                                        onClick={() => {
+                                            setSelectedFilter("UNKNOWN_MEDIA")
+                                        }}
+                                    />
+                                )}
                             </div>
                             <div className="flex flex-1"></div>
                             <LibraryExplorerBulkActions
@@ -464,6 +502,9 @@ export function LibraryExplorer() {
                                 </Button>
                                 <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("IGNORED")}>
                                     Ignored files
+                                </Button>
+                                <Button intent="gray-link" size="sm" className="w-full" onClick={() => handleToggleFilter("UNKNOWN_MEDIA")}>
+                                    Unknown media
                                 </Button>
                             </Popover>}
                             {!!selectedFilter && (
@@ -536,6 +577,7 @@ export function LibraryExplorer() {
                                     onIgnoreFiles={handleIgnoreFiles}
                                     onUnignoreFiles={handleUnignoreFiles}
                                     onMatchFiles={handleMatchFiles}
+                                    onResolveMedia={handleResolveFileMedia}
                                     onOpenInExplorer={handleOpenInExplorer}
                                 />
                             )}
@@ -565,6 +607,18 @@ export function LibraryExplorer() {
                         localFiles: matchLocalFiles,
                     },
                 ]}
+            />
+            <UnknownMediaManager
+                unknownGroups={[
+                    {
+                        mediaId: matchLocalFiles[0]?.mediaId || 0,
+                        localFiles: matchLocalFiles,
+                    },
+                ]}
+                onActionComplete={() => {
+                    setUnknownMediaManagerOpen(false)
+                    setMatchLocalFiles([])
+                }}
             />
 
             <LibraryExplorerSuperUpdateDrawer
@@ -661,6 +715,7 @@ interface VirtualizedTreeNodeProps {
     onIgnoreFiles: (paths: string[]) => void
     onUnignoreFiles: (paths: string[]) => void
     onMatchFiles: (nodes: LibraryExplorer_FileTreeNodeJSON[]) => void
+    onResolveMedia: (lfs: Anime_LocalFile[]) => void
     onOpenInExplorer: (path: string) => void
 }
 
@@ -680,6 +735,7 @@ const VirtualizedTreeNode = memo(({
     onIgnoreFiles,
     onUnignoreFiles,
     onMatchFiles,
+    onResolveMedia,
     onOpenInExplorer,
 }: VirtualizedTreeNodeProps) => {
     const { node, level } = item
@@ -748,6 +804,7 @@ const VirtualizedTreeNode = memo(({
     const paddingLeft = level * 32 + 8
 
     const media = node.mediaIds?.length === 1 ? userMedia?.find(n => n.id === node.mediaIds?.[0]) : undefined
+    const isUnknownMedia = node.mediaIds?.length === 1 && !media
 
     const fileNodes = libraryExplorer_collectLocalFileNodes(node)
     const nonIgnoredFileNodes = fileNodes?.filter(n => !n.localFile?.ignored)
@@ -833,10 +890,24 @@ const VirtualizedTreeNode = memo(({
         onUnignoreFiles([node.path])
     }
 
+    const handleResolveMedia = () => {
+        const id = media?.id ?? node.mediaIds?.[0] ?? 0
+        if (!id || !localFiles) {
+            toast.error("No media found")
+            return
+        }
+        onResolveMedia(Object.values(localFiles)?.filter(n => n.mediaId === id) ?? [])
+    }
+
     const { setPreviewModalMediaId } = useMediaPreviewModal()
 
     function handleOpenMediaPreview() {
-        setPreviewModalMediaId(media?.id ?? 0, "anime")
+        const id = media?.id ?? node.mediaIds?.[0] ?? 0
+        if (!id) {
+            toast.error("No media found")
+            return
+        }
+        setPreviewModalMediaId(id, "anime")
     }
 
     function handleOpenSuperUpdate() {
@@ -858,7 +929,7 @@ const VirtualizedTreeNode = memo(({
 
     const [contextMenuOpen, setContextMenuOpen] = React.useState(false)
 
-    const confirmDialog = useConfirmationDialog({
+    const confirmLockDialog = useConfirmationDialog({
         title: "Lock all files",
         description: "This will lock all files in the directory. Are you sure you want to proceed?",
         actionText: "Lock all",
@@ -867,10 +938,20 @@ const VirtualizedTreeNode = memo(({
             handleToggleLockedClick(new MouseEvent("click") as any)
         },
     })
+    const confirmUnlockDialog = useConfirmationDialog({
+        title: "Unlock all files",
+        description: "This will unlock all files in the directory. Are you sure you want to proceed?",
+        actionText: "Unlock all",
+        actionIntent: "primary",
+        onConfirm: async () => {
+            handleToggleLockedClick(new MouseEvent("click") as any)
+        },
+    })
 
     return (
         <div className="px-2">
-            <ConfirmationDialog {...confirmDialog} />
+            <ConfirmationDialog {...confirmLockDialog} />
+            <ConfirmationDialog {...confirmUnlockDialog} />
             <SeaContextMenu
                 onOpenChange={setContextMenuOpen}
                 content={
@@ -882,6 +963,11 @@ const VirtualizedTreeNode = memo(({
                             onClick={handleOpenMediaPreview}
                         >
                             <LuEye /> Preview anime
+                        </ContextMenuItem>}
+                        {isUnknownMedia && <ContextMenuItem
+                            onClick={handleResolveMedia}
+                        >
+                            <LuPlus /> Resolve unknown media
                         </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={handleOpenSuperUpdate}
@@ -1016,7 +1102,7 @@ const VirtualizedTreeNode = memo(({
                                         !isDirectory && node.localFile?.ignored && "text-[--muted] italic",
                                     )}
                                 >{node.name === "root" ? "Anime Libraries" : node.name}</span>
-                                {!!media && (
+                                {(!!media || isUnknownMedia) && (
                                     <span
                                         className={cn(
                                             "hidden tracking-normal 2xl:flex text-[--muted] text-sm flex-shrink whitespace-nowrap line-clamp-1 items-center gap-1",
@@ -1024,10 +1110,12 @@ const VirtualizedTreeNode = memo(({
                                         style={{ maxWidth: 200 }}
                                     >
                                         <span> - </span>
-                                        <span>{media.title?.userPreferred}</span>
-
+                                        <span>{!isUnknownMedia ? media?.title?.userPreferred : "(?)"}</span>
                                     </span>
                                 )}
+                                {isUnknownMedia && <Tooltip trigger={<Badge intent="unstyled">Unknown media</Badge>}>
+                                    This media is not in your collection.
+                                </Tooltip>}
                                 {(allFileIgnored && isDirectory) && (
                                     <span
                                         className={cn(
@@ -1093,10 +1181,11 @@ const VirtualizedTreeNode = memo(({
                                     className="hover:opacity-60 ml-2"
                                     loading={isPending}
                                     onClick={e => {
+                                        e.stopPropagation()
                                         if (!isLocked) {
-                                            confirmDialog.open()
+                                            confirmLockDialog.open()
                                         } else {
-                                            handleToggleLockedClick(e)
+                                            confirmUnlockDialog.open()
                                         }
                                     }}
                                 />

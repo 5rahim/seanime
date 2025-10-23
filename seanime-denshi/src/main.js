@@ -815,6 +815,11 @@ app.whenReady().then(async () => {
         return win?.id;
     });
 
+    ipcMain.handle('window:isMainWindow', (event) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        return win === mainWindow;
+    });
+
     // Window state query handlers
     ipcMain.handle('window:isMaximized', () => {
         return mainWindow && !mainWindow.isDestroyed() ? mainWindow.isMaximized() : false;

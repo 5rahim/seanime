@@ -42,6 +42,7 @@ declare global {
                 isVisible: () => Promise<boolean>;
                 setTitleBarStyle: (style: string) => void;
                 getCurrentWindow: () => Promise<string>;
+                isMainWindow: () => Promise<boolean>;
             };
             media?: {
                 setMetadata: (metadata: any) => Promise<boolean>

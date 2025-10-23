@@ -1,3 +1,4 @@
+import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { LibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer"
 import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
@@ -24,7 +25,7 @@ export function LibraryExplorerDrawer(props: {}) {
                     "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-95 firefox:bg-opacity-100 lg:mx-[2rem] overflow-hidden",
                 )}
             >
-                <ScopeProvider atoms={[__unmatchedFileManagerIsOpen]}>
+                <ScopeProvider atoms={[__unmatchedFileManagerIsOpen, __unknownMedia_drawerIsOpen]}>
                     <LibraryExplorer />
                 </ScopeProvider>
                 <div className="block lg:hidden">

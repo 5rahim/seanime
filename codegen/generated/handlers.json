@@ -9504,17 +9504,17 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Hash",
-          "jsonName": "hash",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": false,
           "descriptions": []
         },
         {
-          "name": "Magnet",
-          "jsonName": "magnet",
+          "name": "Provider",
+          "jsonName": "provider",
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",

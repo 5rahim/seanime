@@ -238,7 +238,7 @@ export function HomeScreen() {
                 <div className="h-0 visibility-hidden pointer-events-none opacity-0">
                     {discoverHeaderType === "anime" && <DiscoverTrending />}
                     {discoverHeaderType === "manga" && <DiscoverTrendingCountry country="JP" forDiscoverHeader />}
-                </div>  
+                </div>
             </React.Fragment>}
 
             {/*Continue Watching Header*/}
@@ -337,7 +337,7 @@ export function HomeScreen() {
                             <React.Fragment key={item.id}>
                                 {(index !== 0 &&
                                     !(item?.type === "manga-library" || item?.type === "anime-library" || item?.type === "anime-continue-watching" || item.type === "anime-library-stats")
-                                ) && <div data-home-screen-item-divider className="h-8" />}
+                                ) && <div data-home-screen-item-divider={index} className="h-8" />}
                                 <HomeScreenItem
                                     item={item}
                                     index={homeItems.findIndex(n => n.id === item.id)}
@@ -452,6 +452,16 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
         Item not found
     </div>
 
+
+    if (item.type === "centered-title") {
+        return (
+            <>
+                <h2 data-home-screen-centered-title={item.options?.text} className="text-center text-3xl lg:text-4xl font-bold py-4">
+                    {item.options?.text}
+                </h2>
+            </>
+        )
+    }
 
     if (item.type === "anime-continue-watching") {
         return (

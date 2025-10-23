@@ -23,7 +23,7 @@ export function ElectronRestartServerPrompt() {
     React.useEffect(() => {
         (async () => {
             if (window.electron) {
-                await window.electron.window.getCurrentWindow() // TODO: Isn't called
+                // await window.electron.window.getCurrentWindow() // TODO: Isn't called
                 setHasRendered(true)
             }
         })()

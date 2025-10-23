@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/platform"
 	"sort"
+	"strconv"
 
 	"github.com/sourcegraph/conc/pool"
 )
@@ -145,4 +147,43 @@ func (e *SimpleEntry) hydrateEntryEpisodeData() {
 		e.NextEpisode = nextEp
 	}
 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func NewAnimeMetadataFromEntry(media *anilist.BaseAnime, episodes []*Episode) *metadata.AnimeMetadata {
+	animeMetadata := &metadata.AnimeMetadata{
+		Titles:       make(map[string]string),
+		Episodes:     make(map[string]*metadata.EpisodeMetadata),
+		EpisodeCount: 0,
+		SpecialCount: 0,
+		Mappings: &metadata.AnimeMappings{
+			AnilistId: media.GetID(),
+		},
+	}
+	animeMetadata.Titles["en"] = media.GetTitleSafe()
+	animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
+
+	// Hydrate episodes
+	for _, episode := range episodes {
+		animeMetadata.Episodes[episode.FileMetadata.AniDBEpisode] = &metadata.EpisodeMetadata{
+			AnidbId:               0,
+			TvdbId:                0,
+			Title:                 episode.DisplayTitle,
+			Image:                 episode.EpisodeMetadata.Image,
+			AirDate:               "",
+			Length:                0,
+			Summary:               "",
+			Overview:              "",
+			EpisodeNumber:         episode.EpisodeNumber,
+			Episode:               strconv.Itoa(episode.EpisodeNumber),
+			SeasonNumber:          0,
+			AbsoluteEpisodeNumber: episode.EpisodeNumber,
+			AnidbEid:              0,
+			HasImage:              true,
+		}
+		animeMetadata.EpisodeCount++
+	}
+
+	return animeMetadata
 }

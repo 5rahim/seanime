@@ -24,14 +24,14 @@ export const ButtonAnatomy = defineStyleAnatomy({
                 "primary-link": "shadow-none text-[--brand] border border-transparent bg-transparent hover:underline active:text-brand-700 dark:active:text-brand-300",
                 "primary-basic": "shadow-none text-[--brand] border border-transparent bg-transparent hover:bg-brand-100 active:bg-brand-200 dark:hover:bg-opacity-10 dark:active:text-brand-300",
 
-                "warning": "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 border border-transparent",
+                "warning": "shadow-none text-white border bg-orange-500 border-orange-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "warning-outline": "text-[--orange] border border-[--orange] bg-transparent hover:bg-orange-500 active:bg-orange-600 active:border-transparent hover:text-white dark:hover:border-orange-500 dark:active:bg-orange-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
                 "warning-subtle": "shadow-none text-[--orange] border bg-orange-50 border-transparent hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "warning-glass": "shadow-none text-[--orange] border bg-orange-50 border-orange-300/20 hover:bg-orange-100 active:bg-orange-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "warning-link": "shadow-none text-[--orange] border border-transparent bg-transparent hover:underline active:text-orange-700 dark:active:text-orange-300",
                 "warning-basic": "shadow-none text-[--orange] border border-transparent bg-transparent hover:bg-orange-100 active:bg-orange-200 dark:hover:bg-opacity-10 dark:active:text-orange-300",
 
-                "success": "bg-green-500 hover:bg-green-600 active:bg-green-700 border border-transparent",
+                "success": "shadow-none text-white border bg-green-500 border-green-400/20 active:bg-opacity-100 dark:bg-opacity-85 dark:hover:bg-opacity-90",
                 "success-outline": "text-[--green] border border-[--green] bg-transparent hover:bg-green-500 active:bg-green-600 active:border-transparent hover:text-white dark:hover:border-green-500 dark:active:bg-green-600 dark:hover:text-white dark:active:border-transparent dark:active:text-white",
                 "success-subtle": "shadow-none text-[--green] border bg-green-50 border-transparent hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",
                 "success-glass": "shadow-none text-[--green] border bg-green-50 border-green-300/20 hover:bg-green-100 active:bg-green-200 dark:bg-opacity-10 dark:hover:bg-opacity-20",

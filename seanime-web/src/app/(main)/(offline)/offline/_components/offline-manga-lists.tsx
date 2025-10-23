@@ -38,7 +38,7 @@ export function OfflineMangaLists() {
                     <MangaLibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
                     <div
                         className={cn(
-                            "h-28",
+                            "h-40",
                             ts.hideTopNavbar && "h-40",
                         )}
                     ></div>

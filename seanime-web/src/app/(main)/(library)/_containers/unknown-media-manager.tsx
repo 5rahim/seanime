@@ -17,11 +17,12 @@ export const __unknownMedia_drawerIsOpen = atom(false)
 
 type UnknownMediaManagerProps = {
     unknownGroups: Anime_UnknownGroup[]
+    onActionComplete?: () => void
 }
 
 export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
-    const { unknownGroups } = props
+    const { unknownGroups, onActionComplete } = props
 
     const [isOpen, setIsOpen] = useAtom(__unknownMedia_drawerIsOpen)
 
@@ -32,7 +33,11 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
      * Add all unknown media to AniList
      */
     const handleAddUnknownMedia = useCallback(() => {
-        addUnknownMedia({ mediaIds: unknownGroups.map(n => n.mediaId) })
+        addUnknownMedia({ mediaIds: unknownGroups.map(n => n.mediaId) }, {
+            onSuccess: () => {
+                onActionComplete?.()
+            },
+        })
     }, [unknownGroups])
 
     /**
@@ -54,6 +59,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
         }, {
             onSuccess: () => {
                 toast.success("Media unmatched")
+                onActionComplete?.()
             },
         })
     }, [])
@@ -115,7 +121,13 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                             size="sm"
                                             intent="primary-subtle"
                                             disabled={isAdding}
-                                            onClick={() => addUnknownMedia({ mediaIds: [group.mediaId] })}
+                                            onClick={() => {
+                                                addUnknownMedia({ mediaIds: [group.mediaId] }, {
+                                                    onSuccess: () => {
+                                                        onActionComplete?.()
+                                                    },
+                                                })
+                                            }}
                                             leftIcon={<BiPlus />}
                                         >
                                             Add to AniList

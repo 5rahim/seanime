@@ -98,8 +98,8 @@ func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
 
 	type body struct {
-		Hash   string `json:"hash"`
-		Magnet string `json:"magnet"`
+		Torrent  *hibiketorrent.AnimeTorrent `json:"torrent"`
+		Provider string                      `json:"provider"`
 	}
 
 	var b body
@@ -107,7 +107,7 @@ func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	if b.Hash == "" {
+	if b.Torrent == nil || b.Torrent.InfoHash == "" {
 		return h.RespondWithError(c, errors.New("missing arguments"))
 	}
 
@@ -117,23 +117,37 @@ func (h *Handler) HandleTorrentClientGetFiles(c echo.Context) error {
 	}
 	defer os.RemoveAll(tempDir)
 
-	exists := h.App.TorrentClientRepository.TorrentExists(b.Hash)
+	// Get the torrent's provider extension
+	providerExtension, ok := h.App.TorrentRepository.GetAnimeProviderExtension(b.Provider)
+	if !ok {
+		return h.RespondWithError(c, errors.New("provider extension not found for torrent"))
+	}
+	// Get the magnet
+	magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	exists := h.App.TorrentClientRepository.TorrentExists(b.Torrent.InfoHash)
 
 	if !exists {
+		h.App.Logger.Info().Msgf("torrent client: Torrent %s does not exist, adding", b.Torrent.InfoHash)
 		// Add the torrent
-		err = h.App.TorrentClientRepository.AddMagnets([]string{b.Magnet}, tempDir)
+		err = h.App.TorrentClientRepository.AddMagnets([]string{magnet}, tempDir)
 		if err != nil {
 			return err
 		}
 	}
 
-	files, err := h.App.TorrentClientRepository.GetFiles(b.Hash)
+	h.App.Logger.Info().Msgf("torrent client: Getting files for %s", b.Torrent.InfoHash)
+	files, err := h.App.TorrentClientRepository.GetFiles(b.Torrent.InfoHash)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
 	if !exists {
-		_ = h.App.TorrentClientRepository.RemoveTorrents([]string{b.Hash})
+		h.App.Logger.Info().Msgf("torrent client: Removing torrent %s", b.Torrent.InfoHash)
+		_ = h.App.TorrentClientRepository.RemoveTorrents([]string{b.Torrent.InfoHash})
 	}
 
 	return h.RespondWithData(c, files)

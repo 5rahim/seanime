@@ -1781,8 +1781,8 @@ export type TorrentClientAction_Variables = {
  * Route gets the files of a torrent.
  */
 export type TorrentClientGetFiles_Variables = {
-    hash: string
-    magnet: string
+    torrent?: HibikeTorrent_AnimeTorrent
+    provider: string
 }
 
 /**

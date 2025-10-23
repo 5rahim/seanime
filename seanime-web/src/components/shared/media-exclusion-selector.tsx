@@ -46,14 +46,18 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         const [selectedIds, setSelectedIds] = React.useState<number[]>(value)
         const [modalOpen, setModalOpen] = React.useState(false)
 
+        function filterIds(ids: number[]) {
+            return ids.filter(id => animeLibraryCollectionEntries?.findIndex(n => n.mediaId === id) !== -1)
+        }
+
         React.useEffect(() => {
-            setSelectedIds(value)
+            setSelectedIds(filterIds(value))
         }, [value])
 
         const handleToggleMedia = React.useCallback((mediaId: number) => {
-            const newSelectedIds = selectedIds.includes(mediaId)
+            const newSelectedIds = filterIds(selectedIds.includes(mediaId)
                 ? selectedIds.filter(id => id !== mediaId)
-                : [...selectedIds, mediaId]
+                : [...selectedIds, mediaId])
 
             setSelectedIds(newSelectedIds)
             onChange?.(newSelectedIds)
@@ -62,12 +66,13 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         const handleSelectAll = React.useCallback(() => {
             if (!animeLibraryCollectionEntries) return
 
-            const allMediaIds: number[] = []
+            let allMediaIds: number[] = []
             animeLibraryCollectionEntries?.forEach(entry => {
                 if (entry.mediaId && !allMediaIds.includes(entry.mediaId)) {
                     allMediaIds.push(entry.mediaId)
                 }
             })
+            allMediaIds = filterIds(allMediaIds)
 
             setSelectedIds(allMediaIds)
             onChange?.(allMediaIds)
@@ -88,7 +93,7 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
                 }
             })
 
-            const newSelectedIds = [...new Set([...selectedIds, ...adultMediaIds])]
+            const newSelectedIds = filterIds([...new Set([...selectedIds, ...adultMediaIds])])
             setSelectedIds(newSelectedIds)
             onChange?.(newSelectedIds)
         }, [animeLibraryCollectionEntries, selectedIds, onChange])

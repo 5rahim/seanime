@@ -134,9 +134,9 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
 
     return (
         <>
-            <div className="flex h-full flex-col rounded-[--radius-md] border" data-schedule-calendar>
+            <div className="flex h-full flex-col rounded-xl border" data-schedule-calendar>
                 <header
-                    className="relative flex items-center justify-center py-3 px-4 lg:py-4 lg:px-6 gap-3 lg:gap-4 flex-none rounded-tr-[--radius-md] rounded-tl-[--radius-md] border-b bg-[--background]"
+                    className="relative flex items-center justify-center py-3 px-4 lg:py-4 lg:px-6 gap-3 lg:gap-4 flex-none rounded-tr-xl rounded-tl-xl border-b bg-[--background]"
                     data-schedule-calendar-header
                 >
                     <IconButton
@@ -216,7 +216,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                     </Popover>
                 </header>
                 <div
-                    className="flex flex-auto flex-col rounded-br-[--radius-md] rounded-bl-[--radius-md] overflow-hidden"
+                    className="flex flex-auto flex-col rounded-br-xl rounded-bl-xl overflow-hidden"
                     data-schedule-calendar-body
                 >
                     <div className="hidden lg:grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 flex-none">
@@ -689,7 +689,7 @@ function CalendarDay({ day, index }: { day: any, index: number }) {
                 dateTime={day.date}
                 className={
                     day.isToday
-                        ? "z-[1] relative flex h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-sm sm:text-base lg:text-lg items-center justify-center rounded-full bg-brand font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-white"
+                        ? "z-[1] relative flex h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-sm sm:text-base lg:text-lg items-center justify-center rounded-full bg-white font-bold group-hover:rotate-12 transition-transform duration-300 ease-out text-black"
                         : "text-xs sm:text-sm lg:text-base group-hover:text-white group-hover:font-bold transition-transform duration-300 ease-out"
                 }
                 data-schedule-calendar-day-date
