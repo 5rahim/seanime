@@ -36,6 +36,7 @@ import React from "react"
 import { FiSearch } from "react-icons/fi"
 import { LiaPlayCircle } from "react-icons/lia"
 import { LuPlus } from "react-icons/lu"
+import { useWindowSize } from "react-use"
 import { MediaEntryCard } from "../../_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "../../_features/media/_components/media-entry-card-skeleton"
 import { MediaEntryPageLoadingDisplay } from "../../_features/media/_components/media-entry-page-loading-display"
@@ -59,6 +60,8 @@ export const __home_discoverHeaderType = atomWithStorage<"anime" | "manga">("sea
 export function HomeScreen() {
     const serverStatus = useServerStatus()
     const { data: _homeItems, isLoading: isLoadingItems } = useGetHomeItems()
+
+    const { width } = useWindowSize()
 
     const allUserMedia = useAtomValue(__anilist_userAnimeMediaAtom)
     const noMediaInCollection = !allUserMedia?.length
@@ -86,11 +89,31 @@ export function HomeScreen() {
     const ts = useThemeSettings()
 
     // const homeItems = !isNakamaLibrary ? (!!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS) : DEFAULT_HOME_ITEMS
-    const homeItems = !!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS
     const [view, setView] = useAtom(__home_currentView)
     const [discoverHeaderType, setDiscoverHeaderType] = useAtom(__home_discoverHeaderType)
     const [discoverPageType, setDiscoverPageType] = useAtom(__discord_pageTypeAtom)
     const setHomeSettingsModalOpen = useSetAtom(__home_settingsModalOpen)
+
+    const homeItems = React.useMemo(() => {
+        let ret = !!_homeItems?.length ? _homeItems : DEFAULT_HOME_ITEMS
+        // replace anime-continue-watching-header with anime-continue-watching on mobile
+        if (width < 1024 && ret[0]?.type === "anime-continue-watching-header") {
+            if (ret.find(n => n.type === "anime-continue-watching")) {
+                // remove any other anime continue watching
+                ret = ret.filter(n => n.type !== "anime-continue-watching")
+            }
+            return ret.map(item => {
+                if (item.type === "anime-continue-watching-header") {
+                    return {
+                        ...item,
+                        type: "anime-continue-watching",
+                    }
+                }
+                return item
+            })
+        }
+        return ret
+    }, [_homeItems, width < 1024])
 
     React.useEffect(() => {
         setDiscoverPageType(discoverPageType)
@@ -243,12 +266,7 @@ export function HomeScreen() {
 
             {/*Continue Watching Header*/}
             {homeItems[0]?.type === "anime-continue-watching-header" && <React.Fragment>
-                <div className="hidden lg:contents">
-                    <ContinueWatchingHeader episodes={continueWatchingList} />
-                </div>
-                {!homeItems.some(n => n.type === "anime-continue-watching") && <div className="lg:hidden contents">
-                    <ContinueWatching episodes={continueWatchingList} isLoading={isLoading} />
-                </div>}
+                <ContinueWatchingHeader episodes={continueWatchingList} />
             </React.Fragment>}
 
             {/*Manga Library Header*/}
@@ -264,6 +282,12 @@ export function HomeScreen() {
                 )}
                 data-library-toolbar-top-padding
             ></div>
+            {(homeItems[0]?.type !== "anime-continue-watching-header" && homeItems[0]?.type === "anime-continue-watching") && <div
+                className={cn(
+                    "lg:h-16 hidden",
+                )}
+                data-library-toolbar-top-padding
+            ></div>}
 
             {(
                 (ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasEntries) &&

@@ -240,6 +240,7 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                         {option.description && <Tooltip
                             trigger={<AiFillInfoCircle className="text-sm" />}
                             portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                            className="z-[150]"
                         >
                             {option.description}
                         </Tooltip>}

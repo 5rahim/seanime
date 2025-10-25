@@ -272,7 +272,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *anime.LocalFile) string {
-		return filepath.Dir(item.GetNormalizedPath())
+		return util.NormalizePath(filepath.Dir(item.GetNormalizedPath()))
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]

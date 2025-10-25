@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -436,56 +437,102 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 	m.unloadStream()
 }
 
-func getContentTypeAndLengthHead(url string) (string, string) {
-	resp, err := http.Head(url)
-	if err != nil {
-		return "", ""
-	}
-
-	defer resp.Body.Close()
-
-	return resp.Header.Get("Content-Type"), resp.Header.Get("Content-Length")
-}
-
 func (m *Manager) getContentTypeAndLength(url string) (string, int64, error) {
-	// Try using HEAD request
-	cType, cLength := getContentTypeAndLengthHead(url)
+	m.Logger.Trace().Msg("directstream(debrid): Fetching content type and length using HEAD request")
 
-	length, err := strconv.ParseInt(cLength, 10, 64)
-	if err != nil && cLength != "" {
-		m.Logger.Error().Err(err).Str("contentType", cType).Str("contentLength", cLength).Msg("directstream(debrid): Failed to parse content length from header")
-		return "", 0, fmt.Errorf("failed to parse content length: %w", err)
+	// Create client with timeout for HEAD request (faster timeout since it's just headers)
+	headClient := &http.Client{
+		Timeout: 5 * time.Second,
 	}
 
-	if cType != "" {
-		return cType, length, nil
+	// Try HEAD request first
+	resp, err := headClient.Head(url)
+	if err == nil {
+		defer resp.Body.Close()
+
+		contentType := resp.Header.Get("Content-Type")
+		contentLengthStr := resp.Header.Get("Content-Length")
+
+		// Parse content length
+		var length int64
+		if contentLengthStr != "" {
+			length, err = strconv.ParseInt(contentLengthStr, 10, 64)
+			if err != nil {
+				m.Logger.Error().Err(err).Str("contentType", contentType).Str("contentLength", contentLengthStr).
+					Msg("directstream(debrid): Failed to parse content length from header")
+				return "", 0, fmt.Errorf("failed to parse content length: %w", err)
+			}
+		}
+
+		// If we have content type, return early
+		if contentType != "" {
+			return contentType, length, nil
+		}
+
+		m.Logger.Trace().Msg("directstream(debrid): Content type not found in HEAD response headers")
+	} else {
+		m.Logger.Trace().Err(err).Msg("directstream(debrid): HEAD request failed")
 	}
 
-	m.Logger.Trace().Msg("directstream(debrid): Content type not found in headers, falling back to GET request")
+	// Fall back to GET with Range request (either HEAD failed or no content type in headers)
+	m.Logger.Trace().Msg("directstream(debrid): Falling back to GET request")
+
+	// Create client with longer timeout for GET request (downloading content)
+	getClient := &http.Client{
+		Timeout: 15 * time.Second,
+	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("failed to create GET request: %w", err)
 	}
 
-	// Only read a small amount of data to determine the content type.
 	req.Header.Set("Range", "bytes=0-511")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err = getClient.Do(req)
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("GET request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Read the first 512 bytes
-	buf := make([]byte, 512)
-	n, err := resp.Body.Read(buf)
-	if err != nil && err != io.EOF {
-		return "", 0, err
+	// Parse total length from Content-Range header (for Range requests)
+	// Format: "bytes 0-511/1234567" where 1234567 is the total size
+	var length int64
+	if contentRange := resp.Header.Get("Content-Range"); contentRange != "" {
+		// Extract total size from Content-Range header
+		if idx := strings.LastIndex(contentRange, "/"); idx != -1 {
+			totalSizeStr := contentRange[idx+1:]
+			if totalSizeStr != "*" { // "*" means unknown size
+				length, err = strconv.ParseInt(totalSizeStr, 10, 64)
+				if err != nil {
+					m.Logger.Warn().Err(err).Str("contentRange", contentRange).
+						Msg("directstream(debrid): Failed to parse total size from Content-Range")
+				}
+			}
+		}
+	} else if contentLengthStr := resp.Header.Get("Content-Length"); contentLengthStr != "" {
+		// Fallback to Content-Length if Content-Range not present (server might not support ranges)
+		length, err = strconv.ParseInt(contentLengthStr, 10, 64)
+		if err != nil {
+			m.Logger.Warn().Err(err).Str("contentLength", contentLengthStr).
+				Msg("directstream(debrid): Failed to parse content length from GET response")
+		}
 	}
 
-	// Detect content type based on the read bytes
-	contentType := http.DetectContentType(buf[:n])
+	// Check if server provided Content-Type in GET response
+	contentType := resp.Header.Get("Content-Type")
+	if contentType != "" {
+		return contentType, length, nil
+	}
+
+	// Read only what's needed for content type detection
+	buf := make([]byte, 512)
+	n, err := io.ReadFull(resp.Body, buf)
+	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
+		return "", 0, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	contentType = http.DetectContentType(buf[:n])
 
 	return contentType, length, nil
 }
@@ -497,6 +544,8 @@ type StreamInfo struct {
 
 func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream bool) {
 	hasExtension, isArchive := IsArchive(streamUrl)
+
+	m.Logger.Debug().Str("url", streamUrl).Msg("directstream(debrid): Fetching stream info")
 
 	// If we were able to verify that the stream URL is an archive, we can't stream it
 	if isArchive {
