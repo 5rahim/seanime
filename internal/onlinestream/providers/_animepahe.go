@@ -416,12 +416,12 @@ func (g *Animepahe) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDet
 
 	htmlString = doc.Text()
 
-	//const regex = /https:\/\/kwik\.si\/e\/\w+/g;
+	//const regex = /https:\/\/kwik\.cx\/e\/\w+/g;
 	//            const matches = watchReq.match(regex);
 	//
 	//            if (matches === null) return undefined;
 
-	re := regexp.MustCompile(`https:\/\/kwik\.si\/e\/\w+`)
+	re := regexp.MustCompile(`https:\/\/kwik\.cx\/e\/\w+`)
 	matches := re.FindAllString(htmlString, -1)
 	if len(matches) == 0 {
 		return nil, fmt.Errorf("animepahe: Failed to find episode source")
@@ -437,7 +437,7 @@ func (g *Animepahe) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDet
 	source = &hibikeonlinestream.EpisodeServer{
 		Provider:     "animepahe",
 		Server:       KwikServer,
-		Headers:      map[string]string{"Referer": "https://kwik.si/"},
+		Headers:      map[string]string{"Referer": "https://kwik.cx/"},
 		VideoSources: videoSources,
 	}
 

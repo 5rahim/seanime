@@ -12,7 +12,7 @@ type AnimeData = {
 class Provider {
 
     api = "https://animepahe.si"
-    headers = { Referer: "https://kwik.si" }
+    headers = { Referer: "https://kwik.cx" }
 
     getSettings(): Settings {
         return {
@@ -161,7 +161,7 @@ class Provider {
 
         const html = await req.text()
 
-        const regex = /https:\/\/kwik\.si\/e\/\w+/g
+        const regex = /https:\/\/kwik\.cx\/e\/\w+/g
         const matches = html.match(regex)
 
         if (matches === null) {
