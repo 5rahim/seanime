@@ -564,9 +564,9 @@ function createMainWindow() {
     }
 
     // Development tools
-    if (_development) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (_development) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     mainWindow.on('close', (event) => {
         if (!isShutdown) {
@@ -644,31 +644,32 @@ function cleanupAndExit() {
     }, 500);
 }
 
-// app.on('web-contents-created', (event, contents) => {
-//     console.log('[WCC] created id=', contents.id, 'type=', contents.getType());
-//
-//     contents.on('did-start-navigation', (e, url, isInPlace, isMainFrame) => {
-//         console.log('[WCC] did-start-navigation', contents.id, { url, isMainFrame, isInPlace });
-//     });
-//
-//     contents.on('did-navigate', (e, url) => {
-//         console.log('[WCC] did-navigate', contents.id, url);
-//     });
-//
-//     contents.on('did-frame-finish-load', () => {
-//         try {
-//             console.log('[WCC] URL after load', contents.id, contents.getURL());
-//         } catch(e){}
-//     });
-//
-//     contents.on('destroyed', () => console.log('[WCC] destroyed', contents.id));
-//
-//     // optional: log owner/opener if available
-//     try {
-//         const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow();
-//         if (owner) console.log('[WCC] owner window id=', owner.id, 'title=', owner.getTitle && owner.getTitle());
-//     } catch(e){}
-// });
+app.on('web-contents-created', (event, contents) => {
+    console.log('[WCC] created id=', contents.id, 'type=', contents.getType());
+
+    contents.on('did-start-navigation', (e, url, isInPlace, isMainFrame) => {
+        console.log('[WCC] did-start-navigation', contents.id, {url, isMainFrame, isInPlace});
+    });
+
+    contents.on('did-navigate', (e, url) => {
+        console.log('[WCC] did-navigate', contents.id, url);
+    });
+
+    contents.on('did-frame-finish-load', () => {
+        try {
+            console.log('[WCC] URL after load', contents.id, contents.getURL());
+        } catch (e) {
+        }
+    });
+
+    contents.on('destroyed', () => console.log('[WCC] destroyed', contents.id));
+
+    try {
+        const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow();
+        if (owner) console.log('[WCC] owner window id=', owner.id, 'title=', owner.getTitle && owner.getTitle());
+    } catch (e) {
+    }
+});
 
 // Initialize the app
 app.whenReady().then(async () => {

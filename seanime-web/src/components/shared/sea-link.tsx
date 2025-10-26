@@ -59,7 +59,7 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
     }
 
     return (
-        <Link href={href} className={cn("cursor-pointer", className)} {...rest}>
+        <Link href={href} className={cn("cursor-pointer", className)} onClick={onClick} {...rest}>
             {children}
         </Link>
     )

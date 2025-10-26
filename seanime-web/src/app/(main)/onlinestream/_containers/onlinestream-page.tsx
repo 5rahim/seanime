@@ -255,7 +255,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     loading={loadPage}
                     leftHeaderActions={<>
                         {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
-                        {animeEntry && <OnlinestreamManualMappingModal entry={animeEntry}>
+                        {(animeEntry && !!provider) && <OnlinestreamManualMappingModal entry={animeEntry}>
                             <Button
                                 size="sm"
                                 intent="gray-basic"
@@ -280,7 +280,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     mediaPlayer={!provider ? (
                         <div className="flex items-center flex-col justify-center w-full h-full">
                             <LuffyError title="No provider selected" />
-                            {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
+                            <div className="flex gap-2">
+                                {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
+                            </div>
                         </div>
                     ) : isErrorProvider ? <LuffyError title="Provider error" /> : (
                         <SeaMediaPlayer

@@ -2,7 +2,7 @@ import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Man
 import { useEmptyMangaEntryCache } from "@/api/hooks/manga.hooks"
 import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
-import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
+import { DownloadedChapterList, manga_downloadedChapterContainerAtom } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
 import { MangaManualMappingModal } from "@/app/(main)/manga/_containers/chapter-list/manga-manual-mapping-modal"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
@@ -19,7 +19,7 @@ import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
-import { useSetAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
@@ -304,6 +304,8 @@ export function ChapterList(props: ChapterListProps) {
         return () => remove("manga-chapters")
     }, [chapterContainer?.chapters, unreadChapters, mediaId])
 
+    const [downloadedChapterContainer] = useAtom(manga_downloadedChapterContainerAtom)
+
     if (providerExtensionsLoading) return <LoadingSpinner />
 
     return (
@@ -391,7 +393,7 @@ export function ChapterList(props: ChapterListProps) {
                     <MangaManualMappingModal entry={entry}>
                         <Button
                             leftIcon={<LuSearch className="text-lg" />}
-                            intent="gray-glass"
+                            intent="gray-outline"
                             size="md"
                         >
                             Manual match
@@ -494,9 +496,9 @@ export function ChapterList(props: ChapterListProps) {
                 )
             )}
 
-            {chapterContainer && <ChapterReaderDrawer
+            {(chapterContainer || downloadedChapterContainer) && <ChapterReaderDrawer
                 entry={entry}
-                chapterContainer={chapterContainer}
+                chapterContainer={chapterContainer || downloadedChapterContainer!}
                 chapterIdToNumbersMap={chapterIdToNumbersMap}
             />}
 

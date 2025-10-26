@@ -23,6 +23,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { useAtom } from "jotai/react"
 import { orderBy } from "lodash"
 import capitalize from "lodash/capitalize"
+import { useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { BiSearch } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
@@ -51,6 +52,14 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
 
     const { data: marketplaceExtensions, isPending: isLoadingMarketplace, refetch } = useGetMarketplaceExtensions(marketplaceUrl)
     const { data: allExtensions, isPending: isLoadingAllExtensions } = useGetAllExtensions(false)
+
+    const searchParams = useSearchParams()
+    React.useEffect(() => {
+        const type = searchParams.get("type")
+        if (type) {
+            setFilterType(type)
+        }
+    }, [searchParams])
 
     function orderExtensions(extensions: Extension_Extension[] | undefined) {
         return extensions ?

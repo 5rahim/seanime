@@ -4,7 +4,6 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	manga_providers "seanime/internal/manga/providers"
-	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/torrents/animetosho"
 	"seanime/internal/torrents/nyaa"
 	"seanime/internal/torrents/seadex"
@@ -35,42 +34,6 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	//
 
 	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "mangapill",
-		Name:        "Mangapill",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeMangaProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangapill.png",
-	}, manga_providers.NewMangapill(logger))
-
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "weebcentral",
-		Name:        "WeebCentral",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeMangaProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/weebcentral.png",
-	}, manga_providers.NewWeebCentral(logger))
-
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "mangadex",
-		Name:        "Mangadex",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeMangaProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
-	}, manga_providers.NewMangadex(logger))
-
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          manga_providers.LocalProvider,
 		Name:        "Local",
 		Version:     "",
@@ -81,23 +44,6 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 		Lang:        "multi",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/local-manga.png",
 	}, manga_providers.NewLocal(config.Manga.LocalDir, logger))
-
-	//
-	// Built-in online stream providers
-	//
-
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "animepahe",
-		Name:        "Animepahe",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageTypescript,
-		Type:        extension.TypeOnlinestreamProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animepahe.png",
-		Payload:     onlinestream_providers.AnimepahePayload,
-	}, nil)
 
 	//
 	// Built-in torrent providers

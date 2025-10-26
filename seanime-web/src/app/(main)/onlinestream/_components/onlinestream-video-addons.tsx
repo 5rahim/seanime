@@ -98,11 +98,12 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                 ]}
                 onValueChange={(v) => {
                     if (v === "add-provider") {
-                        router.push(`/extensions`)
+                        router.push(`/extensions?tab=marketplace&type=onlinestream-provider`)
                         return
                     }
                     changeProvider(v)
                 }}
+                placeholder="Select provider"
                 size="sm"
                 leftAddon={<CgMediaPodcast />}
                 fieldClass="w-fit"

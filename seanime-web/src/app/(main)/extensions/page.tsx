@@ -8,6 +8,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { StaticTabs } from "@/components/ui/tabs"
 import { useAtom } from "jotai"
 import { AnimatePresence } from "motion/react"
+import { useSearchParams } from "next/navigation"
 import React from "react"
 import { FaExclamation } from "react-icons/fa"
 import { LuPackageCheck, LuShoppingBasket } from "react-icons/lu"
@@ -16,6 +17,14 @@ export default function Page() {
 
     const [page, setPage] = useAtom(__extensions_currentPageAtom)
     const unauthorizedPluginCount = useUnauthorizedPluginCount()
+
+    const searchParams = useSearchParams()
+    React.useEffect(() => {
+        const tab = searchParams.get("tab")
+        if (tab) {
+            setPage(tab as "installed" | "marketplace")
+        }
+    }, [searchParams])
 
     return (
         <>
@@ -57,7 +66,9 @@ export default function Page() {
                                 animate: { opacity: 1, y: 0 },
                                 exit: { opacity: 0 },
                                 transition: {
-                                    duration: 0.15,
+                                    type: "spring",
+                                    damping: 15,
+                                    stiffness: 135,
                                 },
                             }}
                             key="installed" className="pt-0 space-y-8 relative z-[4]"
@@ -72,7 +83,9 @@ export default function Page() {
                                 animate: { opacity: 1, y: 0 },
                                 exit: { opacity: 0 },
                                 transition: {
-                                    duration: 0.15,
+                                    type: "spring",
+                                    damping: 15,
+                                    stiffness: 135,
                                 },
                             }}
                             key="marketplace" className="pt-0 space-y-8 relative z-[4]"

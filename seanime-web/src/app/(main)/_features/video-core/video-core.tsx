@@ -496,7 +496,6 @@ export function VideoCore(props: VideoCoreProps) {
                     flashAction({ message, duration: 2000 })
                 },
                 onOptionChanged: (opt) => {
-                    console.warn("here", opt)
                     setAnime4kOption(opt)
                 },
             })

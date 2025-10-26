@@ -59,7 +59,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     ]),
     desktopList: cva([
         "UI-VerticalNav__desktopList",
-        "inline-block space-x-1",
+        "inline-block space-x-2",
     ], {
         variants: {
             switchToDrawerBelow: {

@@ -9,6 +9,7 @@ import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers
 import { __home_currentView } from "@/app/(main)/(library)/_home/home-screen"
 import { HomeSettingsButton } from "@/app/(main)/(library)/_home/home-settings-button"
 import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
+import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -53,6 +54,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
     const ts = useThemeSettings()
     const setBulkActionIsOpen = useSetAtom(__bulkAction_modalAtomIsOpen)
+    const nakamaStatus = useNakamaStatus()
 
     const status = useServerStatus()
     const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
@@ -77,7 +79,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                         <MdOutlineConnectWithoutContact className="size-8" />
                     </div>}
                 >
-                    Nakama Library
+                    {nakamaStatus?.hostConnectionStatus?.username}'s Library
                 </Tooltip>}
                 {(hasEntries) && (
                     <>
