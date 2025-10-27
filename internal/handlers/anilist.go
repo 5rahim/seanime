@@ -376,7 +376,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 		*p.PerPage = 50
 	}
 
-	cacheKey := fmt.Sprintf("%v-%v-%v-%v-%v-%v", p.Page, p.Search, p.PerPage, p.AiringAtGreater, p.AiringAtLesser, p.NotYetAired)
+	cacheKey := fmt.Sprintf("%v-%v-%v-%v-%v-%v-%v", p.Page, p.Search, p.PerPage, p.AiringAtGreater, p.AiringAtLesser, p.NotYetAired, p.Sort)
 
 	cached, ok := anilistListRecentAnimeCache.Get(cacheKey)
 	if ok {

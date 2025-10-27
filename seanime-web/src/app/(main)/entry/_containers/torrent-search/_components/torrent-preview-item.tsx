@@ -233,17 +233,17 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                         className="transition-colors absolute w-full h-full -right-2 bg-gradient-to-l from-[--background] via-[--background] via-30% hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
                     ></div>
                 </div>}
-            {!image && !!fallbackImage &&
+            {(image && isBatch) &&
                 <div className="absolute right-0 top-0 w-full h-full max-w-[200px] overflow-hidden" data-torrent-preview-item-image-container>
-                    {(fallbackImage) && <SeaImage
+                    {(image) && <SeaImage
                         data-torrent-preview-item-image
-                        src={fallbackImage!}
+                        src={image!}
                         alt="episode image"
                         fill
                         className={cn(
                             "object-cover object-center absolute w-full h-full group-hover/torrent-preview-item:blur-0 transition-opacity opacity-25 z-[0] select-none pointer-events-none",
-                            (fallbackImage) && "opacity-10",
-                            isSelected && "opacity-50",
+                            (image) && "opacity-10",
+                            isSelected && "opacity-10",
                         )}
                     />}
                     <div
@@ -269,7 +269,7 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     <FcOpenedFolder
                         className={cn(
                             "text-7xl absolute opacity-30 rotate-12 -left-8 -bottom-8 transform-gpu transition-all skew-x-2 group-hover/torrent-preview-item:skew-x-0 group-hover/torrent-preview-item:opacity-60",
-                            isSelected && "opacity-80",
+                            isSelected && "hover:opacity-80 opacity-80",
                         )}
                     />}
 

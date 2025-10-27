@@ -8,7 +8,6 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"
-import { useMissingEpisodes } from "../_hooks/missing-episodes-loader"
 import { ScheduleCalendar } from "./_components/schedule-calendar"
 
 export const dynamic = "force-static"
@@ -16,7 +15,6 @@ export const dynamic = "force-static"
 export default function Page() {
 
     const { data, isLoading } = useGetMissingEpisodes()
-    const missingEpisodes = useMissingEpisodes()
 
     if (isLoading) return <LoadingSpinner />
 
@@ -34,9 +32,7 @@ export default function Page() {
                         <p className="text-[--muted]">Based on your anime list</p>
                     </div>
 
-                    <ScheduleCalendar
-                        missingEpisodes={missingEpisodes}
-                    />
+                    <ScheduleCalendar />
                 </AppLayoutStack>
                 <ComingUpNext />
             </PageWrapper>

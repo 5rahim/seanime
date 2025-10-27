@@ -4,6 +4,7 @@ import {
     GetAllExtensions_Variables,
     GrantPluginPermissions_Variables,
     InstallExternalExtension_Variables,
+    InstallExternalExtensionRepository_Variables,
     ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
     SaveExtensionUserConfig_Variables,
@@ -21,6 +22,7 @@ import {
     ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
+    ExtensionRepo_RepositoryInstallResponse,
     ExtensionRepo_StoredPluginSettingsData,
     ExtensionRepo_UpdateData,
     Nullish,
@@ -77,6 +79,17 @@ export function useInstallExternalExtension() {
         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
         onSuccess: async () => {
             // DEVNOTE: No need to refetch, the websocket listener will do it
+        },
+    })
+}
+
+export function useInstallExternalExtensionRepository() {
+    return useServerMutation<ExtensionRepo_RepositoryInstallResponse, InstallExternalExtensionRepository_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.key],
+        onSuccess: async () => {
+
         },
     })
 }

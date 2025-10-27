@@ -30,6 +30,14 @@ type ExtensionListProps = {
 
 export const __extensions_currentPageAtom = atom<"installed" | "marketplace">("installed")
 
+export const EXTENSION_TYPE = {
+    "plugin": "Plugin",
+    "anime-torrent-provider": "Anime Torrent Provider",
+    "manga-provider": "Manga Provider",
+    "onlinestream-provider": "Online Streaming Provider",
+    "custom-source": "Custom Source",
+}
+
 export function ExtensionList(props: ExtensionListProps) {
 
     const {
@@ -114,7 +122,7 @@ export function ExtensionList(props: ExtensionListProps) {
                     )}
                     <Button
                         className="rounded-full"
-                        intent="gray-outline"
+                        intent="gray-basic"
                         leftIcon={<TbReload className="text-lg" />}
                         disabled={isLoading}
                         onClick={() => {
@@ -129,10 +137,10 @@ export function ExtensionList(props: ExtensionListProps) {
                     <AddExtensionModal extensions={allExtensions.extensions}>
                         <Button
                             className="rounded-full"
-                            intent="primary-subtle"
+                            intent="white-subtle"
                             leftIcon={<GrInstallOption className="text-lg" />}
                         >
-                            Add an extension/plugin
+                            Add extensions
                         </Button>
                     </AddExtensionModal>
 

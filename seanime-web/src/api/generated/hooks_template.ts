@@ -788,6 +788,17 @@
 //     })
 // }
 
+// export function useInstallExternalExtensionRepository() {
+//     return useServerMutation<ExtensionRepo_RepositoryInstallResponse, InstallExternalExtensionRepository_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useUninstallExternalExtension() {
 //     return useServerMutation<boolean, UninstallExternalExtension_Variables>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.endpoint,

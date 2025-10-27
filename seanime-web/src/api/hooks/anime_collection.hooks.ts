@@ -34,11 +34,11 @@ export function useAddUnknownMedia() {
     })
 }
 
-export function useGetAnimeCollectionSchedule() {
+export function useGetAnimeCollectionSchedule({ enabled }: { enabled?: boolean } = { enabled: true }) {
     return useServerQuery<Array<Anime_ScheduleItem>>({
         endpoint: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.endpoint,
         method: API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetAnimeCollectionSchedule.key],
-        enabled: true,
+        enabled: enabled,
     })
 }

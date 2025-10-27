@@ -1,4 +1,4 @@
-import { AL_MediaListStatus, Anime_Episode } from "@/api/generated/types"
+import { AL_MediaListStatus, Anime_ScheduleItem } from "@/api/generated/types"
 import { useGetAnimeCollectionSchedule } from "@/api/hooks/anime_collection.hooks"
 import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -37,20 +37,22 @@ export const calendarParamsAtom = atomWithStorage("sea-release-calendar-params",
 
 type ScheduleCalendarProps = {
     children?: React.ReactNode
-    missingEpisodes: Anime_Episode[]
+    items?: Anime_ScheduleItem[]
 }
 
 export function ScheduleCalendar(props: ScheduleCalendarProps) {
 
     const {
         children,
-        missingEpisodes,
+        items,
         ...rest
     } = props
 
     const anilistListData = useAtomValue(__anilist_userAnimeListDataAtom)
 
-    const { data: schedule } = useGetAnimeCollectionSchedule()
+    const { data: _schedule } = useGetAnimeCollectionSchedule({ enabled: !items })
+    const schedule = items ?? _schedule
+    const isUserSchedule = !items
 
     // State for the current displayed month
     const [currentDate, setCurrentDate] = React.useState(new Date())
@@ -78,8 +80,8 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
         )
     }
 
-
     function isStatusIncluded(mediaId: number) {
+        if (!isUserSchedule) return true
         const entry = anilistListData[String(mediaId)]
         if (!entry || !entry.status) return false
         return calendarParams.listStatuses.includes(entry.status)
@@ -129,7 +131,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
             day = addDays(day, 1)
         }
         return daysArray
-    }, [currentDate, missingEpisodes, weekStartsOn, schedule, calendarParams, anilistListData])
+    }, [currentDate, weekStartsOn, schedule, calendarParams])
 
 
     return (
@@ -147,9 +149,10 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                         size="sm"
                         data-schedule-calendar-header-button-previous
                     />
+                    <div className="w-full"></div>
                     <h1
                         className={cn(
-                            "text-base lg:text-lg font-semibold text-[--muted] text-center flex-1 min-w-0",
+                            "text-base lg:text-lg font-semibold text-[--muted] text-center flex-1 min-w-0 absolute inset-0 z-[0] flex items-center justify-center pointer-events-none",
                             isSameMonth(currentDate, new Date()) && "text-gray-100",
                         )}
                         data-schedule-calendar-header-title
@@ -181,20 +184,22 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                             data-schedule-calendar-header-settings-popover-week-starts-on
                         />
                         <Separator />
-                        <CheckboxGroup
-                            label="Status" options={[
-                            { label: "Watching", value: "CURRENT" },
-                            { label: "Planning", value: "PLANNING" },
-                            { label: "Completed", value: "COMPLETED" },
-                            { label: "Paused", value: "PAUSED" },
-                        ]} value={calendarParams.listStatuses} onValueChange={v => setCalendarParams(draft => {
-                            draft.listStatuses = v as AL_MediaListStatus[]
-                            return
-                        })}
-                            stackClass="grid grid-cols-2 gap-0 items-center !space-y-0"
-                            data-schedule-calendar-header-settings-popover-status
-                        />
-                        <Separator />
+                        {isUserSchedule && <>
+                            <CheckboxGroup
+                                label="Status" options={[
+                                { label: "Watching", value: "CURRENT" },
+                                { label: "Planning", value: "PLANNING" },
+                                { label: "Completed", value: "COMPLETED" },
+                                { label: "Paused", value: "PAUSED" },
+                            ]} value={calendarParams.listStatuses} onValueChange={v => setCalendarParams(draft => {
+                                draft.listStatuses = v as AL_MediaListStatus[]
+                                return
+                            })}
+                                stackClass="grid grid-cols-2 gap-0 items-center !space-y-0"
+                                data-schedule-calendar-header-settings-popover-status
+                            />
+                            <Separator />
+                        </>}
                         <Switch
                             label="Indicate watched episodes"
                             side="right"
@@ -584,7 +589,7 @@ function CalendarEventList({ events, onEventHover }: CalendarEventListProps) {
                 <Popover
                     className="w-[280px] lg:w-full max-w-sm lg:max-w-sm"
                     trigger={
-                        <li className="text-[--muted] cursor-pointer text-xs lg:text-sm py-1">+ {events.length - MAX_EVENT_COUNT} more</li>
+                        <li className="text-[--muted] cursor-pointer text-sm lg:text-[0.7rem] py-1 pt-0">+ {events.length - MAX_EVENT_COUNT} more</li>
                     }
                     data-schedule-calendar-event-list-more-popover
                 >

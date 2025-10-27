@@ -3314,6 +3314,52 @@
     }
   },
   {
+    "name": "HandleInstallExternalExtensionRepository",
+    "trimmedName": "InstallExternalExtensionRepository",
+    "comments": [
+      "HandleInstallExternalExtensionRepository",
+      "",
+      "\t@summary installs the extensions from the given repository uri.",
+      "\t@route /api/v1/extensions/external/install-repository [POST]",
+      "\t@returns extension_repo.RepositoryInstallResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "installs the extensions from the given repository uri.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/install-repository",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "RepositoryURI",
+          "jsonName": "repositoryUri",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Install",
+          "jsonName": "install",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension_repo.RepositoryInstallResponse",
+      "returnGoType": "extension_repo.RepositoryInstallResponse",
+      "returnTypescriptType": "ExtensionRepo_RepositoryInstallResponse"
+    }
+  },
+  {
     "name": "HandleUninstallExternalExtension",
     "trimmedName": "UninstallExternalExtension",
     "comments": [

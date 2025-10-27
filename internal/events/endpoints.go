@@ -121,6 +121,7 @@ const (
 	GrantPluginPermissionsEndpoint                     = "EXTENSIONS-grant-plugin-permissions"
 	ImportLocalFilesEndpoint                           = "LOCALFILES-import-local-files"
 	InstallExternalExtensionEndpoint                   = "EXTENSIONS-install-external-extension"
+	InstallExternalExtensionRepositoryEndpoint         = "EXTENSIONS-install-external-extension-repository"
 	InstallLatestUpdateEndpoint                        = "RELEASES-install-latest-update"
 	ListAnimeTorrentProviderExtensionsEndpoint         = "EXTENSIONS-list-anime-torrent-provider-extensions"
 	ListCustomSourceExtensionsEndpoint                 = "EXTENSIONS-list-custom-source-extensions"

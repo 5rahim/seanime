@@ -39331,6 +39331,36 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_repo/external.go",
+    "filename": "external.go",
+    "name": "RepositoryInstallResponse",
+    "formattedName": "ExtensionRepo_RepositoryInstallResponse",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "Extensions",
+        "jsonName": "extensions",
+        "goType": "[]extension.Extension",
+        "typescriptType": "Array\u003cExtension_Extension\u003e",
+        "usedTypescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/external_plugin.go",
     "filename": "external_plugin.go",
     "name": "StoredPluginSettingsData",

@@ -19,8 +19,10 @@ import {
     TorrentstreamFileSelectionModal,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
@@ -33,7 +35,7 @@ import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { FiSearch } from "react-icons/fi"
-import { LuCornerLeftDown, LuFileSearch } from "react-icons/lu"
+import { LuCornerLeftDown, LuFileSearch, LuPlus } from "react-icons/lu"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
@@ -422,7 +424,16 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                         </div>
 
                     </>
-                ) : (!!providerExtensions) ? <LuffyError title="No extension selected" /> : <div className="space-y-2">
+                ) : (!!providerExtensions) ? <div className="space-y-2">
+                    <LuffyError title="No extension selected" />
+                    {!providerExtensions.length && <div className="flex justify-center">
+                        <SeaLink href="/extensions">
+                            <Button intent="white" leftIcon={<LuPlus />}>
+                                Add extensions
+                            </Button>
+                        </SeaLink>
+                    </div>}
+                </div> : <div className="space-y-2">
                     <Skeleton className="h-[96px]" />
                     <Skeleton className="h-[96px]" />
                     <Skeleton className="h-[96px]" />

@@ -5,6 +5,7 @@ import {
     useInstallExternalExtension,
     useReloadExternalExtension,
 } from "@/api/hooks/extensions.hooks"
+import { EXTENSION_TYPE } from "@/app/(main)/extensions/_containers/extension-list"
 import { DEFAULT_MARKETPLACE_URL, marketplaceUrlAtom } from "@/app/(main)/extensions/_lib/marketplace.atoms"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -449,14 +450,18 @@ type MarketplaceExtensionCardProps = {
     extension: Extension_Extension
     updateData?: Extension_Extension | undefined
     isInstalled: boolean
+    hideInstallButton?: boolean
+    showType?: boolean
 }
 
-function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
+export function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
 
     const {
         extension,
         updateData,
         isInstalled,
+        hideInstallButton,
+        showType,
         ...rest
     } = props
 
@@ -485,7 +490,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                 !!updateData && "border-[--green]",
             )}
         >
-            <div className="absolute top-3 right-3 z-[2]">
+            {!hideInstallButton && <div className="absolute top-3 right-3 z-[2]">
                 <div className=" flex flex-row gap-1 z-[2] flex-wrap justify-end">
                     {!isInstalled ? <IconButton
                         size="sm"
@@ -501,7 +506,7 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                     />
                     }
                 </div>
-            </div>
+            </div>}
 
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
@@ -527,8 +532,9 @@ function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                         <p className="font-semibold line-clamp-1">
                             {extension.name}
                         </p>
-                        <p className="opacity-30 text-xs line-clamp-1 tracking-wide">
-                            {extension.id}
+                        <p className="text-xs line-clamp-1 tracking-wide">
+                            {showType && <span className="opacity-70">{EXTENSION_TYPE[extension.type]} - </span>}
+                            <span className="opacity-30">{extension.id}</span>
                         </p>
                     </div>
                 </div>

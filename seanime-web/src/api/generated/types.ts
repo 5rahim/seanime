@@ -2343,6 +2343,16 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
 }
 
 /**
+ * - Filepath: internal/extension_repo/external.go
+ * - Filename: external.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_RepositoryInstallResponse = {
+    extensions?: Array<Extension_Extension>
+    message: string
+}
+
+/**
  * - Filepath: internal/extension_repo/external_plugin.go
  * - Filename: external_plugin.go
  * - Package: extension_repo

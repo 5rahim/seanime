@@ -281,8 +281,25 @@ export const HOME_ITEMS = {
     "anime-schedule-calendar": {
         name: "Anime Schedule Calendar",
         kind: ["row"],
-        schemaVersion: 1,
+        schemaVersion: 2,
         description: "Display a calendar of anime episodes based on their airing schedule.",
+        options: [
+            {
+                label: "Type",
+                name: "type",
+                type: "select",
+                options: [
+                    {
+                        label: "My lists",
+                        value: "my-lists",
+                    },
+                    {
+                        label: "Global",
+                        value: "global",
+                    },
+                ],
+            },
+        ],
     },
     "local-anime-library-stats": {
         name: "Local Anime Library Stats",

@@ -679,6 +679,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/external/install",
         },
+        InstallExternalExtensionRepository: {
+            key: "EXTENSIONS-install-external-extension-repository",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/install-repository",
+        },
         UninstallExternalExtension: {
             key: "EXTENSIONS-uninstall-external-extension",
             methods: ["POST"],

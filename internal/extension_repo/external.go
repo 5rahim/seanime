@@ -191,6 +191,95 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Install from repository
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type RepositoryInstallResponse struct {
+	Extensions []*extension.Extension `json:"extensions"`
+	Message    string                 `json:"message"`
+}
+
+func (r *Repository) InstallExternalExtensions(repositoryURI string, install bool) (*RepositoryInstallResponse, error) {
+
+	type repository struct {
+		ManifestURIs []string `json:"urls"`
+	}
+
+	// Fetch the manifest file
+	client := &http.Client{}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, repositoryURI, nil)
+	if err != nil {
+		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to create HTTP request")
+		return nil, fmt.Errorf("failed to create HTTP request, %w", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to fetch extension manifest")
+		return nil, fmt.Errorf("failed to fetch extension manifest, %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Parse the response
+	var repo repository
+	err = json.NewDecoder(resp.Body).Decode(&repo)
+	if err != nil {
+		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to parse extension manifest")
+		return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
+	}
+
+	var extensions []*extension.Extension
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	wg.Add(len(repo.ManifestURIs))
+	for _, manifestURI := range repo.ManifestURIs {
+		go func() {
+			defer wg.Done()
+
+			ext, err := r.fetchExternalExtensionData(manifestURI)
+			if err != nil {
+				r.logger.Warn().Err(err).Str("uri", manifestURI).Msg("extensions: Failed to fetch extension data")
+				return
+			}
+			if ext.Type == extension.TypePlugin {
+				r.logger.Warn().Str("uri", manifestURI).Msg("extensions: Plugins cannot be installed from a repository")
+				return
+			}
+
+			mu.Lock()
+			extensions = append(extensions, ext)
+			mu.Unlock()
+		}()
+	}
+
+	wg.Wait()
+
+	if install {
+		for _, ext := range extensions {
+			_, err := r.InstallExternalExtension(ext.ManifestURI)
+			if err != nil {
+				r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to install extension from repository")
+			}
+		}
+	}
+
+	msg := fmt.Sprintf("Successfully installed %d extensions from the repository", len(extensions))
+	if !install {
+		msg = fmt.Sprintf("Successfully fetched %d extensions from the repository", len(extensions))
+	}
+
+	return &RepositoryInstallResponse{
+		Extensions: extensions,
+		Message:    msg,
+	}, nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Uninstall external extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -640,6 +729,9 @@ func (r *Repository) reloadExtension(id string) {
 
 	// Remove extension from bank
 	r.extensionBank.Delete(id)
+
+	// Delete the plugin pool
+	go r.gojaRuntimeManager.DeletePluginPool(id)
 
 	// Kill Goja VM if it exists
 	gojaExtension, ok := r.gojaExtensions.Get(id)

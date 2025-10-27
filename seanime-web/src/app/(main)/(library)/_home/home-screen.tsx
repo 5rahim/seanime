@@ -1,5 +1,5 @@
-import { Models_HomeItem } from "@/api/generated/types"
-import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
+import { AL_ListRecentAnime_Page_AiringSchedules, Anime_ScheduleItem, Models_HomeItem } from "@/api/generated/types"
+import { useAnilistListAnime, useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { useGetHomeItems } from "@/api/hooks/status.hooks"
@@ -27,6 +27,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { HIDE_IMAGES } from "@/types/constants"
+import { addDays } from "date-fns/addDays"
 import { useAtomValue } from "jotai"
 import { atom, useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
@@ -40,7 +41,6 @@ import { useWindowSize } from "react-use"
 import { MediaEntryCard } from "../../_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "../../_features/media/_components/media-entry-card-skeleton"
 import { MediaEntryPageLoadingDisplay } from "../../_features/media/_components/media-entry-page-loading-display"
-import { useMissingEpisodes } from "../../_hooks/missing-episodes-loader"
 import { useServerStatus } from "../../_hooks/use-server-status"
 import { DiscoverPageHeader } from "../../discover/_components/discover-page-header"
 import { DiscoverTrending } from "../../discover/_containers/discover-trending"
@@ -539,7 +539,8 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
     if (item.type === "anime-schedule-calendar") {
         return (
             <>
-                <AnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />
+                {item.options.type !== "global" && <AnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
+                {item.options.type === "global" && <GlobalAnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
             </>
         )
     }
@@ -693,10 +694,141 @@ function AnimeScheduleCalendar(props: { libraryCollectionProps: HandleLibraryCol
     const { libraryCollectionProps, item } = props
     const {} = libraryCollectionProps
 
-    const missingEpisodes = useMissingEpisodes()
+    return <PageWrapper className="space-y-0 px-4 py-4">
+        <ScheduleCalendar />
+    </PageWrapper>
+}
+
+function GlobalAnimeScheduleCalendar(props: { libraryCollectionProps: HandleLibraryCollectionProps, item: Models_HomeItem }) {
+    const { libraryCollectionProps, item } = props
+    const {} = libraryCollectionProps
+
+    const now = new Date()
+    const twoWeeksBefore = addDays(now, -14)
+    const weekBefore = addDays(now, -7)
+    const weekAfter = addDays(now, 7)
+    const twoWeeksAfter = addDays(now, 14)
+
+    const { data: previous1, isLoading: loadingPrevious1 } = useAnilistListRecentAiringAnime({
+        page: 1,
+        perPage: 100,
+        airingAt_lesser: Math.floor(weekBefore.getTime() / 1000),
+        airingAt_greater: Math.floor(twoWeeksBefore.getTime() / 1000),
+        notYetAired: false,
+        sort: ["TIME"],
+    })
+
+    const { data: previous2, isLoading: loadingPrevious2 } = useAnilistListRecentAiringAnime({
+        page: 2,
+        perPage: 100,
+        airingAt_lesser: Math.floor(weekBefore.getTime() / 1000),
+        airingAt_greater: Math.floor(twoWeeksBefore.getTime() / 1000),
+        notYetAired: false,
+        sort: ["TIME"],
+    })
+
+    const { data: previous3, isLoading: loadingPrevious3 } = useAnilistListRecentAiringAnime({
+        page: 1,
+        perPage: 200,
+        airingAt_lesser: Math.floor(now.getTime() / 1000),
+        airingAt_greater: Math.floor(weekBefore.getTime() / 1000),
+        notYetAired: false,
+        sort: ["TIME"],
+    })
+
+    const { data: previous4, isLoading: loadingPrevious4 } = useAnilistListRecentAiringAnime({
+        page: 2,
+        perPage: 200,
+        airingAt_lesser: Math.floor(now.getTime() / 1000),
+        airingAt_greater: Math.floor(weekBefore.getTime() / 1000),
+        notYetAired: false,
+        sort: ["TIME"],
+    })
+
+    const { data: next1, isLoading: loadingNext1 } = useAnilistListRecentAiringAnime({
+        page: 1,
+        perPage: 100,
+        airingAt_lesser: Math.floor(weekAfter.getTime() / 1000),
+        airingAt_greater: Math.floor(now.getTime() / 1000),
+        notYetAired: true,
+        sort: ["TIME"],
+    })
+
+    const { data: next2, isLoading: loadingNext2 } = useAnilistListRecentAiringAnime({
+        page: 2,
+        perPage: 100,
+        airingAt_lesser: Math.floor(weekAfter.getTime() / 1000),
+        airingAt_greater: Math.floor(now.getTime() / 1000),
+        notYetAired: true,
+        sort: ["TIME"],
+    })
+
+    const { data: next3, isLoading: loadingNext3 } = useAnilistListRecentAiringAnime({
+        page: 1,
+        perPage: 100,
+        airingAt_lesser: Math.floor(twoWeeksAfter.getTime() / 1000),
+        airingAt_greater: Math.floor(weekAfter.getTime() / 1000),
+        notYetAired: true,
+        sort: ["TIME"],
+    })
+
+    const { data: next4, isLoading: loadingNext4 } = useAnilistListRecentAiringAnime({
+        page: 2,
+        perPage: 100,
+        airingAt_lesser: Math.floor(twoWeeksAfter.getTime() / 1000),
+        airingAt_greater: Math.floor(weekAfter.getTime() / 1000),
+        notYetAired: true,
+        sort: ["TIME"],
+    })
+
+    const items = React.useMemo<Anime_ScheduleItem[]>(() => {
+        let airingSchedules: AL_ListRecentAnime_Page_AiringSchedules[] = []
+
+        // Combine all results
+        if (previous1?.Page?.airingSchedules) {
+            airingSchedules = [...previous1.Page.airingSchedules]
+        }
+        if (previous2?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...previous2.Page.airingSchedules]
+        }
+        if (previous3?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...previous3.Page.airingSchedules]
+        }
+        if (previous4?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...previous4.Page.airingSchedules]
+        }
+        if (next1?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...next1.Page.airingSchedules]
+        }
+        if (next2?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...next2.Page.airingSchedules]
+        }
+        if (next3?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...next3.Page.airingSchedules]
+        }
+        if (next4?.Page?.airingSchedules) {
+            airingSchedules = [...airingSchedules, ...next4.Page.airingSchedules]
+        }
+
+        return airingSchedules.map(schedule => {
+            const airDate = new Date((schedule.airingAt || 0) * 1000)
+            const dateTimeStr = airDate.toISOString()
+            const timeStr = `${airDate.getHours().toString().padStart(2, "0")}:${airDate.getMinutes().toString().padStart(2, "0")}`
+            return {
+                mediaId: schedule.media!.id,
+                title: schedule.media!.title!.userPreferred!,
+                time: timeStr,
+                dateTime: dateTimeStr,
+                image: schedule.media?.bannerImage || schedule.media?.coverImage?.medium!,
+                episodeNumber: schedule.episode,
+                isMovie: schedule.media?.format === "MOVIE",
+                isSeasonFinale: !!schedule.media?.episodes && schedule.media.episodes === schedule.episode,
+            }
+        })
+    }, [previous1, previous2, previous3, previous4, next1, next2, next3, next4])
 
     return <PageWrapper className="space-y-0 px-4 py-4">
-        <ScheduleCalendar missingEpisodes={missingEpisodes} />
+        <ScheduleCalendar key="home-screen" items={items} />
     </PageWrapper>
 }
 
@@ -773,7 +905,7 @@ function MangaCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
         year: !!options?.year ? options.year : undefined,
         genres: !!options?.genres?.length ? options?.genres : undefined,
         format: options?.format || undefined,
-        status: (options?.status && Array.isArray(options.status)) ? options.status as any : ["RELEASING", "FINISHED"],
+        status: (!!options?.status?.length && Array.isArray(options.status)) ? options.status as any : ["RELEASING", "FINISHED"],
         isAdult: options?.isAdult || undefined,
         countryOfOrigin: options?.countryOfOrigin || undefined,
     }, !!options?.name && isInView)

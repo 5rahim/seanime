@@ -1,6 +1,7 @@
 "use client"
 import { Anime_LibraryCollectionList, Anime_LocalFile, Anime_UnknownGroup } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
+import { useGetAllExtensions } from "@/api/hooks/extensions.hooks"
 import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { __ignoredFileManagerIsOpen } from "@/app/(main)/(library)/_containers/ignored-file-manager"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
@@ -12,6 +13,7 @@ import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-e
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { AddExtensionModal } from "@/app/(main)/extensions/_containers/add-extension-modal"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -21,6 +23,7 @@ import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
+import { HiExclamation } from "react-icons/hi"
 import { IoHome, IoLibraryOutline, IoLibrarySharp } from "react-icons/io5"
 import { LuFolderSearch, LuFolderSync, LuFolderTree } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact, MdOutlineVideoLibrary } from "react-icons/md"
@@ -64,6 +67,8 @@ export function HomeToolbar(props: HomeToolbarProps) {
     const setLibraryExplorerDrawerOpen = useSetAtom(libraryExplorer_drawerOpenAtom)
     const { setModalOpen } = usePlaylistEditorManager()
 
+    const { data: allExtensions } = useGetAllExtensions(false)
+
     const [homeView, setHomeView] = useAtom(__home_currentView)
 
     const { mutate: openInExplorer } = useOpenInExplorer()
@@ -72,8 +77,8 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
     return (
         <>
-            <div className={cn("flex flex-wrap w-full justify-end gap-1 p-4 relative z-[10]", className)} data-library-toolbar-container>
-                <div className="flex flex-1 pointer-events-none" data-library-toolbar-spacer></div>
+            <div className={cn("flex flex-wrap w-full justify-end gap-1 p-4 relative z-[10]", className)} data-home-toolbar-container>
+                <div className="flex flex-1 pointer-events-none" data-home-toolbar-spacer></div>
                 {isNakamaLibrary && <Tooltip
                     trigger={<div className="flex items-center px-2 h-10">
                         <MdOutlineConnectWithoutContact className="size-8" />
@@ -81,11 +86,28 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 >
                     {nakamaStatus?.hostConnectionStatus?.username}'s Library
                 </Tooltip>}
+                {(!allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider")) &&
+                    <AddExtensionModal extensions={allExtensions?.extensions}>
+                        <span>
+                            <Tooltip
+                                trigger={<Button
+                                    data-home-toolbar-missing-extensions-button
+                                    className="animate-bounce"
+                                    intent={"warning"}
+                                    leftIcon={<HiExclamation className="text-2xl" />}
+                                >
+                                    Add missing extensions
+                                </Button>}
+                            >
+                                No torrent providers installed.
+                            </Tooltip>
+                        </span>
+                    </AddExtensionModal>}
                 {(hasEntries) && (
                     <>
                         {(!isStreamingOnly && !isNakamaLibrary) && <Tooltip
                             trigger={<IconButton
-                                data-library-toolbar-switch-view-button
+                                data-home-toolbar-switch-view-button
                                 intent={homeView === "base" ? "white-subtle" : "white"}
                                 icon={homeView === "base" ? <IoLibraryOutline className="text-2xl" /> : <IoHome className="text-2xl" />}
                                 onClick={() => setHomeView(p => p === "detailed" ? "base" : "detailed")}
@@ -96,7 +118,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
                         {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) && <Tooltip
                             trigger={<IconButton
-                                data-library-toolbar-switch-view-button
+                                data-home-toolbar-switch-view-button
                                 intent={"white-subtle"}
                                 icon={<LuFolderTree className="text-2xl" />}
                                 onClick={() => {
@@ -110,7 +132,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
                         <Tooltip
                             trigger={<IconButton
-                                data-library-toolbar-playlists-button
+                                data-home-toolbar-playlists-button
                                 intent={"white-subtle"}
                                 icon={<MdOutlineVideoLibrary className="text-2xl" />}
                                 onClick={() => setModalOpen(true)}
@@ -122,7 +144,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 {!isNakamaLibrary && hasLibraryPath && <Tooltip
                     trigger={<div>
                         <Button
-                            data-library-toolbar-scan-button
+                            data-home-toolbar-scan-button
                             intent={hasEntries ? "white-subtle" : "primary"}
                             leftIcon={hasEntries ? <LuFolderSync className="text-xl" /> : <LuFolderSearch className="text-xl" />}
                             onClick={() => setScannerModalOpen(true)}
@@ -135,7 +157,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                     {hasEntries ? "Refresh Anime Library" : "Scan Anime Library"}
                 </Tooltip>}
                 {(unmatchedLocalFiles.length > 0) && <Button
-                    data-library-toolbar-unmatched-button
+                    data-home-toolbar-unmatched-button
                     intent="alert"
                     leftIcon={<IoLibrarySharp />}
                     className="animate-bounce"
@@ -144,7 +166,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                     Resolve unmatched ({unmatchedLocalFiles.length})
                 </Button>}
                 {(unknownGroups.length > 0) && <Button
-                    data-library-toolbar-unknown-button
+                    data-home-toolbar-unknown-button
                     intent="warning"
                     leftIcon={<IoLibrarySharp />}
                     className="animate-bounce"
@@ -158,13 +180,13 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 {(!isStreamingOnly && !isNakamaLibrary && hasLibraryPath) &&
                     <DropdownMenu
                         trigger={<IconButton
-                            data-library-toolbar-dropdown-menu-trigger
+                            data-home-toolbar-dropdown-menu-trigger
                             icon={<BiDotsVerticalRounded />} intent="gray-basic"
                         />}
                     >
 
                         {/*<DropdownMenuItem*/}
-                        {/*    data-library-toolbar-open-library-explorer-button*/}
+                        {/*    data-home-toolbar-open-library-explorer-button*/}
                         {/*    disabled={!hasLibraryPath}*/}
                         {/*    className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}*/}
                         {/*    onClick={() => {*/}
@@ -176,7 +198,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                         {/*</DropdownMenuItem>*/}
 
                         <DropdownMenuItem
-                            data-library-toolbar-open-directory-button
+                            data-home-toolbar-open-directory-button
                             disabled={!hasLibraryPath}
                             className={cn("cursor-pointer", { "!text-[--muted]": !hasLibraryPath })}
                             onClick={() => {
@@ -188,7 +210,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
-                            data-library-toolbar-bulk-actions-button
+                            data-home-toolbar-bulk-actions-button
                             onClick={() => setBulkActionIsOpen(true)}
                             disabled={!hasEntries}
                             className={cn({ "!text-[--muted]": !hasEntries })}
@@ -198,7 +220,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
-                            data-library-toolbar-ignored-files-button
+                            data-home-toolbar-ignored-files-button
                             onClick={() => setIgnoredFileManagerOpen(true)}
                             // disabled={!hasEntries}
                             className={cn({ "!text-[--muted]": !hasEntries })}
@@ -209,7 +231,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
 
                         <SeaLink href="/scan-summaries">
                             <DropdownMenuItem
-                                data-library-toolbar-scan-summaries-button
+                                data-home-toolbar-scan-summaries-button
                                 // className={cn({ "!text-[--muted]": !hasEntries })}
                             >
                                 <TbReportSearch />

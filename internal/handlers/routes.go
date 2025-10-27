@@ -444,6 +444,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/playground/run", h.HandleRunExtensionPlaygroundCode)
 	v1Extensions.POST("/external/fetch", h.HandleFetchExternalExtensionData)
 	v1Extensions.POST("/external/install", h.HandleInstallExternalExtension)
+	v1Extensions.POST("/external/install-repository", h.HandleInstallExternalExtensionRepository)
 	v1Extensions.POST("/external/uninstall", h.HandleUninstallExternalExtension)
 	v1Extensions.POST("/external/edit-payload", h.HandleUpdateExtensionCode)
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)

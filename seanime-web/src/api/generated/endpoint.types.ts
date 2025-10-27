@@ -760,6 +760,18 @@ export type InstallExternalExtension_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/install-repository
+ * @description
+ * Route installs the extensions from the given repository uri.
+ */
+export type InstallExternalExtensionRepository_Variables = {
+    repositoryUri: string
+    install: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/external/uninstall
  * @description
  * Route uninstalls the extension with the given ID.
