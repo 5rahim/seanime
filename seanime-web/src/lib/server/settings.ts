@@ -1,7 +1,7 @@
 import { GettingStarted_Variables } from "@/api/generated/endpoint.types"
 import { z } from "zod"
 
-export const DEFAULT_TORRENT_PROVIDER = "animetosho"
+export const DEFAULT_TORRENT_PROVIDER = ""
 
 export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
 
@@ -16,9 +16,6 @@ export const enum TORRENT_CLIENT {
 }
 
 export const enum TORRENT_PROVIDER {
-    ANIMETOSHO = "animetosho",
-    NYAA = "nyaa",
-    NYAA_NON_ENG = "nyaa-non-eng",
     NONE = "none",
 }
 
@@ -111,6 +108,7 @@ export const settingsSchema = z.object({
     nakamaHostUnsharedAnimeIds: z.array(z.number()).optional().default([]),
     autoSaveCurrentMediaOffline: z.boolean().optional().default(false),
     disableCacheLayer: z.boolean().optional().default(false),
+    autoSelectTorrentProvider: z.string().optional().default(""),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -121,6 +119,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         autoUpdateProgress: true,
         disableUpdateCheck: false,
         torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
+        autoSelectTorrentProvider: "",
         autoScan: false,
         disableAnimeCardTrailers: false,
         enableManga: data.enableManga,

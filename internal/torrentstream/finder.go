@@ -41,15 +41,19 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
 
-	providerId := itorrent.ProviderAnimeTosho // todo: get provider from settings
-	fallbackProviderId := itorrent.ProviderNyaa
-
-	// Get AnimeTosho provider extension
-	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(providerId)
+	providerExtension, ok := r.torrentRepository.GetAutoSelectProviderExtension()
 	if !ok {
-		r.logger.Error().Str("provider", itorrent.ProviderAnimeTosho).Msg("torrentstream: AnimeTosho provider extension not found")
+		r.logger.Error().Msg("torrentstream: Auto select provider extension not found")
 		return nil, fmt.Errorf("provider extension not found")
 	}
+	autoSelectProviderId := providerExtension.GetID()
+
+	defaultProviderExtension, ok := r.torrentRepository.GetDefaultAnimeProviderExtension()
+	if !ok {
+		r.logger.Error().Msg("torrentstream: Default provider extension not found")
+		return nil, fmt.Errorf("default provider extension not found")
+	}
+	defaultProviderId := defaultProviderExtension.GetID()
 
 	searchBatch := false
 	// Search batch if not a movie and finished
@@ -64,7 +68,7 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 	r.sendStateEvent(eventLoading, TLSStateSearchingTorrents)
 
 	var data *itorrent.SearchData
-	var currentProvider string = providerId
+	var currentProvider = autoSelectProviderId
 searchLoop:
 	for {
 		var err error
@@ -84,13 +88,13 @@ searchLoop:
 			r.logger.Error().Err(err).Msg("torrentstream: Error searching torrents")
 
 			// Try fallback provider if we're still on primary provider
-			if currentProvider == providerId {
-				r.logger.Debug().Msgf("torrentstream: Primary provider failed, trying fallback provider %s", fallbackProviderId)
-				currentProvider = fallbackProviderId
+			if currentProvider == autoSelectProviderId && autoSelectProviderId != defaultProviderId {
+				r.logger.Debug().Msgf("torrentstream: Primary provider failed, trying fallback provider %s", defaultProviderId)
+				currentProvider = defaultProviderId
 				// Get fallback provider extension
 				providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
 				if !ok {
-					r.logger.Error().Str("provider", fallbackProviderId).Msg("torrentstream: Fallback provider extension not found")
+					r.logger.Error().Str("provider", defaultProviderId).Msg("torrentstream: Fallback provider extension not found")
 					return nil, fmt.Errorf("fallback provider extension not found")
 				}
 				continue
@@ -126,13 +130,13 @@ searchLoop:
 
 	if data == nil || len(data.Torrents) == 0 {
 		// Try fallback provider if we're still on primary provider
-		if currentProvider == providerId {
-			r.logger.Debug().Msgf("torrentstream: No torrents found with primary provider, trying fallback provider %s", fallbackProviderId)
-			currentProvider = fallbackProviderId
+		if currentProvider == autoSelectProviderId && autoSelectProviderId != defaultProviderId {
+			r.logger.Debug().Msgf("torrentstream: No torrents found with primary provider, trying fallback provider %s", defaultProviderId)
+			currentProvider = defaultProviderId
 			// Get fallback provider extension
 			providerExtension, ok = r.torrentRepository.GetAnimeProviderExtension(currentProvider)
 			if !ok {
-				r.logger.Error().Str("provider", fallbackProviderId).Msg("torrentstream: Fallback provider extension not found")
+				r.logger.Error().Str("provider", defaultProviderId).Msg("torrentstream: Fallback provider extension not found")
 				return nil, fmt.Errorf("fallback provider extension not found")
 			}
 

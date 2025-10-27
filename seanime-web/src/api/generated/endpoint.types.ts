@@ -1398,6 +1398,7 @@ export type NakamaPlayVideo_Variables = {
     path: string
     mediaId: number
     anidbEpisode: string
+    clientId: string
 }
 
 /**
@@ -1409,6 +1410,17 @@ export type NakamaPlayVideo_Variables = {
  */
 export type NakamaCreateWatchParty_Variables = {
     settings?: Nakama_WatchPartySessionSettings
+}
+
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/watch-party/join
+ * @description
+ * Route joins an existing watch party.
+ */
+export type NakamaJoinWatchParty_Variables = {
+    clientId: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

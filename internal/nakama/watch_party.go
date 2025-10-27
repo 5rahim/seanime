@@ -75,6 +75,8 @@ const (
 )
 
 type WatchPartyManager struct {
+	clientId string // used for native player
+
 	logger  *zerolog.Logger
 	manager *Manager
 

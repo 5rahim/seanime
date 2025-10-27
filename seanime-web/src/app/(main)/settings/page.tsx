@@ -306,6 +306,7 @@ export default function Page() {
                                         autoUpdateProgress: data.autoUpdateProgress,
                                         disableUpdateCheck: data.disableUpdateCheck,
                                         torrentProvider: data.torrentProvider,
+                                        autoSelectTorrentProvider: data.autoSelectTorrentProvider,
                                         autoScan: data.autoScan,
                                         enableOnlinestream: data.enableOnlinestream,
                                         includeOnlineStreamingInLibrary: data.includeOnlineStreamingInLibrary ?? false,
@@ -403,6 +404,8 @@ export default function Page() {
                                 libraryPath: status?.settings?.library?.libraryPath,
                                 mediaPlayerHost: status?.settings?.mediaPlayer?.host,
                                 torrentProvider: status?.settings?.library?.torrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards compatibility)
+                                autoSelectTorrentProvider: status?.settings?.library?.autoSelectTorrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards
+                                                                                                                                             // compatibility)
                                 autoScan: status?.settings?.library?.autoScan,
                                 defaultPlayer: status?.settings?.mediaPlayer?.defaultPlayer,
                                 vlcPort: status?.settings?.mediaPlayer?.vlcPort,
@@ -596,9 +599,21 @@ export default function Page() {
                                         <SettingsCard>
                                             <Field.Select
                                                 name="torrentProvider"
-                                                label="Default Torrent Provider"
-                                                help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results. Select 'None' if you don't need torrent support."
+                                                label="Default Provider"
+                                                help="Used by the search engine and auto downloader. Select 'None' if you don't need torrent support."
                                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                                                options={[
+                                                    ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
+                                                        label: ext.name,
+                                                        value: ext.id,
+                                                    })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
+                                                    { label: "None", value: TORRENT_PROVIDER.NONE },
+                                                ]}
+                                            />
+                                            <Field.Select
+                                                name="autoSelectTorrentProvider"
+                                                label="Auto-select Provider"
+                                                help="Used for auto-selecting torents when streaming. Select 'None' if you don't need torrent support."
                                                 options={[
                                                     ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
                                                         label: ext.name,

@@ -20,7 +20,7 @@ import (
 // Peer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (wpm *WatchPartyManager) JoinWatchParty() error {
+func (wpm *WatchPartyManager) JoinWatchParty(clientId string) error {
 	if wpm.manager.IsHost() {
 		return errors.New("only peers can join watch parties")
 	}
@@ -36,6 +36,9 @@ func (wpm *WatchPartyManager) JoinWatchParty() error {
 	if !ok {
 		return errors.New("no watch party found")
 	}
+
+	// update the client
+	wpm.clientId = clientId
 
 	wpm.sessionCtx, wpm.sessionCtxCancel = context.WithCancel(context.Background())
 
@@ -407,9 +410,9 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			// Start the torrent
 			err = wpm.manager.torrentstreamRepository.StartStream(wpm.sessionCtx, payload.Session.CurrentMediaInfo.OptionalTorrentStreamStartOptions)
 		case "debrid":
-			err = wpm.manager.PlayHostAnimeStream(payload.Session.CurrentMediaInfo.StreamType, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
+			err = wpm.manager.PlayHostAnimeStream(payload.Session.CurrentMediaInfo.StreamType, "seanime/nakama", wpm.clientId, media, payload.Session.CurrentMediaInfo.AniDBEpisode)
 		case "file":
-			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", media, payload.Session.CurrentMediaInfo.AniDBEpisode)
+			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", wpm.clientId, media, payload.Session.CurrentMediaInfo.AniDBEpisode)
 		case "online":
 			wpm.sendCommandToOnlineStream(OnlineStreamCommandStart, payload.Session.CurrentMediaInfo.OnlineStreamParams)
 		}

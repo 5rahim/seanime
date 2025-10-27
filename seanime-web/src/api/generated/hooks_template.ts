@@ -1836,7 +1836,7 @@
 // }
 
 // export function useNakamaJoinWatchParty() {
-//     return useServerMutation<boolean>({
+//     return useServerMutation<boolean, NakamaJoinWatchParty_Variables>({
 //         endpoint: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.endpoint,
 //         method: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.key],

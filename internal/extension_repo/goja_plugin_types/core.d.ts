@@ -151,6 +151,14 @@ declare namespace $habari {
 }
 
 /**
+ * GoFeed
+ */
+
+declare namespace $goFeed {
+    function parse(str: string): Record<string, any>
+}
+
+/**
  * Buffer
  */
 

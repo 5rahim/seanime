@@ -374,6 +374,7 @@ func (a *App) InitOrRefreshModules() {
 		// Torrent Repository
 		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
 			DefaultAnimeProvider: settings.Library.TorrentProvider,
+			AutoSelectProvider:   settings.Library.AutoSelectTorrentProvider,
 		})
 
 		if a.LibraryExplorer != nil {

@@ -19,7 +19,7 @@ import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torr
 import { __torrentStream_autoSelectFileAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
-import { websocketConnectedAtom } from "@/app/websocket-provider"
+import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
@@ -52,6 +52,7 @@ const pm_confirmProgressUpdateModalOpen = atom<"next" | "previous" | null>(null)
 
 export function usePlaylistManager() {
     const { sendMessage } = useWebsocketSender()
+    const clientId = useAtomValue(clientIdAtom)
 
     const [currentPlaylist, setCurrentPlaylist] = useAtom(pm_currentPlaylist)
     const [currentPlaylistEpisode, setCurrentPlaylistEpisode] = useAtom(pm_currentPlaylistEpisode)
@@ -67,6 +68,7 @@ export function usePlaylistManager() {
             payload: {
                 type: "start-playlist",
                 payload: {
+                    clientId: clientId,
                     dbId: playlist.dbId,
                     localFilePlaybackMethod: __isElectronDesktop__ && electronPlaybackMethod !== "default"
                         ? electronPlaybackMethod

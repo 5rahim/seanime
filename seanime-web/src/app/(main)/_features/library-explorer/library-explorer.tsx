@@ -1170,7 +1170,7 @@ const VirtualizedTreeNode = memo(({
                                     />
                                 }
                             >
-                                {isLocked ? "Unlock all files" : "Lock all files"}
+                                {isLocked ? (isDirectory ? "Unlock all files" : "Unlock") : (isDirectory ? "Lock all files" : "Lock")}
                             </Tooltip>}
                         {((isDirectory && hasDirectoryChildren && matchedFileNodes?.length > 0)) && <Tooltip
                             trigger={

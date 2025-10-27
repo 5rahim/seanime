@@ -9,7 +9,7 @@ import {
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
-import { websocketConnectedAtom } from "@/app/websocket-provider"
+import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -49,6 +49,7 @@ export function NakamaManager() {
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const [watchPartySession, setWatchPartySession] = useAtom(watchPartySessionAtom)
+    const clientId = useAtomValue(clientIdAtom)
 
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
@@ -146,7 +147,9 @@ export function NakamaManager() {
     }, [createWatchParty, watchPartySettings, refetchStatus])
 
     const handleJoinWatchParty = React.useCallback(() => {
-        joinWatchParty(undefined, {
+        joinWatchParty({
+            clientId: clientId || "",
+        }, {
             onSuccess: () => {
                 toast.info("Joining watch party")
                 refetchStatus()

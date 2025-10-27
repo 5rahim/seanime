@@ -278,6 +278,7 @@ type PlayNakamaStreamOptions struct {
 	AnidbEpisode       string // Animap episode
 	Media              *anilist.BaseAnime
 	NakamaHostPassword string
+	ClientId           string
 }
 
 // PlayNakamaStream is used by a module to load a new nakama stream.
@@ -306,7 +307,7 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,
-			clientId:              "",
+			clientId:              opts.ClientId,
 			media:                 opts.Media,
 			filename:              "",
 			episode:               episode,

@@ -14,7 +14,6 @@ import {
     getDefaultMpvSocket,
     getDefaultSettings,
     gettingStartedSchema,
-    TORRENT_PROVIDER,
     useDefaultSettingsPaths,
 } from "@/lib/server/settings"
 import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
@@ -31,7 +30,6 @@ import { ImDownload } from "react-icons/im"
 import { IoPlayForwardCircleSharp } from "react-icons/io5"
 import { LuSparkles } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
-import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiMpv, SiQbittorrent, SiTransmission, SiVlcmediaplayer } from "react-icons/si"
 
 const containerVariants = {
@@ -102,7 +100,7 @@ const STEPS = [
     {
         id: "torrents",
         title: "Torrent Setup",
-        description: "Set up downloading and providers",
+        description: "Set up downloading",
         icon: BiDownload,
         gradient: "from-orange-500 to-red-500",
     },
@@ -438,33 +436,11 @@ function TorrentStep({ form }: { form: any }) {
             <motion.div variants={itemVariants} className="text-center space-y-4">
                 <h2 className="text-3xl font-bold">Torrent Setup</h2>
                 <p className="text-[--muted] text-sm max-w-lg mx-auto">
-                    Configure your default torrent provider and client.
+                    Configure your default client.
                 </p>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-                <StepCard>
-                    <motion.div variants={itemVariants} className="space-y-4">
-                        <div className="flex items-center space-x-3 mb-4">
-                            <RiFolderDownloadFill className="w-6 h-6 text-orange-500" />
-                            <h3 className="text-xl font-semibold">Torrent Provider</h3>
-                        </div>
-                        <p className="text-sm text-[--muted]">
-                            Extension for finding anime torrents
-                        </p>
-                        <Field.Select
-                            name="torrentProvider"
-                            label="Provider"
-                            required
-                            options={[
-                                { label: "AnimeTosho (Recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
-                                { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
-                                { label: "Nyaa (Non-English)", value: TORRENT_PROVIDER.NYAA_NON_ENG },
-                            ]}
-                            help="AnimeTosho search results are more precise in most cases."
-                        />
-                    </motion.div>
-                </StepCard>
 
                 <StepCard>
                     <motion.div variants={itemVariants} className="space-y-4">

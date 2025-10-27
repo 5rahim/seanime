@@ -83,7 +83,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		metadataProvider:        opts.MetadataProvider,
 		debridClientRepository:  opts.DebridClientRepository,
 		settings: &models.AutoDownloaderSettings{
-			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
+			Provider:              "", // Default provider, will be updated after the settings are fetched
 			Interval:              20,
 			Enabled:               false,
 			DownloadAutomatically: false,

@@ -10,6 +10,7 @@ import {
 } from "@/app/(main)/_features/video-core/video-core"
 import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
     vc_defaultKeybindings,
     vc_initialSettings,
@@ -403,6 +404,7 @@ export function VideoCoreKeybindingController(props: {
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const audioManager = useAtomValue(vc_audioManager)
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
+    const pipManager = useAtomValue(vc_pipManager)
 
     // Rate limiting for seeking operations
     const lastSeekTime = useRef(0)
@@ -766,9 +768,7 @@ export function VideoCoreKeybindingController(props: {
     }, [fullscreenManager])
 
     const handleTogglePictureInPicture = useCallback(() => {
-        // mediaStore.dispatch({
-        //     type: pip ? "mediaexitpiprequest" : "mediaenterpiprequest",
-        // })
+        pipManager?.enterPip()
 
         React.startTransition(() => {
             setTimeout(() => {

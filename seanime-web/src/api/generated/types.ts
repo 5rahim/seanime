@@ -3603,6 +3603,7 @@ export type Models_LibrarySettings = {
     autoUpdateProgress: boolean
     disableUpdateCheck: boolean
     torrentProvider: string
+    autoSelectTorrentProvider: string
     autoScan: boolean
     enableOnlinestream: boolean
     includeOnlineStreamingInLibrary: boolean

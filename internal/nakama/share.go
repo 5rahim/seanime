@@ -140,7 +140,7 @@ func (m *Manager) getBaseServerURL() string {
 	return ret
 }
 
-func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
+func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
 	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
@@ -186,7 +186,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 		err = m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   ret,
 			UserAgent: userAgent,
-			ClientId:  "",
+			ClientId:  clientId,
 		}, media, aniDBEpisode)
 		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
@@ -209,6 +209,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 			AnidbEpisode:       aniDBEpisode,
 			Media:              media,
 			NakamaHostPassword: m.settings.RemoteServerPassword,
+			ClientId:           clientId,
 		})
 		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
@@ -228,7 +229,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, media 
 	return nil
 }
 
-func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media *anilist.BaseAnime, aniDBEpisode string) error {
+func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
 	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
@@ -258,7 +259,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 		err := m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   ret,
 			UserAgent: userAgent,
-			ClientId:  "",
+			ClientId:  clientId,
 		}, media, aniDBEpisode)
 		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
@@ -281,6 +282,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, media
 			AnidbEpisode:       aniDBEpisode,
 			Media:              media,
 			NakamaHostPassword: m.settings.RemoteServerPassword,
+			ClientId:           clientId,
 		})
 		if err != nil {
 			m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")

@@ -73,7 +73,7 @@ export function useHandlePlayMedia() {
                 }
                 return
             }
-            return playNakamaVideo({ path, mediaId, anidbEpisode })
+            return playNakamaVideo({ path, mediaId, anidbEpisode, clientId: clientId ?? "" })
         }
 
         logger("PLAY MEDIA").info("Playing media file", path)
