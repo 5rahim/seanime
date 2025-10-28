@@ -775,7 +775,7 @@ export function VideoCoreKeybindingController(props: {
                 videoRef.current?.focus()
             }, 100)
         })
-    }, [pip])
+    }, [pip, pipManager])
 
     // Add keyboard event listeners
     useEffect(() => {

@@ -15,6 +15,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"strings"
 	"sync"
 	"time"
 
@@ -199,7 +200,7 @@ type RepositoryInstallResponse struct {
 	Message    string                 `json:"message"`
 }
 
-func (r *Repository) InstallExternalExtensions(repositoryURI string, install bool) (*RepositoryInstallResponse, error) {
+func (r *Repository) InstallExternalExtensions(uriOrJson string, install bool) (*RepositoryInstallResponse, error) {
 
 	type repository struct {
 		ManifestURIs []string `json:"urls"`
@@ -211,25 +212,38 @@ func (r *Repository) InstallExternalExtensions(repositoryURI string, install boo
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, repositoryURI, nil)
-	if err != nil {
-		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to create HTTP request")
-		return nil, fmt.Errorf("failed to create HTTP request, %w", err)
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to fetch extension manifest")
-		return nil, fmt.Errorf("failed to fetch extension manifest, %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Parse the response
 	var repo repository
-	err = json.NewDecoder(resp.Body).Decode(&repo)
-	if err != nil {
-		r.logger.Error().Err(err).Str("uri", repositoryURI).Msg("extensions: Failed to parse extension manifest")
-		return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
+
+	if strings.HasPrefix(strings.TrimSpace(uriOrJson), "{") {
+
+		// json string to struct
+		err := json.Unmarshal([]byte(strings.TrimSpace(uriOrJson)), &repo)
+		if err != nil {
+			r.logger.Error().Err(err).Str("uri", uriOrJson).Msg("extensions: Failed to parse extension manifest")
+			return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
+		}
+
+	} else {
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, uriOrJson, nil)
+		if err != nil {
+			r.logger.Error().Err(err).Str("uri", uriOrJson).Msg("extensions: Failed to create HTTP request")
+			return nil, fmt.Errorf("failed to create HTTP request, %w", err)
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			r.logger.Error().Err(err).Str("uri", uriOrJson).Msg("extensions: Failed to fetch extension manifest")
+			return nil, fmt.Errorf("failed to fetch extension manifest, %w", err)
+		}
+		defer resp.Body.Close()
+
+		// Parse the response
+		err = json.NewDecoder(resp.Body).Decode(&repo)
+		if err != nil {
+			r.logger.Error().Err(err).Str("uri", uriOrJson).Msg("extensions: Failed to parse extension manifest")
+			return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
+		}
 	}
 
 	var extensions []*extension.Extension

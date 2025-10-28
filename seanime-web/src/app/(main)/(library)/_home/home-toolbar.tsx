@@ -67,7 +67,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
     const setLibraryExplorerDrawerOpen = useSetAtom(libraryExplorer_drawerOpenAtom)
     const { setModalOpen } = usePlaylistEditorManager()
 
-    const { data: allExtensions } = useGetAllExtensions(false)
+    const { data: allExtensions, isLoading: isExtensionsLoading } = useGetAllExtensions(false)
 
     const [homeView, setHomeView] = useAtom(__home_currentView)
 
@@ -86,7 +86,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 >
                     {nakamaStatus?.hostConnectionStatus?.username}'s Library
                 </Tooltip>}
-                {(!allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider")) &&
+                {(!isExtensionsLoading && !allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider")) &&
                     <AddExtensionModal extensions={allExtensions?.extensions}>
                         <span>
                             <Tooltip

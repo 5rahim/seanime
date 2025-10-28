@@ -131,6 +131,7 @@ function setupAppProtocol() {
         }
 
         // fallback to root index.html
+        log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`); // Added a log
         const fallbackPath = path.join(webPath, 'index.html');
         return net.fetch(`file://${fallbackPath}`);
     });
@@ -433,12 +434,14 @@ async function launchSeanimeServer(isRestart) {
                         splashScreen = null;
                     }
                     console.log('[Main] Server started close splash screen');
-                    if (mainWindow && !mainWindow.isDestroyed()) {
-                        mainWindow.maximize();
-                        mainWindow.show();
-                    }
+                    setTimeout(() => {
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.maximize();
+                            mainWindow.show();
+                        }
+                    }, 1000)
                     resolve();
-                }, 1000);
+                }, 2000);
             }
         });
 
@@ -462,6 +465,8 @@ async function launchSeanimeServer(isRestart) {
 
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.close();
+                    mainWindow.destroy();
+                    mainWindow = null;
                 }
 
                 // show crash screen
@@ -597,7 +602,7 @@ function createSplashScreen() {
         splashScreen.loadURL('http://127.0.0.1:43210/splashscreen');
     } else {
         logStartupEvent('Loading splash screen with custom protocol');
-        splashScreen.loadURL('app://splashscreen');
+        splashScreen.loadURL('app://-/splashscreen');
     }
 }
 
@@ -616,7 +621,7 @@ function createCrashScreen() {
         // In development, load from the dev server
         crashScreen.loadURL('http://127.0.0.1:43210/splashscreen/crash');
     } else {
-        crashScreen.loadURL('app://splashscreen/crash');
+        crashScreen.loadURL('app://-/splashscreen/crash');
     }
 }
 

@@ -152,7 +152,7 @@ export function AddExtensionModal(props: AddExtensionModalProps) {
                             </div>
                             <div className="lg:w-2/3 gap-3 flex flex-col">
                                 <TextInput
-                                    placeholder="https://example.com/extensions.json"
+                                    placeholder={"https://example.com/extensions.json or { \"urls\": [...] }"}
                                     value={repositoryURL}
                                     onValueChange={setRepositoryURL}
                                     // label="URL"
