@@ -38,11 +38,11 @@ VaulOverlay.displayName = VaulPrimitive.Overlay.displayName
 
 const VaulContent = React.forwardRef<
     React.ElementRef<typeof VaulPrimitive.Content>,
-    React.ComponentPropsWithoutRef<typeof VaulPrimitive.Content>
->(({ className, title, children, ...props }, ref) => {
+    React.ComponentPropsWithoutRef<typeof VaulPrimitive.Content> & { overlayClass?: string }
+>(({ className, title, children, overlayClass, ...props }, ref) => {
     return (
         <VaulPortal>
-            <VaulOverlay />
+            <VaulOverlay className={overlayClass} />
             <VaulPrimitive.Content
                 ref={ref}
                 className={cn(

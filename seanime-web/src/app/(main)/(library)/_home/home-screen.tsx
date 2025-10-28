@@ -539,8 +539,8 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
     if (item.type === "anime-schedule-calendar") {
         return (
             <>
-                {item.options.type !== "global" && <AnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
-                {item.options.type === "global" && <GlobalAnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
+                {item.options?.type !== "global" && <AnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
+                {item.options?.type === "global" && <GlobalAnimeScheduleCalendar libraryCollectionProps={props.libraryCollectionProps} item={item} />}
             </>
         )
     }

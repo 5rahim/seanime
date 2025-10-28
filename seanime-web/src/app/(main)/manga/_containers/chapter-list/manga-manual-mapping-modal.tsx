@@ -174,7 +174,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                             trigger={<p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
                                                 {item.title} {item.year && `(${item.year})`}
                                             </p>}
-                                            className="z-[10]"
+                                            className="z-[150]"
                                         >
                                             <p>
                                                 {item.title} {item.year && `(${item.year})`}
