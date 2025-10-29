@@ -131,7 +131,7 @@ export function OfflineSidebar() {
                     <div className="flex w-full gap-2 flex-col">
                         <div
                             className={cn(
-                                "w-full flex p-2.5 pt-1 items-center space-x-2",
+                                "w-full flex p-2 pt-1 items-center space-x-2",
                                 { "hidden": ctx.isBelowBreakpoint },
                             )}
                         >

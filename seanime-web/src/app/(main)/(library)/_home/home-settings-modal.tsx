@@ -7,7 +7,6 @@ import { useSaveTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { DEFAULT_HOME_ITEMS, HOME_ITEM_IDS, HOME_ITEMS } from "@/app/(main)/(library)/_home/home-items.utils"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { uuidv4 } from "@/app/websocket-provider"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -183,7 +182,7 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
                 onOpenChange={setIsModalOpen}
                 title={<div className="flex items-center gap-2 w-full justify-center">
                     <IoHomeOutline className="size-5" />
-                    Home <BetaBadge className="ml-0 mt-0.5" />
+                    Home
                 </div>}
                 contentClass="max-w-5xl bg-gray-950 bg-opacity-80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
                 overlayClass="bg-gray-950/70 backdrop-blur-sm"

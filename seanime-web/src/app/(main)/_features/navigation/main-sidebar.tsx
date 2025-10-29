@@ -251,10 +251,10 @@ export function MainSidebar() {
         <>
             <AppSidebar
                 className={cn(
-                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300",
+                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300 overflow-x-hidden",
                     (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
                     (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
-                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover) && "hover:bg-[--background]",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover && expandedSidebar) && "bg-[--background] rounded-tr-xl rounded-br-xl border-[--border]",
                 )}
                 onMouseEnter={handleExpandSidebar}
                 onMouseLeave={handleUnexpandedSidebar}
@@ -292,6 +292,7 @@ export function MainSidebar() {
                                 iconType: LuRefreshCw,
                                 name: "Refresh AniList",
                                 onClick: () => {
+                                    ctx.setOpen(false)
                                     if (isRefreshingAC) return
                                     refreshAC()
                                 },
@@ -361,7 +362,10 @@ export function MainSidebar() {
                                     iconClass: "size-6",
                                     name: "Nakama",
                                     isCurrent: nakamaModalOpen,
-                                    onClick: () => setNakamaModalOpen(true),
+                                    onClick: () => {
+                                        ctx.setOpen(false)
+                                        setNakamaModalOpen(true)
+                                    },
                                     addon: <>
                                         {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
                                             className="absolute right-0 top-0" size="sm"
@@ -440,12 +444,12 @@ export function MainSidebar() {
                         <DropdownMenu
                             trigger={<div
                                 className={cn(
-                                    "w-full flex p-2.5 pt-1 items-center space-x-2",
+                                    "w-full flex p-2 pt-1 items-center space-x-3",
                                     { "hidden": ctx.isBelowBreakpoint },
                                 )}
                             >
                                 <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
-                                {expandedSidebar && <p className="truncate">{user?.viewer?.name}</p>}
+                                {expandedSidebar && <p className="truncate text-sm text-[--muted]">{user?.viewer?.name}</p>}
                             </div>}
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}

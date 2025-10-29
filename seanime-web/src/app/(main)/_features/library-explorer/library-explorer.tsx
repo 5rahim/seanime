@@ -92,6 +92,16 @@ function hasMatchingFiles(userMedia: AL_BaseAnime[] | undefined, node: LibraryEx
     return node.children?.some(child => hasMatchingFiles(userMedia, child, filter)) ?? false
 }
 
+function nodeOrDescendantMatches(node: LibraryExplorer_FileTreeNodeJSON, searchTerm: string): boolean {
+    if (node.name.toLowerCase().includes(searchTerm)) {
+        return true
+    }
+    if (node.children) {
+        return node.children.some(child => nodeOrDescendantMatches(child, searchTerm))
+    }
+    return false
+}
+
 // flatten the tree structure based on expanded nodes and search filter to avoid recursion
 function flattenTreeNodes(
     userMedia: AL_BaseAnime[] | undefined,
@@ -107,12 +117,7 @@ function flattenTreeNodes(
 
     // Filter children based on search term first
     let filteredChildren = searchTerm && node.children
-        ? node.children.filter(child =>
-            child.name.toLowerCase().includes(searchTerm) ||
-            (child.children && child.children.some(grandchild =>
-                grandchild.name.toLowerCase().includes(searchTerm),
-            )),
-        )
+        ? node.children.filter(child => nodeOrDescendantMatches(child, searchTerm))
         : node.children
 
     // Apply additional filters based on file properties

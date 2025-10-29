@@ -6,7 +6,6 @@ import { PlaylistEditorModal } from "@/app/(main)/_features/playlists/_component
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { AlphaBadge } from "@/components/shared/beta-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button"
@@ -96,7 +95,7 @@ export function PlaylistListModal() {
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h4 className="flex items-center">Playlists <AlphaBadge /></h4>
+                            <h4 className="flex items-center">Playlists</h4>
                         </div>
                         <div className="flex gap-2 items-center md:pr-8">
                             <PlaylistEditorModal

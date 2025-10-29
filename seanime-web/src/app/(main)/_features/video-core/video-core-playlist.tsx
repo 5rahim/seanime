@@ -1,6 +1,7 @@
 import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { nativePlayer_stateAtom, NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
@@ -22,6 +23,7 @@ import {
     __torrentStream_currentSessionAutoSelectAtom,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
+import { HoverCard } from "@/components/ui/hover-card"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -292,6 +294,34 @@ export function useVideoCorePlaylist() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function PlaylistEpisodeHoverCard({ episode, children }: { episode?: Anime_Episode, children: React.ReactNode }) {
+    return (
+        <HoverCard
+            className="max-w-xl w-fit py-2 px-4 ml-4"
+            sideOffset={38}
+            closeDelay={200}
+            trigger={<span>
+                {children}
+            </span>}
+        >
+            <EpisodeGridItem
+                key={JSON.stringify(episode)}
+                media={episode?.baseAnime as any}
+                title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
+                episodeTitle={episode?.episodeTitle}
+                fileName={episode?.localFile?.parsedInfo?.original}
+                description={episode?.episodeMetadata?.summary || episode?.episodeMetadata?.overview}
+                isFiller={episode?.episodeMetadata?.isFiller}
+                length={episode?.episodeMetadata?.length}
+                className="flex-none w-full"
+                episodeNumber={episode?.episodeNumber}
+                progressNumber={episode?.progressNumber}
+            />
+        </HoverCard>
+    )
+}
+
 export function VideoCorePlaylistControl() {
     const { animeEntry, hasNextEpisode, hasPreviousEpisode, playEpisode } = useVideoCorePlaylist()
 
@@ -300,16 +330,20 @@ export function VideoCorePlaylistControl() {
 
     if (currentPlaylist) {
         return <>
-            {!!prevPlaylistEpisode && <VideoCorePreviousButton
-                onClick={() => {
-                    playPlaylistEpisode("previous", true)
-                }}
-            />}
-            {!!nextPlaylistEpisode && <VideoCoreNextButton
-                onClick={() => {
-                    playPlaylistEpisode("next", true)
-                }}
-            />}
+            {!!prevPlaylistEpisode && <PlaylistEpisodeHoverCard episode={prevPlaylistEpisode?.episode}>
+                <VideoCorePreviousButton
+                    onClick={() => {
+                        playPlaylistEpisode("previous", true)
+                    }}
+                />
+            </PlaylistEpisodeHoverCard>}
+            {!!nextPlaylistEpisode && <PlaylistEpisodeHoverCard episode={nextPlaylistEpisode?.episode}>
+                <VideoCoreNextButton
+                    onClick={() => {
+                        playPlaylistEpisode("next", true)
+                    }}
+                />
+            </PlaylistEpisodeHoverCard>}
         </>
     }
 

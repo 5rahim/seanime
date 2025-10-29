@@ -108,7 +108,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                 return {
                     id: String(item.mediaId) + "-" + String(item.episodeNumber) + "-" + String(item.dateTime),
                     name: item.title,
-                    time: item.time,
+                    time: item.time.replace(":00:00", ":00"),
                     datetime: item.dateTime!,
                     href: `/entry?id=${item.mediaId}`,
                     image: item.image,
@@ -336,7 +336,7 @@ function MobileDayItem({ day, calendarParams }: MobileDayItemProps) {
                         className={cn(
                             "flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-full font-bold text-sm lg:text-base",
                             day.isToday
-                                ? "bg-brand text-white"
+                                ? "bg-white text-black"
                                 : "bg-gray-800 text-gray-300",
                         )}
                         data-schedule-calendar-mobile-list-day-item-day-number
@@ -344,7 +344,7 @@ function MobileDayItem({ day, calendarParams }: MobileDayItemProps) {
                         {dayNumber}
                     </div>
                     <div>
-                        <h3
+                        <h4
                             className={cn(
                                 "font-semibold",
                                 day.isToday ? "text-[--brand]" : "text-gray-200",
@@ -352,8 +352,8 @@ function MobileDayItem({ day, calendarParams }: MobileDayItemProps) {
                             data-schedule-calendar-mobile-list-day-item-day-name
                         >
                             {dayName}
-                        </h3>
-                        <p className="text-sm text-[--muted]" data-schedule-calendar-mobile-list-day-item-day-month-day>
+                        </h4>
+                        <p className="text-base text-[--muted]" data-schedule-calendar-mobile-list-day-item-day-month-day>
                             {monthDay}
                         </p>
                     </div>
@@ -436,13 +436,15 @@ function MobileEventItem({ event, calendarParams }: MobileEventItemProps) {
                     </div>
 
                     <div
-                        className="flex items-center gap-4 mt-2 text-sm text-[--muted]"
+                        className="flex items-center gap-2 mt-2 text-sm text-[--muted]"
                         data-schedule-calendar-mobile-list-day-item-event-episode-time
                     >
                         <span className="font-medium" data-schedule-calendar-mobile-list-day-item-event-episode>Episode {event.episode}</span>
-                        {event.time && <span data-schedule-calendar-mobile-list-day-item-event-time>• {event.time}</span>}
+                        {event.time && <span>•</span>}
+                        {event.time && <span data-schedule-calendar-mobile-list-day-item-event-time>{event.time}</span>}
+                        {event.isSeasonFinale && <span>•</span>}
                         {event.isSeasonFinale && (
-                            <span className="text-[--blue] font-medium" data-schedule-calendar-mobile-list-day-item-event-finale>• Finale</span>
+                            <span className="text-[--blue] font-medium" data-schedule-calendar-mobile-list-day-item-event-finale>Finale</span>
                         )}
                     </div>
                 </div>

@@ -179,7 +179,7 @@ func (m *Manager) sendCurrentPlaylistToClient() {
 
 	data, ok := m.currentPlaylistData.Get()
 	if !ok {
-		m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+		m.wsEventManager.SendEventTo(m.clientId, string(events.PlaylistEvent), ServerEvent{
 			Type: ServerEventCurrentPlaylist,
 			Payload: struct {
 				PlaylistEpisode *anime.PlaylistEpisode `json:"playlistEpisode"`
@@ -191,7 +191,7 @@ func (m *Manager) sendCurrentPlaylistToClient() {
 		})
 		return
 	}
-	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+	m.wsEventManager.SendEventTo(m.clientId, string(events.PlaylistEvent), ServerEvent{
 		Type: ServerEventCurrentPlaylist,
 		Payload: struct {
 			PlaylistEpisode *anime.PlaylistEpisode `json:"playlistEpisode"`
@@ -237,14 +237,14 @@ func (m *Manager) listenToEvents() {
 				payload := startPlaylistPayload{}
 				if err := event.UnmarshalAs(&payload); err == nil {
 					// Get the playlist
+					m.clientId = payload.ClientId
 					playlist, err := db_bridge.GetPlaylist(m.db, payload.DbId)
 					if err != nil {
 						m.logger.Error().Err(err).Msg("playlist: failed to get playlist")
-						m.wsEventManager.SendEvent(events.ErrorToast, "Failed to retrieve playlist info")
+						m.wsEventManager.SendEventTo(m.clientId, events.ErrorToast, "Failed to retrieve playlist info")
 						m.isStartingPlaylist.Store(false)
 						continue
 					}
-					m.clientId = payload.ClientId
 					// Start playlist
 					go m.startPlaylist(playlist, &payload)
 				}
@@ -425,7 +425,7 @@ func (m *Manager) playNextEpisode() {
 
 	m.logger.Trace().Msg("playlist: Playing next episode")
 
-	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+	m.wsEventManager.SendEventTo(m.clientId, string(events.PlaylistEvent), ServerEvent{
 		Type:    ServerEventPlayingEpisode,
 		Payload: nil,
 	})
@@ -539,7 +539,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 	m.state.Store(StateIdle)
 	_ = m.playbackManager.Cancel()
 
-	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+	m.wsEventManager.SendEventTo(m.clientId, string(events.PlaylistEvent), ServerEvent{
 		Type:    ServerEventPlayingEpisode,
 		Payload: nil,
 	})
@@ -629,7 +629,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 
 	m.logger.Trace().Msg("playlist: Sending play episode event to client")
 
-	m.wsEventManager.SendEvent(string(events.PlaylistEvent), ServerEvent{
+	m.wsEventManager.SendEventTo(m.clientId, string(events.PlaylistEvent), ServerEvent{
 		Type: ServerEventPlayEpisode,
 		Payload: playEpisodePayload{
 			PlaylistEpisode: episode,
@@ -696,16 +696,16 @@ func (m *Manager) StopPlaylist(reason string, isError ...bool) {
 		}
 		if completedEpisodes == len(d.playlist.Episodes) {
 			_ = db_bridge.DeletePlaylist(m.db, d.playlist.DbId)
-			m.wsEventManager.SendEvent(events.InvalidateQueries, []string{events.GetPlaylistsEndpoint})
+			m.wsEventManager.SendEventTo(m.clientId, events.InvalidateQueries, []string{events.GetPlaylistsEndpoint})
 		}
 	}()
 	m.isStartingPlaylist.Store(false)
 	m.resetPlaylist()
 	if len(isError) > 0 && isError[0] {
-		m.wsEventManager.SendEvent(events.ErrorToast, reason)
+		m.wsEventManager.SendEventTo(m.clientId, events.ErrorToast, reason)
 		return
 	}
-	m.wsEventManager.SendEvent(events.InfoToast, reason)
+	m.wsEventManager.SendEventTo(m.clientId, events.InfoToast, reason)
 }
 
 // PlayEpisode plays the next episode in the playlist
