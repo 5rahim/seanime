@@ -75,7 +75,7 @@ export const vc_createChapterCues = (chapters: Array<MKVParser_ChapterInfo> | un
         startTime: chapter.start / 1e6,
         endTime: chapter.end ? chapter.end / 1e6 : (chapters[index + 1]?.start ? chapters[index + 1].start / 1e6 : duration),
         text: chapter.text || ``,
-    })))
+    }))).filter(c => c.startTime !== undefined && c.endTime !== undefined && c.startTime <= duration && c.endTime <= duration)
 }
 
 export const vc_fillChapterCues = (chapters: VideoCoreChapterCue[]): VideoCoreChapterCue[] => {

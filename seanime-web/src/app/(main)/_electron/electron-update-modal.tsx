@@ -56,6 +56,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
     const { mutate: downloadMacUpdate, isPending: isMacUpdatePending } = useDownloadMacDenshiUpdate()
 
     const checkElectronUpdate = React.useCallback(() => {
+        if (serverStatus?.settings?.library?.disableUpdateCheck) return
         try {
             if (window.electron) {
                 // Check if the update is available
@@ -76,7 +77,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
             logger("ELECTRON").error("Failed to check for updates", e)
             setIsUpdating(false)
         }
-    }, [isMacOS])
+    }, [serverStatus])
 
     React.useEffect(() => {
         checkElectronUpdate()
@@ -244,7 +245,7 @@ export function ElectronUpdateModal(props: UpdateModalProps) {
                     <img src="/seanime-logo.png" alt="logo" className="w-14 h-auto" />
                 </div>
                 <p className="text-center text-lg">
-                    Update installed. The app will restart automatically.
+                    Update installed. Restart the app.
                 </p>
             </div>
         </div>

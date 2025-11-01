@@ -140,7 +140,7 @@ export const vc_anime4kManager = atom<VideoCoreAnime4KManager | null>(null)
 
 export const vc_previousPausedState = atom(false)
 
-export const vc_lastKnownProgress = atom(0)
+export const vc_lastKnownProgress = atom<{ mediaId: number, progressNumber: number, time: number } | null>(null)
 
 export const vc_skipOpeningTime = atom<number | null>(null)
 export const vc_skipEndingTime = atom<number | null>(null)
@@ -179,7 +179,15 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 break
             case "restoreProgress":
                 // Restore time to the last known position
-                set(vc_lastKnownProgress, Math.max(0, action.payload.time))
+                if (action.payload) {
+                    set(vc_lastKnownProgress, {
+                        mediaId: action.payload.mediaId,
+                        progressNumber: action.payload.progressNumber,
+                        time: action.payload.time,
+                    })
+                } else {
+                    set(vc_lastKnownProgress, null)
+                }
                 break
         }
     }
@@ -399,6 +407,7 @@ export function VideoCore(props: VideoCoreProps) {
     useUpdateEffect(() => {
         if (!state.playbackInfo) {
             log.info("Cleaning up")
+            cancelDiscordActivity()
             if (videoRef.current) {
                 videoRef.current.pause()
                 videoRef.current.removeAttribute("src")
@@ -419,7 +428,7 @@ export function VideoCore(props: VideoCoreProps) {
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
             setIsFullscreen(false)
-            setRestoreProgressTo(0)
+            setRestoreProgressTo(null)
             if (mediaSessionManager) {
                 mediaSessionManager.setVideo(null)
                 mediaSessionManager.destroy()
@@ -888,16 +897,21 @@ export function VideoCore(props: VideoCoreProps) {
     React.useEffect(() => {
         if (!anime4kManager || !restoreProgressTo) return
 
+        if (restoreProgressTo.mediaId !== state.playbackInfo?.media?.id || restoreProgressTo.progressNumber !== state.playbackInfo?.episode?.progressNumber) {
+            setRestoreProgressTo(null)
+            return
+        }
+
         if (anime4kOption === "off" || anime4kManager.canvas !== null) {
             flashAction({ message: "Progress restored", duration: 1500 })
-            dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo } })
+            dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
         } else if (anime4kOption !== ("off" as Anime4KOption)) {
             flashAction({ message: "Restoring progress", duration: 1500 })
             anime4kManager.registerOnCanvasCreatedOnce(() => {
-                dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo } })
+                dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
             })
         }
-        setRestoreProgressTo(0)
+        setRestoreProgressTo(null)
         if (autoPlay) {
             videoRef.current?.play()
         }

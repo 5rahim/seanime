@@ -85,8 +85,8 @@ const stepVariants = {
 const STEPS = [
     {
         id: "library",
-        title: "Anime Library",
-        description: "Choose your anime collection folder",
+        title: "Local Anime Library",
+        description: "Choose your anime library folder",
         icon: BiFolder,
         gradient: "from-blue-500 to-cyan-500",
     },
@@ -99,7 +99,7 @@ const STEPS = [
     },
     {
         id: "torrents",
-        title: "Torrent Setup",
+        title: "Downloading",
         description: "Set up downloading",
         icon: BiDownload,
         gradient: "from-orange-500 to-red-500",
@@ -434,13 +434,13 @@ function TorrentStep({ form }: { form: any }) {
             className="space-y-8"
         >
             <motion.div variants={itemVariants} className="text-center space-y-4">
-                <h2 className="text-3xl font-bold">Torrent Setup</h2>
+                <h2 className="text-3xl font-bold">Downloading</h2>
                 <p className="text-[--muted] text-sm max-w-lg mx-auto">
-                    Configure your default client.
+                    Configure your torrent client for downloading.
                 </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
 
                 <StepCard>
                     <motion.div variants={itemVariants} className="space-y-4">
@@ -730,14 +730,14 @@ export function GettingStartedPage({ status }: { status: Status }) {
 
     if (!data) return (
         <div className="min-h-screen bg-gradient-to-br from-[--background] via-[--background] to-indigo-900/10 relative">
-            <div className="fixed h-100vh w-100vw inset-0">
-                <div className="fixed h-100vh w-100vw bg-gray-950/20 z-[1] backdrop-blur-md inset-0"></div>
+            <div className="fixed h-100vh w-100vw inset-0 ">
+                <div className="fixed h-100vh w-100vw bg-gray-950/20 z-[1] backdrop-blur-sm firefox:backdrop-blur-none inset-0"></div>
                 <Image
-                    src="https://wallpaper.forfun.com/fetch/bd/bd5226068e173245023c12b8c24a301e.jpeg?w=1470&r=0.5625"
+                    src="/background.jpeg"
                     alt="bg"
                     fill
                     sizes="100vw"
-                    className="opacity-[0.05]"
+                    className="opacity-[0.05] firefox:opacity-[0.01]"
                 />
             </div>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

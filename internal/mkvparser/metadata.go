@@ -52,6 +52,7 @@ type ChapterInfo struct {
 	Text          string   `json:"text,omitempty"`
 	Languages     []string `json:"languages,omitempty"`     // Legacy 3-letter language codes
 	LanguagesIETF []string `json:"languagesIETF,omitempty"` // IETF language tags
+	EditionUID    uint64   `json:"-"`
 }
 
 // AttachmentInfo holds extracted information about an attachment.

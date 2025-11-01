@@ -233,7 +233,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                         listData={entry.listData}
                         media={entry.media!}
                         smallerTitle
-                        type="anime"
+                        type={type}
                     >
                         <div
                             className={cn(

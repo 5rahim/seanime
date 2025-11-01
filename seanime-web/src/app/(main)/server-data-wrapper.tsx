@@ -132,7 +132,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                 <AppLayoutStack>
                     <div className="text-center space-y-4">
                         <div className="mb-4 flex justify-center w-full">
-                            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
+                            <img src="/seanime-logo.png" alt="logo" className="w-24 h-auto" />
                         </div>
                         <h3>Welcome!</h3>
                         <Button
@@ -163,7 +163,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                 <AppLayoutStack>
                     <div className="text-center space-y-4">
                         <div className="mb-4 flex justify-center w-full">
-                            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
+                            <img src="/seanime-logo.png" alt="logo" className="w-24 h-auto" />
                         </div>
                         <h3>Welcome!</h3>
                         <Link

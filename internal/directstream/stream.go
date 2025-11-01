@@ -237,13 +237,15 @@ func (m *Manager) listenToNativePlayerEvents() {
 						go m.discordPresence.Close()
 					}
 				case *nativeplayer.VideoStatusEvent:
-					_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
-						CurrentTime:   event.Status.CurrentTime,
-						Duration:      event.Status.Duration,
-						MediaId:       cs.Media().GetID(),
-						EpisodeNumber: cs.Episode().GetEpisodeNumber(),
-						Kind:          continuity.MediastreamKind,
-					})
+					if event.Status.Duration != 0 {
+						_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
+							CurrentTime:   event.Status.CurrentTime,
+							Duration:      event.Status.Duration,
+							MediaId:       cs.Media().GetID(),
+							EpisodeNumber: cs.Episode().GetEpisodeNumber(),
+							Kind:          continuity.MediastreamKind,
+						})
+					}
 
 					// Discord
 					if m.discordPresence != nil && !*m.isOffline {

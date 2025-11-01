@@ -378,6 +378,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							})
 						}
 					case PlayerEventVideoTerminated:
+						p.EmptyPlaybackStatus()
 						p.setPlaybackStatus(func() {
 							p.playbackStatus.ClientId = playerEvent.ClientId
 						})

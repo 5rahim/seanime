@@ -208,6 +208,7 @@ type metadataHandler struct {
 
 	// Chapter parsing state
 	inEditionEntry   bool
+	currentEdition   uint64
 	inChapterAtom    bool
 	currentChapter   *ChapterInfo
 	inChapterDisplay bool
@@ -300,6 +301,7 @@ func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.Element
 	case gomkv.ChapterAtomElement:
 		// devnote: filter out chapters with end time
 		if h.currentChapter != nil && h.inEditionEntry && h.currentChapter.End == 0 {
+			h.currentChapter.EditionUID = h.currentEdition
 			h.mp.chapters = append(h.mp.chapters, h.currentChapter)
 		}
 		h.inChapterAtom = false
@@ -463,6 +465,13 @@ func (h *metadataHandler) HandleInteger(id gomkv.ElementID, value int64, info go
 		if h.inChapterAtom && h.currentChapter != nil {
 			h.currentChapter.UID = uint64(value)
 		}
+	case gomkv.EditionUIDElement:
+		if h.inChapterAtom && h.currentChapter != nil {
+			h.currentChapter.EditionUID = uint64(value)
+		}
+		if h.inEditionEntry {
+			h.currentEdition = uint64(value)
+		}
 	case gomkv.FileUIDElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.UID = uint64(value)
@@ -506,6 +515,21 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 	mp.parseMetadataOnce(ctx)
 
 	mp.metadataOnce.Do(func() {
+		// Keep chapters from a single edition (the one with the most chapters)
+		groupedChapters := lo.GroupBy(mp.chapters, func(item *ChapterInfo) uint64 {
+			return item.EditionUID
+		})
+
+		if len(groupedChapters) > 1 {
+			currentChapters := make([]*ChapterInfo, 0)
+			for _, chapters := range groupedChapters {
+				if len(chapters) > len(currentChapters) {
+					currentChapters = chapters
+				}
+			}
+			mp.chapters = currentChapters
+		}
+
 		result := &Metadata{
 			VideoTracks:    make([]*TrackInfo, 0),
 			AudioTracks:    make([]*TrackInfo, 0),
