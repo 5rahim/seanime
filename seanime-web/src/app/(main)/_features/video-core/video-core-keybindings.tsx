@@ -34,7 +34,7 @@ import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
 export const videoCoreKeybindingsModalAtom = atom(false)
 
-const KeybindingValueInput = React.memo(({
+const KeybindingValueInput = ({
     actionKey,
     value,
     onValueChange,
@@ -52,11 +52,69 @@ const KeybindingValueInput = React.memo(({
             hideControls
             min={0}
             step={actionKey.includes("Speed") ? 0.25 : 1}
-            onKeyDown={(e) => e.stopPropagation()}
-            onInput={(e) => e.stopPropagation()}
+            // onKeyDown={(e) => e.stopPropagation()}
+            // onInput={(e) => e.stopPropagation()}
         />
     )
-})
+}
+
+const KeybindingRow = ({
+    action,
+    description,
+    actionKey,
+    hasValue = false,
+    valueLabel = "",
+    editedKeybindings,
+    setEditedKeybindings,
+    recordingKey,
+    handleKeyRecord,
+    formatKeyDisplay = (actionKey: keyof VideoCoreKeybindings) => actionKey,
+}: {
+    action: string
+    description: string
+    actionKey: keyof VideoCoreKeybindings
+    hasValue?: boolean
+    valueLabel?: string
+    editedKeybindings: VideoCoreKeybindings
+    setEditedKeybindings: React.Dispatch<React.SetStateAction<VideoCoreKeybindings>>
+    recordingKey: string | null
+    handleKeyRecord: (actionKey: keyof VideoCoreKeybindings) => void
+    formatKeyDisplay?: (actionKey: keyof VideoCoreKeybindings) => keyof VideoCoreKeybindings | string
+}) => (
+    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-b-0">
+        <div className="flex-1">
+            <div className="font-medium text-sm">{action}</div>
+            {hasValue && (
+                <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">{valueLabel}:</span>
+                    <KeybindingValueInput
+                        actionKey={actionKey}
+                        value={("value" in editedKeybindings[actionKey]) ? (editedKeybindings[actionKey] as any).value : 0}
+                        onValueChange={(value) => {
+                            setEditedKeybindings(prev => ({
+                                ...prev,
+                                [actionKey]: { ...prev[actionKey], value: value || 0 },
+                            }))
+                        }}
+                    />
+                </div>
+            )}
+        </div>
+        <div className="flex items-center gap-2">
+            <Button
+                intent={recordingKey === actionKey ? "white-subtle" : "gray-outline"}
+                size="sm"
+                onClick={() => handleKeyRecord(actionKey)}
+                className={cn(
+                    "h-8 px-3 text-lg font-mono",
+                    recordingKey === actionKey && "!text-xs text-white",
+                )}
+            >
+                {recordingKey === actionKey ? "Press key..." : formatKeyDisplay(editedKeybindings?.[actionKey]?.key as any ?? "" as any)}
+            </Button>
+        </div>
+    </div>
+)
 
 export function VideoCoreKeybindingsModal() {
     const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
@@ -129,52 +187,6 @@ export function VideoCoreKeybindingsModal() {
         return keyMap[keyCode] || keyCode
     }
 
-    const KeybindingRow = React.useCallback(({
-        action,
-        description,
-        actionKey,
-        hasValue = false,
-        valueLabel = "",
-    }: {
-        action: string
-        description: string
-        actionKey: keyof VideoCoreKeybindings
-        hasValue?: boolean
-        valueLabel?: string
-    }) => (
-        <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-b-0">
-            <div className="flex-1">
-                <div className="font-medium text-sm">{action}</div>
-                {hasValue && (
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-muted-foreground">{valueLabel}:</span>
-                        <KeybindingValueInput
-                            actionKey={actionKey}
-                            value={("value" in editedKeybindings[actionKey]) ? (editedKeybindings[actionKey] as any).value : 0}
-                            onValueChange={(value) => setEditedKeybindings(prev => ({
-                                ...prev,
-                                [actionKey]: { ...prev[actionKey], value: value || 0 },
-                            }))}
-                        />
-                    </div>
-                )}
-            </div>
-            <div className="flex items-center gap-2">
-                <Button
-                    intent={recordingKey === actionKey ? "white-subtle" : "gray-outline"}
-                    size="sm"
-                    onClick={() => handleKeyRecord(actionKey)}
-                    className={cn(
-                        "h-8 px-3 text-lg font-mono",
-                        recordingKey === actionKey && "!text-xs text-white",
-                    )}
-                >
-                    {recordingKey === actionKey ? "Press key..." : formatKeyDisplay(editedKeybindings?.[actionKey]?.key ?? "")}
-                </Button>
-            </div>
-        </div>
-    ), [editedKeybindings, recordingKey, formatKeyDisplay, setEditedKeybindings, handleKeyRecord])
-
     return (
         <Modal
             title="Keybinds and Defaults"
@@ -225,6 +237,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Forward"
                                 description="Seek forward"
                                 actionKey="seekForward"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Seconds"
                             />
@@ -232,6 +249,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Backward"
                                 description="Seek backward"
                                 actionKey="seekBackward"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Seconds"
                             />
@@ -239,6 +261,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Forward (Fine)"
                                 description="Seek forward (fine)"
                                 actionKey="seekForwardFine"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Seconds"
                             />
@@ -246,6 +273,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Backward (Fine)"
                                 description="Seek backward (fine)"
                                 actionKey="seekBackwardFine"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Seconds"
                             />
@@ -253,6 +285,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Increase Speed"
                                 description="Increase playback speed"
                                 actionKey="increaseSpeed"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="increment"
                             />
@@ -260,6 +297,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Decrease Speed"
                                 description="Decrease playback speed"
                                 actionKey="decreaseSpeed"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="increment"
                             />
@@ -273,41 +315,81 @@ export function VideoCoreKeybindingsModal() {
                                 action="Next Chapter"
                                 description="Skip to next chapter"
                                 actionKey="nextChapter"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Previous Chapter"
                                 description="Skip to previous chapter"
                                 actionKey="previousChapter"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Next Episode"
                                 description="Play next episode"
                                 actionKey="nextEpisode"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Previous Episode"
                                 description="Play previous episode"
                                 actionKey="previousEpisode"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Cycle Subtitles"
                                 description="Cycle through subtitle tracks"
                                 actionKey="cycleSubtitles"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Fullscreen"
                                 description="Toggle fullscreen"
                                 actionKey="fullscreen"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Picture in Picture"
                                 description="Toggle picture in picture"
                                 actionKey="pictureInPicture"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Take Screenshot"
                                 description="Take screenshot"
                                 actionKey="takeScreenshot"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                         </div>
                     </div>
@@ -319,6 +401,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Volume Up"
                                 description="Increase volume"
                                 actionKey="volumeUp"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Percent"
                             />
@@ -326,6 +413,11 @@ export function VideoCoreKeybindingsModal() {
                                 action="Volume Down"
                                 description="Decrease volume"
                                 actionKey="volumeDown"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                                 hasValue={true}
                                 valueLabel="Percent"
                             />
@@ -333,11 +425,21 @@ export function VideoCoreKeybindingsModal() {
                                 action="Mute"
                                 description="Toggle mute"
                                 actionKey="mute"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                             <KeybindingRow
                                 action="Cycle Audio"
                                 description="Cycle through audio tracks"
                                 actionKey="cycleAudio"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
                             />
                         </div>
                     </div>
