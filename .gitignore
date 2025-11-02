@@ -19,9 +19,9 @@ go.work
 _docker-compose.yml
 
 logs
-#web/ TODO undo
+web/
 web-desktop/
-#web-denshi/ TODO undo
+web-denshi/
 out/
 ./assets/
 
