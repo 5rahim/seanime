@@ -59,14 +59,14 @@ export default function Page() {
                     key="chapter-list"
                     className="relative 2xl:order-first pb-10 pt-4 space-y-10"
                     {...{
-                        initial: { opacity: 0, y: 60 },
+                        initial: { opacity: 0, y: 15 },
                         animate: { opacity: 1, y: 0 },
-                        exit: { opacity: 0, y: 60 },
+                        exit: { opacity: 0, y: 15 },
                         transition: {
                             type: "spring",
                             damping: 10,
                             stiffness: 80,
-                            delay: 0.6,
+                            delay: 0.5,
                         },
                     }}
                 >

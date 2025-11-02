@@ -110,6 +110,7 @@ func (u *Updater) GetReleaseName(version string) string {
 
 func (u *Updater) fetchLatestRelease() (*Release, error) {
 	var release *Release
+
 	docsRelease, err := u.fetchLatestReleaseFromDocs()
 	if err != nil {
 		ghRelease, err := u.fetchLatestReleaseFromGitHub()

@@ -1,10 +1,5 @@
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import {
-    __seaMediaPlayer_mutedAtom,
-    __seaMediaPlayer_playbackRateAtom,
-    __seaMediaPlayer_volumeAtom,
-} from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
-import {
     vc_audioManager,
     vc_containerElement,
     vc_currentTime,
@@ -27,6 +22,8 @@ import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import {
+    vc_menuOpen,
+    vc_menuSectionOpen,
     VideoCoreMenu,
     VideoCoreMenuBody,
     VideoCoreMenuOption,
@@ -36,7 +33,17 @@ import {
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
-import { vc_beautifyImageAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import {
+    vc_autoNextAtom,
+    vc_autoPlayVideoAtom,
+    vc_autoSkipOPEDAtom,
+    vc_beautifyImageAtom,
+    vc_highlightOPEDChaptersAtom,
+    vc_showChapterMarkersAtom,
+    vc_storedMutedAtom,
+    vc_storedPlaybackRateAtom,
+    vc_storedVolumeAtom,
+} from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { Switch } from "@/components/ui/switch"
@@ -45,6 +52,8 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
 import React from "react"
+import { HiFastForward } from "react-icons/hi"
+import { IoCaretForwardCircleOutline } from "react-icons/io5"
 import {
     LuCaptions,
     LuChevronLeft,
@@ -62,7 +71,7 @@ import {
 import { MdSpeed } from "react-icons/md"
 import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
-import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
+import { TbArrowForwardUp, TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
 
 const VIDEOCORE_CONTROL_BAR_VPADDING = 5
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
@@ -310,8 +319,8 @@ export function VideoCorePlayButton() {
 export function VideoCoreVolumeButton() {
     const volume = useAtomValue(vc_volume)
     const muted = useAtomValue(vc_isMuted)
-    const setVolume = useSetAtom(__seaMediaPlayer_volumeAtom)
-    const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
+    const setVolume = useSetAtom(vc_storedVolumeAtom)
+    const setMuted = useSetAtom(vc_storedMutedAtom)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
 
     const [isSliding, setIsSliding] = React.useState(false)
@@ -513,6 +522,7 @@ export function VideoCoreAudioButton() {
 
     return (
         <VideoCoreMenu
+            name="audio"
             trigger={<VideoCoreControlButtonIcon
                 icons={[
                     ["default", LuHeadphones],
@@ -528,7 +538,7 @@ export function VideoCoreAudioButton() {
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
                     options={audioTracks.map(track => ({
-                        label: `${track.name}`,
+                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                         value: track.number,
                         moreInfo: track.language?.toUpperCase(),
                     }))}
@@ -574,6 +584,7 @@ export function VideoCoreSubtitleButton() {
 
     return (
         <VideoCoreMenu
+            name="subtitle"
             trigger={<VideoCoreControlButtonIcon
                 icons={[
                     ["default", LuCaptions],
@@ -588,7 +599,7 @@ export function VideoCoreSubtitleButton() {
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
                     options={subtitleTracks.map(track => ({
-                        label: `${track.name}`,
+                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                         value: track.number,
                         moreInfo: track.language
                             ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
@@ -607,7 +618,7 @@ export function VideoCoreSubtitleButton() {
 function getSubtitleTrackType(codecID: string) {
     switch (codecID) {
         case "S_TEXT/ASS":
-            return "SSA"
+            return "ASS"
         case "S_TEXT/SSA":
             return "SSA"
         case "S_TEXT/UTF8":
@@ -622,7 +633,7 @@ export function VideoCoreSettingsButton() {
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const playbackRate = useAtomValue(vc_playbackRate)
-    const setPlaybackRate = useSetAtom(__seaMediaPlayer_playbackRateAtom)
+    const setPlaybackRate = useSetAtom(vc_storedPlaybackRateAtom)
 
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
@@ -632,89 +643,149 @@ export function VideoCoreSettingsButton() {
     const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
     const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)
     const [beautifyImage, setBeautifyImage] = useAtom(vc_beautifyImageAtom)
+    const [autoNext, setAutoNext] = useAtom(vc_autoNextAtom)
+    const [autoPlay, setAutoPlay] = useAtom(vc_autoPlayVideoAtom)
+    const [autoSkipOPED, setAutoSkipOPED] = useAtom(vc_autoSkipOPEDAtom)
+
+    const [menuOpen, setMenuOpen] = useAtom(vc_menuOpen)
+    const [openMenuSection, setOpenMenuSection] = useAtom(vc_menuSectionOpen)
 
     if (isMiniPlayer) return null
 
     return (
-        <VideoCoreMenu
-            trigger={<VideoCoreControlButtonIcon
-                icons={[
-                    ["default", LuChevronUp],
-                ]}
-                state="default"
-                onClick={() => {
+        <>
+            {playbackRate !== 1 && (
+                <p
+                    className="text-sm text-[--muted] cursor-pointer" onClick={() => {
+                    setMenuOpen("settings")
+                    React.startTransition(() => {
+                        setOpenMenuSection("Playback Speed")
+                    })
                 }}
-            />}
-        >
-            <VideoCoreMenuSectionBody>
-                <VideoCoreMenuTitle>Settings</VideoCoreMenuTitle>
-                <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed} value={`${playbackRate}x`} />
-                <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
-                <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
-                <VideoCoreMenuOption title="Keybinds" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
-            </VideoCoreMenuSectionBody>
-            <VideoCoreMenuSubmenuBody>
-                <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
-                    <VideoCoreSettingSelect
-                        options={[
-                            { label: "0.5x", value: 0.5 },
-                            { label: "0.9x", value: 0.9 },
-                            { label: "1x", value: 1 },
-                            { label: "1.1x", value: 1.1 },
-                            { label: "1.5x", value: 1.5 },
-                            { label: "2x", value: 2 },
-                        ]}
-                        onValueChange={(v: number) => {
-                            setPlaybackRate(v)
-                        }}
-                        value={playbackRate}
-                    />
-                </VideoCoreMenuOption>
-                <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
-                    <p className="text-[--muted] text-sm mb-2">
-                        Real-time upscaling. Do not enable if you have a low-end GPU or none.
-                    </p>
-                    <VideoCoreSettingSelect
-                        options={anime4kOptions.map(option => ({
-                            label: `${option.label}`,
-                            value: option.value,
-                            moreInfo: option.performance === "heavy" ? "Heavy" : undefined,
-                            description: option.description,
-                        }))}
-                        onValueChange={(value) => {
-                            setAnime4kOption(value)
-                        }}
-                        value={anime4kOption}
-                    />
-                </VideoCoreMenuOption>
-                <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush}>
-                    <Switch
-                        label="Show Chapter Markers"
-                        side="right"
-                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
-                        size="sm"
-                        value={showChapterMarkers}
-                        onValueChange={setShowChapterMarkers}
-                    />
-                    <Switch
-                        label="Highlight OP/ED Chapters"
-                        side="right"
-                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
-                        size="sm"
-                        value={highlightOPEDChapters}
-                        onValueChange={setHighlightOPEDChapters}
-                    />
-                    <Switch
-                        label="Apply enhancement filters"
-                        side="right"
-                        fieldClass="hover:bg-transparent px-0 ml-0 w-full"
-                        size="sm"
-                        value={beautifyImage}
-                        onValueChange={setBeautifyImage}
-                    />
-                </VideoCoreMenuOption>
-            </VideoCoreMenuSubmenuBody>
-        </VideoCoreMenu>
+                >
+                    {`${(playbackRate).toFixed(2)}x`}
+                </p>
+            )}
+            <VideoCoreMenu
+                name="settings"
+                trigger={<VideoCoreControlButtonIcon
+                    icons={[
+                        ["default", LuChevronUp],
+                    ]}
+                    state="default"
+                    onClick={() => {
+                    }}
+                />}
+            >
+                <VideoCoreMenuSectionBody>
+                    <VideoCoreMenuTitle>Settings</VideoCoreMenuTitle>
+                    <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed} value={`${(playbackRate).toFixed(2)}x`} />
+                    <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline} value={autoPlay ? "On" : "Off"} />
+                    <VideoCoreMenuOption title="Auto Next" icon={HiFastForward} value={autoNext ? "On" : "Off"} />
+                    <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
+                    <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
+                    <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
+                    <VideoCoreMenuOption title="Keybinds & Defaults" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
+                </VideoCoreMenuSectionBody>
+                <VideoCoreMenuSubmenuBody>
+                    <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
+                        <VideoCoreSettingSelect
+                            options={[
+                                { label: "0.5x", value: 0.5 },
+                                { label: "0.9x", value: 0.9 },
+                                { label: "1x", value: 1 },
+                                { label: "1.1x", value: 1.1 },
+                                { label: "1.5x", value: 1.5 },
+                                { label: "2x", value: 2 },
+                            ]}
+                            onValueChange={(v: number) => {
+                                setPlaybackRate(v)
+                            }}
+                            value={playbackRate}
+                        />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline}>
+                        <VideoCoreSettingSelect
+                            options={[
+                                { label: "On", value: 1 },
+                                { label: "Off", value: 0 },
+                            ]}
+                            onValueChange={(v: number) => {
+                                setAutoPlay(!!v)
+                            }}
+                            value={autoPlay ? 1 : 0}
+                        />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Auto Next" icon={HiFastForward}>
+                        <VideoCoreSettingSelect
+                            options={[
+                                { label: "On", value: 1 },
+                                { label: "Off", value: 0 },
+                            ]}
+                            onValueChange={(v: number) => {
+                                setAutoNext(!!v)
+                            }}
+                            value={autoNext ? 1 : 0}
+                        />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp}>
+                        <VideoCoreSettingSelect
+                            options={[
+                                { label: "On", value: 1 },
+                                { label: "Off", value: 0 },
+                            ]}
+                            onValueChange={(v: number) => {
+                                setAutoSkipOPED(!!v)
+                            }}
+                            value={autoSkipOPED ? 1 : 0}
+                        />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
+                        <p className="text-[--muted] text-sm mb-2">
+                            Real-time upscaling. Do not enable if you have a low-end GPU or none.
+                        </p>
+                        <VideoCoreSettingSelect
+                            options={anime4kOptions.map(option => ({
+                                label: `${option.label}`,
+                                value: option.value,
+                                moreInfo: option.performance === "heavy" ? "Heavy" : undefined,
+                                description: option.description,
+                            }))}
+                            onValueChange={(value) => {
+                                setAnime4kOption(value)
+                            }}
+                            value={anime4kOption}
+                        />
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush}>
+                        <Switch
+                            label="Show Chapter Markers"
+                            side="right"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
+                            size="sm"
+                            value={showChapterMarkers}
+                            onValueChange={setShowChapterMarkers}
+                        />
+                        <Switch
+                            label="Highlight OP/ED Chapters"
+                            side="right"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
+                            size="sm"
+                            value={highlightOPEDChapters}
+                            onValueChange={setHighlightOPEDChapters}
+                        />
+                        <Switch
+                            label="Increase Saturation"
+                            side="right"
+                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
+                            size="sm"
+                            value={beautifyImage}
+                            onValueChange={setBeautifyImage}
+                        />
+                    </VideoCoreMenuOption>
+                </VideoCoreMenuSubmenuBody>
+            </VideoCoreMenu>
+        </>
     )
 }
 
@@ -742,6 +813,7 @@ export function VideoCorePipButton() {
 export function VideoCoreFullscreenButton() {
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const isFullscreen = useAtomValue(vc_isFullscreen)
+    const [isMiniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
 
     return (
         <VideoCoreControlButtonIcon
@@ -751,6 +823,7 @@ export function VideoCoreFullscreenButton() {
             ]}
             state={isFullscreen ? "fullscreen" : "default"}
             onClick={() => {
+                setMiniPlayer(false)
                 fullscreenManager?.toggleFullscreen()
             }}
         />

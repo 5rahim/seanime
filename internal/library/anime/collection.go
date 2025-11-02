@@ -5,7 +5,7 @@ import (
 	"context"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
@@ -90,7 +90,7 @@ type (
 		AnimeCollection  *anilist.AnimeCollection
 		LocalFiles       []*LocalFile
 		Platform         platform.Platform
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 	}
 )
 
@@ -162,7 +162,7 @@ func NewLibraryCollection(ctx context.Context, opts *NewLibraryCollectionOptions
 	event := &AnimeLibraryCollectionEvent{
 		LibraryCollection: lc,
 	}
-	hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
+	_ = hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
 	lc = event.LibraryCollection
 
 	return
@@ -351,7 +351,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
 	platform platform.Platform,
-	metadataProvider metadata.Provider,
+	metadataProvider metadata_provider.Provider,
 ) {
 
 	// Get currently watching list

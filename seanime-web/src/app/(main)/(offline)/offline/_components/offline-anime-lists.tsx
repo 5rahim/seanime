@@ -1,4 +1,5 @@
 import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
+import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -24,7 +25,7 @@ export function OfflineAnimeLists() {
                 <LibraryHeader list={continueWatchingList} />
                 <div
                     className={cn(
-                        "h-28",
+                        "h-40",
                         ts.hideTopNavbar && "h-40",
                     )}
                 ></div>
@@ -32,6 +33,11 @@ export function OfflineAnimeLists() {
             <PageWrapper
                 className="pt-4 relative space-y-8"
             >
+                <ContinueWatching
+                    episodes={continueWatchingList}
+                    isLoading={isLoading}
+                    withTitle
+                />
                 <LibraryView
                     genres={libraryGenres}
                     collectionList={libraryCollectionList}

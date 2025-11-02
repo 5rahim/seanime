@@ -1,11 +1,12 @@
 package db_bridge
 
 import (
-	"github.com/goccy/go-json"
-	"github.com/samber/mo"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
+
+	"github.com/goccy/go-json"
+	"github.com/samber/mo"
 )
 
 var CurrLocalFilesDbId uint

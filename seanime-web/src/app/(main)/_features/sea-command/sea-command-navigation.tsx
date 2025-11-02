@@ -58,7 +58,7 @@ export function SeaCommandUserMediaNavigation() {
                                 })
                             }}
                         >
-                            <CommandItemMedia media={n} />
+                            <CommandItemMedia media={n} type="anime" />
                         </CommandItem>
                     ))}
                 </CommandGroup>
@@ -74,7 +74,7 @@ export function SeaCommandUserMediaNavigation() {
                                 })
                             }}
                         >
-                            <CommandItemMedia media={n} />
+                            <CommandItemMedia media={n} type="manga" />
                         </CommandItem>
                     ))}
                 </CommandGroup>
@@ -93,9 +93,9 @@ export function SeaCommandNavigation() {
 
     const pages = [
         {
-            name: "My library",
+            name: "Home",
             href: "/",
-            flag: "library",
+            flag: "home",
             show: !serverStatus?.isOffline,
         },
         {
@@ -123,9 +123,9 @@ export function SeaCommandNavigation() {
             show: !serverStatus?.isOffline,
         },
         {
-            name: "AniList",
-            href: "/anilist",
-            flag: "anilist",
+            name: "My lists",
+            href: "/lists",
+            flag: "lists",
             show: !serverStatus?.isOffline,
         },
         {

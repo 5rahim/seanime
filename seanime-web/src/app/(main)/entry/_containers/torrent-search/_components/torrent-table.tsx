@@ -12,21 +12,13 @@ import {
     useTorrentFiltering,
     useTorrentSorting,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-common-helpers"
-import {
-    TorrentDebridInstantAvailabilityBadge,
-    TorrentParsedMetadata,
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { ScrollAreaBox } from "@/components/shared/scroll-area-box"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { TextInput } from "@/components/ui/text-input"
-import { formatDistanceToNowSafe } from "@/lib/helpers/date"
+import { anilist_animeIsSingleEpisode } from "@/lib/helpers/media"
 import React, { memo } from "react"
-import { BiCalendarAlt } from "react-icons/bi"
-import { TorrentPreviewItem } from "./torrent-preview-item"
+import { TorrentList, TorrentListItem } from "./torrent-preview-item"
 
 type TorrentTable = {
     entry?: Anime_Entry
@@ -42,6 +34,7 @@ type TorrentTable = {
     debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
     animeMetadata: Metadata_AnimeMetadata | undefined
     torrentMetadata: Record<string, Torrent_TorrentMetadata> | undefined
+    type: TorrentSelectionType
 }
 
 export const TorrentTable = memo((
@@ -59,6 +52,7 @@ export const TorrentTable = memo((
         debridInstantAvailability,
         animeMetadata,
         torrentMetadata,
+        type,
     }: TorrentTable) => {
     // Use hooks for sorting and filtering
     const { sortField, sortDirection, handleSortChange } = useTorrentSorting()
@@ -72,11 +66,6 @@ export const TorrentTable = memo((
 
     return (
         <>
-            <TextInput
-                value={globalFilter}
-                onValueChange={setGlobalFilter}
-            />
-
             {(isLoading || isFetching) ? <div className="space-y-2">
                 <Skeleton className="h-[96px]" />
                 <Skeleton className="h-[96px]" />
@@ -95,82 +84,68 @@ export const TorrentTable = memo((
                         onFilterChange={handleFilterChange}
                     />
                     <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
-                        {sortedTorrents.map(torrent => {
-                            const parsedEpisodeNumberStr = torrentMetadata?.[torrent.infoHash!]?.metadata?.episode_number?.[0]
-                            const parsedEpisodeNumber = parsedEpisodeNumberStr ? parseInt(parsedEpisodeNumberStr) : undefined
-                            const releaseGroup = torrent.releaseGroup || torrentMetadata?.[torrent.infoHash!]?.metadata?.release_group || ""
-                            let episodeNumber = torrent.episodeNumber || parsedEpisodeNumber || -1
-                            let totalEpisodes = entry?.media?.episodes || (entry?.media?.nextAiringEpisode?.episode ? entry?.media?.nextAiringEpisode?.episode : 0)
-                            if (episodeNumber > totalEpisodes) {
-                                // normalize episode number
-                                for (const epKey in animeMetadata?.episodes) {
-                                    const ep = animeMetadata?.episodes?.[epKey]
-                                    if (ep?.absoluteEpisodeNumber === episodeNumber) {
-                                        episodeNumber = ep.episodeNumber
+                        <TorrentList>
+                            {sortedTorrents.map(torrent => {
+                                const metadata = torrentMetadata?.[torrent.infoHash!]
+                                const parsedEpisodeNumberStr = metadata?.metadata?.episode_number?.[0]
+                                const parsedEpisodeNumber = parsedEpisodeNumberStr ? parseInt(parsedEpisodeNumberStr) : undefined
+                                const releaseGroup = torrent.releaseGroup || metadata?.metadata?.release_group || ""
+                                let episodeNumber = torrent.episodeNumber ?? parsedEpisodeNumber ?? -1
+                                let totalEpisodes = entry?.media?.episodes || (entry?.media?.nextAiringEpisode?.episode
+                                    ? entry?.media?.nextAiringEpisode?.episode
+                                    : 0)
+                                if (episodeNumber > totalEpisodes) {
+                                    // normalize episode number
+                                    for (const epKey in animeMetadata?.episodes) {
+                                        const ep = animeMetadata?.episodes?.[epKey]
+                                        if (ep?.absoluteEpisodeNumber === episodeNumber) {
+                                            episodeNumber = ep.episodeNumber
+                                        }
                                     }
                                 }
-                            }
 
-                            let episodeImage: string | undefined
-                            if (!!animeMetadata && (episodeNumber ?? -1) >= 0) {
-                                const episode = animeMetadata.episodes?.[episodeNumber!.toString()]
-                                if (episode) {
-                                    episodeImage = episode.image
-                                }
-                            }
-                            let distance = 9999
-                            if (!!torrentMetadata && !!torrent.infoHash) {
-                                const metadata = torrentMetadata[torrent.infoHash!]
-                                if (metadata) {
-                                    distance = metadata.distance
-                                }
-                            }
-                            if (distance > 20) {
-                                episodeImage = undefined
-                            }
-                            return (
-                                <TorrentPreviewItem
-                                    // isBasic
-                                    link={torrent.link}
-                                    key={torrent.link}
-                                    title={torrent.name}
-                                    releaseGroup={releaseGroup}
-                                    subtitle={torrent.isBatch ? torrent.name : (episodeNumber ?? -1) >= 0
-                                        ? `Episode ${episodeNumber}`
-                                        : ""}
-                                    isBatch={torrent.isBatch ?? false}
-                                    isBestRelease={torrent.isBestRelease}
-                                    image={distance <= 20 ? episodeImage : undefined}
-                                    fallbackImage={(entry?.media?.coverImage?.large || entry?.media?.bannerImage)}
-                                    isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
-                                    onClick={() => onToggleTorrent(torrent!)}
-                                    // confirmed={distance === 0}
-                                >
-                                    <div className="flex flex-wrap gap-2 items-center">
-                                        {torrent.isBestRelease && (
-                                            <Badge
-                                                className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
-                                                intent="success-solid"
+                                const isBatch = torrent.isBatch ?? (!anilist_animeIsSingleEpisode(entry?.media) && (metadata?.metadata?.episode_number?.length ?? 0) > 1 || (metadata?.metadata?.episode_number?.length ?? 0) == 0)
 
-                                            >
-                                                Best release
-                                            </Badge>
-                                        )}
-                                        <TorrentResolutionBadge resolution={torrent.resolution} />
-                                        {(!!torrent.infoHash && debridInstantAvailability[torrent.infoHash]) && (
-                                            <TorrentDebridInstantAvailabilityBadge />
-                                        )}
-                                        <TorrentSeedersBadge seeders={torrent.seeders} />
-                                        {!!torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
-                                            {torrent.formattedSize}</p>}
-                                        {torrent.date && <p className="text-[--muted] text-sm flex items-center gap-1">
-                                            <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
-                                        </p>}
-                                    </div>
-                                    <TorrentParsedMetadata metadata={torrentMetadata?.[torrent.infoHash!]} />
-                                </TorrentPreviewItem>
-                            )
-                        })}
+                                let episodeImage: string | undefined
+                                if (!!animeMetadata && (episodeNumber ?? -1) >= 0) {
+                                    const episode = animeMetadata.episodes?.[episodeNumber!.toString()]
+                                    if (episode) {
+                                        episodeImage = episode.image
+                                    }
+                                }
+                                let distance = 9999
+                                if (!!torrentMetadata && !!torrent.infoHash) {
+                                    if (metadata) {
+                                        distance = metadata.distance
+                                    }
+                                }
+                                if (distance > 20) {
+                                    episodeImage = undefined
+                                }
+                                return (
+                                    <TorrentListItem
+                                        key={torrent.link}
+                                        torrent={torrent}
+                                        metadata={torrentMetadata?.[torrent.infoHash!]?.metadata}
+                                        media={entry?.media}
+                                        episode={undefined}
+                                        debridCached={((type === "download" || type === "debridstream-select" || type === "debridstream-select-file") && !!torrent.infoHash && !!debridInstantAvailability[torrent.infoHash])}
+                                        isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
+                                        onClick={() => onToggleTorrent(torrent!)}
+                                        overrideProps={{
+                                            releaseGroup: releaseGroup,
+                                            displayName: (episodeNumber ?? -1) >= 0
+                                                ? `Episode ${episodeNumber}`
+                                                : "",
+                                            isBatch: torrent.isBestRelease ? true : isBatch,
+                                            image: distance <= 20 ? episodeImage : undefined,
+                                            fallbackImage: (entry?.media?.coverImage?.large || entry?.media?.bannerImage),
+                                            confirmed: distance === 0,
+                                        }}
+                                    />
+                                )
+                            })}
+                        </TorrentList>
                     </ScrollAreaBox>
                 </>
             )}

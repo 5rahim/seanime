@@ -4,6 +4,7 @@ import { AddExtensionModal } from "@/app/(main)/extensions/_containers/add-exten
 import { ExtensionCard } from "@/app/(main)/extensions/_containers/extension-card"
 import { InvalidExtensionCard, UnauthorizedExtensionPluginCard } from "@/app/(main)/extensions/_containers/invalid-extension-card"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -17,6 +18,7 @@ import { BiDotsVerticalRounded } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
 import { LuBlocks, LuDownload } from "react-icons/lu"
+import { MdDataSaverOn } from "react-icons/md"
 import { PiBookFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
@@ -27,6 +29,14 @@ type ExtensionListProps = {
 }
 
 export const __extensions_currentPageAtom = atom<"installed" | "marketplace">("installed")
+
+export const EXTENSION_TYPE = {
+    "plugin": "Plugin",
+    "anime-torrent-provider": "Anime Torrent Provider",
+    "manga-provider": "Manga Provider",
+    "onlinestream-provider": "Online Streaming Provider",
+    "custom-source": "Custom Source",
+}
 
 export function ExtensionList(props: ExtensionListProps) {
 
@@ -64,6 +74,7 @@ export function ExtensionList(props: ExtensionListProps) {
     const animeTorrentExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "anime-torrent-provider")
     const mangaExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "manga-provider")
     const onlinestreamExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "onlinestream-provider")
+    const customSourceExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "custom-source")
 
     const nonvalidExtensions = (allExtensions?.invalidExtensions ?? []).filter(n => n.code !== "plugin_permissions_not_granted")
         .sort((a, b) => a.id.localeCompare(b.id))
@@ -111,7 +122,7 @@ export function ExtensionList(props: ExtensionListProps) {
                     )}
                     <Button
                         className="rounded-full"
-                        intent="gray-outline"
+                        intent="gray-basic"
                         leftIcon={<TbReload className="text-lg" />}
                         disabled={isLoading}
                         onClick={() => {
@@ -126,10 +137,10 @@ export function ExtensionList(props: ExtensionListProps) {
                     <AddExtensionModal extensions={allExtensions.extensions}>
                         <Button
                             className="rounded-full"
-                            intent="primary-subtle"
+                            intent="white-subtle"
                             leftIcon={<GrInstallOption className="text-lg" />}
                         >
-                            Add an extension/plugin
+                            Add extensions
                         </Button>
                     </AddExtensionModal>
 
@@ -201,6 +212,29 @@ export function ExtensionList(props: ExtensionListProps) {
                                 isInstalled={isExtensionInstalled(extension.id)}
                                 userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
                                 allowReload={true}
+                            />
+                        ))}
+                    </div>
+                </Card>
+            )}
+
+            {!!customSourceExtensions?.length && (
+                <Card className="p-4 space-y-6">
+                    <div className="flex items-center gap-4">
+                        <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Sources</h3>
+                        <SeaLink href="/custom-sources" className="text-sm underline underline-offset-2 text-[--muted] hover:text-[--foreground]">
+                            Browse all media
+                        </SeaLink>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {customSourceExtensions.map(extension => (
+                            <ExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                updateData={allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                                userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                allowReload
                             />
                         ))}
                     </div>

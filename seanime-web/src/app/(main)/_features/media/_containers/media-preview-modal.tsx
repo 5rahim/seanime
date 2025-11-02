@@ -12,6 +12,7 @@ import {
 import { MediaPageHeaderEntryDetails } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
+import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
@@ -20,6 +21,7 @@ import {
     TorrentSearchDrawer,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -28,12 +30,12 @@ import { Modal } from "@/components/ui/modal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getImageUrl } from "@/lib/server/assets"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
+import { isCustomSource } from "@/lib/server/utils"
 import { ThemeMediaPageBannerSize, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { usePrevious } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { BiX } from "react-icons/bi"
@@ -161,7 +163,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                         "absolute top-0 left-0 w-full h-full",
                     )}
                 >
-                    {(!!bannerImage) && <Image
+                    {(!!bannerImage) && <SeaImage
                         src={getImageUrl(bannerImage || "")}
                         alt="banner image"
                         fill
@@ -231,7 +233,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                         listData={entry.listData}
                         media={entry.media!}
                         smallerTitle
-                        type="anime"
+                        type={type}
                     >
                         <div
                             className={cn(
@@ -271,9 +273,9 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                             </Button>}
                         />}
 
-                        <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
+                        {isCustomSource(media?.id) && <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
                             <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
-                        </SeaLink>
+                        </SeaLink>}
 
                         {(
                             type === "anime" &&
@@ -291,13 +293,20 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                     </div>
 
                     {detailsLoading ? <LoadingSpinner /> : <div className="space-y-6 pt-6">
-                        {type === "anime" && <RelationsRecommendationsSection entry={entry as Anime_Entry} details={details} />}
-                        {type === "manga" && <MangaRecommendations entry={entry as Manga_Entry} details={details} />}
+                        {(type === "anime" && (entry as Anime_Entry).libraryData) && <EpisodeSection
+                            entry={entry as Anime_Entry}
+                            details={details as AL_AnimeDetailsById_Media}
+                            bottomSection={<></>}
+                            hideCarousel
+                            maxCol={2}
+                        />}
+                        {type === "anime" && <RelationsRecommendationsSection entry={entry as Anime_Entry} details={details} maxCol={5} />}
+                        {type === "manga" && <MangaRecommendations entry={entry as Manga_Entry} details={details} maxCol={5} />}
                     </div>}
                 </div>
 
                 {/*<div className="absolute top-0 left-0 w-full h-full z-[0] bg-[--background] rounded-xl">*/}
-                {/*    <Image*/}
+                {/*    <SeaImage*/}
                 {/*        src={media?.bannerImage || ""}*/}
                 {/*        alt={""}*/}
                 {/*        fill*/}

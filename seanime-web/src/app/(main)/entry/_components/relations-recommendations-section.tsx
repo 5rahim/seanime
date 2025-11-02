@@ -9,6 +9,7 @@ type RelationsRecommendationsSectionProps = {
     entry: Nullish<Anime_Entry>
     details: Nullish<AL_AnimeDetailsById_Media>
     containerRef?: React.RefObject<HTMLElement>
+    maxCol?: number
 }
 
 export function RelationsRecommendationsSection(props: RelationsRecommendationsSectionProps) {
@@ -17,6 +18,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
         entry,
         details,
         containerRef,
+        maxCol,
         ...rest
     } = props
 
@@ -30,7 +32,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     const relations = React.useMemo(() => (details?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
-            .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE" || n.node?.format === "SPECIAL") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION")),
+            .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE" || n.node?.format === "SPECIAL") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION" || n.relationType === "SUMMARY" || n.relationType === "SPIN_OFF")),
         [details?.relations?.edges])
 
     const recommendations = React.useMemo(() => details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation)?.filter(Boolean) || [],
@@ -44,12 +46,12 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
             {(!!sourceManga || relations.length > 0) && (
                 <>
                     <h2>Relations</h2>
-                    <MediaCardGrid>
+                    <MediaCardGrid maxCol={maxCol}>
                         {!!sourceManga && <div className="col-span-1">
                             <MediaEntryCard
                                 media={sourceManga!}
                                 overlay={<p
-                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
+                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
                                 >Manga</p>}
                                 type="manga"
                             /></div>}
@@ -58,7 +60,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                                 <MediaEntryCard
                                     media={edge.node!}
                                     overlay={<p
-                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg border border-t-0 border-r-0"
+                                        className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
                                     >{edge.node?.format === "MOVIE"
                                         ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
                                         : capitalize(edge.relationType || "").replace("_", " ")}</p>}
@@ -73,7 +75,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
             )}
             {recommendations.length > 0 && <>
                 <h2>Recommendations</h2>
-                <MediaCardGrid>
+                <MediaCardGrid maxCol={maxCol}>
                     {recommendations.map(media => {
                         return <div key={media.id} className="col-span-1">
                             <MediaEntryCard

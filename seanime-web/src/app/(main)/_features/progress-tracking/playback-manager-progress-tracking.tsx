@@ -5,13 +5,15 @@ import {
     usePlaybackPlayNextEpisode,
     usePlaybackSyncCurrentProgress,
 } from "@/api/hooks/playback_manager.hooks"
+import { useAutoplay, useNextEpisodeResolver } from "@/app/(main)/_features/autoplay/autoplay"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { AutoplayCountdownModal } from "@/app/(main)/_features/progress-tracking/_components/autoplay-countdown-modal"
-import { useAutoplay, useNextEpisodeResolver } from "@/app/(main)/_features/progress-tracking/_lib/autoplay"
 import { PlaybackManager_PlaybackState, PlaybackManager_PlaylistState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -22,7 +24,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import mousetrap from "mousetrap"
-import Image from "next/image"
 import React from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
 import { MdCancel } from "react-icons/md"
@@ -36,6 +37,8 @@ const __pt_isCompletedAtom = atom(false)
 type Props = {
     asSidebarButton?: boolean
 }
+
+const log = logger("PLAYBACK MANAGER")
 
 export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props) {
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
@@ -110,6 +113,8 @@ export function PlaybackManagerProgressTracking() {
         state?.episodeNumber || 0,
     )
 
+    const { currentPlaylist } = usePlaylistManager()
+
     const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
 
     const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
@@ -126,7 +131,7 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Tracking started", data)
+            log.info("Tracking started", data)
             setIsTracking(true)
             setIsCompleted(false)
             setShowModal(true) // Show the modal when tracking starts
@@ -138,7 +143,7 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Video completed", data)
+            log.info("Video completed", data)
             setIsCompleted(true)
             setState(data)
         },
@@ -148,14 +153,15 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<string>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED,
         onMessage: data => {
-            logger("PlaybackManagerProgressTracking").info("Tracking stopped", data, "Completion percentage:", state?.completionPercentage)
+            log.info("Tracking stopped", data, "Completion percentage:", state?.completionPercentage)
             setIsTracking(false)
             // Letting 'isCompleted' be true if the progress hasn't been updated
             // so the modal is left available for the user to update the progress manually
             if (state?.progressUpdated) {
                 // Setting 'isCompleted' to 'false' to hide the modal
-                logger("PlaybackManagerProgressTracking").info("Progress updated, setting isCompleted to false")
+                log.info("Progress updated, setting isCompleted to false")
                 setIsCompleted(false)
+                setState(null)
             }
 
             if (data === "Player closed") {
@@ -165,7 +171,7 @@ export function PlaybackManagerProgressTracking() {
                     setIsCompleted(false)
                 }
             } else if (data === "Tracking stopped") {
-                toast.info("Tracking stopped")
+                // toast.info("Tracking stopped")
             } else {
                 toast.error(data)
             }
@@ -173,12 +179,12 @@ export function PlaybackManagerProgressTracking() {
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] }).then()
 
             // Start unified autoplay if conditions are met
-            if (!playlistState && state && state.completionPercentage && state.completionPercentage > 0.7) {
+            if (!currentPlaylist && state && state.completionPercentage && state.completionPercentage > 0.7) {
                 if (!autoplayState.isActive) {
                     startAutoplay(state, nextEpisodeToPlay || undefined, "local")
                 }
             }
-            setState(null)
+            // setState(null)
         },
     })
 
@@ -316,7 +322,7 @@ export function PlaybackManagerProgressTracking() {
                 </div>}
                 {state && <div data-progress-tracking-main-content className="text-center relative overflow-hidden py-2 space-y-2">
                     {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
-                        <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
+                        <SeaImage src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
                     </div>}
                     {/*<p className="text-[--muted]">Currently watching</p>*/}
                     <div data-progress-tracking-title>
@@ -403,7 +409,7 @@ export function PlaybackManagerProgressTracking() {
                                     }
                                 }}
                             >
-                                {(playlistState.next?.mediaImage) && <Image
+                                {(playlistState.next?.mediaImage) && <SeaImage
                                     data-progress-tracking-playlist-next-episode-button-image
                                     src={playlistState.next?.mediaImage || ""}
                                     placeholder={imageShimmer(700, 475)}

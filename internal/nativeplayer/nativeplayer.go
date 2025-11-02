@@ -23,15 +23,16 @@ const (
 
 type (
 	PlaybackInfo struct {
-		ID            string               `json:"id"`
-		StreamType    StreamType           `json:"streamType"`
-		MimeType      string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
-		StreamUrl     string               `json:"streamUrl"`               // URL of the stream
-		ContentLength int64                `json:"contentLength"`           // Size of the stream in bytes
-		MkvMetadata   *mkvparser.Metadata  `json:"mkvMetadata,omitempty"`   // nil if not ebml
-		EntryListData *anime.EntryListData `json:"entryListData,omitempty"` // nil if not in list
-		Episode       *anime.Episode       `json:"episode"`
-		Media         *anilist.BaseAnime   `json:"media"`
+		ID                 string               `json:"id"`
+		StreamType         StreamType           `json:"streamType"`
+		MimeType           string               `json:"mimeType"`                // e.g. "video/mp4", "video/webm"
+		StreamUrl          string               `json:"streamUrl"`               // URL of the stream
+		ContentLength      int64                `json:"contentLength"`           // Size of the stream in bytes
+		MkvMetadata        *mkvparser.Metadata  `json:"mkvMetadata,omitempty"`   // nil if not ebml
+		EntryListData      *anime.EntryListData `json:"entryListData,omitempty"` // nil if not in list
+		Episode            *anime.Episode       `json:"episode"`
+		Media              *anilist.BaseAnime   `json:"media"`
+		IsNakamaWatchParty bool                 `json:"isNakamaWatchParty"` // Is the stream from Nakama Watch Party
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}
@@ -46,6 +47,7 @@ type (
 
 		playbackStatusMu sync.RWMutex
 		playbackStatus   *PlaybackStatus
+		playbackInfo     *PlaybackInfo
 
 		seekedEventCancelFunc context.CancelFunc
 
@@ -90,13 +92,27 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
 func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
-	p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
-		Type    string      `json:"type"`
-		Payload interface{} `json:"payload"`
-	}{
-		Type:    t,
-		Payload: payload,
-	}, noLog...)
+	if clientId == "" && p.playbackStatus != nil {
+		p.playbackStatus.ClientId = clientId
+	}
+
+	if clientId != "" {
+		p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
+			Type    string      `json:"type"`
+			Payload interface{} `json:"payload"`
+		}{
+			Type:    t,
+			Payload: payload,
+		}, noLog...)
+	} else {
+		p.wsEventManager.SendEvent(string(events.NativePlayerEventType), struct {
+			Type    string      `json:"type"`
+			Payload interface{} `json:"payload"`
+		}{
+			Type:    t,
+			Payload: payload,
+		})
+	}
 }
 
 func (p *NativePlayer) sendPlayerEvent(t string, payload interface{}) {
@@ -144,6 +160,27 @@ func (p *NativePlayer) GetPlaybackStatus() *PlaybackStatus {
 	p.playbackStatusMu.RLock()
 	defer p.playbackStatusMu.RUnlock()
 	return p.playbackStatus
+}
+
+// GetPlaybackInfo returns the current playback info of the player.
+func (p *NativePlayer) GetPlaybackInfo() (*PlaybackInfo, bool) {
+	p.playbackStatusMu.RLock()
+	defer p.playbackStatusMu.RUnlock()
+	return p.playbackInfo, p.playbackInfo != nil
+}
+
+func (p *NativePlayer) SetPlaybackInfo(info *PlaybackInfo) {
+	p.playbackInfo = info
+}
+
+func (p *NativePlayer) EmptyPlaybackStatus() {
+	p.setPlaybackStatus(func() {
+		p.playbackStatus.Duration = 0
+		p.playbackStatus.CurrentTime = 0
+		p.playbackStatus.Paused = true
+		p.playbackStatus.Url = ""
+		p.playbackStatus.ClientId = ""
+	})
 }
 
 func (p *NativePlayer) SetPlaybackStatus(status *PlaybackStatus) {

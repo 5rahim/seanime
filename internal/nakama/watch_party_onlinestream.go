@@ -116,7 +116,7 @@ const (
 	OnlineStreamCommandPlay   OnlineStreamCommand = "play"
 	OnlineStreamCommandPause  OnlineStreamCommand = "pause"
 	OnlineStreamCommandSeek   OnlineStreamCommand = "seek"
-	OnlineStreamCommandSeekTo OnlineStreamCommand = "seekTo" // Seek to a specific time in seconds
+	OnlineStreamCommandSeekTo OnlineStreamCommand = "seekTo" // SeekToSlow to a specific time in seconds
 )
 
 func (wpm *WatchPartyManager) sendCommandToOnlineStream(cmd OnlineStreamCommand, payload ...interface{}) {

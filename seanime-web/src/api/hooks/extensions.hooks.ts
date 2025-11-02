@@ -4,6 +4,7 @@ import {
     GetAllExtensions_Variables,
     GrantPluginPermissions_Variables,
     InstallExternalExtension_Variables,
+    InstallExternalExtensionRepository_Variables,
     ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
     SaveExtensionUserConfig_Variables,
@@ -16,10 +17,12 @@ import {
     Extension_Extension,
     ExtensionRepo_AllExtensions,
     ExtensionRepo_AnimeTorrentProviderExtensionItem,
+    ExtensionRepo_CustomSourceExtensionItem,
     ExtensionRepo_ExtensionInstallResponse,
     ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
+    ExtensionRepo_RepositoryInstallResponse,
     ExtensionRepo_StoredPluginSettingsData,
     ExtensionRepo_UpdateData,
     Nullish,
@@ -76,6 +79,17 @@ export function useInstallExternalExtension() {
         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
         onSuccess: async () => {
             // DEVNOTE: No need to refetch, the websocket listener will do it
+        },
+    })
+}
+
+export function useInstallExternalExtensionRepository() {
+    return useServerMutation<ExtensionRepo_RepositoryInstallResponse, InstallExternalExtensionRepository_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.key],
+        onSuccess: async () => {
+
         },
     })
 }
@@ -147,6 +161,15 @@ export function useListOnlinestreamProviderExtensions() {
         endpoint: API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.methods[0],
         queryKey: [API_ENDPOINTS.EXTENSIONS.ListOnlinestreamProviderExtensions.key],
+        enabled: true,
+    })
+}
+
+export function useListCustomSourceExtensions() {
+    return useServerQuery<Array<ExtensionRepo_CustomSourceExtensionItem>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.key],
         enabled: true,
     })
 }

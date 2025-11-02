@@ -6,6 +6,7 @@ const (
 	NativePlayerEventType WebsocketClientEventType = "native-player"
 	NakamaEventType       WebsocketClientEventType = "nakama"
 	PluginEvent           WebsocketClientEventType = "plugin"
+	PlaylistEvent         WebsocketClientEventType = "playlist"
 )
 
 type WebsocketClientEvent struct {

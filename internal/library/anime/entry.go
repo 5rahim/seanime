@@ -5,8 +5,8 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
-	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"sort"
 
@@ -51,7 +51,7 @@ type (
 		LocalFiles       []*LocalFile // All local files
 		AnimeCollection  *anilist.AnimeCollection
 		Platform         platform.Platform
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 		IsSimulated      bool // If the account is simulated
 	}
 )
@@ -129,7 +129,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 		}
 		entry.Media = fetchedMedia
 	} else {
-		animeEvent := new(anilist_platform.GetAnimeEvent)
+		animeEvent := new(platform.GetAnimeEvent)
 		animeEvent.Anime = anilistEntry.Media
 		err := hook.GlobalHookManager.OnGetAnime().Trigger(animeEvent)
 		if err != nil {
@@ -243,11 +243,11 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 //----------------------------------------------------------------------------------------------------------------------
 
 // hydrateEntryEpisodeData
-// AniZipData, Media and LocalFiles should be defined
+// Metadata, Media and LocalFiles should be defined
 func (e *Entry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.AnimeListEntry,
 	animeMetadata *metadata.AnimeMetadata,
-	metadataProvider metadata.Provider,
+	metadataProvider metadata_provider.Provider,
 ) {
 
 	if animeMetadata.Episodes == nil && len(animeMetadata.Episodes) == 0 {

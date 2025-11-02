@@ -49,7 +49,7 @@ body:
         - Offline mode
         - AniList
         - UI / Web Interface
-        - Desktop app
+        - Denshi (Desktop app)
     validations:
       required: true
   - type: textarea

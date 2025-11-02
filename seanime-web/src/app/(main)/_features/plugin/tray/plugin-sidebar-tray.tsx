@@ -8,6 +8,7 @@ import {
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -16,10 +17,9 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { LuBlocks, LuCircleDashed, LuCircuitBoard, LuComponent, LuRefreshCw } from "react-icons/lu"
 import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import {
     usePluginListenTrayCloseEvent,
@@ -33,6 +33,8 @@ export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
 export const __plugin_hasNavigatedAtom = atom<boolean>(false)
 
 export const __plugin_unpinnedTrayIconClickedAtom = atom<TrayIcon | null>(null)
+
+export const __plugin_openedTrayPlugin = atom<string | null>(null)
 
 const ExtensionList = ({
     place,
@@ -59,6 +61,8 @@ const ExtensionList = ({
     const isPinned = (extensionId: string) => pinnedTrayPluginIds.includes(extensionId)
 
     const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
+    const [openedTrayPlugin, setOpenedTrayPlugin] = useAtom(__plugin_openedTrayPlugin)
+
 
     const [trayIconListOpen, setTrayIconListOpen] = React.useState(false)
 
@@ -69,14 +73,18 @@ const ExtensionList = ({
 
         if (!isPinned(data.extensionId)) {
             setUnpinnedTrayIconClicked(trayIcons.find(t => t.extensionId === data.extensionId) || null)
+            setOpenedTrayPlugin(data.extensionId)
         }
     }, "")
 
     usePluginListenTrayCloseEvent((data) => {
         if (!data.extensionId) return
 
-        if (!isPinned(data.extensionId)) {
+        if (!isPinned(data.extensionId) && unpinnedTrayIconClicked?.extensionId === data.extensionId) {
             setUnpinnedTrayIconClicked(null)
+        }
+        if (openedTrayPlugin === data.extensionId) {
+            setOpenedTrayPlugin(null)
         }
     }, "")
 
@@ -102,10 +110,10 @@ const ExtensionList = ({
                             trigger={<IconButton
                                 intent="gray-basic"
                                 size="sm"
-                                icon={<LuShapes className="size-5 text-[--muted]" />}
+                                icon={<LuComponent className="size-5 text-[--muted]" />}
                                 className="rounded-full hover:rotate-360 transition-all duration-300"
                             />}
-                        >Tray plugins</Tooltip>
+                        >Tray Plugins</Tooltip>
                     </div>}
                     className="p-2 w-[300px]"
                     data-plugin-sidebar-debug-popover
@@ -127,7 +135,7 @@ const ExtensionList = ({
                                     }}
                                 >
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative flex-none">
-                                        {trayIcon.iconUrl ? <Image
+                                        {trayIcon.iconUrl ? <SeaImage
                                             src={trayIcon.iconUrl}
                                             alt="logo"
                                             fill
@@ -211,7 +219,7 @@ const ExtensionList = ({
                         <IconButton
                             intent="warning-basic"
                             size="sm"
-                            icon={<LuBug className="size-4" />}
+                            icon={<LuCircuitBoard className="size-4" />}
                             className="rounded-full"
                         />
                     </div>}
@@ -248,9 +256,9 @@ const ExtensionList = ({
 
                 {pinnedTrayIcons.map((trayIcon, index) => (
                     <PluginTray
+                        key={trayIcon.extensionId}
                         trayIcon={trayIcon}
                         isPinned={isPinned(trayIcon.extensionId)}
-                        key={index}
                         place={place}
                         width={width}
                     />

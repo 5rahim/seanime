@@ -1,7 +1,6 @@
 package manga
 
 import (
-	"errors"
 	"fmt"
 	"seanime/internal/extension"
 	manga_providers "seanime/internal/manga/providers"
@@ -45,15 +44,15 @@ func (r *Repository) GetMangaPageContainer(
 	// |      Downloads      |
 	// +---------------------+
 
-	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
-	if !ok {
-		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
-		return nil, errors.New("manga: Provider not found")
+	providerExtension, extensionExists := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+
+	var isLocalProvider bool
+
+	if extensionExists {
+		_, isLocalProvider = providerExtension.GetProvider().(*manga_providers.Local)
 	}
 
-	_, isLocalProvider := providerExtension.GetProvider().(*manga_providers.Local)
-
-	if *isOffline && !isLocalProvider {
+	if *isOffline && !isLocalProvider && extensionExists {
 		ret, err = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
 		if err != nil {
 			return nil, err
@@ -61,10 +60,14 @@ func (r *Repository) GetMangaPageContainer(
 		return ret, nil
 	}
 
-	if !isLocalProvider {
-		ret, _ = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+	if !isLocalProvider || !extensionExists {
+		ret, err = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
 		if ret != nil {
 			return ret, nil
+		}
+		if !extensionExists && err != nil {
+			r.logger.Error().Err(err).Str("provider", provider).Msg("manga: Provider not found, chapter not downloaded")
+			return nil, fmt.Errorf("manga: Provider not found, chapter not downloaded, %w", err)
 		}
 	}
 

@@ -1,17 +1,17 @@
 <p align="center">
-<a href="https://seanime.rahim.app/">
-<img src="docs/images/logo_2.png" alt="preview" width="100px"/>
+<a href="https://seanime.app/">
+<img src="docs/images/seanime-logo.png" alt="preview" width="70px"/>
 </a>
 </p>
 
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/4/github-banner-sq.png" alt="preview" width="100%"/>
+<img src="https://seanime.app/api/bucket/gh-showcase.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
-  <a href="https://seanime.rahim.app/docs">Documentation</a> |
+  <a href="https://seanime.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
   <a href="#screenshots">Screenshots</a> |
   <a href="https://www.youtube.com/playlist?list=PLgQO-Ih6JClhFFdEVuNQJejyX_8iH82gl">Tutorials</a> |
@@ -64,7 +64,7 @@ Seanime is a **media server** with a **web interface** and **desktop app** for w
 Read the installation guide to set up Seanime on your device.
 
 <p align="center">
-<a href="https://seanime.rahim.app/docs/getting-started" style="font-size:18px;" align="center">
+<a href="https://seanime.app/docs" style="font-size:18px;" align="center">
 How to install Seanime
 </a>
 </p>
@@ -97,49 +97,6 @@ Building from source is straightforward, you'll need Node.js and Go installed on
 Development and testing might require additional configuration.
 
 [Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
-
-## Screenshots
-
-### Scanning
-
-<img src="docs/images/4/rec-scanning.gif" alt="preview" width="100%"/>
-
-### Watching
-
-<img src="docs/images/4/rec-anime-watching_02.gif" alt="preview" width="100%"/>
-
-### Downloading
-
-<img src="https://i.postimg.cc/RVpFYqYb/img-2025-02-02-17-31-41.gif" alt="preview" width="100%"/>
-
-### Manga
-
-<img src="docs/images/4/manga-reader_01--sq.jpg" alt="preview" width="100%"/>
-
-### Torrent streaming
-
-<img src="docs/images/4/rec-torrentstream.gif" alt="preview" width="100%"/>
-
-### Debrid streaming
-
-<img src="docs/images/4/rec-debridstream.gif" alt="preview" width="100%"/>
-
-<details>
-<summary><b>View more</b></summary>
-
-### Online streaming
-
-<img src="docs/images/4/online-streaming--sq.jpg" alt="preview" width="100%"/>
-
-### Discover
-
-<img src="docs/images/4/discover_02--sq.jpg" alt="preview" width="100%"/>
-
-### AniList integration
-
-<img src="docs/images/4/anilist_01--sq.jpg" alt="preview" width="100%"/>
-
-</details>
 
 ## Disclaimer
 

@@ -3,6 +3,7 @@ import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_EntryListData, Ma
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useUpdateAnimeEntryRepeat } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
@@ -14,10 +15,9 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { normalizeDate } from "@/lib/helpers/date"
 import { getImageUrl } from "@/lib/server/assets"
 import { useWindowSize } from "@uidotdev/usehooks"
-import Image from "next/image"
 import React, { Fragment } from "react"
-import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
+import { TbEdit } from "react-icons/tb"
 import { useToggle } from "react-use"
 
 type AnilistMediaEntryModalProps = {
@@ -63,7 +63,7 @@ function IsomorphicPopover(props: PopoverProps & ModalProps & { media?: AL_BaseA
             data-anilist-media-entry-modal-banner-image-container
             className="h-24 w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0]"
         >
-            <Image
+            <SeaImage
                 data-anilist-media-entry-modal-banner-image
                 src={getImageUrl(media?.bannerImage!)}
                 alt="banner"
@@ -111,7 +111,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                 {(!listData) && <Tooltip
                     trigger={<IconButton
                         data-anilist-media-entry-modal-add-button
-                        intent="primary-subtle"
+                        intent="gray-subtle"
                         icon={<BiPlus />}
                         rounded
                         size="sm"
@@ -142,7 +142,7 @@ export const AnilistMediaEntryModal = (props: AnilistMediaEntryModalProps) => {
                         {!!listData && <IconButton
                             data-anilist-media-entry-modal-edit-button
                             intent="white-subtle"
-                            icon={<AiFillEdit />}
+                            icon={<TbEdit />}
                             rounded
                             size="sm"
                             loading={isPending || isDeleting}

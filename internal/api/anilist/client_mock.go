@@ -28,13 +28,21 @@ type MockAnilistClientImpl struct {
 
 func NewMockAnilistClient() *MockAnilistClientImpl {
 	return &MockAnilistClientImpl{
-		realAnilistClient: NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt),
+		realAnilistClient: NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, ""),
 		logger:            util.NewLogger(),
 	}
 }
 
 func (ac *MockAnilistClientImpl) IsAuthenticated() bool {
 	return ac.realAnilistClient.IsAuthenticated()
+}
+
+func (ac *MockAnilistClientImpl) GetCacheDir() string {
+	return ""
+}
+
+func (ac *MockAnilistClientImpl) CustomQuery(body []byte, logger *zerolog.Logger, token ...string) (data interface{}, err error) {
+	return customQuery(body, logger, token...)
 }
 
 func (ac *MockAnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {

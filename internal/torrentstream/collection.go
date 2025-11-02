@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"strconv"
@@ -24,7 +25,7 @@ type (
 	HydrateStreamCollectionOptions struct {
 		AnimeCollection   *anilist.AnimeCollection
 		LibraryCollection *anime.LibraryCollection
-		MetadataProvider  metadata.Provider
+		MetadataProvider  metadata_provider.Provider
 	}
 )
 
@@ -43,35 +44,48 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched
 	var currentlyWatching *anilist.AnimeCollection_MediaListCollection_Lists
+	//var pausedList *anilist.AnimeCollection_MediaListCollection_Lists
+	//var planningList *anilist.AnimeCollection_MediaListCollection_Lists
 	for _, list := range lists {
 		if list.Status == nil {
 			continue
 		}
-		if *list.Status == anilist.MediaListStatusCurrent {
-			//currentlyWatching = list.CopyT()
-			currentlyWatching = &anilist.AnimeCollection_MediaListCollection_Lists{
-				Status:       lo.ToPtr(anilist.MediaListStatusCurrent),
-				Name:         lo.ToPtr("CURRENT"),
-				IsCustomList: lo.ToPtr(false),
-				Entries:      list.Entries,
-			}
-			continue
-		}
-	}
-	for _, list := range lists {
-		if list.Status == nil {
-			continue
-		}
-		if *list.Status == anilist.MediaListStatusRepeating {
+		if *list.Status == anilist.MediaListStatusCurrent || *list.Status == anilist.MediaListStatusRepeating {
 			if currentlyWatching == nil {
-				currentlyWatching = list
-			} else {
-				for _, entry := range list.Entries {
-					currentlyWatching.Entries = append(currentlyWatching.Entries, entry)
+				currentlyWatching = &anilist.AnimeCollection_MediaListCollection_Lists{
+					Status:       lo.ToPtr(anilist.MediaListStatusCurrent),
+					Name:         lo.ToPtr("CURRENT"),
+					IsCustomList: lo.ToPtr(false),
+					Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
 				}
 			}
-			break
+			currentlyWatching.Entries = append(currentlyWatching.Entries, list.Entries...)
+			continue
 		}
+		//if *list.Status == anilist.MediaListStatusPaused {
+		//	if pausedList == nil {
+		//		pausedList = &anilist.AnimeCollection_MediaListCollection_Lists{
+		//			Status:       lo.ToPtr(anilist.MediaListStatusPaused),
+		//			Name:         lo.ToPtr("PAUSED"),
+		//			IsCustomList: lo.ToPtr(false),
+		//			Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
+		//		}
+		//	}
+		//	pausedList.Entries = append(pausedList.Entries, list.Entries...)
+		//	continue
+		//}
+		//if *list.Status == anilist.MediaListStatusPlanning {
+		//	if planningList == nil {
+		//		planningList = &anilist.AnimeCollection_MediaListCollection_Lists{
+		//			Status:       lo.ToPtr(anilist.MediaListStatusPlanning),
+		//			Name:         lo.ToPtr("PLANNING"),
+		//			IsCustomList: lo.ToPtr(false),
+		//			Entries:      make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0),
+		//		}
+		//	}
+		//	planningList.Entries = append(planningList.Entries, list.Entries...)
+		//	continue
+		//}
 	}
 
 	if currentlyWatching == nil {

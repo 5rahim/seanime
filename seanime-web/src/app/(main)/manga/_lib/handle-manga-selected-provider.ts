@@ -29,8 +29,12 @@ export const __manga_entryFiltersAtom = atomWithStorage<Record<string, MangaEntr
 const getDefaultMangaProvider = (
     serverStatus: Status | undefined,
     extensions: ExtensionRepo_MangaProviderExtensionItem[] | undefined,
-) => {
-    return serverStatus?.settings?.manga?.defaultMangaProvider || extensions?.[0]?.id || null
+): string | null => {
+    const firstExt = ((!!extensions?.length && extensions?.length > 1) ? extensions?.filter(n => n.id !== "local-manga")?.[0] : extensions?.[0])
+    const defaultExt = !!serverStatus?.settings?.manga?.defaultMangaProvider
+        ? extensions?.find(n => n.id === serverStatus?.settings?.manga?.defaultMangaProvider)
+        : null
+    return defaultExt?.id || firstExt?.id || null
 }
 
 /**

@@ -85,7 +85,7 @@ func VideoProxy(c echo.Context) (err error) {
 		return c.NoContent(http.StatusOK)
 	}
 
-	isHlsPlaylist := strings.HasSuffix(url, ".m3u8") || strings.Contains(resp.Header.Get("Content-Type"), "mpegurl")
+	isHlsPlaylist := strings.HasSuffix(url, ".m3u8") || strings.Contains(strings.ToLower(resp.Header.Get("Content-Type")), "mpegurl")
 
 	if !isHlsPlaylist {
 		return c.Stream(resp.StatusCode, c.Response().Header().Get("Content-Type"), resp.Body)

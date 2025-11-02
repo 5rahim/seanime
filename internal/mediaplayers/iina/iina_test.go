@@ -66,9 +66,9 @@ func TestIina_OpenPlayPauseSeekClose(t *testing.T) {
 		}
 	}
 
-	t.Log("Seek...")
-	seekPosition := 30.0 // Seek to 30 seconds
-	err = i.Seek(seekPosition)
+	t.Log("SeekToSlow...")
+	seekPosition := 30.0 // SeekToSlow to 30 seconds
+	err = i.SeekTo(seekPosition)
 	if err != nil {
 		t.Logf("Warning: Could not seek: %v", err)
 	} else {
@@ -80,9 +80,9 @@ func TestIina_OpenPlayPauseSeekClose(t *testing.T) {
 		}
 	}
 
-	t.Log("SeekTo...")
-	seekToPosition := 60.0 // Seek to 60 seconds
-	err = i.SeekTo(seekToPosition)
+	t.Log("SeekToSlow...")
+	seekToPosition := 60.0 // SeekToSlow to 60 seconds
+	err = i.SeekToSlow(seekToPosition)
 	if err != nil {
 		t.Logf("Warning: Could not seek to position: %v", err)
 	} else {

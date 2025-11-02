@@ -1656,17 +1656,26 @@ export type Anime_NakamaEntryLibraryData = {
  */
 export type Anime_Playlist = {
     /**
-     * DbId is the database ID of the models.PlaylistEntry
+     * DbId is the database ID of the models.Playlist
      */
     dbId: number
     /**
      * Name is the name of the playlist
      */
     name: string
-    /**
-     * LocalFiles is a list of local files in the playlist, in order
-     */
-    localFiles?: Array<Anime_LocalFile>
+    episodes?: Array<Anime_PlaylistEpisode>
+}
+
+/**
+ * - Filepath: internal/library/anime/playlist.go
+ * - Filename: playlist.go
+ * - Package: anime
+ */
+export type Anime_PlaylistEpisode = {
+    episode?: Anime_Episode
+    isCompleted: boolean
+    watchType: Anime_WatchType
+    isNakama: boolean
 }
 
 /**
@@ -1716,6 +1725,13 @@ export type Anime_UnmatchedGroup = {
     localFiles?: Array<Anime_LocalFile>
     suggestions?: Array<AL_BaseAnime>
 }
+
+/**
+ * - Filepath: internal/library/anime/playlist.go
+ * - Filename: playlist.go
+ * - Package: anime
+ */
+export type Anime_WatchType = "localfile" | "debrid" | "torrent" | "nakama" | "online"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChapterDownloader
@@ -2189,7 +2205,7 @@ export type Extension_SavedUserConfig = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "plugin"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "custom-source" | "plugin"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2261,6 +2277,22 @@ export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
 }
 
 /**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_CustomSourceExtensionItem = {
+    id: string
+    extensionIdentifier: number
+    name: string
+    /**
+     * ISO 639-1 language code
+     */
+    lang: string
+    settings?: HibikeCustomSource_Settings
+}
+
+/**
  * - Filepath: internal/extension_repo/external.go
  * - Filename: external.go
  * - Package: extension_repo
@@ -2308,6 +2340,16 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     lang: string
     episodeServers?: Array<string>
     supportsDub: boolean
+}
+
+/**
+ * - Filepath: internal/extension_repo/external.go
+ * - Filename: external.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_RepositoryInstallResponse = {
+    extensions?: Array<Extension_Extension>
+    message: string
 }
 
 /**
@@ -2619,6 +2661,44 @@ export type Status = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hibikecustomsource
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
+export type HibikeCustomSource_ListAnimeResponse = {
+    media?: Array<AL_BaseAnime>
+    page: number
+    totalPages: number
+    total: number
+}
+
+/**
+ * - Filepath: internal/extension/hibike/customsource/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
+export type HibikeCustomSource_ListMangaResponse = {
+    media?: Array<AL_BaseManga>
+    page: number
+    totalPages: number
+    total: number
+}
+
+/**
+ * - Filepath: internal/extension/hibike/tracker/types.go
+ * - Filename: types.go
+ * - Package: hibikecustomsource
+ */
+export type HibikeCustomSource_Settings = {
+    supportsAnime: boolean
+    supportsManga: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hibikemanga
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2755,6 +2835,79 @@ export type HibikeTorrent_AnimeTorrent = {
     releaseGroup?: string
     isBestRelease: boolean
     confirmed: boolean
+}
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeTorrentFile = {
+    index: number
+    path: string
+    name: string
+}
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_BatchEpisodeFiles = {
+    current: number
+    currentEpisodeNumber: number
+    currentAniDBEpisode: string
+    files?: Array<HibikeTorrent_AnimeTorrentFile>
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LibraryExplorer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_FileTreeJSON = {
+    root?: LibraryExplorer_FileTreeNodeJSON
+    localFiles?: Record<string, Anime_LocalFile>
+}
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_FileTreeNodeJSON = {
+    name: string
+    path: string
+    normalizedPath: string
+    kind: LibraryExplorer_NodeKind
+    children?: Array<LibraryExplorer_FileTreeNodeJSON>
+    size?: number
+    localFile?: Anime_LocalFile
+    mediaIds?: Array<number>
+    localFileCount?: number
+    matchedLocalFileCount?: number
+}
+
+/**
+ * - Filepath: internal/library_explorer/filetree.go
+ * - Filename: filetree.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_NodeKind = "directory" | "file"
+
+/**
+ * - Filepath: internal/library_explorer/superupdate.go
+ * - Filename: superupdate.go
+ * - Package: library_explorer
+ */
+export type LibraryExplorer_SuperUpdateFileOptions = {
+    path: string
+    newName?: string
+    metadata?: Anime_LocalFileMetadata
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3038,18 +3191,18 @@ export type Mediastream_StreamType = "transcode" | "optimized" | "direct"
  * - Package: metadata
  */
 export type Metadata_AnimeMappings = {
-    animeplanetId: string
-    kitsuId: number
-    malId: number
-    type: string
-    anilistId: number
-    anisearchId: number
-    anidbId: number
-    notifymoeId: string
-    livechartId: number
-    thetvdbId: number
-    imdbId: string
-    themoviedbId: string
+    animeplanetId?: string
+    kitsuId?: number
+    malId?: number
+    type?: string
+    anilistId?: number
+    anisearchId?: number
+    anidbId?: number
+    notifymoeId?: string
+    livechartId?: number
+    thetvdbId?: number
+    imdbId?: string
+    themoviedbId?: string
 }
 
 /**
@@ -3329,6 +3482,7 @@ export type Models_AnilistSettings = {
     hideAudienceScore: boolean
     enableAdultContent: boolean
     blurAdultContent: boolean
+    disableCacheLayer: boolean
 }
 
 /**
@@ -3422,6 +3576,24 @@ export type Models_DiscordSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_HomeItem = {
+    id: string
+    type: string
+    /**
+     * options chosen by the user
+     */
+    options?: any
+    /**
+     * checks if it's still valid on the client
+     */
+    schemaVersion: number
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_IntSlice = Array<number>
 
 /**
@@ -3441,6 +3613,7 @@ export type Models_LibrarySettings = {
     autoUpdateProgress: boolean
     disableUpdateCheck: boolean
     torrentProvider: string
+    autoSelectTorrentProvider: string
     autoScan: boolean
     enableOnlinestream: boolean
     includeOnlineStreamingInLibrary: boolean
@@ -3646,6 +3819,7 @@ export type Models_Theme = {
     customCSS: string
     mobileCustomCSS: string
     unpinnedMenuItems: Models_StringSlice
+    homeItems?: Array<string>
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3831,6 +4005,10 @@ export type Nakama_WatchPartySessionParticipant = {
      * in milliseconds
      */
     latency: number
+    /**
+     * Whether this participant uses Denshi player
+     */
+    useDenshiPlayer: boolean
     isBuffering: boolean
     /**
      * 0.0 to 1.0, how much buffer is available
@@ -3912,6 +4090,10 @@ export type NativePlayer_PlaybackInfo = {
     entryListData?: Anime_EntryListData
     episode?: Anime_Episode
     media?: AL_BaseAnime
+    /**
+     * Is the stream from Nakama Watch Party
+     */
+    isNakamaWatchParty: boolean
 }
 
 /**
@@ -3926,6 +4108,7 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "pause" |
     "resume" |
     "seek" |
+    "seek-to" |
     "error" |
     "add-subtitle-track" |
     "terminate"
@@ -4259,6 +4442,8 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
  */
 export type Torrentstream_BatchHistoryResponse = {
     torrent?: HibikeTorrent_AnimeTorrent
+    metadata?: Habari_Metadata
+    batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**
@@ -4313,6 +4498,11 @@ export type Torrentstream_StartStreamOptions = {
     UserAgent: string
     ClientId: string
     PlaybackType: Torrentstream_PlaybackType
+    /**
+     * If this is a nakama stream (watch party)
+     */
+    IsNakamaWatchParty: boolean
+    BatchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
 /**

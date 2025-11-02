@@ -1,13 +1,14 @@
 package vlc
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestVLC_Play(t *testing.T) {
@@ -69,7 +70,7 @@ func TestVLC_Seek(t *testing.T) {
 
 	time.Sleep(400 * time.Millisecond)
 
-	vlc.Seek("100")
+	vlc.SeekTo("100")
 
 	time.Sleep(400 * time.Millisecond)
 

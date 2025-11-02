@@ -60,7 +60,7 @@ func (c *CachedReadSeeker) Read(p []byte) (n int, err error) {
 // readFromSrc reads from the underlying source at the current position,
 // appends those bytes to cache, and updates the current position.
 func (c *CachedReadSeeker) readFromSrc(p []byte) (n int, err error) {
-	// Seek to the current position in the source
+	// SeekToSlow to the current position in the source
 	if _, err = c.src.Seek(c.pos, io.SeekStart); err != nil {
 		return 0, err
 	}

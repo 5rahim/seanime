@@ -3,6 +3,7 @@ package anime
 import (
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/customsource"
 	"seanime/internal/hook"
 	"time"
 
@@ -26,6 +27,9 @@ func GetScheduleItems(animeSchedule *anilist.AnimeAiringSchedule, animeCollectio
 	animeEntryMap := make(map[int]*anilist.AnimeListEntry)
 	for _, list := range animeCollection.MediaListCollection.GetLists() {
 		for _, entry := range list.GetEntries() {
+			if customsource.IsExtensionId(entry.Media.GetID()) {
+				continue
+			}
 			animeEntryMap[entry.GetMedia().GetID()] = entry
 		}
 	}

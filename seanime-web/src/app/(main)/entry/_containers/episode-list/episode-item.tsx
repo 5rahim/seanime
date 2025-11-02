@@ -5,6 +5,7 @@ import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useNakamaHMACAuth, useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -15,7 +16,6 @@ import { getImageUrl } from "@/lib/server/assets"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
-import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
@@ -39,7 +39,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
     isOffline?: boolean
 }) => {
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData()
     const [_, copyToClipboard] = useCopyToClipboard()
 
     const { getHMACTokenQueryParam } = useServerHMACAuth()
@@ -150,7 +150,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
 })
 
 
-const metadataSchema = defineSchema(({ z }) => z.object({
+export const localFileMetadataSchema = defineSchema(({ z }) => z.object({
     episode: z.number().min(0),
     aniDBEpisode: z.string().transform(value => value.toUpperCase()),
     type: z.string().min(0),
@@ -160,7 +160,7 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseAnime?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData()
 
     return (
         <Modal
@@ -173,7 +173,7 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
         >
             <p className="w-full line-clamp-2 text-sm px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
             <Form
-                schema={metadataSchema}
+                schema={localFileMetadataSchema}
                 onSubmit={(data) => {
                     if (episode.localFile) {
                         updateLocalFile(episode.localFile, {
@@ -212,8 +212,8 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
                         { label: "NC/Other", value: "nc" },
                     ]}
                 />
-                <div className="w-full flex justify-end">
-                    <Field.Submit role="save" intent="success" loading={isPending}>Save</Field.Submit>
+                <div className="w-full">
+                    <Field.Submit role="save" intent="primary" className="w-full" loading={isPending}>Save</Field.Submit>
                 </div>
             </Form>
         </Modal>
@@ -265,7 +265,7 @@ export function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode
         {episode.episodeMetadata?.image && <div
             className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[0] rounded-t-lg"
         >
-            <Image
+            <SeaImage
                 src={getImageUrl(episode.episodeMetadata?.image)}
                 alt="banner"
                 fill

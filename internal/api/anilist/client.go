@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"seanime/internal/constants"
 	"seanime/internal/events"
 	"seanime/internal/util"
 	"strconv"
@@ -49,24 +50,28 @@ type AnilistClient interface {
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
 	AnimeAiringSchedule(ctx context.Context, ids []*int, season *MediaSeason, seasonYear *int, previousSeason *MediaSeason, previousSeasonYear *int, nextSeason *MediaSeason, nextSeasonYear *int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringSchedule, error)
 	AnimeAiringScheduleRaw(ctx context.Context, ids []*int, interceptors ...clientv2.RequestInterceptor) (*AnimeAiringScheduleRaw, error)
+	GetCacheDir() string
+	CustomQuery(body []byte, logger *zerolog.Logger, token ...string) (interface{}, error)
 }
 
 type (
 	// AnilistClientImpl is a wrapper around the AniList API client.
 	AnilistClientImpl struct {
-		Client *Client
-		logger *zerolog.Logger
-		token  string // The token used for authentication with the AniList API
+		Client   *Client
+		logger   *zerolog.Logger
+		token    string // The token used for authentication with the AniList API
+		cacheDir string
 	}
 )
 
 // NewAnilistClient creates a new AnilistClientImpl with the given token.
 // The token is used for authorization when making requests to the AniList API.
-func NewAnilistClient(token string) *AnilistClientImpl {
+func NewAnilistClient(token string, cacheDir string) *AnilistClientImpl {
 	ac := &AnilistClientImpl{
-		token: token,
+		token:    token,
+		cacheDir: cacheDir,
 		Client: &Client{
-			Client: clientv2.NewClient(http.DefaultClient, "https://graphql.anilist.co", nil,
+			Client: clientv2.NewClient(http.DefaultClient, constants.AnilistApiUrl, nil,
 				func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
 					req.Header.Set("Content-Type", "application/json")
 					req.Header.Set("Accept", "application/json")
@@ -93,6 +98,14 @@ func (ac *AnilistClientImpl) IsAuthenticated() bool {
 	}
 	// If the token is not empty, we are authenticated
 	return true
+}
+
+func (ac *AnilistClientImpl) GetCacheDir() string {
+	return ac.cacheDir
+}
+
+func (ac *AnilistClientImpl) CustomQuery(body []byte, logger *zerolog.Logger, token ...string) (data interface{}, err error) {
+	return customQuery(body, logger, token...)
 }
 
 ////////////////////////////////

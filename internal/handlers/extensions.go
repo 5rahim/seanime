@@ -24,12 +24,12 @@ func (h *Handler) HandleFetchExternalExtensionData(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	extension, err := h.App.ExtensionRepository.FetchExternalExtensionData(b.ManifestURI)
+	ext, err := h.App.ExtensionRepository.FetchExternalExtensionData(b.ManifestURI)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	return h.RespondWithData(c, extension)
+	return h.RespondWithData(c, ext)
 }
 
 // HandleInstallExternalExtension
@@ -48,6 +48,30 @@ func (h *Handler) HandleInstallExternalExtension(c echo.Context) error {
 	}
 
 	res, err := h.App.ExtensionRepository.InstallExternalExtension(b.ManifestURI)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, res)
+}
+
+// HandleInstallExternalExtensionRepository
+//
+//	@summary installs the extensions from the given repository uri.
+//	@route /api/v1/extensions/external/install-repository [POST]
+//	@returns extension_repo.RepositoryInstallResponse
+func (h *Handler) HandleInstallExternalExtensionRepository(c echo.Context) error {
+	type body struct {
+		RepositoryURI string `json:"repositoryUri"`
+		Install       bool   `json:"install"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	res, err := h.App.ExtensionRepository.InstallExternalExtensions(b.RepositoryURI, b.Install)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -215,6 +239,16 @@ func (h *Handler) HandleListOnlinestreamProviderExtensions(c echo.Context) error
 //	@returns []extension_repo.AnimeTorrentProviderExtensionItem
 func (h *Handler) HandleListAnimeTorrentProviderExtensions(c echo.Context) error {
 	extensions := h.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
+	return h.RespondWithData(c, extensions)
+}
+
+// HandleListCustomSourceExtensions
+//
+//	@summary returns the installed torrent providers.
+//	@route /api/v1/extensions/list/custom-source [GET]
+//	@returns []extension_repo.CustomSourceExtensionItem
+func (h *Handler) HandleListCustomSourceExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListCustomSourceExtensions()
 	return h.RespondWithData(c, extensions)
 }
 

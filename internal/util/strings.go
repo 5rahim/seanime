@@ -160,7 +160,10 @@ func Pluralize(count int, singular, plural string) string {
 // NormalizePath normalizes a path by converting it to lowercase and replacing backslashes with forward slashes
 // Warning: Do not use the returned string for anything filesystem related, only for comparison
 func NormalizePath(path string) (ret string) {
-	return strings.ToLower(filepath.ToSlash(path))
+	if runtime.GOOS == "windows" {
+		return strings.ToLower(filepath.ToSlash(path))
+	}
+	return filepath.ToSlash(path)
 }
 
 func Base64EncodeStr(str string) string {

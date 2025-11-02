@@ -183,7 +183,7 @@ export function PluginMediaCardContextMenuItems(props: PluginMediaCardContextMen
     if (items.length === 0) return null
 
     return <>
-        <ContextMenuSeparator className="my-2" />
+        <ContextMenuSeparator className="!my-2" />
         {items.map(i => (
             <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</ContextMenuItem>
         ))}
@@ -280,7 +280,7 @@ export function PluginEpisodeCardContextMenuItems(props: { episode: Anime_Episod
     if (items.length === 0) return null
 
     return <>
-        <ContextMenuSeparator />
+        <ContextMenuSeparator className="!my-2" />
         {items.map(i => (
             <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</ContextMenuItem>
         ))}

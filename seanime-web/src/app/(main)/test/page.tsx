@@ -6,7 +6,12 @@ import React from "react"
 
 export default function TestPage() {
 
+    React.useEffect(() => {
+
+    }, [])
+
     return <AppLayoutStack className="h-full w-full relative">
+
 
         {/*<VideoCoreProvider>*/}
         {/*    <VideoCore*/}

@@ -9,6 +9,7 @@ import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAuto
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -18,7 +19,6 @@ import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
-import Image from "next/image"
 import React from "react"
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
@@ -226,7 +226,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     <div
                         className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                     >
-                        {!!selectedMedia?.coverImage?.large && <Image
+                        {!!selectedMedia?.coverImage?.large && <SeaImage
                             src={selectedMedia.coverImage.large}
                             alt="banner"
                             fill
@@ -248,7 +248,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     />
                 </div>}
 
-                {selectedMedia?.status === "FINISHED" && <div className="py-2 text-red-300 text-center">This anime is no longer airing</div>}
+                {selectedMedia?.status === "FINISHED" && <div className="py-2 text-[--orange] text-center">No longer airing</div>}
 
                 <Field.DirectorySelector
                     name="destination"
@@ -453,7 +453,7 @@ export function TextArrayField<T extends string | number>(props: TextArrayFieldP
                 </React.Fragment>
             ))}
             <IconButton
-                intent="success"
+                intent="success-glass"
                 className="rounded-full"
                 onClick={() => append(props.type === "number" ? 1 : "")}
                 icon={<BiPlus />}

@@ -1,5 +1,4 @@
-import { Anime_Episode, Anime_LibraryCollectionList } from "@/api/generated/types"
-import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
+import { AL_MediaListStatus, Anime_Episode, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { LibraryCollectionFilteredLists, LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
 import { __mainLibrary_paramsAtom, __mainLibrary_paramsInputAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -22,6 +21,8 @@ type LibraryViewProps = {
     isLoading: boolean
     hasEntries: boolean
     streamingMediaIds: number[]
+    showStatuses?: AL_MediaListStatus[]
+    type?: "carousel" | "grid"
 }
 
 export function LibraryView(props: LibraryViewProps) {
@@ -34,6 +35,8 @@ export function LibraryView(props: LibraryViewProps) {
         isLoading,
         hasEntries,
         streamingMediaIds,
+        showStatuses,
+        type = "grid",
         ...rest
     } = props
 
@@ -47,9 +50,10 @@ export function LibraryView(props: LibraryViewProps) {
             <div
                 className={cn(
                     "grid h-[22rem] min-[2000px]:h-[24rem] grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4",
+                    type === "carousel" && "grid-cols-1",
                 )}
             >
-                {[1, 2, 3, 4, 5, 6, 7, 8]?.map((_, idx) => {
+                {(type === "carousel" ? [2] : [1, 2, 3, 4, 5, 6, 7, 8])?.map((_, idx) => {
                     return <Skeleton
                         key={idx} className={cn(
                         "h-[22rem] min-[2000px]:h-[24rem] col-span-1 aspect-[6/7] flex-none rounded-[--radius-md] relative overflow-hidden",
@@ -68,17 +72,13 @@ export function LibraryView(props: LibraryViewProps) {
 
     return (
         <>
-            <ContinueWatching
-                episodes={continueWatchingList}
-                isLoading={isLoading}
-            />
 
             {(
                 !ts.disableLibraryScreenGenreSelector &&
                 collectionList.flatMap(n => n.entries)?.length > 2
             ) && <GenreSelector genres={genres} />}
 
-            <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]" data-library-collection-lists-container>
+            <PageWrapper key="library-collection-lists" className="px-4 space-y-8 relative z-[4]" data-library-collection-lists-container>
                 <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
                         <LibraryCollectionLists
@@ -86,12 +86,16 @@ export function LibraryView(props: LibraryViewProps) {
                             collectionList={collectionList}
                             isLoading={isLoading}
                             streamingMediaIds={streamingMediaIds}
+                            showStatuses={showStatuses}
+                            type={type}
                         />
                         : <LibraryCollectionFilteredLists
                             key="library-filtered-lists"
                             collectionList={filteredCollectionList}
                             isLoading={isLoading}
                             streamingMediaIds={streamingMediaIds}
+                            showStatuses={showStatuses}
+                            type={type}
                         />
                     }
                 </AnimatePresence>

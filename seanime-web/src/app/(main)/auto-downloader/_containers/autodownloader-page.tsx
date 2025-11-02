@@ -7,10 +7,10 @@ import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_conta
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
-import { tabsListClass, tabsTriggerClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -23,6 +23,10 @@ import React from "react"
 import { BiPlus } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
 import { toast } from "sonner"
+
+const tabContentClass = cn(
+    "space-y-4 animate-in fade-in-0 duration-300",
+)
 
 const settingsSchema = defineSchema(({ z }) => z.object({
     interval: z.number().transform(n => {
@@ -59,10 +63,10 @@ export function AutoDownloaderPage() {
 
             <Tabs
                 defaultValue="rules"
-                triggerClass={tabsTriggerClass}
-                listClass={tabsListClass}
+                triggerClass={"text-base px-6 h-auto py-2 rounded-[--radius-md] w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white"}
+                listClass={"w-full flex flex-wrap md:flex-nowrap h-fit"}
             >
-                <TabsList>
+                <TabsList className="flex-wrap max-w-full bg-[--paper] p-2 border rounded-xl">
                     <TabsTrigger value="rules">Rules</TabsTrigger>
                     <TabsTrigger value="queue">
                         Queue
@@ -74,7 +78,7 @@ export function AutoDownloaderPage() {
                     </TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
-                <TabsContent value="rules">
+                <TabsContent value="rules" className={tabContentClass}>
                     <div className="pt-4">
                         {isLoading && <LoadingSpinner />}
                         {!isLoading && (
@@ -115,29 +119,31 @@ export function AutoDownloaderPage() {
                                     </Button>
                                 </div>
 
-                                <ul className="text-base text-[--muted]">
-                                    <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
-                                                                                 parameters you set.
-                                    </li>
-                                </ul>
+                                <Card className="p-4 space-y-2">
+                                    <ul className="text-base text-[--muted]">
+                                        <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
+                                                                                     parameters you set.
+                                        </li>
+                                    </ul>
 
-                                {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
-                                {(!!data?.length) && <div className="space-y-4">
-                                    {data?.map(rule => (
-                                        <AutoDownloaderRuleItem
-                                            key={rule.dbId}
-                                            rule={rule}
-                                            userMedia={userMedia}
-                                        />
-                                    ))}
-                                </div>}
+                                    {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
+                                    {(!!data?.length) && <div className="space-y-2">
+                                        {data?.map(rule => (
+                                            <AutoDownloaderRuleItem
+                                                key={rule.dbId}
+                                                rule={rule}
+                                                userMedia={userMedia}
+                                            />
+                                        ))}
+                                    </div>}
+                                </Card>
                             </div>
                         )}
                     </div>
                 </TabsContent>
 
 
-                <TabsContent value="queue">
+                <TabsContent value="queue" className={tabContentClass}>
 
                     <div className="pt-4">
                         <AutoDownloaderItemList items={items} isLoading={itemsLoading} />
@@ -145,7 +151,7 @@ export function AutoDownloaderPage() {
 
                 </TabsContent>
 
-                <TabsContent value="settings">
+                <TabsContent value="settings" className={tabContentClass}>
                     <div className="pt-4">
                         <Form
                             schema={settingsSchema}
@@ -160,7 +166,7 @@ export function AutoDownloaderPage() {
                                 enableSeasonCheck: serverStatus?.settings?.autoDownloader?.enableSeasonCheck ?? false,
                                 useDebrid: serverStatus?.settings?.autoDownloader?.useDebrid ?? false,
                             }}
-                            stackClass="space-y-6"
+                            stackClass="space-y-4"
                         >
                             {(f) => (
                                 <>

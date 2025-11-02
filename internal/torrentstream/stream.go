@@ -29,15 +29,17 @@ const (
 )
 
 type StartStreamOptions struct {
-	MediaId       int
-	EpisodeNumber int                         // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                      // Animap episode
-	AutoSelect    bool                        // Automatically select the best file to stream
-	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
-	FileIndex     *int                        // Index of the file to stream (Manual selection)
-	UserAgent     string
-	ClientId      string
-	PlaybackType  PlaybackType
+	MediaId            int
+	EpisodeNumber      int                         // RELATIVE Episode number to identify the file
+	AniDBEpisode       string                      // Animap episode
+	AutoSelect         bool                        // Automatically select the best file to stream
+	Torrent            *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
+	FileIndex          *int                        // Index of the file to stream (Manual selection)
+	UserAgent          string
+	ClientId           string
+	PlaybackType       PlaybackType
+	IsNakamaWatchParty bool // If this is a nakama stream (watch party)
+	BatchEpisodeFiles  *hibiketorrent.BatchEpisodeFiles
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -111,7 +113,7 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
-			r.AddBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
+			r.AddBatchHistory(opts.MediaId, opts.Torrent, opts.BatchEpisodeFiles) // ran in goroutine
 		}
 	}()
 
@@ -146,12 +148,16 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		//
 		case PlaybackTypeNativePlayer:
 			readyCh, err := r.directStreamManager.PlayTorrentStream(ctx, directstream.PlayTorrentStreamOptions{
-				ClientId:      opts.ClientId,
-				EpisodeNumber: opts.EpisodeNumber,
-				AnidbEpisode:  opts.AniDBEpisode,
-				Media:         media.ToBaseAnime(),
-				Torrent:       r.client.currentTorrent.MustGet(),
-				File:          r.client.currentFile.MustGet(),
+				ClientId:           opts.ClientId,
+				EpisodeNumber:      opts.EpisodeNumber,
+				AnidbEpisode:       opts.AniDBEpisode,
+				Media:              media.ToBaseAnime(),
+				Torrent:            r.client.currentTorrent.MustGet(),
+				File:               r.client.currentFile.MustGet(),
+				IsNakamaWatchParty: opts.IsNakamaWatchParty,
+				OnTerminate: func() {
+					_ = r.StopStream(true)
+				},
 			})
 			if err != nil {
 				r.logger.Error().Err(err).Msg("torrentstream: Failed to prepare new stream")
@@ -299,7 +305,7 @@ type StartUntrackedStreamOptions struct {
 	PlaybackType PlaybackType
 }
 
-func (r *Repository) StopStream() error {
+func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 	defer func() {
 		if r := recover(); r != nil {
 		}
@@ -328,9 +334,11 @@ func (r *Repository) StopStream() error {
 	r.client.repository.mediaPlayerRepository.Stop()             // Stop the media player gracefully if it's running
 	r.client.mu.Unlock()
 
-	go func() {
-		r.nativePlayer.Stop()
-	}()
+	if len(fromNativePlayer) == 0 || fromNativePlayer[0] == false {
+		go func() {
+			r.nativePlayer.Stop()
+		}()
+	}
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
 
@@ -365,7 +373,12 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 		// Fetch the media
 		media, err = r.platform.GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			baseAnime, lErr := r.platform.GetAnime(ctx, mediaId)
+			if lErr != nil {
+				return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			}
+			media = baseAnime.ToCompleteAnime()
+			err = nil
 		}
 	}
 

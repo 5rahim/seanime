@@ -24,6 +24,7 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { Button, IconButton } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
@@ -54,16 +55,15 @@ const radioGroupClasses = {
         "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
         "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
     ),
-    stackClass: "space-y-0 flex flex-wrap gap-2",
+    stackClass: "space-y-0 flex flex-wrap lg:flex-nowrap lg:flex-row gap-2",
     itemIndicatorClass: "hidden",
     itemLabelClass: "font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
     itemContainerClass: cn(
         "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
         "hover:bg-[--subtle] dark:bg-gray-900",
-        "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+        "data-[state=checked]:bg-white dark:data-[state=unchecked]:hover:bg-gray-800 dark:data-[state=checked]:bg-gray-900",
         "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-        "border border-transparent data-[state=checked]:border-[--gray] data-[state=checked]:ring-offset-0",
-        "w-fit",
+        "border border-transparent data-[state=checked]:border-gray-500 data-[state=checked]:ring-offset-0",
     ),
 }
 
@@ -272,11 +272,11 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             const keyStr = `${e.metaKey ? "meta+" : ""}${e.ctrlKey ? "ctrl+" : ""}${e.altKey ? "alt+" : ""}${e.shiftKey
                 ? "shift+"
                 : ""}${e.key.toLowerCase()
-                    .replace("arrow", "")
-                    .replace("insert", "ins")
-                    .replace("delete", "del")
-                    .replace(" ", "space")
-                    .replace("+", "plus")}`
+                .replace("arrow", "")
+                .replace("insert", "ins")
+                .replace("delete", "del")
+                .replace(" ", "space")
+                .replace("+", "plus")}`
 
             const kbsSetter = {
                 [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: setKbsChapterLeft,
@@ -329,6 +329,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             setFullscreen(true)
         }
     }
+
     return (
         <>
             <DropdownMenu
@@ -365,135 +366,136 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 open={open}
                 onOpenChange={setOpen}
                 size="lg"
-                contentClass="z-[51]"
+                contentClass="z-[51] bg-gray-950/80 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none"
                 data-chapter-reader-settings-drawer
             >
                 <div className="space-y-4 py-4" data-chapter-reader-settings-drawer-content>
 
-                    <RadioGroup
-                        {...radioGroupClasses}
-                        label="Reading Mode"
-                        options={MANGA_READING_MODE_OPTIONS}
-                        value={readingMode}
-                        onValueChange={(value) => handleSetReadingMode(value)}
-                    />
-
-                    <div
-                        className={cn(
-                            readingMode !== MangaReadingMode.DOUBLE_PAGE && "hidden",
-                        )}
-                    >
-                        <NumberInput
-                            label="Offset"
-                            value={doublePageOffset}
-                            onValueChange={(value) => setDoublePageOffset(value)}
-                        />
-                    </div>
-                    <div
-                        className={cn(
-                            readingMode === MangaReadingMode.LONG_STRIP && "opacity-50 pointer-events-none",
-                        )}
-                    >
+                    <Card className="p-4 space-y-4">
                         <RadioGroup
                             {...radioGroupClasses}
-                            label="Reading Direction"
-                            options={MANGA_READING_DIRECTION_OPTIONS}
-                            value={readingDirection}
-                            onValueChange={(value) => setReadingDirection(value)}
+                            label="Reading Mode"
+                            options={MANGA_READING_MODE_OPTIONS}
+                            value={readingMode}
+                            onValueChange={(value) => handleSetReadingMode(value)}
                         />
-                    </div>
 
-                    <RadioGroup
-                        {...radioGroupClasses}
-                        label="Page Fit"
-                        options={MANGA_PAGE_FIT_OPTIONS}
-                        value={pageFit}
-                        onValueChange={(value) => setPageFit(value)}
-                    // help={<>
-                    //     <p>'Contain': Fit Height</p>
-                    //     <p>'Overflow': Height overflow</p>
-                    //     <p>'Cover': Fit Width</p>
-                    //     <p>'True Size': No scaling, raw sizes</p>
-                    // </>}
-                    />
-
-                    {
-                        pageFit === MangaPageFit.LARGER && (
+                        <div
+                            className={cn(
+                                readingMode !== MangaReadingMode.DOUBLE_PAGE && "hidden",
+                            )}
+                        >
                             <NumberInput
-                                label="Page Container Width"
-                                max={100}
-                                min={0}
-                                rightAddon="%"
-                                value={pageOverflowContainerWidth}
-                                onValueChange={(value) => setPageOverflowContainerWidth(value)}
-                                disabled={readingMode === MangaReadingMode.DOUBLE_PAGE}
+                                label="Offset"
+                                value={doublePageOffset}
+                                onValueChange={(value) => setDoublePageOffset(value)}
                             />
-                        )
-                    }
+                        </div>
 
-                    <div
-                        className={cn(
-                            (readingMode !== MangaReadingMode.LONG_STRIP || (pageFit !== MangaPageFit.LARGER && pageFit !== MangaPageFit.CONTAIN)) && "opacity-50 pointer-events-none",
-                        )}
-                    >
                         <RadioGroup
                             {...radioGroupClasses}
-                            label="Page Stretch"
-                            options={MANGA_PAGE_STRETCH_OPTIONS}
-                            value={pageStretch}
-                            onValueChange={(value) => setPageStretch(value)}
-                            help="'Stretch' forces all pages to have the same width as the container in 'Long Strip' mode."
+                            label="Page Fit"
+                            options={MANGA_PAGE_FIT_OPTIONS}
+                            value={pageFit}
+                            onValueChange={(value) => setPageFit(value)}
+                            // help={<>
+                            //     <p>'Contain': Fit Height</p>
+                            //     <p>'Overflow': Height overflow</p>
+                            //     <p>'Cover': Fit Width</p>
+                            //     <p>'True Size': No scaling, raw sizes</p>
+                            // </>}
                         />
-                    </div>
 
-                    <div className="flex gap-4 flex-wrap items-center">
-                        <Switch
-                            label="Page Gap"
-                            value={pageGap}
-                            onValueChange={setPageGap}
-                            fieldClass="w-fit"
-                            size="sm"
-                        />
-                        <Switch
-                            label="Page Gap Shadow"
-                            value={pageGapShadow}
-                            onValueChange={setPageGapShadow}
-                            fieldClass="w-fit"
-                            disabled={!pageGap}
-                            size="sm"
-                        />
-                    </div>
+                        {
+                            pageFit === MangaPageFit.LARGER && (
+                                <NumberInput
+                                    label="Page Container Width"
+                                    max={100}
+                                    min={0}
+                                    rightAddon="%"
+                                    value={pageOverflowContainerWidth}
+                                    onValueChange={(value) => setPageOverflowContainerWidth(value)}
+                                    disabled={readingMode === MangaReadingMode.DOUBLE_PAGE}
+                                />
+                            )
+                        }
+
+                        <div
+                            className={cn(
+                                (readingMode !== MangaReadingMode.LONG_STRIP || (pageFit !== MangaPageFit.LARGER && pageFit !== MangaPageFit.CONTAIN)) && "opacity-50 pointer-events-none",
+                            )}
+                        >
+                            <RadioGroup
+                                {...radioGroupClasses}
+                                label="Page Stretch"
+                                options={MANGA_PAGE_STRETCH_OPTIONS}
+                                value={pageStretch}
+                                onValueChange={(value) => setPageStretch(value)}
+                                help="'Stretch' forces all pages to have the same width as the container in 'Long Strip' mode."
+                            />
+                        </div>
+
+                        <Button
+                            size="sm" className="rounded-full w-full" intent="white-subtle"
+                            disabled={isDefaultSettings}
+                            onClick={() => {
+                                setPageFit(defaultSettings[readingMode].pageFit)
+                                setPageStretch(defaultSettings[readingMode].pageStretch)
+                            }}
+                        >
+                            <span className="flex flex-none items-center">
+                                Reset defaults
+                                for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
+                            </span>
+                        </Button>
+                    </Card>
 
 
-                    <Button
-                        size="sm" className="rounded-full w-full" intent="white-subtle"
-                        disabled={isDefaultSettings}
-                        onClick={() => {
-                            setPageFit(defaultSettings[readingMode].pageFit)
-                            setPageStretch(defaultSettings[readingMode].pageStretch)
-                        }}
-                    >
-                        <span className="flex flex-none items-center">
-                            Reset defaults
-                            for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
-                        </span>
-                    </Button>
+                    <Card className="p-4 space-y-4">
+                        <div className="flex gap-4 flex-wrap items-center">
+                            <Switch
+                                label="Page Gap"
+                                value={pageGap}
+                                onValueChange={setPageGap}
+                                fieldClass="w-fit"
+                                size="sm"
+                            />
+                            <Switch
+                                label="Page Gap Shadow"
+                                value={pageGapShadow}
+                                onValueChange={setPageGapShadow}
+                                fieldClass="w-fit"
+                                disabled={!pageGap}
+                                size="sm"
+                            />
+                        </div>
+                        <div
+                            className={cn(
+                                readingMode === MangaReadingMode.LONG_STRIP && "opacity-30 pointer-events-none",
+                            )}
+                        >
+                            <RadioGroup
+                                {...radioGroupClasses}
+                                label="Reading Direction"
+                                options={MANGA_READING_DIRECTION_OPTIONS}
+                                value={readingDirection}
+                                onValueChange={(value) => setReadingDirection(value)}
+                            />
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <Switch
+                                label="Progress Bar"
+                                value={readerProgressBar}
+                                onValueChange={setReaderProgressBar}
+                                fieldClass="w-fit"
+                                size="sm"
+                            />
+                        </div>
+                    </Card>
 
-                    <Separator />
 
-                    <div className="flex items-center gap-4">
-                        <Switch
-                            label="Progress Bar"
-                            value={readerProgressBar}
-                            onValueChange={setReaderProgressBar}
-                            fieldClass="w-fit"
-                            size="sm"
-                        />
-                    </div>
+                    {!isMobile && (<Card className="p-4 space-y-4">
 
-                    <Separator />
-
-                    {!isMobile && (
                         <>
                             <div>
                                 <h4>Editable Keybinds</h4>
@@ -602,7 +604,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                         <div>
                                             <Button
                                                 size="sm"
-                                                intent="white-subtle"
+                                                intent="gray-outline"
                                                 className="pointer-events-none"
                                             >
                                                 {item.key}
@@ -613,7 +615,9 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                                 )
                             })}
                         </>
-                    )}
+
+                    </Card>)}
+
                 </div>
             </Drawer>
         </>

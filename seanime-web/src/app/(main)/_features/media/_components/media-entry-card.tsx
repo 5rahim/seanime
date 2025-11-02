@@ -11,6 +11,7 @@ import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { AnimeEntryCardUnwatchedBadge } from "@/app/(main)/_features/anime/_containers/anime-entry-card-unwatched-badge"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import {
     __mediaEntryCard_hoveredPopupId,
     AnimeEntryCardNextAiring,
@@ -29,9 +30,10 @@ import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_component
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useHasTorrentOrDebridInclusion, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaEntryCardUnreadBadge } from "@/app/(main)/manga/_containers/manga-entry-card-unread-badge"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -42,8 +44,9 @@ import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import { usePathname, useRouter } from "next/navigation"
 import React, { useState } from "react"
-import { BiPlay } from "react-icons/bi"
+import { BiAddToQueue, BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
+import { LuEye, LuFolderTree } from "react-icons/lu"
 import { RiCalendarLine } from "react-icons/ri"
 import { PluginMediaCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
@@ -65,6 +68,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     nakamaLibraryData?: T extends "anime" ? Anime_NakamaEntryLibraryData : never
     hideUnseenCountBadge?: boolean
     hideAnilistEntryEditButton?: boolean
+    onClick?: () => void
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -81,14 +85,18 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         withAudienceScore = true,
         hideUnseenCountBadge = false,
         hideAnilistEntryEditButton = false,
+        onClick,
     } = props
 
     const router = useRouter()
     const serverStatus = useServerStatus()
+    const { hasStreamingEnabled } = useHasTorrentOrDebridInclusion()
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
+
+    const { selectMediaAndOpenEditor } = usePlaylistEditorManager()
 
     const ref = React.useRef<HTMLDivElement>(null)
 
@@ -164,6 +172,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     }, [media.id])
 
     const { setPreviewModalMediaId } = useMediaPreviewModal()
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
 
     if (!media) return null
 
@@ -189,7 +198,21 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             setPreviewModalMediaId(media.id!, type)
                         }}
                     >
-                        Preview
+                        <LuEye /> Preview
+                    </ContextMenuItem>}
+                    {(libraryData || nakamaLibraryData || (listData && hasStreamingEnabled)) && <ContextMenuItem
+                        onClick={() => {
+                            selectMediaAndOpenEditor(media.id!)
+                        }}
+                    >
+                        <BiAddToQueue /> Add to Playlist
+                    </ContextMenuItem>}
+                    {(!!libraryData) && <ContextMenuItem
+                        onClick={() => {
+                            openDirInLibraryExplorer(libraryData?.sharedPath)
+                        }}
+                    >
+                        <LuFolderTree /> Open in Library Explorer
                     </ContextMenuItem>}
 
                     <PluginMediaCardContextMenuItems for={type} media={media} />
@@ -221,6 +244,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 link={link}
                                 listStatus={listData?.status}
                                 status={media.status}
+                                onClick={onClick}
                             />
 
                             <MediaEntryCardHoverPopupTitleSection
@@ -229,6 +253,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 season={media.season}
                                 format={media.format}
                                 link={link}
+                                onClick={onClick}
                             />
 
                             {type === "anime" && (
@@ -251,7 +276,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             </div>}
 
                             {type === "manga" && <SeaLink
-                                href={MANGA_LINK}
+                                href={!onClick ? MANGA_LINK : undefined}
+                                onClick={onClick}
                             >
                                 <Button
                                     leftIcon={<IoLibrarySharp />}
@@ -305,6 +331,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 isAdult={media.isAdult}
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
+                onClick={onClick}
             >
                 <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge

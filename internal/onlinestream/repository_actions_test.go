@@ -4,7 +4,6 @@ import (
 	"context"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -36,46 +35,14 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 		provider string
 		dubbed   bool
 	}{
-		{
-			name:     "Cowboy Bebop",
-			mediaId:  1,
-			from:     1,
-			to:       2,
-			provider: onlinestream_providers.GogoanimeProvider,
-			dubbed:   false,
-		},
-		{
-			name:     "Cowboy Bebop",
-			mediaId:  1,
-			from:     1,
-			to:       2,
-			provider: onlinestream_providers.ZoroProvider,
-			dubbed:   false,
-		},
-		{
-			name:     "One Piece",
-			mediaId:  21,
-			from:     1075,
-			to:       1076,
-			provider: onlinestream_providers.ZoroProvider,
-			dubbed:   false,
-		},
-		{
-			name:     "Dungeon Meshi",
-			mediaId:  153518,
-			from:     1,
-			to:       1,
-			provider: onlinestream_providers.ZoroProvider,
-			dubbed:   false,
-		},
-		{
-			name:     "Omoi, Omoware, Furi, Furare",
-			mediaId:  109125,
-			from:     1,
-			to:       1,
-			provider: onlinestream_providers.ZoroProvider,
-			dubbed:   false,
-		},
+		//{
+		//	name:     "Cowboy Bebop",
+		//	mediaId:  1,
+		//	from:     1,
+		//	to:       2,
+		//	provider: onlinestream_providers.PROVIDER,
+		//	dubbed:   false,
+		//},
 	}
 
 	for _, tt := range tests {

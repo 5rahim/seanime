@@ -47,7 +47,7 @@ export function PluginManager() {
 
     usePluginListenScreenNavigateToEvent((event) => {
         if ([
-            "/entry", "/anilist", "/search", "/manga",
+            "/entry", "/lists", "/search", "/manga",
             "/settings", "/auto-downloader", "/debrid", "/torrent-list",
             "/schedule", "/extensions", "/sync", "/discover",
             "/scan-summaries",

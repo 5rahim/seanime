@@ -1,10 +1,11 @@
 package db_bridge
 
 import (
-	"github.com/goccy/go-json"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
+
+	"github.com/goccy/go-json"
 )
 
 var CurrAutoDownloaderRules []*anime.AutoDownloaderRule

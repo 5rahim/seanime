@@ -3,18 +3,22 @@ import {
     vc_currentTime,
     vc_dispatchAction,
     vc_duration,
+    vc_lastKnownProgress,
     vc_miniPlayer,
     vc_previewManager,
     vc_previousPausedState,
     vc_seeking,
     vc_seekingTargetProgress,
+    vc_skipEndingTime,
+    vc_skipOpeningTime,
     vc_videoElement,
     VIDEOCORE_DEBUG_ELEMENTS,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { vc_doFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
-import { vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
-import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
+import { vc_autoSkipOPEDAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_formatTime, vc_getChapterType, vc_getOPEDChapters } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
@@ -24,10 +28,12 @@ import Image from "next/image"
 import React from "react"
 import { FaDiamond } from "react-icons/fa6"
 
-type VideoCoreTimeRangeChapter = {
+export type VideoCoreTimeRangeChapter = {
     width: number
     percentageOffset: number
     label: string | null
+    start: number
+    end: number
 }
 
 export interface VideoCoreTimeRangeProps {
@@ -52,17 +58,24 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const [seeking, setSeeking] = useAtom(vc_seeking)
     const [previouslyPaused, setPreviouslyPaused] = useAtom(vc_previousPausedState)
     const action = useSetAtom(vc_dispatchAction)
-    const [showChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
+    const showChapterMarkers = useAtomValue(vc_showChapterMarkersAtom)
+    const autoSkipIntroOutro = useAtomValue(vc_autoSkipOPEDAtom)
+    const flashAction = useSetAtom(vc_doFlashAction)
+    const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
+    const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
+    const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
 
     const bufferedPercentage = React.useMemo(() => {
         return (buffered / duration) * 100
     }, [buffered])
 
-    const chapters = React.useMemo(() => {
+    const chapters = React.useMemo<VideoCoreTimeRangeChapter[]>(() => {
         if (!chapterCues?.length) return [{
             width: 100,
             percentageOffset: 0,
             label: null,
+            start: 0,
+            end: 0,
         }]
 
         let percentageOffset = 0
@@ -81,6 +94,8 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
                     width,
                     percentageOffset,
                     label: chapter.text || null,
+                    start,
+                    end,
                 }
                 percentageOffset += width
                 return result
@@ -93,6 +108,51 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         setProgressPercentage((currentTime / duration) * 100)
     }, [currentTime, duration])
 
+    const opEdChapters = vc_getOPEDChapters(chapters)
+
+    // handle auto skip
+    React.useEffect(() => {
+        if (!opEdChapters.opening?.end && !opEdChapters.ending?.end) return
+        if (isNaN(duration) || duration <= 1) return
+
+        // e.currentTarget.currentTime >= aniSkipData.op.interval.startTime &&
+        //             e.currentTarget.currentTime < aniSkipData.op.interval.endTime
+        if (
+            opEdChapters.opening &&
+            opEdChapters.opening.end &&
+            currentTime >= opEdChapters.opening.start &&
+            currentTime < opEdChapters.opening.end
+        ) {
+            if (autoSkipIntroOutro && !restoreProgressTo) {
+                console.log("auto skip", opEdChapters.opening.end)
+                action({ type: "seekTo", payload: { time: opEdChapters.opening.end } })
+                flashAction({ message: "Skipped OP", duration: 1000 })
+            } else {
+                setSkipOpeningTime(opEdChapters.opening.end)
+            }
+        } else {
+            setSkipOpeningTime(0)
+        }
+
+        if (
+            opEdChapters.ending &&
+            opEdChapters.ending.end &&
+            currentTime >= opEdChapters.ending.start &&
+            currentTime < opEdChapters.ending.end &&
+            currentTime < duration
+        ) {
+            if (autoSkipIntroOutro && !restoreProgressTo) {
+                console.log("auto skip", opEdChapters.ending.end)
+                action({ type: "seekTo", payload: { time: opEdChapters.ending.end } })
+                flashAction({ message: "Skipped ED", duration: 1000 })
+            } else {
+                setSkipEndingTime(opEdChapters.ending.end)
+            }
+        } else {
+            setSkipEndingTime(0)
+        }
+
+    }, [currentTime, autoSkipIntroOutro, opEdChapters, duration, restoreProgressTo])
 
     // start seeking
     function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -241,8 +301,7 @@ function VideoCoreTimeRangeSegment(props: {
                 <div
                     className={cn(
                         "vc-time-range-chapter-progress-bar",
-                        "bg-white absolute w-full h-full left-0 transform-gpu hover:duration-[30ms] z-[10]",
-                        focused && "duration-[30ms]",
+                        "bg-white absolute w-full h-full left-0 transform-gpu z-[10]",
                     )}
                     style={{
                         "--tw-translate-x": duration > 1 ? `${getChapterBarPosition(chapter, progressPercentage)}%` : "-100%",
@@ -270,8 +329,7 @@ function VideoCoreTimeRangeSegment(props: {
                     className={cn(
                         "vc-time-range-chapter-bar",
                         "bg-white/20 absolute left-0 w-full h-full z-[1]",
-                        (["opening", "op", "ending",
-                            "ed"].includes(chapter.label?.toLowerCase?.() || "") && highlightOPEDChapters) && "bg-blue-300/50",
+                        (!!vc_getChapterType(chapter.label) && highlightOPEDChapters) && "bg-blue-300/50",
                     )}
                 />
             </div>

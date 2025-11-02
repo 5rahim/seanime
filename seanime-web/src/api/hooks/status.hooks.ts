@@ -1,8 +1,8 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { DeleteLogs_Variables, GetAnnouncements_Variables } from "@/api/generated/endpoint.types"
+import { DeleteLogs_Variables, GetAnnouncements_Variables, UpdateHomeItems_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { MemoryStatsResponse, Status, Updater_Announcement } from "@/api/generated/types"
+import { MemoryStatsResponse, Models_HomeItem, Status, Updater_Announcement } from "@/api/generated/types"
 import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { copyToClipboard, openTab } from "@/lib/helpers/browser"
 import { __isDesktop__ } from "@/types/constants"
@@ -273,6 +273,29 @@ export function useDownloadCPUProfile() {
             if (error.message !== "Download handled in onMutate") {
                 toast.error("Failed to download CPU profile")
             }
+        },
+    })
+}
+
+
+export function useGetHomeItems() {
+    return useServerQuery<Array<Models_HomeItem>>({
+        endpoint: API_ENDPOINTS.STATUS.GetHomeItems.endpoint,
+        method: API_ENDPOINTS.STATUS.GetHomeItems.methods[0],
+        queryKey: [API_ENDPOINTS.STATUS.GetHomeItems.key],
+        enabled: true,
+    })
+}
+
+export function useUpdateHomeItems() {
+    const qc = useQueryClient()
+    return useServerMutation<null, UpdateHomeItems_Variables>({
+        endpoint: API_ENDPOINTS.STATUS.UpdateHomeItems.endpoint,
+        method: API_ENDPOINTS.STATUS.UpdateHomeItems.methods[0],
+        mutationKey: [API_ENDPOINTS.STATUS.UpdateHomeItems.key],
+        onSuccess: async () => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetHomeItems.key] })
+            toast.success("Home screen updated")
         },
     })
 }

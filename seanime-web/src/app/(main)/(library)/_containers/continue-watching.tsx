@@ -8,6 +8,7 @@ import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inje
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaImage } from "@/components/shared/sea-image"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -16,17 +17,17 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { seaCommand_compareMediaTitles } from "../../_features/sea-command/utils"
 
 export const __libraryHeaderEpisodeAtom = atom<Anime_Episode | null>(null)
 
-export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
+export function ContinueWatching({ episodes, isLoading, linkTemplate, withTitle }: {
     episodes: Anime_Episode[],
     isLoading: boolean
     linkTemplate?: string
+    withTitle?: boolean
 }) {
 
     const router = useRouter()
@@ -118,7 +119,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 render: () => (
                     <>
                         <div className="w-12 aspect-[6/5] flex-none rounded-[--radius-md] relative overflow-hidden">
-                            <Image
+                            <SeaImage
                                 src={episode.episodeMetadata?.image || ""}
                                 alt="episode image"
                                 fill
@@ -154,10 +155,10 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     if (episodes.length > 0) return (
         <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]" data-continue-watching-container>
             <h2 data-continue-watching-title>Continue watching</h2>
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime) && <TextGenerateEffect
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime && withTitle) && <TextGenerateEffect
                 data-continue-watching-media-title
                 words={headerEpisode?.baseAnime?.title?.userPreferred || ""}
-                className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
+                className="w-full text-xl lg:text-[2.8rem] lg:max-w-[50%] h-[3.3rem] !mt-1 line-clamp-1 truncate leading-[3rem] text-ellipsis hidden lg:block pb-1"
             />}
             <Carousel
                 className="w-full max-w-full"
@@ -250,6 +251,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
                     })
                 })
             }}
+            allowAnimeInfo
             mRef={mRef}
             onClick={() => {
                 if (!overrideLink) {

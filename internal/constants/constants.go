@@ -6,12 +6,13 @@ import (
 )
 
 const (
-	Version              = "2.9.10"
-	VersionName          = "Natsu"
+	Version              = "3.0.0"
+	VersionName          = "Rettō"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"
 	DiscordApplicationId = "1224777421941899285"
+	AnilistApiUrl        = "https://graphql.anilist.co"
 )
 
 var DefaultExtensionMarketplaceURL = util.Decode("aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tLzVyYWhpbS9zZWFuaW1lLWV4dGVuc2lvbnMvcmVmcy9oZWFkcy9tYWluL21hcmtldHBsYWNlLmpzb24=")

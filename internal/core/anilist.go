@@ -28,13 +28,20 @@ func (a *App) GetUserAnilistToken() string {
 
 // UpdatePlatform changes the current platform to the provided one.
 func (a *App) UpdatePlatform(platform platform.Platform) {
+	if a.AnilistPlatform != nil {
+		a.AnilistPlatform.Close()
+	}
 	a.AnilistPlatform = platform
+	a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	a.AddOnRefreshAnilistCollectionFunc("anilist-platform", func() {
+		a.AnilistPlatform.ClearCache()
+	})
 }
 
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClient = anilist.NewAnilistClient(token)
+	a.AnilistClient = anilist.NewAnilistClient(token, a.AnilistCacheDir)
 	a.AnilistPlatform.SetAnilistClient(a.AnilistClient) // Update Anilist Client Wrapper in Platform
 }
 
@@ -75,6 +82,9 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 	// Save the collection to DirectStreamManager
 	a.DirectStreamManager.SetAnimeCollection(ret)
+
+	// Save the collection to LibraryExplorer
+	a.LibraryExplorer.SetAnimeCollection(ret)
 
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
 

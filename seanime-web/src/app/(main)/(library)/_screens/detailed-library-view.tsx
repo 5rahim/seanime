@@ -1,4 +1,5 @@
 import { Anime_Episode, Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { __home_currentView } from "@/app/(main)/(library)/_home/home-screen"
 import {
     __library_debouncedSearchInputAtom,
     __library_paramsAtom,
@@ -6,7 +7,6 @@ import {
     DETAILED_LIBRARY_DEFAULT_PARAMS,
     useHandleDetailedLibraryCollection,
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
-import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -16,6 +16,7 @@ import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_SEASONS, ADVANCED_SEARCH_STATU
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
+import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -27,7 +28,7 @@ import { ANIME_COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { getYear } from "date-fns"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -45,6 +46,8 @@ type LibraryViewProps = {
     hasEntries: boolean
     streamingMediaIds: number[]
     isNakamaLibrary: boolean
+    isHomeItem?: boolean
+    type?: "carousel" | "grid"
 }
 
 export function DetailedLibraryView(props: LibraryViewProps) {
@@ -56,25 +59,36 @@ export function DetailedLibraryView(props: LibraryViewProps) {
         hasEntries,
         streamingMediaIds,
         isNakamaLibrary,
+        isHomeItem,
+        type = "grid",
         ...rest
     } = props
 
     const ts = useThemeSettings()
-    const setView = useSetAtom(__library_viewAtom)
+    const setView = useSetAtom(__home_currentView)
     const nakamaStatus = useNakamaStatus()
 
     const {
         stats,
         libraryCollectionList,
         libraryGenres,
+        libraryEntries,
     } = useHandleDetailedLibraryCollection()
+
+    const [selectedList, setSelectedList] = useAtom(__library_selectedListAtom)
+
+    React.useLayoutEffect(() => {
+        if (selectedList !== "-" && selectedList !== "all") {
+            setSelectedList("-")
+        }
+    }, [])
 
     if (isLoading) return <LoadingSpinner />
 
     if (!hasEntries) return null
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
+        <PageWrapper className="px-4 space-y-8 relative z-[4]" data-detailed-library-view-container>
 
             {/* <div
              className={cn(
@@ -83,7 +97,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
              )}
              /> */}
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between" data-detailed-library-view-header-container>
+            {!isHomeItem && <div className="flex flex-col md:flex-row gap-4 justify-between" data-detailed-library-view-header-container>
                 <div className="flex gap-4 items-center relative w-fit">
                     <IconButton
                         icon={<AiOutlineArrowLeft />}
@@ -92,15 +106,15 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                         size="sm"
                         onClick={() => setView("base")}
                     />
-                    {!isNakamaLibrary && <h3 className="text-ellipsis truncate">Library</h3>}
+                    {!isNakamaLibrary && <h3 className="text-ellipsis truncate">Home</h3>}
                     {isNakamaLibrary &&
                         <h3 className="text-ellipsis truncate">{nakamaStatus?.hostConnectionStatus?.username || "Host"}'s Library</h3>}
                 </div>
 
                 <SearchInput />
-            </div>
+            </div>}
 
-            <div
+            {(!isHomeItem) && <div
                 className={cn(
                     "grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]",
                     isNakamaLibrary && "lg:grid-cols-5",
@@ -131,41 +145,99 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                     <h3>{stats?.totalSpecials}</h3>
                     <p>Specials</p>
                 </div>
-            </div>
+            </div>}
 
             <SearchOptions />
 
             <GenreSelector genres={libraryGenres} />
 
-            {libraryCollectionList.map(collection => {
+            {selectedList !== "all" && libraryCollectionList.map(collection => {
                 if (!collection.entries?.length) return null
-                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} />
+                return <LibraryCollectionListItem key={collection.type} list={collection} streamingMediaIds={streamingMediaIds} type={type} />
             })}
+
+            {selectedList === "all" && <MergedLibraryCollectionList entries={libraryEntries} streamingMediaIds={streamingMediaIds} type={type} />}
         </PageWrapper>
     )
 }
 
-const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds }: { list: Anime_LibraryCollectionList, streamingMediaIds: number[] }) => {
+const LibraryCollectionListItem = React.memo(({ list, streamingMediaIds, type }: {
+    list: Anime_LibraryCollectionList,
+    streamingMediaIds: number[],
+    type: "grid" | "carousel"
+}) => {
 
-    const selectedList = useAtomValue(__library_selectedListAtom)
+    const [selectedList, setSelectedList] = useAtom(__library_selectedListAtom)
 
     if (selectedList !== "-" && selectedList !== list.type) return null
 
     return (
         <React.Fragment key={list.type}>
             <h2>{getLibraryCollectionTitle(list.type)} <span className="text-[--muted] font-medium ml-3">{list?.entries?.length ?? 0}</span></h2>
-            <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
+            {type === "grid" && <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
-                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} />
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
                 })}
-            </MediaCardLazyGrid>
+            </MediaCardLazyGrid>}
+
+            {type === "carousel" && <Carousel
+                className={cn("w-full max-w-full !mt-0")}
+                gap="xl"
+                opts={{
+                    align: "start",
+                    dragFree: true,
+                }}
+                autoScroll={false}
+            >
+                <CarouselDotButtons className="-top-2" />
+                <CarouselContent className="px-6">
+                    {list.entries?.filter(Boolean)?.map(entry => {
+                        return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
+                    })}
+                </CarouselContent>
+            </Carousel>}
         </React.Fragment>
     )
 })
 
-const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
+const MergedLibraryCollectionList = React.memo(({ entries, streamingMediaIds, type }: {
+    entries: Anime_LibraryCollectionEntry[],
+    streamingMediaIds: number[]
+    type: "grid" | "carousel"
+}) => {
+
+    return (
+        <React.Fragment>
+            {type === "grid" && <MediaCardLazyGrid itemCount={entries?.length || 0}>
+                {entries?.map(entry => {
+                    return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
+                })}
+            </MediaCardLazyGrid>}
+
+            {type === "carousel" && <Carousel
+                className={cn("w-full max-w-full !mt-0")}
+                gap="xl"
+                opts={{
+                    align: "start",
+                    dragFree: true,
+                }}
+                autoScroll={false}
+            >
+                <CarouselDotButtons className="-top-2" />
+                <CarouselContent className="px-6">
+                    {entries?.filter(Boolean)?.map(entry => {
+                        return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} streamingMediaIds={streamingMediaIds} type={type} />
+                    })}
+                </CarouselContent>
+            </Carousel>}
+        </React.Fragment>
+    )
+})
+
+const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds, type }: {
     entry: Anime_LibraryCollectionEntry,
     streamingMediaIds: number[]
+    type: "grid" | "carousel"
 }) => {
     return (
         <MediaEntryCard
@@ -176,7 +248,8 @@ const LibraryCollectionEntryItem = React.memo(({ entry, streamingMediaIds }: {
             showListDataButton
             withAudienceScore={false}
             type="anime"
-            showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
+            containerClassName={type === "carousel" ? "basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0" : undefined}
+            // showLibraryBadge={!!streamingMediaIds?.length && !streamingMediaIds.includes(entry.mediaId)}
         />
     )
 })
@@ -221,7 +294,8 @@ export function SearchOptions() {
                     className="h-10 w-fit pb-6"
                     triggerClass="px-4 py-1"
                     items={[
-                        { name: "All", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },
+                        { name: "Lists", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },
+                        { name: "All", isCurrent: selectedIndex === "all", onClick: () => setSelectedIndex("all") },
                         { name: "Watching", isCurrent: selectedIndex === "CURRENT", onClick: () => setSelectedIndex("CURRENT") },
                         { name: "Planning", isCurrent: selectedIndex === "PLANNING", onClick: () => setSelectedIndex("PLANNING") },
                         { name: "Paused", isCurrent: selectedIndex === "PAUSED", onClick: () => setSelectedIndex("PAUSED") },

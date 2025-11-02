@@ -1,5 +1,5 @@
 <p align="center">
-<img src="public/logo_2.png" alt="preview" width="150px"/>
+<img src="../docs/images/seanime-logo.png" alt="preview" width="70px"/>
 </p>
 
 <h2 align="center"><b>Seanime Web</b></h2>

@@ -1,5 +1,5 @@
 <p align="center">
-<img src="../docs/images/logo_2.png" alt="preview" width="150px"/>
+<img src="../docs/images/seanime-logo.png" alt="preview" width="70px"/>
 </p>
 
 <h2 align="center"><b>Seanime Server</b></h2>
@@ -77,7 +77,4 @@
   - `transmission`
 - `torrents`
   - `analyzer`: Scan and identify torrent files
-  - `animetosho`
-  - `nyaa`
-  - `seadex`
   - `torrent`: Torrent structs and methods

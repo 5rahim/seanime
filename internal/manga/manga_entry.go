@@ -5,7 +5,6 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
-	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
 
@@ -86,7 +85,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (entry *Entry, err err
 
 	} else {
 		// If the entry is found, we use the entry from the collection.
-		mangaEvent := new(anilist_platform.GetMangaEvent)
+		mangaEvent := new(platform.GetMangaEvent)
 		mangaEvent.Manga = anilistEntry.GetMedia()
 		err := hook.GlobalHookManager.OnGetManga().Trigger(mangaEvent)
 		if err != nil {

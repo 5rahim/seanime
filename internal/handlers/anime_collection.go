@@ -36,7 +36,7 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	originalAnimeCollection := animeCollection
 
 	var lfs []*anime.LocalFile
-	nakamaLibrary, fromNakama := h.App.NakamaManager.GetHostAnimeLibrary()
+	nakamaLibrary, fromNakama := h.App.NakamaManager.GetHostAnimeLibrary(c.Request().Context())
 	if fromNakama {
 		// Save the original anime collection to restore it later
 		originalAnimeCollection = animeCollection.Copy()

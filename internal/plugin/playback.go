@@ -244,20 +244,6 @@ func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (f
 					})
 					return nil
 				})
-			case playbackmanager.StreamStateChangedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						State: &e.State,
-					})
-					return nil
-				})
-			case playbackmanager.StreamStatusChangedEvent:
-				p.scheduler.ScheduleAsync(func() error {
-					callback(&PlaybackEvent{
-						Status: &e.Status,
-					})
-					return nil
-				})
 			case playbackmanager.StreamStartedEvent:
 				p.scheduler.ScheduleAsync(func() error {
 					callback(&PlaybackEvent{
@@ -326,7 +312,7 @@ func (p *Playback) seek(seconds float64) error {
 	if !ok {
 		return errors.New("playback manager not found")
 	}
-	return playbackManager.Seek(seconds)
+	return playbackManager.SeekTo(seconds)
 }
 
 func (p *Playback) cancel() error {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 )
 
 type ServerEvent string
@@ -18,6 +19,7 @@ const (
 	ServerEventPause            ServerEvent = "pause"
 	ServerEventResume           ServerEvent = "resume"
 	ServerEventSeek             ServerEvent = "seek"
+	ServerEventSeekTo           ServerEvent = "seek-to"
 	ServerEventError            ServerEvent = "error"
 	ServerEventAddSubtitleTrack ServerEvent = "add-subtitle-track"
 	ServerEventTerminate        ServerEvent = "terminate"
@@ -30,6 +32,12 @@ func (p *NativePlayer) OpenAndAwait(clientId string, loadingState string) {
 
 // Watch sends the watch event to the client.
 func (p *NativePlayer) Watch(clientId string, playbackInfo *PlaybackInfo) {
+	// Store the playback info
+	p.SetPlaybackInfo(playbackInfo)
+	p.setPlaybackStatus(func() {
+		p.playbackStatus.ClientId = clientId
+		p.playbackStatus.Url = playbackInfo.StreamUrl
+	})
 	p.sendPlayerEventTo(clientId, string(ServerEventWatch), playbackInfo, true)
 }
 
@@ -58,6 +66,11 @@ func (p *NativePlayer) Seek(clientId string, time float64) {
 	p.sendPlayerEventTo(clientId, string(ServerEventSeek), time)
 }
 
+// SeekTo sends the seek to event to the client.
+func (p *NativePlayer) SeekTo(clientId string, time float64) {
+	p.sendPlayerEventTo(clientId, string(ServerEventSeekTo), time)
+}
+
 // Error stops the playback and displays an error message.
 func (p *NativePlayer) Error(clientId string, err error) {
 	p.sendPlayerEventTo(clientId, string(ServerEventError), struct {
@@ -65,6 +78,8 @@ func (p *NativePlayer) Error(clientId string, err error) {
 	}{
 		Error: err.Error(),
 	})
+	p.EmptyPlaybackStatus()
+	p.SetPlaybackInfo(nil)
 }
 
 // AddSubtitleTrack sends the subtitle track added event to the client.
@@ -75,11 +90,16 @@ func (p *NativePlayer) AddSubtitleTrack(clientId string, track *mkvparser.TrackI
 // Stop emits a VideoTerminatedEvent to all subscribers.
 // It should only be called by a module.
 func (p *NativePlayer) Stop() {
+	if p.playbackInfo == nil {
+		return
+	}
 	p.logger.Debug().Msg("nativeplayer: Stopping playback, notifying subscribers")
 	p.notifySubscribers(&VideoTerminatedEvent{
 		BaseVideoEvent: BaseVideoEvent{ClientId: p.playbackStatus.ClientId},
 	})
 	p.sendPlayerEvent(string(ServerEventTerminate), nil)
+	p.EmptyPlaybackStatus()
+	p.SetPlaybackInfo(nil)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +115,7 @@ const (
 	PlayerEventVideoEnded           ClientEvent = "video-ended"
 	PlayerEventVideoSeeked          ClientEvent = "video-seeked"
 	PlayerEventVideoError           ClientEvent = "video-error"
-	PlayerEventVideoLoadedMetadata  ClientEvent = "loaded-metadata"
+	PlayerEventVideoLoadedMetadata  ClientEvent = "loaded-metadata" // Acts as PlayerEventVideoStarted
 	PlayerEventSubtitleFileUploaded ClientEvent = "subtitle-file-uploaded"
 	PlayerEventVideoTerminated      ClientEvent = "video-terminated"
 	PlayerEventVideoTimeUpdate      ClientEvent = "video-time-update"
@@ -163,12 +183,6 @@ type (
 
 // Client event payloads
 type (
-	videoStartedPayload struct {
-		Url         string  `json:"url"`
-		Paused      bool    `json:"paused"`
-		CurrentTime float64 `json:"currentTime"`
-		Duration    float64 `json:"duration"`
-	}
 	videoPausedPayload struct {
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
@@ -180,6 +194,7 @@ type (
 	videoLoadedMetadataPayload struct {
 		CurrentTime float64 `json:"currentTime"`
 		Duration    float64 `json:"duration"`
+		Paused      bool    `json:"paused"`
 	}
 	videoSeekedPayload struct {
 		CurrentTime float64 `json:"currentTime"`
@@ -222,16 +237,6 @@ func (p *NativePlayer) listenToPlayerEvents() {
 				if err := json.Unmarshal(marshaled, &playerEvent); err == nil {
 					// Handle events
 					switch playerEvent.Type {
-
-					// case PlayerEventVideoStarted:
-					// 	p.setPlaybackStatus(func() {
-					// 		event := &videoStartedPayload{}
-					// 		if err := playerEvent.UnmarshalAs(&event); err != nil {
-					// 			p.notifySubscribers(&VideoStartedEvent{
-					// 				BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
-					// 			})
-					// 		}
-					// 	})
 					case PlayerEventVideoPaused:
 						payload := &videoPausedPayload{}
 						if err := playerEvent.UnmarshalAs(&payload); err == nil {
@@ -352,6 +357,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.ClientId = playerEvent.ClientId
 								p.playbackStatus.CurrentTime = payload.CurrentTime
 								p.playbackStatus.Duration = payload.Duration
+								p.playbackStatus.Paused = payload.Paused
 							})
 							p.notifySubscribers(&VideoLoadedMetadataEvent{
 								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
@@ -372,6 +378,7 @@ func (p *NativePlayer) listenToPlayerEvents() {
 							})
 						}
 					case PlayerEventVideoTerminated:
+						p.EmptyPlaybackStatus()
 						p.setPlaybackStatus(func() {
 							p.playbackStatus.ClientId = playerEvent.ClientId
 						})
@@ -387,10 +394,6 @@ func (p *NativePlayer) listenToPlayerEvents() {
 								p.playbackStatus.Duration = payload.Duration
 								p.playbackStatus.Paused = payload.Paused
 							})
-							p.notifySubscribers(&VideoStatusEvent{
-								BaseVideoEvent: BaseVideoEvent{ClientId: playerEvent.ClientId},
-								Status:         *p.playbackStatus,
-							})
 						}
 					}
 				}
@@ -402,6 +405,21 @@ func (p *NativePlayer) listenToPlayerEvents() {
 // Events returns the event channel for the subscriber.
 func (s *Subscriber) Events() <-chan VideoEvent {
 	return s.eventCh
+}
+
+func (p *NativePlayer) RegisterEventCallback(callback func(event VideoEvent, cancelFunc func())) (cancel func()) {
+	id := uuid.NewString()
+	sub := p.Subscribe(id)
+	cancel = func() {
+		p.Unsubscribe(id)
+	}
+	go func(sub *Subscriber) {
+		for event := range sub.Events() {
+			callback(event, cancel)
+		}
+	}(sub)
+
+	return cancel
 }
 
 func (e *PlayerEvent) UnmarshalAs(dest interface{}) error {

@@ -21,7 +21,7 @@ export const __discover_setMangaRandomNumberAtom = atom(
     },
 )
 
-export function DiscoverTrendingCountry({ country }: { country: string }) {
+export function DiscoverTrendingCountry({ country, forDiscoverHeader }: { country: string | undefined, forDiscoverHeader?: boolean }) {
     const genres = useAtomValue(trendingGenresAtom)
     const { data, isLoading } = useAnilistListManga({
         page: 1,
@@ -56,7 +56,7 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
     }, [mangaRandomNumber])
 
     useEffect(() => {
-        if (country !== "JP") return
+        if (!forDiscoverHeader) return
         const t = setInterval(() => {
             setHeaderIsTransitioning(true)
             setTimeout(() => {
@@ -74,7 +74,7 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
 
     const firedRef = React.useRef(false)
     React.useEffect(() => {
-        if (country !== "JP") return
+        if (!forDiscoverHeader) return
         if (!firedRef.current && data) {
             const mediaItems = data?.Page?.media?.filter(Boolean) || []
             const random = mediaItems[randomNumber]
@@ -87,7 +87,7 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
     }, [data, randomNumber, country])
 
     React.useEffect(() => {
-        if (country !== "JP") return
+        if (!forDiscoverHeader) return
         if (firedRef.current) {
             const random = data?.Page?.media?.filter(Boolean)[randomNumber]
             if (random) {
@@ -114,7 +114,7 @@ export function DiscoverTrendingCountry({ country }: { country: string }) {
                         <MediaEntryCard
                             key={media.id}
                             media={media}
-                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                             type="manga"
                         />
                     )

@@ -1,4 +1,3 @@
-import { __seaMediaPlayer_mutedAtom, __seaMediaPlayer_volumeAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import {
     vc_audioManager,
     vc_dispatchAction,
@@ -11,11 +10,22 @@ import {
 } from "@/app/(main)/_features/video-core/video-core"
 import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { vc_defaultKeybindings, vc_keybindingsAtom, VideoCoreKeybindings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import {
+    vc_defaultKeybindings,
+    vc_initialSettings,
+    vc_keybindingsAtom,
+    vc_settings,
+    vc_storedMutedAtom,
+    vc_storedVolumeAtom,
+    VideoCoreKeybindings,
+} from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
+import { Separator } from "@/components/ui/separator"
+import { TextInput } from "@/components/ui/text-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
@@ -53,13 +63,18 @@ export function VideoCoreKeybindingsModal() {
     const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
     const [editedKeybindings, setEditedKeybindings] = useState<VideoCoreKeybindings>(keybindings)
     const [recordingKey, setRecordingKey] = useState<string | null>(null)
+    const [settings, setSettings] = useAtom(vc_settings)
+    const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
+    const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
 
-    // Reset edited keybindings when modal opens
+    // Reset edited keybindings and language preferences when modal opens
     useEffect(() => {
         if (open) {
             setEditedKeybindings(keybindings)
+            setEditedSubLanguage(settings.preferredSubtitleLanguage)
+            setEditedAudioLanguage(settings.preferredAudioLanguage)
         }
-    }, [open, keybindings])
+    }, [open, keybindings, settings])
 
     const handleKeyRecord = (actionKey: keyof VideoCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -86,11 +101,18 @@ export function VideoCoreKeybindingsModal() {
 
     const handleSave = () => {
         setKeybindings(editedKeybindings)
+        setSettings({
+            ...settings,
+            preferredSubtitleLanguage: editedSubLanguage,
+            preferredAudioLanguage: editedAudioLanguage,
+        })
         setOpen(false)
     }
 
     const handleReset = () => {
         setEditedKeybindings(vc_defaultKeybindings)
+        setEditedSubLanguage(vc_initialSettings.preferredSubtitleLanguage)
+        setEditedAudioLanguage(vc_initialSettings.preferredAudioLanguage)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -155,134 +177,169 @@ export function VideoCoreKeybindingsModal() {
 
     return (
         <Modal
-            title="Keyboard Shortcuts"
-            description="Customize the keyboard shortcuts for the player"
+            title="Keybinds and Defaults"
+            description="Customize the keyboard shortcuts and defaults for the player"
             open={open}
             onOpenChange={setOpen}
             contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
         >
-            <div className="grid grid-cols-3 gap-8">
-                <div>
-                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
-                    <div className="space-y-0">
-                        <KeybindingRow
-                            action="Seek Forward"
-                            description="Seek forward"
-                            actionKey="seekForward"
-                            hasValue={true}
-                            valueLabel="Seconds"
+            <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white">Language Preferences</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Preferred Subtitle Language
+                        </label>
+                        <TextInput
+                            value={editedSubLanguage}
+                            onValueChange={setEditedSubLanguage}
+                            placeholder="eng,jpn,spa"
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
                         />
-                        <KeybindingRow
-                            action="Seek Backward"
-                            description="Seek backward"
-                            actionKey="seekBackward"
-                            hasValue={true}
-                            valueLabel="Seconds"
-                        />
-                        <KeybindingRow
-                            action="Seek Forward (Fine)"
-                            description="Seek forward (fine)"
-                            actionKey="seekForwardFine"
-                            hasValue={true}
-                            valueLabel="Seconds"
-                        />
-                        <KeybindingRow
-                            action="Seek Backward (Fine)"
-                            description="Seek backward (fine)"
-                            actionKey="seekBackwardFine"
-                            hasValue={true}
-                            valueLabel="Seconds"
-                        />
-                        <KeybindingRow
-                            action="Increase Speed"
-                            description="Increase playback speed"
-                            actionKey="increaseSpeed"
-                            hasValue={true}
-                            valueLabel="increment"
-                        />
-                        <KeybindingRow
-                            action="Decrease Speed"
-                            description="Decrease playback speed"
-                            actionKey="decreaseSpeed"
-                            hasValue={true}
-                            valueLabel="increment"
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Preferred Audio Language
+                        </label>
+                        <TextInput
+                            value={editedAudioLanguage}
+                            onValueChange={setEditedAudioLanguage}
+                            placeholder="jpn,eng,kor"
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
                         />
                     </div>
                 </div>
+            </div>
 
-                <div>
-                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
-                    <div className="space-y-0">
-                        <KeybindingRow
-                            action="Next Chapter"
-                            description="Skip to next chapter"
-                            actionKey="nextChapter"
-                        />
-                        <KeybindingRow
-                            action="Previous Chapter"
-                            description="Skip to previous chapter"
-                            actionKey="previousChapter"
-                        />
-                        <KeybindingRow
-                            action="Next Episode"
-                            description="Play next episode"
-                            actionKey="nextEpisode"
-                        />
-                        <KeybindingRow
-                            action="Previous Episode"
-                            description="Play previous episode"
-                            actionKey="previousEpisode"
-                        />
-                        <KeybindingRow
-                            action="Cycle Subtitles"
-                            description="Cycle through subtitle tracks"
-                            actionKey="cycleSubtitles"
-                        />
-                        <KeybindingRow
-                            action="Fullscreen"
-                            description="Toggle fullscreen"
-                            actionKey="fullscreen"
-                        />
-                        <KeybindingRow
-                            action="Picture in Picture"
-                            description="Toggle picture in picture"
-                            actionKey="pictureInPicture"
-                        />
-                        <KeybindingRow
-                            action="Take Screenshot"
-                            description="Take screenshot"
-                            actionKey="takeScreenshot"
-                        />
+            <Separator />
+
+            <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
+                <div className="grid grid-cols-3 gap-8">
+                    <div>
+                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
+                        <div className="space-y-0">
+                            <KeybindingRow
+                                action="Seek Forward"
+                                description="Seek forward"
+                                actionKey="seekForward"
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Backward"
+                                description="Seek backward"
+                                actionKey="seekBackward"
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Forward (Fine)"
+                                description="Seek forward (fine)"
+                                actionKey="seekForwardFine"
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Backward (Fine)"
+                                description="Seek backward (fine)"
+                                actionKey="seekBackwardFine"
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Increase Speed"
+                                description="Increase playback speed"
+                                actionKey="increaseSpeed"
+                                hasValue={true}
+                                valueLabel="increment"
+                            />
+                            <KeybindingRow
+                                action="Decrease Speed"
+                                description="Decrease playback speed"
+                                actionKey="decreaseSpeed"
+                                hasValue={true}
+                                valueLabel="increment"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
-                    <div className="space-y-0">
-                        <KeybindingRow
-                            action="Volume Up"
-                            description="Increase volume"
-                            actionKey="volumeUp"
-                            hasValue={true}
-                            valueLabel="Percent"
-                        />
-                        <KeybindingRow
-                            action="Volume Down"
-                            description="Decrease volume"
-                            actionKey="volumeDown"
-                            hasValue={true}
-                            valueLabel="Percent"
-                        />
-                        <KeybindingRow
-                            action="Mute"
-                            description="Toggle mute"
-                            actionKey="mute"
-                        />
-                        <KeybindingRow
-                            action="Cycle Audio"
-                            description="Cycle through audio tracks"
-                            actionKey="cycleAudio"
-                        />
+                    <div>
+                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
+                        <div className="space-y-0">
+                            <KeybindingRow
+                                action="Next Chapter"
+                                description="Skip to next chapter"
+                                actionKey="nextChapter"
+                            />
+                            <KeybindingRow
+                                action="Previous Chapter"
+                                description="Skip to previous chapter"
+                                actionKey="previousChapter"
+                            />
+                            <KeybindingRow
+                                action="Next Episode"
+                                description="Play next episode"
+                                actionKey="nextEpisode"
+                            />
+                            <KeybindingRow
+                                action="Previous Episode"
+                                description="Play previous episode"
+                                actionKey="previousEpisode"
+                            />
+                            <KeybindingRow
+                                action="Cycle Subtitles"
+                                description="Cycle through subtitle tracks"
+                                actionKey="cycleSubtitles"
+                            />
+                            <KeybindingRow
+                                action="Fullscreen"
+                                description="Toggle fullscreen"
+                                actionKey="fullscreen"
+                            />
+                            <KeybindingRow
+                                action="Picture in Picture"
+                                description="Toggle picture in picture"
+                                actionKey="pictureInPicture"
+                            />
+                            <KeybindingRow
+                                action="Take Screenshot"
+                                description="Take screenshot"
+                                actionKey="takeScreenshot"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
+                        <div className="space-y-0">
+                            <KeybindingRow
+                                action="Volume Up"
+                                description="Increase volume"
+                                actionKey="volumeUp"
+                                hasValue={true}
+                                valueLabel="Percent"
+                            />
+                            <KeybindingRow
+                                action="Volume Down"
+                                description="Decrease volume"
+                                actionKey="volumeDown"
+                                hasValue={true}
+                                valueLabel="Percent"
+                            />
+                            <KeybindingRow
+                                action="Mute"
+                                description="Toggle mute"
+                                actionKey="mute"
+                            />
+                            <KeybindingRow
+                                action="Cycle Audio"
+                                description="Cycle through audio tracks"
+                                actionKey="cycleAudio"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -292,7 +349,7 @@ export function VideoCoreKeybindingsModal() {
                     intent="gray-outline"
                     onClick={handleReset}
                 >
-                    Reset to Defaults
+                    Reset all
                 </Button>
                 <div className="flex gap-2">
                     <Button
@@ -305,7 +362,7 @@ export function VideoCoreKeybindingsModal() {
                         intent="primary"
                         onClick={handleSave}
                     >
-                        Save Changes
+                        Save
                     </Button>
                 </div>
             </div>
@@ -337,9 +394,9 @@ export function VideoCoreKeybindingController(props: {
     const fullscreen = useAtomValue(vc_isFullscreen)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)
-    const setVolume = useSetAtom(__seaMediaPlayer_volumeAtom)
+    const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
-    const setMuted = useSetAtom(__seaMediaPlayer_mutedAtom)
+    const setMuted = useSetAtom(vc_storedMutedAtom)
     const { flashAction } = useVideoCoreFlashAction()
 
     const action = useSetAtom(vc_dispatchAction)
@@ -347,17 +404,32 @@ export function VideoCoreKeybindingController(props: {
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const audioManager = useAtomValue(vc_audioManager)
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
+    const pipManager = useAtomValue(vc_pipManager)
 
     // Rate limiting for seeking operations
     const lastSeekTime = useRef(0)
     const SEEK_THROTTLE_MS = 100 // Minimum time between seek operations
 
     function seek(seconds: number) {
+        const isPaused = videoRef.current?.paused
+        if (!isPaused) {
+            videoRef.current?.pause()
+        }
         action({ type: "seek", payload: { time: seconds, flashTime: true } })
+        if (!isPaused) {
+            videoRef.current?.play()
+        }
     }
 
     function seekTo(to: number) {
+        const isPaused = videoRef.current?.paused
+        if (!isPaused) {
+            videoRef.current?.pause()
+        }
         action({ type: "seekTo", payload: { time: to, flashTime: true } })
+        if (!isPaused) {
+            videoRef.current?.play()
+        }
     }
 
     const { takeScreenshot } = useVideoCoreScreenshot()
@@ -366,9 +438,14 @@ export function VideoCoreKeybindingController(props: {
     // Keyboard shortcuts
     //
 
-    const handleKeyboardShortcuts = useCallback((e: KeyboardEvent) => {
+    const handleKeyboardShortcuts = useCallback(async (e: KeyboardEvent) => {
         // Don't handle shortcuts if in an input/textarea or while keybindings modal is open
         if (isKeybindingsModalOpen || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+            return
+        }
+
+        // Ignore combinations with modifier keys
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) {
             return
         }
 
@@ -382,7 +459,7 @@ export function VideoCoreKeybindingController(props: {
         if (e.code === "Space" || e.code === "Enter") {
             e.preventDefault()
             if (video.paused) {
-                video.play()
+                await video.play()
                 flashAction({ message: "PLAY", type: "icon" })
             } else {
                 video.pause()
@@ -691,16 +768,14 @@ export function VideoCoreKeybindingController(props: {
     }, [fullscreenManager])
 
     const handleTogglePictureInPicture = useCallback(() => {
-        // mediaStore.dispatch({
-        //     type: pip ? "mediaexitpiprequest" : "mediaenterpiprequest",
-        // })
+        pipManager?.enterPip()
 
         React.startTransition(() => {
             setTimeout(() => {
                 videoRef.current?.focus()
             }, 100)
         })
-    }, [pip])
+    }, [pip, pipManager])
 
     // Add keyboard event listeners
     useEffect(() => {

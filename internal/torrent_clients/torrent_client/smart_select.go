@@ -5,11 +5,69 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/platform"
-	"seanime/internal/torrents/analyzer"
+	torrent_analyzer "seanime/internal/torrents/analyzer"
 	"time"
 
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
+
+type (
+	DeselectAndDownloadParams struct {
+		Torrent          *hibiketorrent.AnimeTorrent
+		FileIndices      []int // indices of the files to deselect
+		Destination      string
+		ShouldAddTorrent bool
+	}
+)
+
+func (r *Repository) DeselectAndDownload(p *DeselectAndDownloadParams) error {
+	if p.Torrent == nil || r.torrentRepository == nil {
+		r.logger.Error().Msg("torrent client: torrent is nil (deselect)")
+		return errors.New("torrent is nil")
+	}
+
+	if len(p.FileIndices) == 0 {
+		r.logger.Error().Msg("torrent client: no file indices provided (deselect)")
+		return errors.New("no file indices provided")
+	}
+
+	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(p.Torrent.Provider)
+	if !ok {
+		r.logger.Error().Str("provider", p.Torrent.Provider).Msg("torrent client: provider extension not found (simple select)")
+		return errors.New("provider extension not found")
+	}
+
+	if p.ShouldAddTorrent {
+		r.logger.Info().Msg("torrent client: adding torrent (simple select)")
+		// Get magnet
+		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(p.Torrent)
+		if err != nil {
+			return err
+		}
+		// Add the torrent
+		err = r.AddMagnets([]string{magnet}, p.Destination)
+		if err != nil {
+			return err
+		}
+
+		_, _ = r.GetFiles(p.Torrent.InfoHash)
+	}
+
+	// Pause the torrent
+	_ = r.PauseTorrents([]string{p.Torrent.InfoHash})
+
+	err := r.DeselectFiles(p.Torrent.InfoHash, p.FileIndices)
+	if err != nil {
+		r.logger.Err(err).Msg("torrent client: error while deselecting files (simple select)")
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
+		return fmt.Errorf("error while deselecting files: %w", err)
+	}
+
+	// Unpause the torrent
+	_ = r.ResumeTorrents([]string{p.Torrent.InfoHash})
+
+	return nil
+}
 
 type (
 	SmartSelectParams struct {

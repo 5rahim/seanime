@@ -10,6 +10,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -34,7 +35,7 @@ export default function Page() {
                     <div data-torrent-list-page-header-title>
                         <h2>Active torrents</h2>
                         <p className="text-[--muted]">
-                            See torrents currently being downloaded
+                            See torrents currently being downloaded or seeded
                         </p>
                     </div>
                     <div data-torrent-list-page-header-actions>
@@ -119,15 +120,17 @@ function Content() {
                 </ul>
             </div>
 
-            {data?.filter(Boolean)?.map(torrent => {
-                return <TorrentItem
-                    key={torrent.hash}
-                    torrent={torrent}
-                    onTorrentAction={handleTorrentAction}
-                    isPending={isPending}
-                />
-            })}
-            {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
+            <Card className="p-4 space-y-2">
+                {data?.filter(Boolean)?.map(torrent => {
+                    return <TorrentItem
+                        key={torrent.hash}
+                        torrent={torrent}
+                        onTorrentAction={handleTorrentAction}
+                        isPending={isPending}
+                    />
+                })}
+                {(!isLoading && !data?.length) && <LuffyError title="Nothing to see"></LuffyError>}
+            </Card>
 
             <ConfirmationDialog {...confirmStopAllSeedingProps} />
         </AppLayoutStack>
@@ -159,8 +162,8 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
     })
 
     return (
-        <div data-torrent-item-container className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
-            <div data-torrent-item-progress-bar className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
+        <div data-torrent-item-container className="p-4 border rounded-xl overflow-hidden relative flex gap-2">
+            <div data-torrent-item-progress-bar className="absolute bottom-0 w-full h-1 z-[1] bg-gray-700 left-0">
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -176,6 +179,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
             <div data-torrent-item-title-container className="w-full">
                 <div
                     className={cn({
+                        "text-sm tracking-wide line-clamp-1": true,
                         "opacity-50": torrent.status === "paused",
                     })}
                 >{torrent.name}</div>
@@ -185,7 +189,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     <BiDownArrow className="inline-block mx-2" />
                     {torrent.downSpeed}
                     {` `}
-                    <BiUpArrow className="inline-block mx-2 mb-1" />
+                    <BiUpArrow className="inline-block mx-2" />
                     {torrent.upSpeed}
                     {` `}
                     <BiTime className="inline-block mx-2 mb-0.5" />

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"strconv"
 
@@ -38,7 +39,7 @@ type (
 		Media            *anilist.BaseAnime
 		Progress         *int
 		Status           *anilist.MediaListStatus
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 	}
 )
 

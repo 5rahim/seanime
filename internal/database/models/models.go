@@ -58,6 +58,7 @@ type AnilistSettings struct {
 	HideAudienceScore  bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
 	EnableAdultContent bool `gorm:"column:enable_adult_content" json:"enableAdultContent"`
 	BlurAdultContent   bool `gorm:"column:blur_adult_content" json:"blurAdultContent"`
+	DisableCacheLayer  bool `gorm:"column:disable_cache_layer" json:"disableCacheLayer"`
 }
 
 type LibrarySettings struct {
@@ -65,6 +66,7 @@ type LibrarySettings struct {
 	AutoUpdateProgress              bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
 	DisableUpdateCheck              bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
 	TorrentProvider                 string `gorm:"column:torrent_provider" json:"torrentProvider"`
+	AutoSelectTorrentProvider       string `gorm:"column:auto_select_torrent_provider" json:"autoSelectTorrentProvider"`
 	AutoScan                        bool   `gorm:"column:auto_scan" json:"autoScan"`
 	EnableOnlinestream              bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
 	IncludeOnlineStreamingInLibrary bool   `gorm:"column:include_online_streaming_in_library" json:"includeOnlineStreamingInLibrary"`
@@ -197,6 +199,7 @@ type TorrentSettings struct {
 	// v2.1+
 	ShowActiveTorrentCount bool `gorm:"column:show_active_torrent_count" json:"showActiveTorrentCount"`
 	// v2.2+
+	// DEPRECATED, no longer used
 	HideTorrentList bool `gorm:"column:hide_torrent_list" json:"hideTorrentList"`
 }
 
@@ -336,13 +339,31 @@ type Theme struct {
 
 	// v2.9+
 	UnpinnedMenuItems StringSlice `gorm:"column:unpinned_menu_items;type:text" json:"unpinnedMenuItems"`
+
+	// v3+
+	HomeItems []byte `gorm:"column:home_items;type:text" json:"homeItems"`
+}
+
+type HomeItem struct {
+	ID            string      `json:"id"`
+	Type          string      `json:"type"`
+	Options       interface{} `json:"options,omitempty"` // options chosen by the user
+	SchemaVersion int         `json:"schemaVersion"`     // checks if it's still valid on the client
 }
 
 // +---------------------+
 // |      Playlist       |
 // +---------------------+
 
+// PlaylistEntry legacy playlists
+// DEPRECATED
 type PlaylistEntry struct {
+	BaseModel
+	Name  string `gorm:"column:name" json:"name"`
+	Value []byte `gorm:"column:value" json:"value"`
+}
+
+type Playlist struct {
 	BaseModel
 	Name  string `gorm:"column:name" json:"name"`
 	Value []byte `gorm:"column:value" json:"value"`
@@ -409,10 +430,12 @@ type TorrentstreamSettings struct {
 	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
 }
 
+// TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media.
 type TorrentstreamHistory struct {
 	BaseModel
-	MediaId int    `gorm:"column:media_id" json:"mediaId"`
-	Torrent []byte `gorm:"column:torrent" json:"torrent"`
+	MediaId           int    `gorm:"column:media_id" json:"mediaId"`
+	Torrent           []byte `gorm:"column:torrent" json:"torrent"`
+	BatchEpisodeFiles []byte `gorm:"column:batch_episode_files" json:"batchEpisodeFiles"`
 }
 
 // +---------------------+
@@ -489,6 +512,18 @@ type PluginData struct {
 	BaseModel
 	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
 	Data     []byte `gorm:"column:data" json:"data"`
+}
+
+// +---------------------+
+// |   Custom Source    |
+// +---------------------+
+
+// CustomSourceCollection is parallel to the AniList collection, it stores custom source media.
+type CustomSourceCollection struct {
+	BaseModel
+	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
+	Type        string `gorm:"column:type" json:"type"`   // "anime" or "manga"
+	Value       []byte `gorm:"column:value" json:"value"` // Marshalled struct
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
+	goja_util "seanime/internal/util/goja"
 	"time"
 
 	"github.com/dop251/goja"
@@ -49,6 +50,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		vm.SetParserOptions(parser.WithDisableSourceMaps)
 		// Bind the shared bindings
 		ShareBinds(vm, logger)
+		goja_util.BindMutable(vm)
 		BindUserConfig(vm, ext, logger)
 		return vm
 	}

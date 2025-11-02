@@ -44,6 +44,7 @@ type (
 		completionThreshold   float64
 		mu                    sync.RWMutex
 		isRunning             bool
+		trackingType          string // "file" or "stream" - tracks which type of tracking is active
 		currentPlaybackStatus *PlaybackStatus
 		subscribers           *result.Map[string, *RepositorySubscriber]
 		cancel                context.CancelFunc
@@ -252,7 +253,7 @@ func (m *Repository) Play(path string) error {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.SeekTo(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.Resume()
 			}
@@ -276,7 +277,7 @@ func (m *Repository) Play(path string) error {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.SeekTo(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Play()
 			}
@@ -296,7 +297,7 @@ func (m *Repository) Play(path string) error {
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
 			if lastWatched.Found {
-				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Mpv.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err := m.Mpv.OpenAndPlay(path)
@@ -320,7 +321,7 @@ func (m *Repository) Play(path string) error {
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
 			if lastWatched.Found {
-				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Iina.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err := m.Iina.OpenAndPlay(path)
@@ -335,6 +336,27 @@ func (m *Repository) Play(path string) error {
 		return errors.New("no default media player set")
 	}
 
+}
+
+func (m *Repository) Append(path string) error {
+	switch m.Default {
+	case "mpv":
+		err := m.Mpv.Append(path)
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("media player: Could not append video on MPV")
+			return fmt.Errorf("could not append video, %w", err)
+		}
+	case "iina":
+		err := m.Iina.Append(path)
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("media player: Could not append video on IINA")
+			return fmt.Errorf("could not append video, %w", err)
+		}
+	default:
+		m.Logger.Trace().Str("player", m.Default).Msg("media player: Appending is not supported by the player")
+	}
+
+	return nil
 }
 
 func (m *Repository) Pause() error {
@@ -367,16 +389,16 @@ func (m *Repository) Resume() error {
 	}
 }
 
-func (m *Repository) Seek(seconds float64) error {
+func (m *Repository) SeekTo(seconds float64) error {
 	switch m.Default {
 	case "vlc":
-		return m.VLC.Seek(fmt.Sprintf("%d", int(seconds)))
+		return m.VLC.SeekTo(fmt.Sprintf("%d", int(seconds)))
 	case "mpc-hc":
-		return m.MpcHc.Seek(int(seconds))
+		return m.MpcHc.SeekTo(int(seconds * 1000))
 	case "mpv":
-		return m.Mpv.Seek(seconds)
+		return m.Mpv.SeekTo(seconds)
 	case "iina":
-		return m.Iina.Seek(seconds)
+		return m.Iina.SeekTo(seconds)
 	default:
 		return errors.New("no default media player set")
 	}
@@ -417,7 +439,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.SeekTo(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.Resume()
 			}
@@ -431,7 +453,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.SeekTo(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Play()
 			}
@@ -440,12 +462,12 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	case "mpv":
 		args := []string{}
 		if windowTitle != "" {
-			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
+			args = append(args, fmt.Sprintf("--title=%s", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 			if lastWatched.Found {
-				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Mpv.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
@@ -454,12 +476,12 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	case "iina":
 		args := []string{}
 		if windowTitle != "" {
-			args = append(args, fmt.Sprintf("--mpv-title=%q", windowTitle))
+			args = append(args, fmt.Sprintf("--mpv-title=%s", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			err = m.Iina.OpenAndPlay(streamUrl, args...)
 			if lastWatched.Found {
-				_ = m.Iina.SeekTo(lastWatched.Item.CurrentTime)
+				_ = m.Iina.SeekToSlow(lastWatched.Item.CurrentTime)
 			}
 		} else {
 			err = m.Iina.OpenAndPlay(streamUrl, args...)
@@ -482,12 +504,13 @@ func (m *Repository) Cancel() {
 		m.Logger.Debug().Msg("media player: Cancel request received")
 		m.cancel()
 		m.trackingStopped("Something went wrong, tracking cancelled")
-	} else {
-		m.Logger.Debug().Msg("media player: Cancel request received, but no context found")
 	}
 	// Close MPV if it's the default player
-	if m.Default == "mpv" {
-		m.Mpv.CloseAll()
+	switch m.Default {
+	case "mpv":
+		go m.Mpv.CloseAll()
+	case "iina":
+		go m.Iina.CloseAll()
 	}
 	m.mu.Unlock()
 }
@@ -500,10 +523,12 @@ func (m *Repository) Stop() {
 		m.cancel()
 		m.cancel = nil
 		m.trackingStopped("Tracking stopped")
-		// Close MPV if it's the default player
-		if m.Default == "mpv" {
-			go m.Mpv.CloseAll()
-		}
+	}
+	switch m.Default {
+	case "mpv":
+		m.Mpv.CloseAll()
+	case "iina":
+		m.Iina.CloseAll()
 	}
 	m.mu.Unlock()
 }
@@ -511,10 +536,16 @@ func (m *Repository) Stop() {
 // StartTrackingTorrentStream will start tracking media player status for torrent streaming
 func (m *Repository) StartTrackingTorrentStream() {
 	m.mu.Lock()
-	// If a previous context exists, cancel it
-	if m.cancel != nil {
-		m.Logger.Debug().Msg("media player: Cancelling previous context")
-		m.cancel()
+
+	// Check if tracking is already running
+	if m.isRunning {
+		m.Logger.Debug().Str("currentTrackingType", m.trackingType).Msg("media player: Tracking already running, cancelling previous tracking")
+		if m.cancel != nil {
+			m.cancel()
+			m.cancel = nil
+		}
+		m.isRunning = false
+		m.trackingType = ""
 	}
 
 	// Create a new context
@@ -541,6 +572,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 	// Default prevented, do not track
 	if hookEvent.DefaultPrevented {
 		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		m.mu.Unlock()
 		return
 	}
 
@@ -550,37 +582,34 @@ func (m *Repository) StartTrackingTorrentStream() {
 	var waitInSeconds int
 
 	m.isRunning = true
+	m.trackingType = "stream"
 	gotFirstStatus := false
 
 	m.mu.Unlock()
 
-	go func() {
+	go func(trackingCtx context.Context) {
 		defer func() {
 			m.mu.Lock()
 			m.isRunning = false
-			if m.cancel != nil {
-				m.cancel()
-			}
+			m.trackingType = ""
 			m.mu.Unlock()
 		}()
+
 		for {
 			select {
 			case <-done:
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Connection lost")
-				m.isRunning = false
 				m.mu.Unlock()
 				return
 			case <-trackingCtx.Done():
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
-				m.isRunning = false
 				m.mu.Unlock()
 				return
 			//case <-m.exitedCh:
 			//	m.mu.Lock()
 			//	m.Logger.Debug().Msg("media player: Player exited")
-			//	m.isRunning = false
 			//	m.streamingTrackingStopped(PlayerClosedEvent)
 			//	m.mu.Unlock()
 			//	return
@@ -641,15 +670,15 @@ func (m *Repository) StartTrackingTorrentStream() {
 					continue
 				}
 
-				// New video has started playing \/
+				// New stream has started playing \/
 				if filename == "" || filename != m.currentPlaybackStatus.Filename {
-					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Video loaded")
+					m.Logger.Debug().Str("previousFilename", filename).Str("newFilename", m.currentPlaybackStatus.Filename).Msg("media player: Stream loaded")
 					m.streamingTrackingStarted(m.currentPlaybackStatus)
 					filename = m.currentPlaybackStatus.Filename
 					completed = false
 				}
 
-				// Video completed \/
+				// Stream completed \/
 				if m.currentPlaybackStatus.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("media player: Video completed")
 					m.streamingVideoCompleted(m.currentPlaybackStatus)
@@ -659,17 +688,23 @@ func (m *Repository) StartTrackingTorrentStream() {
 				m.streamingPlaybackStatus(m.currentPlaybackStatus)
 			}
 		}
-	}()
+	}(trackingCtx)
 }
 
 // StartTracking will start tracking media player status.
 // This method is safe to call multiple times -- it will cancel the previous context and start a new one.
 func (m *Repository) StartTracking() {
 	m.mu.Lock()
-	// If a previous context exists, cancel it
-	if m.cancel != nil {
-		m.Logger.Debug().Msg("media player: Cancelling previous context")
-		m.cancel()
+
+	// Check if tracking is already running
+	if m.isRunning {
+		m.Logger.Debug().Str("currentTrackingType", m.trackingType).Msg("media player: Tracking already running, cancelling previous tracking")
+		if m.cancel != nil {
+			m.cancel()
+			m.cancel = nil
+		}
+		m.isRunning = false
+		m.trackingType = ""
 	}
 
 	// Create a new context
@@ -694,15 +729,24 @@ func (m *Repository) StartTracking() {
 	// Default prevented, do not track
 	if hookEvent.DefaultPrevented {
 		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		m.mu.Unlock()
 		return
 	}
 
 	m.isRunning = true
+	m.trackingType = "file"
 	gotFirstStatus := false
 
 	m.mu.Unlock()
 
-	go func() {
+	go func(trackingCtx context.Context) {
+		defer func() {
+			m.mu.Lock()
+			m.isRunning = false
+			m.trackingType = ""
+			m.mu.Unlock()
+		}()
+
 		for {
 			select {
 			case <-done:
@@ -710,16 +754,11 @@ func (m *Repository) StartTracking() {
 				m.Logger.Debug().Msg("media player: Connection lost")
 				m.isRunning = false
 				m.mu.Unlock()
-				if m.cancel != nil {
-					m.cancel()
-					m.cancel = nil
-				}
 				return
 			case <-trackingCtx.Done():
 				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
 				m.isRunning = false
-				m.cancel = nil
 				m.mu.Unlock()
 				return
 			//case <-m.exitedCh:
@@ -794,7 +833,7 @@ func (m *Repository) StartTracking() {
 				m.playbackStatus(m.currentPlaybackStatus)
 			}
 		}
-	}()
+	}(trackingCtx)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

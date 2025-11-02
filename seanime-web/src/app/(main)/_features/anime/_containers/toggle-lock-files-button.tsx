@@ -1,5 +1,6 @@
 import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
 import { IconButton, IconButtonProps } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import React, { memo } from "react"
 import { BiLockOpenAlt } from "react-icons/bi"
@@ -35,7 +36,10 @@ export const ToggleLockFilesButton = memo((props: ToggleLockFilesButtonProps) =>
                     icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
                     intent={isLocked ? "success-subtle" : "warning-subtle"}
                     size={size}
-                    className="hover:opacity-60"
+                    className={cn(
+                        "hover:opacity-60",
+                        size === "md" && !isLocked && "animate-bounce",
+                    )}
                     loading={isPending}
                     onClick={handleToggle}
                 />

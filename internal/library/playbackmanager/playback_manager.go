@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
-	"seanime/internal/database/db_bridge"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/hook"
@@ -56,7 +55,7 @@ type (
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
 		platform                   platform.Platform
-		metadataProvider           metadata.Provider
+		metadataProvider           metadata_provider.Provider
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.RWMutex
@@ -96,19 +95,18 @@ type (
 		currentManualTrackingState  mo.Option[*ManualTrackingState]
 		manualTrackingWg            sync.WaitGroup
 
-		// \/ Playlist
-		playlistHub *playlistHub // The playlist hub
-
 		isOffline       *bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
 
 		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
+
+		isPlaylistActive atomic.Bool
 	}
 
 	// PlaybackStatusSubscriber provides a single event channel for all playback events
 	PlaybackStatusSubscriber struct {
 		EventCh  chan PlaybackEvent
-		canceled atomic.Bool
+		Canceled atomic.Bool
 	}
 
 	// PlaybackEvent is the base interface for all playback events
@@ -132,6 +130,10 @@ type (
 		State  PlaybackState
 	}
 
+	PlaybackErrorEvent struct {
+		Reason string
+	}
+
 	VideoStartedEvent struct {
 		Filename string
 		Filepath string
@@ -146,14 +148,6 @@ type (
 	}
 
 	// Stream playback events
-	StreamStateChangedEvent struct {
-		State PlaybackState
-	}
-
-	StreamStatusChangedEvent struct {
-		Status mediaplayer.PlaybackStatus
-	}
-
 	StreamStartedEvent struct {
 		Filename string
 		Filepath string
@@ -188,7 +182,7 @@ type (
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
 		Platform                   platform.Platform
-		MetadataProvider           metadata.Provider
+		MetadataProvider           metadata_provider.Provider
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
@@ -203,11 +197,10 @@ type (
 
 // Event type implementations
 func (e PlaybackStatusChangedEvent) Type() string { return "playback_status_changed" }
+func (e PlaybackErrorEvent) Type() string         { return "playback_error" }
 func (e VideoStartedEvent) Type() string          { return "video_started" }
 func (e VideoStoppedEvent) Type() string          { return "video_stopped" }
 func (e VideoCompletedEvent) Type() string        { return "video_completed" }
-func (e StreamStateChangedEvent) Type() string    { return "stream_state_changed" }
-func (e StreamStatusChangedEvent) Type() string   { return "stream_status_changed" }
 func (e StreamStartedEvent) Type() string         { return "stream_started" }
 func (e StreamStoppedEvent) Type() string         { return "stream_stopped" }
 func (e StreamCompletedEvent) Type() string       { return "stream_completed" }
@@ -241,8 +234,6 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		playbackStatusSubscribers:    result.NewResultMap[string, *PlaybackStatusSubscriber](),
 	}
 
-	pm.playlistHub = newPlaylistHub(pm)
-
 	return pm
 }
 
@@ -262,8 +253,6 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 		if pm.cancel != nil {
 			pm.cancel()
 		}
-
-		pm.playlistHub.reset()
 
 		// Create a new context for listening to the MediaPlayer instance's event
 		// When this is canceled above, the previous listener goroutine will stop -- this is done to prevent multiple listeners
@@ -308,7 +297,6 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 		return nil
 	}
 
-	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}
@@ -338,6 +326,19 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 
 	// Start tracking
 	pm.MediaPlayerRepository.StartTracking()
+
+	return nil
+}
+
+type AppendToMediaPlayerOptions struct {
+	Payload string
+}
+
+func (pm *PlaybackManager) AppendToMediaPlayer(opts *AppendToMediaPlayerOptions) error {
+	err := pm.MediaPlayerRepository.Append(opts.Payload)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -405,7 +406,6 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		return nil
 	}
 
-	pm.playlistHub.reset()
 	if *pm.isOffline {
 		return errors.New("cannot stream when offline")
 	}
@@ -567,9 +567,9 @@ func (pm *PlaybackManager) Resume() error {
 	return pm.MediaPlayerRepository.Resume()
 }
 
-// Seek seeks to the specified time in the current media.
-func (pm *PlaybackManager) Seek(seconds float64) error {
-	return pm.MediaPlayerRepository.Seek(seconds)
+// SeekTo seeks to the specified time in the current media.
+func (pm *PlaybackManager) SeekTo(seconds float64) error {
+	return pm.MediaPlayerRepository.SeekTo(seconds)
 }
 
 // PullStatus pulls the current media player playback status at the time of the call.
@@ -577,8 +577,31 @@ func (pm *PlaybackManager) PullStatus() (*mediaplayer.PlaybackStatus, bool) {
 	return pm.MediaPlayerRepository.PullStatus()
 }
 
+func (pm *PlaybackManager) PullVideoState() (PlaybackState, bool) {
+	pm.eventMu.RLock()
+	defer pm.eventMu.RUnlock()
+	status := pm.currentMediaPlaybackStatus
+	if status == nil {
+		return PlaybackState{}, false
+	}
+	state := pm.getLocalFilePlaybackState(status)
+	return state, true
+}
+
+func (pm *PlaybackManager) PullStreamState() (PlaybackState, bool) {
+	pm.eventMu.RLock()
+	defer pm.eventMu.RUnlock()
+	status := pm.currentMediaPlaybackStatus
+	if status == nil {
+		return PlaybackState{}, false
+	}
+	state := pm.getStreamPlaybackState(status)
+	return state, true
+}
+
 // Cancel stops the current media player playback and publishes a "normal" event.
 func (pm *PlaybackManager) Cancel() error {
+	pm.Logger.Debug().Msg("playback manager: Cancel called, stopping media player")
 	pm.MediaPlayerRepository.Stop()
 	return nil
 }
@@ -587,93 +610,8 @@ func (pm *PlaybackManager) Cancel() error {
 // Playlist
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// CancelCurrentPlaylist cancels the current playlist.
-// This is an action triggered by the client.
-func (pm *PlaybackManager) CancelCurrentPlaylist() error {
-	go pm.playlistHub.reset()
-	return nil
-}
-
-// RequestNextPlaylistFile will play the next file in the playlist.
-// This is an action triggered by the client.
-func (pm *PlaybackManager) RequestNextPlaylistFile() error {
-	go pm.playlistHub.playNextFile()
-	return nil
-}
-
-// StartPlaylist starts a playlist.
-// This action is triggered by the client.
-func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
-	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartPlaylist", &err)
-
-	pm.playlistHub.loadPlaylist(playlist)
-
-	_ = pm.checkOrLoadAnimeCollection()
-
-	// Play the first video in the playlist
-	firstVidPath := playlist.LocalFiles[0].Path
-	err = pm.MediaPlayerRepository.Play(firstVidPath)
-	if err != nil {
-		return err
-	}
-
-	// Start tracking the video
-	pm.MediaPlayerRepository.StartTracking()
-
-	// Create a new context for the playlist hub
-	var ctx context.Context
-	ctx, pm.playlistHub.cancel = context.WithCancel(context.Background())
-
-	// Listen to new play requests
-	go func() {
-		pm.Logger.Debug().Msg("playback manager: Listening for new file requests")
-		for {
-			select {
-			// When the playlist hub context is cancelled (No playlist is being played)
-			case <-ctx.Done():
-				pm.Logger.Debug().Msg("playback manager: Playlist context cancelled")
-				// Send event to the client -- nil signals that no playlist is being played
-				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
-				return
-			case path := <-pm.playlistHub.requestNewFileCh:
-				// requestNewFileCh receives the path of the next video to play
-				// The channel is fed when it's time to play the next video or when the client requests the next video
-				// see: RequestNextPlaylistFile, playlistHub code
-				pm.Logger.Debug().Str("path", path).Msg("playback manager: Playing next file")
-				// Send notification to the client
-				pm.wsEventManager.SendEvent(events.InfoToast, "Playing next file in playlist")
-				// Play the requested video
-				err := pm.MediaPlayerRepository.Play(path)
-				if err != nil {
-					pm.Logger.Error().Err(err).Msg("playback manager: Failed to play next file in playlist")
-					pm.playlistHub.cancel()
-					return
-				}
-				// Start tracking the video
-				pm.MediaPlayerRepository.StartTracking()
-			case <-pm.playlistHub.endOfPlaylistCh:
-				pm.Logger.Debug().Msg("playback manager: End of playlist")
-				pm.wsEventManager.SendEvent(events.InfoToast, "End of playlist")
-				// Send event to the client -- nil signals that no playlist is being played
-				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
-				go pm.MediaPlayerRepository.Stop()
-				pm.playlistHub.cancel()
-				return
-			}
-		}
-	}()
-
-	// Delete playlist in goroutine
-	go func() {
-		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
-		if err != nil {
-			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
-			return
-		}
-		pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
-	}()
-
-	return nil
+func (pm *PlaybackManager) SetPlaylistActive(isActive bool) {
+	pm.isPlaylistActive.Store(isActive)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -725,7 +663,7 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 	if !ok {
 		return
 	}
-	subscriber.canceled.Store(true)
+	subscriber.Canceled.Store(true)
 	pm.playbackStatusSubscribers.Delete(id)
 	close(subscriber.EventCh)
 }

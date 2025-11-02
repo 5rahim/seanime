@@ -1,4 +1,5 @@
 "use client"
+import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { useGetExtensionUpdateData as useGetExtensionUpdateData } from "@/api/hooks/extensions.hooks"
 import { isLoginModalOpenAtom } from "@/app/(main)/_atoms/server-status.atoms"
@@ -6,7 +7,7 @@ import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { ElectronUpdateModal } from "@/app/(main)/_electron/electron-update-modal"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
-import { useOpenSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
+import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-queue-count"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -34,16 +35,16 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
-import { FaBookReader } from "react-icons/fa"
-import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { GrTest } from "react-icons/gr"
+import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
+import { FiLogIn, FiSearch } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
-import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
+import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
+import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill, PiListChecksFill } from "react-icons/pi"
-import { SiAnilist } from "react-icons/si"
-import { TbWorldDownload } from "react-icons/tb"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone } from "react-icons/pi"
+import { RiListCheck3 } from "react-icons/ri"
+import { SiQbittorrent, SiTransmission } from "react-icons/si"
+import { TbReportSearch } from "react-icons/tb"
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
@@ -69,7 +70,7 @@ export function MainSidebar() {
     const setServerStatus = useSetServerStatus()
     const user = useCurrentUser()
 
-    const { setSeaCommandOpen } = useOpenSeaCommand()
+    const { setSeaCommandOpen } = useSeaCommand()
 
     const missingEpisodeCount = useMissingEpisodeCount()
     const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
@@ -121,24 +122,30 @@ export function MainSidebar() {
 
     const [loggingIn, setLoggingIn] = React.useState(false)
 
+    /**
+     * @description
+     * - Asks the server to fetch an up-to-date version of the user's AniList collection.
+     */
+    const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
+
     const items = [
         {
-            id: "library",
-            iconType: IoLibrary,
-            name: "Library",
+            id: "home",
+            iconType: IoHomeOutline,
+            name: "Home",
             href: "/",
             isCurrent: pathname === "/",
         },
-        ...(process.env.NODE_ENV === "development" ? [{
-            id: "test",
-            iconType: GrTest,
-            name: "Test",
-            href: "/test",
-            isCurrent: pathname === "/test",
-        }] : []),
+        // ...(process.env.NODE_ENV === "development" ? [{
+        //     id: "test",
+        //     iconType: GrTest,
+        //     name: "Test",
+        //     href: "/test",
+        //     isCurrent: pathname === "/test",
+        // }] : []),
         {
             id: "schedule",
-            iconType: BiCalendarAlt,
+            iconType: LuCalendar,
             name: "Schedule",
             href: "/schedule",
             isCurrent: pathname === "/schedule",
@@ -149,61 +156,31 @@ export function MainSidebar() {
         },
         ...serverStatus?.settings?.library?.enableManga ? [{
             id: "manga",
-            iconType: FaBookReader,
+            iconType: LuBookOpen,
             name: "Manga",
             href: "/manga",
             isCurrent: pathname.startsWith("/manga"),
         }] : [],
         {
+            id: "lists",
+            iconType: RiListCheck3,
+            name: "My lists",
+            href: "/lists",
+            isCurrent: pathname === "/lists",
+        },
+        {
             id: "discover",
-            iconType: BiNews,
+            iconType: LuCompass,
             name: "Discover",
             href: "/discover",
             isCurrent: pathname === "/discover",
         },
-        {
-            id: "anilist",
-            iconType: user?.isSimulated ? PiListChecksFill : SiAnilist,
-            name: user?.isSimulated ? "My lists" : "AniList",
-            href: "/anilist",
-            isCurrent: pathname === "/anilist",
-        },
-        ...serverStatus?.settings?.nakama?.enabled ? [{
-            id: "nakama",
-            iconType: MdOutlineConnectWithoutContact,
-            iconClass: "size-6",
-            name: "Nakama",
-            isCurrent: nakamaModalOpen,
-            onClick: () => setNakamaModalOpen(true),
-            addon: <>
-                {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
-                    className="absolute right-0 top-0" size="sm"
-                    intent="info"
-                >{nakamaStatus?.connectedPeers?.length}</Badge>}
-
-                {nakamaStatus?.isConnectedToHost && <div
-                    className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
-                ></div>}
-            </>,
-        }] : [],
-        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
-            id: "auto-downloader",
-            iconType: TbWorldDownload,
-            name: "Auto Downloader",
-            href: "/auto-downloader",
-            isCurrent: pathname === "/auto-downloader",
-            addon: autoDownloaderQueueCount > 0 ? <Badge
-                className="absolute right-0 top-0" size="sm"
-                intent="alert-solid"
-            >{autoDownloaderQueueCount}</Badge> : undefined,
-        }] : [],
         ...(
             serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-            && !serverStatus?.settings?.torrent?.hideTorrentList
             && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
             ? [{
                 id: "torrent-list",
-                iconType: BiDownload,
+                iconType: serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.QBITTORRENT ? SiQbittorrent : SiTransmission,
                 name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
                     ? "Torrent list"
                     : `Torrent list (${activeTorrentCount.seeding} seeding)`,
@@ -223,13 +200,24 @@ export function MainSidebar() {
             href: "/debrid",
             isCurrent: pathname === "/debrid",
         }] : [],
-        {
+        ...(!!serverStatus?.settings?.library?.libraryPath) ? [{
             id: "scan-summaries",
-            iconType: PiClockCounterClockwiseFill,
+            iconType: TbReportSearch,
             name: "Scan summaries",
             href: "/scan-summaries",
             isCurrent: pathname === "/scan-summaries",
-        },
+        }] : [],
+        ...(serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && !!serverStatus?.settings?.library?.libraryPath) ? [{
+            id: "auto-downloader",
+            iconType: LuRss,
+            name: "Auto Downloader",
+            href: "/auto-downloader",
+            isCurrent: pathname === "/auto-downloader",
+            addon: autoDownloaderQueueCount > 0 ? <Badge
+                className="absolute right-0 top-0" size="sm"
+                intent="alert-solid"
+            >{autoDownloaderQueueCount}</Badge> : undefined,
+        }] : [],
         {
             id: "search",
             iconType: FiSearch,
@@ -253,6 +241,7 @@ export function MainSidebar() {
                 name: "More",
                 subContent: <VerticalMenu
                     items={items.filter(item => ts.unpinnedMenuItems?.includes(item.id))}
+                    isSidebar
                 />,
             } as VerticalMenuItem,
         ]
@@ -262,10 +251,10 @@ export function MainSidebar() {
         <>
             <AppSidebar
                 className={cn(
-                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300",
+                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300 overflow-x-hidden",
                     (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
                     (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
-                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover) && "hover:bg-[--background]",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover && expandedSidebar) && "bg-[--background] rounded-tr-xl rounded-br-xl border-[--border]",
                 )}
                 onMouseEnter={handleExpandSidebar}
                 onMouseLeave={handleUnexpandedSidebar}
@@ -278,8 +267,17 @@ export function MainSidebar() {
                 ></div>}
 
                 <div>
-                    <div className="mb-4 p-4 pb-0 flex justify-center w-full">
-                        <img src="/logo.png" alt="logo" className="w-15 h-10" />
+                    <div
+                        className={cn(
+                            "mb-4 p-4 pb-0 flex justify-center w-full",
+                            __isDesktop__ && "mt-2",
+                        )}
+                    >
+                        <img
+                            src="/seanime-logo.png"
+                            alt="logo"
+                            className="w-15 h-10 transition-all duration-300"
+                        />
                     </div>
                     <VerticalMenu
                         className="px-4"
@@ -290,9 +288,19 @@ export function MainSidebar() {
                         items={[
                             ...pinnedMenuItems,
                             ...unpinnedMenuItems,
+                            {
+                                iconType: LuRefreshCw,
+                                name: "Refresh AniList",
+                                onClick: () => {
+                                    ctx.setOpen(false)
+                                    if (isRefreshingAC) return
+                                    refreshAC()
+                                },
+                            },
                         ]}
                         subContentClass={cn((ts.hideTopNavbar || __isDesktop__) && "border-transparent !border-b-0")}
                         onLinkItemClick={() => ctx.setOpen(false)}
+                        isSidebar
                     />
 
                     <SidebarNavbar
@@ -340,6 +348,7 @@ export function MainSidebar() {
                             onMouseEnter={() => { }}
                             onMouseLeave={() => { }}
                             onLinkItemClick={() => ctx.setOpen(false)}
+                            isSidebar
                             items={[
                                 // {
                                 //     iconType: RiSlashCommands2,
@@ -348,6 +357,26 @@ export function MainSidebar() {
                                 //         setSeaCommandOpen(true)
                                 //     }
                                 // },
+                                ...serverStatus?.settings?.nakama?.enabled ? [{
+                                    iconType: MdOutlineConnectWithoutContact,
+                                    iconClass: "size-6",
+                                    name: "Nakama",
+                                    isCurrent: nakamaModalOpen,
+                                    onClick: () => {
+                                        ctx.setOpen(false)
+                                        setNakamaModalOpen(true)
+                                    },
+                                    addon: <>
+                                        {nakamaStatus?.isHost && !!nakamaStatus?.connectedPeers?.length && <Badge
+                                            className="absolute right-0 top-0" size="sm"
+                                            intent="info"
+                                        >{nakamaStatus?.connectedPeers?.length}</Badge>}
+
+                                        {nakamaStatus?.isConnectedToHost && <div
+                                            className="absolute right-2 top-2 animate-pulse size-2 bg-green-500 rounded-full"
+                                        ></div>}
+                                    </>,
+                                }] : [],
                                 {
                                     iconType: BiExtension,
                                     name: "Extensions",
@@ -377,7 +406,7 @@ export function MainSidebar() {
                                         : undefined,
                                 },
                                 {
-                                    iconType: FiSettings,
+                                    iconType: LuSettings,
                                     name: "Settings",
                                     href: "/settings",
                                     isCurrent: pathname === ("/settings"),
@@ -400,6 +429,7 @@ export function MainSidebar() {
                                 onMouseEnter={handleExpandSidebar}
                                 onMouseLeave={handleUnexpandedSidebar}
                                 onLinkItemClick={() => ctx.setOpen(false)}
+                                isSidebar
                                 items={[
                                     {
                                         iconType: FiLogIn,
@@ -414,12 +444,12 @@ export function MainSidebar() {
                         <DropdownMenu
                             trigger={<div
                                 className={cn(
-                                    "w-full flex p-2.5 pt-1 items-center space-x-2",
+                                    "w-full flex p-2 pt-1 items-center space-x-3",
                                     { "hidden": ctx.isBelowBreakpoint },
                                 )}
                             >
                                 <Avatar size="sm" className="cursor-pointer" src={user?.viewer?.avatar?.medium || undefined} />
-                                {expandedSidebar && <p className="truncate">{user?.viewer?.name}</p>}
+                                {expandedSidebar && <p className="truncate text-sm text-[--muted]">{user?.viewer?.name}</p>}
                             </div>}
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}

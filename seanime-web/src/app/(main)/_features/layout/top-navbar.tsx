@@ -1,6 +1,4 @@
-import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { OfflineTopMenu } from "@/app/(main)/(offline)/offline/_components/offline-top-menu"
-import { RefreshAnilistButton } from "@/app/(main)/_features/anilist/refresh-anilist-button"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
 import { ManualProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
@@ -10,15 +8,13 @@ import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-d
 import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator/separator"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { FaDownload } from "react-icons/fa"
-import { IoReload } from "react-icons/io5"
+import { LuFolderDown } from "react-icons/lu"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
@@ -45,7 +41,10 @@ export function TopNavbar(props: TopNavbarProps) {
                     (ts.hideTopNavbar || __isDesktop__) && "lg:hidden",
                 )}
             >
-                <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
+                <div
+                    data-top-navbar-content-container
+                    className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto overflow-y-hidden"
+                >
                     <div data-top-navbar-content className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
@@ -54,7 +53,7 @@ export function TopNavbar(props: TopNavbarProps) {
                         <div data-top-navbar-content-separator className="flex flex-1"></div>
                         <PluginSidebarTray place="top" />
                         {!isOffline && <ChapterDownloadsButton />}
-                        {!isOffline && <RefreshAnilistButton />}
+                        {/*{!isOffline && <RefreshAnilistButton />}*/}
                     </div>
                 </div>
                 <LayoutHeaderBackground />
@@ -86,19 +85,13 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
-    /**
-     * @description
-     * - Asks the server to fetch an up-to-date version of the user's AniList collection.
-     */
-    const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
-
     if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
         <div data-sidebar-navbar className="flex flex-col gap-1">
-            <div data-sidebar-navbar-spacer className="px-4 lg:py-1">
-                <Separator className="px-4" />
-            </div>
+            {/*<div data-sidebar-navbar-spacer className="px-4 lg:py-1">*/}
+            {/*    <Separator className="px-4" />*/}
+            {/*</div>*/}
             {!serverStatus?.isOffline && <VerticalMenu
                 data-sidebar-navbar-vertical-menu
                 className="px-4"
@@ -106,19 +99,12 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 itemClass="relative"
                 onMouseEnter={handleExpandSidebar}
                 onMouseLeave={handleUnexpandedSidebar}
+                isSidebar
                 items={[
-                    {
-                        iconType: IoReload,
-                        name: "Refresh AniList",
-                        onClick: () => {
-                            if (isRefreshingAC) return
-                            refreshAC()
-                        },
-                    },
                     ...(isMangaPage ? [
                         {
-                            iconType: FaDownload,
-                            name: "Manga downloads",
+                            iconType: LuFolderDown,
+                            name: "Manga Downloads",
                             onClick: () => {
                                 openDownloadQueue(true)
                             },

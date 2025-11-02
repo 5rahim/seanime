@@ -46,7 +46,7 @@ func TestPlaylists(t *testing.T) {
 		lfs = append(lfs, lf)
 	}
 
-	playlist := &anime.Playlist{
+	playlist := &anime.LegacyPlaylist{
 		DbId:       1,
 		Name:       "test",
 		LocalFiles: lfs,
