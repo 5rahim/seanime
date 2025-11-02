@@ -577,7 +577,6 @@ func toDebridTorrentInfo(t *TorrentInfo) (ret *debrid.TorrentInfo) {
 
 	return
 }
-
 func toDebridTorrentStatus(t *Torrent) debrid.TorrentItemStatus {
 	if t.DownloadFinished && t.DownloadPresent {
 		switch t.DownloadState {
@@ -595,8 +594,6 @@ func toDebridTorrentStatus(t *Torrent) debrid.TorrentItemStatus {
 		return debrid.TorrentItemStatusStalled
 	case "completed", "cached":
 		return debrid.TorrentItemStatusCompleted
-	case "uploading":
-		return debrid.TorrentItemStatusSeeding
 	case "paused":
 		return debrid.TorrentItemStatusPaused
 	default:
