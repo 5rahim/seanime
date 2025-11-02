@@ -209,7 +209,7 @@ function logEnvironmentInfo() {
 
 const updateConfig = {
     provider: 'generic',
-    url: 'https://github.com/1sailor/sea/releases/latest/download',
+    url: 'https://github.com/5rahim/seanime/releases/latest/download',
     channel: 'latest',
     allowPrerelease: false,
     verifyUpdateCodeSignature: false,

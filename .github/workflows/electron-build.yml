@@ -2,9 +2,9 @@ name: Build Electron App
 
 on:
   workflow_call:
-    secrets:
-      SUBMODULE_PAT:
-        required: true
+    #    secrets:
+    #      SUBMODULE_PAT:
+    #        required: true
     outputs:
       appVersion:
         description: "The version of the app"
@@ -46,9 +46,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
-          lfs: true
-          token: ${{ secrets.SUBMODULE_PAT }}
+      #          submodules: recursive
+      #          lfs: true
+      #          token: ${{ secrets.SUBMODULE_PAT }}
 
       - name: Setup Node.js 📦
         uses: actions/setup-node@v4
@@ -69,13 +69,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libnss3-dev libxss-dev libasound2-dev
 
-      #      # Download the web folders
-      #      # TODO Uncomment if building web
-      #      - name: Download web folder artifact 📥
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: web-denshi
-      #          path: web-denshi
+      # Download the web folders
+      # TODO Uncomment if building web
+      - name: Download web folder artifact 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: web-denshi
+          path: web-denshi
 
       # Move web-denshi folder into seanime-denshi
       - name: Move web-denshi folder 🚚

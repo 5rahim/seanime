@@ -14,7 +14,7 @@ body:
             My version of the app is the latest available
           required: true
         - label: >-
-            I have checked open and closed [issues](https://github.com/1sailor/sea/issues)
+            I have checked open and closed [issues](https://github.com/5rahim/seanime/issues)
           required: true
         - label: >-
             I have checked the [docs](https://seanime.rahim.app/docs/faq) for a fix
@@ -49,7 +49,7 @@ body:
         - Offline mode
         - AniList
         - UI / Web Interface
-        - Desktop app
+        - Denshi (Desktop app)
     validations:
       required: true
   - type: textarea

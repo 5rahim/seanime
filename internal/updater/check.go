@@ -14,7 +14,7 @@ import (
 // This allows updates even if Seanime is removed from GitHub
 var (
 	websiteUrl        = "https://seanime.app/api/release"
-	fallbackGithubUrl = "https://api.github.com/repos/1sailor/sea/releases/latest"
+	fallbackGithubUrl = "https://api.github.com/repos/5rahim/seanime/releases/latest"
 )
 
 type (
@@ -110,25 +110,16 @@ func (u *Updater) GetReleaseName(version string) string {
 
 func (u *Updater) fetchLatestRelease() (*Release, error) {
 	var release *Release
-	//docsRelease, err := u.fetchLatestReleaseFromDocs()
-	//if err != nil {
-	//	ghRelease, err := u.fetchLatestReleaseFromGitHub()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	release = ghRelease
-	//} else {
-	//	release = docsRelease
-	//}
-	ghRelease, err := u.fetchLatestReleaseFromGitHub()
+
+	docsRelease, err := u.fetchLatestReleaseFromDocs()
 	if err != nil {
-		docsRelease, err := u.fetchLatestReleaseFromDocs()
+		ghRelease, err := u.fetchLatestReleaseFromGitHub()
 		if err != nil {
 			return nil, err
 		}
-		release = docsRelease
-	} else {
 		release = ghRelease
+	} else {
+		release = docsRelease
 	}
 
 	return release, nil
