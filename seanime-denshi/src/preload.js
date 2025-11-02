@@ -20,7 +20,8 @@ contextBridge.exposeInMainWorld(
             show: () => ipcRenderer.send('window:show'),
             isVisible: () => ipcRenderer.invoke('window:isVisible'),
             setTitleBarStyle: (style) => ipcRenderer.send('window:setTitleBarStyle', style),
-            getCurrentWindow: () => ipcRenderer.invoke('window:getCurrentWindow')
+            getCurrentWindow: () => ipcRenderer.invoke('window:getCurrentWindow'),
+            isMainWindow: () => ipcRenderer.send('window:isMainWindow'),
         },
 
         // Event listeners
@@ -36,7 +37,8 @@ contextBridge.exposeInMainWorld(
                 'update-error',
                 'update-available',
                 'download-progress',
-                'window:currentWindow'
+                'window:currentWindow',
+                'window:isMainWindow',
             ];
             if (validChannels.includes(channel)) {
                 // Remove the event listener to avoid memory leaks

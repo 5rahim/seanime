@@ -6,15 +6,18 @@ import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/m
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { cn } from "@/components/ui/core/styling"
+import { Skeleton } from "@/components/ui/skeleton"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { LuEye } from "react-icons/lu"
 
 export function RecentReleases() {
 
     const router = useRouter()
 
-    const { data } = useAnilistListRecentAiringAnime({
+    const { data, isLoading } = useAnilistListRecentAiringAnime({
         page: 1,
         perPage: 50,
         airingAt_lesser: Math.floor(new Date().getTime() / 1000),
@@ -29,7 +32,7 @@ export function RecentReleases() {
 
     const { setPreviewModalMediaId } = useMediaPreviewModal()
 
-    if (!media?.length) return null
+    if (!media?.length && !isLoading) return null
 
     return (
         <AppLayoutStack className="pb-6">
@@ -44,7 +47,17 @@ export function RecentReleases() {
             >
                 <CarouselDotButtons />
                 <CarouselContent>
-                    {media.map(item => {
+                    {isLoading && ([1, 2, 3, 4, 5, 6, 7, 8])?.map((_, idx) => {
+                        return <CarouselItem
+                            key={idx}
+                            className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5 relative h-[220px] px-2"
+                        ><Skeleton
+                            key={idx} className={cn(
+                            "w-full h-full absolute",
+                        )}
+                        /></CarouselItem>
+                    })}
+                    {media?.map(item => {
                         return (
                             <CarouselItem
                                 key={item.id}
@@ -60,7 +73,7 @@ export function RecentReleases() {
                                                 setPreviewModalMediaId(item.media?.id || 0, "anime")
                                             }}
                                         >
-                                            Preview
+                                            <LuEye /> Preview
                                         </ContextMenuItem>
                                     </ContextMenuGroup>}
                                 >

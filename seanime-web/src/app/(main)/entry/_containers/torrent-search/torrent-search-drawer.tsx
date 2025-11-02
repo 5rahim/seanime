@@ -1,10 +1,12 @@
 import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useTorrentSearchSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
-import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-download-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { Modal } from "@/components/ui/modal"
+import { cn } from "@/components/ui/core/styling"
+import { Vaul, VaulContent } from "@/components/vaul"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -21,9 +23,9 @@ export type TorrentSelectionType =
     | "debridstream-select-file"
     | "download"
 
-export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_Entry, isPlaylistDrawer?: boolean }) {
 
-    const { entry } = props
+    const { entry, isPlaylistDrawer } = props
     const ts = useThemeSettings()
 
     const [selectionType, setSelection] = useAtom(__torrentSearch_selectionAtom)
@@ -32,6 +34,8 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
     const pathname = usePathname()
     const mId = searchParams.get("id")
     const downloadParam = searchParams.get("download")
+
+    const { currentPlaylist } = usePlaylistManager()
 
     useEffect(() => {
         if (!!downloadParam) {
@@ -42,81 +46,63 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
 
     const { onTorrentValidated } = useTorrentSearchSelection({ entry, type: selectionType })
 
+    if (currentPlaylist && !isPlaylistDrawer) return null
+
+    // if (layoutType === "modal") return (
+    //     <Modal
+    //         open={selectionType !== undefined}
+    //         onOpenChange={() => setSelection(undefined)}
+    //         // size="xl"
+    //         contentClass="max-w-5xl bg-gray-950 bg-opacity-75 firefox:bg-opacity-100 sm:rounded-xl"
+    //         title={`${entry?.media?.title?.userPreferred || "Anime"}`}
+    //         titleClass="max-w-[500px] text-ellipsis truncate"
+    //         data-torrent-search-drawer
+    //         overlayClass="bg-gray-950/70 backdrop-blur-sm"
+    //         onInteractOutside={e => {if (isPlaylistDrawer) e.preventDefault()}}
+    //     >
+    //
+    //         <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
+    //             {selectionType === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
+    //             {!!selectionType && <TorrentSearchContainer type={selectionType} entry={entry} />}
+    //         </AppLayoutStack>
+    //
+    //         <TorrentConfirmationContinueButton type={selectionType || "download"} onTorrentValidated={onTorrentValidated} />
+    //     </Modal>
+    // )
+
     return (
-        <Modal
+        <Vaul
             open={selectionType !== undefined}
             onOpenChange={() => setSelection(undefined)}
-            // size="xl"
-            contentClass="max-w-5xl bg-gray-950 bg-opacity-75 firefox:bg-opacity-100 sm:rounded-xl"
-            title={`${entry?.media?.title?.userPreferred || "Anime"}`}
-            titleClass="max-w-[500px] text-ellipsis truncate"
-            data-torrent-search-drawer
-            overlayClass="bg-gray-950/70 backdrop-blur-sm"
         >
 
-            <GlowingEffect
-                spread={40}
-                // blur={1}
-                glow={true}
-                disabled={false}
-                proximity={100}
-                inactiveZone={0.01}
-                className="opacity-30"
-            />
+            <VaulContent
+                className={cn(
+                    "bg-gray-950 h-[90%] lg:h-[80%] bg-opacity-95 6xl:max-w-[1900px] firefox:bg-opacity-100 mx-4 lg:mx-8 6xl:mx-auto overflow-hidden",
+                    selectionType === "download" && "lg:h-[92.5%] xl:mx-[10rem] 2xl:mx-[20rem]",
+                    selectionType === undefined && "lg:h-[80%] xl:mx-[10rem] 2xl:mx-[20rem]",
+                )}
+            >
+                <GlowingEffect
+                    spread={40}
+                    // blur={1}
+                    glow={true}
+                    disabled={false}
+                    proximity={100}
+                    inactiveZone={0.01}
+                    className="opacity-30"
+                />
+                <div className="p-4 lg:p-8 flex-1 overflow-y-auto">
+                    <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
+                        {selectionType === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
+                        {!!selectionType && <TorrentSearchContainer type={selectionType} entry={entry} />}
+                    </AppLayoutStack>
 
-            {/*{(ts.enableMediaPageBlurredBackground) && <div*/}
-            {/*    data-media-page-header-blurred-background*/}
-            {/*    className={cn(*/}
-            {/*        "absolute top-0 left-0 w-full h-full z-[0] bg-[--background] rounded-xl overflow-hidden",*/}
-            {/*        "opacity-20",*/}
-            {/*    )}*/}
-            {/*>*/}
-            {/*    <Image*/}
-            {/*        data-media-page-header-blurred-background-image*/}
-            {/*        src={getImageUrl(entry.media?.bannerImage || "")}*/}
-            {/*        alt={""}*/}
-            {/*        fill*/}
-            {/*        quality={100}*/}
-            {/*        sizes="20rem"*/}
-            {/*        className={cn(*/}
-            {/*            "object-cover object-bottom transition opacity-10",*/}
-            {/*            ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "object-left",*/}
-            {/*        )}*/}
-            {/*    />*/}
-
-            {/*    <div*/}
-            {/*        data-media-page-header-blurred-background-blur*/}
-            {/*        className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2]"*/}
-            {/*    ></div>*/}
-            {/*</div>}*/}
-
-            {/*{entry?.media?.bannerImage && <div*/}
-            {/*    data-torrent-search-drawer-banner-image-container*/}
-            {/*    className="Sea-TorrentSearchDrawer__bannerImage h-36 w-full flex-none object-cover object-center overflow-hidden rounded-t-xl absolute left-0 top-0 z-[-1]"*/}
-            {/*>*/}
-            {/*    <Image*/}
-            {/*        data-torrent-search-drawer-banner-image*/}
-            {/*        src={getImageUrl(entry?.media?.bannerImage!)}*/}
-            {/*        alt="banner"*/}
-            {/*        fill*/}
-            {/*        quality={80}*/}
-            {/*        priority*/}
-            {/*        sizes="20rem"*/}
-            {/*        className="object-cover object-center opacity-10"*/}
-            {/*    />*/}
-            {/*    <div*/}
-            {/*        data-torrent-search-drawer-banner-image-bottom-gradient*/}
-            {/*        className="Sea-TorrentSearchDrawer__bannerImage-bottomGradient z-[5] absolute bottom-0 w-full h-[70%] bg-gradient-to-t from-[--background] to-transparent"*/}
-            {/*    />*/}
-            {/*</div>}*/}
-
-            <AppLayoutStack className="relative z-[1]" data-torrent-search-drawer-content>
-                {selectionType === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
-                {!!selectionType && <TorrentSearchContainer type={selectionType} entry={entry} />}
-            </AppLayoutStack>
-
-            <TorrentConfirmationContinueButton type={selectionType || "download"} onTorrentValidated={onTorrentValidated} />
-        </Modal>
+                    <TorrentConfirmationContinueButton type={selectionType || "download"} onTorrentValidated={onTorrentValidated} />
+                    <TorrentConfirmationContinueButton type={selectionType || "download"} onTorrentValidated={onTorrentValidated} />
+                </div>
+            </VaulContent>
+        </Vaul>
     )
 
 }

@@ -25,17 +25,20 @@ export function CustomBackgroundImage(props: CustomBackgroundImageProps) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1, delay: 0.1 }}
                     className="fixed w-full h-full inset-0"
+                    data-custom-background-image
                 >
 
                     {ts.libraryScreenCustomBackgroundBlur !== "" && <div
+                        data-custom-background-image-blur
                         className="fixed w-full h-full inset-0 z-[0]"
                         style={{ backdropFilter: `blur(${ts.libraryScreenCustomBackgroundBlur})` }}
                     >
                     </div>}
 
                     <div
+                        data-custom-background-image-cover
                         className={cn(
-                            "fixed w-full h-full inset-0 z-[-1] bg-no-repeat bg-cover bg-center transition-opacity duration-1000",
+                            "fixed w-full h-full inset-0 z-[-1] bg-no-repeat bg-cover bg-center transition-opacity duration-1000 scroll-locked-offset-fixed",
                             className,
                         )}
                         style={{

@@ -20,6 +20,7 @@ const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
+	TypeCustomSource         Type = "custom-source"
 	TypePlugin               Type = "plugin"
 )
 

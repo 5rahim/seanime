@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util/result"
 	"strconv"
 	"time"
@@ -281,6 +282,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		SeasonYear          *int                   `json:"seasonYear,omitempty"`
 		Format              *anilist.MediaFormat   `json:"format,omitempty"`
 		IsAdult             *bool                  `json:"isAdult,omitempty"`
+		CountryOfOrigin     *string                `json:"countryOfOrigin,omitempty"`
 	}
 
 	p := new(body)
@@ -310,6 +312,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.SeasonYear,
 		p.Format,
 		&isAdult,
+		p.CountryOfOrigin,
 	)
 
 	cached, ok := anilistListAnimeCache.Get(cacheKey)
@@ -318,6 +321,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -329,6 +333,7 @@ func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 		p.SeasonYear,
 		p.Format,
 		&isAdult,
+		p.CountryOfOrigin,
 		h.App.Logger,
 		h.App.GetUserAnilistToken(),
 	)
@@ -371,7 +376,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 		*p.PerPage = 50
 	}
 
-	cacheKey := fmt.Sprintf("%v-%v-%v-%v-%v-%v", p.Page, p.Search, p.PerPage, p.AiringAtGreater, p.AiringAtLesser, p.NotYetAired)
+	cacheKey := fmt.Sprintf("%v-%v-%v-%v-%v-%v-%v", p.Page, p.Search, p.PerPage, p.AiringAtGreater, p.AiringAtLesser, p.NotYetAired, p.Sort)
 
 	cached, ok := anilistListRecentAnimeCache.Get(cacheKey)
 	if ok {
@@ -379,6 +384,7 @@ func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListRecentAiringAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -422,6 +428,7 @@ func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListMissedSequels(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		animeCollection,
 		h.App.Logger,
 		h.App.GetUserAnilistToken(),
@@ -467,4 +474,27 @@ func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 	anilistStatsCache.SetT(0, ret, time.Hour*1)
 
 	return h.RespondWithData(c, ret)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetAnilistCacheLayerStatus
+//
+//	@summary returns the status of the AniList cache layer.
+//	@desc This returns the status of the AniList cache layer.
+//	@route /api/v1/anilist/cache-layer/status [GET]
+//	@returns bool
+func (h *Handler) HandleGetAnilistCacheLayerStatus(c echo.Context) error {
+	return h.RespondWithData(c, shared_platform.IsWorking.Load())
+}
+
+// HandleToggleAnilistCacheLayerStatus
+//
+//	@summary toggles the status of the AniList cache layer.
+//	@desc This toggles the status of the AniList cache layer.
+//	@route /api/v1/anilist/cache-layer/status [POST]
+//	@returns bool
+func (h *Handler) HandleToggleAnilistCacheLayerStatus(c echo.Context) error {
+	shared_platform.IsWorking.Store(!shared_platform.IsWorking.Load())
+	return h.RespondWithData(c, shared_platform.IsWorking.Load())
 }

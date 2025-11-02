@@ -14,15 +14,10 @@ import {
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
-
-export type VideoCoreChapter = {
-    start: number
-    end: number
-    title: string
-}
 
 export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | null | undefined) {
 
@@ -76,11 +71,47 @@ export const vc_createChapterCues = (chapters: Array<MKVParser_ChapterInfo> | un
         return []
     }
 
-    return chapters.map((chapter, index) => ({
+    return vc_fillChapterCues(chapters.map((chapter, index) => ({
         startTime: chapter.start / 1e6,
         endTime: chapter.end ? chapter.end / 1e6 : (chapters[index + 1]?.start ? chapters[index + 1].start / 1e6 : duration),
         text: chapter.text || ``,
-    }))
+    }))).filter(c => c.startTime !== undefined && c.endTime !== undefined && c.startTime <= duration && c.endTime <= duration)
+}
+
+export const vc_fillChapterCues = (chapters: VideoCoreChapterCue[]): VideoCoreChapterCue[] => {
+    if (!chapters || chapters.length === 0) {
+        return []
+    }
+
+    const EPS = 1e-6
+    const sorted = [...chapters].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
+    const out: VideoCoreChapterCue[] = []
+
+    for (let i = 0; i < sorted.length; i++) {
+        const cur = sorted[i]
+        const next = sorted[i + 1]
+        const start = cur.startTime ?? 0
+        let end = typeof cur.endTime === "number" ? cur.endTime : (next ? (next.startTime ?? start) : start)
+        if (end < start) end = start
+
+        // leading gap
+        if (i === 0 && start > EPS) {
+            out.push({ startTime: 0, endTime: start, text: "" })
+        }
+
+        // gap between previous output end and this start
+        const prev = out[out.length - 1]
+        if (prev) {
+            const prevEnd = prev.endTime ?? prev.startTime
+            if (start > (prevEnd ?? 0) + EPS) {
+                out.push({ startTime: prevEnd ?? 0, endTime: start, text: "" })
+            }
+        }
+
+        out.push({ startTime: start, endTime: end, text: cur.text ?? "" })
+    }
+
+    return out
 }
 
 export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | undefined, duration: number) => {
@@ -107,6 +138,46 @@ export const vc_createChapterVTT = (chapters: Array<MKVParser_ChapterInfo> | und
     })
 
     return vttContent
+}
+
+export function vc_getChapterType(name: string | null | undefined) {
+    if (!name) return false
+    if (/opening$|^opening\s|^op$/mi.test(name)) return "Opening"
+    if (/ending$|^ending\s|^ed$|^credits/mi.test(name)) return "Ending"
+    if (/^intro$|recap/mi.test(name)) return "Intro"
+    if (/^outro$/mi.test(name)) return "Outro"
+    return false
+}
+
+export function vc_introIsOpening(chapters: VideoCoreTimeRangeChapter[]) {
+    const types = chapters.map(c => vc_getChapterType(c.label)).filter(Boolean)
+    return types.includes("Intro") && !types.includes("Opening")
+}
+
+export function vc_getOPEDChapters(chapters: VideoCoreTimeRangeChapter[]): {
+    opening: VideoCoreTimeRangeChapter | null;
+    ending: VideoCoreTimeRangeChapter | null
+} {
+    let opening: VideoCoreTimeRangeChapter | null = null
+    let ending: VideoCoreTimeRangeChapter | null = null
+    const introIsOpening = vc_introIsOpening(chapters)
+    for (const chapter of chapters) {
+        const type = vc_getChapterType(chapter.label)
+        if (!opening && !introIsOpening && type === "Opening") {
+            opening = chapter
+        }
+        if (!opening && introIsOpening && type === "Intro") {
+            opening = chapter
+        }
+        if (!ending && !introIsOpening && type === "Ending") {
+            ending = chapter
+        }
+        if (!ending && introIsOpening && type === "Outro") {
+            ending = chapter
+        }
+        if (opening && ending) break
+    }
+    return { opening, ending }
 }
 
 export function isSubtitleFile(filename: string) {

@@ -308,7 +308,7 @@ func (vlc *VLC) Volume(val string) (err error) {
 	return
 }
 
-// Seek seeks to <val>
+// SeekTo seeks to <val>
 //
 //	Allowed values are of the form:
 //	  [+ or -][<int><H or h>:][<int><M or m or '>:][<int><nothing or S or s or ">]
@@ -318,7 +318,7 @@ func (vlc *VLC) Volume(val string) (err error) {
 //	  1000 -> seek to the 1000th second
 //	  +1H:2M -> seek 1 hour and 2 minutes forward
 //	  -10% -> seek 10% back
-func (vlc *VLC) Seek(val string) (err error) {
+func (vlc *VLC) SeekTo(val string) (err error) {
 	_, err = vlc.RequestMaker("/requests/status.json?command=seek&val=" + val)
 	return
 }

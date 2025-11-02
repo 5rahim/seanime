@@ -4,8 +4,11 @@ import (
 	"context"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 
 	"github.com/samber/lo"
@@ -16,7 +19,10 @@ import (
 func TestNewEntryDownloadInfo(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	metadataProvider := metadata.GetMockProvider(t)
+	logger := util.NewLogger()
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
@@ -138,7 +144,10 @@ func TestNewEntryDownloadInfo2(t *testing.T) {
 
 	mediaId := 21
 
-	metadataProvider := metadata.GetMockProvider(t)
+	logger := util.NewLogger()
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)

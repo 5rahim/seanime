@@ -9,7 +9,8 @@ import {
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
-import { AlphaBadge } from "@/components/shared/beta-badge"
+import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +20,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { BiCog } from "react-icons/bi"
@@ -27,6 +29,7 @@ import { HiOutlinePlay } from "react-icons/hi2"
 import { LuPopcorn } from "react-icons/lu"
 import { MdAdd, MdCleaningServices, MdOutlineConnectWithoutContact, MdPlayArrow, MdRefresh } from "react-icons/md"
 import { toast } from "sonner"
+import { ElectronPlaybackMethod, useCurrentDevicePlaybackSettings } from "../../_atoms/playback.atoms"
 
 export const nakamaModalOpenAtom = atom(false)
 export const nakamaStatusAtom = atom<Nakama_NakamaStatus | null | undefined>(undefined)
@@ -46,8 +49,8 @@ export function NakamaManager() {
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const [watchPartySession, setWatchPartySession] = useAtom(watchPartySessionAtom)
+    const clientId = useAtomValue(clientIdAtom)
 
-    // const { data: status, refetch: refetchStatus, isLoading } = useGetNakamaStatus()
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
     const { mutate: createWatchParty, isPending: isCreatingWatchParty } = useNakamaCreateWatchParty()
@@ -60,12 +63,23 @@ export function NakamaManager() {
         maxBufferWaitTime: 10,
     })
 
+    const { electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
+
     function refetchStatus() {
         sendMessage({
             type: WSEvents.NAKAMA_STATUS_REQUESTED,
-            payload: null,
+            payload: {
+                // Tell the server if we're a Denshi client or not
+                // This is used to determine if we should use the native player or not
+                useDenshiPlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
+            },
         })
     }
+
+    React.useEffect(() => {
+        // When the playback method changes, update the status
+        refetchStatus()
+    }, [electronPlaybackMethod])
 
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_STATUS,
@@ -90,15 +104,11 @@ export function NakamaManager() {
         }
     }, [nakamaStatus])
 
-    React.useEffect(() => {
-        refetchStatus()
-    }, [])
+    const websocketConnected = useAtomValue(websocketConnectedAtom)
 
     React.useEffect(() => {
-        if (isModalOpen) {
-            refetchStatus()
-        }
-    }, [isModalOpen])
+        refetchStatus()
+    }, [isModalOpen, websocketConnected])
 
     const handleReconnect = React.useCallback(() => {
         reconnectToHost({}, {
@@ -137,7 +147,9 @@ export function NakamaManager() {
     }, [createWatchParty, watchPartySettings, refetchStatus])
 
     const handleJoinWatchParty = React.useCallback(() => {
-        joinWatchParty(undefined, {
+        joinWatchParty({
+            clientId: clientId || "",
+        }, {
             onSuccess: () => {
                 toast.info("Joining watch party")
                 refetchStatus()
@@ -230,7 +242,7 @@ export function NakamaManager() {
             title={<div className="flex items-center gap-2 w-full justify-center">
                 <MdOutlineConnectWithoutContact className="size-8" />
                 Nakama
-                <AlphaBadge className="border-transparent" />
+                <BetaBadge className="border-transparent" />
             </div>}
             contentClass="max-w-3xl bg-gray-950 bg-opacity-60 backdrop-blur-sm firefox:bg-opacity-100 firefox:backdrop-blur-none sm:rounded-3xl"
             overlayClass="bg-gray-950/70 backdrop-blur-sm"
@@ -605,13 +617,13 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                                         <Tooltip
                                             trigger={<div className="flex items-center gap-1">
                                                 <span className="text-xs">Buffer</span>
-                                            <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-green-500 transition-all duration-300"
-                                                    style={{ width: `${Math.max(0, Math.min(100, participant.bufferHealth * 100))}%` }}
-                                                />
-                                            </div>
-                                            <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
+                                                <div className="w-8 h-1 bg-gray-300 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-green-500 transition-all duration-300"
+                                                        style={{ width: `${Math.max(0, Math.min(100, participant.bufferHealth * 100))}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs">{Math.round(participant.bufferHealth * 100)}%</span>
                                             </div>}
                                         >
                                             Synchronization buffer health

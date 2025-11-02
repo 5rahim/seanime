@@ -2,12 +2,16 @@ package scanner
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
@@ -15,9 +19,11 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
-	metadataProvider := metadata.GetMockProvider(t)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())

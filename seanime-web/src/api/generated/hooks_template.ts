@@ -122,6 +122,26 @@
 //     })
 // }
 
+// export function useGetAnilistCacheLayerStatus() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useToggleAnilistCacheLayerStatus() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.endpoint,
+//         method: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.methods[0],
+//         mutationKey: [API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // anime
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,6 +462,32 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// custom_source
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useCustomSourceListAnime() {
+//     return useServerMutation<HibikeCustomSource_ListAnimeResponse, CustomSourceListAnime_Variables>({
+//         endpoint: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.endpoint,
+//         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.methods[0],
+//         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListAnime.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useCustomSourceListManga() {
+//     return useServerMutation<HibikeCustomSource_ListMangaResponse, CustomSourceListManga_Variables>({
+//         endpoint: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.endpoint,
+//         method: API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.methods[0],
+//         mutationKey: [API_ENDPOINTS.CUSTOM_SOURCE.CustomSourceListManga.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -690,6 +736,17 @@
 //     })
 // }
 
+// export function useDownloadMacDenshiUpdate() {
+//     return useServerMutation<DownloadReleaseResponse, DownloadMacDenshiUpdate_Variables>({
+//         endpoint: API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.endpoint,
+//         method: API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.methods[0],
+//         mutationKey: [API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // explorer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -725,6 +782,17 @@
 //         endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.endpoint,
 //         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.methods[0],
 //         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useInstallExternalExtensionRepository() {
+//     return useServerMutation<ExtensionRepo_RepositoryInstallResponse, InstallExternalExtensionRepository_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtensionRepository.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -849,6 +917,15 @@
 //     })
 // }
 
+// export function useListCustomSourceExtensions() {
+//     return useServerQuery<Array<ExtensionRepo_CustomSourceExtensionItem>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListCustomSourceExtensions.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetPluginSettings() {
 //     return useServerQuery<ExtensionRepo_StoredPluginSettingsData>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.endpoint,
@@ -958,6 +1035,41 @@
 //         endpoint: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.endpoint,
 //         method: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// library_explorer
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useGetLibraryExplorerFileTree() {
+//     return useServerQuery<LibraryExplorer_FileTreeJSON>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.methods[0],
+//         queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useRefreshLibraryExplorerFileTree() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.methods[0],
+//         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.RefreshLibraryExplorerFileTree.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useLoadLibraryExplorerDirectoryChildren() {
+//     return useServerMutation<boolean, LoadLibraryExplorerDirectoryChildren_Variables>({
+//         endpoint: API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.endpoint,
+//         method: API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.methods[0],
+//         mutationKey: [API_ENDPOINTS.LIBRARY_EXPLORER.LoadLibraryExplorerDirectoryChildren.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -1130,6 +1242,17 @@
 //         endpoint: API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.endpoint,
 //         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSuperUpdateLocalFiles() {
+//     return useServerMutation<boolean, SuperUpdateLocalFiles_Variables>({
+//         endpoint: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.endpoint,
+//         method: API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCALFILES.SuperUpdateLocalFiles.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -1724,7 +1847,7 @@
 // }
 
 // export function useNakamaJoinWatchParty() {
-//     return useServerMutation<boolean>({
+//     return useServerMutation<boolean, NakamaJoinWatchParty_Variables>({
 //         endpoint: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.endpoint,
 //         method: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.key],
@@ -1895,7 +2018,7 @@
 // }
 
 // export function usePlaybackStartPlaylist() {
-//     return useServerMutation<boolean, PlaybackStartPlaylist_Variables>({
+//     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.endpoint,
 //         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.methods[0],
 //         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.key],
@@ -1996,7 +2119,7 @@
 // }
 
 // export function useGetPlaylistEpisodes(id: number, progress: number) {
-//     return useServerQuery<Array<Anime_LocalFile>>({
+//     return useServerQuery<Array<Anime_PlaylistEpisode>>({
 //         endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)).replace("{progress}", String(progress)),
 //         method: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.methods[0],
 //         queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key],
@@ -2235,6 +2358,26 @@
 //     })
 // }
 
+// export function useGetHomeItems() {
+//     return useServerQuery<Array<Models_HomeItem>>({
+//         endpoint: API_ENDPOINTS.STATUS.GetHomeItems.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetHomeItems.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetHomeItems.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useUpdateHomeItems() {
+//     return useServerMutation<null, UpdateHomeItems_Variables>({
+//         endpoint: API_ENDPOINTS.STATUS.UpdateHomeItems.endpoint,
+//         method: API_ENDPOINTS.STATUS.UpdateHomeItems.methods[0],
+//         mutationKey: [API_ENDPOINTS.STATUS.UpdateHomeItems.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2277,6 +2420,17 @@
 //         endpoint: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAction.endpoint,
 //         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAction.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAction.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useTorrentClientGetFiles() {
+//     return useServerMutation<Array<string>, TorrentClientGetFiles_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.endpoint,
+//         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.key],
 //         onSuccess: async () => {
 // 
 //         },

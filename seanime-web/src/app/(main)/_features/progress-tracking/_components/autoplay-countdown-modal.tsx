@@ -1,4 +1,4 @@
-import { AutoplayState } from "@/app/(main)/_features/progress-tracking/_lib/autoplay"
+import { AutoplayState } from "@/app/(main)/_features/autoplay/autoplay"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { logger } from "@/lib/helpers/debug"
@@ -84,7 +84,7 @@ export function AutoplayCountdownModal({
                 {/*<div className="space-y-2">*/}
                 {/*    {episodeInfo.image && (*/}
                 {/*        <div className="size-16 rounded-full relative mx-auto overflow-hidden">*/}
-                {/*            <Image*/}
+                {/*            <SeaImage*/}
                 {/*                src={episodeInfo.image}*/}
                 {/*                alt="episode thumbnail"*/}
                 {/*                fill*/}

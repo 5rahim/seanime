@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
@@ -24,7 +24,7 @@ type (
 		logger                *zerolog.Logger
 		providerExtensionBank *extension.UnifiedBank
 		fileCacher            *filecache.Cacher
-		metadataProvider      metadata.Provider
+		metadataProvider      metadata_provider.Provider
 		platform              platform.Platform
 		anilistBaseAnimeCache *anilist.BaseAnimeCache
 		db                    *db.Database
@@ -72,7 +72,7 @@ type (
 	NewRepositoryOptions struct {
 		Logger           *zerolog.Logger
 		FileCacher       *filecache.Cacher
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 		Platform         platform.Platform
 		Database         *db.Database
 	}

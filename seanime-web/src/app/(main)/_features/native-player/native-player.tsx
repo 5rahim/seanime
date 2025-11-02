@@ -2,8 +2,8 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { __seaMediaPlayer_autoNextAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { vc_autoNextAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -39,7 +39,7 @@ export function NativePlayer() {
     const clientId = useAtomValue(clientIdAtom)
     const { sendMessage } = useWebsocketSender()
 
-    const autoPlayNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
+    const autoPlayNext = useAtomValue(vc_autoNextAtom)
     const videoElement = useAtomValue(vc_videoElement)
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
@@ -67,6 +67,7 @@ export function NativePlayer() {
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: isProgressUpdateSuccess } = useUpdateAnimeEntryProgress(
         state.playbackInfo?.media?.id,
         state.playbackInfo?.episode?.progressNumber ?? 0,
+        false,
     )
 
     const handleTimeInterval = () => {
@@ -88,7 +89,7 @@ export function NativePlayer() {
 
     // Time update interval
     React.useEffect(() => {
-        const interval = setInterval(handleTimeInterval, 2000)
+        const interval = setInterval(handleTimeInterval, 1000)
         return () => clearInterval(interval)
     }, [videoElement])
 
@@ -110,6 +111,13 @@ export function NativePlayer() {
                 },
             },
         })
+        if (state.playbackInfo?.media && state.playbackInfo?.episode) {
+            updateProgress({
+                mediaId: state.playbackInfo?.media?.id,
+                totalEpisodes: state.playbackInfo?.media?.episodes || 0,
+                episodeNumber: state.playbackInfo?.episode?.progressNumber,
+            })
+        }
     }
 
     const handleTimeUpdate = () => {
@@ -221,29 +229,32 @@ export function NativePlayer() {
                 payload: {
                     currentTime: v.currentTime,
                     duration: v.duration,
+                    paused: v.paused,
                 },
             },
         })
 
-        if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
-                videoElement?.currentTime,
-                videoElement?.duration)
-            logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                dispatchEvent({ type: "restoreProgress", payload: { time: lastWatchedTime } })
-                // const isPaused = videoElement?.paused
-                // videoElement?.play?.()
-                // setTimeout(() => {
-                //
-                //     if (isPaused) {
-                //         setTimeout(() => {
-                //             videoElement?.pause?.()
-                //         }, 200)
-                //     }
-                // }, 1000)
+        if (!state.playbackInfo?.isNakamaWatchParty) {
+            if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
+                const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
+                    videoElement?.currentTime,
+                    videoElement?.duration)
+                logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
+                if (lastWatchedTime > 0) {
+                    logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
+                    dispatchEvent({ type: "restoreProgress",
+                        payload: {
+                            mediaId: state.playbackInfo?.media?.id!,
+                            progressNumber: state.playbackInfo?.episode?.progressNumber,
+                            time: lastWatchedTime,
+                        },
+                    })
+                }
+            } else {
+                dispatchEvent({ type: "restoreProgress", payload: null })
             }
+        } else {
+            log.info("This stream is a watch party, only listen")
         }
     }
 
@@ -332,6 +343,7 @@ export function NativePlayer() {
                     subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
                 case "add-subtitle-track":
+                    log.info("Add subtitle track event received", payload)
                     subtitleManager?.onTrackAdded(payload as MKVParser_TrackInfo)
                     break
                 case "terminate":
@@ -345,6 +357,35 @@ export function NativePlayer() {
                         draft.playbackError = (payload as { error: string }).error
                         return
                     })
+                    break
+                case "pause":
+                    log.info("Pause event received", payload)
+                    videoElement?.pause()
+                    break
+                case "resume":
+                    log.info("Play event received", payload)
+                    videoElement?.play()
+                    break
+                case "seek":
+                    log.info("Seek event received", payload)
+                    if (videoElement) {
+                        const currentTime = videoElement?.currentTime
+                        const duration = videoElement?.duration
+                        const seekTo = currentTime + (payload as number)
+                        if (currentTime && duration) {
+                            videoElement.currentTime = seekTo
+                        }
+                    }
+                    break
+                case "seek-to":
+                    log.info("Seek to event received", payload)
+                    if (videoElement) {
+                        const currentTime = videoElement?.currentTime
+                        const duration = videoElement?.duration
+                        if (currentTime && duration) {
+                            videoElement.currentTime = payload as number
+                        }
+                    }
                     break
             }
         },
@@ -387,7 +428,6 @@ export function NativePlayer() {
 
     return (
         <>
-
             <VideoCore
                 state={state}
                 aniSkipData={aniSkipData}

@@ -1,4 +1,12 @@
-import { vc_anime4kManager, vc_miniPlayer, vc_pip, vc_realVideoSize, vc_seeking, vc_videoElement } from "@/app/(main)/_features/video-core/video-core"
+import {
+    vc_anime4kManager,
+    vc_miniPlayer,
+    vc_paused,
+    vc_pip,
+    vc_realVideoSize,
+    vc_seeking,
+    vc_videoElement,
+} from "@/app/(main)/_features/video-core/video-core"
 import { Anime4KOption } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
@@ -16,6 +24,7 @@ export const VideoCoreAnime4K = () => {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const isPip = useAtomValue(vc_pip)
     const video = useAtomValue(vc_videoElement)
+    const paused = useAtomValue(vc_paused)
 
     const manager = useAtomValue(vc_anime4kManager)
     const [selectedOption] = useAtom(vc_anime4kOption)
@@ -23,9 +32,9 @@ export const VideoCoreAnime4K = () => {
     // Update manager with real video size
     React.useEffect(() => {
         if (manager) {
-            manager.updateCanvasSize(realVideoSize)
+            manager.updateCanvasSize({ width: video?.videoWidth || 0, height: video?.videoHeight || 0 })
         }
-    }, [manager, realVideoSize])
+    }, [manager, video])
 
     // Handle option changes
     React.useEffect(() => {
@@ -38,6 +47,13 @@ export const VideoCoreAnime4K = () => {
             })
         }
     }, [video, manager, selectedOption, isMiniPlayer, isPip, seeking])
+
+    // Handle option changes
+    React.useLayoutEffect(() => {
+        if (video && manager) {
+            manager.resize()
+        }
+    }, [realVideoSize])
 
     return null
 }

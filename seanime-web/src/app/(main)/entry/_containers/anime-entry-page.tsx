@@ -1,3 +1,4 @@
+import { Anime_Entry } from "@/api/generated/types"
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
@@ -12,12 +13,17 @@ import { __torrentSearch_selectionAtom, TorrentSearchDrawer } from "@/app/(main)
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
+import { StaticTabs } from "@/components/ui/tabs"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
+import { FiGlobe } from "react-icons/fi"
+import { HiOutlineServerStack } from "react-icons/hi2"
+import { IoLibraryOutline } from "react-icons/io5"
+import { PiMonitorPlayDuotone } from "react-icons/pi"
 import { useUnmount } from "react-use"
 
 export const __anime_entryPageViewAtom = atom<"library" | "torrentstream" | "debridstream" | "onlinestream">("library")
@@ -61,48 +67,67 @@ export function AnimeEntryPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
+    const tab = searchParams.get("tab")
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
     const ts = useThemeSettings()
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
+    const switchedView = React.useRef(false)
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
+        if (!animeEntry) return
         try {
             if (animeEntry?.media?.title?.userPreferred) {
                 document.title = `${animeEntry?.media?.title?.userPreferred} | Seanime`
             }
+            // switchedView.current = false
         }
         catch {
         }
     }, [animeEntry])
 
-    // useWebsocketSendEffect({
-    //     type: WebviewEvents.ANIME_ENTRY_PAGE_VIEWED,
-    //     payload: {
-    //         animeEntry,
-    //     },
-    // }, animeEntry)
+    const mediaIdRef = React.useRef(mediaId)
 
-    const switchedView = React.useRef(false)
-    React.useLayoutEffect(() => {
-        if (!animeEntryLoading &&
-            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
-            searchParams.get("tab") && searchParams.get("tab") !== "library" && // Tab is not library
+    React.useEffect(() => {
+        if (mediaIdRef.current !== mediaId) {
+            switchedView.current = false
+            mediaIdRef.current = mediaId
+        }
+
+        if (animeEntryLoading || !mediaId) {
+            switchedView.current = false
+            return
+        }
+
+        if (
+            !animeEntryLoading &&
+            animeEntry &&
+            animeEntry?.media?.status === "NOT_YET_RELEASED"
+        ) {
+            switchedView.current = true
+            setView("library")
+            return
+        }
+
+        if (
+            !animeEntryLoading &&
+            !!tab &&
+            tab !== "library" && // Tab is not library
             !switchedView.current // View has not been switched yet
         ) {
             switchedView.current = true
-            if (serverStatus?.debridSettings?.enabled && searchParams.get("tab") === "debridstream") {
+            if (serverStatus?.debridSettings?.enabled && tab === "debridstream") {
                 setView("debridstream")
-            } else if (serverStatus?.torrentstreamSettings?.enabled && searchParams.get("tab") === "torrentstream") {
+            } else if (serverStatus?.torrentstreamSettings?.enabled && tab === "torrentstream") {
                 setView("torrentstream")
-            } else if (serverStatus?.settings?.library?.enableOnlinestream && searchParams.get("tab") === "onlinestream") {
+            } else if (serverStatus?.settings?.library?.enableOnlinestream && tab === "onlinestream") {
                 setView("onlinestream")
             }
         }
 
-        if (!animeEntryLoading &&
-            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+        if (
+            !animeEntryLoading &&
             !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
             (
@@ -123,7 +148,11 @@ export function AnimeEntryPage() {
             }
         }
 
-    }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
+        // return () => {
+        //     switchedView.current = false
+        // }
+
+    }, [animeEntry, animeEntryLoading, mediaId, searchParams, serverStatus, currentView, tab])
 
     React.useEffect(() => {
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {
@@ -147,21 +176,21 @@ export function AnimeEntryPage() {
                     description: "Downloaded episodes",
                     show: currentView !== "library",
                 },
-                {
-                    id: "torrentstream",
-                    description: "Torrent streaming",
-                    show: serverStatus?.torrentstreamSettings?.enabled && currentView !== "torrentstream",
-                },
-                {
-                    id: "debridstream",
-                    description: "Debrid streaming",
-                    show: serverStatus?.debridSettings?.enabled && currentView !== "debridstream",
-                },
-                {
-                    id: "onlinestream",
-                    description: "Online streaming",
-                    show: serverStatus?.settings?.library?.enableOnlinestream && currentView !== "onlinestream",
-                },
+                    {
+                        id: "torrentstream",
+                        description: "Torrent streaming",
+                        show: serverStatus?.torrentstreamSettings?.enabled && currentView !== "torrentstream",
+                    },
+                    {
+                        id: "debridstream",
+                        description: "Debrid streaming",
+                        show: serverStatus?.debridSettings?.enabled && currentView !== "debridstream",
+                    },
+                    {
+                        id: "onlinestream",
+                        description: "Online streaming",
+                        show: serverStatus?.settings?.library?.enableOnlinestream && currentView !== "onlinestream",
+                    },
                 ].map(item => ({
                     id: item.id,
                     value: item.id,
@@ -203,22 +232,18 @@ export function AnimeEntryPage() {
                     data-anime-entry-page-content
                     className="relative 2xl:order-first pb-10 lg:min-h-[calc(100vh-10rem)]"
                     {...{
-                        initial: { opacity: 0, y: 60 },
+                        initial: { opacity: 0, y: 20 },
                         animate: { opacity: 1, y: 0 },
-                        exit: { opacity: 0, y: 60 },
+                        exit: { opacity: 0, y: 20 },
                         transition: {
                             type: "spring",
-                            damping: 10,
+                            damping: 12,
                             stiffness: 80,
-                            delay: 0.6,
+                            delay: 0.5,
                         },
                     }}
                 >
-                    {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
-                        <>
-                            {/*{currentView !== "library" ? <div className="h-10 lg:h-0" /> : }*/}
-                        </>
-                    )}
+
                     <AnimatePresence mode="wait" initial={false}>
 
                         {(currentView === "library") && <PageWrapper
@@ -278,12 +303,12 @@ export function AnimeEntryPage() {
                         >
                             <div className="h-10 lg:h-0" />
                             <div className="space-y-4" data-anime-entry-page-online-streaming-view-content>
-                                <div
-                                    className="absolute right-0 top-[-0.5rem] lg:top-[-3rem]"
-                                    data-anime-entry-page-online-streaming-view-content-title-container
-                                >
-                                    <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>
-                                </div>
+                                {/*<div*/}
+                                {/*    className="absolute right-0 top-[-0.5rem] lg:top-[-3rem]"*/}
+                                {/*    data-anime-entry-page-online-streaming-view-content-title-container*/}
+                                {/*>*/}
+                                {/*    <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>*/}
+                                {/*</div>*/}
                                 <OnlinestreamPage
                                     animeEntry={animeEntry}
                                     animeEntryLoading={animeEntryLoading}
@@ -302,3 +327,75 @@ export function AnimeEntryPage() {
     )
 }
 
+type EntrySectionTabs = {
+    children?: React.ReactNode
+    entry: Anime_Entry
+}
+
+export function EntrySectionTabs(props: EntrySectionTabs) {
+
+    const {
+        children,
+        entry,
+        ...rest
+    } = props
+
+    const serverStatus = useServerStatus()
+
+    const {
+        isLibraryView,
+        setView,
+        isTorrentStreamingView,
+        toggleTorrentStreamingView,
+        isDebridStreamingView,
+        toggleDebridStreamingView,
+        isOnlineStreamingView,
+        toggleOnlineStreamingView,
+    } = useAnimeEntryPageView()
+
+    if (
+        !entry ||
+        entry.media?.status === "NOT_YET_RELEASED") return null
+
+    if (
+        !serverStatus?.torrentstreamSettings?.enabled &&
+        !serverStatus?.debridSettings?.enabled &&
+        !serverStatus?.settings?.library?.enableOnlinestream
+    ) return null
+
+    return (
+        <>
+            <div
+                className="w-full max-w-fit rounded-md lg:rounded-full border border-transparent mx-auto lg:mx-0 overflow-hidden"
+                data-anime-entry-page-tabs-container
+            >
+                <StaticTabs
+                    className="lg:h-10 flex-wrap lg:flex-nowrap overflow-hidden justify-center lg:justify-start"
+                    triggerClass="px-4 py-1 text-[1.1rem] border border-transparent opacity-80 data-[current=true]:border-[--subtle] data-[current=true]:opacity-100 rounded-full data-[current=false]:scale-95 lg:scale-100 "
+                    iconClass="size-5 hidden data-[current=true]:block"
+                    items={[
+                        { name: "Library", iconType: IoLibraryOutline, isCurrent: isLibraryView, onClick: () => setView("library") },
+                        ...(serverStatus?.torrentstreamSettings?.enabled ? [{
+                            name: "Torrent streaming",
+                            iconType: PiMonitorPlayDuotone,
+                            isCurrent: isTorrentStreamingView,
+                            onClick: () => setView("torrentstream"),
+                        }] : []),
+                        ...(serverStatus?.debridSettings?.enabled ? [{
+                            name: "Debrid streaming",
+                            iconType: HiOutlineServerStack,
+                            isCurrent: isDebridStreamingView,
+                            onClick: () => setView("debridstream"),
+                        }] : []),
+                        ...(serverStatus?.settings?.library?.enableOnlinestream ? [{
+                            name: "Online streaming",
+                            iconType: FiGlobe,
+                            isCurrent: isOnlineStreamingView,
+                            onClick: () => setView("onlinestream"),
+                        }] : []),
+                    ]}
+                />
+            </div>
+        </>
+    )
+}

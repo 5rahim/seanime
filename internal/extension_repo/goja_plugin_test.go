@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
@@ -84,9 +84,11 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	ext.Plugin.Permissions.Allow = opts.Permissions.Allow
 
 	logger := util.NewLogger()
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.NewMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger).(*anilist_platform.AnilistPlatform)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database).(*anilist_platform.AnilistPlatform)
 
 	// Initialize hook manager if needed
 	if opts.SetupHooks {
@@ -95,9 +97,6 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	}
 
 	manager := goja_runtime.NewManager(logger)
-
-	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
-	require.NoError(t, err)
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		Database:          database,
@@ -146,9 +145,10 @@ ctx.anime.getAnimeEntry(21)
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
 
-	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
+	metadataProvider := metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
 		FileCacher: lo.Must(filecache.NewCacher(t.TempDir())),
 		Logger:     logger,
+		Database:   database,
 	})
 
 	fillerManager := fillermanager.New(&fillermanager.NewFillerManagerOptions{
@@ -320,7 +320,7 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(2000 * time.Millisecond)
 		fmt.Fprint(w, `{"test": "data"}`)
 	}))
 	defer server.Close()
@@ -758,9 +758,9 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
-	metadataProvider := metadata.GetMockProvider(t)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
 		FileCacher: filecacher,

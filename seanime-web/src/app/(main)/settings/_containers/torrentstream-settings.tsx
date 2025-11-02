@@ -9,6 +9,7 @@ import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { FcFolder } from "react-icons/fc"
 import { SiBittorrent } from "react-icons/si"
+import { toast } from "sonner"
 
 const torrentstreamSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
@@ -65,6 +66,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
+                                    toast.success("Settings saved")
                                 },
                             },
                         )

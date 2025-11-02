@@ -3,10 +3,12 @@ package nakama
 import (
 	"context"
 	"errors"
+	"fmt"
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"strings"
@@ -57,13 +59,14 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 
 	// Add host as participant
 	session.Participants["host"] = &WatchPartySessionParticipant{
-		ID:         "host",
-		Username:   wpm.manager.username,
-		IsHost:     true,
-		CanControl: true,
-		IsReady:    true,
-		LastSeen:   time.Now(),
-		Latency:    0,
+		ID:              "host",
+		Username:        wpm.manager.username,
+		IsHost:          true,
+		CanControl:      true,
+		IsReady:         true,
+		LastSeen:        time.Now(),
+		Latency:         0,
+		UseDenshiPlayer: wpm.manager.GetUseDenshiPlayer(),
 	}
 
 	wpm.currentSession = mo.Some(session)
@@ -102,6 +105,7 @@ func (wpm *WatchPartyManager) CreateWatchParty(options *CreateWatchOptions) (*Wa
 	}()
 
 	go wpm.listenToPlaybackManager()
+	// go wpm.listenToNativePlayer() // TODO
 	// go wpm.listenToOnlineStreaming() // TODO
 
 	return session, nil
@@ -325,6 +329,199 @@ func (wpm *WatchPartyManager) listenToPlaybackManager() {
 	}()
 }
 
+// listenToNativePlayer listens to the native player
+func (wpm *WatchPartyManager) listenToNativePlayer() {
+	if wpm.manager.nativePlayer == nil {
+		wpm.logger.Debug().Msg("nakama: Native player not available, skipping listener")
+		return
+	}
+
+	nativePlayerSubscriber := wpm.manager.nativePlayer.Subscribe("nakama_watch_party")
+
+	go func() {
+		defer util.HandlePanicInModuleThen("nakama/listenToNativePlayer", func() {})
+		defer func() {
+			wpm.logger.Debug().Msg("nakama: Stopping native player listener")
+			go wpm.manager.nativePlayer.Unsubscribe("nakama_watch_party")
+		}()
+
+		for {
+			select {
+			case <-wpm.sessionCtx.Done():
+				wpm.logger.Debug().Msg("nakama: Stopping native player listener")
+				return
+			case event := <-nativePlayerSubscriber.Events():
+				_, ok := wpm.currentSession.Get()
+				if !ok {
+					continue
+				}
+
+				switch event := event.(type) {
+				case *nativeplayer.VideoTerminatedEvent:
+					// Reset
+					wpm.logger.Debug().Msg("nakama: Native player terminated event received")
+
+					wpm.bufferMu.Lock()
+					wpm.isWaitingForBuffers = true
+					wpm.bufferWaitStart = time.Now()
+					// Cancel existing waitForPeersReady goroutine
+					if wpm.waitForPeersCancel != nil {
+						wpm.waitForPeersCancel()
+						wpm.waitForPeersCancel = nil
+					}
+					wpm.bufferMu.Unlock()
+
+					// Reset the current session media info
+					wpm.mu.Lock()
+					session, ok := wpm.currentSession.Get()
+					if !ok {
+						wpm.mu.Unlock()
+						return
+					}
+					session.CurrentMediaInfo = nil
+					wpm.mu.Unlock()
+
+					// Broadcast the session state to all peers
+					go wpm.broadcastSessionStateToPeers()
+
+				case *nativeplayer.VideoStatusEvent:
+					// Get current playback info from native player
+					status := wpm.manager.nativePlayer.GetPlaybackStatus()
+					if status == nil {
+						continue
+					}
+
+					playbackInfo, ok := wpm.manager.nativePlayer.GetPlaybackInfo()
+					if !ok {
+						continue
+					}
+
+					go func(event *nativeplayer.VideoStatusEvent, playbackInfo *nativeplayer.PlaybackInfo) {
+						// Convert native player status to mediaplayer.PlaybackStatus for compatibility
+						status := &mediaplayer.PlaybackStatus{
+							CompletionPercentage: 0,
+							Playing:              !event.Status.Paused,
+							Filename:             "",
+							Path:                 playbackInfo.StreamUrl,
+							Duration:             int(event.Status.Duration * 1000), // Convert to ms
+							Filepath:             playbackInfo.StreamUrl,
+							CurrentTimeInSeconds: event.Status.CurrentTime,
+							DurationInSeconds:    event.Status.Duration,
+							PlaybackType:         mediaplayer.PlaybackTypeStream,
+						}
+
+						// Calculate completion percentage
+						if event.Status.Duration > 0 {
+							status.CompletionPercentage = (event.Status.CurrentTime / event.Status.Duration) * 100
+						}
+
+						// Set filename from media info
+						if playbackInfo.Episode != nil {
+							status.Filename = playbackInfo.Media.GetTitleSafe() + " - Episode " + fmt.Sprintf("%d", playbackInfo.Episode.EpisodeNumber)
+						} else {
+							status.Filename = playbackInfo.Media.GetTitleSafe()
+						}
+
+						streamType := "file"
+						switch playbackInfo.StreamType {
+						case nativeplayer.StreamTypeTorrent:
+							streamType = "torrent"
+						case nativeplayer.StreamTypeDebrid:
+							streamType = "debrid"
+						case nativeplayer.StreamTypeFile:
+							streamType = "file"
+						}
+
+						episodeNumber := 0
+						aniDbEpisode := ""
+						if playbackInfo.Episode != nil {
+							episodeNumber = playbackInfo.Episode.EpisodeNumber
+							aniDbEpisode = playbackInfo.Episode.AniDBEpisode
+						}
+
+						optionalTorrentStreamStartOptions, _ := wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
+
+						newCurrentMediaInfo := &WatchPartySessionMediaInfo{
+							MediaId:                           playbackInfo.Media.ID,
+							EpisodeNumber:                     episodeNumber,
+							AniDBEpisode:                      aniDbEpisode,
+							StreamType:                        streamType,
+							StreamPath:                        playbackInfo.StreamUrl,
+							OptionalTorrentStreamStartOptions: optionalTorrentStreamStartOptions,
+						}
+
+						wpm.mu.Lock()
+						session, ok := wpm.currentSession.Get()
+						if !ok {
+							wpm.mu.Unlock()
+							return
+						}
+
+						// If this is the same media, just send the playback status
+						if session.CurrentMediaInfo != nil && session.CurrentMediaInfo.Equals(newCurrentMediaInfo) {
+							wpm.mu.Unlock()
+
+							// Get next sequence number for message ordering
+							wpm.sequenceMu.Lock()
+							wpm.sendSequence++
+							sequenceNum := wpm.sendSequence
+							wpm.sequenceMu.Unlock()
+
+							// Send message
+							_ = wpm.manager.SendMessage(MessageTypeWatchPartyPlaybackStatus, WatchPartyPlaybackStatusPayload{
+								PlaybackStatus: *status,
+								Timestamp:      time.Now().UnixNano(),
+								SequenceNumber: sequenceNum,
+								EpisodeNumber:  episodeNumber,
+							})
+
+						} else {
+							// For new playback, update the session
+							wpm.logger.Debug().Msgf("nakama: Native player playback changed or started: %s", playbackInfo.StreamUrl)
+							session.CurrentMediaInfo = newCurrentMediaInfo
+							wpm.mu.Unlock()
+
+							// Pause immediately and wait for peers to be ready
+							status := wpm.manager.nativePlayer.GetPlaybackStatus()
+							if status != nil {
+								wpm.manager.nativePlayer.Pause(status.ClientId)
+							}
+
+							// Reset buffering state for new playback
+							wpm.bufferMu.Lock()
+							wpm.isWaitingForBuffers = true
+							wpm.bufferWaitStart = time.Now()
+
+							// Cancel existing waitForPeersReady goroutine
+							if wpm.waitForPeersCancel != nil {
+								wpm.waitForPeersCancel()
+								wpm.waitForPeersCancel = nil
+							}
+							wpm.bufferMu.Unlock()
+
+							go wpm.broadcastSessionStateToPeers()
+
+							// Start checking peer readiness
+							go wpm.waitForPeersReady(func() {
+								if !session.IsRelayMode {
+									// resume playback
+									status := wpm.manager.nativePlayer.GetPlaybackStatus()
+									if status != nil {
+										wpm.manager.nativePlayer.Resume(status.ClientId)
+									}
+								} else {
+									// in relay mode, just signal to the origin
+									_ = wpm.manager.SendMessage(MessageTypeWatchPartyRelayModePeersReady, nil)
+								}
+							})
+						}
+					}(event, playbackInfo)
+				}
+			}
+		}
+	}()
+}
+
 // broadcastSessionStateToPeers broadcasts the session state to all peers
 func (wpm *WatchPartyManager) broadcastSessionStateToPeers() {
 	session, ok := wpm.currentSession.Get()
@@ -380,6 +577,8 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerJoinedEvent(payload *WatchPart
 		IsBuffering:    false,
 		BufferHealth:   1.0,
 		PlaybackStatus: nil,
+		// Player settings - for peers, we'll need to get this from their status updates
+		UseDenshiPlayer: false, // Default to false, will be updated when peer sends status
 	}
 	session.mu.Unlock()
 
@@ -469,6 +668,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerStatusEvent(payload *WatchPart
 		participant.PlaybackStatus = &payload.PlaybackStatus
 		participant.IsBuffering = payload.IsBuffering
 		participant.BufferHealth = payload.BufferHealth
+		participant.UseDenshiPlayer = payload.UseDenshiPlayer
 		participant.LastSeen = payload.Timestamp
 		participant.IsReady = !payload.IsBuffering && payload.BufferHealth > 0.1 // Consider ready if not buffering and has some buffer
 
@@ -476,6 +676,7 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerStatusEvent(payload *WatchPart
 			Str("peerId", payload.PeerId).
 			Bool("isBuffering", payload.IsBuffering).
 			Float64("bufferHealth", payload.BufferHealth).
+			Bool("useDenshiPlayer", payload.UseDenshiPlayer).
 			Bool("isReady", participant.IsReady).
 			Msg("nakama: Updated peer status")
 	}

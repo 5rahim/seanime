@@ -47,8 +47,8 @@ export function AdvancedSearchOptions() {
     }, [params])
 
     return (
-        <AppLayoutStack data-advanced-search-options-container className="px-4 xl:px-0">
-            <div data-advanced-search-options-header className="flex flex-col md:flex-row xl:flex-col gap-4">
+        <AppLayoutStack data-advanced-search-options-container className="px-4 xl:px-0 space-y-3">
+            <div data-advanced-search-options-header className="flex flex-col md:flex-row xl:flex-col gap-4 lg:gap-3">
                 <TitleInput />
                 <Select
                     className="w-full"
@@ -73,7 +73,10 @@ export function AdvancedSearchOptions() {
                     disabled={!!params.title && params.title.length > 0}
                 />
             </div>
-            <div data-advanced-search-options-content className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 items-end xl:items-start">
+            <div
+                data-advanced-search-options-content
+                className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 lg:gap-3 items-end xl:items-start"
+            >
                 <Combobox
                     multiple
                     leftAddon={<TbSwords className={cn((params.genre !== null && !!params.genre.length) && "text-indigo-300 font-bold text-xl")} />}

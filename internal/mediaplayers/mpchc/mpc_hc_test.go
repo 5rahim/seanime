@@ -1,12 +1,13 @@
 package mpchc
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMpcHc_Start(t *testing.T) {
@@ -86,7 +87,7 @@ func TestMpcHc_Seek(t *testing.T) {
 
 	time.Sleep(400 * time.Millisecond)
 
-	err = mpc.Seek(100000)
+	err = mpc.SeekTo(100000)
 	assert.NoError(t, err)
 
 	time.Sleep(400 * time.Millisecond)

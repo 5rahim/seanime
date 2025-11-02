@@ -41,6 +41,13 @@ func (h *Handler) HandleUpdateTheme(c echo.Context) error {
 		ID: 1,
 	}
 
+	currentTheme, err := h.App.Database.GetTheme()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	b.Theme.HomeItems = currentTheme.HomeItems
+
 	// Update the theme settings
 	if _, err := h.App.Database.UpsertTheme(&b.Theme); err != nil {
 		return h.RespondWithError(c, err)

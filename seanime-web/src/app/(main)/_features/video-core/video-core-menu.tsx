@@ -1,4 +1,4 @@
-import { vc_containerElement, vc_isFullscreen, vc_menuOpen } from "@/app/(main)/_features/video-core/video-core"
+import { vc_containerElement, vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
 import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
@@ -8,19 +8,20 @@ import React, { useRef } from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCheck, LuChevronLeft, LuChevronRight } from "react-icons/lu"
 
-const vc_menuSectionOpen = atom<string | null>(null)
+export const vc_menuOpen = atom<string | null>(null)
+export const vc_menuSectionOpen = atom<string | null>(null)
 
 type VideoCoreMenuProps = {
+    name: string
     trigger: React.ReactElement
     children?: React.ReactNode
 }
 
 export function VideoCoreMenu(props: VideoCoreMenuProps) {
 
-    const { trigger, children, ...rest } = props
-    const [menuOpen, setMenuOpen] = useAtom(vc_menuOpen)
+    const { trigger, children, name, ...rest } = props
 
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = useAtom(vc_menuOpen)
 
     const [openSection, setOpenSection] = useAtom(vc_menuSectionOpen)
 
@@ -30,7 +31,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
 
     const t = useRef<NodeJS.Timeout | null>(null)
     React.useEffect(() => {
-        if (!menuOpen) {
+        if (!open) {
             t.current = setTimeout(() => {
                 setOpenSection(null)
             }, 300)
@@ -40,14 +41,13 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
                 clearTimeout(t.current)
             }
         }
-    }, [menuOpen])
+    }, [open])
 
     return (
         <Popover
-            open={open}
+            open={open === name}
             onOpenChange={v => {
-                setOpen(v)
-                setMenuOpen(v)
+                setOpen(v ? name : null)
             }}
             trigger={<div>{trigger}</div>}
             sideOffset={4}
@@ -240,6 +240,7 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                         {option.description && <Tooltip
                             trigger={<AiFillInfoCircle className="text-sm" />}
                             portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                            className="z-[150]"
                         >
                             {option.description}
                         </Tooltip>}

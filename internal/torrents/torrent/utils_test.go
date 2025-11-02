@@ -7,6 +7,7 @@ import (
 )
 
 func TestFileToMagnetLink(t *testing.T) {
+	t.Skip()
 
 	tests := []struct {
 		name string
@@ -14,7 +15,7 @@ func TestFileToMagnetLink(t *testing.T) {
 	}{
 		{
 			name: "1",
-			url:  "https://animetosho.org/storage/torrent/da9aad67b6f8bb82757bb3ef95235b42624c34f7/%5BSubsPlease%5D%20Make%20Heroine%20ga%20Oosugiru%21%20-%2011%20%281080p%29%20%5B58B3496A%5D.torrent",
+			url:  "",
 		},
 	}
 

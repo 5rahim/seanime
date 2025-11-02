@@ -19,15 +19,14 @@ func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist
 
 	logger := util.NewLogger()
 
-	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
 	require.NoError(t, err)
 	mangaCollection, err := anilistPlatform.GetMangaCollection(t.Context(), true)
-	require.NoError(t, err)
-
-	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
 
 	manager := GetMockManager(t, database)

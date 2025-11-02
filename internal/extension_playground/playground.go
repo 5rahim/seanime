@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
@@ -33,7 +34,7 @@ type (
 		platform           platform.Platform
 		baseAnimeCache     *result.Cache[int, *anilist.BaseAnime]
 		baseMangaCache     *result.Cache[int, *anilist.BaseManga]
-		metadataProvider   metadata.Provider
+		metadataProvider   metadata_provider.Provider
 		gojaRuntimeManager *goja_runtime.Manager
 	}
 
@@ -51,7 +52,7 @@ type (
 	}
 )
 
-func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform, metadataProvider metadata.Provider) *PlaygroundRepository {
+func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform, metadataProvider metadata_provider.Provider) *PlaygroundRepository {
 	return &PlaygroundRepository{
 		logger:             logger,
 		platform:           platform,

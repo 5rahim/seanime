@@ -2,17 +2,20 @@ import { Anime_Episode } from "@/api/generated/types"
 import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
+import { BiAddToQueue } from "react-icons/bi"
+import { LuDock, LuEye } from "react-icons/lu"
 import { PluginEpisodeCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type EpisodeCardProps = {
@@ -35,6 +38,8 @@ type EpisodeCardProps = {
     badge?: React.ReactNode
     percentageComplete?: number
     minutesRemaining?: number
+    allowAnimeInfo?: boolean
+    forceSingleContainer?: boolean
     anime?: {
         id?: number
         image?: string
@@ -67,6 +72,8 @@ export function EpisodeCard(props: EpisodeCardProps) {
         badge,
         percentageComplete,
         minutesRemaining,
+        allowAnimeInfo,
+        forceSingleContainer,
         anime,
         episode,
         ...rest
@@ -77,16 +84,22 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const { setPreviewModalMediaId } = useMediaPreviewModal()
+    const { selectEpisodeToAddAndOpenEditor } = usePlaylistEditorManager()
 
-    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
+    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime && allowAnimeInfo
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
+
+    const isSingleContainer = ts.useLegacyEpisodeCard || forceSingleContainer
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
             <p
                 data-episode-card-title
-                className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
+                className={cn(
+                    "w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold",
+                    isSingleContainer && "text-sm max-w-[80%] text-white/60",
+                )}
             >
                 {topTitle?.replaceAll("`", "'")}
             </p>
@@ -95,11 +108,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
                         <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                         : ``}</span>
-                    <span className="text-[--muted] text-base md:text-xl ml-2 font-normal line-clamp-1">{showAnimeInfo
+                    <span className="text-[--muted] text-base md:text-lg ml-2 font-normal line-clamp-1">{showAnimeInfo
                         ? "- " + anime.title
                         : ""}</span>
                 </p>
-                {(!!meta || !!length) && (
+                {(!!meta || !!length) && (!isSingleContainer || !minutesRemaining) && (
                     <p data-episode-card-meta-text className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
                         {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
                     </p>)}
@@ -117,6 +130,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     </ContextMenuLabel>
 
                     {pathname !== "/entry" && <>
+                        {!serverStatus?.isOffline && <ContextMenuItem
+                            onClick={() => {
+                                setPreviewModalMediaId(anime?.id || 0, "anime")
+                            }}
+                        >
+                            <LuEye /> Preview
+                        </ContextMenuItem>}
                         <ContextMenuItem
                             onClick={() => {
                                 if (!serverStatus?.isOffline) {
@@ -126,17 +146,16 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 }
                             }}
                         >
-                            Open page
+                            <LuDock /> Open page
                         </ContextMenuItem>
-                        {!serverStatus?.isOffline && <ContextMenuItem
-                            onClick={() => {
-                                setPreviewModalMediaId(anime?.id || 0, "anime")
-                            }}
-                        >
-                            Preview
-                        </ContextMenuItem>}
-
                     </>}
+                    {(props.episode && anime?.id && props.episode?.aniDBEpisode) && <ContextMenuItem
+                        onClick={() => {
+                            selectEpisodeToAddAndOpenEditor(anime.id!, props.episode?.aniDBEpisode!)
+                        }}
+                    >
+                        <BiAddToQueue /> Add to Playlist
+                    </ContextMenuItem>}
 
                     <PluginEpisodeCardContextMenuItems episode={props.episode} />
 
@@ -147,7 +166,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <div
                     ref={mRef}
                     className={cn(
-                        "rounded-lg overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
+                        "rounded-xl overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
                         "select-none",
                         type === "carousel" && "w-full",
                         type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
@@ -162,8 +181,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     data-progress-number={progressNumber}
                     {...rest}
                 >
-                    <div data-episode-card-image-container className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
-                        {!!image ? <Image
+                    <div
+                        data-episode-card-image-container
+                        className="w-full h-full rounded-xl overflow-hidden z-[1] aspect-[4/2] relative bg-[--background]"
+                    >
+                        {!!image ? <SeaImage
                             data-episode-card-image
                             src={getImageUrl(image)}
                             alt={""}
@@ -172,15 +194,21 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             placeholder={imageShimmer(700, 475)}
                             sizes="20rem"
                             className={cn(
-                                "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                "object-cover rounded-xl object-center transition lg:group-hover/episode-card:scale-[1.02] duration-500",
                                 imageClass,
                             )}
                         /> : <div
                             data-episode-card-image-bottom-gradient
-                            className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+                            className="h-full block rounded-xl absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                         ></div>}
                         {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                        <EpisodeItemBottomGradient />
+                        <EpisodeItemBottomGradient isSingleContainer={isSingleContainer} className="rounded-b-xl" />
+
+                        {isSingleContainer && (
+                            <div className="absolute bottom-0 left-0 w-full h-fit z-[3] p-3">
+                                <Meta />
+                            </div>
+                        )}
 
                         {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
                             <div
@@ -192,8 +220,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 data-progress-number={progressNumber}
                             >
                                 <ProgressBar value={percentageComplete} size="xs" />
-                                {minutesRemaining && <div className="absolute bottom-2 right-2">
-                                    <p className="text-[--muted] text-sm">{minutesRemaining}m left</p>
+                                {minutesRemaining && <div
+                                    className={cn(
+                                        "absolute bottom-2 right-2 text-[--muted]",
+                                        isSingleContainer && "right-4 bottom-4 ",
+                                    )}
+                                >
+                                    <span>{minutesRemaining}m left</span>
                                 </div>}
                             </div>}
 
@@ -212,12 +245,12 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
                                                                                                                                      found</p>}
                     </div>
-                    {(showAnimeInfo) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
+                    {(showAnimeInfo && !isSingleContainer) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
                         <div
                             data-episode-card-anime-image-container
-                            className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative"
+                            className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative hidden"
                         >
-                            {!!anime?.image && <Image
+                            {!!anime?.image && <SeaImage
                                 data-episode-card-anime-image
                                 src={getImageUrl(anime.image)}
                                 alt={""}
@@ -232,7 +265,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             />}
                         </div>
                         <Meta />
-                    </div> : <Meta />}
+                    </div> : !isSingleContainer ? <Meta /> : null}
                 </div>
             </ContextMenuTrigger>
         </SeaContextMenu>

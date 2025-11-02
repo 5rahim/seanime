@@ -126,5 +126,111 @@ func (h *Handler) HandleDownloadRelease(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
+	// Return success - Electron will handle closing the app
 	return h.RespondWithData(c, DownloadReleaseResponse{Destination: path})
+}
+
+// HandleDownloadMacDenshiUpdate
+//
+//	@summary downloads, extracts, and installs macOS update, then closes the app
+//	@route /api/v1/download-mac-denshi-update [POST]
+//	@returns handlers.DownloadReleaseResponse
+func (h *Handler) HandleDownloadMacDenshiUpdate(c echo.Context) error {
+
+	type body struct {
+		DownloadUrl string `json:"download_url"`
+		Version     string `json:"version"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// Get downloads directory
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to get home directory: %w", err))
+	}
+	downloadsDir := filepath.Join(homeDir, "Downloads")
+
+	// Download the file
+	h.App.Logger.Info().Str("url", b.DownloadUrl).Msg("Downloading macOS update")
+	resp, err := http.Get(b.DownloadUrl)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to download update: %w", err))
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return h.RespondWithError(c, fmt.Errorf("failed to download update: status %d", resp.StatusCode))
+	}
+
+	// Create temp file for download
+	zipPath := filepath.Join(downloadsDir, fmt.Sprintf("seanime-denshi-%s_MacOS_arm64.zip", b.Version))
+	zipFile, err := os.Create(zipPath)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to create zip file: %w", err))
+	}
+	defer zipFile.Close()
+
+	// Copy download to file
+	_, err = io.Copy(zipFile, resp.Body)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to write zip file: %w", err))
+	}
+	zipFile.Close()
+
+	h.App.Logger.Info().Str("path", zipPath).Msg("Downloaded update")
+
+	// Extract the zip file
+	extractDir := filepath.Join(downloadsDir, fmt.Sprintf("seanime-denshi-%s", b.Version))
+	err = os.MkdirAll(extractDir, 0755)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to create extract directory: %w", err))
+	}
+
+	h.App.Logger.Info().Str("path", extractDir).Msg("Extracting update")
+	cmd := util.NewCmd("unzip", "-o", zipPath, "-d", extractDir)
+	if err := cmd.Run(); err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to extract zip: %w", err))
+	}
+
+	// Find the .app bundle
+	appPath := filepath.Join(extractDir, "Seanime Denshi.app")
+	if _, err := os.Stat(appPath); os.IsNotExist(err) {
+		return h.RespondWithError(c, fmt.Errorf("Seanime Denshi.app not found in extracted files"))
+	}
+
+	// Run xattr -c to remove quarantine attributes
+	h.App.Logger.Info().Str("path", appPath).Msg("Removing quarantine attributes")
+	xattrCmd := util.NewCmd("xattr", "-cr", appPath)
+	if err := xattrCmd.Run(); err != nil {
+		h.App.Logger.Warn().Err(err).Msg("Failed to remove quarantine attributes, continuing anyway")
+	}
+
+	// Move to Applications folder
+	applicationsPath := "/Applications/Seanime Denshi.app"
+	h.App.Logger.Info().Str("destination", applicationsPath).Msg("Moving to Applications")
+
+	// Remove existing app if it exists
+	if _, err := os.Stat(applicationsPath); err == nil {
+		if err := os.RemoveAll(applicationsPath); err != nil {
+			return h.RespondWithError(c, fmt.Errorf("failed to remove existing app: %w", err))
+		}
+	}
+
+	// Move new app to Applications
+	moveCmd := util.NewCmd("mv", appPath, applicationsPath)
+	if err := moveCmd.Run(); err != nil {
+		return h.RespondWithError(c, fmt.Errorf("failed to move app to Applications: %w", err))
+	}
+
+	// Clean up downloaded files
+	os.Remove(zipPath)
+	os.RemoveAll(extractDir)
+
+	h.App.Logger.Info().Msg("macOS update installed successfully")
+
+	return h.RespondWithData(c, DownloadReleaseResponse{Destination: applicationsPath})
 }

@@ -167,4 +167,17 @@ type (
 		// e.g. If the torrent was found using the AniDB anime or episode ID
 		Confirmed bool `json:"confirmed"`
 	}
+
+	AnimeTorrentFile struct {
+		Index int    `json:"index"`
+		Path  string `json:"path"`
+		Name  string `json:"name"`
+	}
+
+	BatchEpisodeFiles struct {
+		Current              int                 `json:"current"`
+		CurrentEpisodeNumber int                 `json:"currentEpisodeNumber"`
+		CurrentAniDBEpisode  string              `json:"currentAniDBEpisode"`
+		Files                []*AnimeTorrentFile `json:"files"`
+	}
 )

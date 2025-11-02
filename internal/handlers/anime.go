@@ -7,6 +7,32 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h *Handler) getAnimeEpisodeCollection(c echo.Context, mId int) (*anime.EpisodeCollection, error) {
+
+	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetAnimeEpisodeCollection", func() {
+		anime.ClearEpisodeCollectionCache()
+	})
+
+	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
+	if err != nil {
+		return nil, err
+	}
+
+	ec, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
+		AnimeMetadata:    animeMetadata,
+		Media:            completeAnime.ToBaseAnime(),
+		MetadataProvider: h.App.MetadataProvider,
+		Logger:           h.App.Logger,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	h.App.FillerManager.HydrateEpisodeFillerData(mId, ec.Episodes)
+
+	return ec, nil
+}
+
 // HandleGetAnimeEpisodeCollection
 //
 //	@summary gets list of main episodes
@@ -21,26 +47,10 @@ func (h *Handler) HandleGetAnimeEpisodeCollection(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	h.App.AddOnRefreshAnilistCollectionFunc("HandleGetAnimeEpisodeCollection", func() {
-		anime.ClearEpisodeCollectionCache()
-	})
-
-	completeAnime, animeMetadata, err := h.App.TorrentstreamRepository.GetMediaInfo(c.Request().Context(), mId)
+	ec, err := h.getAnimeEpisodeCollection(c, mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-
-	ec, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    animeMetadata,
-		Media:            completeAnime.ToBaseAnime(),
-		MetadataProvider: h.App.MetadataProvider,
-		Logger:           h.App.Logger,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	h.App.FillerManager.HydrateEpisodeFillerData(mId, ec.Episodes)
 
 	return h.RespondWithData(c, ec)
 }

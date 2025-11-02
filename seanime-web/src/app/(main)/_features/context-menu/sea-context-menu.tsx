@@ -7,6 +7,7 @@ export type SeaContextMenuProps = {
     children?: React.ReactNode
     availableWhenOffline?: boolean
     hideMenuIf?: boolean
+    onOpenChange?: (open: boolean) => void
 }
 
 export function SeaContextMenu(props: SeaContextMenuProps) {
@@ -16,13 +17,14 @@ export function SeaContextMenu(props: SeaContextMenuProps) {
         children,
         availableWhenOffline = true,
         hideMenuIf,
+        onOpenChange,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
 
     return (
-        <ContextMenu data-sea-context-menu {...rest}>
+        <ContextMenu data-sea-context-menu onOpenChange={onOpenChange} {...rest}>
             {children}
 
             {(((serverStatus?.isOffline && availableWhenOffline) || !serverStatus?.isOffline) && !hideMenuIf) &&

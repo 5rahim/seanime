@@ -20,6 +20,7 @@ export const BadgeAnatomy = defineStyleAnatomy({
                 "warning": "text-orange bg-orange-50 border border-orange-500 border-opacity-40 dark:text-orange-300 dark:bg-opacity-10",
                 "alert": "text-red bg-red-50 border border-red-500 border-opacity-40 dark:text-red-300 dark:bg-opacity-10",
                 "blue": "text-blue bg-blue-50 border border-blue-500 border-opacity-40 dark:text-blue-300 dark:bg-opacity-10",
+                "indigo": "text-indigo bg-indigo-50 border border-indigo-500 border-opacity-40 dark:text-indigo-300 dark:bg-opacity-10",
                 "info": "text-blue bg-blue-50 border border-blue-500 border-opacity-40 dark:text-blue-300 dark:bg-opacity-10",
                 "white": "text-white bg-gray-800 border border-gray-500 border-opacity-40 dark:text-white dark:bg-opacity-10",
                 "basic": "text-gray-900 bg-transparent",

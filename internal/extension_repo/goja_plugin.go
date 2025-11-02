@@ -15,6 +15,7 @@ import (
 	goja_util "seanime/internal/util/goja"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
@@ -414,6 +415,32 @@ func normalizeException(err error) error {
 	}
 
 	return err
+}
+
+// handlePromiseResult waits for a promise to resolve and returns the appropriate error
+func (p *GojaPlugin) handlePromiseResult(promise *goja.Promise) error {
+	doneCh := make(chan struct{})
+
+	// Wait for the promise to resolve with a timeout
+	go func() {
+		for promise.State() == goja.PromiseStatePending {
+			time.Sleep(10 * time.Millisecond)
+		}
+		close(doneCh)
+	}()
+
+	// force stop after 30 seconds
+	timeout := time.NewTimer(30 * time.Second)
+	defer timeout.Stop()
+
+	select {
+	case <-doneCh:
+		break
+	case <-timeout.C:
+		break
+	}
+
+	return nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

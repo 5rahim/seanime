@@ -1,5 +1,5 @@
 import { useServerMutation } from "@/api/client/requests"
-import { DownloadRelease_Variables, DownloadTorrentFile_Variables } from "@/api/generated/endpoint.types"
+import { DownloadMacDenshiUpdate_Variables, DownloadRelease_Variables, DownloadTorrentFile_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { DownloadReleaseResponse } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
@@ -34,6 +34,17 @@ export function useDownloadRelease() {
                     path: data.destination,
                 })
             }
+        },
+    })
+}
+
+export function useDownloadMacDenshiUpdate() {
+    return useServerMutation<DownloadReleaseResponse, DownloadMacDenshiUpdate_Variables>({
+        endpoint: API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.endpoint,
+        method: API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.methods[0],
+        mutationKey: [API_ENDPOINTS.DOWNLOAD.DownloadMacDenshiUpdate.key],
+        onSuccess: async () => {
+            toast.success("Update installed successfully! Please restart the app.")
         },
     })
 }

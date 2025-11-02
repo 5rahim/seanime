@@ -19,6 +19,7 @@ import (
 	gojarequire "github.com/dop251/goja_nodejs/require"
 	gojaurl "github.com/dop251/goja_nodejs/url"
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/mmcdole/gofeed"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cast"
 )
@@ -205,6 +206,17 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return habari.Parse(filename)
 	})
 	vm.Set("$habari", habariObj)
+
+	//
+	// GoFeed
+	//
+	gofeedObj := vm.NewObject()
+	_ = gofeedObj.Set("parse", func(str string) *gofeed.Feed {
+		gofeedParser := gofeed.NewParser()
+		feed, _ := gofeedParser.ParseString(str)
+		return feed
+	})
+	vm.Set("$goFeed", gofeedObj)
 
 	//
 	// Anime Utils

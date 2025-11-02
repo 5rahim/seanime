@@ -1,6 +1,5 @@
-const {app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net} = require('electron');
+const {app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol} = require('electron');
 const path = require('path');
-const serve = require('electron-serve');
 const {spawn} = require('child_process');
 const fs = require('fs');
 let stripAnsi;
@@ -62,90 +61,11 @@ function setupChromiumFlags() {
 
     app.commandLine.appendSwitch('double-buffer-compositing');
     app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
-}
 
-const _development = process.env.NODE_ENV === 'development';
-// const _development = false;
-
-// Setup electron-serve for production
-const appServe = !_development ? serve({
-    directory: path.join(__dirname, '../web-denshi')
-}) : null;
-
-// Custom protocol handler for routing in production
-if (!_development) {
-    app.whenReady().then(() => {
-        const {protocol} = require('electron');
-        const mime = require('mime-types');
-
-        // Register a custom protocol to handle routing
-        protocol.handle('app', async (request) => {
-            const url = new URL(request.url);
-            let filePath = url.pathname;
-
-            // Remove leading slash
-            if (filePath.startsWith('/')) {
-                filePath = filePath.substring(1);
-            }
-
-            // Handle root path
-            if (filePath === '' || filePath === '-') {
-                filePath = 'index.html';
-            } else if (!filePath.endsWith('.html') && !filePath.includes('.') && !filePath.includes('/')) {
-                // If it's a route without extension, try to find corresponding HTML file
-                filePath = filePath + '.html';
-            }
-
-            // Handle subdirectories (like splashscreen/crash)
-            if (filePath.includes('/')) {
-                const parts = filePath.split('/');
-                if (parts.length > 1) {
-                    // For nested routes like splashscreen/crash, try the nested structure first
-                    const nestedPath = parts.join('/');
-                    const nestedFullPath = path.join(__dirname, '../web-denshi', nestedPath);
-                    if (fs.existsSync(nestedFullPath)) {
-                        filePath = nestedPath;
-                    } else {
-                        // Try with .html extension
-                        const nestedHtmlPath = nestedPath + '.html';
-                        const nestedHtmlFullPath = path.join(__dirname, '../web-denshi', nestedHtmlPath);
-                        if (fs.existsSync(nestedHtmlFullPath)) {
-                            filePath = nestedHtmlPath;
-                        } else {
-                            // Fall back to the last part with .html
-                            filePath = parts[parts.length - 1] + '.html';
-                        }
-                    }
-                }
-            }
-
-            const fullPath = path.join(__dirname, '../web-denshi', filePath);
-
-            // Check if file exists, otherwise fall back to index.html
-            if (!fs.existsSync(fullPath)) {
-                filePath = 'index.html';
-            }
-
-            const finalPath = path.join(__dirname, '../web-denshi', filePath);
-
-            try {
-                const fileContent = fs.readFileSync(finalPath);
-                const mimeType = mime.lookup(finalPath) || 'application/octet-stream';
-                return new Response(fileContent, {
-                    headers: {
-                        'Content-Type': mimeType,
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-            } catch (error) {
-                console.error('[Protocol] Error reading file:', finalPath, error);
-                return new Response('File not found', {
-                    status: 404,
-                    headers: {'Content-Type': 'text/plain'}
-                });
-            }
-        });
-    });
+    if (process.platform === "linux") {
+        log.info(`Passing --gtk-version=3 to Electron`)
+        app.commandLine.appendSwitch('gtk-version', '3')
+    }
 }
 
 // Setup update events for logging
@@ -155,6 +75,68 @@ log.transports.file.level = 'debug';
 // Redirect console logging to electron-log
 console.log = log.info;
 console.error = log.error;
+
+
+const _development = process.env.NODE_ENV === 'development';
+
+// const _development = false;
+
+function setupCustomProtocol() {
+    protocol.registerSchemesAsPrivileged([{
+        scheme: 'app', privileges: {
+            standard: true, secure: true, allowServiceWorkers: true, supportFetchAPI: true, corsEnabled: true
+        }
+    }]);
+}
+
+// call before app.whenReady
+setupCustomProtocol();
+
+function setupAppProtocol() {
+    if (_development) return;
+
+    const webPath = path.join(__dirname, "../web-denshi");
+
+    protocol.handle('app', (request) => {
+        const requestUrl = new URL(request.url);
+        let urlPath = requestUrl.pathname;
+
+        // next.js ssg: add .html to path
+        if (!urlPath.endsWith('.html') && path.extname(urlPath) === '') {
+            urlPath = urlPath + '.html';
+        }
+
+        // might not happen?
+        if (urlPath === '/.html') {
+            urlPath = '/index.html';
+        }
+
+        let filePath = path.join(webPath, urlPath);
+
+        const resolvedPath = path.resolve(filePath);
+        const resolvedWebPath = path.resolve(webPath);
+        if (!resolvedPath.startsWith(resolvedWebPath)) {
+            filePath = path.join(webPath, 'index.html');
+        }
+
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            return net.fetch(`file://${filePath}`);
+        }
+
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+            const indexPath = path.join(filePath, 'index.html');
+            if (fs.existsSync(indexPath)) {
+                return net.fetch(`file://${indexPath}`);
+            }
+        }
+
+        // fallback to root index.html
+        log.warn(`[Protocol] Fallback for ${request.url}, serving index.html`); // Added a log
+        const fallbackPath = path.join(webPath, 'index.html');
+        return net.fetch(`file://${fallbackPath}`);
+    });
+}
+
 
 function logStartupEvent(stage, detail = '') {
     const message = `[STARTUP] ${stage}: ${detail}`;
@@ -452,12 +434,14 @@ async function launchSeanimeServer(isRestart) {
                         splashScreen = null;
                     }
                     console.log('[Main] Server started close splash screen');
-                    if (mainWindow && !mainWindow.isDestroyed()) {
-                        mainWindow.maximize();
-                        mainWindow.show();
-                    }
+                    setTimeout(() => {
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.maximize();
+                            mainWindow.show();
+                        }
+                    }, 1000)
                     resolve();
-                }, 1000);
+                }, 2000);
             }
         });
 
@@ -481,6 +465,8 @@ async function launchSeanimeServer(isRestart) {
 
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.close();
+                    mainWindow.destroy();
+                    mainWindow = null;
                 }
 
                 // show crash screen
@@ -553,8 +539,22 @@ function createMainWindow() {
             shell.openExternal(url);
             return {action: 'deny'};
         }
-        // Allow other URLs to open in the app
-        return {action: 'allow'};
+        // // Allow other URLs to open in the app
+        // return {action: 'allow'};
+
+        // For internal app:// (or file://) links — do not spawn a new renderer.
+        // Instead navigate the main window (or the opener) so it remains a single renderer.
+        try {
+            const opener = webContents.fromId(frameName || 0) || mainWindow.webContents;
+            // load in mainWindow instead of spawning new window
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.loadURL(url);
+            }
+        } catch (e) {
+            console.warn('setWindowOpenHandler fallback loadURL failed', e);
+        }
+
+        return {action: 'deny'};
     })
 
     // Load the web content
@@ -564,15 +564,14 @@ function createMainWindow() {
         mainWindow.loadURL('http://127.0.0.1:43210');
         // mainWindow.loadURL('chrome://gpu');
     } else {
-        // Load from custom protocol handler in production
         logStartupEvent('Loading production build with custom protocol');
         mainWindow.loadURL('app://-');
     }
 
     // Development tools
-    if (_development) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (_development) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     mainWindow.on('close', (event) => {
         if (!isShutdown) {
@@ -602,9 +601,8 @@ function createSplashScreen() {
         logStartupEvent('Loading splash from dev server', 'http://127.0.0.1:43210/splashscreen');
         splashScreen.loadURL('http://127.0.0.1:43210/splashscreen');
     } else {
-        // Load from custom protocol handler
         logStartupEvent('Loading splash screen with custom protocol');
-        splashScreen.loadURL('app://splashscreen');
+        splashScreen.loadURL('app://-/splashscreen');
     }
 }
 
@@ -623,8 +621,7 @@ function createCrashScreen() {
         // In development, load from the dev server
         crashScreen.loadURL('http://127.0.0.1:43210/splashscreen/crash');
     } else {
-        // Load from custom protocol handler
-        crashScreen.loadURL('app://splashscreen/crash');
+        crashScreen.loadURL('app://-/splashscreen/crash');
     }
 }
 
@@ -652,6 +649,33 @@ function cleanupAndExit() {
     }, 500);
 }
 
+app.on('web-contents-created', (event, contents) => {
+    console.log('[WCC] created id=', contents.id, 'type=', contents.getType());
+
+    contents.on('did-start-navigation', (e, url, isInPlace, isMainFrame) => {
+        console.log('[WCC] did-start-navigation', contents.id, {url, isMainFrame, isInPlace});
+    });
+
+    contents.on('did-navigate', (e, url) => {
+        console.log('[WCC] did-navigate', contents.id, url);
+    });
+
+    contents.on('did-frame-finish-load', () => {
+        try {
+            console.log('[WCC] URL after load', contents.id, contents.getURL());
+        } catch (e) {
+        }
+    });
+
+    contents.on('destroyed', () => console.log('[WCC] destroyed', contents.id));
+
+    try {
+        const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow();
+        if (owner) console.log('[WCC] owner window id=', owner.id, 'title=', owner.getTitle && owner.getTitle());
+    } catch (e) {
+    }
+});
+
 // Initialize the app
 app.whenReady().then(async () => {
     logStartupEvent('App ready');
@@ -668,7 +692,9 @@ app.whenReady().then(async () => {
             console.log('[Main] Checking for updates...');
             const result = await autoUpdater.checkForUpdates();
             return {
-                updateAvailable: !!result?.updateInfo, updateInfo: result?.updateInfo
+                updateAvailable: !!result?.updateInfo,
+                updateInfo: result?.updateInfo,
+                updateDownloaded: updateDownloaded
             };
         } catch (error) {
             console.error('[Main] Error checking for updates:', error);
@@ -679,7 +705,10 @@ app.whenReady().then(async () => {
     ipcMain.handle('install-update', async () => {
         try {
             if (!updateDownloaded) {
-                throw new Error('Update not downloaded yet');
+                console.log('[Main] Update not downloaded yet, triggering download...');
+                // Trigger download if not already downloaded
+                await autoUpdater.checkForUpdatesAndNotify();
+                throw new Error('Update download initiated. Please wait for download to complete.');
             }
             console.log('[Main] Installing update...');
             autoUpdater.quitAndInstall(false, true);
@@ -703,6 +732,8 @@ app.whenReady().then(async () => {
     if (process.platform === 'linux') {
         process.env.WEBKIT_DISABLE_COMPOSITING_MODE = '1';
     }
+
+    setupAppProtocol();
 
     // Create windows
     createMainWindow();
@@ -788,6 +819,11 @@ app.whenReady().then(async () => {
     ipcMain.handle('window:getCurrentWindow', () => {
         const win = BrowserWindow.fromWebContents(mainWindow.webContents);
         return win?.id;
+    });
+
+    ipcMain.handle('window:isMainWindow', (event) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        return win === mainWindow;
     });
 
     // Window state query handlers
@@ -892,17 +928,23 @@ app.whenReady().then(async () => {
         }
     });
 
+    // Quit app handler
+    ipcMain.on('quit-app', () => {
+        console.log('EVENT quit-app');
+        cleanupAndExit();
+    });
+
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
             app.quit();
         }
     });
 
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createMainWindow();
-        }
-    });
+    // app.on('activate', () => {
+    //     if (BrowserWindow.getAllWindows().length === 0) {
+    //         createMainWindow();
+    //     }
+    // });
 
     app.on('before-quit', () => {
         console.log('EVENT before-quit');

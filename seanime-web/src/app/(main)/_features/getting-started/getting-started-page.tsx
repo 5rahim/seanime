@@ -14,21 +14,22 @@ import {
     getDefaultMpvSocket,
     getDefaultSettings,
     gettingStartedSchema,
-    TORRENT_PROVIDER,
     useDefaultSettingsPaths,
 } from "@/lib/server/settings"
+import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { AnimatePresence, motion } from "motion/react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { useFormContext, useWatch } from "react-hook-form"
-import { BiChevronLeft, BiChevronRight, BiCloud, BiCog, BiDownload, BiFolder, BiPlay, BiRocket } from "react-icons/bi"
+import { BiChevronLeft, BiChevronRight, BiDownload, BiFolder, BiPlay, BiRocket } from "react-icons/bi"
 import { FaBook, FaDiscord } from "react-icons/fa"
 import { HiOutlineDesktopComputer } from "react-icons/hi"
-import { HiEye, HiGlobeAlt } from "react-icons/hi2"
+import { HiEye, HiGlobeAlt, HiServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoPlayForwardCircleSharp } from "react-icons/io5"
+import { LuSparkles } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
-import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiMpv, SiQbittorrent, SiTransmission, SiVlcmediaplayer } from "react-icons/si"
 
 const containerVariants = {
@@ -84,8 +85,8 @@ const stepVariants = {
 const STEPS = [
     {
         id: "library",
-        title: "Anime Library",
-        description: "Choose your anime collection folder",
+        title: "Local Anime Library",
+        description: "Choose your anime library folder",
         icon: BiFolder,
         gradient: "from-blue-500 to-cyan-500",
     },
@@ -98,8 +99,8 @@ const STEPS = [
     },
     {
         id: "torrents",
-        title: "Torrent Setup",
-        description: "Set up downloading and providers",
+        title: "Downloading",
+        description: "Set up downloading",
         icon: BiDownload,
         gradient: "from-orange-500 to-red-500",
     },
@@ -107,14 +108,14 @@ const STEPS = [
         id: "debrid",
         title: "Debrid Service",
         description: "Optional premium streaming",
-        icon: BiCloud,
-        gradient: "from-indigo-500 to-purple-500",
+        icon: HiServerStack,
+        gradient: "from-indigo-500 to-indigo-500",
     },
     {
         id: "features",
         title: "Features",
         description: "Enable additional features",
-        icon: BiCog,
+        icon: LuSparkles,
         gradient: "from-teal-500 to-blue-500",
     },
 ]
@@ -123,9 +124,9 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
     return (
         <div className="mb-12">
             <div className="flex items-center justify-center mb-6">
-                <div className="relative mx-auto w-24 h-24">
+                <div className="relative mx-auto size-16">
                     <motion.img
-                        src="/logo_2.png"
+                        src="/seanime-logo.png"
                         alt="Seanime Logo"
                         className="w-full h-full object-contain"
                         initial={{ opacity: 0 }}
@@ -141,16 +142,16 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
                 </p>
             </div>
 
-            <div className="flex items-start justify-between max-w-4xl mx-auto px-4 border p-4 rounded-lg relative bg-gray-900/50 backdrop-blur-sm">
-                <GlowingEffect
-                    spread={40}
-                    glow={true}
-                    disabled={false}
-                    proximity={100}
-                    inactiveZone={0.01}
-                    // movementDuration={4}
-                    className="opacity-30"
-                />
+            <div className="flex items-start justify-between max-w-4xl mx-auto px-4 rounded-xl relative">
+                {/*<GlowingEffect*/}
+                {/*    spread={40}*/}
+                {/*    glow={true}*/}
+                {/*    disabled={false}*/}
+                {/*    proximity={100}*/}
+                {/*    inactiveZone={0.01}*/}
+                {/*    // movementDuration={4}*/}
+                {/*    className="opacity-30"*/}
+                {/*/>*/}
 
                 {STEPS.map((step, i) => (
                     <div
@@ -168,7 +169,7 @@ function StepIndicator({ currentStep, totalSteps, onStepClick }: { currentStep: 
                                 //     ? `bg-gradient-to-r ${step.gradient} text-white`
                                 //     : "bg-gray-700 text-gray-500",
                                 i <= currentStep
-                                    ? "bg-gradient-to-br from-brand-500/20 to-purple-500/20 border border-brand-500/20"
+                                    ? "bg-gradient-to-br from-brand-500/20 to-indigo-500/20 border border-brand-500/20"
                                     : "bg-[--subtle] text-[--muted]",
                                 i <= currentStep && "group-hover:shadow-md",
                             )}
@@ -285,9 +286,14 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
             className="space-y-8"
         >
             <motion.div variants={itemVariants} className="text-center space-y-4">
-                <h2 className="text-3xl font-bold">Media Player</h2>
+
+                {__isElectronDesktop__ && <div className="max-w-3xl mx-auto p-4 rounded-xl border !mb-8 font-medium">
+                    Seanime Denshi includes a built-in media player that is enabled by default. You can still configure an external media player.
+                </div>}
+
+                <h2 className="text-3xl font-bold">{__isDesktop__ ? "External " : ""}Media Player</h2>
                 <p className="text-[--muted] text-sm max-w-lg mx-auto">
-                    Configure your preferred media player for watching anime and tracking progress automatically.
+                    Configure your preferred external media player for watching anime and tracking progress automatically.
                 </p>
             </motion.div>
 
@@ -295,7 +301,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                 <motion.div variants={itemVariants} className="space-y-6">
                     <Field.Select
                         name="defaultPlayer"
-                        label="Media Player"
+                        label="Desktop Media Player"
                         help={status?.os !== "darwin"
                             ? "MPV is recommended for better subtitle rendering, torrent streaming."
                             : "Both MPV and IINA are recommended for macOS."}
@@ -323,7 +329,7 @@ function PlayerStep({ form, status }: { form: any, status: Status }) {
                                     className="space-y-4 p-4 rounded-lg bg-gray-800/30"
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <SiMpv className="w-6 h-6 text-purple-400" />
+                                        <SiMpv className="w-6 h-6 text-indigo-400" />
                                         <h4 className="font-semibold">MPV Configuration</h4>
                                     </div>
                                     <Field.Text
@@ -428,35 +434,13 @@ function TorrentStep({ form }: { form: any }) {
             className="space-y-8"
         >
             <motion.div variants={itemVariants} className="text-center space-y-4">
-                <h2 className="text-3xl font-bold">Torrent Setup</h2>
+                <h2 className="text-3xl font-bold">Downloading</h2>
                 <p className="text-[--muted] text-sm max-w-lg mx-auto">
-                    Configure your default torrent provider and client.
+                    Configure your torrent client for downloading.
                 </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-                <StepCard>
-                    <motion.div variants={itemVariants} className="space-y-4">
-                        <div className="flex items-center space-x-3 mb-4">
-                            <RiFolderDownloadFill className="w-6 h-6 text-orange-500" />
-                            <h3 className="text-xl font-semibold">Torrent Provider</h3>
-                        </div>
-                        <p className="text-sm text-[--muted]">
-                            Extension for finding anime torrents
-                        </p>
-                        <Field.Select
-                            name="torrentProvider"
-                            label="Provider"
-                            required
-                            options={[
-                                { label: "AnimeTosho (Recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
-                                { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
-                                { label: "Nyaa (Non-English)", value: TORRENT_PROVIDER.NYAA_NON_ENG },
-                            ]}
-                            help="AnimeTosho search results are more precise in most cases."
-                        />
-                    </motion.div>
-                </StepCard>
+            <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
 
                 <StepCard>
                     <motion.div variants={itemVariants} className="space-y-4">
@@ -556,7 +540,7 @@ function DebridStep({ form }: { form: any }) {
                     <Field.Select
                         name="debridProvider"
                         label="Debrid Service"
-                        leftIcon={<BiCloud className="text-[--purple]" />}
+                        leftIcon={<HiServerStack className="text-[--purple]" />}
                         options={[
                             { label: "None", value: "none" },
                             { label: "TorBox", value: "torbox" },
@@ -614,7 +598,7 @@ function FeaturesStep({ form }: { form: any }) {
             icon: HiGlobeAlt,
             title: "Online Streaming",
             description: "Watch anime from online sources",
-            gradient: "from-purple-500 to-violet-500",
+            gradient: "from-indigo-500 to-violet-500",
         },
         {
             name: "enableRichPresence",
@@ -679,10 +663,9 @@ function FeaturesStep({ form }: { form: any }) {
                                 "block cursor-pointer transition-all duration-200 overflow-hidden w-full rounded-xl",
                                 "bg-gray-900/50 hover:bg-gray-800/80",
                                 "border border-gray-700/50",
-                                "hover:border-gray-600",
                                 // "hover:shadow-lg hover:scale-[1.02]",
                                 "data-[checked=true]:bg-gradient-to-br data-[checked=true]:from-gray-900 data-[checked=true]:to-gray-900",
-                                "data-[checked=true]:border-brand-600",
+                                "data-[checked=true]:border-gray-400",
                                 // "data-[checked=true]:shadow-lg data-[checked=true]:scale-[1.02]"
                             )}
                             containerClass="flex items-center justify-between h-full"
@@ -746,10 +729,20 @@ export function GettingStartedPage({ status }: { status: Status }) {
     if (isPending) return <LoadingOverlayWithLogo />
 
     if (!data) return (
-        <div className="min-h-screen bg-gradient-to-br from-[--background] via-[--background] to-purple-950/10">
+        <div className="min-h-screen bg-gradient-to-br from-[--background] via-[--background] to-indigo-900/10 relative">
+            <div className="fixed h-100vh w-100vw inset-0 ">
+                <div className="fixed h-100vh w-100vw bg-gray-950/20 z-[1] backdrop-blur-sm firefox:backdrop-blur-none inset-0"></div>
+                <Image
+                    src="/background.jpeg"
+                    alt="bg"
+                    fill
+                    sizes="100vw"
+                    className="opacity-[0.05] firefox:opacity-[0.01]"
+                />
+            </div>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 {/* <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" /> */}
-                {/* <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" /> */}
+                {/* <div classfName="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" /> */}
                 {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl" /> */}
             </div>
 
@@ -833,7 +826,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     }}
                                     disabled={currentStep === 0}
                                     className="flex items-center space-x-2"
-                                    leftIcon={<BiChevronLeft />}
+                                    leftIcon={<BiChevronLeft className="text-xl" />}
                                 >
                                     Previous
                                 </Button>
@@ -850,13 +843,13 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 ) : (
                                     <Button
                                         type="button"
-                                        intent="primary-subtle"
+                                        intent="gray-glass"
                                         onClick={e => {
                                             e.preventDefault()
                                             nextStep()
                                         }}
                                         className="flex items-center space-x-2"
-                                        rightIcon={<BiChevronRight />}
+                                        rightIcon={<BiChevronRight className="text-xl" />}
                                     >
                                         Next
                                     </Button>
@@ -872,7 +865,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1 }}
                 >
-                    Made by 5rahim
+                    By 5rahim
                 </motion.p>
             </div>
         </div>

@@ -16,9 +16,8 @@ import { Switch } from "@/components/ui/switch"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { useSetAtom } from "jotai"
 import React from "react"
-import { BiDesktop, BiPlay } from "react-icons/bi"
-import { IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
+import { BiDesktop } from "react-icons/bi"
+import { LuCirclePlay, LuClapperboard, LuExternalLink, LuLaptop } from "react-icons/lu"
 import { MdOutlineBroadcastOnHome } from "react-icons/md"
 import { RiSettings3Fill } from "react-icons/ri"
 import { toast } from "sonner"
@@ -57,7 +56,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 <SettingsPageHeader
                     title="Video playback"
                     description="Choose how anime is played on this device"
-                    icon={IoPlayBackCircleSharp}
+                    icon={LuCirclePlay}
                 />
 
                 <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-800">
@@ -101,7 +100,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             <div className="flex-1">
                                 <Switch
                                     label="Use built-in player"
-                                    help="When enabled, all media will use the built-in player (overrides settings below)"
+                                    help="When enabled, all media playback will use the built-in player (overrides settings below)"
                                     value={electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer}
                                     onValueChange={v => {
                                         setElectronPlaybackMethod(v ? ElectronPlaybackMethod.NativePlayer : ElectronPlaybackMethod.Default)
@@ -119,7 +118,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 description="Choose how to play anime files stored on your device"
                 className={cn(
                     "transition-all duration-200",
-                    usingNativePlayer && "opacity-50 pointer-events-none",
+                    usingNativePlayer && "hidden",
                 )}
             >
                 <div className="space-y-4">
@@ -217,7 +216,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 description="Choose how to play streamed content from torrents and debrid services"
                 className={cn(
                     "transition-all duration-200",
-                    usingNativePlayer && "opacity-50 pointer-events-none",
+                    usingNativePlayer && "hidden",
                 )}
             >
                 <div className="space-y-4">
@@ -281,16 +280,6 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 <span>Settings are saved automatically</span>
             </div>
 
-            {usingNativePlayer && (
-                <div className="text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
-                        <BiPlay className="text-indigo-600 dark:text-indigo-400" />
-                        <span className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
-                            Native player is active - other settings are disabled
-                        </span>
-                    </div>
-                </div>
-            )}
         </>
     )
 }

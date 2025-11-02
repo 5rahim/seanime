@@ -3,13 +3,13 @@
 import { Anime_LibraryCollectionEntry } from "@/api/generated/types"
 import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { BasicField } from "@/components/ui/basic-field"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { useAtomValue } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { BiEdit } from "react-icons/bi"
 import { RiCloseCircleFill } from "react-icons/ri"
@@ -46,14 +46,18 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         const [selectedIds, setSelectedIds] = React.useState<number[]>(value)
         const [modalOpen, setModalOpen] = React.useState(false)
 
+        function filterIds(ids: number[]) {
+            return ids.filter(id => animeLibraryCollectionEntries?.findIndex(n => n.mediaId === id) !== -1)
+        }
+
         React.useEffect(() => {
-            setSelectedIds(value)
+            setSelectedIds(filterIds(value))
         }, [value])
 
         const handleToggleMedia = React.useCallback((mediaId: number) => {
-            const newSelectedIds = selectedIds.includes(mediaId)
+            const newSelectedIds = filterIds(selectedIds.includes(mediaId)
                 ? selectedIds.filter(id => id !== mediaId)
-                : [...selectedIds, mediaId]
+                : [...selectedIds, mediaId])
 
             setSelectedIds(newSelectedIds)
             onChange?.(newSelectedIds)
@@ -62,12 +66,13 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
         const handleSelectAll = React.useCallback(() => {
             if (!animeLibraryCollectionEntries) return
 
-            const allMediaIds: number[] = []
+            let allMediaIds: number[] = []
             animeLibraryCollectionEntries?.forEach(entry => {
                 if (entry.mediaId && !allMediaIds.includes(entry.mediaId)) {
                     allMediaIds.push(entry.mediaId)
                 }
             })
+            allMediaIds = filterIds(allMediaIds)
 
             setSelectedIds(allMediaIds)
             onChange?.(allMediaIds)
@@ -88,7 +93,7 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
                 }
             })
 
-            const newSelectedIds = [...new Set([...selectedIds, ...adultMediaIds])]
+            const newSelectedIds = filterIds([...new Set([...selectedIds, ...adultMediaIds])])
             setSelectedIds(newSelectedIds)
             onChange?.(newSelectedIds)
         }, [animeLibraryCollectionEntries, selectedIds, onChange])
@@ -182,7 +187,7 @@ export const MediaExclusionSelector = React.forwardRef<HTMLDivElement, MediaExcl
                                                 key={entry.mediaId}
                                                 className="size-8 rounded-md overflow-hidden border-2 border-white dark:border-gray-900"
                                             >
-                                                <Image
+                                                <SeaImage
                                                     src={entry.media?.coverImage?.medium || entry.media?.coverImage?.large || ""}
                                                     placeholder={imageShimmer(200, 280)}
                                                     width={32}
@@ -371,7 +376,7 @@ function MediaExclusionItem(props: {
             )}
             onClick={onToggle}
         >
-            <Image
+            <SeaImage
                 src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
                 placeholder={imageShimmer(700, 475)}
                 sizes="10rem"

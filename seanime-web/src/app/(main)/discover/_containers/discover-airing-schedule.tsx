@@ -1,16 +1,17 @@
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
+import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
+import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import { format, isSameMonth, isToday, subDays } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
-import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
-import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
-import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import React from "react"
+import { LuDock, LuEye } from "react-icons/lu"
 
 
 export function DiscoverAiringSchedule() {
@@ -112,17 +113,17 @@ export function DiscoverAiringSchedule() {
                                                         </ContextMenuLabel>
                                                         <ContextMenuItem
                                                             onClick={() => {
-                                                                router.push(`/entry?id=${event.media?.id}`)
-                                                            }}
-                                                        >
-                                                            Open page
-                                                        </ContextMenuItem>
-                                                        <ContextMenuItem
-                                                            onClick={() => {
                                                                 setPreviewModalMediaId(event.media?.id || 0, "anime")
                                                             }}
                                                         >
-                                                            Preview
+                                                            <LuEye /> Preview
+                                                        </ContextMenuItem>
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                router.push(`/entry?id=${event.media?.id}`)
+                                                            }}
+                                                        >
+                                                            <LuDock /> Open page
                                                         </ContextMenuItem>
                                                     </ContextMenuGroup>}
                                                 >
@@ -133,7 +134,7 @@ export function DiscoverAiringSchedule() {
                                                             <div
                                                                 className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
                                                             >
-                                                                <Image
+                                                                <SeaImage
                                                                     src={event.media?.coverImage?.large || event.media?.bannerImage || "/no-cover.png"}
                                                                     alt="banner"
                                                                     fill

@@ -1,6 +1,7 @@
 "use client"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -11,7 +12,6 @@ import { Combobox, Dialog, Transition } from "@headlessui/react"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React, { Fragment, useEffect, useRef } from "react"
 import { BiChevronRight } from "react-icons/bi"
@@ -105,7 +105,7 @@ export function GlobalSearch() {
                                     {({ activeOption }: any) => (
                                         <>
                                             <div
-                                                className="relative border bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 w-full rounded-lg "
+                                                className="relative border bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 w-full rounded-xl"
                                             >
                                                 <FiSearch
                                                     className="pointer-events-none absolute top-4 left-4 h-6 w-6 text-[--muted]"
@@ -133,7 +133,7 @@ export function GlobalSearch() {
                                             {(!!media && media.length > 0) && (
                                                 <Combobox.Options
                                                     as="div" static hold
-                                                    className="flex divide-[--border] bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-lg border "
+                                                    className="flex divide-[--border] bg-gray-950 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-xl border"
                                                 >
                                                     <div
                                                         className={cn(
@@ -167,7 +167,7 @@ export function GlobalSearch() {
                                                                             <div
                                                                                 className="h-10 w-10 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                                             >
-                                                                                {item.coverImage?.medium && <Image
+                                                                                {item.coverImage?.medium && <SeaImage
                                                                                     src={item.coverImage?.medium}
                                                                                     alt={""}
                                                                                     fill
@@ -201,7 +201,7 @@ export function GlobalSearch() {
                                                                 <div
                                                                     className="h-40 w-32 mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                                 >
-                                                                    {activeOption.coverImage?.large && <Image
+                                                                    {activeOption.coverImage?.large && <SeaImage
                                                                         src={activeOption.coverImage?.large}
                                                                         alt={""}
                                                                         fill
@@ -248,7 +248,7 @@ export function GlobalSearch() {
                                                     {<div
                                                         className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                     >
-                                                        <Image
+                                                        <SeaImage
                                                             src="/luffy-01.png"
                                                             alt={""}
                                                             fill

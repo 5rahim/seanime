@@ -1,8 +1,8 @@
 import { Anime_Episode } from "@/api/generated/types"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
-import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 
@@ -31,7 +31,7 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
             {...rest}
         >
             <div className="absolute w-full h-full overflow-hidden z-[1]">
-                {!!episode.episodeMetadata?.image ? <Image
+                {!!episode.episodeMetadata?.image ? <SeaImage
                     src={episode.episodeMetadata?.image}
                     alt={""}
                     fill

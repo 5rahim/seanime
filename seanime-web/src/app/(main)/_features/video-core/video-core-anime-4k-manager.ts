@@ -57,7 +57,7 @@ export class VideoCoreAnime4KManager {
         frameDropThreshold: 5,
         frameDropCount: 0,
         lastFrameTime: 0,
-        targetFrameTime: 1000 / 30, // 30fps target
+        targetFrameTime: 1000 / 16, // 30fps target
         performanceGracePeriod: 1000,
         initTime: 0,
     }
@@ -67,6 +67,7 @@ export class VideoCoreAnime4KManager {
     private _initializationTimeout: NodeJS.Timeout | null = null
     private _initialized = false
     private _onCanvasCreatedCallbacks: Set<(canvas: HTMLCanvasElement) => void> = new Set()
+    private _onCanvasCreatedCallbacksOnce: Set<(canvas: HTMLCanvasElement) => void> = new Set()
 
     constructor({
         videoElement,
@@ -88,18 +89,35 @@ export class VideoCoreAnime4KManager {
     }
 
     updateCanvasSize(size: { width: number; height: number }) {
-        this._boxSize = size
+        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement)
+        this._boxSize = { width: videoContentSize?.displayedWidth || size.width, height: videoContentSize?.displayedHeight || size.height }
         if (this.canvas) {
-            this.canvas.width = size.width
-            this.canvas.height = size.height
-            this.canvas.style.top = this.videoElement.getBoundingClientRect().top + "px"
-            log.info("Updating canvas size", { width: size.width, height: size.height, top: this.videoElement.getBoundingClientRect().top })
+            this.canvas.width = this._boxSize.width
+            this.canvas.height = this._boxSize.height
+            log.info("Updating canvas size", { ...this._boxSize })
+        }
+    }
+
+    resize() {
+        const videoContentSize = this.getRenderedVideoContentSize(this.videoElement)
+        this._boxSize = { width: videoContentSize?.displayedWidth || 0, height: videoContentSize?.displayedHeight || 0 }
+        if (this.canvas) {
+            this.canvas.width = this._boxSize.width
+            this.canvas.height = this._boxSize.height
+            this.canvas.style.width = this._boxSize.width + "px"
+            this.canvas.style.height = this._boxSize.height + "px"
+            // log.info("Updating canvas size", { ...this._boxSize })
         }
     }
 
     // Adds a function to be called whenever the canvas is created or recreated
     registerOnCanvasCreated(callback: (canvas: HTMLCanvasElement) => void) {
         this._onCanvasCreatedCallbacks.add(callback)
+    }
+
+    // Adds a function to be called whenever the canvas is created or recreated
+    registerOnCanvasCreatedOnce(callback: (canvas: HTMLCanvasElement) => void) {
+        this._onCanvasCreatedCallbacksOnce.add(callback)
     }
 
     // Select an Anime4K option
@@ -113,7 +131,7 @@ export class VideoCoreAnime4KManager {
         this._currentOption = option
 
         if (option === "off") {
-            log.info("Anime4K turned off")
+            // log.info("Anime4K turned off")
             this.destroy()
             return
         }
@@ -164,7 +182,7 @@ export class VideoCoreAnime4KManager {
 
     // Destroy and cleanup resources
     destroy() {
-        this.videoElement.style.opacity = "1"
+        // this.videoElement.style.opacity = "1"
 
         this._initialized = false
 
@@ -239,6 +257,48 @@ export class VideoCoreAnime4KManager {
         }
     }
 
+    private getRenderedVideoContentSize(video: HTMLVideoElement) {
+        const containerWidth = video.clientWidth
+        const containerHeight = video.clientHeight
+
+        const videoWidth = video.videoWidth
+        const videoHeight = video.videoHeight
+
+        if (!videoWidth || !videoHeight) return null // not ready yet
+
+        const containerRatio = containerWidth / containerHeight
+        const videoRatio = videoWidth / videoHeight
+
+        let displayedWidth, displayedHeight
+
+        const objectFit = getComputedStyle(video).objectFit || "fill"
+
+        if (objectFit === "cover") {
+            if (videoRatio > containerRatio) {
+                displayedHeight = containerHeight
+                displayedWidth = containerHeight * videoRatio
+            } else {
+                displayedWidth = containerWidth
+                displayedHeight = containerWidth / videoRatio
+            }
+        } else if (objectFit === "contain") {
+            if (videoRatio > containerRatio) {
+                displayedWidth = containerWidth
+                displayedHeight = containerWidth / videoRatio
+            } else {
+                displayedHeight = containerHeight
+                displayedWidth = containerHeight * videoRatio
+            }
+        } else {
+            // object-fit: fill or none or scale-down, fallback
+            displayedWidth = containerWidth
+            displayedHeight = containerHeight
+        }
+
+        return { displayedWidth, displayedHeight }
+    }
+
+
     // Create and position the canvas
     private _createCanvas() {
         if (this._abortController?.signal.aborted) return
@@ -249,21 +309,19 @@ export class VideoCoreAnime4KManager {
         this.canvas.height = this._boxSize.height
         this.canvas.style.objectFit = "cover"
         this.canvas.style.position = "absolute"
-        this.canvas.style.top = this.videoElement.getBoundingClientRect().top + "px"
-        this.canvas.style.left = "0"
-        this.canvas.style.right = "0"
         this.canvas.style.pointerEvents = "none"
         this.canvas.style.zIndex = "2"
+        this.canvas.style.objectFit = "contain"
+        this.canvas.style.objectPosition = "center"
+        this.canvas.style.width = this._boxSize.width + "px"
+        this.canvas.style.height = this._boxSize.height + "px"
+        this.canvas.style.top = ""
         this.canvas.style.display = "block"
         this.canvas.className = "vc-anime4k-canvas"
         log.info("Creating canvas", { width: this.canvas.width, height: this.canvas.height, top: this.canvas.style.top })
 
         this.videoElement.parentElement?.appendChild(this.canvas)
-        this.videoElement.style.opacity = "0"
-
-        for (const callback of this._onCanvasCreatedCallbacks) {
-            callback(this.canvas)
-        }
+        // this.videoElement.style.opacity = "0"
     }
 
     // WebGPU rendering
@@ -301,6 +359,18 @@ export class VideoCoreAnime4KManager {
                 return this.createPipeline(commonProps)
             },
         })
+
+        setTimeout(() => {
+            if (this.canvas) {
+                for (const callback of this._onCanvasCreatedCallbacks) {
+                    callback(this.canvas)
+                }
+                for (const callback of this._onCanvasCreatedCallbacksOnce) {
+                    callback(this.canvas)
+                }
+                this._onCanvasCreatedCallbacksOnce.clear()
+            }
+        }, 100)
 
         // Start frame drop detection if enabled
         if (this._frameDropState.enabled && this._isOptionSelected(this._currentOption)) {
@@ -429,14 +499,14 @@ export class VideoCoreAnime4KManager {
     private _hideCanvas() {
         if (this.canvas) {
             this.canvas.style.display = "none"
-            this.videoElement.style.opacity = "1"
+            // this.videoElement.style.opacity = "1"
         }
     }
 
     private _showCanvas() {
         if (this.canvas) {
             this.canvas.style.display = "block"
-            this.videoElement.style.opacity = "0"
+            // this.videoElement.style.opacity = "0"
         }
     }
 

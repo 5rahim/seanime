@@ -1,22 +1,22 @@
 "use client"
 import { AL_BaseManga } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
+import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
-import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { useWindowScroll } from "react-use"
 
 export const __mangaLibraryHeaderImageAtom = atom<string | null>(null)
 export const __mangaLibraryHeaderMangaAtom = atom<AL_BaseManga | null>(null)
 
-const MotionImage = motion.create(Image)
+const MotionImage = motion.create(SeaImage)
 
-export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
+export function MangaLibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
 
     const ts = useThemeSettings()
 

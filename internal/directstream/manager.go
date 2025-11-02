@@ -3,7 +3,7 @@ package directstream
 import (
 	"context"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
@@ -29,7 +29,7 @@ type (
 
 		wsEventManager             events.WSEventManagerInterface
 		continuityManager          *continuity.Manager
-		metadataProvider           metadata.Provider
+		metadataProvider           metadata_provider.Provider
 		discordPresence            *discordrpc_presence.Presence
 		platform                   platform.Platform
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
@@ -69,7 +69,7 @@ type (
 	NewManagerOptions struct {
 		Logger                     *zerolog.Logger
 		WSEventManager             events.WSEventManagerInterface
-		MetadataProvider           metadata.Provider
+		MetadataProvider           metadata_provider.Provider
 		ContinuityManager          *continuity.Manager
 		DiscordPresence            *discordrpc_presence.Presence
 		Platform                   platform.Platform

@@ -1,15 +1,15 @@
 package chapter_downloader
 
 import (
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	hibikemanga "seanime/internal/extension/hibike/manga"
-	"seanime/internal/manga/providers"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestQueue(t *testing.T) {
@@ -43,20 +43,20 @@ func TestQueue(t *testing.T) {
 		chapterIndex uint
 	}{
 		{
-			providerName: manga_providers.ComickProvider,
-			provider:     manga_providers.NewComicK(util.NewLogger()),
-			name:         "Jujutsu Kaisen",
-			mangaId:      "TA22I5O7",
-			chapterIndex: 258,
-			mediaId:      101517,
+			//providerName: manga_providers.REPLACE,
+			//provider:     manga_providers.REPLACE(util.NewLogger()),
+			//name:         "Jujutsu Kaisen",
+			//mangaId:      "TA22I5O7",
+			//chapterIndex: 258,
+			//mediaId:      101517,
 		},
 		{
-			providerName: manga_providers.ComickProvider,
-			provider:     manga_providers.NewComicK(util.NewLogger()),
-			name:         "Jujutsu Kaisen",
-			mangaId:      "TA22I5O7",
-			chapterIndex: 259,
-			mediaId:      101517,
+			//providerName: manga_providers.REPLACE,
+			//provider:     manga_providers.REPLACE(util.NewLogger()),
+			//name:         "Jujutsu Kaisen",
+			//mangaId:      "TA22I5O7",
+			//chapterIndex: 259,
+			//mediaId:      101517,
 		},
 	}
 

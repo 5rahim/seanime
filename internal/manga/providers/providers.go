@@ -3,13 +3,7 @@ package manga_providers
 import "errors"
 
 const (
-	WeebCentralProvider        = "weebcentral"
-	MangadexProvider    string = "mangadex"
-	ComickProvider      string = "comick"
-	MangapillProvider   string = "mangapill"
-	ManganatoProvider   string = "manganato"
-	MangafireProvider   string = "mangafire"
-	LocalProvider       string = "local-manga"
+	LocalProvider string = "local-manga"
 )
 
 var (

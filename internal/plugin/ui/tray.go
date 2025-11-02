@@ -78,6 +78,7 @@ func (t *TrayManager) sendIconToClient() {
 			BadgeIntent:   tray.BadgeIntent,
 			Width:         tray.Width,
 			MinHeight:     tray.MinHeight,
+			IsDrawer:      tray.IsDrawer,
 		})
 	}
 }
@@ -97,6 +98,7 @@ type Tray struct {
 	BadgeIntent string `json:"badgeIntent"`
 	Width       string `json:"width,omitempty"`
 	MinHeight   string `json:"minHeight,omitempty"`
+	IsDrawer    bool   `json:"isDrawer,omitempty"`
 
 	renderFunc  func(goja.FunctionCall) goja.Value
 	trayManager *TrayManager
@@ -131,6 +133,9 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 		}
 		if propsObj["tooltipText"] != nil {
 			tray.TooltipText, _ = propsObj["tooltipText"].(string)
+		}
+		if propsObj["isDrawer"] != nil {
+			tray.IsDrawer, _ = propsObj["isDrawer"].(bool)
 		}
 		if propsObj["width"] != nil {
 			tray.Width, _ = propsObj["width"].(string)

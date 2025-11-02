@@ -122,6 +122,9 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.HEAD("/proxy", util.VideoProxy)
 
 	v1.GET("/status", h.HandleGetStatus)
+	v1.GET("/status/home-items", h.HandleGetHomeItems)
+	v1.POST("/status/home-items", h.HandleUpdateHomeItems)
+
 	v1.GET("/log/*", h.HandleGetLogContent)
 	v1.GET("/logs/filenames", h.HandleGetLogFilenames)
 	v1.DELETE("/logs", h.HandleDeleteLogs)
@@ -194,6 +197,10 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Anilist.GET("/stats", h.HandleGetAniListStats)
 
+	v1Anilist.GET("/cache-layer/status", h.HandleGetAnilistCacheLayerStatus)
+
+	v1Anilist.POST("/cache-layer/status", h.HandleToggleAnilistCacheLayerStatus)
+
 	//
 	// MAL
 	//
@@ -219,6 +226,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.GET("/local-files/dump", h.HandleDumpLocalFilesToFile)
 	v1Library.POST("/local-files/import", h.HandleImportLocalFiles)
 	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
+	v1Library.PATCH("/local-files/super-update", h.HandleSuperUpdateLocalFiles)
 
 	v1Library.GET("/collection", h.HandleGetLibraryCollection)
 	v1Library.GET("/schedule", h.HandleGetAnimeCollectionSchedule)
@@ -240,6 +248,15 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
 
 	//
+	// Library Explorer
+	//
+	v1LibraryExplorer := v1Library.Group("/explorer")
+
+	v1LibraryExplorer.GET("/file-tree", h.HandleGetLibraryExplorerFileTree)
+	v1LibraryExplorer.POST("/file-tree/refresh", h.HandleRefreshLibraryExplorerFileTree)
+	v1LibraryExplorer.POST("/directory-children", h.HandleLoadLibraryExplorerDirectoryChildren)
+
+	//
 	// Anime
 	//
 	v1.GET("/anime/episode-collection/:id", h.HandleGetAnimeEpisodeCollection)
@@ -252,6 +269,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/torrent-client/download", h.HandleTorrentClientDownload)
 	v1.GET("/torrent-client/list", h.HandleGetActiveTorrentList)
 	v1.POST("/torrent-client/action", h.HandleTorrentClientAction)
+	v1.POST("/torrent-client/get-files", h.HandleTorrentClientGetFiles)
 	v1.POST("/torrent-client/rule-magnet", h.HandleTorrentClientAddMagnetFromRule)
 
 	//
@@ -268,6 +286,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/changelog", h.HandleGetChangelog)
 	v1.POST("/install-update", h.HandleInstallLatestUpdate)
 	v1.POST("/download-release", h.HandleDownloadRelease)
+	v1.POST("/download-mac-denshi-update", h.HandleDownloadMacDenshiUpdate)
 
 	//
 	// Theme
@@ -301,7 +320,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.POST("/playlist", h.HandleCreatePlaylist)
 	v1.PATCH("/playlist", h.HandleUpdatePlaylist)
 	v1.DELETE("/playlist", h.HandleDeletePlaylist)
-	v1.GET("/playlist/episodes/:id/:progress", h.HandleGetPlaylistEpisodes)
+	v1.GET("/playlist/episodes/:id", h.HandleGetPlaylistEpisodes)
 
 	//
 	// Onlinestream
@@ -425,6 +444,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/playground/run", h.HandleRunExtensionPlaygroundCode)
 	v1Extensions.POST("/external/fetch", h.HandleFetchExternalExtensionData)
 	v1Extensions.POST("/external/install", h.HandleInstallExternalExtension)
+	v1Extensions.POST("/external/install-repository", h.HandleInstallExternalExtensionRepository)
 	v1Extensions.POST("/external/uninstall", h.HandleUninstallExternalExtension)
 	v1Extensions.POST("/external/edit-payload", h.HandleUpdateExtensionCode)
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)
@@ -437,6 +457,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
 	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
 	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
+	v1Extensions.GET("/list/custom-source", h.HandleListCustomSourceExtensions)
 	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
 	v1Extensions.GET("/marketplace", h.HandleGetMarketplaceExtensions)
@@ -508,13 +529,24 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.GET("/host/anime/library/files", h.HandleGetNakamaAnimeAllLibraryFiles)
 	v1Nakama.POST("/play", h.HandleNakamaPlayVideo)
 	v1Nakama.GET("/host/torrentstream/stream", h.HandleNakamaHostTorrentstreamServeStream)
+	v1Nakama.HEAD("/host/torrentstream/stream", h.HandleNakamaHostTorrentstreamServeStream)
 	v1Nakama.GET("/host/anime/library/stream", h.HandleNakamaHostAnimeLibraryServeStream)
+	v1Nakama.HEAD("/host/anime/library/stream", h.HandleNakamaHostAnimeLibraryServeStream)
 	v1Nakama.GET("/host/debridstream/stream", h.HandleNakamaHostDebridstreamServeStream)
+	v1Nakama.HEAD("/host/debridstream/stream", h.HandleNakamaHostDebridstreamServeStream)
 	v1Nakama.GET("/host/debridstream/url", h.HandleNakamaHostGetDebridstreamURL)
 	v1Nakama.GET("/stream", h.HandleNakamaProxyStream)
+	v1Nakama.HEAD("/stream", h.HandleNakamaProxyStream)
 	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
 	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
 	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
+
+	//
+	// Custom Source
+	//
+	v1CustomSource := v1.Group("/custom-source")
+	v1CustomSource.POST("/provider/list/anime", h.HandleCustomSourceListAnime)
+	v1CustomSource.POST("/provider/list/manga", h.HandleCustomSourceListManga)
 
 }
 

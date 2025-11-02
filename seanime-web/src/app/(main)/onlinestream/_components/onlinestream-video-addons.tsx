@@ -17,8 +17,9 @@ import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelected
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { CgMediaPodcast } from "react-icons/cg"
 import { HiOutlineCog6Tooth } from "react-icons/hi2"
-import { LuGlobe, LuSpeech } from "react-icons/lu"
+import { LuSpeech } from "react-icons/lu"
 import { MdHighQuality, MdOutlineSubtitles } from "react-icons/md"
 import { TbCloudSearch } from "react-icons/tb"
 
@@ -97,13 +98,14 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                 ]}
                 onValueChange={(v) => {
                     if (v === "add-provider") {
-                        router.push(`/extensions`)
+                        router.push(`/extensions?tab=marketplace&type=onlinestream-provider`)
                         return
                     }
                     changeProvider(v)
                 }}
+                placeholder="Select provider"
                 size="sm"
-                leftAddon={<LuGlobe />}
+                leftAddon={<CgMediaPodcast />}
                 fieldClass="w-fit"
                 className="rounded-full rounded-l-none w-fit"
                 addonClass="rounded-full rounded-r-none"

@@ -64,6 +64,9 @@ export default function Page() {
         onProviderSetup,
         onCanPlay,
         playNextEpisode,
+        playPreviousEpisode,
+        hasPreviousEpisode,
+        hasNextEpisode,
         onPlayFile,
         isCodecSupported,
         setStreamType,
@@ -243,7 +246,8 @@ export default function Page() {
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
                             onCanPlay={onCanPlay}
-                            onGoToNextEpisode={playNextEpisode}
+                            onGoToNextEpisode={hasNextEpisode ? playNextEpisode : undefined}
+                            onGoToPreviousEpisode={hasPreviousEpisode ? playPreviousEpisode : undefined}
                             tracks={subtitles?.map((sub) => ({
                                 src: subtitleEndpointUri + sub.link,
                                 label: sub.title || sub.language,

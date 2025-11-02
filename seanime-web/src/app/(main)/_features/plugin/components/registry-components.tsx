@@ -415,7 +415,7 @@ export function PluginSwitch(props: SwitchProps) {
             label={props.label}
             style={props.style}
             value={value}
-            onValueChange={(value) => typeof value === "boolean" && setValue(value)}
+            onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
             size={props.size || "sm"}
             fieldClass={props.className}
@@ -543,14 +543,27 @@ export function PluginStack({ items = [], style, gap = 2, className }: StackProp
 interface DivProps {
     items?: any[]
     style?: React.CSSProperties
+    onClick?: string
     className?: string
 }
 
-export function PluginDiv({ items = [], style, className }: DivProps) {
+export function PluginDiv({ items = [], style, onClick, className }: DivProps) {
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+
+    function handleClick() {
+        if (onClick) {
+            sendEventHandlerTriggeredEvent({
+                handlerName: onClick,
+                event: {},
+            }, trayIcon.extensionId)
+        }
+    }
     return (
         <div
             className={cn("relative", className)}
             style={style}
+            onClick={handleClick}
         >
             {items && items.length > 0 && <RenderPluginComponents data={items} />}
         </div>

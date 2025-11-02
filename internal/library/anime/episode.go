@@ -3,6 +3,7 @@ package anime
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"strconv"
 	"strings"
 )
@@ -54,7 +55,7 @@ type (
 		// When this is -1, it means that a re-mapping of AniDB Episode is needed
 		ProgressOffset   int
 		IsDownloaded     bool
-		MetadataProvider metadata.Provider // optional
+		MetadataProvider metadata_provider.Provider // optional
 	}
 
 	// NewSimpleEpisodeOptions hold data used to create a new Episode.
@@ -96,7 +97,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 				opts.ProgressOffset = 0
 			} else {
 				// e.g, "1" -> "2" etc...
-				aniDBEp = metadata.OffsetAnidbEpisode(aniDBEp, opts.ProgressOffset)
+				aniDBEp = metadata_provider.OffsetAnidbEpisode(aniDBEp, opts.ProgressOffset)
 			}
 			entryEp.MetadataIssue = "forced_remapping"
 		}
@@ -156,7 +157,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			case LocalFileTypeSpecial:
 				if foundAnimapEpisode {
 					entryEp.AniDBEpisode = aniDBEp
-					episodeInt, found := metadata.ExtractEpisodeInteger(aniDBEp)
+					episodeInt, found := metadata_provider.ExtractEpisodeInteger(aniDBEp)
 					if found {
 						entryEp.DisplayTitle = "Special " + strconv.Itoa(episodeInt)
 					} else {
@@ -201,7 +202,7 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			entryEp.EpisodeNumber = 0
 			entryEp.ProgressNumber = 0
 
-			if episodeInt, ok := metadata.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
+			if episodeInt, ok := metadata_provider.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
 				entryEp.ProgressNumber = episodeInt + opts.ProgressOffset
 				entryEp.AniDBEpisode = opts.OptionalAniDBEpisode
@@ -254,7 +255,7 @@ func NewEpisodeMetadata(
 	animeMetadata *metadata.AnimeMetadata,
 	episode *metadata.EpisodeMetadata,
 	media *anilist.BaseAnime,
-	metadataProvider metadata.Provider,
+	metadataProvider metadata_provider.Provider,
 ) *EpisodeMetadata {
 	md := new(EpisodeMetadata)
 

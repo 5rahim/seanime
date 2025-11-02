@@ -51,7 +51,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				case mediaplayer.StreamingTrackingStoppedEvent:
 					pm.handleStreamingTrackingStopped(e.Reason)
 				case mediaplayer.StreamingTrackingRetryEvent:
-					// Do nothing
+					pm.handleTrackingRetry(e.Reason)
 				}
 			}
 		}
@@ -80,7 +80,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -115,8 +115,13 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 		Filepath:      pm.currentLocalFile.MustGet().GetPath(),
 	})
 
-	// ------- Playlist ------- //
-	go pm.playlistHub.onVideoStart(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
+	// append next episode to media player if no playlist is active
+	if !pm.isPlaylistActive.Load() {
+		if nextEpisode, ok := currentLocalFileWrapperEntry.FindNextEpisode(currentLocalFile); ok {
+			pm.Logger.Debug().Msg("playback manager: Appending next episode file path to media player")
+			_ = pm.MediaPlayerRepository.Append(nextEpisode.Path)
+		}
+	}
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
@@ -148,7 +153,7 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -168,10 +173,6 @@ func (pm *PlaybackManager) handleVideoCompleted(status *mediaplayer.PlaybackStat
 	// Push the video playback state to the history
 	pm.historyMap[status.Filename] = _ps
 
-	// ------- Playlist ------- //
-	if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() {
-		go pm.playlistHub.onVideoCompleted(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
-	}
 }
 
 func (pm *PlaybackManager) handleTrackingStopped(reason string) {
@@ -194,7 +195,7 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- VideoStoppedEvent{Reason: reason}
@@ -205,9 +206,6 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	if pm.currentMediaPlaybackStatus != nil {
 		pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 	}
-
-	// ------- Playlist ------- //
-	go pm.playlistHub.onTrackingStopped()
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
@@ -234,7 +232,7 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -244,11 +242,6 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 
 	// Send the playback state to the client
 	pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
-
-	// ------- Playlist ------- //
-	if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() {
-		go pm.playlistHub.onPlaybackStatus(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
-	}
 
 	// ------- Discord ------- //
 	if pm.discordPresence != nil && !*pm.isOffline {
@@ -260,8 +253,16 @@ func (pm *PlaybackManager) handleTrackingRetry(reason string) {
 	// DEVNOTE: This event is not sent to the client
 	// We notify the playlist hub, so it can play the next episode (it's assumed that the user closed the player)
 
-	// ------- Playlist ------- //
-	go pm.playlistHub.onTrackingError()
+	// Notify subscribers
+	go func() {
+		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
+			if value.Canceled.Load() {
+				return true
+			}
+			value.EventCh <- PlaybackErrorEvent{Reason: reason}
+			return true
+		})
+	}()
 }
 
 func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.PlaybackStatus) {
@@ -290,7 +291,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -349,7 +350,7 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -384,7 +385,7 @@ func (pm *PlaybackManager) handleStreamingVideoCompleted(status *mediaplayer.Pla
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- PlaybackStatusChangedEvent{Status: *status, State: _ps}
@@ -419,7 +420,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStopped(reason string) {
 	// Notify subscribers
 	go func() {
 		pm.playbackStatusSubscribers.Range(func(key string, value *PlaybackStatusSubscriber) bool {
-			if value.canceled.Load() {
+			if value.Canceled.Load() {
 				return true
 			}
 			value.EventCh <- StreamStoppedEvent{Reason: reason}

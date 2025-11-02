@@ -1,12 +1,15 @@
+import { useGetAnilistCacheLayerStatus, useToggleAnilistCacheLayerStatus } from "@/api/hooks/anilist.hooks"
 import { useLocalSyncSimulatedDataToAnilist } from "@/api/hooks/local.hooks"
 import { __seaCommand_shortcuts } from "@/app/(main)/_features/sea-command/sea-command"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { useFormContext } from "react-hook-form"
@@ -32,6 +35,9 @@ export function ServerSettings(props: ServerSettingsProps) {
 
     const { mutate: upload, isPending: isUploading } = useLocalSyncSimulatedDataToAnilist()
 
+    const { data: isApiWorking } = useGetAnilistCacheLayerStatus()
+    const { mutate: toggleCacheLayer, isPending: isTogglingCacheLayer } = useToggleAnilistCacheLayerStatus()
+
     const confirmDialog = useConfirmationDialog({
         title: "Upload to AniList",
         description: "This will upload your local Seanime collection to your AniList account. Are you sure you want to proceed?",
@@ -44,6 +50,17 @@ export function ServerSettings(props: ServerSettingsProps) {
 
     return (
         <div className="space-y-4">
+
+            {!isApiWorking && (
+                <Alert
+                    intent="warning-basic"
+                    description={<div className="space-y-1">
+                        <p>The AniList API is not working. All requests will be served from the cache.</p>
+                        <p>You can disable this in the app settings.</p>
+                    </div>}
+                    className="fixed top-4 right-4 z-[50] hidden lg:block"
+                />
+            )}
 
             <SettingsCard>
                 {/*<p className="text-[--muted]">*/}
@@ -134,56 +151,18 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="autoSyncOfflineLocalData"
-                    label="Update local metadata automatically"
+                    label="Download metadata automatically for offline use"
                     help="If disabled, you will need to manually refresh your local metadata by clicking 'Sync now' in the offline mode page."
-                    moreHelp="Only if no offline changes have been made."
+                    moreHelp="Will be paused if you have made changes offline and have not synced them to AniList yet."
                 />
 
                 <Field.Switch
                     side="right"
                     name="autoSaveCurrentMediaOffline"
                     label="Save all currently watched/read media for offline use"
-                    help="If enabled, Seanime will automatically save all currently watched/read media for offline use."
+                    help="If enabled, Seanime will automatically save all media you're currently watching/reading for offline use."
                 />
 
-            </SettingsCard>
-
-            <SettingsCard title="App">
-                <Field.Switch
-                    side="right"
-                    name="disableUpdateCheck"
-                    label="Do not check for updates"
-                    help="If enabled, Seanime will not check for new releases."
-                />
-                {/*<Separator />*/}
-                <Field.Switch
-                    side="right"
-                    name="openTorrentClientOnStart"
-                    label="Open torrent client on startup"
-                />
-                {/*<Separator />*/}
-                <Field.Switch
-                    side="right"
-                    name="openWebURLOnStart"
-                    label="Open localhost web URL on startup"
-                />
-                <Field.Switch
-                    side="right"
-                    name="disableNotifications"
-                    label="Disable system notifications"
-                />
-                {/*<Separator />*/}
-                <Field.Switch
-                    side="right"
-                    name="disableAutoDownloaderNotifications"
-                    label="Disable Auto Downloader system notifications"
-                />
-                {/*<Separator />*/}
-                <Field.Switch
-                    side="right"
-                    name="disableAutoScannerNotifications"
-                    label="Disable Auto Scanner system notifications"
-                />
             </SettingsCard>
 
             <SettingsCard title="Keyboard shortcuts">
@@ -272,6 +251,58 @@ export function ServerSettings(props: ServerSettingsProps) {
                         )
                     })}
                 </div>
+            </SettingsCard>
+
+            <SettingsCard title="App">
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="openWebURLOnStart"
+                    label="Open localhost web URL on startup"
+                />
+                <Field.Switch
+                    side="right"
+                    name="disableNotifications"
+                    label="Disable system notifications"
+                    moreHelp="Notifications shown by the OS when Seanime runs the auto-downloader or auto-scanner."
+                />
+                <Field.Switch
+                    side="right"
+                    name="disableCacheLayer"
+                    label="Disable AniList caching"
+                    help="If enabled, Seanime will stop caching AniList requests to disk."
+                    moreHelp="By default, all requests made to AniList are cached. This allows Seanime to keep being usable when AniList goes down. The cache directory is modifiable in the config file."
+                />
+                {!f.watch("disableCacheLayer") && (
+                    <div>
+                        <Switch
+                            value={!isApiWorking}
+                            onValueChange={v => toggleCacheLayer()}
+                            disabled={isTogglingCacheLayer}
+                            label="Use cache-only mode"
+                            moreHelp="Seanime will use cached data instead of making API requests."
+                        />
+                    </div>
+                )}
+                {/*<Separator />*/}
+                {/*<Field.Switch*/}
+                {/*    side="right"*/}
+                {/*    name="disableAutoDownloaderNotifications"*/}
+                {/*    label="Disable Auto Downloader system notifications"*/}
+                {/*/>*/}
+                {/*/!*<Separator />*!/*/}
+                {/*<Field.Switch*/}
+                {/*    side="right"*/}
+                {/*    name="disableAutoScannerNotifications"*/}
+                {/*    label="Disable Auto Scanner system notifications"*/}
+                {/*/>*/}
+                <Separator />
+                <Field.Switch
+                    side="right"
+                    name="disableUpdateCheck"
+                    label="Do not check for updates"
+                    help="If enabled, Seanime will not check for new releases."
+                />
             </SettingsCard>
 
             {/*<Accordion*/}

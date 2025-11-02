@@ -1,14 +1,18 @@
 import { PluginProvider, registry, RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
+import { Vaul, VaulContent } from "@/components/vaul"
 import { getPixelsFromLength } from "@/lib/helpers/css"
+import { useIsMobile } from "@/lib/theme/hooks"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { useAtom, useAtomValue } from "jotai"
-import Image from "next/image"
 import React from "react"
+import { BiX } from "react-icons/bi"
 import { LuCircleDashed } from "react-icons/lu"
 import {
     Plugin_Server_TrayIconEventPayload,
@@ -21,7 +25,7 @@ import {
     usePluginSendTrayClosedEvent,
     usePluginSendTrayOpenedEvent,
 } from "../generated/plugin-events"
-import { __plugin_hasNavigatedAtom, __plugin_unpinnedTrayIconClickedAtom } from "./plugin-sidebar-tray"
+import { __plugin_hasNavigatedAtom, __plugin_openedTrayPlugin, __plugin_unpinnedTrayIconClickedAtom } from "./plugin-sidebar-tray"
 
 /**
  * TrayIcon
@@ -44,6 +48,7 @@ export const PluginTrayContext = React.createContext<TrayPluginProps>({
         extensionName: "",
         iconUrl: "",
         withContent: false,
+        isDrawer: false,
         tooltipText: "",
         badgeNumber: 0,
         badgeIntent: "info",
@@ -81,6 +86,7 @@ export function PluginTray(props: TrayPluginProps) {
     const hasNavigated = useAtomValue(__plugin_hasNavigatedAtom)
 
     const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
+    const [openedTrayPlugin, setOpenedTrayPlugin] = useAtom(__plugin_openedTrayPlugin)
 
     const firstRender = React.useRef(true)
     React.useEffect(() => {
@@ -99,6 +105,7 @@ export function PluginTray(props: TrayPluginProps) {
     const unpinnedTrayIconClickedOpenedRef = React.useRef(false)
     React.useEffect(() => {
         if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId) {
+            setOpenedTrayPlugin(props.trayIcon.extensionId)
             if (!unpinnedTrayIconClickedOpenedRef.current) {
                 const timeout = setTimeout(() => {
                     setOpen(true)
@@ -144,7 +151,7 @@ export function PluginTray(props: TrayPluginProps) {
                 onClick={handleClick}
             >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative" data-plugin-tray-icon-inner-container>
-                    {props.trayIcon.iconUrl ? <Image
+                    {props.trayIcon.iconUrl ? <SeaImage
                         src={props.trayIcon.iconUrl}
                         alt="logo"
                         fill
@@ -185,10 +192,94 @@ export function PluginTray(props: TrayPluginProps) {
         </div>
     }
 
+    React.useEffect(() => {
+        if (open) {
+            setOpenedTrayPlugin(props.trayIcon.extensionId)
+            setTimeout(() => {
+                document.body.style.pointerEvents = "auto"
+            }, 500)
+        }
+    }, [props.trayIcon.isDrawer, open])
+
+    React.useLayoutEffect(() => {
+        if (openedTrayPlugin !== props.trayIcon.extensionId) {
+            setOpen(false)
+        }
+    }, [openedTrayPlugin])
+
+    const { isMobile } = useIsMobile()
+
 
     // console.log("popoverWidth", popoverWidth)
     // console.log("designatedWidthPx", designatedWidthPx)
     // console.log("props.width", props.width)
+
+    if (props.trayIcon.isDrawer) {
+        return (
+            <>
+                <div
+                    data-plugin-tray-icon-trigger={props.trayIcon.extensionId}
+                    onClick={() => {
+                        setOpenedTrayPlugin(props.trayIcon.extensionId)
+                        setOpen(true)
+                    }}
+                    className="cursor-pointer"
+                    data-plugin-tray-icon-trigger-drawer
+                >
+                    {!!tooltipText ? <Tooltip
+                        side={props.place === "sidebar" ? "right" : "bottom"}
+                        trigger={<div data-plugin-tray-icon-tooltip-trigger>
+                            <TrayIcon />
+                        </div>}
+                        data-plugin-tray-icon-tooltip
+                    >
+                        {tooltipText}
+                    </Tooltip> : <TrayIcon />}
+                </div>
+                <Vaul
+                    open={open && openedTrayPlugin === props.trayIcon.extensionId}
+                    onOpenChange={setOpen}
+                    modal={false}
+                >
+                    <VaulContent
+                        className={cn("bg-gray-950 p-0 rounded-t-xl mx-auto rounded-b-none border-b-0 !min-h-[120px]")}
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                        style={{
+                            width: isMobile ? "100vw" : popoverWidth,
+                            minHeight: props.trayIcon.minHeight || "auto",
+                        }}
+                        data-plugin-tray-popover-content={props.trayIcon.extensionId}
+                    >
+                        <div className="absolute inset-0 top-[-2.5rem]">
+                            <div className="flex items-center justify-between">
+                                <p
+                                    className="text-sm border font-medium text-gray-300 px-1.5 py-0.5 rounded-lg bg-black/60"
+                                    data-plugin-tray-vaul-title
+                                >
+                                    {props.trayIcon.extensionName}
+                                </p>
+                                <IconButton
+                                    icon={<BiX />}
+                                    data-plugin-tray-vaul-close-button
+                                    intent="gray-glass"
+                                    size="sm"
+                                    className="rounded-full"
+                                    onClick={() => setOpen(false)}
+                                />
+                            </div>
+                        </div>
+                        <PluginTrayProvider props={props}>
+                            <PluginTrayContent
+                                open={open}
+                                setOpen={setOpen}
+                                {...props}
+                            />
+                        </PluginTrayProvider>
+                    </VaulContent>
+                </Vaul>
+            </>
+        )
+    }
 
     return (
         <>

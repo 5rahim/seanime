@@ -1,12 +1,12 @@
 import { AL_BaseAnime } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
@@ -148,7 +148,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     >
                         {actionIcon && actionIcon}
                     </div>}
-                    {(image || media.coverImage?.medium) && <Image
+                    {(image || media.coverImage?.medium) && <SeaImage
                         data-episode-grid-item-image
                         src={getImageUrl(image || media.coverImage?.medium || "")}
                         alt="episode image"

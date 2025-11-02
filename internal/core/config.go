@@ -429,7 +429,7 @@ func loadLogo(embeddedLogo []byte, dataDir string) (err error) {
 		return nil
 	}
 
-	logoPath := filepath.Join(dataDir, "logo.png")
+	logoPath := filepath.Join(dataDir, "seanime-logo.png")
 	if _, err = os.Stat(logoPath); os.IsNotExist(err) {
 		if err = os.WriteFile(logoPath, embeddedLogo, 0644); err != nil {
 			return err

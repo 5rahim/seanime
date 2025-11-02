@@ -48,11 +48,14 @@ export function useSeaCommandContext() {
 }
 
 const __seaCommand_isOpen = atom(false)
+const __seaCommand_input = atom("")
 
-export function useOpenSeaCommand() {
+export function useSeaCommand() {
     const setOpen = useSetAtom(__seaCommand_isOpen)
+    const setInput = useSetAtom(__seaCommand_input)
     return {
         setSeaCommandOpen: setOpen,
+        setSeaCommandInput: setInput,
     }
 }
 
@@ -62,7 +65,7 @@ export function SeaCommand() {
     const pathname = usePathname()
 
     const [open, setOpen] = useAtom(__seaCommand_isOpen)
-    const [input, setInput] = React.useState("")
+    const [input, setInput] = useAtom(__seaCommand_input)
     const [activeItemId, setActiveItemId] = React.useState("")
 
     const [shortcuts, setShortcuts] = useAtom(__seaCommand_shortcuts)

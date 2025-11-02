@@ -114,6 +114,26 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/anilist/stats",
         },
+        /**
+         *  @description
+         *  Route returns the status of the AniList cache layer.
+         *  This returns the status of the AniList cache layer.
+         */
+        GetAnilistCacheLayerStatus: {
+            key: "ANILIST-get-anilist-cache-layer-status",
+            methods: ["GET"],
+            endpoint: "/api/v1/anilist/cache-layer/status",
+        },
+        /**
+         *  @description
+         *  Route toggles the status of the AniList cache layer.
+         *  This toggles the status of the AniList cache layer.
+         */
+        ToggleAnilistCacheLayerStatus: {
+            key: "ANILIST-toggle-anilist-cache-layer-status",
+            methods: ["POST"],
+            endpoint: "/api/v1/anilist/cache-layer/status",
+        },
     },
     ANIME: {
         /**
@@ -421,6 +441,28 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/continuity/history",
         },
     },
+    CUSTOM_SOURCE: {
+        /**
+         *  @description
+         *  Route returns a paginated list of anime from the provider.
+         *  This will search for media from the provider.
+         */
+        CustomSourceListAnime: {
+            key: "CUSTOM-SOURCE-custom-source-list-anime",
+            methods: ["POST"],
+            endpoint: "/api/v1/custom-source/provider/list/anime",
+        },
+        /**
+         *  @description
+         *  Route returns a paginated list of manga from the provider.
+         *  This will search for media from the provider.
+         */
+        CustomSourceListManga: {
+            key: "CUSTOM-SOURCE-custom-source-list-manga",
+            methods: ["POST"],
+            endpoint: "/api/v1/custom-source/provider/list/manga",
+        },
+    },
     DEBRID: {
         /**
          *  @description
@@ -608,6 +650,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/download-release",
         },
+        DownloadMacDenshiUpdate: {
+            key: "DOWNLOAD-download-mac-denshi-update",
+            methods: ["POST"],
+            endpoint: "/api/v1/download-mac-denshi-update",
+        },
     },
     EXPLORER: {
         /**
@@ -631,6 +678,11 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-install-external-extension",
             methods: ["POST"],
             endpoint: "/api/v1/extensions/external/install",
+        },
+        InstallExternalExtensionRepository: {
+            key: "EXTENSIONS-install-external-extension-repository",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/install-repository",
         },
         UninstallExternalExtension: {
             key: "EXTENSIONS-uninstall-external-extension",
@@ -691,6 +743,11 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-list-anime-torrent-provider-extensions",
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list/anime-torrent-provider",
+        },
+        ListCustomSourceExtensions: {
+            key: "EXTENSIONS-list-custom-source-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/custom-source",
         },
         GetPluginSettings: {
             key: "EXTENSIONS-get-plugin-settings",
@@ -774,6 +831,41 @@ export const API_ENDPOINTS = {
             key: "FILECACHE-clear-file-cache-mediastream-video-files",
             methods: ["DELETE"],
             endpoint: "/api/v1/filecache/mediastream/videofiles",
+        },
+    },
+    LIBRARY_EXPLORER: {
+        /**
+         *  @description
+         *  Route returns the file tree structure of the library directories.
+         *  This returns a hierarchical representation of all directories and media files in the library.
+         *  The tree includes LocalFile associations and media IDs for each file and directory.
+         */
+        GetLibraryExplorerFileTree: {
+            key: "LIBRARY-EXPLORER-get-library-explorer-file-tree",
+            methods: ["GET"],
+            endpoint: "/api/v1/library/explorer/file-tree",
+        },
+        /**
+         *  @description
+         *  Route refreshes the file tree structure of the library directories.
+         *  This clears the cached file tree and rebuilds it from the current library state.
+         *  Use this when the library structure has changed and you want to update the tree.
+         */
+        RefreshLibraryExplorerFileTree: {
+            key: "LIBRARY-EXPLORER-refresh-library-explorer-file-tree",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/explorer/file-tree/refresh",
+        },
+        /**
+         *  @description
+         *  Route loads the children of a specific directory into the file tree.
+         *  This endpoint loads directory children into the cached file tree. Frontend should re-fetch the tree afterwards.
+         *  The directory path must be within the configured library paths for security.
+         */
+        LoadLibraryExplorerDirectoryChildren: {
+            key: "LIBRARY-EXPLORER-load-library-explorer-directory-children",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/explorer/directory-children",
         },
     },
     LOCAL: {
@@ -896,6 +988,16 @@ export const API_ENDPOINTS = {
             key: "LOCALFILES-update-local-file-data",
             methods: ["PATCH"],
             endpoint: "/api/v1/library/local-file",
+        },
+        /**
+         *  @description
+         *  Route updates local files with the given paths.
+         *  The client should refetch the entire library collection and media entry.
+         */
+        SuperUpdateLocalFiles: {
+            key: "LOCALFILES-super-update-local-files",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/library/local-files/super-update",
         },
         /**
          *  @description
@@ -1422,8 +1524,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
-         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
+         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",
@@ -1607,7 +1709,7 @@ export const API_ENDPOINTS = {
         /**
          *  @description
          *  Route creates a new playlist.
-         *  This will create a new playlist with the given name and local file paths.
+         *  This will create a new playlist with the given name and episodes.
          *  The response is ignored, the client should re-fetch the playlists after this.
          */
         CreatePlaylist: {
@@ -1638,7 +1740,7 @@ export const API_ENDPOINTS = {
         GetPlaylistEpisodes: {
             key: "PLAYLIST-get-playlist-episodes",
             methods: ["GET"],
-            endpoint: "/api/v1/playlist/episodes/{id}/{progress}",
+            endpoint: "/api/v1/playlist/episodes/{id}",
         },
     },
     RELEASES: {
@@ -1841,6 +1943,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/memory/gc",
         },
+        GetHomeItems: {
+            key: "STATUS-get-home-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/status/home-items",
+        },
+        UpdateHomeItems: {
+            key: "STATUS-update-home-items",
+            methods: ["POST"],
+            endpoint: "/api/v1/status/home-items",
+        },
     },
     THEME: {
         GetTheme: {
@@ -1879,6 +1991,16 @@ export const API_ENDPOINTS = {
             key: "TORRENT-CLIENT-torrent-client-action",
             methods: ["POST"],
             endpoint: "/api/v1/torrent-client/action",
+        },
+        /**
+         *  @description
+         *  Route gets the files of a torrent.
+         *  This handler is used to get the files of a torrent.
+         */
+        TorrentClientGetFiles: {
+            key: "TORRENT-CLIENT-torrent-client-get-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrent-client/get-files",
         },
         /**
          *  @description

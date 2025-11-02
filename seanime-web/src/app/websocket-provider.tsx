@@ -9,12 +9,12 @@ import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { useCookies } from "react-cookie"
-import { LuLoader } from "react-icons/lu"
+import { ImSpinner2 } from "react-icons/im"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useEffectOnce } from "react-use"
 
 
-function uuidv4(): string {
+export function uuidv4(): string {
     // @ts-ignore
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
         (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
@@ -265,9 +265,9 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             {__isElectronDesktop__ && <ElectronRestartServerPrompt />}
             <WebSocketContext.Provider value={socket}>
                 {!isConnected && <div
-                    className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-[--radius-md] z-[100] flex gap-2 items-center"
+                    className="fixed right-4 bottom-4 bg-gray-950 border text-sm py-3 px-5 font-semibold rounded-xl z-[100] flex gap-2 items-center"
                 >
-                    <LuLoader className="text-brand-200 animate-spin text-lg" />
+                    <ImSpinner2 className="animate-spin text-lg" />
                     Establishing connection...
                 </div>}
                 {children}

@@ -204,25 +204,33 @@ h6 {
     @apply scroll-m-20 text-base font-semibold tracking-tight
 }
 
-/* width */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
+    height: 8px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-    background: var(--background);
+    background: transparent;
+    border-radius: 10px;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-full
+    background-color: rgba(255, 255, 255, 0.2);
+    @apply rounded-full border-2 border-transparent bg-clip-padding transition-colors duration-300
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-600
+    background-color: rgba(255, 255, 255, 0.3);
 }
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(75 85 99 / 0.6) transparent;
+} */
 
 .code {
     @apply bg-gray-800 rounded-[--radius-md] px-2 py-1 text-sm font-mono border
@@ -246,12 +254,20 @@ h6 {
 
 @media screen and (min-width: 1024px) {
     body[data-scroll-locked] .scroll-locked-offset {
-        padding-right: 10px;
+        padding-right: 8px;
+    }
+
+    body[data-scroll-locked] .scroll-locked-offset-fixed {
+        width: calc(100vw - 8px) !important;
+    }
+
+    body[data-scroll-locked] .scroll-locked-offset-custom-library-banner {
+        width: calc(100vw + 5rem - 8px) !important;
     }
 }
 
 body[data-scroll-locked] .media-page-header-scroll-locked {
-    /*right: 10px;*/
+    /*right: 8px;*/
 }
 
 

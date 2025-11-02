@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 	"seanime/internal/local"
 	"seanime/internal/platforms/platform"
 
@@ -23,9 +24,10 @@ var (
 // OfflinePlatform used when offline.
 // It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op.
 type OfflinePlatform struct {
-	logger       *zerolog.Logger
-	localManager local.Manager
-	client       anilist.AnilistClient
+	logger        *zerolog.Logger
+	localManager  local.Manager
+	client        anilist.AnilistClient
+	extensionBank *extension.UnifiedBank
 }
 
 func NewOfflinePlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
@@ -40,11 +42,23 @@ func NewOfflinePlatform(localManager local.Manager, client anilist.AnilistClient
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (lp *OfflinePlatform) InitExtensionBank(bank *extension.UnifiedBank) {
+	lp.extensionBank = bank
+}
+
 func (lp *OfflinePlatform) SetUsername(username string) {
 	// no-op
 }
 
 func (lp *OfflinePlatform) SetAnilistClient(client anilist.AnilistClient) {
+	// no-op
+}
+
+func (lp *OfflinePlatform) Close() {
+	// no-op
+}
+
+func (lp *OfflinePlatform) ClearCache() {
 	// no-op
 }
 

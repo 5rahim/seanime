@@ -4,12 +4,12 @@ import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
 import { animeLibraryCollectionWithoutStreamsAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { useAtomValue } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { FaCircleCheck, FaRegCircleCheck } from "react-icons/fa6"
 import { MdOutlineDownloadForOffline } from "react-icons/md"
@@ -41,12 +41,12 @@ export function SyncAddMediaModal(props: SyncAddMediaModalProps) {
             title="Saved media"
             contentClass="max-w-4xl"
             trigger={<Button
-                intent="white"
+                intent="gray-subtle"
                 rounded
                 leftIcon={<MdOutlineDownloadForOffline className="text-2xl" />}
                 loading={isAdding}
             >
-                Save media
+                Select media to save
             </Button>}
         >
 
@@ -393,7 +393,7 @@ function MediaItem(props: {
                         <FaRegCircleCheck className="text-xl bg-black/50 rounded-full p-1" />
                     </div>
                 )}
-                <Image
+                <SeaImage
                     src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
                     placeholder={imageShimmer(700, 475)}
                     sizes="10rem"

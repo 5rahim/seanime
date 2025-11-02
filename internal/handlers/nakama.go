@@ -269,6 +269,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 		Path         string `json:"path"`
 		MediaId      int    `json:"mediaId"`
 		AniDBEpisode string `json:"anidbEpisode"`
+		ClientId     string `json:"clientId"`
 	}
 	b := new(body)
 	if err := c.Bind(b); err != nil {
@@ -284,7 +285,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), media, b.AniDBEpisode)
+	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), b.ClientId, media, b.AniDBEpisode)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -645,11 +646,11 @@ func (h *Handler) HandleNakamaProxyStream(c echo.Context) error {
 			strings.Contains(err.Error(), "wsasend") || strings.Contains(err.Error(), "reset by peer") {
 			h.App.Logger.Warn().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: network connection error during streaming")
 		} else {
-			h.App.Logger.Error().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: error streaming response body")
+			//h.App.Logger.Error().Err(err).Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: error streaming response body")
 		}
 		// Don't return error here as response has already started
 	} else {
-		h.App.Logger.Debug().Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: successfully streamed response")
+		h.App.Logger.Debug().Int64("bytes_written", bytesWritten).Str("url", requestUrl).Msg("nakama: Successfully streamed response")
 	}
 	return nil
 }
@@ -740,6 +741,15 @@ func (h *Handler) HandleNakamaCreateWatchParty(c echo.Context) error {
 //	@route /api/v1/nakama/watch-party/join [POST]
 //	@returns bool
 func (h *Handler) HandleNakamaJoinWatchParty(c echo.Context) error {
+	type body struct {
+		ClientId string `json:"clientId"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	if h.App.Settings.GetNakama().IsHost {
 		return h.RespondWithError(c, errors.New("hosts cannot join watch parties"))
 	}
@@ -749,7 +759,7 @@ func (h *Handler) HandleNakamaJoinWatchParty(c echo.Context) error {
 	}
 
 	// Send join request to host
-	err := h.App.NakamaManager.GetWatchPartyManager().JoinWatchParty()
+	err := h.App.NakamaManager.GetWatchPartyManager().JoinWatchParty(b.ClientId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

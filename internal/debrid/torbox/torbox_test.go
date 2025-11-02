@@ -2,12 +2,13 @@ package torbox
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestTorBox_GetTorrents(t *testing.T) {
@@ -49,7 +50,7 @@ func TestTorBox_AddTorrent(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
 	// Already added
-	magnet := "magnet:?xt=urn:btih:80431b4f9a12f4e06616062d3d3973b9ef99b5e6&dn=%5BSubsPlease%5D%20Bocchi%20the%20Rock%21%20-%2001%20%281080p%29%20%5BE04F4EFB%5D.mkv&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
+	magnet := ""
 
 	logger := util.NewLogger()
 

@@ -1,7 +1,7 @@
 "use client"
+import { SeaImage } from "@/components/shared/sea-image"
 import { Button } from "@/components/ui/button/button"
 import { cn } from "@/components/ui/core/styling"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
 
@@ -27,7 +27,7 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                     data-luffy-error-image-container
                     className="size-[8rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                 >
-                    <Image
+                    <SeaImage
                         data-luffy-error-image
                         src="/luffy-01.png"
                         alt={""}

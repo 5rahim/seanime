@@ -7,6 +7,7 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/filesystem"
+	"seanime/internal/library_explorer"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -185,6 +186,31 @@ func (h *Handler) HandleUpdateLocalFileData(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, retLfs)
+}
+
+// HandleSuperUpdateLocalFiles
+//
+//	@summary updates local files with the given paths.
+//	@desc The client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-files/super-update [PATCH]
+//	@returns bool
+func (h *Handler) HandleSuperUpdateLocalFiles(c echo.Context) error {
+
+	type body struct {
+		Files []*library_explorer.SuperUpdateFileOptions `json:"files"`
+	}
+
+	b := new(body)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+	// Super update the files
+	err := h.App.LibraryExplorer.SuperUpdateFiles(b.Files)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
 }
 
 // HandleUpdateLocalFiles

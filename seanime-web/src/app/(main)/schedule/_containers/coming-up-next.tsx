@@ -1,8 +1,6 @@
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
-import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { ScheduleCalendar } from "@/app/(main)/schedule/_components/schedule-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"
@@ -18,7 +16,6 @@ export function ComingUpNext() {
     const router = useRouter()
 
     const { data: animeCollection } = useGetAnimeCollection()
-    const missingEpisodes = useMissingEpisodes()
 
     const media = React.useMemo(() => {
         // get all media
@@ -36,27 +33,14 @@ export function ComingUpNext() {
         }
     }, [animeCollection])
 
-    // if (media.length === 0) return (
-    //     <LuffyError title="No upcoming episodes">
-    //         <p>There are no upcoming episodes based on your anime list.</p>
-    //     </LuffyError>
-    // )
+    if (!media?.length) return null
 
     return (
-        <AppLayoutStack className="space-y-8">
-            <div className="hidden lg:block space-y-2">
-                <h2>Release schedule</h2>
-                <p className="text-[--muted]">Based on your anime list</p>
-            </div>
-
-            <ScheduleCalendar
-                missingEpisodes={missingEpisodes}
-            />
-
+        <AppLayoutStack>
             {media.length > 0 && (
                 <>
                     <div>
-                        <h2>Coming up next</h2>
+                        <h2>Upcoming episodes</h2>
                         <p className="text-[--muted]">Based on your anime list</p>
                     </div>
 

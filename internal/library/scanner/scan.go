@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
@@ -33,7 +33,7 @@ type Scanner struct {
 	SkipIgnoredFiles   bool
 	ScanSummaryLogger  *summary.ScanSummaryLogger
 	ScanLogger         *ScanLogger
-	MetadataProvider   metadata.Provider
+	MetadataProvider   metadata_provider.Provider
 	MatchingThreshold  float64
 	MatchingAlgorithm  string
 }
@@ -236,6 +236,8 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	if len(localFiles) == 0 {
 		scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying file integrity...")
+
+		scn.Logger.Debug().Int("skippedLfs", len(skippedLfs)).Msgf("scanner: Adding skipped local files")
 		// Add skipped files
 		if len(skippedLfs) > 0 {
 			for _, sf := range skippedLfs {
@@ -379,6 +381,8 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	// |    Merge files      |
 	// +---------------------+
 
+	scn.Logger.Debug().Int("skippedLfs", len(skippedLfs)).Msgf("scanner: Adding skipped local files")
+
 	// Merge skipped files with scanned files
 	// Only files that exist (this removes deleted/moved files)
 	if len(skippedLfs) > 0 {
@@ -418,4 +422,9 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	localFiles = completedEvent.LocalFiles
 
 	return localFiles, nil
+}
+
+// InLibrariesOnly removes files are not under the library paths
+func (scn *Scanner) InLibrariesOnly(lfs []*anime.LocalFile) {
+
 }

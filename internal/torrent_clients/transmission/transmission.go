@@ -2,10 +2,11 @@ package transmission
 
 import (
 	"fmt"
-	"github.com/hekmon/transmissionrpc/v3"
-	"github.com/rs/zerolog"
 	"net/url"
 	"strings"
+
+	"github.com/hekmon/transmissionrpc/v3"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -47,6 +48,8 @@ func New(options *NewTransmissionOptions) (*Transmission, error) {
 			options.Port,
 		)
 	}
+
+	baseUrl = strings.Replace(baseUrl, ":0/transmission/rpc", "/transmission/rpc", 1)
 
 	_url, err := url.Parse(baseUrl)
 	if err != nil {

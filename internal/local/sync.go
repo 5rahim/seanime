@@ -1,8 +1,10 @@
 package local
 
 import (
+	"context"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
@@ -558,15 +560,33 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	}
 
 	var animeMetadata *metadata.AnimeMetadata
-	var metadataWrapper metadata.AnimeMetadataWrapper
+	var metadataWrapper metadata_provider.AnimeMetadataWrapper
 	if diff.DiffType == DiffTypeMissing || diff.DiffType == DiffTypeMetadata {
 		// Get the anime metadata
 		var err error
 		animeMetadata, err = q.manager.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 		if err != nil {
-			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("local manager: Failed to get metadata for anime %d", entry.Media.ID)
-			return
+			// If the anime metadata doesn't exist, create a fake one
+			animeCollection, ok := q.manager.animeCollection.Get()
+			if !ok {
+				q.sendAnimeToFailedQueue(entry)
+				q.manager.logger.Error().Err(err).Msgf("local manager: Failed to get anime collection for anime %d", entry.Media.ID)
+				return
+			}
+			// Get the simple entry (made without metadata)
+			simpleEntry, err := anime.NewSimpleEntry(context.Background(), &anime.NewSimpleAnimeEntryOptions{
+				MediaId:         entry.Media.ID,
+				LocalFiles:      lfs,
+				AnimeCollection: animeCollection,
+				Platform:        q.manager.anilistPlatform,
+			})
+			if err != nil {
+				q.sendAnimeToFailedQueue(entry)
+				q.manager.logger.Error().Err(err).Msgf("local manager: Failed to get metadata for anime %d", entry.Media.ID)
+				return
+			}
+
+			animeMetadata = anime.NewAnimeMetadataFromEntry(entry.Media, simpleEntry.Episodes)
 		}
 
 		metadataWrapper = q.manager.metadataProvider.GetAnimeMetadataWrapper(diff.AnimeEntry.Media, animeMetadata)
@@ -611,6 +631,11 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		snapshot.AnimeMetadata = LocalAnimeMetadata(*animeMetadata)
 		snapshot.ReferenceKey = GetAnimeReferenceKey(entry.GetMedia(), q.manager.localFiles)
 
+		lfMap := make(map[string]*anime.LocalFile)
+		for _, lf := range lfs {
+			lfMap[lf.Metadata.AniDBEpisode] = lf
+		}
+
 		// Get the current episode image URLs
 		currentEpisodeImageUrls := make(map[string]string)
 		for episodeNum, episode := range animeMetadata.Episodes {
@@ -625,6 +650,10 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		// For each current episode image URL, check if the key (episode number) is in the snapshot
 		for episodeNum, episodeImageUrl := range currentEpisodeImageUrls {
 			if _, found := snapshot.EpisodeImagePaths[episodeNum]; !found {
+				// Check if the episode is in the local files
+				if _, ok := lfMap[episodeNum]; !ok {
+					continue
+				}
 				episodeImageUrlsToDownload[episodeNum] = episodeImageUrl
 			}
 		}

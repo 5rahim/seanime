@@ -4,7 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/platforms/platform"
@@ -23,7 +23,7 @@ type (
 		media            *anilist.CompleteAnime
 		platform         platform.Platform
 		logger           *zerolog.Logger
-		metadataProvider metadata.Provider
+		metadataProvider metadata_provider.Provider
 		forceMatch       bool
 	}
 
@@ -48,7 +48,7 @@ type (
 		Filepaths        []string               // Filepath of the torrent files
 		Media            *anilist.CompleteAnime // The media to compare the files with
 		Platform         platform.Platform
-		MetadataProvider metadata.Provider
+		MetadataProvider metadata_provider.Provider
 		// This basically skips the matching process and forces the media ID to be set.
 		// Used for the auto-select feature because the media is already known.
 		ForceMatch bool

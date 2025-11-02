@@ -3,7 +3,7 @@ package local
 import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension_repo"
@@ -18,7 +18,7 @@ import (
 
 func GetMockManager(t *testing.T, db *db.Database) Manager {
 	logger := util.NewLogger()
-	metadataProvider := metadata.GetMockProvider(t)
+	metadataProvider := metadata_provider.GetMockProvider(t, db)
 	extensionRepository := extension_repo.GetMockExtensionRepository(t)
 	mangaRepository := manga.GetMockRepository(t, db)
 
@@ -26,7 +26,7 @@ func GetMockManager(t *testing.T, db *db.Database) Manager {
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.NewMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, db)
 
 	localDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline")
 	assetsDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets")

@@ -245,6 +245,25 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (m *Mpv) Append(path string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	// Clear playlist if any
+	_, _ = m.conn.Call("playlist-clear")
+
+	_, err := m.conn.Call("loadfile", path, "append")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Mpv) Pause() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -277,8 +296,8 @@ func (m *Mpv) Resume() error {
 	return nil
 }
 
-// SeekTo seeks to the given position in the file by first pausing the player and unpausing it after seeking.
-func (m *Mpv) SeekTo(position float64) error {
+// SeekToSlow seeks to the given position in the file by first pausing the player and unpausing it after seeking.
+func (m *Mpv) SeekToSlow(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -310,8 +329,8 @@ func (m *Mpv) SeekTo(position float64) error {
 	return nil
 }
 
-// Seek seeks to the given position in the file.
-func (m *Mpv) Seek(position float64) error {
+// SeekTo seeks to the given position in the file.
+func (m *Mpv) SeekTo(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -492,6 +511,12 @@ func (m *Mpv) terminate() {
 		cmdCancel()
 	}
 	m.Logger.Trace().Msg("mpv: Terminated")
+}
+
+func (m *Mpv) Quit() {
+	if cmdCancel != nil {
+		cmdCancel()
+	}
 }
 
 func (m *Mpv) Subscribe(id string) *Subscriber {

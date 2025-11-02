@@ -192,7 +192,9 @@ func (t *RealDebrid) GetInstantAvailability(hashes []string) map[string]debrid.T
 		return availability
 	}
 
-	return t.getInstantAvailabilityT(hashes, 3, 100)
+	// Devnote: Endpoint doesn't exist anymore
+	//return t.getInstantAvailabilityT(hashes, 3, 100)
+	return availability
 }
 
 func (t *RealDebrid) getInstantAvailabilityT(hashes []string, retries int, limit int) (ret map[string]debrid.TorrentItemInstantAvailability) {

@@ -49,7 +49,7 @@ function Content({ entry }: { entry: Anime_Entry }) {
     }, [entry.localFiles])
 
 
-    const { mutate: deleteFiles, isPending: isDeleting } = useDeleteLocalFiles(entry.mediaId)
+    const { mutate: deleteFiles, isPending: isDeleting } = useDeleteLocalFiles()
 
     const confirmUnmatch = useConfirmationDialog({
         title: "Delete files",

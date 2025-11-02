@@ -98,7 +98,7 @@ export function DiscoverTrendingMangaAll() {
                         <MediaEntryCard
                             key={media.id}
                             media={media}
-                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                             type="manga"
                         />
                     )
@@ -171,7 +171,7 @@ export function DiscoverMangaSearchBar() {
                             <MediaEntryCard
                                 key={media.id}
                                 media={media}
-                                containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                                 type="manga"
                             />
                         )

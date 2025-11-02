@@ -3,6 +3,7 @@
  * They change responsively based on the UI settings
  */
 
+import { cn } from "@/components/ui/core/styling"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
@@ -28,7 +29,7 @@ export function MediaCardBodyBottomGradient() {
 }
 
 
-export function EpisodeItemBottomGradient() {
+export function EpisodeItemBottomGradient({ isSingleContainer, className }: { isSingleContainer?: boolean, className?: string }) {
 
     const ts = useThemeSettings()
 
@@ -40,15 +41,21 @@ export function EpisodeItemBottomGradient() {
     //     )
     // }
 
-    if (ts.useLegacyEpisodeCard) {
+    if (isSingleContainer) {
         return <div
             data-episode-item-bottom-gradient
-            className="z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-90 md:h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent"
+            className={cn(
+                "z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-90 md:h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent",
+                className,
+            )}
         />
     }
 
     return <div
         data-episode-item-bottom-gradient
-        className="z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-50 md:h-[70%] bg-gradient-to-t from-[#0c0c0c] to-transparent"
+        className={cn(
+            "z-[1] absolute inset-x-0 bottom-0 w-full h-full opacity-50 md:h-[70%] bg-gradient-to-t from-[#0c0c0c] to-transparent",
+            className,
+        )}
     />
 }

@@ -11,7 +11,7 @@ Usage :
 	rs := httprs.NewHttpReadSeeker(resp)
 	defer rs.Close()
 	io.ReadFull(rs, buf) // reads the first bytes from the response body
-	rs.Seek(1024, 0) // moves the position, but does no range request
+	rs.SeekToSlow(1024, 0) // moves the position, but does no range request
 	io.ReadFull(rs, buf) // does a range request and reads from the response body
 
 If you want to use a specific http.Client for additional range requests :
@@ -239,7 +239,7 @@ func (hrs *HttpReadSeeker) ReadAt(p []byte, off int64) (n int, err error) {
 	// Save current offset
 	currentOffset := hrs.offset
 
-	// Seek to the requested offset
+	// SeekToSlow to the requested offset
 	if _, err := hrs.Seek(off, io.SeekStart); err != nil {
 		return 0, err
 	}

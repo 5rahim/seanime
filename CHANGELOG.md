@@ -2,29 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## v2.9.10
-
-- ⚡️ Plugins: Added Schedule and Filler management hooks
-- 🦺 TorBox: Fixed streaming uncached torrents
-- 🦺 Nakama (Sharing): Do not share unmatched entries
-- 🦺 Nakama (Sharing): Fixed unwatched count in detailed library view
-- 🦺 Server Password: Fixed auth redirection on iOS
-- 🦺 Server: Update anime collection in modules when manually refreshing
-- 🦺 Torrent/Debrid streaming: Lowered episode list cache duration
-
-## v2.9.9
-
-- 🦺 Fixed torrent streaming for desktop players
-
-## v2.9.8
-
-- 🦺 External Player Link: Fixed torrent streaming links
-- 🦺 VLC, MPC-HC: Fixed input URI encoding
-- 🦺 M3u8 Proxy: Potential fix for missed rewrites
-- 🦺 Server Password: Do not load page before authentication
-- 🦺 Online streaming: Do not always restore fullscreen
-- 🦺 Fixed some UI bugs
-
 ## v2.9.7
 
 - ⚡️ Nakama: Better default titles with MPV

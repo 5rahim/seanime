@@ -13,8 +13,8 @@ export type VideoCoreSettings = {
 }
 
 export const vc_initialSettings: VideoCoreSettings = {
-    preferredSubtitleLanguage: "eng",
-    preferredAudioLanguage: "jpn",
+    preferredSubtitleLanguage: "en,eng",
+    preferredAudioLanguage: "jpn,jp,jap",
     videoEnhancement: {
         enabled: true,
         contrast: 1.05,
@@ -76,4 +76,10 @@ export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", 
 
 export const vc_showChapterMarkersAtom = atomWithStorage("sea-video-core-chapter-markers", true, undefined, { getOnInit: true })
 export const vc_highlightOPEDChaptersAtom = atomWithStorage("sea-video-core-highlight-op-ed-chapters", true, undefined, { getOnInit: true })
-export const vc_beautifyImageAtom = atomWithStorage("sea-video-core-beautify-image", true, undefined, { getOnInit: true })
+export const vc_beautifyImageAtom = atomWithStorage("sea-video-core-increase-saturation", false, undefined, { getOnInit: true })
+export const vc_autoNextAtom = atomWithStorage("sea-video-core-auto-next", true, undefined, { getOnInit: true })
+export const vc_autoPlayVideoAtom = atomWithStorage("sea-video-core-auto-play", true, undefined, { getOnInit: true })
+export const vc_autoSkipOPEDAtom = atomWithStorage("sea-video-core-auto-skip-op-ed", false, undefined, { getOnInit: true })
+export const vc_storedVolumeAtom = atomWithStorage("sea-video-core-volume", 1, undefined, { getOnInit: true })
+export const vc_storedMutedAtom = atomWithStorage("sea-video-core-muted", false, undefined, { getOnInit: true })
+export const vc_storedPlaybackRateAtom = atomWithStorage("sea-video-core-playback-rate", 1, undefined, { getOnInit: true })
