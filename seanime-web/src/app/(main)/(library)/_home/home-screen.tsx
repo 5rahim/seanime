@@ -26,7 +26,6 @@ import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/c
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { HIDE_IMAGES } from "@/types/constants"
 import { addDays } from "date-fns/addDays"
 import { useAtomValue } from "jotai"
 import { atom, useSetAtom } from "jotai/index"
@@ -156,7 +155,7 @@ export function HomeScreen() {
         return (
             <div data-home-screen="no-entries" className="contents">
                 <React.Fragment>
-                    <DiscoverPageHeader playTrailer={!HIDE_IMAGES} />
+                    <DiscoverPageHeader />
                     <div className="h-0 visibility-hidden pointer-events-none opacity-0">
                         {/*{discoverHeaderType === "anime" && <DiscoverTrending />}*/}
                         {discoverHeaderType === "manga" && <DiscoverTrendingCountry country="JP" forDiscoverHeader />}
