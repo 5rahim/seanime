@@ -4,6 +4,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
+	"slices"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -128,8 +129,9 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 	defer r.mu.Unlock()
 
 	id := r.settings.DefaultAnimeProvider
+	// if no selected default provider, get the first one
 	if id == "" {
-		ids := r.GetAllAnimeProviderExtensions()
+		ids := r.GetAllAnimeProviderExtensionIds()
 		if len(ids) > 0 {
 			id = ids[0]
 		}
@@ -137,7 +139,7 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 			return nil, false
 		}
 	}
-	return extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
+	return r.GetAnimeProviderExtensionOrFirst(id)
 }
 
 func (r *Repository) GetAutoSelectProviderExtension() (extension.AnimeTorrentProviderExtension, bool) {
@@ -148,7 +150,7 @@ func (r *Repository) GetAutoSelectProviderExtension() (extension.AnimeTorrentPro
 	if provider == "" {
 		id := r.settings.DefaultAnimeProvider
 		if id == "" {
-			ids := r.GetAllAnimeProviderExtensions()
+			ids := r.GetAllAnimeProviderExtensionIds()
 			if len(ids) > 0 {
 				id = ids[0]
 			}
@@ -158,14 +160,32 @@ func (r *Repository) GetAutoSelectProviderExtension() (extension.AnimeTorrentPro
 		}
 		provider = id
 	}
-	return extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, provider)
+	return r.GetAnimeProviderExtensionOrFirst(provider)
 }
 
 func (r *Repository) GetAnimeProviderExtension(id string) (extension.AnimeTorrentProviderExtension, bool) {
 	return extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
 }
 
-func (r *Repository) GetAllAnimeProviderExtensions() []string {
+// GetAnimeProviderExtensionOrFirst returns the extension with the given ID, or the first one if the extension is not found
+func (r *Repository) GetAnimeProviderExtensionOrFirst(id string) (extension.AnimeTorrentProviderExtension, bool) {
+	ext, found := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
+	if !found {
+		ids := r.GetAllAnimeProviderExtensionIds()
+		// check if we find the default extension
+		if r.settings.DefaultAnimeProvider != "" && slices.Contains(ids, r.settings.DefaultAnimeProvider) {
+			id = r.settings.DefaultAnimeProvider
+		} else if len(ids) > 0 {
+			id = ids[0]
+		} else {
+			return nil, false
+		}
+		ext, _ = extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
+	}
+	return ext, true
+}
+
+func (r *Repository) GetAllAnimeProviderExtensionIds() []string {
 	ids := make([]string, 0)
 	extension.RangeExtensions[extension.AnimeTorrentProviderExtension](r.extensionBank, func(id string, ext extension.AnimeTorrentProviderExtension) bool {
 		ids = append(ids, id)
