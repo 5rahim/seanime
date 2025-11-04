@@ -1,10 +1,9 @@
-package test
+package db
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/util"
 	"testing"
@@ -17,7 +16,7 @@ func TestDatabaseCleanupManager(t *testing.T) {
 	tempDir := t.TempDir()
 	logger := util.NewLogger()
 
-	database, err := db.NewDatabase(tempDir, "cleanup_test", logger)
+	database, err := NewDatabase(tempDir, "cleanup_test", logger)
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
@@ -63,7 +62,7 @@ func TestDatabaseCleanupManager(t *testing.T) {
 	t.Log("Cleanup manager test completed successfully")
 }
 
-func populateCleanupTestData(t *testing.T, database *db.Database) {
+func populateCleanupTestData(t *testing.T, database *Database) {
 	for i := 0; i < 10000; i++ {
 		scanSummary := &models.ScanSummary{
 			Value: []byte(fmt.Sprintf("scan summary data %d - %s", i, generateCleanupTestData(50000))),
@@ -96,7 +95,7 @@ func populateCleanupTestData(t *testing.T, database *db.Database) {
 	}
 }
 
-func checkTableCounts(t *testing.T, database *db.Database, phase string) {
+func checkTableCounts(t *testing.T, database *Database, phase string) {
 	var scanCount, localCount, torrentCount int64
 
 	err := database.Gorm().Model(&models.ScanSummary{}).Count(&scanCount).Error

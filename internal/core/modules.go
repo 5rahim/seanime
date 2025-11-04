@@ -1,7 +1,6 @@
 package core
 
 import (
-	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -317,6 +316,8 @@ func HandleNewDatabaseEntries(database *db.Database, logger *zerolog.Logger) {
 // This function is called:
 //   - After the App instance is created
 //   - After settings are updated.
+//
+// DEVNOTE: Make sure there's no blocking code in this function.
 func (a *App) InitOrRefreshModules() {
 	a.moduleMu.Lock()
 	defer a.moduleMu.Unlock()
@@ -366,19 +367,20 @@ func (a *App) InitOrRefreshModules() {
 			a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
 		}
 
-		// Refresh auto scanner settings
+		// Refresh auto scanner settings (thread safe)
 		if a.AutoScanner != nil {
-			a.AutoScanner.SetSettings(*settings.Library)
+			go a.AutoScanner.SetSettings(*settings.Library)
 		}
 
-		// Torrent Repository
-		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
+		// Update the torrent manager settings (thread safe)
+		go a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
 			DefaultAnimeProvider: settings.Library.TorrentProvider,
 			AutoSelectProvider:   settings.Library.AutoSelectTorrentProvider,
 		})
 
 		if a.LibraryExplorer != nil {
-			a.LibraryExplorer.SetLibraryPaths(settings.GetLibrary().GetLibraryPaths())
+			// Update the library paths for the library explorer (thread safe)
+			go a.LibraryExplorer.SetLibraryPaths(settings.GetLibrary().GetLibraryPaths())
 		}
 	}
 
@@ -501,9 +503,9 @@ func (a *App) InitOrRefreshModules() {
 	// |   AutoDownloader    |
 	// +---------------------+
 
-	// Update Auto Downloader - This runs in a goroutine
+	// Update Auto Downloader
 	if settings.AutoDownloader != nil {
-		a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
+		go a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
 	}
 
 	// +---------------------+
@@ -512,9 +514,7 @@ func (a *App) InitOrRefreshModules() {
 
 	// Initialize library watcher
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
-		go func() {
-			a.initLibraryWatcher(settings.Library.GetLibraryPaths())
-		}()
+		go a.initLibraryWatcher(settings.Library.GetLibraryPaths())
 	}
 
 	// +---------------------+
@@ -522,7 +522,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
-		a.DiscordPresence.SetSettings(settings.Discord)
+		go a.DiscordPresence.SetSettings(settings.Discord)
 	}
 
 	// +---------------------+
@@ -530,13 +530,13 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Library != nil {
-		a.ContinuityManager.SetSettings(&continuity.Settings{
+		go a.ContinuityManager.SetSettings(&continuity.Settings{
 			WatchContinuityEnabled: settings.Library.EnableWatchContinuity,
 		})
 	}
 
 	if settings.Manga != nil {
-		a.MangaRepository.SetSettings(settings)
+		go a.MangaRepository.SetSettings(settings)
 	}
 
 	// +---------------------+
@@ -544,10 +544,8 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Nakama != nil {
-		a.NakamaManager.SetSettings(settings.Nakama)
+		go a.NakamaManager.SetSettings(settings.Nakama)
 	}
-
-	runtime.GC()
 
 	a.Logger.Info().Msg("app: Refreshed modules")
 
