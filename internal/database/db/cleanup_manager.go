@@ -2,7 +2,6 @@ package db
 
 import (
 	"seanime/internal/database/models"
-	"time"
 
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -14,7 +13,6 @@ type CleanupManager struct {
 	logger *zerolog.Logger
 }
 
-// NewCleanupManager creates a new cleanup manager
 func NewCleanupManager(gormdb *gorm.DB, logger *zerolog.Logger) *CleanupManager {
 	return &CleanupManager{
 		gormdb: gormdb,
@@ -22,23 +20,17 @@ func NewCleanupManager(gormdb *gorm.DB, logger *zerolog.Logger) *CleanupManager 
 	}
 }
 
-// RunAllCleanupOperations runs all cleanup operations sequentially to avoid database locks
 func (cm *CleanupManager) RunAllCleanupOperations() {
 	cm.logger.Debug().Msg("database: Starting cleanup operations")
 
-	// Run cleanup operations sequentially with small delays
 	cm.trimScanSummaryEntries()
-	time.Sleep(100 * time.Millisecond)
-
 	cm.trimLocalFileEntries()
-	time.Sleep(100 * time.Millisecond)
-
 	cm.trimTorrentstreamHistory()
 
 	cm.logger.Debug().Msg("database: Cleanup operations completed")
 }
 
-// trimScanSummaryEntries trims scan summary entries (internal implementation)
+// trimScanSummaryEntries trims scan summary entries
 func (cm *CleanupManager) trimScanSummaryEntries() {
 	var count int64
 	err := cm.gormdb.Model(&models.ScanSummary{}).Count(&count).Error
@@ -47,7 +39,6 @@ func (cm *CleanupManager) trimScanSummaryEntries() {
 		return
 	}
 	if count > 10 {
-		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
 		err = cm.gormdb.Model(&models.ScanSummary{}).
 			Select("id").
@@ -60,7 +51,6 @@ func (cm *CleanupManager) trimScanSummaryEntries() {
 		}
 
 		if len(idsToDelete) > 0 {
-			// Batch delete to avoid "too many SQL variables" error
 			batchSize := 900
 			for i := 0; i < len(idsToDelete); i += batchSize {
 				end := i + batchSize
@@ -79,7 +69,7 @@ func (cm *CleanupManager) trimScanSummaryEntries() {
 	}
 }
 
-// trimLocalFileEntries trims local file entries (internal implementation)
+// trimLocalFileEntries trims local file entries
 func (cm *CleanupManager) trimLocalFileEntries() {
 	var count int64
 	err := cm.gormdb.Model(&models.LocalFiles{}).Count(&count).Error
@@ -88,7 +78,6 @@ func (cm *CleanupManager) trimLocalFileEntries() {
 		return
 	}
 	if count > 10 {
-		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
 		err = cm.gormdb.Model(&models.LocalFiles{}).
 			Select("id").
@@ -101,7 +90,6 @@ func (cm *CleanupManager) trimLocalFileEntries() {
 		}
 
 		if len(idsToDelete) > 0 {
-			// Batch delete to avoid "too many SQL variables" error
 			batchSize := 900
 			for i := 0; i < len(idsToDelete); i += batchSize {
 				end := i + batchSize
@@ -120,7 +108,7 @@ func (cm *CleanupManager) trimLocalFileEntries() {
 	}
 }
 
-// trimTorrentstreamHistory trims torrent stream history entries (internal implementation)
+// trimTorrentstreamHistory trims torrent stream history entries
 func (cm *CleanupManager) trimTorrentstreamHistory() {
 	var count int64
 	err := cm.gormdb.Model(&models.TorrentstreamHistory{}).Count(&count).Error
@@ -129,7 +117,6 @@ func (cm *CleanupManager) trimTorrentstreamHistory() {
 		return
 	}
 	if count > 50 {
-		// Use a more efficient DELETE approach without subquery
 		var idsToDelete []uint
 		err = cm.gormdb.Model(&models.TorrentstreamHistory{}).
 			Select("id").
@@ -142,7 +129,6 @@ func (cm *CleanupManager) trimTorrentstreamHistory() {
 		}
 
 		if len(idsToDelete) > 0 {
-			// Batch delete to avoid "too many SQL variables" error
 			batchSize := 900
 			for i := 0; i < len(idsToDelete); i += batchSize {
 				end := i + batchSize

@@ -2,11 +2,9 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"seanime/internal/database/models"
-	"sync"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -21,12 +19,9 @@ type Database struct {
 	Logger           *zerolog.Logger
 	CurrMediaFillers mo.Option[map[int]*MediaFillerItem]
 	cleanupManager   *CleanupManager
-	mu               sync.Mutex
 }
 
 func (db *Database) Gorm() *gorm.DB {
-	db.mu.Lock()
-	defer db.mu.Unlock()
 	return db.gormdb
 }
 
@@ -43,7 +38,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 	// Connect to the SQLite database with optimized settings
 	db, err := gorm.Open(sqlite.Open(sqlitePath+"?_busy_timeout=30000&_journal_mode=WAL&_synchronous=NORMAL&_cache_size=1000&_foreign_keys=on"), &gorm.Config{
 		Logger: gormlogger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger,
 			gormlogger.Config{
 				SlowThreshold:             time.Second,
 				LogLevel:                  gormlogger.Error,
@@ -57,16 +52,15 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		return nil, err
 	}
 
-	// Configure connection pool for SQLite
+	// Configure connection pool
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err
 	}
 
-	// SQLite works best with a single connection for writes
-	sqlDB.SetMaxOpenConns(1)
-	sqlDB.SetMaxIdleConns(1)
-	sqlDB.SetConnMaxLifetime(time.Hour) //is it enogh for long running processes?
+	sqlDB.SetMaxOpenConns(3)
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Migrate tables
 	err = migrateTables(db)
@@ -124,10 +118,7 @@ func migrateTables(db *gorm.DB) error {
 	return nil
 }
 
-// RunDatabaseCleanup runs all database cleanup operations using the cleanup manager
-// This replaces the individual trim functions to prevent concurrent access issues
+// RunDatabaseCleanup runs all database cleanup operations
 func (db *Database) RunDatabaseCleanup() {
-	db.mu.Lock()
-	defer db.mu.Unlock()
 	db.cleanupManager.RunAllCleanupOperations()
 }
