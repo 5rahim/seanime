@@ -18,6 +18,7 @@ import { HandleLibraryCollectionProps, useHandleLibraryCollection } from "@/app/
 import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-library-view"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
 import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -561,6 +562,12 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
             <PageWrapper className="px-4">
                 <RecentReleases />
             </PageWrapper>
+        )
+    }
+
+    if (item.type === "missed-sequels") {
+        return (
+            <DiscoverMissedSequelsSection title="Missed Sequels" />
         )
     }
 

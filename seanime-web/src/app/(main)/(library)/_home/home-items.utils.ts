@@ -1,8 +1,6 @@
 import { Models_HomeItem, Nullish } from "@/api/generated/types"
 import { ADVANCED_SEARCH_COUNTRIES_MANGA, ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 
-export const MAX_HOME_ITEMS = 10
-
 export const DEFAULT_HOME_ITEMS: Models_HomeItem[] = [
     {
         id: "anime-continue-watching",
@@ -277,6 +275,12 @@ export const HOME_ITEMS = {
         kind: ["row"],
         schemaVersion: 1,
         description: "Display a carousel of anime episodes that aired recently.",
+    },
+    "missed-sequels": {
+        name: "Missed Sequels",
+        kind: ["row"],
+        schemaVersion: 1,
+        description: "Display a carousel of sequels that aren't in your collection.",
     },
     "anime-schedule-calendar": {
         name: "Anime Schedule Calendar",

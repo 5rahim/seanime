@@ -26,7 +26,7 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { BiCog, BiPlus, BiStats, BiTrash } from "react-icons/bi"
 import { IoHomeOutline, IoLibraryOutline } from "react-icons/io5"
-import { LuBookOpen, LuCalendar, LuCalendarClock, LuCirclePlay, LuClock, LuCompass, LuHeading, LuLayoutPanelLeft } from "react-icons/lu"
+import { LuBookOpen, LuCalendar, LuCalendarClock, LuCirclePlay, LuClock, LuCompass, LuHeading, LuLayoutPanelLeft, LuMilestone } from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { TbCarouselHorizontal } from "react-icons/tb"
 import { toast } from "sonner"
@@ -48,6 +48,7 @@ const HOME_ITEM_ICONS = {
     "manga-continue-reading": LuBookOpen,
     "manga-library": LuBookOpen,
     "centered-title": LuHeading,
+    "missed-sequels": LuMilestone,
 } as const
 
 export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibrary?: boolean, isNakamaLibrary: boolean }) {
