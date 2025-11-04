@@ -570,6 +570,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     // muted
                     onLoad={() => setTimeout(() => setTrailerLoaded(true), 1000)}
                     onError={() => setTrailerEnabled(false)}
+                    referrerPolicy="strict-origin-when-cross-origin"
                 />
             </div>}
 

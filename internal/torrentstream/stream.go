@@ -83,6 +83,9 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	if opts.AutoSelect {
 		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
 		if err != nil {
+			if opts.PlaybackType == PlaybackTypeNativePlayer {
+				r.directStreamManager.AbortOpen(opts.ClientId, err)
+			}
 			r.sendStateEvent(eventLoadingFailed)
 			return err
 		}
@@ -92,12 +95,18 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 		}
 		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
 		if err != nil {
+			if opts.PlaybackType == PlaybackTypeNativePlayer {
+				r.directStreamManager.AbortOpen(opts.ClientId, err)
+			}
 			r.sendStateEvent(eventLoadingFailed)
 			return err
 		}
 	}
 
 	if torrentToStream == nil {
+		if opts.PlaybackType == PlaybackTypeNativePlayer {
+			r.directStreamManager.AbortOpen(opts.ClientId, fmt.Errorf("torrentstream: No torrent found"))
+		}
 		r.sendStateEvent(eventLoadingFailed)
 		return fmt.Errorf("torrentstream: No torrent selected")
 	}

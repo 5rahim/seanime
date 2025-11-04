@@ -41,6 +41,10 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
 
+	if r.settings.IsAbsent() {
+		return nil, fmt.Errorf("torrent streaming is disabled")
+	}
+
 	providerExtension, ok := r.torrentRepository.GetAutoSelectProviderExtension()
 	if !ok {
 		r.logger.Error().Msg("torrentstream: Auto select provider extension not found")

@@ -170,6 +170,7 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
                         transition={{ duration: 0.5 }}
                         onLoad={onTrailerLoad}
                         onError={onTrailerError}
+                        referrerPolicy="strict-origin-when-cross-origin"
                     />
                 </div>
             )}
