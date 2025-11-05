@@ -3,7 +3,7 @@
 //  * -----------------------------------------------------------------------------------------------*/
 
 
-import { Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
+import { Manga_ChapterContainer, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
 
 import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
@@ -16,10 +16,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { GiOpenBook } from "react-icons/gi"
 import { MdOutlineOfflinePin } from "react-icons/md"
+
+export const manga_downloadedChapterContainerAtom = atom<Manga_ChapterContainer | null>(null)
 
 type DownloadedChapterListProps = {
     entry: Manga_Entry
@@ -35,6 +39,8 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
     } = props
 
     const { selectedProvider } = useSelectedMangaProvider(entry.mediaId)
+
+    const [, setDownloadedChapterContainer] = useAtom(manga_downloadedChapterContainerAtom)
 
     /**
      * Set selected chapter
@@ -115,6 +121,11 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                                 // })
                                 React.startTransition(() => {
                                     // Set the selected chapter
+                                    setDownloadedChapterContainer({
+                                        mediaId: Number(entry.mediaId),
+                                        provider: row.original.provider,
+                                        chapters: [],
+                                    })
                                     setCurrentChapter({
                                         chapterId: row.original.chapterId,
                                         chapterNumber: row.original.chapterNumber,

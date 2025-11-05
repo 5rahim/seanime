@@ -13,7 +13,7 @@ import { useWatch } from "react-hook-form"
 import { FcClapperboard, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
 import { IoPlayForwardCircleSharp } from "react-icons/io5"
-import { LuExternalLink, LuLaptop } from "react-icons/lu"
+import { LuCircleArrowOutUpRight, LuMonitorPlay } from "react-icons/lu"
 import { RiSettings3Fill } from "react-icons/ri"
 
 type MediaplayerSettingsProps = {
@@ -34,7 +34,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
             <SettingsPageHeader
                 title="Desktop Media Player"
                 description="Seanime has built-in support for MPV, VLC, IINA, and MPC-HC."
-                icon={LuLaptop}
+                icon={LuMonitorPlay}
             />
 
             <SettingsCard>
@@ -213,7 +213,7 @@ export function ExternalPlayerLinkSettings() {
             <SettingsPageHeader
                 title="External player link"
                 description="Send streams to an external player on this device."
-                icon={LuExternalLink}
+                icon={LuCircleArrowOutUpRight}
             />
 
             <Alert

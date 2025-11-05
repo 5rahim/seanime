@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
@@ -35,7 +35,7 @@ type AppContextModules struct {
 	PlaybackManager                 *playbackmanager.PlaybackManager
 	MediaPlayerRepository           *mediaplayer.Repository
 	MangaRepository                 *manga.Repository
-	MetadataProvider                metadata.Provider
+	MetadataProvider                metadata_provider.Provider
 	WSEventManager                  events.WSEventManagerInterface
 	DiscordPresence                 *discordrpc_presence.Presence
 	TorrentClientRepository         *torrent_client.Repository
@@ -145,7 +145,7 @@ type AppContextImpl struct {
 	mangaRepository                 mo.Option[*manga.Repository]
 	anilistPlatform                 mo.Option[platform.Platform]
 	discordPresence                 mo.Option[*discordrpc_presence.Presence]
-	metadataProvider                mo.Option[metadata.Provider]
+	metadataProvider                mo.Option[metadata_provider.Provider]
 	fillerManager                   mo.Option[*fillermanager.FillerManager]
 	torrentClientRepository         mo.Option[*torrent_client.Repository]
 	torrentstreamRepository         mo.Option[*torrentstream.Repository]
@@ -169,7 +169,7 @@ func NewAppContext() AppContext {
 		mediaplayerRepo:                 mo.None[*mediaplayer.Repository](),
 		anilistPlatform:                 mo.None[platform.Platform](),
 		mangaRepository:                 mo.None[*manga.Repository](),
-		metadataProvider:                mo.None[metadata.Provider](),
+		metadataProvider:                mo.None[metadata_provider.Provider](),
 		wsEventManager:                  mo.None[events.WSEventManagerInterface](),
 		discordPresence:                 mo.None[*discordrpc_presence.Presence](),
 		fillerManager:                   mo.None[*fillermanager.FillerManager](),

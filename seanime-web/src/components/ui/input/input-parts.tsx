@@ -10,11 +10,11 @@ export const InputAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Input__root",
         "flex items-center",
-        "w-full rounded-[--radius]",
+        "w-full rounded-xl",
         "bg-[--paper] border border-[--border] placeholder-gray-400 dark:placeholder-gray-500",
         "disabled:cursor-not-allowed",
         "data-[disable=true]:shadow-none data-[disable=true]:opacity-50",
-        "focus:border-brand focus:ring-1 focus:ring-[--ring]",
+        "focus:dark:border-gray-600 focus:ring-[0.5px] focus:ring-inset focus:dark:ring-gray-700",
         "outline-0",
         "transition duration-150",
         "shadow-sm",
@@ -143,8 +143,8 @@ export const InputAddonsAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             size: { sm: "text-sm", md: "text-md", lg: "text-lg" },
-            isLeftAddon: { true: "rounded-l-md border-r-0", false: null },
-            isRightAddon: { true: "rounded-r-md border-l-0", false: null },
+            isLeftAddon: { true: "rounded-l-xl border-r-0", false: null },
+            isRightAddon: { true: "rounded-r-xl border-l-0", false: null },
             hasLeftIcon: { true: null, false: null },
             hasRightIcon: { true: null, false: null },
         },

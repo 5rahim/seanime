@@ -2,13 +2,14 @@
 import { Anime_Episode } from "@/api/generated/types"
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
+import { SeaImage } from "@/components/shared/sea-image"
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
 import { ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { __isDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
-import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { useWindowScroll } from "react-use"
 
@@ -17,7 +18,7 @@ export const __libraryHeaderImageAtom = atom<{ bannerImage?: string | null, epis
     episodeImage: null,
 })
 
-const MotionImage = motion.create(Image)
+const MotionImage = motion.create(SeaImage)
 
 export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 
@@ -84,9 +85,10 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
             <div
                 data-library-header-container
                 className={cn(
-                    "LIB_HEADER_CONTAINER __header h-[25rem] z-[1] top-0 w-full absolute group/library-header pointer-events-none",
+                    "LIB_HEADER_CONTAINER __header h-[25rem] z-[1] !mt-0 !pt-0 top-0 w-full absolute group/library-header pointer-events-none",
                     // Make it not fixed when the user scrolls down if a background image is set
                     !ts.libraryScreenCustomBackgroundImage && "fixed",
+                    !!ts.libraryScreenCustomBackgroundImage && __isDesktop__ && "top-[-2rem]",
                 )}
             >
 
@@ -142,7 +144,8 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                                     priority
                                     sizes="100vw"
                                     className={cn(
-                                        "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
+                                        "object-cover object-center z-[1] opacity-100 transition-opacity duration-700",
+                                        !ts.libraryScreenCustomBackgroundImage && "scroll-locked-offset",
                                         (shouldHideBanner || shouldBlurBanner) && "opacity-15",
                                         { "opacity-5": dimmed },
                                     )}

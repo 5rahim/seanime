@@ -56,8 +56,8 @@ export class VideoCorePreviewManager {
     }
 
     cleanup(): void {
-        this._dummyVideoElement.remove()
         this.detachFromCurrentPlayer()
+        this.resetOperationQueue()
         this.clearPreviewCache()
 
         // Clear any pending throttled captures
@@ -65,6 +65,15 @@ export class VideoCorePreviewManager {
             clearTimeout(this.captureThrottleTimeout)
             this.captureThrottleTimeout = null
         }
+
+        this._dummyVideoElement.pause()
+        this._dummyVideoElement.removeAttribute("src")
+        this._dummyVideoElement.load()
+        this._dummyVideoElement.remove()
+
+        this.currentMediaSource = undefined
+        this.lastCapturedSegment = -1
+        this.highestCachedIndex = -1
     }
 
     async retrievePreviewForSegment(segmentIndex: number): Promise<string | undefined> {

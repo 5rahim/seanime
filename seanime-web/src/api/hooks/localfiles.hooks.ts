@@ -7,7 +7,7 @@ import {
     UpdateLocalFiles_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_LocalFile, Nullish } from "@/api/generated/types"
+import { Anime_LocalFile } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -28,8 +28,9 @@ export function useLocalFileBulkAction() {
         method: API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.key],
         onSuccess: async () => {
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }
@@ -42,13 +43,14 @@ export function useUpdateLocalFiles() {
         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.key],
         onSuccess: async () => {
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }
 
-export function useUpdateLocalFileData(id: Nullish<number>) {
+export function useUpdateLocalFileData() {
     const qc = useQueryClient()
 
     const opts = useServerMutation<Array<Anime_LocalFile>, UpdateLocalFileData_Variables>({
@@ -57,10 +59,9 @@ export function useUpdateLocalFileData(id: Nullish<number>) {
         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.key],
         onSuccess: async () => {
             toast.success("File metadata updated")
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            if (id) {
-                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
-            }
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 
@@ -81,7 +82,7 @@ export function useUpdateLocalFileData(id: Nullish<number>) {
     }
 }
 
-export function useDeleteLocalFiles(id: Nullish<number>) {
+export function useDeleteLocalFiles() {
     const qc = useQueryClient()
 
     return useServerMutation<Array<Anime_LocalFile>, DeleteLocalFiles_Variables>({
@@ -90,10 +91,9 @@ export function useDeleteLocalFiles(id: Nullish<number>) {
         mutationKey: [API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.key],
         onSuccess: async () => {
             toast.success("Files deleted")
-            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            if (id) {
-                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
-            }
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
         },
     })
 }
@@ -119,6 +119,7 @@ export function useImportLocalFiles() {
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.LIBRARY_EXPLORER.GetLibraryExplorerFileTree.key] })
             toast.success("Local files imported")
         },
     })

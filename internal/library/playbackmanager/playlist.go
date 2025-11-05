@@ -19,10 +19,10 @@ type (
 
 		wsEventManager  events.WSEventManagerInterface
 		logger          *zerolog.Logger
-		currentPlaylist *anime.Playlist    // The current playlist that is being played (can be nil)
-		nextLocalFile   *anime.LocalFile   // The next episode that will be played (can be nil)
-		cancel          context.CancelFunc // The cancel function for the current playlist
-		mu              sync.Mutex         // The mutex
+		currentPlaylist *anime.LegacyPlaylist // The current playlist that is being played (can be nil)
+		nextLocalFile   *anime.LocalFile      // The next episode that will be played (can be nil)
+		cancel          context.CancelFunc    // The cancel function for the current playlist
+		mu              sync.Mutex            // The mutex
 
 		playingLf             *anime.LocalFile        // The currently playing local file
 		playingMediaListEntry *anilist.AnimeListEntry // The currently playing media entry
@@ -60,7 +60,7 @@ func newPlaylistHub(pm *PlaybackManager) *playlistHub {
 	return ret
 }
 
-func (h *playlistHub) loadPlaylist(playlist *anime.Playlist) {
+func (h *playlistHub) loadPlaylist(playlist *anime.LegacyPlaylist) {
 	if playlist == nil {
 		h.logger.Error().Msg("playlist hub: Playlist is nil")
 		return

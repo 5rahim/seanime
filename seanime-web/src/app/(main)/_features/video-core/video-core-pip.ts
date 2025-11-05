@@ -14,7 +14,6 @@ export class VideoCorePipManager {
     private controller = new AbortController()
     private canvasController: AbortController | null = null
     private readonly onPipElementChange: (element: HTMLVideoElement | null) => void
-    private mediaSessionSetup = false
     private pipProxy: HTMLVideoElement | null = null
     private isSyncingFromMain = false
     private isSyncingFromPip = false
@@ -100,7 +99,6 @@ export class VideoCorePipManager {
 
     destroy() {
         this.exitPip()
-        this.clearMediaSession()
         this.canvasController?.abort()
         this.controller.abort()
         this.video = null
@@ -110,14 +108,11 @@ export class VideoCorePipManager {
     private handleEnterPip = () => {
         const pipElement = document.pictureInPictureElement as HTMLVideoElement | null
         log.info("Entered PiP", pipElement)
-        this.setupMediaSession()
-        this.updateMediaSessionPlaybackState()
         this.onPipElementChange(pipElement)
     }
 
     private handleLeavePip = () => {
         log.info("Left PiP")
-        this.clearMediaSession()
         this.onPipElementChange(null)
 
         if (this.video) {
@@ -128,6 +123,7 @@ export class VideoCorePipManager {
 
     private newPipVideo() {
         const element = document.createElement("video")
+        element.muted = true
         element.addEventListener("enterpictureinpicture", this.handleEnterPip, {
             signal: this.controller.signal,
         })
@@ -137,74 +133,7 @@ export class VideoCorePipManager {
         return element
     }
 
-    private setupMediaSession() {
-        if (!("mediaSession" in navigator) || this.mediaSessionSetup) {
-            return
-        }
 
-        try {
-            // Set up media session metadata
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: this.playbackInfo?.episode?.displayTitle ?? "Seanime",
-                artist: this.playbackInfo?.episode?.baseAnime?.title?.userPreferred ?? "Video Player",
-                artwork: [
-                    {
-                        src: this.playbackInfo?.episode?.episodeMetadata?.image ?? "",
-                        sizes: "100px",
-                        type: "image/webp",
-                    },
-                ],
-            })
-
-            // Set up action handlers for play/pause
-            navigator.mediaSession.setActionHandler("play", () => {
-                log.info("Play")
-                if (this.video?.paused) {
-                    this.video.play().catch(err => {
-                        log.error("Failed to play video from media session", err)
-                    })
-                }
-            })
-
-            navigator.mediaSession.setActionHandler("pause", () => {
-                log.info("Pause")
-                if (this.video && !this.video.paused) {
-                    this.video.pause()
-                }
-            })
-
-            this.mediaSessionSetup = true
-            log.info("Media session setup complete")
-        }
-        catch (error) {
-            log.error("Failed to setup media session", error)
-        }
-    }
-
-    private clearMediaSession() {
-        if (!("mediaSession" in navigator) || !this.mediaSessionSetup) {
-            return
-        }
-
-        try {
-            // Clear action handlers
-            navigator.mediaSession.setActionHandler("play", null)
-            navigator.mediaSession.setActionHandler("pause", null)
-            navigator.mediaSession.metadata = null
-
-            this.mediaSessionSetup = false
-            log.info("Media session cleared")
-        }
-        catch (error) {
-            log.error("Failed to clear media session", error)
-        }
-    }
-
-    private updateMediaSessionPlaybackState = () => {
-        if ("mediaSession" in navigator && this.mediaSessionSetup && this.video) {
-            navigator.mediaSession.playbackState = this.video.paused ? "paused" : "playing"
-        }
-    }
 
     private renderToCanvas = (
         pipVideo: HTMLVideoElement,
@@ -224,7 +153,6 @@ export class VideoCorePipManager {
                     pipVideo.play().catch(() => {})
                 }
             }
-            this.updateMediaSessionPlaybackState()
         }
 
         context.drawImage(this.video, 0, 0)
@@ -237,7 +165,6 @@ export class VideoCorePipManager {
 
     private handleMainVideoPlay = () => {
         if (this.isSyncingFromPip) return
-        this.updateMediaSessionPlaybackState()
         if (this.pipProxy && this.pipProxy.paused) {
             this.isSyncingFromMain = true
             this.pipProxy.play().catch(() => {})
@@ -247,7 +174,6 @@ export class VideoCorePipManager {
 
     private handleMainVideoPause = () => {
         if (this.isSyncingFromPip) return
-        this.updateMediaSessionPlaybackState()
         if (this.pipProxy && !this.pipProxy.paused) {
             this.isSyncingFromMain = true
             this.pipProxy.pause()

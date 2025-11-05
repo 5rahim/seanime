@@ -8,11 +8,12 @@ export const tabsListClass = cn("w-full flex flex-wrap md:flex-nowrap h-fit md:h
 export const monochromeCheckboxClasses = {
     className: "hidden",
     labelClass: cn(
-        "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
+        "items-start cursor-pointer transition border-transparent rounded-xl py-1.5 px-3 w-full",
         "hover:bg-[--subtle] dark:bg-gray-900",
-        "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
+        "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950 dark:hover:bg-[--subtle] dark:hover:data-[checked=true]:bg-[--subtle]",
         "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-        "border border-transparent data-[checked=true]:border-[--gray] data-[checked=true]:ring-offset-0",
+        "border border-transparent data-[checked=true]:border-gray-500 data-[checked=true]:ring-offset-2",
+        "data-[checked=true]:text-white active:translate-y-0.5 transition-all",
         "w-fit",
     ),
 }
@@ -20,7 +21,7 @@ export const primaryPillCheckboxClasses = {
     className: "hidden",
     labelClass: cn(
         "text-gray-300 data-[checked=true]:text-white hover:!bg-[--highlight]",
-        "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
+        "items-start cursor-pointer transition border-transparent rounded-xl py-1.5 px-3 w-full",
         "hover:bg-[--subtle] dark:bg-gray-900",
         "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
         "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",

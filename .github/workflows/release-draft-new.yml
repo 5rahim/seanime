@@ -1,0 +1,436 @@
+name: Release Draft
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+
+  build-webapp: # TODO Uncomment if building web
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Web
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # outputs in "seanime-web/out/" and "seanime-web/out-desktop/"
+      - name: Install dependencies and build Next.js app
+        run: |
+          cd seanime-web/
+          npm install
+          npm run build
+          npm run build:desktop
+          npm run build:denshi
+          cd ..
+      # Upload the output to be used in the next job
+      - name: Upload web folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: seanime-web/out # output dir of build
+      - name: Upload web folder (Electron)
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-desktop
+          path: seanime-web/out-desktop # output dir of build:desktop
+      - name: Upload web folder (Electron)
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-denshi
+          path: seanime-web/out-denshi # output dir of build:denshi
+
+  build-server:
+    needs: build-webapp # TODO Uncomment if building web
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        # 6 binaries: 2 for Windows, 2 for Linux, 2 for macOS
+        include:
+          # This is the systray version of the Windows binary used for the server build
+          - os: macos-latest # seanime-server-systray-windows.exe
+            id: seanime-server-systray-windows
+            go_flags: -trimpath -buildmode=exe -ldflags="-s -w -H=windowsgui -extldflags '-static'"
+
+          # This is the non-systray version of the Windows binary used for the Electron Windows build
+          - os: windows-latest # seanime-server-windows.exe
+            id: seanime-server-windows
+            go_flags: -trimpath -ldflags="-s -w" -tags=nosystray
+
+          # These are the Linux binaries used for the server build and the Electron Linux build
+          - os: ubuntu-latest # seanime-server-linux-arm64, seanime-server-linux-amd64
+            id: seanime-server-linux
+            go_flags: -trimpath -ldflags="-s -w"
+
+          # These are the macOS binaries used for the server build and the Electron macOS build
+          - os: macos-latest # seanime-server-darwin-arm64, seanime-server-darwin-amd64
+            id: seanime-server-darwin
+            go_env: CGO_ENABLED=0
+            go_flags: -trimpath -ldflags="-s -w"
+    steps:
+      - name: Checkout code ⬇️
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history
+          fetch-tags: true # Fetch all tags
+          set-safe-directory: true # Add repo path as safe.directory
+
+      - name: Fetch all tags # Fetch all tags (again? can't hurt)
+        run: git fetch --force --tags
+
+      # Go
+      - name: Set up Go ⬇️
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.1'
+
+      # Cache Go modules
+      - name: Cache Go modules 💾
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # Download the web folders
+      # TODO Uncomment if building web
+      - name: Download web folder artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: web
+
+      # Create the binary destination folder
+      # ./binaries
+      # |--- ...
+      - name: Create binary destination folder (UNIX) 🗃️
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: mkdir -p binaries
+      - name: Create binary destination folder (Windows) 🗃️
+        if: matrix.os == 'windows-latest'
+        run: mkdir -p binaries
+        shell: bash
+
+
+      #---
+
+      # ONLY for Windows systray build (seanime-server-systray-windows)
+      # For the Windows systray build (built on macOS runner), we need to install the necessary dependencies
+      - name: Install C dependencies ⬇️ # macos windows systray build
+        if: matrix.id == 'seanime-server-systray-windows'
+        run: |
+          brew install filosottile/musl-cross/musl-cross
+          brew install llvm
+          brew install mingw-w64
+
+      # Build the Windows systray binary
+      # ./binaries/seanime-server-systray-windows.exe
+      - name: Build Windows Systray 📦️
+        if: matrix.id == 'seanime-server-systray-windows'
+        env:
+          GOARCH: amd64
+          GOOS: windows
+          CGO_ENABLED: 1
+          CC: x86_64-w64-mingw32-gcc
+          CXX: x86_64-w64-mingw32-g++
+        run: |
+          go build -o seanime-server-systray-windows.exe ${{ matrix.go_flags }} .
+
+      # Build the Windows non-systray binary
+      # ./seanime-server-windows.exe
+      - name: Build Windows Non-Systray 📦️
+        if: matrix.id == 'seanime-server-windows'
+        env:
+          GOARCH: amd64
+          GOOS: windows
+          CGO_ENABLED: 0
+        run: |
+          go build -o seanime-server-windows.exe ${{ matrix.go_flags }} .
+        shell: bash
+
+      # Build the Linux binaries
+      # ./seanime-server-linux-amd64
+      # ./seanime-server-linux-arm64
+      - name: Build Linux 📦️
+        if: matrix.id == 'seanime-server-linux'
+        run: |
+          CGO_ENABLED=0 GOARCH=amd64 go build -o seanime-server-linux-amd64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=arm64 go build -o seanime-server-linux-arm64 ${{ matrix.go_flags }} .
+
+      # Build the macOS binaries
+      # ./seanime-server-darwin-amd64
+      # ./seanime-server-darwin-arm64
+      - name: Build macOS 📦️
+        if: matrix.id == 'seanime-server-darwin'
+        run: |
+          CGO_ENABLED=0 GOARCH=amd64 go build -o seanime-server-darwin-amd64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=arm64 go build -o seanime-server-darwin-arm64 ${{ matrix.go_flags }} .
+
+      # Tar the binaries
+      - name: Tar the binaries (UNIX) 🗃️
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        # binaries-seanime-server-darwin.tar
+        # binaries-seanime-server-linux.tar
+        # binaries-seanime-server-systray-windows.tar
+        run: |
+          tar -cf binaries-${{ matrix.id }}.tar seanime-server-*
+
+      # Zip the binaries
+      - name: Zip the binaries (Windows) 🗃️
+        if: matrix.os == 'windows-latest'
+        # binaries-seanime-server-windows.zip
+        run: |
+          7z a "binaries-${{ matrix.id }}.zip" seanime-server-*
+
+      # Upload the binaries to be used in the next job
+      - name: Upload binary folder (UNIX) 📤
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        with:
+          # go-seanime-server-linux
+          # go-seanime-server-darwin
+          # go-seanime-server-systray-windows
+          name: go-${{ matrix.id }}
+          path: binaries-${{ matrix.id }}.tar
+
+      - name: Upload binary folder (Windows) 📤
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          # go-seanime-server-windows
+          name: go-${{ matrix.id }}
+          path: binaries-${{ matrix.id }}.zip
+
+  build-electron:
+    needs: build-server
+    uses: ./.github/workflows/electron-build.yml
+  #    secrets:
+  #      SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [ build-server, build-electron ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download electron artifacts 📥
+        uses: actions/download-artifact@v4
+        with:
+          pattern: electron-*
+          path: ./artifacts
+          # ./artifacts
+          merge-multiple: true
+
+      - name: Determine version from tag name 🔎
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          VERSION=${GITHUB_REF/refs\/tags\/v/}
+          echo "Version extracted from tag: $VERSION"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF/refs\/tags\//}
+          echo "Version extracted from tag: $VERSION"
+          else
+          echo "Warning: No tag associated with this run. Defaulting to version 0.1.0."
+          VERSION="0.1.0"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Print version
+        run: echo "Version is ${{ env.VERSION }}"
+
+      - name: Download server binaries 📥
+        uses: actions/download-artifact@v4
+        with:
+          pattern: go-*
+          path: ./artifacts
+          # ./artifacts
+          # |- binaries-seanime-server-darwin.tar (contains 2)
+          # |- binaries-seanime-server-linux.tar (contains 2)
+          # |- binaries-seanime-server-systray-windows.tar (contains 1)
+          merge-multiple: true
+
+      - name: Print all artifacts
+        run: ls -la ./artifacts
+
+      - name: Extract - Rename - Archive server binaries 📂
+        # ./artifacts
+        # |- ...
+        #        \/ /binaries-seanime-server-darwin.tar
+        # |- seanime-server-darwin-amd64 -> ../seanime -> ../seanime-${{ env.VERSION }}_MacOS_arm64.tar.gz
+        # |- seanime-server-darwin-arm64 -> ../seanime -> ../seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz
+        #        \/ /binaries-seanime-server-darwin.tar
+        # |- seanime-server-linux-amd64 -> ../seanime -> ../seanime-${{ env.VERSION }}_Linux_x86_64.tar.gz
+        # |- seanime-server-linux-arm64 -> ../seanime -> ../seanime-${{ env.VERSION }}_Linux_arm64.tar.gz
+        #        \/ /binaries-seanime-server-systray-windows.tar
+        # |- seanime-server-systray-windows.exe -> ../seanime.exe -> ../seanime-${{ env.VERSION }}_Windows_x86_64.zip
+        run: |
+          if [ -f ./artifacts/binaries-seanime-server-darwin.tar ]; then
+            # Extract binaries
+            tar -xf ./artifacts/binaries-seanime-server-darwin.tar -C ./artifacts
+
+            # Rename & compress binaries
+            mv ./artifacts/seanime-server-darwin-amd64 ./seanime
+            tar czf ./seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz ./seanime
+            rm -rf ./seanime
+
+
+            mv ./artifacts/seanime-server-darwin-arm64 ./seanime
+            tar czf ./seanime-${{ env.VERSION }}_MacOS_arm64.tar.gz ./seanime
+            rm -rf ./seanime
+          fi
+
+          if [ -f ./artifacts/binaries-seanime-server-linux.tar ]; then
+            # Extract binaries
+            tar -xf ./artifacts/binaries-seanime-server-linux.tar -C ./artifacts
+
+            # Rename & compress binaries
+            mv ./artifacts/seanime-server-linux-amd64 ./seanime
+            tar czf ./seanime-${{ env.VERSION }}_Linux_x86_64.tar.gz ./seanime
+            rm -rf ./seanime
+
+
+            mv ./artifacts/seanime-server-linux-arm64 ./seanime
+            tar czf ./seanime-${{ env.VERSION }}_Linux_arm64.tar.gz ./seanime
+            rm -rf ./seanime
+          fi
+
+          if [ -f ./artifacts/binaries-seanime-server-systray-windows.tar ]; then
+            # Extract binaries
+            tar -xf ./artifacts/binaries-seanime-server-systray-windows.tar -C ./artifacts
+
+            # Rename & compress binaries
+            mv ./artifacts/seanime-server-systray-windows.exe ./seanime.exe
+            7z a ./seanime-${{ env.VERSION }}_Windows_x86_64.zip ./seanime.exe
+            rm -rf ./seanime.exe
+          fi
+        shell: bash
+
+      - name: Print all artifacts
+        run: ls -la ./artifacts
+
+      - name: Move & Rename Electron assets 📝🗃️
+        # Move Electron assets to the root directory and rename them
+        run: |
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap ./seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg ./seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.zip ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.zip ./seanime-denshi-${{ env.VERSION }}_MacOS_x64.zip
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg.blockmap ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg.blockmap ./seanime-denshi-${{ env.VERSION }}_MacOS_x64.dmg.blockmap
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage ./seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe ./seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
+          fi
+          if [ -f ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe.blockmap ]; then
+              mv ./artifacts/seanime-denshi-${{ env.VERSION }}_Windows_x64.exe.blockmap ./seanime-denshi-${{ env.VERSION }}_Windows_x64.exe.blockmap
+          fi
+
+          # Copy electron-builder YML files if they exist
+          find ./artifacts -name "*.yml" -exec cp {} ./ \;
+
+      - name: Print all
+        run: ls -la .
+
+      # Go
+      - name: Set up Go ⬇️
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.1'
+
+      # Build the Go script
+      - name: Build Go scripts 🛠️
+        run: |
+          go build -o generate_updater_latest ./.github/scripts/generate_updater_latest.go
+          go build -o generate_release_notes ./.github/scripts/generate_release_notes.go
+
+      # Run the Go scripts
+      - name: Generate latest.json 📦️
+        env:
+          APP_VERSION: ${{ env.VERSION }}
+        run: ./generate_updater_latest
+      - name: Generate release notes 📦️
+        env:
+          APP_VERSION: ${{ env.VERSION }}
+        run: ./generate_release_notes
+
+      - name: Read release notes 🔍
+        id: read_release_notes
+        run: |
+          BODY=$(cat whats-new.md)
+          echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
+          echo "$BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create release draft 🚀🚀🚀
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          fail_on_unmatched_files: false
+          files: |
+            latest.yml
+            latest-linux.yml
+            latest-mac.yml
+            latest-mac-arm64.yml
+            # Electron Desktop builds
+            seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip
+            seanime-denshi-${{ env.VERSION }}_MacOS_arm64.zip.blockmap
+            seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg
+            seanime-denshi-${{ env.VERSION }}_MacOS_arm64.dmg.blockmap
+            seanime-denshi-${{ env.VERSION }}_Linux_x86_64.AppImage
+            seanime-denshi-${{ env.VERSION }}_Windows_x64.exe
+            seanime-denshi-${{ env.VERSION }}_Windows_x64.exe.blockmap
+            # Server builds
+            seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz
+            seanime-${{ env.VERSION }}_MacOS_arm64.tar.gz
+            seanime-${{ env.VERSION }}_Linux_x86_64.tar.gz
+            seanime-${{ env.VERSION }}_Linux_arm64.tar.gz
+            seanime-${{ env.VERSION }}_Windows_x86_64.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
+          draft: true
+          prerelease: false
+          body: |
+            ## What's new?
+
+            ${{ env.RELEASE_BODY }}
+
+            ---
+            [Open an issue](https://github.com/5rahim/seanime/issues/new/choose)

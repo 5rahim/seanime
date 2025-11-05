@@ -28,6 +28,7 @@ type TorrentStream struct {
 	BaseStream
 	torrent       *torrent.Torrent
 	file          *torrent.File
+	onTerminate   func()
 	streamReadyCh chan struct{} // Closed by the initiator when the stream is ready
 }
 
@@ -153,24 +154,36 @@ func (s *TorrentStream) GetStreamHandler() http.Handler {
 			return
 		}
 
-		if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
-			// Start a subtitle stream from the current position
-			subReader := s.file.NewReader()
-			subReader.SetResponsive()
-			s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
-		}
+		go func() {
+			if _, ok := s.playbackInfo.MkvMetadataParser.Get(); ok {
+				// Start a subtitle stream from the current position
+				subReader := s.file.NewReader()
+				subReader.SetResponsive()
+				s.StartSubtitleStream(s, s.manager.playbackCtx, subReader, ra.Start)
+			}
+		}()
 
 		serveContentRange(w, r, s.manager.playbackCtx, tr, name, size, s.LoadContentType(), ra)
 	})
 }
 
+// Terminate overrides BaseStream.Terminate to also terminate the torrent stream.
+func (s *TorrentStream) Terminate() {
+	s.onTerminate()
+
+	// Call the base implementation
+	s.BaseStream.Terminate()
+}
+
 type PlayTorrentStreamOptions struct {
-	ClientId      string
-	EpisodeNumber int
-	AnidbEpisode  string
-	Media         *anilist.BaseAnime
-	Torrent       *torrent.Torrent
-	File          *torrent.File
+	ClientId           string
+	EpisodeNumber      int
+	AnidbEpisode       string
+	Media              *anilist.BaseAnime
+	Torrent            *torrent.Torrent
+	File               *torrent.File
+	IsNakamaWatchParty bool // Is the stream from Nakama (watch party)
+	OnTerminate        func()
 }
 
 // PlayTorrentStream is used by a module to load a new torrent stream.
@@ -194,8 +207,9 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 	}
 
 	stream := &TorrentStream{
-		torrent: opts.Torrent,
-		file:    opts.File,
+		torrent:     opts.Torrent,
+		file:        opts.File,
+		onTerminate: opts.OnTerminate,
 		BaseStream: BaseStream{
 			manager:               m,
 			logger:                m.Logger,
@@ -206,6 +220,7 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 			episodeCollection:     episodeCollection,
 			subtitleEventCache:    result.NewResultMap[string, *mkvparser.SubtitleEvent](),
 			activeSubtitleStreams: result.NewResultMap[string, *SubtitleStream](),
+			isNakamaWatchParty:    opts.IsNakamaWatchParty,
 		},
 		streamReadyCh: make(chan struct{}),
 	}

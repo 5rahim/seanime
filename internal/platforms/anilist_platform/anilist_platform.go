@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util/limiter"
-	"seanime/internal/util/result"
 	"sync"
 	"time"
 
@@ -27,27 +29,37 @@ type (
 		rawMangaCollection     mo.Option[*anilist.MangaCollection]
 		isOffline              bool
 		offlinePlatformEnabled bool
-		baseAnimeCache         *result.BoundedCache[int, *anilist.BaseAnime]
+		helper                 *shared_platform.PlatformHelper
+		db                     *db.Database
 	}
 )
 
-func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) platform.Platform {
+func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger, db *db.Database) platform.Platform {
 	ap := &AnilistPlatform{
-		anilistClient:      anilistClient,
+		anilistClient:      shared_platform.NewCacheLayer(anilistClient),
 		logger:             logger,
 		username:           mo.None[string](),
 		animeCollection:    mo.None[*anilist.AnimeCollection](),
 		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
 		mangaCollection:    mo.None[*anilist.MangaCollection](),
 		rawMangaCollection: mo.None[*anilist.MangaCollection](),
-		baseAnimeCache:     result.NewBoundedCache[int, *anilist.BaseAnime](50),
+		helper:             shared_platform.NewPlatformHelper(logger),
+		db:                 db,
 	}
 
 	return ap
 }
 
-func (ap *AnilistPlatform) clearCache() {
-	ap.baseAnimeCache.Clear()
+func (ap *AnilistPlatform) ClearCache() {
+	ap.helper.ClearCache()
+}
+
+func (ap *AnilistPlatform) InitExtensionBank(bank *extension.UnifiedBank) {
+	ap.helper.InitExtensionBank(bank, ap.db)
+}
+
+func (ap *AnilistPlatform) Close() {
+	ap.helper.Close()
 }
 
 func (ap *AnilistPlatform) SetUsername(username string) {
@@ -58,7 +70,6 @@ func (ap *AnilistPlatform) SetUsername(username string) {
 	}
 
 	ap.username = mo.Some(username)
-	return
 }
 
 func (ap *AnilistPlatform) SetAnilistClient(client anilist.AnilistClient) {
@@ -69,138 +80,90 @@ func (ap *AnilistPlatform) SetAnilistClient(client anilist.AnilistClient) {
 func (ap *AnilistPlatform) UpdateEntry(ctx context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry")
 
-	event := new(PreUpdateEntryEvent)
-	event.MediaID = &mediaID
-	event.Status = status
-	event.ScoreRaw = scoreRaw
-	event.Progress = progress
-	event.StartedAt = startedAt
-	event.CompletedAt = completedAt
+	// Use shared hook handling
+	return ap.helper.TriggerUpdateEntryHooks(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, func(event *platform.PreUpdateEntryEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := ap.helper.HandleCustomSourceUpdateEntry(ctx, mediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt); handled {
+			return err
+		}
 
-	err := hook.GlobalHookManager.OnPreUpdateEntry().Trigger(event)
-	if err != nil {
+		_, err := ap.anilistClient.UpdateMediaListEntry(ctx, event.MediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
 		return err
-	}
-
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	_, err = ap.anilistClient.UpdateMediaListEntry(ctx, event.MediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
-	if err != nil {
-		return err
-	}
-
-	postEvent := new(PostUpdateEntryEvent)
-	postEvent.MediaID = &mediaID
-
-	err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
-
-	return nil
+	})
 }
 
 func (ap *AnilistPlatform) UpdateEntryProgress(ctx context.Context, mediaID int, progress int, totalCount *int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry progress")
 
-	event := new(PreUpdateEntryProgressEvent)
-	event.MediaID = &mediaID
-	event.Progress = &progress
-	event.TotalCount = totalCount
-	event.Status = lo.ToPtr(anilist.MediaListStatusCurrent)
+	// Use shared hook handling
+	return ap.helper.TriggerUpdateEntryProgressHooks(ctx, mediaID, progress, totalCount, func(event *platform.PreUpdateEntryProgressEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := ap.helper.HandleCustomSourceUpdateEntryProgress(ctx, mediaID, *event.Progress, event.TotalCount); handled {
+			return err
+		}
 
-	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
-	if err != nil {
-		return err
-	}
+		realTotalCount := 0
+		if totalCount != nil && *totalCount > 0 {
+			realTotalCount = *totalCount
+		}
 
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	realTotalCount := 0
-	if totalCount != nil && *totalCount > 0 {
-		realTotalCount = *totalCount
-	}
-
-	// Check if the anime is in the repeating list
-	// If it is, set the status to repeating
-	if ap.rawAnimeCollection.IsPresent() {
-		for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
-			if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
-				if list.Entries != nil {
-					for _, entry := range list.Entries {
-						if entry.GetMedia().GetID() == mediaID {
-							*event.Status = anilist.MediaListStatusRepeating
-							break
+		// Check if the anime is in the repeating list
+		// If it is, set the status to repeating
+		if ap.rawAnimeCollection.IsPresent() {
+			for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
+				if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
+					if list.Entries != nil {
+						for _, entry := range list.Entries {
+							if entry.GetMedia().GetID() == mediaID {
+								*event.Status = anilist.MediaListStatusRepeating
+								break
+							}
 						}
 					}
 				}
 			}
 		}
-	}
-	if realTotalCount > 0 && progress >= realTotalCount {
-		*event.Status = anilist.MediaListStatusCompleted
-	}
+		if realTotalCount > 0 && *event.Progress >= realTotalCount {
+			*event.Status = anilist.MediaListStatusCompleted
+		}
 
-	if realTotalCount > 0 && progress > realTotalCount {
-		*event.Progress = realTotalCount
-	}
+		if realTotalCount > 0 && *event.Progress > realTotalCount {
+			*event.Progress = realTotalCount
+		}
 
-	_, err = ap.anilistClient.UpdateMediaListEntryProgress(
-		ctx,
-		event.MediaID,
-		event.Progress,
-		event.Status,
-	)
-	if err != nil {
+		_, err := ap.anilistClient.UpdateMediaListEntryProgress(
+			ctx,
+			event.MediaID,
+			event.Progress,
+			event.Status,
+		)
 		return err
-	}
-
-	postEvent := new(PostUpdateEntryProgressEvent)
-	postEvent.MediaID = &mediaID
-
-	err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (ap *AnilistPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry repeat")
 
-	event := new(PreUpdateEntryRepeatEvent)
-	event.MediaID = &mediaID
-	event.Repeat = &repeat
+	// Use shared hook handling
+	return ap.helper.TriggerUpdateEntryRepeatHooks(ctx, mediaID, repeat, func(event *platform.PreUpdateEntryRepeatEvent) error {
+		// Check if this is a custom source entry (after hooks have been triggered)
+		if handled, err := ap.helper.HandleCustomSourceUpdateEntryRepeat(ctx, mediaID, *event.Repeat); handled {
+			return err
+		}
 
-	err := hook.GlobalHookManager.OnPreUpdateEntryRepeat().Trigger(event)
-	if err != nil {
+		_, err := ap.anilistClient.UpdateMediaListEntryRepeat(ctx, event.MediaID, event.Repeat)
 		return err
-	}
-
-	if event.DefaultPrevented {
-		return nil
-	}
-
-	_, err = ap.anilistClient.UpdateMediaListEntryRepeat(ctx, event.MediaID, event.Repeat)
-	if err != nil {
-		return err
-	}
-
-	postEvent := new(PostUpdateEntryRepeatEvent)
-	postEvent.MediaID = &mediaID
-
-	err = hook.GlobalHookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
+
+	// Check if this is a custom source entry
+	if handled, err := ap.helper.HandleCustomSourceDeleteEntry(ctx, mediaID); handled {
+		return err
+	}
+
 	_, err := ap.anilistClient.DeleteEntry(ctx, &mediaID)
 	if err != nil {
 		return err
@@ -211,36 +174,40 @@ func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
 func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
 
-	//if cachedAnime, ok := ap.baseAnimeCache.Get(mediaID); ok {
-	//	ap.logger.Trace().Msg("anilist platform: Returning anime from cache")
-	//	event := new(GetAnimeEvent)
-	//	event.Anime = cachedAnime
-	//	err := hook.GlobalHookManager.OnGetAnime().Trigger(event)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return event.Anime, nil
-	//}
+	if cachedAnime, ok := ap.helper.GetCachedBaseAnime(mediaID); ok {
+		ap.logger.Trace().Msg("anilist platform: Returning anime from cache")
+		return ap.helper.TriggerGetAnimeEvent(cachedAnime)
+	}
 
+	// Check if this is a custom source entry
+	if media, isCustom, err := ap.helper.HandleCustomSourceAnime(ctx, mediaID); isCustom {
+		if err != nil {
+			return nil, err
+		}
+
+		triggeredMedia, err := ap.helper.TriggerGetAnimeEvent(media)
+		if err != nil {
+			return nil, err
+		}
+
+		ap.helper.SetCachedBaseAnime(mediaID, triggeredMedia)
+		return triggeredMedia, nil
+	}
+
+	// Get from AniList
 	ret, err := ap.anilistClient.BaseAnimeByID(ctx, &mediaID)
 	if err != nil {
-
 		return nil, err
 	}
 
 	media := ret.GetMedia()
-
-	event := new(GetAnimeEvent)
-	event.Anime = media
-
-	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)
+	triggeredMedia, err := ap.helper.TriggerGetAnimeEvent(media)
 	if err != nil {
 		return nil, err
 	}
 
-	//ap.baseAnimeCache.SetT(mediaID, event.Anime, time.Minute*30)
-
-	return event.Anime, nil
+	ap.helper.SetCachedBaseAnime(mediaID, triggeredMedia)
+	return triggeredMedia, nil
 }
 
 func (ap *AnilistPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*anilist.BaseAnime, error) {
@@ -251,79 +218,117 @@ func (ap *AnilistPlatform) GetAnimeByMalID(ctx context.Context, malID int) (*ani
 	}
 
 	media := ret.GetMedia()
-
-	event := new(GetAnimeEvent)
-	event.Anime = media
-
-	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)
-	if err != nil {
-		return nil, err
-	}
-
-	return event.Anime, nil
+	return ap.helper.TriggerGetAnimeEvent(media)
 }
 
 func (ap *AnilistPlatform) GetAnimeDetails(ctx context.Context, mediaID int) (*anilist.AnimeDetailsById_Media, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime details")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching anime details")
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := ap.helper.HandleCustomSourceAnimeDetails(ctx, mediaID); isCustom {
+		if err != nil {
+			return nil, err
+		}
+		return ap.helper.TriggerGetAnimeDetailsEvent(media)
+	}
+
+	// Get from AniList
 	ret, err := ap.anilistClient.AnimeDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
 
 	media := ret.GetMedia()
-
-	event := new(GetAnimeDetailsEvent)
-	event.Anime = media
-
-	err = hook.GlobalHookManager.OnGetAnimeDetails().Trigger(event)
-	if err != nil {
-		return nil, err
-	}
-
-	return event.Anime, nil
+	return ap.helper.TriggerGetAnimeDetailsEvent(media)
 }
 
 func (ap *AnilistPlatform) GetAnimeWithRelations(ctx context.Context, mediaID int) (*anilist.CompleteAnime, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime with relations")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching anime with relations")
+
+	if cachedAnime, ok := ap.helper.GetCachedCompleteAnime(mediaID); ok {
+		ap.logger.Trace().Msg("anilist platform: Cache HIT for anime with relations")
+		return cachedAnime, nil
+	}
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := ap.helper.HandleCustomSourceAnimeWithRelations(ctx, mediaID); isCustom {
+		if err != nil {
+			return nil, err
+		}
+		ap.helper.SetCachedCompleteAnime(mediaID, media)
+		return media, nil
+	}
+
+	// Get from AniList
 	ret, err := ap.anilistClient.CompleteAnimeByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
-	return ret.GetMedia(), nil
+	media := ret.GetMedia()
+
+	ap.helper.SetCachedCompleteAnime(mediaID, media)
+	return media, nil
 }
 
 func (ap *AnilistPlatform) GetManga(ctx context.Context, mediaID int) (*anilist.BaseManga, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching manga")
+	ap.logger.Trace().Int("mediaId", mediaID).Msg("anilist platform: Fetching manga")
+
+	if cachedManga, ok := ap.helper.GetCachedBaseManga(mediaID); ok {
+		ap.logger.Trace().Msg("anilist platform: Returning manga from cache")
+		return ap.helper.TriggerGetMangaEvent(cachedManga)
+	}
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := ap.helper.HandleCustomSourceManga(ctx, mediaID); isCustom {
+		if err != nil {
+			return nil, err
+		}
+
+		triggeredMedia, err := ap.helper.TriggerGetMangaEvent(media)
+		if err != nil {
+			return nil, err
+		}
+
+		ap.helper.SetCachedBaseManga(mediaID, triggeredMedia)
+		return triggeredMedia, nil
+	}
+
+	// Get from AniList
 	ret, err := ap.anilistClient.BaseMangaByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
 
 	media := ret.GetMedia()
-
-	event := new(GetMangaEvent)
-	event.Manga = media
-
-	err = hook.GlobalHookManager.OnGetManga().Trigger(event)
+	triggeredMedia, err := ap.helper.TriggerGetMangaEvent(media)
 	if err != nil {
 		return nil, err
 	}
 
-	return event.Manga, nil
+	ap.helper.SetCachedBaseManga(mediaID, triggeredMedia)
+	return triggeredMedia, nil
 }
 
 func (ap *AnilistPlatform) GetMangaDetails(ctx context.Context, mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching manga details")
+
+	// Check if this is a custom source entry
+	if media, isCustom, err := ap.helper.HandleCustomSourceMangaDetails(ctx, mediaID); isCustom {
+		return media, err
+	}
+
+	// Get from AniList
 	ret, err := ap.anilistClient.MangaDetailsByID(ctx, &mediaID)
 	if err != nil {
 		return nil, err
 	}
+
 	return ret.GetMedia(), nil
 }
 
 func (ap *AnilistPlatform) GetAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.animeCollection.IsPresent() {
-		event := new(GetCachedAnimeCollectionEvent)
+		event := new(platform.GetCachedAnimeCollectionEvent)
 		event.AnimeCollection = ap.animeCollection.MustGet()
 		err := hook.GlobalHookManager.OnGetCachedAnimeCollection().Trigger(event)
 		if err != nil {
@@ -341,7 +346,7 @@ func (ap *AnilistPlatform) GetAnimeCollection(ctx context.Context, bypassCache b
 		return nil, err
 	}
 
-	event := new(GetAnimeCollectionEvent)
+	event := new(platform.GetAnimeCollectionEvent)
 	event.AnimeCollection = ap.animeCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetAnimeCollection().Trigger(event)
@@ -354,7 +359,7 @@ func (ap *AnilistPlatform) GetAnimeCollection(ctx context.Context, bypassCache b
 
 func (ap *AnilistPlatform) GetRawAnimeCollection(ctx context.Context, bypassCache bool) (*anilist.AnimeCollection, error) {
 	if !bypassCache && ap.rawAnimeCollection.IsPresent() {
-		event := new(GetCachedRawAnimeCollectionEvent)
+		event := new(platform.GetCachedRawAnimeCollectionEvent)
 		event.AnimeCollection = ap.rawAnimeCollection.MustGet()
 		err := hook.GlobalHookManager.OnGetCachedRawAnimeCollection().Trigger(event)
 		if err != nil {
@@ -372,7 +377,7 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(ctx context.Context, bypassCach
 		return nil, err
 	}
 
-	event := new(GetRawAnimeCollectionEvent)
+	event := new(platform.GetRawAnimeCollectionEvent)
 	event.AnimeCollection = ap.rawAnimeCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetRawAnimeCollection().Trigger(event)
@@ -393,7 +398,7 @@ func (ap *AnilistPlatform) RefreshAnimeCollection(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	event := new(GetAnimeCollectionEvent)
+	event := new(platform.GetAnimeCollectionEvent)
 	event.AnimeCollection = ap.animeCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetAnimeCollection().Trigger(event)
@@ -401,7 +406,7 @@ func (ap *AnilistPlatform) RefreshAnimeCollection(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	event2 := new(GetRawAnimeCollectionEvent)
+	event2 := new(platform.GetRawAnimeCollectionEvent)
 	event2.AnimeCollection = ap.rawAnimeCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetRawAnimeCollection().Trigger(event2)
@@ -423,6 +428,9 @@ func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 		return err
 	}
 
+	// Merge the custom entries into the collection
+	ap.helper.MergeCustomSourceAnimeEntries(collection)
+
 	// Save the raw collection to App (retains the lists with no status)
 	collectionCopy := *collection
 	ap.rawAnimeCollection = mo.Some(&collectionCopy)
@@ -433,9 +441,7 @@ func (ap *AnilistPlatform) refreshAnimeCollection(ctx context.Context) error {
 	ap.rawAnimeCollection.MustGet().MediaListCollection.Lists = listsCopy
 
 	// Remove lists with no status (custom lists)
-	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.AnimeCollection_MediaListCollection_Lists, _ int) bool {
-		return list.Status != nil
-	})
+	collection.MediaListCollection.Lists = ap.helper.FilterOutCustomAnimeLists(collection.MediaListCollection.Lists)
 
 	// Save the collection to App
 	ap.animeCollection = mo.Some(collection)
@@ -461,7 +467,7 @@ func (ap *AnilistPlatform) GetAnimeCollectionWithRelations(ctx context.Context) 
 func (ap *AnilistPlatform) GetMangaCollection(ctx context.Context, bypassCache bool) (*anilist.MangaCollection, error) {
 
 	if !bypassCache && ap.mangaCollection.IsPresent() {
-		event := new(GetCachedMangaCollectionEvent)
+		event := new(platform.GetCachedMangaCollectionEvent)
 		event.MangaCollection = ap.mangaCollection.MustGet()
 		err := hook.GlobalHookManager.OnGetCachedMangaCollection().Trigger(event)
 		if err != nil {
@@ -479,7 +485,7 @@ func (ap *AnilistPlatform) GetMangaCollection(ctx context.Context, bypassCache b
 		return nil, err
 	}
 
-	event := new(GetMangaCollectionEvent)
+	event := new(platform.GetMangaCollectionEvent)
 	event.MangaCollection = ap.mangaCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetMangaCollection().Trigger(event)
@@ -495,7 +501,7 @@ func (ap *AnilistPlatform) GetRawMangaCollection(ctx context.Context, bypassCach
 
 	if !bypassCache && ap.rawMangaCollection.IsPresent() {
 		ap.logger.Trace().Msg("anilist platform: Returning raw manga collection from cache")
-		event := new(GetCachedRawMangaCollectionEvent)
+		event := new(platform.GetCachedRawMangaCollectionEvent)
 		event.MangaCollection = ap.rawMangaCollection.MustGet()
 		err := hook.GlobalHookManager.OnGetCachedRawMangaCollection().Trigger(event)
 		if err != nil {
@@ -513,7 +519,7 @@ func (ap *AnilistPlatform) GetRawMangaCollection(ctx context.Context, bypassCach
 		return nil, err
 	}
 
-	event := new(GetRawMangaCollectionEvent)
+	event := new(platform.GetRawMangaCollectionEvent)
 	event.MangaCollection = ap.rawMangaCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetRawMangaCollection().Trigger(event)
@@ -534,7 +540,7 @@ func (ap *AnilistPlatform) RefreshMangaCollection(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	event := new(GetMangaCollectionEvent)
+	event := new(platform.GetMangaCollectionEvent)
 	event.MangaCollection = ap.mangaCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetMangaCollection().Trigger(event)
@@ -542,7 +548,7 @@ func (ap *AnilistPlatform) RefreshMangaCollection(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	event2 := new(GetRawMangaCollectionEvent)
+	event2 := new(platform.GetRawMangaCollectionEvent)
 	event2.MangaCollection = ap.rawMangaCollection.MustGet()
 
 	err = hook.GlobalHookManager.OnGetRawMangaCollection().Trigger(event2)
@@ -563,6 +569,9 @@ func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 		return err
 	}
 
+	// Merge the custom entries into the collection
+	ap.helper.MergeCustomSourceMangaEntries(collection)
+
 	// Save the raw collection to App (retains the lists with no status)
 	collectionCopy := *collection
 	ap.rawMangaCollection = mo.Some(&collectionCopy)
@@ -573,29 +582,11 @@ func (ap *AnilistPlatform) refreshMangaCollection(ctx context.Context) error {
 	ap.rawMangaCollection.MustGet().MediaListCollection.Lists = listsCopy
 
 	// Remove lists with no status (custom lists)
-	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.MangaCollection_MediaListCollection_Lists, _ int) bool {
-		return list.Status != nil
-	})
+	collection.MediaListCollection.Lists = ap.helper.FilterOutCustomMangaLists(collection.MediaListCollection.Lists)
 
 	// Remove Novels from both collections
-	for _, list := range collection.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
-				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
-					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
-				})
-			}
-		}
-	}
-	for _, list := range ap.rawMangaCollection.MustGet().MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
-				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
-					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
-				})
-			}
-		}
-	}
+	ap.helper.RemoveNovelsFromMangaCollection(collection)
+	ap.helper.RemoveNovelsFromMangaCollection(ap.rawMangaCollection.MustGet())
 
 	// Save the collection to App
 	ap.mangaCollection = mo.Some(collection)
@@ -645,15 +636,7 @@ func (ap *AnilistPlatform) GetStudioDetails(ctx context.Context, studioID int) (
 		return nil, err
 	}
 
-	event := new(GetStudioDetailsEvent)
-	event.Studio = ret
-
-	err = hook.GlobalHookManager.OnGetStudioDetails().Trigger(event)
-	if err != nil {
-		return nil, err
-	}
-
-	return event.Studio, nil
+	return ap.helper.TriggerGetStudioDetailsEvent(ret)
 }
 
 func (ap *AnilistPlatform) GetAnilistClient() anilist.AnilistClient {
@@ -684,85 +667,5 @@ func (ap *AnilistPlatform) GetAnimeAiringSchedule(ctx context.Context) (*anilist
 		return nil, err
 	}
 
-	mediaIds := make([]*int, 0)
-	for _, list := range collection.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			mediaIds = append(mediaIds, &[]int{entry.GetMedia().GetID()}[0])
-		}
-	}
-
-	var ret *anilist.AnimeAiringSchedule
-
-	now := time.Now()
-	currentSeason, currentSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindCurrent)
-	previousSeason, previousSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindPrevious)
-	nextSeason, nextSeasonYear := anilist.GetSeasonInfo(now, anilist.GetSeasonKindNext)
-
-	ret, err = ap.anilistClient.AnimeAiringSchedule(ctx, mediaIds, &currentSeason, &currentSeasonYear, &previousSeason, &previousSeasonYear, &nextSeason, &nextSeasonYear)
-	if err != nil {
-		return nil, err
-	}
-
-	type animeScheduleMedia interface {
-		GetMedia() []*anilist.AnimeSchedule
-	}
-
-	foundIds := make(map[int]struct{})
-	addIds := func(n animeScheduleMedia) {
-		for _, m := range n.GetMedia() {
-			if m == nil {
-				continue
-			}
-			foundIds[m.GetID()] = struct{}{}
-		}
-	}
-	addIds(ret.GetOngoing())
-	addIds(ret.GetOngoingNext())
-	addIds(ret.GetPreceding())
-	addIds(ret.GetUpcoming())
-	addIds(ret.GetUpcomingNext())
-
-	missingIds := make([]*int, 0)
-	for _, list := range collection.MediaListCollection.Lists {
-		for _, entry := range list.Entries {
-			if _, found := foundIds[entry.GetMedia().GetID()]; found {
-				continue
-			}
-			endDate := entry.GetMedia().GetEndDate()
-			// Ignore if ended more than 2 months ago
-			if endDate == nil || endDate.GetYear() == nil || endDate.GetMonth() == nil {
-				missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
-				continue
-			}
-			endTime := time.Date(*endDate.GetYear(), time.Month(*endDate.GetMonth()), 1, 0, 0, 0, 0, time.UTC)
-			if endTime.Before(now.AddDate(0, -2, 0)) {
-				continue
-			}
-			missingIds = append(missingIds, &[]int{entry.GetMedia().GetID()}[0])
-		}
-	}
-
-	if len(missingIds) > 0 {
-		retB, err := ap.anilistClient.AnimeAiringScheduleRaw(ctx, missingIds)
-		if err != nil {
-			return nil, err
-		}
-		if len(retB.GetPage().GetMedia()) > 0 {
-			// Add to ongoing next
-			for _, m := range retB.Page.GetMedia() {
-				if ret.OngoingNext == nil {
-					ret.OngoingNext = &anilist.AnimeAiringSchedule_OngoingNext{
-						Media: make([]*anilist.AnimeSchedule, 0),
-					}
-				}
-				if m == nil {
-					continue
-				}
-
-				ret.OngoingNext.Media = append(ret.OngoingNext.Media, m)
-			}
-		}
-	}
-
-	return ret, nil
+	return ap.helper.BuildAnimeAiringSchedule(ctx, collection, ap.anilistClient)
 }

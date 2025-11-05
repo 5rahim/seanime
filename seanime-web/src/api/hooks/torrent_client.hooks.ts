@@ -3,9 +3,10 @@ import {
     TorrentClientAction_Variables,
     TorrentClientAddMagnetFromRule_Variables,
     TorrentClientDownload_Variables,
+    TorrentClientGetFiles_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { TorrentClient_Torrent } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, Nullish, TorrentClient_Torrent } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -61,3 +62,15 @@ export function useTorrentClientAddMagnetFromRule() {
     })
 }
 
+export function useTorrentClientGetFiles({ torrent, provider }: { torrent: Nullish<HibikeTorrent_AnimeTorrent>, provider: Nullish<string> }) {
+    return useServerQuery<Array<string>, TorrentClientGetFiles_Variables>({
+        endpoint: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.endpoint,
+        method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.methods[0],
+        queryKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientGetFiles.key, torrent, provider],
+        enabled: !!torrent && !!provider,
+        data: {
+            torrent: torrent!,
+            provider: provider!,
+        },
+    })
+}

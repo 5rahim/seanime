@@ -132,7 +132,7 @@ func getLanguageCode(track *TrackInfo) string {
 func getSubtitleTrackType(codecID string) string {
 	switch codecID {
 	case "S_TEXT/ASS":
-		return "SSA"
+		return "ASS"
 	case "S_TEXT/SSA":
 		return "SSA"
 	case "S_TEXT/UTF8":
@@ -208,6 +208,7 @@ type metadataHandler struct {
 
 	// Chapter parsing state
 	inEditionEntry   bool
+	currentEdition   uint64
 	inChapterAtom    bool
 	currentChapter   *ChapterInfo
 	inChapterDisplay bool
@@ -298,7 +299,9 @@ func (h *metadataHandler) HandleMasterEnd(id gomkv.ElementID, info gomkv.Element
 	case gomkv.EditionEntryElement:
 		h.inEditionEntry = false
 	case gomkv.ChapterAtomElement:
-		if h.currentChapter != nil && h.inEditionEntry {
+		// devnote: filter out chapters with end time
+		if h.currentChapter != nil && h.inEditionEntry && h.currentChapter.End == 0 {
+			h.currentChapter.EditionUID = h.currentEdition
 			h.mp.chapters = append(h.mp.chapters, h.currentChapter)
 		}
 		h.inChapterAtom = false
@@ -462,6 +465,13 @@ func (h *metadataHandler) HandleInteger(id gomkv.ElementID, value int64, info go
 		if h.inChapterAtom && h.currentChapter != nil {
 			h.currentChapter.UID = uint64(value)
 		}
+	case gomkv.EditionUIDElement:
+		if h.inChapterAtom && h.currentChapter != nil {
+			h.currentChapter.EditionUID = uint64(value)
+		}
+		if h.inEditionEntry {
+			h.currentEdition = uint64(value)
+		}
 	case gomkv.FileUIDElement:
 		if h.isAttachment && h.currentAttachment != nil {
 			h.currentAttachment.UID = uint64(value)
@@ -505,6 +515,21 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 	mp.parseMetadataOnce(ctx)
 
 	mp.metadataOnce.Do(func() {
+		// Keep chapters from a single edition (the one with the most chapters)
+		groupedChapters := lo.GroupBy(mp.chapters, func(item *ChapterInfo) uint64 {
+			return item.EditionUID
+		})
+
+		if len(groupedChapters) > 1 {
+			currentChapters := make([]*ChapterInfo, 0)
+			for _, chapters := range groupedChapters {
+				if len(chapters) > len(currentChapters) {
+					currentChapters = chapters
+				}
+			}
+			mp.chapters = currentChapters
+		}
+
 		result := &Metadata{
 			VideoTracks:    make([]*TrackInfo, 0),
 			AudioTracks:    make([]*TrackInfo, 0),
@@ -1070,7 +1095,7 @@ func findNextClusterOffset(rs io.ReadSeeker, seekOffset, backoffBytes int64) (in
 		seekOffset = 0
 	}
 
-	// Seek to the starting position
+	// SeekToSlow to the starting position
 	absPosOfNextRead, err := rs.Seek(seekOffset, io.SeekStart)
 	if err != nil {
 		return -1, fmt.Errorf("initial seek to %d failed: %w", seekOffset, err)
@@ -1146,7 +1171,7 @@ func findPrecedingOrCurrentClusterOffset(rs io.ReadSeeker, targetFileOffset int6
 			return -1, fmt.Errorf("cluster ID not found at or before offset %d", targetFileOffset)
 		}
 
-		// Seek and read
+		// SeekToSlow and read
 		_, err := rs.Seek(readStartPos, io.SeekStart)
 		if err != nil {
 			return -1, fmt.Errorf("seek to %d failed: %w", readStartPos, err)

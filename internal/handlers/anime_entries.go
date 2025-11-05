@@ -12,6 +12,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
+	"seanime/internal/platforms/shared_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/result"
@@ -24,6 +25,58 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
 )
+
+func (h *Handler) getAnimeEntry(c echo.Context, lfs []*anime.LocalFile, mId int) (*anime.Entry, error) {
+	// Get the host anime library files
+	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
+	if hydratedFromNakama && nakamaLfs != nil {
+		lfs = nakamaLfs
+	}
+
+	// Get the user's anilist collection
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return nil, err
+	}
+
+	if animeCollection == nil {
+		return nil, errors.New("anime collection not found")
+	}
+
+	// Create a new media entry
+	entry, err := anime.NewEntry(c.Request().Context(), &anime.NewEntryOptions{
+		MediaId:          mId,
+		LocalFiles:       lfs,
+		AnimeCollection:  animeCollection,
+		Platform:         h.App.AnilistPlatform,
+		MetadataProvider: h.App.MetadataProvider,
+		IsSimulated:      h.App.GetUser().IsSimulated,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
+	fillerEvent.Entry = entry
+	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
+	if err != nil {
+		return nil, h.RespondWithError(c, err)
+	}
+	entry = fillerEvent.Entry
+
+	if !fillerEvent.DefaultPrevented {
+		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
+	}
+
+	if hydratedFromNakama {
+		entry.IsNakamaEntry = true
+		for _, ep := range entry.Episodes {
+			ep.IsNakamaEpisode = true
+		}
+	}
+
+	return entry, nil
+}
 
 // HandleGetAnimeEntry
 //
@@ -46,52 +99,9 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Get the host anime library files
-	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(mId)
-	if hydratedFromNakama && nakamaLfs != nil {
-		lfs = nakamaLfs
-	}
-
-	// Get the user's anilist collection
-	animeCollection, err := h.App.GetAnimeCollection(false)
+	entry, err := h.getAnimeEntry(c, lfs, mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
-	}
-
-	if animeCollection == nil {
-		return h.RespondWithError(c, errors.New("anime collection not found"))
-	}
-
-	// Create a new media entry
-	entry, err := anime.NewEntry(c.Request().Context(), &anime.NewEntryOptions{
-		MediaId:          mId,
-		LocalFiles:       lfs,
-		AnimeCollection:  animeCollection,
-		Platform:         h.App.AnilistPlatform,
-		MetadataProvider: h.App.MetadataProvider,
-		IsSimulated:      h.App.GetUser().IsSimulated,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
-	fillerEvent.Entry = entry
-	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-	entry = fillerEvent.Entry
-
-	if !fillerEvent.DefaultPrevented {
-		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
-	}
-
-	if hydratedFromNakama {
-		entry.IsNakamaEntry = true
-		for _, ep := range entry.Episodes {
-			ep.IsNakamaEpisode = true
-		}
 	}
 
 	return h.RespondWithData(c, entry)
@@ -247,7 +257,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	b.Dir = strings.ToLower(b.Dir)
+	b.Dir = util.NormalizePath(b.Dir)
 
 	suggestions, found := entriesSuggestionsCache.Get(b.Dir)
 	if found {
@@ -262,7 +272,7 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *anime.LocalFile) string {
-		return filepath.Dir(item.GetNormalizedPath())
+		return util.NormalizePath(filepath.Dir(item.GetNormalizedPath()))
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]
@@ -280,11 +290,13 @@ func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 	h.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
 
 	res, err := anilist.ListAnimeM(
+		shared_platform.NewCacheLayer(h.App.AnilistClient),
 		lo.ToPtr(1),
 		&title,
 		lo.ToPtr(8),
 		nil,
 		[]*anilist.MediaStatus{lo.ToPtr(anilist.MediaStatusFinished), lo.ToPtr(anilist.MediaStatusReleasing), lo.ToPtr(anilist.MediaStatusCancelled), lo.ToPtr(anilist.MediaStatusHiatus)},
+		nil,
 		nil,
 		nil,
 		nil,

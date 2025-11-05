@@ -1,5 +1,10 @@
 import { useServerMutation, useServerQuery } from "../client/requests"
-import { NakamaCreateWatchParty_Variables, NakamaPlayVideo_Variables, SendNakamaMessage_Variables } from "../generated/endpoint.types"
+import {
+    NakamaCreateWatchParty_Variables,
+    NakamaJoinWatchParty_Variables,
+    NakamaPlayVideo_Variables,
+    SendNakamaMessage_Variables,
+} from "../generated/endpoint.types"
 import { API_ENDPOINTS } from "../generated/endpoints"
 import { Anime_LibraryCollection, Nakama_MessageResponse } from "../generated/types"
 
@@ -78,7 +83,7 @@ export function useNakamaCreateWatchParty() {
 }
 
 export function useNakamaJoinWatchParty() {
-    return useServerMutation<Nakama_MessageResponse>({
+    return useServerMutation<Nakama_MessageResponse, NakamaJoinWatchParty_Variables>({
         endpoint: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.endpoint,
         method: API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.methods[0],
         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaJoinWatchParty.key],

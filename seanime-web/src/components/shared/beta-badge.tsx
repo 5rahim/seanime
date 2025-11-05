@@ -1,15 +1,16 @@
 import { Badge, BadgeProps } from "@/components/ui/badge"
+import { cn } from "../ui/core/styling"
 
 type Props = BadgeProps
 
-export function BetaBadge(props: Props) {
+export function BetaBadge({ className, ...props }: Props) {
     return (
-        <Badge intent="warning" size="sm" className="align-middle ml-1.5" {...props}>Experimental</Badge>
+        <Badge intent="warning" size="sm" className={cn("align-middle ml-2 border-transparent", className)} {...props}>Beta</Badge>
     )
 }
 
-export function AlphaBadge(props: Props) {
+export function AlphaBadge({ className, ...props }: Props) {
     return (
-        <Badge intent="warning" size="sm" className="align-middle ml-1.5" {...props}>Alpha</Badge>
+        <Badge intent="warning" size="sm" className={cn("align-middle ml-2 border-transparent", className)} {...props}>Alpha</Badge>
     )
 }

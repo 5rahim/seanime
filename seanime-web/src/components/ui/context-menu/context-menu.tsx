@@ -16,7 +16,7 @@ export const ContextMenuAnatomy = defineStyleAnatomy({
     ]),
     subContent: cva([
         "UI-ContextMenu__subContent",
-        "z-50 min-w-[12rem] overflow-hidden rounded-[--radius] border bg-[--background] p-2 text-[--foreground] shadow-sm",
+        "z-50 min-w-[12rem] overflow-hidden rounded-xl border bg-[--background] p-2 text-[--foreground] shadow-sm",
         "data-[state=open]:animate-in",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-95",
@@ -31,7 +31,7 @@ export const ContextMenuAnatomy = defineStyleAnatomy({
     ]),
     root: cva([
         "UI-ContextMenu__root",
-        "z-50 min-w-[15rem] overflow-hidden rounded-[--radius] border bg-[--background] p-2 text-[--foreground] shadow-sm",
+        "z-50 min-w-[15rem] overflow-hidden rounded-xl border bg-[--background] p-2 text-[--foreground] shadow-sm",
         "data-[state=open]:animate-in",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-95",

@@ -1,5 +1,5 @@
 import { useServerMutation } from "@/api/client/requests"
-import { PlaybackPlayVideo_Variables, PlaybackStartManualTracking_Variables, PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
+import { PlaybackPlayVideo_Variables, PlaybackStartManualTracking_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Anime_LocalFile } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -29,24 +29,6 @@ export function usePlaybackPlayNextEpisode(...keys: any) {
         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayNextEpisode.key, ...keys],
         onSuccess: async () => {
 
-        },
-    })
-}
-
-export function usePlaybackStartPlaylist({
-    onSuccess,
-}: {
-    onSuccess?: () => void
-}) {
-    const queryClient = useQueryClient()
-
-    return useServerMutation<boolean, PlaybackStartPlaylist_Variables>({
-        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.endpoint,
-        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.methods[0],
-        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.key],
-        onSuccess: async () => {
-            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylists.key] })
-            onSuccess?.()
         },
     })
 }

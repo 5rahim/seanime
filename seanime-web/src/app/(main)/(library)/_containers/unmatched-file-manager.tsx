@@ -2,6 +2,9 @@ import { Anime_UnmatchedGroup } from "@/api/generated/types"
 import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
+import { useSeaCommandSearchSelectMedia } from "@/app/(main)/_features/sea-command/sea-command-search"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -14,7 +17,6 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { upath } from "@/lib/helpers/upath"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Image from "next/image"
 import React from "react"
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
@@ -123,6 +125,14 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
     const handleFetchSuggestions = React.useCallback(() => {
         fetchSuggestions({
             dir: currentGroup.dir,
+        }, {
+            onSuccess: data => {
+                setTimeout(() => {
+                    if (!data?.length) {
+                        toast.warning("No suggestions found, try searching manually")
+                    }
+                }, 500)
+            },
         })
     }, [currentGroup?.dir, fetchSuggestions])
 
@@ -145,6 +155,28 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
             setIsOpen(false)
         }
     }, [currentGroup])
+
+    // Search
+    const { setSeaCommandInput, setSeaCommandOpen } = useSeaCommand()
+    const { searchAndSelectMedia, selectedAnime, onAcknowledgeSelection } = useSeaCommandSearchSelectMedia()
+
+    function handleSearchAnime() {
+        searchAndSelectMedia("anime")
+        setSeaCommandOpen(true)
+        setTimeout(() => {
+            setSeaCommandInput("/search " + (currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || ""))
+        }, 200)
+    }
+
+    // user selected an anime
+    React.useEffect(() => {
+        if (selectedAnime) {
+            setAnilistId(selectedAnime.id)
+            setR(r => r + 1)
+            onAcknowledgeSelection()
+            setSeaCommandOpen(false)
+        }
+    }, [selectedAnime])
 
     if (!currentGroup) return null
 
@@ -186,7 +218,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-900 border  p-2 px-4 rounded-[--radius-md] line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-900 border text-sm tracking-wide p-2 px-4 rounded-[--radius-md] line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer({
                         path: currentGroup.dir,
                     })}
@@ -270,22 +302,23 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 <div className="flex flex-wrap items-center gap-1">
                     <Button
                         leftIcon={<FiSearch />}
-                        intent="primary-subtle"
+                        intent="white-link"
                         onClick={handleFetchSuggestions}
                     >
                         Fetch suggestions
                     </Button>
 
-                    <SeaLink
-                        target="_blank"
-                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}
-                    >
+                    {/*<SeaLink*/}
+                    {/*    target="_blank"*/}
+                    {/*    href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}*/}
+                    {/*>*/}
                         <Button
-                            intent="white-link"
+                            intent="white-subtle"
+                            onClick={handleSearchAnime}
                         >
                             Search on AniList
                         </Button>
-                    </SeaLink>
+                    {/*</SeaLink>*/}
 
                     <div className="flex flex-1"></div>
 
@@ -318,7 +351,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                     {media.coverImage?.medium && <div
                                         className="h-28 w-28 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                     >
-                                        <Image
+                                        <SeaImage
                                             src={media.coverImage.medium}
                                             alt={""}
                                             fill

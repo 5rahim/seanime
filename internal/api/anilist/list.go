@@ -10,6 +10,7 @@ import (
 )
 
 func ListMissedSequels(
+	client AnilistClient,
 	animeCollectionWithRelations *AnimeCollectionWithRelations,
 	logger *zerolog.Logger,
 	token string,
@@ -100,7 +101,7 @@ func ListMissedSequels(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +132,7 @@ func ListMissedSequels(
 }
 
 func ListAnimeM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -142,6 +144,7 @@ func ListAnimeM(
 	SeasonYear *int,
 	Format *MediaFormat,
 	IsAdult *bool,
+	CountryOfOrigin *string,
 	logger *zerolog.Logger,
 	token string,
 ) (*ListAnime, error) {
@@ -180,7 +183,9 @@ func ListAnimeM(
 	if IsAdult != nil {
 		variables["isAdult"] = *IsAdult
 	}
-
+	if CountryOfOrigin != nil {
+		variables["countryOfOrigin"] = *CountryOfOrigin
+	}
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"query":     ListAnimeDocument,
 		"variables": variables,
@@ -189,7 +194,7 @@ func ListAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +212,7 @@ func ListAnimeM(
 }
 
 func ListMangaM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -266,7 +272,7 @@ func ListMangaM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -284,6 +290,7 @@ func ListMangaM(
 }
 
 func ListRecentAiringAnimeM(
+	client AnilistClient,
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -328,7 +335,7 @@ func ListRecentAiringAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger, token)
+	data, err := client.CustomQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +366,7 @@ func ListAnimeCacheKey(
 	SeasonYear *int,
 	Format *MediaFormat,
 	IsAdult *bool,
+	CountryOfOrigin *string,
 ) string {
 
 	key := "ListAnime"
@@ -395,7 +403,9 @@ func ListAnimeCacheKey(
 	if IsAdult != nil {
 		key += fmt.Sprintf("_%t", *IsAdult)
 	}
-
+	if CountryOfOrigin != nil {
+		key += fmt.Sprintf("_%s", *CountryOfOrigin)
+	}
 	return key
 
 }
@@ -414,7 +424,7 @@ func ListMangaCacheKey(
 	IsAdult *bool,
 ) string {
 
-	key := "ListAnime"
+	key := "ListManga"
 	if Page != nil {
 		key += fmt.Sprintf("_%d", *Page)
 	}

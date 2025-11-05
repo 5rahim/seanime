@@ -1,6 +1,6 @@
 import { useGetDebridSettings, useSaveDebridSettings } from "@/api/hooks/debrid.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
@@ -8,6 +8,9 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
+import { HiOutlineServerStack } from "react-icons/hi2"
+import { LuCirclePlay } from "react-icons/lu"
+import { toast } from "sonner"
 
 const debridSettingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean().default(false),
@@ -40,6 +43,12 @@ export function DebridSettings(props: DebridSettingsProps) {
     return (
         <div className="space-y-4">
 
+            <SettingsPageHeader
+                title="Debrid Service"
+                description="Configure your Debrid service integration"
+                icon={HiOutlineServerStack}
+            />
+
             <Form
                 schema={debridSettingsSchema}
                 mRef={formRef}
@@ -56,6 +65,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                             {
                                 onSuccess: () => {
                                     formRef.current?.reset(formRef.current.getValues())
+                                    toast.success("Settings saved")
                                 },
                             },
                         )
@@ -112,9 +122,11 @@ export function DebridSettings(props: DebridSettingsProps) {
                             />
                         </SettingsCard>
 
-                        <h3>
-                            Debrid Streaming
-                        </h3>
+                        <SettingsPageHeader
+                            title="Debrid Streaming"
+                            description="Configure how shows are streaming from your Debrid service"
+                            icon={LuCirclePlay}
+                        />
 
                         <SettingsCard title="My library">
                             <Field.Switch

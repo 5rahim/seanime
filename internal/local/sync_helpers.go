@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
@@ -89,7 +90,7 @@ func MediaListStatusPointerValue(a *anilist.MediaListStatus) anilist.MediaListSt
 func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId int, episodeImageUrls map[string]string) (map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeEpisodeImages", func() {})
 
-	logger.Trace().Msgf("local manager: Downloading episode images for anime %d", mId)
+	logger.Trace().Msgf("local manager: Downloading %d episode images for anime %d", len(episodeImageUrls), mId)
 
 	// e.g. /path/to/datadir/local/assets/123
 	mediaAssetPath := filepath.Join(assetsDir, fmt.Sprintf("%d", mId))
@@ -135,7 +136,7 @@ func DownloadAnimeImages(
 	assetsDir string,
 	entry *anilist.AnimeListEntry,
 	animeMetadata *metadata.AnimeMetadata, // This is updated
-	metadataWrapper metadata.AnimeMetadataWrapper,
+	metadataWrapper metadata_provider.AnimeMetadataWrapper,
 	lfs []*anime.LocalFile,
 ) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})

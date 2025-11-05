@@ -25,7 +25,7 @@ export function MissingEpisodes({ isLoading, data }: {
 
     return (
         <>
-            <AppLayoutStack spacing="lg">
+            <AppLayoutStack>
 
                 {!!missingEpisodes?.length && (
                     <>

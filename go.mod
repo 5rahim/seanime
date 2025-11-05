@@ -1,6 +1,6 @@
 module seanime
 
-go 1.24.3
+go 1.25.1
 
 require (
 	fyne.io/systray v1.11.0
@@ -34,7 +34,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
 	github.com/huin/goupnp v1.3.0
-	github.com/imroc/req/v3 v3.54.0
+	github.com/imroc/req/v3 v3.55.0
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/mileusna/useragent v1.3.5

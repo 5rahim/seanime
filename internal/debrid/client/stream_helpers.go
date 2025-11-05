@@ -20,7 +20,12 @@ func (s *StreamManager) getMediaInfo(ctx context.Context, mediaId int) (media *a
 		// Fetch the media
 		media, err = s.repository.platform.GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			baseMedia, lErr := s.repository.platform.GetAnime(ctx, mediaId)
+			if lErr != nil {
+				return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
+			}
+			media = baseMedia.ToCompleteAnime()
+			err = nil
 		}
 	}
 

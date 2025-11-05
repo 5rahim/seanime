@@ -4,6 +4,7 @@ import { useTorrentClientAddMagnetFromRule } from "@/api/hooks/torrent_client.ho
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import React from "react"
@@ -33,7 +34,7 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
     if (isLoading) return <LoadingSpinner />
 
     return (
-        <div className="space-y-4">
+        <Card className="p-4 space-y-4">
             <ul className="text-base text-[--muted]">
                 <li>
                     The queue shows items waiting to be downloaded or scanned.
@@ -113,6 +114,6 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                     </div>
                 </div>
             ))}
-        </div>
+        </Card>
     )
 }

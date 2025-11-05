@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/result"
@@ -32,7 +33,7 @@ type NewEpisodeCollectionOptions struct {
 	// AnimeMetadata can be nil, if not provided, it will be fetched from the metadata provider.
 	AnimeMetadata    *metadata.AnimeMetadata
 	Media            *anilist.BaseAnime
-	MetadataProvider metadata.Provider
+	MetadataProvider metadata_provider.Provider
 	Logger           *zerolog.Logger
 }
 
@@ -84,7 +85,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 		Metadata:          opts.AnimeMetadata,
 		EpisodeCollection: &EpisodeCollection{},
 	}
-	err = hook.GlobalHookManager.OnAnimEpisodeCollectionRequested().Trigger(reqEvent)
+	err = hook.GlobalHookManager.OnAnimeEpisodeCollectionRequested().Trigger(reqEvent)
 	if err != nil {
 		return nil, err
 	}
@@ -196,17 +197,13 @@ type NewEpisodeCollectionFromLocalFilesOptions struct {
 	Media            *anilist.BaseAnime
 	AnimeCollection  *anilist.AnimeCollection
 	Platform         platform.Platform
-	MetadataProvider metadata.Provider
+	MetadataProvider metadata_provider.Provider
 	Logger           *zerolog.Logger
 }
 
 func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeCollectionFromLocalFilesOptions) (*EpisodeCollection, error) {
 	if opts.Logger == nil {
 		opts.Logger = lo.ToPtr(zerolog.Nop())
-	}
-
-	if ec, ok := EpisodeCollectionFromLocalFilesCache.Get(opts.Media.GetID()); ok {
-		return ec, nil
 	}
 
 	// Make sure to keep the local files from the media only
@@ -248,8 +245,6 @@ func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeColl
 		Episodes:        entry.Episodes,
 		Metadata:        animeMetadata,
 	}
-
-	EpisodeCollectionFromLocalFilesCache.SetT(opts.Media.GetID(), ec, time.Hour*6)
 
 	return ec, nil
 }

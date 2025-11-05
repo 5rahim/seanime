@@ -1,6 +1,5 @@
 import { usePlaybackPlayRandomVideo } from "@/api/hooks/playback_manager.hooks"
-import { IconButton } from "@/components/ui/button"
-import { Tooltip } from "@/components/ui/tooltip"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import React from "react"
 import { LiaRandomSolid } from "react-icons/lia"
 
@@ -19,15 +18,10 @@ export function PlayRandomEpisodeButton(props: PlayRandomEpisodeButtonProps) {
 
     return (
         <>
-            <Tooltip
-                trigger={<IconButton
-                    data-play-random-episode-button
-                    intent={"white-subtle"}
-                    icon={<LiaRandomSolid className="text-2xl" />}
-                    loading={isPending}
-                    onClick={() => playRandom()}
-                />}
-            >Play random anime</Tooltip>
+            <DropdownMenuItem>
+                <LiaRandomSolid className="text-2xl" />
+                <span>Play random anime</span>
+            </DropdownMenuItem>
         </>
     )
 }

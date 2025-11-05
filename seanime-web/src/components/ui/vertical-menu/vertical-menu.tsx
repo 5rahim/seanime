@@ -19,8 +19,8 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-VerticalMenu__item",
-        "group/verticalMenu_item relative flex flex-none truncate items-center w-full font-medium rounded-[--radius] transition cursor-pointer",
-        "hover:bg-[--subtle] hover:text-[--foreground]",
+        "group/verticalMenu_item relative flex flex-none items-center w-full font-medium rounded-lg transition cursor-pointer",
+        "hover:text-[--foreground]",
         "focus-visible:bg-[--subtle] outline-none text-[--muted]",
         "data-[current=true]:bg-[--subtle] data-[current=true]:text-[--foreground]",
     ], {
@@ -29,9 +29,14 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
                 true: "justify-center",
                 false: null,
             },
+            isSidebar: {
+                true: "rounded-full",
+                false: null,
+            },
         },
         defaultVariants: {
             collapsed: false,
+            isSidebar: false,
         },
     }),
     itemContent: cva([
@@ -48,10 +53,15 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
                 true: "justify-center",
                 false: null,
             },
+            isSidebar: {
+                true: "",
+                false: null,
+            },
         },
         defaultVariants: {
             size: "md",
             collapsed: false,
+            isSidebar: false,
         },
     }),
     parentItem: cva([
@@ -73,6 +83,10 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
                 true: "top-1 left-1 size-3",
                 false: null,
             },
+            isSidebar: {
+                true: "",
+                false: null,
+            },
         },
         defaultVariants: {
             size: "md",
@@ -81,7 +95,7 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
     }),
     itemIcon: cva([
         "UI-VerticalMenu__itemIcon",
-        "flex-shrink-0 mr-3",
+        "flex-shrink-0 mr-3 transition",
         "text-[--muted] text-xl",
         "group-hover/verticalMenu_item:text-[--foreground]", // Item Hover
         "group-data-[current=true]/verticalMenu_item:text-[--foreground]", // Item Current
@@ -94,6 +108,10 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
             },
             collapsed: {
                 true: "mr-0",
+                false: null,
+            },
+            isSidebar: {
+                true: "group-hover/verticalMenu_item:scale-[1.05] group-hover/verticalMenu_item:-rotate-2",
                 false: null,
             },
         },
@@ -125,6 +143,7 @@ export type VerticalMenuItem = {
     subContent?: React.ReactNode
     subContentOpen?: boolean
     onSubContentOpenChange?: (open: boolean) => void
+    isSidebar?: boolean
 }
 
 export type VerticalMenuProps = React.ComponentPropsWithRef<"div"> &
@@ -166,6 +185,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
         itemTooltipProps,
         className,
         items,
+        isSidebar,
         ...rest
     } = props
 
@@ -179,7 +199,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
 
     const itemProps = (item: VerticalMenuItem) => ({
         className: cn(
-            VerticalMenuAnatomy.item({ collapsed }),
+            VerticalMenuAnatomy.item({ collapsed, isSidebar }),
             itemClass,
         ),
         "data-current": item.isCurrent,
@@ -207,14 +227,14 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
             <div
                 data-vertical-menu-item={item.name}
                 className={cn(
-                    VerticalMenuAnatomy.itemContent({ size, collapsed }),
+                    VerticalMenuAnatomy.itemContent({ size, collapsed, isSidebar }),
                     itemContentClass,
                     item.className,
                 )}
             >
                 {item.iconType && <item.iconType
                     className={cn(
-                        VerticalMenuAnatomy.itemIcon({ size, collapsed }),
+                        VerticalMenuAnatomy.itemIcon({ size, collapsed, isSidebar }),
                         itemIconClass,
                         item.iconClass,
                     )}
@@ -226,7 +246,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                 {item.addon}
             </div>
         </ItemContentWrapper>
-    ), [collapsed, size, itemContentClass, itemIconClass])
+    ), [collapsed, size, itemContentClass, itemIconClass, isSidebar])
 
     return (
         <nav
@@ -265,7 +285,7 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                                             <DisclosureTrigger>
                                                 <button
                                                     className={cn(
-                                                        VerticalMenuAnatomy.item({ collapsed }),
+                                                        VerticalMenuAnatomy.item({ collapsed, isSidebar }),
                                                         itemClass,
                                                         VerticalMenuAnatomy.parentItem(),
                                                         parentItemClass,
@@ -285,7 +305,8 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                                                         strokeWidth="2"
                                                         strokeLinecap="round"
                                                         strokeLinejoin="round"
-                                                        className={cn(VerticalMenuAnatomy.itemChevron({ size, collapsed }), itemChevronClass)}
+                                                        className={cn(VerticalMenuAnatomy.itemChevron({ size, collapsed, isSidebar }),
+                                                            itemChevronClass)}
                                                     >
                                                         <polyline points="9 18 15 12 9 6"></polyline>
                                                     </svg>

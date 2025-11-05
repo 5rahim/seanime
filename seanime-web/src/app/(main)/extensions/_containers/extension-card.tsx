@@ -10,6 +10,7 @@ import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extensio
 import { ExtensionUserConfigModal } from "@/app/(main)/extensions/_containers/extension-user-config"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { SeaImage } from "@/components/shared/sea-image"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -18,12 +19,10 @@ import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
-import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React from "react"
-import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
-import { HiOutlineAdjustments } from "react-icons/hi"
-import { LuEllipsisVertical, LuRefreshCcw } from "react-icons/lu"
+import { LuCode, LuEllipsisVertical, LuRefreshCcw, LuSearch, LuSettings2 } from "react-icons/lu"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
 import { toast } from "sonner"
@@ -47,6 +46,8 @@ export function ExtensionCard(props: ExtensionCardProps) {
         ...rest
     } = props
 
+    const router = useRouter()
+
     const isBuiltin = extension.manifestURI === "builtin"
 
     const { mutate: reloadExternalExtension, isPending: isReloadingExtension } = useReloadExternalExtension()
@@ -55,14 +56,14 @@ export function ExtensionCard(props: ExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-md p-3",
+                "bg-gray-900 rounded-xl p-3",
                 !!updateData && "border-[--green]",
             )}
         >
             <div
                 className={cn(
                     "absolute z-[0] right-0 top-0 h-full w-full max-w-[150px] bg-gradient-to-l to-gray-950",
-                    !isBuiltin && "max-w-[50%] from-indigo-950/20",
+                    // !isBuiltin && "max-w-[50%] from-indigo-950/20",
                 )}
             ></div>
 
@@ -78,7 +79,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                         trigger={<IconButton
                                             size="sm"
                                             intent={userConfigError ? "alert" : "gray-basic"}
-                                            icon={<HiOutlineAdjustments />}
+                                            icon={<LuSettings2 />}
                                             className={cn(
                                                 userConfigError && "animate-bounce",
                                             )}
@@ -109,7 +110,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                     trigger={<IconButton
                                         size="sm"
                                         intent="gray-basic"
-                                        icon={<FaCode />}
+                                        icon={<LuCode />}
                                     />}
                                     side="left"
                                 >Code</Tooltip>
@@ -138,9 +139,14 @@ export function ExtensionCard(props: ExtensionCardProps) {
 
             <div className="z-[1] relative flex flex-col h-full">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 flex-none bg-gray-900 overflow-hidden">
+                    <div
+                        className={cn(
+                            "relative rounded-md size-12 flex-none bg-gray-950 overflow-hidden",
+                            !!extension.icon && "bg-gray-900",
+                        )}
+                    >
                         {!!extension.icon ? (
-                            <Image
+                            <SeaImage
                                 src={extension.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"
@@ -157,8 +163,19 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     </div>
 
                     <div>
-                        <p className="font-semibold line-clamp-1">
+                        <p
+                            className={cn(
+                                "font-semibold line-clamp-1 flex items-center gap-1",
+                                extension.type === "custom-source" && "cursor-pointer hover:underline hover:underline-offset-2 hover:decoration-2 hover:decoration-solid hover:decoration-gray-500",
+                            )}
+                            onClick={() => {
+                                if (extension.type === "custom-source") {
+                                    router.push(`/custom-sources?provider=${extension.id}`)
+                                }
+                            }}
+                        >
                             {extension.name}
+                            {extension.type === "custom-source" && <LuSearch className="ml-1 text-lg inline-block" />}
                         </p>
                         <Popover
                             className="text-sm cursor-pointer" trigger={<p className="opacity-30 mt-1 text-xs line-clamp-1 tracking-wide">
@@ -174,16 +191,16 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
                         Built-in
                     </Badge>}
-                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : undefined}>
+                    {!!extension.version && <Badge className="rounded-md tracking-wide" intent={!!updateData ? "success" : "unstyled"}>
                         {extension.version}{!!updateData ? " → " + updateData.version : ""}
                     </Badge>}
                     {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>}
-                    <Badge className="rounded-md" intent="unstyled">
+                    {extension.lang?.toUpperCase() !== "MULTI" && <Badge className="border-transparent rounded-md !px-0" intent="unstyled">
                         {/*{extension.lang.toUpperCase()}*/}
                         {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
-                    </Badge>
+                    </Badge>}
                     {/*<Badge className="rounded-md" intent="unstyled">*/}
                     {/*    {capitalize(extension.language)}*/}
                     {/*</Badge>*/}

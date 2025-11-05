@@ -1,4 +1,5 @@
 "use client"
+import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discover-airing-schedule"
@@ -11,13 +12,16 @@ import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-upc
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { RecentReleases } from "@/app/(main)/schedule/_containers/recent-releases"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { StaticTabs } from "@/components/ui/tabs"
+import { HIDE_IMAGES } from "@/types/constants"
 import { useAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FaSearch } from "react-icons/fa"
+import { MdDataSaverOn } from "react-icons/md"
 
 export const dynamic = "force-static"
 
@@ -30,6 +34,8 @@ export default function Page() {
     const searchParams = useSearchParams()
     const searchType = searchParams.get("type")
 
+    const { data: customSources } = useListCustomSourceExtensions()
+
     React.useEffect(() => {
         if (searchType) {
             setPageType(searchType as any)
@@ -38,7 +44,7 @@ export default function Page() {
 
     return (
         <>
-            <DiscoverPageHeader />
+            <DiscoverPageHeader playTrailer={!HIDE_IMAGES} />
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -65,6 +71,19 @@ export default function Page() {
                             ]}
                         />
                     </div>
+                    {!!customSources?.length && <div data-discover-page-header-custom-source-container>
+                        <SeaLink href="/custom-sources">
+                            <Button
+                                leftIcon={<MdDataSaverOn className="text-lg" />}
+                                intent="gray-outline"
+                                // size="lg"
+                                className="rounded-full"
+                                onClick={() => router.push("/search")}
+                            >
+                                Custom sources
+                            </Button>
+                        </SeaLink>
+                    </div>}
                     <div data-discover-page-header-advanced-search-container>
                         <Button
                             leftIcon={<FaSearch />}
@@ -80,7 +99,7 @@ export default function Page() {
                 <AnimatePresence mode="wait" initial={false}>
                     {pageType === "anime" && <PageWrapper
                         key="anime"
-                        className="relative 2xl:order-first pb-10 pt-4"
+                        className="relative 2xl:order-first pb-10 pt-4 space-y-8"
                         {...{
                             initial: { opacity: 0, y: 60 },
                             animate: { opacity: 1, y: 0 },
@@ -152,7 +171,7 @@ export default function Page() {
                         {/*</div>*/}
                         <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-container>
                             <h2>Trending Manga</h2>
-                            <DiscoverTrendingCountry country="JP" />
+                            <DiscoverTrendingCountry country="JP" forDiscoverHeader />
                         </div>
                         <div className="space-y-2 z-[5] relative" data-discover-page-manga-trending-manhwa-container>
                             <h2>Trending Manhwa</h2>

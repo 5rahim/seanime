@@ -75,6 +75,8 @@ const (
 )
 
 type WatchPartyManager struct {
+	clientId string // used for native player
+
 	logger  *zerolog.Logger
 	manager *Manager
 
@@ -83,7 +85,7 @@ type WatchPartyManager struct {
 	sessionCtxCancel context.CancelFunc            // Cancel function for the current watch party session
 	mu               sync.RWMutex                  // Mutex for the watch party manager
 
-	// Seek management to prevent choppy playback
+	// SeekToSlow management to prevent choppy playback
 	lastSeekTime time.Time     // Time of last seek operation
 	seekCooldown time.Duration // Minimum time between seeks
 
@@ -91,7 +93,7 @@ type WatchPartyManager struct {
 	catchUpCancel context.CancelFunc // Cancel function for catch-up operations
 	catchUpMu     sync.Mutex         // Mutex for catch-up operations
 
-	// Seek management
+	// SeekToSlow management
 	pendingSeekTime     time.Time  // When a seek was initiated
 	pendingSeekPosition float64    // Position we're seeking to
 	seekMu              sync.Mutex // Mutex for seek state
@@ -140,6 +142,8 @@ type WatchPartySessionParticipant struct {
 	IsReady    bool      `json:"isReady"`
 	LastSeen   time.Time `json:"lastSeen"`
 	Latency    int64     `json:"latency"` // in milliseconds
+	// Player settings
+	UseDenshiPlayer bool `json:"useDenshiPlayer"` // Whether this participant uses Denshi player
 	// Buffering state
 	IsBuffering    bool                        `json:"isBuffering"`
 	BufferHealth   float64                     `json:"bufferHealth"`             // 0.0 to 1.0, how much buffer is available
@@ -200,11 +204,12 @@ type (
 	}
 
 	WatchPartyPeerStatusPayload struct {
-		PeerId         string                     `json:"peerId"`
-		PlaybackStatus mediaplayer.PlaybackStatus `json:"playbackStatus"`
-		IsBuffering    bool                       `json:"isBuffering"`
-		BufferHealth   float64                    `json:"bufferHealth"` // 0.0 to 1.0
-		Timestamp      time.Time                  `json:"timestamp"`
+		PeerId          string                     `json:"peerId"`
+		PlaybackStatus  mediaplayer.PlaybackStatus `json:"playbackStatus"`
+		IsBuffering     bool                       `json:"isBuffering"`
+		BufferHealth    float64                    `json:"bufferHealth"` // 0.0 to 1.0
+		UseDenshiPlayer bool                       `json:"useDenshiPlayer"`
+		Timestamp       time.Time                  `json:"timestamp"`
 	}
 
 	WatchPartyBufferUpdatePayload struct {

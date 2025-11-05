@@ -8,8 +8,8 @@ import {
     useCurrentDevicePlaybackSettings,
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
+import { useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
@@ -40,7 +40,7 @@ export function useHandlePlayMedia() {
 
     const { mutate: directstreamPlayLocalFile } = useDirectstreamPlayLocalFile()
 
-    const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
+    const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
 
     function playMediaFile({ path, mediaId, episode }: { path: string, mediaId: number, episode: Anime_Episode }) {
         const anidbEpisode = episode.localFile?.metadata?.aniDBEpisode ?? ""
@@ -73,7 +73,7 @@ export function useHandlePlayMedia() {
                 }
                 return
             }
-            return playNakamaVideo({ path, mediaId, anidbEpisode })
+            return playNakamaVideo({ path, mediaId, anidbEpisode, clientId: clientId ?? "" })
         }
 
         logger("PLAY MEDIA").info("Playing media file", path)

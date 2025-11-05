@@ -37,7 +37,7 @@ export function DiscoverPopular() {
                             key={media.id}
                             media={media}
                             showLibraryBadge
-                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                             showTrailer
                             type="anime"
                         />
@@ -89,7 +89,7 @@ export function DiscoverThisSeason() {
                             key={media.id}
                             media={media}
                             showLibraryBadge
-                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                             showTrailer
                             type="anime"
                         />
@@ -141,7 +141,7 @@ export function DiscoverPastSeason() {
                             key={media.id}
                             media={media}
                             showLibraryBadge
-                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 mt-8 mb-0"
                             showTrailer
                             type="anime"
                         />

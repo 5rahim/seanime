@@ -17,7 +17,9 @@ type StartRandomVideoOptions struct {
 // StartRandomVideo starts a random video from the collection.
 // Note that this might now be suited if the user has multiple seasons of the same anime.
 func (pm *PlaybackManager) StartRandomVideo(opts *StartRandomVideoOptions) error {
-	pm.playlistHub.reset()
+	if pm.isPlaylistActive.Load() {
+		return fmt.Errorf("cannot start random video while a playlist is active")
+	}
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}

@@ -331,15 +331,16 @@ func (h *Handler) HandleDebridGetTorrentFilePreviews(c echo.Context) error {
 //	@route /api/v1/debrid/stream/start [POST]
 func (h *Handler) HandleDebridStartStream(c echo.Context) error {
 	type body struct {
-		MediaId       int                              `json:"mediaId"`
-		EpisodeNumber int                              `json:"episodeNumber"`
-		AniDBEpisode  string                           `json:"aniDBEpisode"`
-		AutoSelect    bool                             `json:"autoSelect"`
-		Torrent       *hibiketorrent.AnimeTorrent      `json:"torrent"`
-		FileId        string                           `json:"fileId"`
-		FileIndex     *int                             `json:"fileIndex"`
-		PlaybackType  debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
-		ClientId      string                           `json:"clientId"`
+		MediaId           int                              `json:"mediaId"`
+		EpisodeNumber     int                              `json:"episodeNumber"`
+		AniDBEpisode      string                           `json:"aniDBEpisode"`
+		AutoSelect        bool                             `json:"autoSelect"`
+		Torrent           *hibiketorrent.AnimeTorrent      `json:"torrent"`
+		FileId            string                           `json:"fileId"`
+		FileIndex         *int                             `json:"fileIndex"`
+		PlaybackType      debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
+		ClientId          string                           `json:"clientId"`
+		BatchEpisodeFiles *hibiketorrent.BatchEpisodeFiles `json:"batchEpisodeFiles"`
 	}
 
 	var b body
@@ -364,16 +365,17 @@ func (h *Handler) HandleDebridStartStream(c echo.Context) error {
 	}
 
 	err := h.App.DebridClientRepository.StartStream(c.Request().Context(), &debrid_client.StartStreamOptions{
-		MediaId:       b.MediaId,
-		EpisodeNumber: b.EpisodeNumber,
-		AniDBEpisode:  b.AniDBEpisode,
-		Torrent:       b.Torrent,
-		FileId:        b.FileId,
-		FileIndex:     b.FileIndex,
-		UserAgent:     userAgent,
-		ClientId:      b.ClientId,
-		PlaybackType:  b.PlaybackType,
-		AutoSelect:    b.AutoSelect,
+		MediaId:           b.MediaId,
+		EpisodeNumber:     b.EpisodeNumber,
+		AniDBEpisode:      b.AniDBEpisode,
+		Torrent:           b.Torrent,
+		FileId:            b.FileId,
+		FileIndex:         b.FileIndex,
+		UserAgent:         userAgent,
+		ClientId:          b.ClientId,
+		PlaybackType:      b.PlaybackType,
+		AutoSelect:        b.AutoSelect,
+		BatchEpisodeFiles: b.BatchEpisodeFiles,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)

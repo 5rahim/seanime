@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
+	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
@@ -34,7 +36,10 @@ type Manager struct {
 	playbackManager         *playbackmanager.PlaybackManager
 	torrentstreamRepository *torrentstream.Repository
 	debridClientRepository  *debrid_client.Repository
+	directstreamManager     *directstream.Manager
 	peerId                  string
+	nativePlayer            *nativeplayer.NativePlayer
+	mediaController         *MediaController
 
 	// Host connections (when acting as host)
 	peerConnections *result.Map[string, *PeerConnection]
@@ -61,6 +66,10 @@ type Manager struct {
 	watchPartyManager *WatchPartyManager
 
 	previousPath string // latest file streamed by the peer - real path on the host
+
+	// Client settings
+	useDenshiPlayer bool         // Whether this client uses Denshi player
+	clientMu        sync.RWMutex // Mutex for client settings
 }
 
 type NewManagerOptions struct {
@@ -72,6 +81,8 @@ type NewManagerOptions struct {
 	Platform                platform.Platform
 	ServerHost              string
 	ServerPort              int
+	NativePlayer            *nativeplayer.NativePlayer
+	DirectStreamManager     *directstream.Manager
 }
 
 type ConnectionType string
@@ -182,6 +193,10 @@ type ClientEvent struct {
 	Payload interface{} `json:"payload"`
 }
 
+type NakamaStatusRequestedPayload struct {
+	UseDenshiPlayer bool `json:"useDenshiPlayer"`
+}
+
 func NewManager(opts *NewManagerOptions) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -203,8 +218,12 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		torrentstreamRepository: opts.TorrentstreamRepository,
 		debridClientRepository:  opts.DebridClientRepository,
 		previousPath:            "",
+		nativePlayer:            opts.NativePlayer,
+		useDenshiPlayer:         false,
+		directstreamManager:     opts.DirectStreamManager,
 	}
 
+	m.mediaController = NewMediaController(m)
 	m.watchPartyManager = NewWatchPartyManager(m)
 
 	// Register default message handlers
@@ -214,6 +233,28 @@ func NewManager(opts *NewManagerOptions) *Manager {
 	go func() {
 		for event := range eventListener.Channel {
 			if event.Type == events.NakamaStatusRequested {
+				var payload NakamaStatusRequestedPayload
+				marshaledPayload, err := json.Marshal(event.Payload)
+				if err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to marshal nakama status requested payload")
+					continue
+				}
+				err = json.Unmarshal(marshaledPayload, &payload)
+				if err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to unmarshal nakama status requested payload")
+					continue
+				}
+
+				// Store the client's UseDenshiPlayer setting
+				m.clientMu.Lock()
+				m.useDenshiPlayer = payload.UseDenshiPlayer
+				if m.useDenshiPlayer {
+					m.mediaController.SetType(MediaControllerTypeNativePlayer)
+				} else {
+					m.mediaController.SetType(MediaControllerTypePlaybackManager)
+				}
+				m.clientMu.Unlock()
+
 				currSession, _ := m.GetWatchPartyManager().GetCurrentSession()
 				status := &NakamaStatus{
 					IsHost:                   m.IsHost(),
@@ -474,6 +515,13 @@ func (m *Manager) GetConnectedPeers() []string {
 	})
 
 	return peers
+}
+
+// GetUseDenshiPlayer returns whether this client uses Denshi player
+func (m *Manager) GetUseDenshiPlayer() bool {
+	m.clientMu.RLock()
+	defer m.clientMu.RUnlock()
+	return m.useDenshiPlayer
 }
 
 // IsConnectedToHost returns whether this instance is connected to a host

@@ -161,6 +161,12 @@ func (i *Iina) Exited() chan struct{} {
 	return i.exitedCh
 }
 
+func (i *Iina) Quit() {
+	if cmdCancel != nil {
+		cmdCancel()
+	}
+}
+
 func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -201,6 +207,25 @@ func (i *Iina) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (i *Iina) Append(path string) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	if i.conn == nil || i.conn.IsClosed() {
+		return errors.New("iina is not running")
+	}
+
+	// Clear playlist if any
+	_, _ = i.conn.Call("playlist-clear")
+
+	_, err := i.conn.Call("loadfile", path, "append")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (i *Iina) Pause() error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -233,8 +258,8 @@ func (i *Iina) Resume() error {
 	return nil
 }
 
-// SeekTo seeks to the given position in the file.
-func (i *Iina) SeekTo(position float64) error {
+// SeekToSlow seeks to the given position in the file.
+func (i *Iina) SeekToSlow(position float64) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
@@ -250,8 +275,8 @@ func (i *Iina) SeekTo(position float64) error {
 	return nil
 }
 
-// Seek seeks to the given position in the file.
-func (i *Iina) Seek(position float64) error {
+// SeekTo seeks to the given position in the file.
+func (i *Iina) SeekTo(position float64) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 

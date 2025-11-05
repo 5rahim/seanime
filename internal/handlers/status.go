@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/labstack/echo/v4"
 )
 
@@ -80,7 +81,8 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		clientInfoCache.Set(c.Request().UserAgent(), clientInfo)
 	}
 
-	theme, _ = h.App.Database.GetTheme()
+	theme, _ = h.App.Database.GetThemeCopy()
+	theme.HomeItems = nil
 
 	status := &Status{
 		OS:                    runtime.GOOS,
@@ -596,4 +598,59 @@ func (h *Handler) HandleForceGC(c echo.Context) error {
 	h.App.Logger.Info().Msgf("handlers: GC completed, heap size: %d bytes", response.HeapAlloc)
 
 	return h.RespondWithData(c, response)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetHomeItems
+//
+//	@summary returns the home items.
+//	@route /api/v1/status/home-items [GET]
+//	@returns []models.HomeItem
+func (h *Handler) HandleGetHomeItems(c echo.Context) error {
+
+	theme, err := h.App.Database.GetTheme()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	var items []*models.HomeItem
+	_ = json.Unmarshal(theme.HomeItems, &items)
+
+	return h.RespondWithData(c, items)
+}
+
+// HandleUpdateHomeItems
+//
+//	@summary updates the home items.
+//	@route /api/v1/status/home-items [POST]
+//	@returns nil
+func (h *Handler) HandleUpdateHomeItems(c echo.Context) error {
+
+	type body struct {
+		Items []*models.HomeItem `json:"items"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	theme, err := h.App.Database.GetTheme()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	theme.HomeItems, err = json.Marshal(b.Items)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// update the settings
+	_, err = h.App.Database.UpsertTheme(theme)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return nil
 }

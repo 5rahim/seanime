@@ -1,16 +1,4 @@
-<p align="center">
-<img src="../seanime-web/public/logo_2.png" alt="preview" width="150px"/>
-</p>
-
-<h2 align="center"><b>Seanime Desktop</b></h2>
-
-<p align="center">
-Desktop app for Seanime. Embeds server and web interface.
-</p>
-
-<img src="../docs/images/4/anime-entry-torrent-stream--sq.jpg" alt="preview" width="100%"/>
-
----
+# Deprecated
 
 ## Prerequisites
 

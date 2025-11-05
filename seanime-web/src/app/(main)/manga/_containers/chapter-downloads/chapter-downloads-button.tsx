@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { FaDownload } from "react-icons/fa"
+import { LuFolderDown } from "react-icons/lu"
 
 type ChapterDownloadsButtonProps = {
     children?: React.ReactNode
@@ -30,7 +30,7 @@ export function ChapterDownloadsButton(props: ChapterDownloadsButtonProps) {
                 intent="white-subtle"
                 rounded
                 size="sm"
-                leftIcon={<FaDownload />}
+                leftIcon={<LuFolderDown />}
             >
                 Downloads
             </Button>

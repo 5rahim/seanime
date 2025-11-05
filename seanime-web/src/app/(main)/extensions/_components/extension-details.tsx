@@ -1,10 +1,10 @@
 import { Extension_Extension } from "@/api/generated/types"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import capitalize from "lodash/capitalize"
-import Image from "next/image"
 import React from "react"
 import { FaLink } from "react-icons/fa"
 
@@ -25,7 +25,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
         <>
             <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                 {!!extension.icon ? (
-                    <Image
+                    <SeaImage
                         src={extension.icon}
                         alt="extension icon"
                         crossOrigin="anonymous"

@@ -3,6 +3,7 @@ package platform
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 )
 
 type Platform interface {
@@ -59,4 +60,7 @@ type Platform interface {
 	GetViewerStats(context context.Context) (*anilist.ViewerStats, error)
 	// GetAnimeAiringSchedule gets the schedule for airing anime in the collection
 	GetAnimeAiringSchedule(context context.Context) (*anilist.AnimeAiringSchedule, error)
+	InitExtensionBank(bank *extension.UnifiedBank)
+	ClearCache()
+	Close()
 }

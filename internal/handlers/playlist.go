@@ -1,26 +1,25 @@
 package handlers
 
 import (
-	"errors"
-	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
-	"seanime/internal/util"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleCreatePlaylist
 //
 //	@summary creates a new playlist.
-//	@desc This will create a new playlist with the given name and local file paths.
+//	@desc This will create a new playlist with the given name and episodes.
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
 //	@route /api/v1/playlist [POST]
 //	@returns anime.Playlist
 func (h *Handler) HandleCreatePlaylist(c echo.Context) error {
 
 	type body struct {
-		Name  string   `json:"name"`
-		Paths []string `json:"paths"`
+		Name     string                   `json:"name"`
+		Episodes []*anime.PlaylistEpisode `json:"episodes"`
 	}
 
 	var b body
@@ -28,26 +27,9 @@ func (h *Handler) HandleCreatePlaylist(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Get the local files
-	dbLfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Filter the local files
-	lfs := make([]*anime.LocalFile, 0)
-	for _, path := range b.Paths {
-		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == util.NormalizePath(path) {
-				lfs = append(lfs, lf)
-				break
-			}
-		}
-	}
-
 	// Create the playlist
 	playlist := anime.NewPlaylist(b.Name)
-	playlist.SetLocalFiles(lfs)
+	playlist.SetEpisodes(b.Episodes)
 
 	// Save the playlist
 	if err := db_bridge.SavePlaylist(h.App.Database, playlist); err != nil {
@@ -83,9 +65,9 @@ func (h *Handler) HandleGetPlaylists(c echo.Context) error {
 func (h *Handler) HandleUpdatePlaylist(c echo.Context) error {
 
 	type body struct {
-		DbId  uint     `json:"dbId"`
-		Name  string   `json:"name"`
-		Paths []string `json:"paths"`
+		DbId     uint                     `json:"dbId"`
+		Name     string                   `json:"name"`
+		Episodes []*anime.PlaylistEpisode `json:"episodes"`
 	}
 
 	var b body
@@ -93,28 +75,11 @@ func (h *Handler) HandleUpdatePlaylist(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Get the local files
-	dbLfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Filter the local files
-	lfs := make([]*anime.LocalFile, 0)
-	for _, path := range b.Paths {
-		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == util.NormalizePath(path) {
-				lfs = append(lfs, lf)
-				break
-			}
-		}
-	}
-
 	// Recreate playlist
 	playlist := anime.NewPlaylist(b.Name)
 	playlist.DbId = b.DbId
 	playlist.Name = b.Name
-	playlist.SetLocalFiles(lfs)
+	playlist.SetEpisodes(b.Episodes)
 
 	// Save the playlist
 	if err := db_bridge.UpdatePlaylist(h.App.Database, playlist); err != nil {
@@ -151,35 +116,89 @@ func (h *Handler) HandleDeletePlaylist(c echo.Context) error {
 // HandleGetPlaylistEpisodes
 //
 //	@summary returns all the local files of a playlist media entry that have not been watched.
-//	@route /api/v1/playlist/episodes/{id}/{progress} [GET]
+//	@route /api/v1/playlist/episodes/{id} [GET]
 //	@param id - int - true - "The ID of the media entry."
 //	@param progress - int - true - "The progress of the media entry."
-//	@returns []anime.LocalFile
+//	@returns []anime.PlaylistEpisode
 func (h *Handler) HandleGetPlaylistEpisodes(c echo.Context) error {
+	mId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
 
+	// Get all local files
 	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	// Get the host anime library files
+	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
+	if hydratedFromNakama && len(nakamaLfs) > 0 {
+		lfs = nakamaLfs
+	}
+
 	lfw := anime.NewLocalFileWrapper(lfs)
 
-	// Params
-	mId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-	progress, err := strconv.Atoi(c.Param("progress"))
-	if err != nil {
-		return h.RespondWithError(c, err)
+	_, hasLocalEntry := lfw.GetLocalEntryById(mId)
+
+	currentProgress := 0
+
+	if animeEntry, found := animeCollection.GetListEntryFromAnimeId(mId); found {
+		currentProgress = animeEntry.GetProgressSafe()
 	}
 
-	group, found := lfw.GetLocalEntryById(mId)
-	if !found {
-		return h.RespondWithError(c, errors.New("media entry not found"))
+	episodes := make([]*anime.PlaylistEpisode, 0)
+
+	// If user has local files for this entry
+	if hasLocalEntry {
+		// Get the entry
+		entry, err := h.getAnimeEntry(c, lfs, mId)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+
+		watchType := anime.WatchTypeLocalFile
+		if hydratedFromNakama {
+			watchType = anime.WatchTypeNakama
+		}
+
+		for _, ep := range entry.Episodes {
+			if !ep.IsMain() || currentProgress >= ep.ProgressNumber {
+				continue
+			}
+			episodes = append(episodes, &anime.PlaylistEpisode{
+				Episode:     ep,
+				IsCompleted: false,
+				WatchType:   watchType,
+			})
+		}
+	} else {
+
+		episodeCollection, err := h.getAnimeEpisodeCollection(c, mId)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+
+		for _, ep := range episodeCollection.Episodes {
+			if currentProgress >= ep.ProgressNumber {
+				continue
+			}
+			episodes = append(episodes, &anime.PlaylistEpisode{
+				Episode:     ep,
+				IsCompleted: false,
+				WatchType:   "",
+			})
+		}
+
 	}
 
-	toWatch := group.GetUnwatchedLocalFiles(progress)
-
-	return h.RespondWithData(c, toWatch)
+	return h.RespondWithData(c, episodes)
 }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------//

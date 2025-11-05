@@ -34,7 +34,10 @@ export const __torrentstream__isLoadedAtom = atom<boolean>(false)
 // export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>("SEARCHING_TORRENTS")
 // export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Loaded)
 
-export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNativePlayerComponent?: boolean | string }) {
+export function TorrentStreamOverlay({ isNativePlayerComponent, show }: {
+    isNativePlayerComponent?: "control-bar" | "top-section" | "overlay",
+    show?: boolean
+}) {
 
     const [nativePlayerState, setNativePlayerState] = useAtom(nativePlayer_stateAtom)
 
@@ -98,18 +101,21 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
             <>
                 {/* Native player is fullscreen */}
                 {/* It's integrated into the media controller */}
-                {nativePlayerState.active && status &&
+                {(isLoaded && nativePlayerState.active && status) &&
                     <div
                         className={cn(
                             "absolute left-0 top-8 w-full flex justify-center z-[100] pointer-events-none",
-                            isNativePlayerComponent === "info" && "relative justify-left w-fit top-0 items-center text-white/90",
+                            isNativePlayerComponent === "overlay" && "fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none",
+                            // isNativePlayerComponent === "info" && "relative justify-left w-fit top-0 items-center text-white/90",
                             isNativePlayerComponent === "control-bar" && "relative justify-left w-fit top-0 h-full flex items-center px-2 truncate",
+                            show === false && "hidden",
                         )}
                     >
                         <div
                             className={cn(
-                                "flex-wrap w-fit h-14 flex gap-3 items-center text-sm pointer-events-auto",
-                                isNativePlayerComponent === "info" && "!font-medium h-auto py-1",
+                                (isNativePlayerComponent === "control-bar" || isNativePlayerComponent === "top-section") && "flex-wrap w-fit h-14 flex gap-3 items-center text-sm pointer-events-auto",
+                                isNativePlayerComponent === "overlay" && "bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base pointer-events-auto",
+                                // isNativePlayerComponent === "info" && "!font-medium h-auto py-1",
                             )}
                         >
 
@@ -133,7 +139,7 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                                 {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
                             </div>
 
-                            {isNativePlayerComponent !== "control-bar" && isNativePlayerComponent !== "info" && <Tooltip
+                            {isNativePlayerComponent === "overlay" && <Tooltip
                                 trigger={<IconButton
                                     onClick={() => stop()}
                                     loading={isPending}
@@ -146,8 +152,8 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                         </div>
                     </div>}
 
-                {(!!loadingState && loadingState !== "SENDING_STREAM_TO_MEDIA_PLAYER") &&
-                    <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
+                {(!(isLoaded && status) && !!loadingState && loadingState !== "SENDING_STREAM_TO_MEDIA_PLAYER") &&
+                    <div className={cn("fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none", show === false && "hidden")}>
                         <div className="lg:max-w-[50%] w-fit h-14 px-6 flex gap-2 items-center text-sm lg:text-base pointer-events-auto">
                             <Spinner className="w-4 h-4" />
                             <div className="truncate max-w-[500px]">
@@ -174,39 +180,39 @@ export function TorrentStreamOverlay({ isNativePlayerComponent = false }: { isNa
                 {/* Normal overlay / Native player is not fullscreen */}
                 {(!nativePlayerState.active) &&
                     <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
-                    <div className="bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base pointer-events-auto">
+                        <div className="bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base pointer-events-auto">
 
-                        <span
-                            className={cn("text-green-300",
-                                { "text-[--muted] animate-pulse": status.progressPercentage < 70 })}
-                        >{status.progressPercentage.toFixed(
-                            2)}%</span>
+                            <span
+                                className={cn("text-green-300",
+                                    { "text-[--muted] animate-pulse": status.progressPercentage < 70 })}
+                            >{status.progressPercentage.toFixed(
+                                2)}%</span>
 
-                        <div className="space-x-1"><BiGroup className="inline-block text-lg" />
-                            <span>{status.seeders}</span>
+                            <div className="space-x-1"><BiGroup className="inline-block text-lg" />
+                                <span>{status.seeders}</span>
+                            </div>
+
+                            <div className="space-x-1">
+                                <BiDownArrow className="inline-block mr-2" />
+                                {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
+                            </div>
+
+                            <div className="space-x-1">
+                                <BiUpArrow className="inline-block mr-2" />
+                                {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
+                            </div>
+
+                            <Tooltip
+                                trigger={<IconButton
+                                    onClick={() => stop()}
+                                    loading={isPending}
+                                    intent="alert-basic"
+                                    icon={<BiStop />}
+                                />}
+                            >
+                                Stop stream
+                            </Tooltip>
                         </div>
-
-                        <div className="space-x-1">
-                            <BiDownArrow className="inline-block mr-2" />
-                            {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
-                        </div>
-
-                        <div className="space-x-1">
-                            <BiUpArrow className="inline-block mr-2" />
-                            {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
-                        </div>
-
-                        <Tooltip
-                            trigger={<IconButton
-                                onClick={() => stop()}
-                                loading={isPending}
-                                intent="alert-basic"
-                                icon={<BiStop />}
-                            />}
-                        >
-                            Stop stream
-                        </Tooltip>
-                    </div>
                     </div>}
             </>
         )

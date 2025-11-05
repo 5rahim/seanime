@@ -1,9 +1,9 @@
 import { AL_AnimeDetailsById_Media, AL_MangaDetailsById_Media } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { cn } from "@/components/ui/core/styling"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import Image from "next/image"
 import React from "react"
 import { BiSolidHeart } from "react-icons/bi"
 
@@ -71,7 +71,7 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                                     data-media-entry-characters-section-grid-item-image-background
                                     className="bg-[--background] absolute z-[0] rounded-[--radius-md] w-full h-full"
                                 ></div>
-                                {(edge?.node?.image?.large) && <Image
+                                {(edge?.node?.image?.large) && <SeaImage
                                     data-media-entry-characters-section-grid-item-image
                                     src={edge?.node?.image?.large || ""}
                                     alt="episode image"

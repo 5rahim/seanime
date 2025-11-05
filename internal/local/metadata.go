@@ -3,6 +3,8 @@ package local
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"strconv"
 
@@ -21,7 +23,7 @@ type OfflineAnimeMetadataWrapper struct {
 	metadata *metadata.AnimeMetadata
 }
 
-func NewOfflineMetadataProvider(manager *ManagerImpl) metadata.Provider {
+func NewOfflineMetadataProvider(manager *ManagerImpl) metadata_provider.Provider {
 	ret := &OfflineMetadataProvider{
 		manager:            manager,
 		animeSnapshots:     make(map[int]*AnimeSnapshot),
@@ -33,6 +35,14 @@ func NewOfflineMetadataProvider(manager *ManagerImpl) metadata.Provider {
 	ret.loadAnimeSnapshots()
 
 	return ret
+}
+
+func (mp *OfflineMetadataProvider) InitExtensionBank(bank *extension.UnifiedBank) {
+	// no-op
+}
+
+func (mp *OfflineMetadataProvider) Close() {
+	// no-op
 }
 
 func (mp *OfflineMetadataProvider) loadAnimeSnapshots() {
@@ -75,7 +85,7 @@ func (mp *OfflineMetadataProvider) GetCache() *result.BoundedCache[string, *meta
 	return mp.animeMetadataCache
 }
 
-func (mp *OfflineMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) metadata.AnimeMetadataWrapper {
+func (mp *OfflineMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) metadata_provider.AnimeMetadataWrapper {
 	return &OfflineAnimeMetadataWrapper{
 		anime:    anime,
 		metadata: metadata,

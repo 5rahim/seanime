@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.0
+
+- 📝 BREAKING: Seanime Desktop is now deprecated. Download the new desktop client https://seanime.app/download
+- 🎉 Seanime Denshi: New desktop client & built-in player
+  - Seanime Denshi (based on Electron) replaces Seanime Desktop (based on Tauri)
+  - New built-in player for local/torrent/debrid streaming
+  - New player supports ASS/SSA subtitles, importing subtitle files, Anime4K Upscaling
+  - PiP, Mini player, keybinds and more
+- 🎉 Custom Sources: New extension type for adding custom media
+  - Seanime now no longer limited to AniList!
+  - Add custom sources to watch/read anything you want (even non-anime series)
+  - Create and share your own custom sources
+- 🎉 Library Explorer: New way to manage your scanned library
+  - Global view of all files in your anime libraries
+  - Search, match, unmatch, edit files faster than ever before
+  - Support for renaming files (PowerRename-like) and editing metadata in bulk
+- 🎉 Playlists: New playlist system with support for all playback types (Experimental)
+  - Quickly add an episode to a playlist from the right click menu
+  - Playlists now support torrent/debrid/online streaming, transcoding and can switch between them
+  - Playlists now support external player links
+- 🎉 New cache layer for zero downtime
+  - All requests are now automatically cached to disk
+  - Seanime will keep working as usual when AniList is temporarily down
+- ⚡️ Library management improvements:
+  - Unmatched files: Integrated search & preview for faster matching
+- ⚡️ Torrent/Debrid streaming improvements:
+  - Auto play next episode now works when episode file is selected manually
+  - Files are now selected automatically based on index after the first one is selected manually
+  - Manual file selection is now easier with a redesigned interface
+- ⚡️ Plugins: Tray plugins can now be displayed as drawers
+- ⚡️ MPV/Iina: Next local file episode is automatically appended to player's playlist
+- ⚡️ Torrent client: Select files to download from batches
+- ⚡️ Online Streaming: Previous/Next button #161
+- 🦺 Offline: Fixed syncing issues where non-downloaded episodes' images were downloaded
+- 🦺 Manga: Fixed reading downloaded chapters when no provider is selected
+- 🦺 Plugin(DOM): Fixed some DOM APIs not working
+- 🏗️ BREAKING: Removed all built-in extensions
+
 ## v2.9.10
 
 - ⚡️ Plugins: Added Schedule and Filler management hooks

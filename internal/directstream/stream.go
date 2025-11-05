@@ -12,8 +12,12 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -54,6 +58,7 @@ type Stream interface {
 	GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent]
 	// OnSubtitleFileUploaded is called when a subtitle file is uploaded.
 	OnSubtitleFileUploaded(filename string, content string)
+	IsNakamaWatchParty() bool
 }
 
 func (m *Manager) getStreamHandler() http.Handler {
@@ -124,6 +129,8 @@ func (m *Manager) loadStream(stream Stream) {
 		m.preStreamError(stream, fmt.Errorf("failed to load playback info: %w", err))
 		return
 	}
+
+	playbackInfo.IsNakamaWatchParty = stream.IsNakamaWatchParty()
 
 	// Shut the mkv parser logger
 	//parser, ok := playbackInfo.MkvMetadataParser.Get()
@@ -230,13 +237,15 @@ func (m *Manager) listenToNativePlayerEvents() {
 						go m.discordPresence.Close()
 					}
 				case *nativeplayer.VideoStatusEvent:
-					_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
-						CurrentTime:   event.Status.CurrentTime,
-						Duration:      event.Status.Duration,
-						MediaId:       cs.Media().GetID(),
-						EpisodeNumber: cs.Episode().GetEpisodeNumber(),
-						Kind:          continuity.MediastreamKind,
-					})
+					if event.Status.Duration != 0 {
+						_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
+							CurrentTime:   event.Status.CurrentTime,
+							Duration:      event.Status.Duration,
+							MediaId:       cs.Media().GetID(),
+							EpisodeNumber: cs.Episode().GetEpisodeNumber(),
+							Kind:          continuity.MediastreamKind,
+						})
+					}
 
 					// Discord
 					if m.discordPresence != nil && !*m.isOffline {
@@ -301,6 +310,7 @@ type BaseStream struct {
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
+	isNakamaWatchParty     bool   // Whether the stream is from Nakama
 
 	// Subtitle stream management
 	activeSubtitleStreams *result.Map[string, *SubtitleStream]
@@ -349,6 +359,10 @@ func (s *BaseStream) EpisodeCollection() *anime.EpisodeCollection {
 
 func (s *BaseStream) ClientId() string {
 	return s.clientId
+}
+
+func (s *BaseStream) IsNakamaWatchParty() bool {
+	return s.isNakamaWatchParty
 }
 
 func (s *BaseStream) Terminate() {
@@ -423,4 +437,164 @@ func (m *Manager) preStreamError(stream Stream, err error) {
 	stream.Terminate()
 	m.nativePlayer.Error(stream.ClientId(), err)
 	m.unloadStream()
+}
+
+func (m *Manager) getContentTypeAndLength(url string) (string, int64, error) {
+	m.Logger.Trace().Msg("directstream(debrid): Fetching content type and length using HEAD request")
+
+	// Create client with timeout for HEAD request (faster timeout since it's just headers)
+	headClient := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	// Try HEAD request first
+	resp, err := headClient.Head(url)
+	if err == nil {
+		defer resp.Body.Close()
+
+		contentType := resp.Header.Get("Content-Type")
+		contentLengthStr := resp.Header.Get("Content-Length")
+
+		// Parse content length
+		var length int64
+		if contentLengthStr != "" {
+			length, err = strconv.ParseInt(contentLengthStr, 10, 64)
+			if err != nil {
+				m.Logger.Error().Err(err).Str("contentType", contentType).Str("contentLength", contentLengthStr).
+					Msg("directstream(debrid): Failed to parse content length from header")
+				return "", 0, fmt.Errorf("failed to parse content length: %w", err)
+			}
+		}
+
+		// If we have content type, return early
+		if contentType != "" {
+			return contentType, length, nil
+		}
+
+		m.Logger.Trace().Msg("directstream(debrid): Content type not found in HEAD response headers")
+	} else {
+		m.Logger.Trace().Err(err).Msg("directstream(debrid): HEAD request failed")
+	}
+
+	// Fall back to GET with Range request (either HEAD failed or no content type in headers)
+	m.Logger.Trace().Msg("directstream(debrid): Falling back to GET request")
+
+	// Create client with longer timeout for GET request (downloading content)
+	getClient := &http.Client{
+		Timeout: 15 * time.Second,
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", 0, fmt.Errorf("failed to create GET request: %w", err)
+	}
+
+	req.Header.Set("Range", "bytes=0-511")
+
+	resp, err = getClient.Do(req)
+	if err != nil {
+		return "", 0, fmt.Errorf("GET request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Parse total length from Content-Range header (for Range requests)
+	// Format: "bytes 0-511/1234567" where 1234567 is the total size
+	var length int64
+	if contentRange := resp.Header.Get("Content-Range"); contentRange != "" {
+		// Extract total size from Content-Range header
+		if idx := strings.LastIndex(contentRange, "/"); idx != -1 {
+			totalSizeStr := contentRange[idx+1:]
+			if totalSizeStr != "*" { // "*" means unknown size
+				length, err = strconv.ParseInt(totalSizeStr, 10, 64)
+				if err != nil {
+					m.Logger.Warn().Err(err).Str("contentRange", contentRange).
+						Msg("directstream(debrid): Failed to parse total size from Content-Range")
+				}
+			}
+		}
+	} else if contentLengthStr := resp.Header.Get("Content-Length"); contentLengthStr != "" {
+		// Fallback to Content-Length if Content-Range not present (server might not support ranges)
+		length, err = strconv.ParseInt(contentLengthStr, 10, 64)
+		if err != nil {
+			m.Logger.Warn().Err(err).Str("contentLength", contentLengthStr).
+				Msg("directstream(debrid): Failed to parse content length from GET response")
+		}
+	}
+
+	// Check if server provided Content-Type in GET response
+	contentType := resp.Header.Get("Content-Type")
+	if contentType != "" {
+		return contentType, length, nil
+	}
+
+	// Read only what's needed for content type detection
+	buf := make([]byte, 512)
+	n, err := io.ReadFull(resp.Body, buf)
+	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
+		return "", 0, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	contentType = http.DetectContentType(buf[:n])
+
+	return contentType, length, nil
+}
+
+type StreamInfo struct {
+	ContentType   string
+	ContentLength int64
+}
+
+func (m *Manager) FetchStreamInfo(streamUrl string) (info *StreamInfo, canStream bool) {
+	hasExtension, isArchive := IsArchive(streamUrl)
+
+	m.Logger.Debug().Str("url", streamUrl).Msg("directstream(debrid): Fetching stream info")
+
+	// If we were able to verify that the stream URL is an archive, we can't stream it
+	if isArchive {
+		m.Logger.Warn().Str("url", streamUrl).Msg("directstream(debrid): Stream URL is an archive, cannot stream")
+		return nil, false
+	}
+
+	// If the stream URL has an extension, we can stream it
+	if hasExtension {
+		ext := filepath.Ext(streamUrl)
+		// If not a valid video extension, we can't stream it
+		if !util.IsValidVideoExtension(ext) {
+			m.Logger.Warn().Str("url", streamUrl).Str("ext", ext).Msg("directstream(debrid): Stream URL has an invalid video extension, cannot stream")
+			return nil, false
+		}
+	}
+
+	// We'll fetch headers to get the info
+	// If the headers are not available, we can't stream it
+
+	contentType, contentLength, err := m.getContentTypeAndLength(streamUrl)
+	if err != nil {
+		m.Logger.Error().Err(err).Str("url", streamUrl).Msg("directstream(debrid): Failed to fetch content type and length")
+		return nil, false
+	}
+
+	// If not a video content type, we can't stream it
+	if !strings.HasPrefix(contentType, "video/") && contentType != "application/octet-stream" && contentType != "application/force-download" {
+		m.Logger.Warn().Str("url", streamUrl).Str("contentType", contentType).Msg("directstream(debrid): Stream URL has an invalid content type, cannot stream")
+		return nil, false
+	}
+
+	return &StreamInfo{
+		ContentType:   contentType,
+		ContentLength: contentLength,
+	}, true
+}
+
+func IsArchive(streamUrl string) (hasExtension bool, isArchive bool) {
+	ext := filepath.Ext(streamUrl)
+	if ext == ".zip" || ext == ".rar" {
+		return true, true
+	}
+
+	if ext != "" {
+		return true, false
+	}
+
+	return false, false
 }

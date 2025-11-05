@@ -5,13 +5,6 @@ import { useAtom } from "jotai"
 import { sha256 } from "js-sha256"
 import React, { useState } from "react"
 
-// async function hashSHA256Hex(str: string): Promise<string> {
-//     const encoder = new TextEncoder()
-//     const data = encoder.encode(str)
-//     const hashBuffer = await window.crypto.subtle.digest("SHA-256", data)
-//     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("")
-// }
-
 export function ServerAuth() {
 
     const [, setAuthToken] = useAtom(serverAuthTokenAtom)
@@ -33,7 +26,6 @@ export function ServerAuth() {
                 }))}
                 onSubmit={async data => {
                     setLoading(true)
-                    // const hash = await hashSHA256Hex(data.password)
                     const hash = sha256(data.password)
                     setAuthToken(hash)
                     React.startTransition(() => {

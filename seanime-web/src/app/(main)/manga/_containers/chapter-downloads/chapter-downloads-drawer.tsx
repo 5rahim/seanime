@@ -7,7 +7,6 @@ import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-e
 import { useHandleMangaChapterDownloadQueue } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { SeaLink } from "@/components/shared/sea-link"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
@@ -190,7 +189,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                             </div>
                         </ScrollArea>
                     ) : ((!downloadQueueLoading && !downloadQueueError) && (
-                        <p className="text-center text-[--muted] italic" data-chapter-download-queue-empty-state>
+                        <p className="text-center text-[--muted] text-sm" data-chapter-download-queue-empty-state>
                             Nothing in the queue
                         </p>
                     ))}
@@ -272,11 +271,9 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                                 type="manga"
                                                 hideUnseenCountBadge
                                                 hideAnilistEntryEditButton
-                                                overlay={<Badge
-                                                    className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
-                                                    intent="gray"
-                                                    size="lg"
-                                                >{nb} chapter{nb === 1 ? "" : "s"}</Badge>}
+                                                overlay={<p
+                                                    className="font-semibold text-white bg-gray-950 z-[-1] absolute right-0 w-fit px-4 py-1.5 text-center !bg-opacity-90 text-sm lg:text-base rounded-none rounded-bl-lg"
+                                                >{nb} chapter{nb === 1 ? "" : "s"}</p>}
                                             />
                                         </div>
                                     })}

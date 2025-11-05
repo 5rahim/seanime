@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/playbackmanager"
 
 	"github.com/labstack/echo/v4"
@@ -130,25 +129,25 @@ func (h *Handler) HandlePlaybackAutoPlayNextEpisode(c echo.Context) error {
 //	@returns bool
 func (h *Handler) HandlePlaybackStartPlaylist(c echo.Context) error {
 
-	type body struct {
-		DbId uint `json:"dbId"`
-	}
-
-	var b body
-	if err := c.Bind(&b); err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Get playlist
-	playlist, err := db_bridge.GetPlaylist(h.App.Database, b.DbId)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	err = h.App.PlaybackManager.StartPlaylist(playlist)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
+	//type body struct {
+	//	DbId uint `json:"dbId"`
+	//}
+	//
+	//var b body
+	//if err := c.Bind(&b); err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
+	//
+	//// Get playlist
+	//playlist, err := db_bridge.GetLegacyPlaylist(h.App.Database, b.DbId)
+	//if err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
+	//
+	//err = h.App.PlaybackManager.StartPlaylist(playlist)
+	//if err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
 
 	return h.RespondWithData(c, true)
 }
@@ -161,10 +160,10 @@ func (h *Handler) HandlePlaybackStartPlaylist(c echo.Context) error {
 //	@returns bool
 func (h *Handler) HandlePlaybackCancelCurrentPlaylist(c echo.Context) error {
 
-	err := h.App.PlaybackManager.CancelCurrentPlaylist()
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
+	//err := h.App.PlaybackManager.CancelCurrentPlaylist()
+	//if err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
 
 	return h.RespondWithData(c, true)
 }
@@ -177,10 +176,10 @@ func (h *Handler) HandlePlaybackCancelCurrentPlaylist(c echo.Context) error {
 //	@returns bool
 func (h *Handler) HandlePlaybackPlaylistNext(c echo.Context) error {
 
-	err := h.App.PlaybackManager.RequestNextPlaylistFile()
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
+	//err := h.App.PlaybackManager.RequestNextPlaylistFile()
+	//if err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
 
 	return h.RespondWithData(c, true)
 }

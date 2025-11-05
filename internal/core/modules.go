@@ -16,6 +16,7 @@ import (
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/library_explorer"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
 	"seanime/internal/mediaplayers/mediaplayer"
@@ -26,6 +27,8 @@ import (
 	"seanime/internal/nakama"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/notifier"
+	"seanime/internal/platforms/shared_platform"
+	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -264,6 +267,34 @@ func (a *App) initModulesOnce() {
 		Platform:                a.AnilistPlatform,
 		ServerHost:              a.Config.Server.Host,
 		ServerPort:              a.Config.Server.Port,
+		NativePlayer:            a.NativePlayer,
+		DirectStreamManager:     a.DirectStreamManager,
+	})
+
+	// +---------------------+
+	// |      Playlist       |
+	// +---------------------+
+
+	a.PlaylistManager = playlist.NewManager(&playlist.NewManagerOptions{
+		TorrentstreamRepository: a.TorrentstreamRepository,
+		DebridClientRepository:  a.DebridClientRepository,
+		DirectStreamManager:     a.DirectStreamManager,
+		Platform:                a.AnilistPlatform,
+		PlaybackManager:         a.PlaybackManager,
+		WSEventManager:          a.WSEventManager,
+		NakamaManager:           a.NakamaManager,
+		NativePlayer:            a.NativePlayer,
+		Database:                a.Database,
+		Logger:                  a.Logger,
+	})
+
+	// +---------------------+
+	// |   Anime Library     |
+	// +---------------------+
+	a.LibraryExplorer = library_explorer.NewLibraryExplorer(library_explorer.NewLibraryExplorerOptions{
+		Platform: a.AnilistPlatform,
+		Logger:   a.Logger,
+		Database: a.Database,
 	})
 
 }
@@ -314,6 +345,10 @@ func (a *App) InitOrRefreshModules() {
 		a.LibraryDir = settings.GetLibrary().LibraryPath
 	}
 
+	if settings.Anilist != nil {
+		shared_platform.ShouldCache.Store(!settings.Anilist.DisableCacheLayer)
+	}
+
 	// +---------------------+
 	// |   Module settings   |
 	// +---------------------+
@@ -339,7 +374,12 @@ func (a *App) InitOrRefreshModules() {
 		// Torrent Repository
 		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
 			DefaultAnimeProvider: settings.Library.TorrentProvider,
+			AutoSelectProvider:   settings.Library.AutoSelectTorrentProvider,
 		})
+
+		if a.LibraryExplorer != nil {
+			a.LibraryExplorer.SetLibraryPaths(settings.GetLibrary().GetLibraryPaths())
+		}
 	}
 
 	if settings.MediaPlayer != nil {

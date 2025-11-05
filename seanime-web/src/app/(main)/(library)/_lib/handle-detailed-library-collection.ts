@@ -1,4 +1,4 @@
-import { Anime_LibraryCollectionList } from "@/api/generated/types"
+import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -7,6 +7,7 @@ import { CollectionParams, DEFAULT_ANIME_COLLECTION_PARAMS, filterAnimeCollectio
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom, useAtomValue } from "jotai/index"
+import { atomWithStorage } from "jotai/utils"
 import React from "react"
 
 export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams<"anime"> = {
@@ -17,11 +18,11 @@ export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams<"anime"> = {
 // export const __library_paramsAtom = atomWithStorage("sea-library-sorting-params", DETAILED_LIBRARY_DEFAULT_PARAMS, undefined, { getOnInit: true })
 export const __library_paramsAtom = atomWithImmer(DETAILED_LIBRARY_DEFAULT_PARAMS)
 
-export const __library_selectedListAtom = atomWithImmer<string>("-")
+export const __library_selectedListAtom = atomWithStorage<string>("sea-detailed-library-selected-list", "-")
 
 export const __library_debouncedSearchInputAtom = atomWithImmer<string>("")
 
-export function useHandleDetailedLibraryCollection() {
+export function useHandleDetailedLibraryCollection({ enabled = true }: { enabled?: boolean } = { enabled: true }) {
     const serverStatus = useServerStatus()
 
     const { animeLibraryCollectionDefaultSorting } = useThemeSettings()
@@ -31,7 +32,7 @@ export function useHandleDetailedLibraryCollection() {
     /**
      * Fetch the library collection data
      */
-    const { data, isLoading } = useGetLibraryCollection()
+    const { data, isLoading } = useGetLibraryCollection({ enabled })
 
     const [paramsToDebounce, setParamsToDebounce] = useAtom(__library_paramsAtom)
     const debouncedParams = useDebounce(paramsToDebounce, 500)
@@ -85,6 +86,22 @@ export function useHandleDetailedLibraryCollection() {
         }).filter(Boolean)
     }, [_filteredCollection, debouncedSearchInput])
 
+    const _filteredEntries: Anime_LibraryCollectionEntry[] = React.useMemo(() => {
+        if (!data || !data.lists) return []
+
+        const entries = data.lists?.flatMap(n => n.entries).filter(Boolean) ?? []
+
+        return filterAnimeCollectionEntries(entries,
+            paramsToDebounce,
+            serverStatus?.settings?.anilist?.enableAdultContent,
+            data.continueWatchingList,
+            watchHistory)
+    }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent, watchHistory])
+
+    const filteredEntries: Anime_LibraryCollectionEntry[] = React.useMemo(() => {
+        return filterEntriesByTitle(_filteredEntries, debouncedSearchInput)
+    }, [_filteredEntries, debouncedSearchInput])
+
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []
 
@@ -110,6 +127,7 @@ export function useHandleDetailedLibraryCollection() {
         isLoading: isLoading,
         stats: data?.stats,
         libraryCollectionList: filteredCollection,
+        libraryEntries: filteredEntries,
         libraryGenres: libraryGenres,
         continueWatchingList: continueWatchingList,
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],

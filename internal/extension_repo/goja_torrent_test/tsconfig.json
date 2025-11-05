@@ -2,13 +2,14 @@
   "compilerOptions": {
     "target": "es5",
     "lib": [
-      "es2015",
+      "es2019",
       "dom"
     ],
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true
   }
 }

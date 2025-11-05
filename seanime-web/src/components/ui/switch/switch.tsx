@@ -16,11 +16,11 @@ import { mergeRefs } from "../core/utils"
 export const SwitchAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Switch__root",
-        "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors",
+        "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border transition-colors",
         "disabled:cursor-not-allowed data-[disabled=true]:opacity-50",
         "outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-1",
-        "data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-700", // Unchecked
-        "data-[state=unchecked]:hover:bg-gray-300 dark:data-[state=unchecked]:hover:bg-gray-600", // Unchecked hover
+        "data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-900", // Unchecked
+        "data-[state=unchecked]:hover:bg-gray-300 dark:data-[state=unchecked]:hover:bg-gray-800", // Unchecked hover
         "data-[state=checked]:bg-brand", // Checked
         "data-[error=true]:border-red-500", // Checked
     ], {
@@ -51,13 +51,13 @@ export const SwitchAnatomy = defineStyleAnatomy({
     }),
     thumb: cva([
         "UI-Switch__thumb",
-        "pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform",
-        "data-[state=unchecked]:translate-x-1",
+        "pointer-events-none block rounded-full data-[state=checked]:bg-white shadow-lg ring-0 transition-transform",
+        "data-[state=unchecked]:translate-x-1 data-[state=unchecked]:bg-white/50",
     ], {
         variants: {
             size: {
-                sm: "h-3 w-3 data-[state=checked]:translate-x-[1.1rem]",
-                md: "h-4 w-4 data-[state=checked]:translate-x-[1.4rem]",
+                sm: "h-3 w-4 data-[state=checked]:translate-x-[0.95rem]",
+                md: "h-4 w-5 data-[state=checked]:translate-x-[1.2rem]",
                 lg: "h-5 w-5 data-[state=checked]:translate-x-[1.9rem]",
             },
         },
@@ -143,7 +143,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
             id={basicFieldProps.id}
             fieldClass={cn(
                 "w-fit",
-                side === "right" && "w-full group/switch transition-all duration-200 hover:bg-gray-300/5 rounded-[--radius] p-2 w-[calc(100%_+_1rem)] -ml-2 border border-transparent border-dashed hover:border-[--subtle]",
+                side === "right" && "w-full group/switch transition-all duration-200 hover:bg-gray-600/10 rounded-[--radius] p-2 w-[calc(100%_+_1rem)] -ml-2 border border-transparent hover:border-[--subtle]",
                 basicFieldProps.fieldClass,
             )}
             fieldHelpTextClass={cn("")}

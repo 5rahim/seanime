@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/debrid"
@@ -41,7 +41,7 @@ type (
 		playbackManager    *playbackmanager.PlaybackManager
 		streamManager      *StreamManager
 		completeAnimeCache *anilist.CompleteAnimeCache
-		metadataProvider   metadata.Provider
+		metadataProvider   metadata_provider.Provider
 		platform           platform.Platform
 
 		previousStreamOptions mo.Option[*StartStreamOptions]
@@ -55,7 +55,7 @@ type (
 		TorrentRepository   *torrent.Repository
 		PlaybackManager     *playbackmanager.PlaybackManager
 		DirectStreamManager *directstream.Manager
-		MetadataProvider    metadata.Provider
+		MetadataProvider    metadata_provider.Provider
 		Platform            platform.Platform
 	}
 )

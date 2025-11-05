@@ -42,7 +42,13 @@ declare global {
                 isVisible: () => Promise<boolean>;
                 setTitleBarStyle: (style: string) => void;
                 getCurrentWindow: () => Promise<string>;
+                isMainWindow: () => Promise<boolean>;
             };
+            media?: {
+                setMetadata: (metadata: any) => Promise<boolean>
+                clearSession: () => Promise<boolean>
+                stopAllMedia: () => Promise<boolean>
+            }
             on: (channel: string, callback: (...args: any[]) => void) => (() => void) | undefined;
             // Send events
             emit: (channel: string, data?: any) => void;

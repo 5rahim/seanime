@@ -71,7 +71,7 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 	h.App.Logger.Info().Msg("app: Authenticated to AniList")
 
 	// Update the platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(h.App.AnilistClient, h.App.Logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(h.App.AnilistClient, h.App.Logger, h.App.Database)
 	h.App.UpdatePlatform(anilistPlatform)
 
 	// Create a new status
@@ -106,7 +106,7 @@ func (h *Handler) HandleLogout(c echo.Context) error {
 	h.App.UpdateAnilistClientToken("")
 
 	// Update the platform
-	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(h.App.LocalManager, h.App.AnilistClient, h.App.Logger)
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(h.App.LocalManager, h.App.AnilistClient, h.App.Logger, h.App.Database)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

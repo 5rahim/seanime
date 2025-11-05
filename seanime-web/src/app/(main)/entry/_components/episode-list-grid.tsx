@@ -4,12 +4,14 @@ import React, { useState } from "react"
 
 type EpisodeListGridProps = {
     children?: React.ReactNode
+    maxCol?: number
 }
 
 export function EpisodeListGrid(props: EpisodeListGridProps) {
 
     const {
         children,
+        maxCol,
         ...rest
     } = props
 
@@ -18,6 +20,9 @@ export function EpisodeListGrid(props: EpisodeListGridProps) {
         <div
             className={cn(
                 "grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 min-[2000px]:grid-cols-4",
+                maxCol === 3 && "min-[2000px]:grid-cols-3",
+                maxCol === 2 && "lg:grid-cols-2 2xl:grid-cols-2 min-[2000px]:grid-cols-2",
+                maxCol === 1 && "lg:grid-cols-1 2xl:grid-cols-1 min-[2000px]:grid-cols-1",
                 "gap-4",
             )}
             {...rest}
@@ -34,6 +39,7 @@ type EpisodeListPaginatedGridProps = {
     itemsPerPage?: number
     minLengthBeforePagination?: number
     shouldDefaultToPageWithEpisode?: number // episode number
+    maxCol?: number
 }
 
 export function EpisodeListPaginatedGrid(props: EpisodeListPaginatedGridProps) {
@@ -43,6 +49,7 @@ export function EpisodeListPaginatedGrid(props: EpisodeListPaginatedGridProps) {
         itemsPerPage = 24,
         minLengthBeforePagination = 29,
         shouldDefaultToPageWithEpisode,
+        maxCol,
     } = props
 
     const [page, setPage] = useState(1)
@@ -126,6 +133,9 @@ export function EpisodeListPaginatedGrid(props: EpisodeListPaginatedGridProps) {
             <div
                 className={cn(
                     "grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 min-[2000px]:grid-cols-4",
+                    maxCol === 3 && "min-[2000px]:grid-cols-3",
+                    maxCol === 2 && "lg:grid-cols-2 2xl:grid-cols-2 min-[2000px]:grid-cols-2",
+                    maxCol === 1 && "lg:grid-cols-1 2xl:grid-cols-1 min-[2000px]:grid-cols-1",
                     "gap-4",
                 )}
                 data-episode-list-grid

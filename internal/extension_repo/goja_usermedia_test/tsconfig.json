@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

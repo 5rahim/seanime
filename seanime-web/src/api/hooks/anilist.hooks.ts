@@ -160,3 +160,25 @@ export function useAnilistListMissedSequels(enabled: boolean) {
         enabled: enabled,
     })
 }
+
+export function useGetAnilistCacheLayerStatus() {
+    return useServerQuery<boolean>({
+        endpoint: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.key],
+        gcTime: 0,
+        enabled: true,
+    })
+}
+
+export function useToggleAnilistCacheLayerStatus() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.endpoint,
+        method: API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.methods[0],
+        mutationKey: [API_ENDPOINTS.ANILIST.ToggleAnilistCacheLayerStatus.key],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCacheLayerStatus.key] })
+        },
+    })
+}

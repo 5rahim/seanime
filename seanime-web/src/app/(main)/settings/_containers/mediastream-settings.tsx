@@ -1,12 +1,13 @@
 import { useGetMediastreamSettings, useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
-import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
+import { LuTabletSmartphone } from "react-icons/lu"
 
 const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeEnabled: z.boolean(),
@@ -64,6 +65,12 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     return (
         <>
+            <SettingsPageHeader
+                title="Transcoding / Direct Play"
+                description="Manage transcoding and direct play settings"
+                icon={LuTabletSmartphone}
+            />
+
             <Form
                 schema={mediastreamSchema}
                 mRef={formRef}
@@ -144,7 +151,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                          )}
                          </SettingsCard> */}
 
-                        <SettingsCard title="Direct play">
+                        <SettingsCard title="Direct Play">
 
                             <Field.Switch
                                 side="right"

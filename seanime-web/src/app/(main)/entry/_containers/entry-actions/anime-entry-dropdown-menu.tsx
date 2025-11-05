@@ -2,8 +2,10 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { PluginAnimePageDropdownItems } from "@/app/(main)/_features/plugin/actions/plugin-actions"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
 import {
     __bulkDeleteFilesModalIsOpenAtom,
     AnimeEntryBulkDeleteFilesModal,
@@ -24,7 +26,7 @@ import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi"
 import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
-import { LuGlobe, LuImage } from "react-icons/lu"
+import { LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
@@ -34,6 +36,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
     const inLibrary = !!entry.libraryData
 
+    const { currentView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
+
     // Start default media player
     const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()
     // Open entry in explorer
@@ -42,6 +46,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
     const setBulkDeleteFilesModalOpen = useSetAtom(__bulkDeleteFilesModalIsOpenAtom)
     const setAnimeEntryUnmatchFilesModalOpen = useSetAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
     const setDownloadFilesModalOpen = useSetAtom(__animeEntryDownloadFilesModalIsOpenAtom)
+
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
 
     return (
         <>
@@ -55,12 +61,17 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 />}
             >
 
-                {(inLibrary && !entry._isNakamaEntry) && <>
+                {(isLibraryView && inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuItem
                         onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
                     >
                         <BiFolder /> Open directory
                     </DropdownMenuItem>
+                    {!!entry.libraryData?.sharedPath && <DropdownMenuItem
+                        onClick={() => openDirInLibraryExplorer(entry.libraryData?.sharedPath || "")}
+                    >
+                        <LuFolderTree /> Open in Library Explorer
+                    </DropdownMenuItem>}
 
                     {/*{serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem*/}
                     {/*    onClick={() => startDefaultMediaPlayer()}*/}
@@ -85,7 +96,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                 </DropdownMenuItem>
 
 
-                {(inLibrary && !entry._isNakamaEntry) && <>
+                {(isLibraryView && inLibrary && !entry._isNakamaEntry) && <>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                     <DropdownMenuItem

@@ -23,10 +23,10 @@ export const ThemeMediaPageBannerTypeOptions = [
         value: ThemeMediaPageBannerType.Default as string, label: "Default",
         description: "Always show a banner image. If not available, the cover image will be used instead.",
     },
-    // {
-    //     value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
-    //     description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
-    // },
+    {
+        value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
+        description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
+    },
     {
         value: ThemeMediaPageBannerType.DimWhenUnavailable as string, label: "Dim if unavailable",
         description: "Show the banner image if available. If not available, the banner will be dimmed.",
@@ -156,7 +156,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
         mediaPageBannerType: getThemeValue("mediaPageBannerType", serverStatus?.themeSettings),
         mediaPageBannerSize: getThemeValue("mediaPageBannerSize", serverStatus?.themeSettings),
-        mediaPageBannerInfoBoxSize: getThemeValue("mediaPageBannerInfoBoxSize", serverStatus?.themeSettings),
+        mediaPageBannerInfoBoxSize: "fluid",
+        // mediaPageBannerInfoBoxSize: getThemeValue("mediaPageBannerInfoBoxSize", serverStatus?.themeSettings),
         showEpisodeCardAnimeInfo: getThemeValue("showEpisodeCardAnimeInfo", serverStatus?.themeSettings),
         continueWatchingDefaultSorting: getThemeValue("continueWatchingDefaultSorting", serverStatus?.themeSettings),
         animeLibraryCollectionDefaultSorting: getThemeValue("animeLibraryCollectionDefaultSorting", serverStatus?.themeSettings),
@@ -167,7 +168,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         hideDownloadedEpisodeCardFilename: getThemeValue("hideDownloadedEpisodeCardFilename", serverStatus?.themeSettings),
         customCSS: getThemeValue("customCSS", serverStatus?.themeSettings),
         mobileCustomCSS: getThemeValue("mobileCustomCSS", serverStatus?.themeSettings),
-        unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings),
+        unpinnedMenuItems: getThemeValue("unpinnedMenuItems", serverStatus?.themeSettings)
+            ?.filter((n: string) => n !== "anilist" && n !== "nakama" && n !== "library"),
     }
 }
 

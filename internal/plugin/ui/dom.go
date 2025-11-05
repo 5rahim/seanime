@@ -896,6 +896,26 @@ func (d *DOMManager) appendElement(parentID, childId string) {
 	})
 }
 
+func (d *DOMManager) appendChildElement(parentID, childId string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementId: parentID,
+		Action:    "appendChild",
+		Params: map[string]interface{}{
+			"childId": childId,
+		},
+	})
+}
+
+func (d *DOMManager) removeChildElement(parentID, childId string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementId: parentID,
+		Action:    "removeChild",
+		Params: map[string]interface{}{
+			"childId": childId,
+		},
+	})
+}
+
 func (d *DOMManager) insertElementBefore(elementId, siblingId string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
@@ -1482,7 +1502,7 @@ func (d *DOMManager) setElementInnerHTML(elementId, innerHTML string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "setInnerHTML",
-		Params:    map[string]interface{}{"innerHTML": innerHTML},
+		Params:    map[string]interface{}{"html": innerHTML},
 	})
 }
 
@@ -1490,7 +1510,7 @@ func (d *DOMManager) setElementOuterHTML(elementId, outerHTML string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
 		ElementId: elementId,
 		Action:    "setOuterHTML",
-		Params:    map[string]interface{}{"outerHTML": outerHTML},
+		Params:    map[string]interface{}{"html": outerHTML},
 	})
 }
 

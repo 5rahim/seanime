@@ -104,7 +104,7 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 func TestMatcher_MatchLocalFileWithMedia2(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
+	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt, "")
 	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatal(err.Error())

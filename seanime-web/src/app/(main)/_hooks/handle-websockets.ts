@@ -1,9 +1,11 @@
+import { serverAuthTokenAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { SeaWebsocketEvent, SeaWebsocketPluginEvent } from "@/lib/server/queries.types"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { useContext, useEffect, useRef } from "react"
 import useUpdateEffect from "react-use/lib/useUpdateEffect"
 
@@ -281,10 +283,16 @@ export type WebSocketMessageListener<TData> = {
 
 export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }: WebSocketMessageListener<TData>) {
     const socket = useContext(WebSocketContext)
+    const status = useServerStatus()
+    const password = useAtomValue(serverAuthTokenAtom)
 
     useEffect(() => {
         if (socket) {
             const messageHandler = (event: MessageEvent) => {
+                if (status?.serverHasPassword && !password) {
+                    logger("Websocket").warning("Unauthenticated, skipping message")
+                    return
+                }
                 try {
                     const parsed = JSON.parse(event.data) as SeaWebsocketEvent<TData>
                     if (!!parsed.type && parsed.type === type) {

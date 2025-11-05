@@ -2,21 +2,23 @@
 import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { useLibraryExplorer } from "@/app/(main)/_features/library-explorer/library-explorer.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaImage } from "@/components/shared/sea-image"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
-import Image from "next/image"
 import React from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { BsFileEarmarkExcelFill, BsFileEarmarkPlayFill } from "react-icons/bs"
-import { LuFileSearch, LuTextSelect } from "react-icons/lu"
+import { LuFileSearch, LuFolderTree, LuTextSelect } from "react-icons/lu"
 import { TbListSearch } from "react-icons/tb"
 
 export const dynamic = "force-static"
@@ -100,6 +102,8 @@ export default function Page() {
         }
     }, [debouncedSearchQuery, filteredUnmatchedFiles, filteredGroups])
 
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
+
     return (
         <>
             <CustomLibraryBanner discrete />
@@ -111,7 +115,7 @@ export default function Page() {
                         <div>
                             <h2>Scan summaries</h2>
                             <p className="text-[--muted]">
-                                View the logs and details of your latest scans
+                                View the logs of your latest scans
                             </p>
                         </div>
                     </div>
@@ -122,23 +126,29 @@ export default function Page() {
                     {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
                     {!!data?.length && (
                         <div className="space-y-4">
-                            <Select
-                                value={selectedSummaryId || "-"}
-                                options={data?.filter(n => !!n.scanSummary)
-                                    .map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt!), value: summary.scanSummary!.id || "-" }))
-                                    .toReversed()}
-                                onValueChange={v => setSelectedSummaryId(v)}
-                            />
-                            {!!selectedSummary && (
-                                <div className="w-full lg:max-w-[50%]">
-                                    <TextInput
-                                        placeholder="Search filenames..."
-                                        value={searchQuery}
-                                        onValueChange={setSearchQuery}
-                                        leftIcon={<LuFileSearch className="text-[--muted]" />}
-                                    />
-                                </div>
-                            )}
+                            <div className="flex gap-2 items-center">
+                                <Select
+                                    value={selectedSummaryId || "-"}
+                                    options={data?.filter(n => !!n.scanSummary)
+                                        .map((summary) => ({
+                                            label: formatDateAndTimeShort(summary.createdAt!),
+                                            value: summary.scanSummary!.id || "-",
+                                        }))
+                                        .toReversed()}
+                                    onValueChange={v => setSelectedSummaryId(v)}
+                                    fieldClass="w-full lg:w-[280px]"
+                                />
+                                {!!selectedSummary && (
+                                    <div className="w-full">
+                                        <TextInput
+                                            placeholder="Search filenames..."
+                                            value={searchQuery}
+                                            onValueChange={setSearchQuery}
+                                            leftIcon={<LuFileSearch className="text-[--muted]" />}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                             {!!selectedSummary && (
                                 <div className="space-y-4 rounded-[--radius] ">
                                     <div>
@@ -162,17 +172,20 @@ export default function Page() {
 
                                     {!!filteredUnmatchedFiles?.length && <div className="space-y-2">
                                         <h5>Unmatched files</h5>
-                                        <Accordion type="single" collapsible>
-                                            <div className="grid grid-cols-1 gap-4">
-                                                {filteredUnmatchedFiles?.map(file => (
-                                                    <ScanSummaryGroupItem
-                                                        file={file}
-                                                        key={file.id}
-                                                        searchQuery={debouncedSearchQuery}
-                                                        isExpanded={expandedAccordions.has(file.localFile?.path || "")}
-                                                    />
-                                                ))}
-                                            </div>
+                                        <Accordion
+                                            type="single"
+                                            collapsible
+                                            triggerClass="py-0 px-3 dark:hover:bg-transparent text-[--muted] dark:hover:text-white"
+                                            className="p-0 bg-[--paper] border mt-4 rounded-[--radius] overflow-hidden relative gap-0"
+                                        >
+                                            {filteredUnmatchedFiles?.map(file => (
+                                                <ScanSummaryGroupItem
+                                                    file={file}
+                                                    key={file.id}
+                                                    searchQuery={debouncedSearchQuery}
+                                                    isExpanded={expandedAccordions.has(file.localFile?.path || "")}
+                                                />
+                                            ))}
                                         </Accordion>
                                     </div>}
 
@@ -189,7 +202,7 @@ export default function Page() {
                                                         <div
                                                             className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
                                                         >
-                                                            <Image
+                                                            <SeaImage
                                                                 src={group.mediaImage}
                                                                 alt="banner"
                                                                 fill
@@ -228,6 +241,17 @@ export default function Page() {
                                                         </p>}
 
                                                     <div>
+
+                                                        <div className="">
+                                                            <Button
+                                                                className="px-0 dark:text-[--muted] dark:hover:text-[--foreground]"
+                                                                intent="gray-link"
+                                                                leftIcon={<LuFolderTree />}
+                                                                onClick={() => openDirInLibraryExplorer(group.files?.[0]?.localFile?.path || "")}
+                                                            >
+                                                                Open in Library Explorer
+                                                            </Button>
+                                                        </div>
 
 
                                                         <Accordion type="single" collapsible value={expandedAccordions.has("i1") ? "i1" : undefined}>
@@ -281,6 +305,8 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
     const hasErrors = file.logs?.some(log => log.level === "error")
     const hasWarnings = file.logs?.some(log => log.level === "warning")
 
+    const { openDirInLibraryExplorer } = useLibraryExplorer()
+
     if (!file.localFile || !file.logs) return null
 
     return (
@@ -309,13 +335,23 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                 </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2 overflow-x-auto">
-                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">
+                <p className="text-sm text-left tracking-wide text-[--muted] italic line-clamp-1 max-w-full">
                     {searchQuery ? (
                         <HighlightedText text={file.localFile.path} searchQuery={searchQuery} />
                     ) : (
                         file.localFile.path
                     )}
                 </p>
+                <div className="">
+                    <Button
+                        className="px-0 dark:text-[--muted] dark:hover:text-[--foreground]"
+                        intent="gray-link"
+                        leftIcon={<LuFolderTree />}
+                        onClick={() => openDirInLibraryExplorer(file.localFile?.path || "")}
+                    >
+                        Open in Library Explorer
+                    </Button>
+                </div>
                 <ScanSummaryFileParsedData localFile={file.localFile} />
                 {file.logs.map(log => (
                     <ScanSummaryLog key={log.id} log={log} />

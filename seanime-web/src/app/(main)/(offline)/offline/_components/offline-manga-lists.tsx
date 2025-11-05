@@ -1,6 +1,6 @@
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
-import { LibraryHeader } from "@/app/(main)/manga/_components/library-header"
+import { MangaLibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
 import { cn } from "@/components/ui/core/styling"
@@ -35,10 +35,10 @@ export function OfflineMangaLists() {
             )}
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && (
                 <>
-                    <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
+                    <MangaLibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
                     <div
                         className={cn(
-                            "h-28",
+                            "h-40",
                             ts.hideTopNavbar && "h-40",
                         )}
                     ></div>

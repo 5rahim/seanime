@@ -211,12 +211,25 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             return
         }
 
-        const foundTracks = tracks?.filter?.(t => t.info.language === this.settings.preferredSubtitleLanguage)
-        if (foundTracks?.length) {
-            // Find default or forced track
-            const defaultIndex = foundTracks.findIndex(t => t.info.forced)
-            this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].info.number)
-            return
+        // Split preferred languages by comma and trim whitespace
+        const preferredLanguages = this.settings.preferredSubtitleLanguage
+            .split(",")
+            .map(lang => lang.trim())
+            .filter(lang => lang.length > 0)
+
+        // Try each preferred language in order
+        for (const preferredLang of preferredLanguages) {
+            const foundTracks = tracks?.filter?.(t => t.info.language === preferredLang)
+            if (foundTracks?.length) {
+                // Find default or forced track
+                const defaultIndex = foundTracks.findIndex(t => t.info.forced)
+                this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].info.number)
+                return
+            }
+            if (preferredLang === "none") {
+                this.selectTrack(NO_TRACK_NUMBER)
+                return
+            }
         }
 
         // No default tracks found, select the english track

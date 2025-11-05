@@ -1,18 +1,50 @@
+import { AL_BaseAnime } from "@/api/generated/types"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaImage } from "@/components/shared/sea-image"
 import { CommandGroup, CommandItem } from "@/components/ui/command"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useDebounce } from "@/hooks/use-debounce"
-import Image from "next/image"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { CommandHelperText, CommandItemMedia } from "./_components/command-utils"
 import { useSeaCommandContext } from "./sea-command"
 
+const selectMediaActionAtom = atom<"anime" | "manga" | null>(null)
+const selectedAnimeAtom = atom<AL_BaseAnime | null>(null)
+const selectedMangaAtom = atom<AL_BaseAnime | null>(null)
+
+export function useSeaCommandSearchSelectMedia() {
+    const [selectMediaAction, setSelectMediaAction] = useAtom(selectMediaActionAtom)
+    const [selectedAnime, setSelectedAnime] = useAtom(selectedAnimeAtom)
+    const [selectedManga, setSelectedManga] = useAtom(selectedMangaAtom)
+
+    return {
+        searchAndSelectMedia: (type: "anime" | "manga") => {
+            setSelectMediaAction(type)
+        },
+        selectedAnime,
+        selectedManga,
+        onAcknowledgeSelection: () => {
+            setSelectMediaAction(null)
+            setSelectedAnime(null)
+            setSelectedManga(null)
+        },
+    }
+}
+
 export function SeaCommandSearch() {
 
     const serverStatus = useServerStatus()
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
+    const [selectMediaAction, setSelectMediaAction] = useAtom(selectMediaActionAtom)
+    const [selectedAnime, setSelectedAnime] = useAtom(selectedAnimeAtom)
+    const [selectedManga, setSelectedManga] = useAtom(selectedMangaAtom)
 
     const { input, select, scrollToTop, commandListRef, command: { isCommand, command, args } } = useSeaCommandContext()
 
@@ -51,6 +83,13 @@ export function SeaCommandSearch() {
         return () => cl()
     }, [input, isLoading, isFetching])
 
+    React.useEffect(() => {
+        if (!selectMediaAction) {
+            setSelectedAnime(null)
+            setSelectedManga(null)
+        }
+    }, [selectMediaAction])
+
 
     return (
         <>
@@ -78,7 +117,7 @@ export function SeaCommandSearch() {
                             {<div
                                 className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                             >
-                                <Image
+                                <SeaImage
                                     src="/luffy-01.png"
                                     alt={""}
                                     fill
@@ -100,15 +139,21 @@ export function SeaCommandSearch() {
                             key={item?.id || ""}
                             onSelect={() => {
                                 select(() => {
-                                    if (type === "anime") {
-                                        router.push(`/entry?id=${item.id}`)
+                                    if (selectMediaAction === "anime") {
+                                        setSelectedAnime(item)
+                                    } else if (selectMediaAction === "manga") {
+                                        setSelectedManga(item)
                                     } else {
-                                        router.push(`/manga/entry?id=${item.id}`)
+                                        if (type === "anime") {
+                                            router.push(`/entry?id=${item.id}`)
+                                        } else {
+                                            router.push(`/manga/entry?id=${item.id}`)
+                                        }
                                     }
                                 })
                             }}
                         >
-                            <CommandItemMedia media={item} />
+                            <CommandItemMedia media={item} type={type} />
                         </CommandItem>
                     ))}
                 </CommandGroup>

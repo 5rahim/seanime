@@ -2,9 +2,10 @@ package core
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
 	"seanime/internal/constants"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -22,6 +23,7 @@ import (
 	"seanime/internal/library/fillermanager"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/library/scanner"
+	"seanime/internal/library_explorer"
 	"seanime/internal/local"
 	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/iina"
@@ -37,6 +39,7 @@ import (
 	"seanime/internal/platforms/offline_platform"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/platforms/simulated_platform"
+	"seanime/internal/playlist"
 	"seanime/internal/plugin"
 	"seanime/internal/report"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -86,7 +89,7 @@ type (
 		FileCacher                      *filecache.Cacher
 		OnlinestreamRepository          *onlinestream.Repository
 		MangaRepository                 *manga.Repository
-		MetadataProvider                metadata.Provider
+		MetadataProvider                metadata_provider.Provider
 		DiscordPresence                 *discordrpc_presence.Presence
 		MangaDownloader                 *manga.Downloader
 		ContinuityManager               *continuity.Manager
@@ -106,6 +109,7 @@ type (
 		ReportRepository   *report.Repository
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string
+		AnilistCacheDir    string
 		IsDesktopSidecar   bool
 		animeCollection    *anilist.AnimeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
@@ -119,6 +123,8 @@ type (
 		isOffline          *bool
 		NakamaManager      *nakama.Manager
 		ServerPasswordHash string // SHA-256 hash of the server password
+		PlaylistManager    *playlist.Manager
+		LibraryExplorer    *library_explorer.LibraryExplorer
 	}
 )
 
@@ -198,9 +204,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Get Anilist token from database if available
 	anilistToken := database.GetAnilistToken()
 
+	anilistCacheDir := filepath.Join(cfg.Cache.Dir, "anilist")
+
 	// Initialize Anilist API client with the token
 	// If the token is empty, the client will not be authenticated
-	anilistCW := anilist.NewAnilistClient(anilistToken)
+	anilistCW := anilist.NewAnilistClient(anilistToken, anilistCacheDir)
 
 	// Initialize WebSocket event manager for real-time communication
 	wsEventManager := events.NewWSEventManager(logger)
@@ -231,9 +239,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize metadata provider for media information
-	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
+	metadataProvider := metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
+		Database:   database,
 	})
 
 	// Set initial metadata provider (will change if offline mode is enabled)
@@ -251,7 +260,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Initialize Anilist platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger, database)
 
 	// Update plugin context with new modules
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
@@ -288,7 +297,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Initialize simulated platform for unauthenticated operations
-	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger)
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(localManager, anilistCW, logger, database)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize simulated platform")
 	}
@@ -325,6 +334,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		OfflinePlatform:               offlinePlatform,
 		LocalManager:                  localManager,
 		WSEventManager:                wsEventManager,
+		AnilistCacheDir:               anilistCacheDir,
 		Logger:                        logger,
 		Version:                       constants.Version,
 		Updater:                       updater.New(constants.Version, logger, wsEventManager),
@@ -348,6 +358,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
 		NativePlayer:                  nil, // Initialized in App.initModulesOnce
 		NakamaManager:                 nil, // Initialized in App.initModulesOnce
+		LibraryExplorer:               nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules

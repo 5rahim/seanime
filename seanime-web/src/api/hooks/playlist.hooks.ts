@@ -1,7 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { CreatePlaylist_Variables, DeletePlaylist_Variables, UpdatePlaylist_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_LocalFile, Anime_Playlist } from "@/api/generated/types"
+import { Anime_Playlist, Anime_PlaylistEpisode } from "@/api/generated/types"
 import { Nullish } from "@/types/common"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -57,11 +57,11 @@ export function useDeletePlaylist() {
     })
 }
 
-export function useGetPlaylistEpisodes(id: Nullish<number>, progress: Nullish<number>) {
-    return useServerQuery<Array<Anime_LocalFile>>({
-        endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)).replace("{progress}", String(progress || 0)),
+export function useGetPlaylistEpisodes(id: Nullish<number>) {
+    return useServerQuery<Array<Anime_PlaylistEpisode>>({
+        endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.methods[0],
-        queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key, String(id), String(progress || 0)],
+        queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key, String(id)],
         enabled: !!id,
     })
 }

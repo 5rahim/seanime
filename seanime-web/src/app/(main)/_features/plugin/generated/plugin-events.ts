@@ -594,6 +594,7 @@ export type Plugin_Server_TrayIconEventPayload = {
     badgeIntent: string
     width: string
     minHeight: string
+    isDrawer: boolean
 }
 
 export function usePluginListenTrayIconEvent(cb: (payload: Plugin_Server_TrayIconEventPayload, extensionId: string) => void, extensionID: string) {

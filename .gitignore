@@ -85,7 +85,7 @@ seanime-web/CHANGELOG-priv.md
 codegen/generated/hooks.mdx
 
 
-internal/extension_repo/goja_onlinestream_test/test1.ts
+internal/extension_repo/**/test*.ts
 internal/extension_repo/goja_plugin_test
 
 *.sh

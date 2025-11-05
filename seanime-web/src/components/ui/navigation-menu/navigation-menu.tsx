@@ -20,16 +20,16 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-NavigationMenu__item",
-        "relative group/navigationMenu_item inline-flex items-center h-full select-none rounded-[--radius] leading-none no-underline outline-none transition-colors",
-        "text-[--muted] hover:bg-[--subtle] hover:text-[--foreground] focus:bg-[--subtle]",
-        "data-[current=true]:text-[--brand]", // Selected
+        "relative group/navigationMenu_item inline-flex !text-[1.15rem] items-center h-full select-none rounded-[--radius] leading-none no-underline outline-none transition-colors",
+        "text-[--muted] hover:text-[--foreground]",
+        "data-[current=true]:text-white", // Selected
         "font-[600] leading-none",
-        "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[--ring]",
+        "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[--ring]",
     ], {
         variants: {
             size: {
                 sm: "px-3 h-8 text-sm",
-                md: "px-3 h-10 text-sm",
+                md: "px-2 sm",
                 lg: "px-3 h-12 text-base",
             },
         },
@@ -59,7 +59,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     ]),
     desktopList: cva([
         "UI-VerticalNav__desktopList",
-        "inline-block space-x-1",
+        "inline-block space-x-2",
     ], {
         variants: {
             switchToDrawerBelow: {
@@ -92,7 +92,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     }),
     menuContainer: cva([
         "UI-NavigationMenu__menuContainer",
-        "absolute left-0 top-0 overflow-hidden p-1 data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out",
+        "absolute left-0 top-0 p-1 data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out",
         "data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52",
         "data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52",
         "data-[motion=to-start]:slide-out-to-left-52 w-full sm:min-w-full",
@@ -100,7 +100,7 @@ export const NavigationMenuAnatomy = defineStyleAnatomy({
     viewport: cva([
         "UI-NavigationMenu__viewport",
         "relative mt-1.5 duration-300 h-[var(--radix-navigation-menu-viewport-height)]",
-        "w-full min-w-96 overflow-hidden rounded-[--radius] shadow-sm border bg-[--paper] text-[--foreground]",
+        "w-full min-w-96 rounded-[--radius] shadow-sm border bg-[--paper] text-[--foreground]",
         "data-[state=open]:animate-in data-[state=open]:zoom-in-90 data-[state=open]:fade-in-25",
         "data-[state=closed]:animate-out data-[state=closed]:zoom-out-100 data-[state=closed]:fade-out-0",
     ]),

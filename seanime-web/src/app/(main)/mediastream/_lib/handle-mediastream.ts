@@ -2,6 +2,7 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Episode, Mediastream_StreamType, Nullish } from "@/api/generated/types"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
+import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useIsCodecSupported } from "@/app/(main)/_features/sea-media-player/hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
@@ -438,13 +439,38 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         setDuration(e.duration)
     }
 
+    const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
+
+    const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+
+    const nextFile = currentEpisodeIndex === -1 ? undefined : episodes?.[currentEpisodeIndex + 1]
+    const prevFile = currentEpisodeIndex === -1 ? undefined : episodes?.[currentEpisodeIndex - 1]
+
+    const hasNextEpisode = !!nextFile || (currentPlaylist && !!nextPlaylistEpisode)
+    const hasPreviousEpisode = !!prevFile || (currentPlaylist && !!prevPlaylistEpisode)
+
     const playNextEpisode = () => {
         logger("MEDIASTREAM").info("[playNextEpisode] called")
-        const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
-        if (currentEpisodeIndex !== -1) {
-            const nextFile = episodes[currentEpisodeIndex + 1]
+        if (currentPlaylist) {
+            playPlaylistEpisode("next", true)
+            return
+        }
+        if (nextFile) {
             if (nextFile?.localFile?.path) {
                 onPlayFile(nextFile.localFile.path)
+            }
+        }
+    }
+
+    const playPreviousEpisode = () => {
+        logger("MEDIASTREAM").info("[playPreviousEpisode] called")
+        if (currentPlaylist) {
+            playPlaylistEpisode("previous", false)
+            return
+        }
+        if (prevFile) {
+            if (prevFile?.localFile?.path) {
+                onPlayFile(prevFile.localFile.path)
             }
         }
     }
@@ -507,6 +533,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         },
         onCanPlay,
         playNextEpisode,
+        playPreviousEpisode,
+        hasPreviousEpisode,
+        hasNextEpisode,
         onProviderChange,
         onProviderSetup,
         isCodecSupported,
