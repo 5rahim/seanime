@@ -834,6 +834,7 @@ export type SetPluginSettingsPinnedTrays_Variables = {
  */
 export type GrantPluginPermissions_Variables = {
     id: string
+    clientId: string
 }
 
 /**

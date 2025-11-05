@@ -121,7 +121,7 @@ func (m *Manager) connectToHostAsync() {
 				case <-m.ctx.Done():
 					return
 				case <-time.After(retryDelay):
-					retryDelay *= 2 // Exponential backoff
+					//retryDelay *= 2 // Exponential backoff
 					continue
 				}
 			}

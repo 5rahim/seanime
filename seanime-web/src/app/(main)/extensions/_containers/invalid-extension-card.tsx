@@ -1,13 +1,17 @@
 import { Extension_InvalidExtension } from "@/api/generated/types"
 import { useGrantPluginPermissions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { ExtensionSettings } from "@/app/(main)/extensions/_containers/extension-card"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
+import { clientIdAtom } from "@/app/websocket-provider"
 import { SeaImage } from "@/components/shared/sea-image"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { atom, useAtomValue } from "jotai"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { BiCog, BiInfoCircle } from "react-icons/bi"
 import { FaCode } from "react-icons/fa"
@@ -161,6 +165,8 @@ type UnauthorizedExtensionPluginCardProps = {
     isInstalled: boolean
 }
 
+const shouldGrantPluginPermissionsAtom = atom<string[]>([])
+
 export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPluginCardProps) {
 
     const {
@@ -169,8 +175,22 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
         ...rest
     } = props
 
+    const clientId = useAtomValue(clientIdAtom)
     const { mutate: grantPluginPermissions, isPending: isGrantingPluginPermissions } = useGrantPluginPermissions()
     const { mutate: reloadExternalExtension, isPending: isReloadingExtension } = useReloadExternalExtension()
+
+    const [shouldGrantPluginPermissions, setShouldGrantPluginPermissions] = useAtom(shouldGrantPluginPermissionsAtom)
+
+    useWebsocketMessageListener({
+        type: "grant-plugin-permission-check",
+        onMessage: (message: string) => {
+            // message format: {extensionId}$$${code}
+            if (message.startsWith(extension.extension?.id) && shouldGrantPluginPermissions.includes(extension.extension?.id ?? "")) {
+                setShouldGrantPluginPermissions(p => p.filter(id => id !== extension.extension?.id ?? ""))
+                grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: "CODE:" + message.split("$$$")?.[1] || "" })
+            }
+        },
+    })
 
     return (
         <div
@@ -209,13 +229,25 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         {extension.path}
                     </p>
 
+                    <ExtensionCodeModal extension={extension.extension} readOnly>
+                        <Button
+                            size="md"
+                            intent="gray-subtle"
+                        >
+                            View code
+                        </Button>
+                    </ExtensionCodeModal>
+
                     <Button
                         size="md"
                         intent="success-subtle"
                         leftIcon={<LuShieldCheck className="size-5" />}
                         onClick={() => {
                             if (!extension.extension?.id) return toast.error("Extension has no ID")
-                            grantPluginPermissions({ id: extension.extension?.id ?? "" })
+                            setShouldGrantPluginPermissions(p => [...p, extension.extension?.id!])
+                            React.startTransition(() => {
+                                grantPluginPermissions({ id: extension.extension?.id ?? "", clientId: clientId || "" })
+                            })
                         }}
                         loading={isGrantingPluginPermissions}
                     >

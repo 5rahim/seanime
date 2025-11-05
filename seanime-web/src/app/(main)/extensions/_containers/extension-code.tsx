@@ -14,6 +14,7 @@ import React from "react"
 type ExtensionCodeModalProps = {
     children?: React.ReactElement
     extension: Extension_Extension
+    readOnly?: boolean
 }
 
 export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
@@ -24,7 +25,9 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
             contentClass="max-w-5xl"
             trigger={props.children}
             title="Code"
-            onInteractOutside={e => e.preventDefault()}
+            onInteractOutside={e => {
+                if (!props.readOnly) e.preventDefault()
+            }}
             // size="xl"
             // contentClass="space-y-4"
         >
@@ -36,6 +39,7 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
 function Content(props: ExtensionCodeModalProps) {
     const {
         extension,
+        readOnly,
     } = props
 
     const [code, setCode] = React.useState("")
@@ -80,16 +84,16 @@ function Content(props: ExtensionCodeModalProps) {
                 <p>
                     {extension.name}
                 </p>
-                <div className="text-sm text-[--muted]">
+                {readOnly && <div className="text-sm text-[--muted]">
                     You can edit the code of the extension here.
-                </div>
+                </div>}
             </div>
-            <div className="flex">
+            {!readOnly && <div className="flex">
                 <Button intent="white" loading={isPending} onClick={handleSave}>
                     Save
                 </Button>
                 <div className="flex flex-1"></div>
-            </div>
+            </div>}
             <ExtensionCodeEditor
                 code={code}
                 setCode={setCode}
