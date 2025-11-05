@@ -43,6 +43,7 @@ export function RecentReleases() {
                 opts={{
                     align: "start",
                 }}
+                carouselButtonContainerClass="top-[-3.5rem]"
                 autoScroll
             >
                 <CarouselDotButtons />

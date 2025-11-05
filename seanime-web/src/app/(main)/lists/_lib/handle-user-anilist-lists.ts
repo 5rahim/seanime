@@ -21,7 +21,7 @@ export const __myListsSearch_paramsInputAtom = atomWithImmer<CollectionParams<"a
 
 export const __myLists_selectedTypeAtom = atomWithImmer<"anime" | "manga" | "stats">("anime")
 
-export function useHandleUserAnilistLists(debouncedSearchInput: string) {
+export function useHandleUserAnilistLists(debouncedSearchInput: string, type?: "anime" | "manga") {
 
     const serverStatus = useServerStatus()
     const [selectedType, setSelectedType] = useAtom(__myLists_selectedTypeAtom)
@@ -29,8 +29,11 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
     const { data: mangaData } = useGetRawAnilistMangaCollection()
 
     const data = React.useMemo(() => {
+        if (type) {
+            return type === "anime" ? animeData : mangaData
+        }
         return selectedType === "anime" ? animeData : mangaData
-    }, [selectedType, animeData, mangaData])
+    }, [selectedType, animeData, mangaData, type])
 
     const lists = React.useMemo(() => data?.MediaListCollection?.lists, [data])
 

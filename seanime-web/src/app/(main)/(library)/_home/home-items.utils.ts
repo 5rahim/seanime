@@ -195,7 +195,7 @@ export const HOME_ITEMS = {
         name: "Anime Library",
         kind: ["row"],
         schemaVersion: 2,
-        description: "Display anime you have in your library by status.",
+        description: "Display anime you have downloaded / you are currently watching by status.",
         options: [
             {
                 label: "Statuses",
@@ -238,6 +238,76 @@ export const HOME_ITEMS = {
                         value: "carousel",
                     },
                 ],
+            },
+        ],
+    },
+    "my-lists": {
+        name: "My Lists",
+        kind: ["row"],
+        schemaVersion: 1,
+        description: "Display media from your lists by status.",
+        options: [
+            {
+                label: "Statuses",
+                name: "statuses",
+                type: "multi-select",
+                options: [
+                    {
+                        value: "CURRENT",
+                        label: "Current",
+                    },
+                    {
+                        value: "PAUSED",
+                        label: "Paused",
+                    },
+                    {
+                        value: "PLANNING",
+                        label: "Planning",
+                    },
+                    {
+                        value: "COMPLETED",
+                        label: "Completed",
+                    },
+                    {
+                        value: "DROPPED",
+                        label: "Dropped",
+                    },
+                ],
+            },
+            {
+                label: "Layout",
+                name: "layout",
+                type: "select",
+                options: [
+                    {
+                        label: "Grid",
+                        value: "grid",
+                    },
+                    {
+                        label: "Carousel",
+                        value: "carousel",
+                    },
+                ],
+            },
+            {
+                label: "Type",
+                name: "type",
+                type: "select",
+                options: [
+                    {
+                        label: "Anime",
+                        value: "anime",
+                    },
+                    {
+                        label: "Manga",
+                        value: "manga",
+                    },
+                ],
+            },
+            {
+                label: "Custom list name (Optional)",
+                type: "text",
+                name: "customListName",
             },
         ],
     },

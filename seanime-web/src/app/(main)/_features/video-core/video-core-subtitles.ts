@@ -329,6 +329,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             },
             libassGlyphLimit: 60500,
             libassMemoryLimit: 1024,
+            dropAllBlur: true,
         })
 
         this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")

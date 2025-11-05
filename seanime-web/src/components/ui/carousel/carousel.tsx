@@ -118,6 +118,7 @@ export type CarouselProps = {
     setApi?: (api: EmblaCarouselType) => void
     autoScroll?: boolean
     autoScrollDelay?: number
+    carouselButtonContainerClass?: string
 }
 
 type CarouselContextProps = {
@@ -141,6 +142,7 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         children,
         autoScroll,
         autoScrollDelay = 5000,
+        carouselButtonContainerClass,
         ...rest
     } = props
 
@@ -230,7 +232,7 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
                 {...rest}
             >
                 {children}
-                <CarouselButtons />
+                <CarouselButtons containerClass={carouselButtonContainerClass} />
             </div>
         </__CarouselContext.Provider>
     )
@@ -239,12 +241,14 @@ Carousel.displayName = "Carousel"
 
 type CarouselButtonsProps = {
     children?: React.ReactNode
+    containerClass?: string
 }
 
 export function CarouselButtons(props: CarouselButtonsProps) {
 
     const {
         children,
+        containerClass,
         ...rest
     } = props
 
@@ -252,7 +256,7 @@ export function CarouselButtons(props: CarouselButtonsProps) {
 
     return (
         <>
-            {scrollSnaps.length > 30 && <div className="flex gap-2 absolute top-[-3.5rem] right-0">
+            {scrollSnaps.length > 30 && <div className={cn("flex gap-2 absolute top-[-2rem] right-0", containerClass)}>
                 <CarouselPrevious />
                 <CarouselNext />
             </div>}
