@@ -22,8 +22,9 @@ import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
+import { useWindowScroll } from "react-use"
 
 export const __continueWatching_hoveringHeaderAtom = atom(false)
 export const __continueWatching_currentEpisodeIndexAtom = atom(0)
@@ -342,10 +343,22 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
         && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom) ? getAssetUrl(ts.libraryScreenCustomBannerImage) :
         episode?.baseAnime?.bannerImage || episode?.baseAnime?.coverImage?.extraLarge
 
+    const { y } = useWindowScroll()
+
+    const [dimmed, setDimmed] = useState(false)
+    useEffect(() => {
+        if (y > 100)
+            setDimmed(true)
+        else
+            setDimmed(false)
+    }, [(y > 100)])
+
     return (
         <div
+            data-continue-watching-header-banner-image
             className={cn(
-                "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 bg-[--background] overflow-hidden",
+                "lg:h-[35rem] w-full flex-none object-cover object-center top-0 bg-[--background] absolute",
+                !ts.libraryScreenCustomBackgroundImage && "fixed",
                 !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                 __isDesktop__ && "top-[-2rem]",
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
@@ -374,6 +387,7 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
                                 isTransitioning && "scale-[1.01] -translate-x-0.5",
                                 !isTransitioning && "scale-100 translate-x-0",
                                 !episode?.baseAnime?.bannerImage && "opacity-35",
+                                { "opacity-5": dimmed },
                             )}
                         />
                     )}
@@ -393,8 +407,8 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
 
             <div
                 className={cn(
-                    "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute -right-[10rem] &-right-[25rem] &-bottom-[10rem] bg-gradient-to-l from-[--background] &rotate-45 via-[--background] via-opacity-50 via-5% transition-opacity to-transparent",
-                    "opacity-100 duration-500",
+                    "hidden lg:block max-w-[60rem] w-full right-0 z-[2] h-full absolute &-bottom-[10rem] bg-gradient-to-l from-[--background] from-5% via-[--background] via-opacity-50 via-5% transition-opacity to-transparent",
+                    "opacity-90 duration-500",
                 )}
             />
 
