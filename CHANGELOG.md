@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.1
+
+- ⚡️ Home Screen: New "My Lists" and "Missed Sequels" items
+- ⚡️ Denshi Player: Add external subtitles (Experimental)
+- ⚡️ Manga: Option to overwrite all selected sources with default provider
+- 🦺 Denshi Player: Fixed subtitle & audio selection for RealDebrid
+- 🦺 Denshi: Force single instance of the client
+- 🦺 Denshi Player: Fixed some ASS subtitle signs being skipped
+- 🦺 Denshi Player: Fixed dragging/pasting subtitle files
+- 🦺 Manga: Fixed refreshing all sources
+- 🦺 Real Debrid: Fixed auto play 404 errors
+- 🦺 Denshi Player: Fixed updating number values for keybinds
+- 🦺 Denshi Player: Fixed handling of auto select errors
+- 🦺 Fixed editing entries when logged off AniList
+- 🦺 Fixed issues with default torrent provider
+- 🦺 Fix: Undo automatic trailers
+- 🦺 MPV/Iina: Don't append next episode if auto next is off
+- 🦺 Fix: Potential database locking issues
+- 🦺 Fixed some UI issues
+- 🏗️ Security(Server Passcode): Added authentication to proxy endpoints
+- 🏗️ Security: Granting plugin permissions requires two-way handshake
+- 🏗️ Security: Ability to view plugin code before granting permissions
+- 🏗️ Auto Downloader: Ability to choose all media
+- 🏗️ Extensions: Added $store API to content provider extensions
+- 🏗️ Added single instance warning to crash screen
+
 ## v3.0.0
 
 - 📝 BREAKING: Seanime Desktop is now deprecated. Download the new desktop client https://seanime.app/download
