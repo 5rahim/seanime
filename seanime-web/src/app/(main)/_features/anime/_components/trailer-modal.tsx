@@ -76,6 +76,7 @@ export function Content(props: ContentProps) {
                     className="w-full aspect-video rounded-xl"
                     allowFullScreen
                     loading="lazy" // Lazy load the iframe
+                    referrerPolicy="strict-origin-when-cross-origin"
                 />
                 {/*<video*/}
                 {/*    src={`https://yewtu.be/latest_version?id=${animeDetails?.trailer?.id}&itag=18`}*/}

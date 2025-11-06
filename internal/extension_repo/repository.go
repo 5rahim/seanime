@@ -235,9 +235,37 @@ func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension)
 func (r *Repository) GetExtensionPayload(id string) (ret string) {
 	ext, found := r.extensionBank.Get(id)
 	if !found {
+		ie, found := r.invalidExtensions.Get(id)
+		if found {
+			ext := ie.Extension
+			ret = ext.Payload
+			if len(ret) > 0 {
+				return
+			}
+
+			// Fetch from payload URI
+			if ext.Payload == "" || ext.IsDevelopment {
+				return
+			}
+
+			ret, _ = r.downloadPayload(ext.PayloadURI)
+		}
 		return ""
 	}
-	return ext.GetPayload()
+
+	ret = ext.GetPayload()
+	if len(ret) > 0 {
+		return
+	}
+
+	// Fetch from payload URI
+	if ext.GetPayloadURI() == "" || ext.GetIsDevelopment() {
+		return
+	}
+
+	ret, _ = r.downloadPayload(ext.GetPayloadURI())
+
+	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

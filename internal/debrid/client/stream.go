@@ -145,6 +145,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 
 		st, fi, err := s.repository.findBestTorrent(provider, media, opts.EpisodeNumber)
 		if err != nil {
+			if opts.PlaybackType == PlaybackTypeNativePlayer {
+				s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
+			}
 			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 				Status:      StreamStatusFailed,
 				TorrentName: "-",
@@ -176,6 +179,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 			}
 			st, fi, err := s.repository.findBestTorrentFromManualSelection(provider, selectedTorrent, media, opts.EpisodeNumber, chosenFileIndex)
 			if err != nil {
+				if opts.PlaybackType == PlaybackTypeNativePlayer {
+					s.repository.directStreamManager.AbortOpen(opts.ClientId, err)
+				}
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 					Status:      StreamStatusFailed,
 					TorrentName: selectedTorrent.Name,
@@ -190,6 +196,9 @@ func (s *StreamManager) startStream(ctx context.Context, opts *StartStreamOption
 	}
 
 	if selectedTorrent == nil {
+		if opts.PlaybackType == PlaybackTypeNativePlayer {
+			s.repository.directStreamManager.AbortOpen(opts.ClientId, fmt.Errorf("debridstream: Failed to start stream, no torrent provided"))
+		}
 		s.repository.wsEventManager.SendEvent(events.HideIndefiniteLoader, "debridstream")
 		return fmt.Errorf("debridstream: Failed to start stream, no torrent provided")
 	}

@@ -378,9 +378,9 @@ func (h *PlatformHelper) HandleCustomSourceUpdateEntryRepeat(ctx context.Context
 	return false, nil
 }
 
-func (h *PlatformHelper) HandleCustomSourceDeleteEntry(ctx context.Context, mediaID int) (bool, error) {
+func (h *PlatformHelper) HandleCustomSourceDeleteEntry(ctx context.Context, mediaID int, entryId int) (bool, error) {
 	if h.customSourceManager != nil && customsource.IsExtensionId(mediaID) {
-		err := h.customSourceManager.DeleteEntry(ctx, mediaID)
+		err := h.customSourceManager.DeleteEntry(ctx, mediaID, entryId)
 		return true, err
 	}
 	return false, nil

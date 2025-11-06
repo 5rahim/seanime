@@ -19,6 +19,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Tooltip } from "@/components/ui/tooltip"
+import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -55,6 +56,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
         className,
     } = props
 
+    const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const setBulkActionIsOpen = useSetAtom(__bulkAction_modalAtomIsOpen)
     const nakamaStatus = useNakamaStatus()
@@ -86,7 +88,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 >
                     {nakamaStatus?.hostConnectionStatus?.username}'s Library
                 </Tooltip>}
-                {(!isExtensionsLoading && !allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider")) &&
+                {(!isExtensionsLoading && !allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider") && serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE) &&
                     <AddExtensionModal extensions={allExtensions?.extensions}>
                         <span>
                             <Tooltip

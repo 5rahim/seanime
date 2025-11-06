@@ -667,7 +667,7 @@ func (m *Manager) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int
 }
 
 // DeleteEntry handles deleting a custom source entry
-func (m *Manager) DeleteEntry(ctx context.Context, mediaID int) error {
+func (m *Manager) DeleteEntry(ctx context.Context, mediaID int, entryId int) error {
 	customSource, localId, isCustom, extensionExists := m.GetProviderFromId(mediaID)
 	if !isCustom || !extensionExists {
 		return errors.New("custom source extension not found for media ID")

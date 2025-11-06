@@ -321,7 +321,7 @@ func (lp *OfflinePlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, r
 }
 
 // DeleteEntry isn't supported for the local platform, always returns an error.
-func (lp *OfflinePlatform) DeleteEntry(ctx context.Context, mediaID int) error {
+func (lp *OfflinePlatform) DeleteEntry(ctx context.Context, mediaID, entryId int) error {
 	return ErrActionNotSupported
 }
 

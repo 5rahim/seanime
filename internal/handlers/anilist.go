@@ -240,7 +240,7 @@ func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 	}
 
 	// Delete the list entry
-	err := h.App.AnilistPlatform.DeleteEntry(c.Request().Context(), listEntryID)
+	err := h.App.AnilistPlatform.DeleteEntry(c.Request().Context(), *p.MediaId, listEntryID)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

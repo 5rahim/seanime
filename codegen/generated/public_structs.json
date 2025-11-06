@@ -28593,6 +28593,40 @@
     "comments": []
   },
   {
+    "filepath": "../internal/database/db/cleanup_manager.go",
+    "filename": "cleanup_manager.go",
+    "name": "CleanupManager",
+    "formattedName": "DB_CleanupManager",
+    "package": "db",
+    "fields": [
+      {
+        "name": "gormdb",
+        "jsonName": "gormdb",
+        "goType": "gorm.DB",
+        "typescriptType": "DB",
+        "usedTypescriptType": "DB",
+        "usedStructName": "gorm.DB",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CleanupManager manages database cleanup operations to prevent concurrent access issues"
+    ]
+  },
+  {
     "filepath": "../internal/database/db/db.go",
     "filename": "db.go",
     "name": "Database",
@@ -28628,6 +28662,17 @@
         "typescriptType": "any",
         "required": true,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "cleanupManager",
+        "jsonName": "cleanupManager",
+        "goType": "CleanupManager",
+        "typescriptType": "DB_CleanupManager",
+        "usedTypescriptType": "DB_CleanupManager",
+        "usedStructName": "db.CleanupManager",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -59205,6 +59250,15 @@
         "comments": [
           " IETF language tags"
         ]
+      },
+      {
+        "name": "EditionUID",
+        "jsonName": "",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -62974,6 +63028,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"open-and-await\"",
+        "\"abort-open\"",
         "\"watch\"",
         "\"subtitle-event\"",
         "\"set-tracks\"",

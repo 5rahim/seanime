@@ -1,8 +1,6 @@
 import { Models_HomeItem, Nullish } from "@/api/generated/types"
 import { ADVANCED_SEARCH_COUNTRIES_MANGA, ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 
-export const MAX_HOME_ITEMS = 10
-
 export const DEFAULT_HOME_ITEMS: Models_HomeItem[] = [
     {
         id: "anime-continue-watching",
@@ -197,7 +195,7 @@ export const HOME_ITEMS = {
         name: "Anime Library",
         kind: ["row"],
         schemaVersion: 2,
-        description: "Display anime you have in your library by status.",
+        description: "Display anime you have downloaded / you are currently watching by status.",
         options: [
             {
                 label: "Statuses",
@@ -243,6 +241,76 @@ export const HOME_ITEMS = {
             },
         ],
     },
+    "my-lists": {
+        name: "My Lists",
+        kind: ["row"],
+        schemaVersion: 1,
+        description: "Display media from your lists by status.",
+        options: [
+            {
+                label: "Statuses",
+                name: "statuses",
+                type: "multi-select",
+                options: [
+                    {
+                        value: "CURRENT",
+                        label: "Current",
+                    },
+                    {
+                        value: "PAUSED",
+                        label: "Paused",
+                    },
+                    {
+                        value: "PLANNING",
+                        label: "Planning",
+                    },
+                    {
+                        value: "COMPLETED",
+                        label: "Completed",
+                    },
+                    {
+                        value: "DROPPED",
+                        label: "Dropped",
+                    },
+                ],
+            },
+            {
+                label: "Layout",
+                name: "layout",
+                type: "select",
+                options: [
+                    {
+                        label: "Grid",
+                        value: "grid",
+                    },
+                    {
+                        label: "Carousel",
+                        value: "carousel",
+                    },
+                ],
+            },
+            {
+                label: "Type",
+                name: "type",
+                type: "select",
+                options: [
+                    {
+                        label: "Anime",
+                        value: "anime",
+                    },
+                    {
+                        label: "Manga",
+                        value: "manga",
+                    },
+                ],
+            },
+            {
+                label: "Custom list name (Optional)",
+                type: "text",
+                name: "customListName",
+            },
+        ],
+    },
     "local-anime-library": {
         name: "Local Anime Library",
         kind: ["row"],
@@ -277,6 +345,12 @@ export const HOME_ITEMS = {
         kind: ["row"],
         schemaVersion: 1,
         description: "Display a carousel of anime episodes that aired recently.",
+    },
+    "missed-sequels": {
+        name: "Missed Sequels",
+        kind: ["row"],
+        schemaVersion: 1,
+        description: "Display a carousel of sequels that aren't in your collection.",
     },
     "anime-schedule-calendar": {
         name: "Anime Schedule Calendar",

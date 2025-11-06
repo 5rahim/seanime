@@ -3,7 +3,6 @@ import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
-import { isApple } from "@/lib/utils/browser-detection"
 import JASSUB, { ASS_Event, JassubOptions } from "jassub"
 import { toast } from "sonner"
 
@@ -292,7 +291,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }
 
     private __eventMapKey(event: MKVParser_SubtitleEvent): string {
-        return `${event.trackNumber}-${event.startTime}-${event.duration}-${event.extraData?.style}-${event.extraData?.name}-${event.extraData?.marginL}-${event.extraData?.marginR}-${event.extraData?.marginV}-${event.extraData?.effect}-${event.extraData?.readOrder}-${event.extraData?.layer}`
+        return JSON.stringify(event)
     }
 
     private _init() {
@@ -319,15 +318,18 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             legacyWasmUrl: legacyWasmUrl,
             modernWasmUrl: modernWasmUrl,
             // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
-            offscreenRender: isApple() ? false : this.jassubOffscreenRender, // should be false for iOS
-            prescaleFactor: 0.8,
-            onDemandRender: false,
+            // offscreenRender: isApple() ? false : this.jassubOffscreenRender, // should be false for iOS
+            offscreenRender: true,
+            // prescaleFactor: 0.8,
+            // onDemandRender: true,
             fonts: this.fonts,
             fallbackFont: "roboto medium",
             availableFonts: {
                 "roboto medium": defaultFontUrl,
             },
             libassGlyphLimit: 60500,
+            libassMemoryLimit: 1024,
+            dropAllBlur: true,
         })
 
         this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")

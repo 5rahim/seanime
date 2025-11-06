@@ -42,8 +42,8 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 		_ = anilistObj.Set("updateEntryRepeat", func(mediaID int, repeat int) error {
 			return anilistPlatform.UpdateEntryRepeat(context.Background(), mediaID, repeat)
 		})
-		_ = anilistObj.Set("deleteEntry", func(mediaID int) error {
-			return anilistPlatform.DeleteEntry(context.Background(), mediaID)
+		_ = anilistObj.Set("deleteEntry", func(mediaID int, entryId int) error {
+			return anilistPlatform.DeleteEntry(context.Background(), mediaID, entryId)
 		})
 		_ = anilistObj.Set("getAnimeCollection", func(bypassCache bool) (*anilist.AnimeCollection, error) {
 			return anilistPlatform.GetAnimeCollection(context.Background(), bypassCache)

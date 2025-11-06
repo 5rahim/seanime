@@ -742,7 +742,7 @@ export function VideoCoreSettingsButton() {
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
                         <p className="text-[--muted] text-sm mb-2">
-                            Real-time upscaling. Do not enable if you have a low-end GPU or none.
+                            Real-time sharpening. GPU-intensive.
                         </p>
                         <VideoCoreSettingSelect
                             options={anime4kOptions.map(option => ({

@@ -189,10 +189,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	HandleNewDatabaseEntries(database, logger)
 
-	// Clean up old database entries in background goroutines
-	database.TrimLocalFileEntries()     // Remove old local file entries
-	database.TrimScanSummaryEntries()   // Remove old scan summaries
-	database.TrimTorrentstreamHistory() // Remove old torrent stream history
+	// Clean up old database entries using the cleanup manager to prevent concurrent access issues
+	database.RunDatabaseCleanup() // Remove old entries from all tables sequentially
 
 	// Get anime library paths for plugin context
 	animeLibraryPaths, _ := database.GetAllLibraryPathsFromSettings()

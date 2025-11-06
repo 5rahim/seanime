@@ -900,6 +900,8 @@ func (h *subtitleHandler) processPendingBlock(blockDuration uint64) {
 	h.processSubtitleData(h.pendingBlock.trackNum, track, h.pendingBlock.data, milliseconds, duration, h.pendingBlock.headPos)
 }
 
+var ssaKeys = []string{"readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"}
+
 func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo, subtitleData []byte, milliseconds, duration float64, headPos int64) {
 	if getSubtitleTrackType(track.CodecID) == "PGS" || getSubtitleTrackType(track.CodecID) == "unknown" {
 		return
@@ -936,17 +938,11 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 			return
 		}
 
-		// SSA_KEYS = ['readOrder', 'layer', 'style', 'name', 'marginL', 'marginR', 'marginV', 'effect', 'text']
-		// For ASS: ignore readOrder (start from index 1), extract indices 1-7, text from index 8
-		// For SSA: ignore readOrder and layer (start from index 2), extract indices 2-7, text from index 8
-
+		// For ASS start at index 1 (layer), for SSA start at index 2 (style)
 		startIndex := 1
 		if track.CodecID == "S_TEXT/SSA" {
 			startIndex = 2
 		}
-
-		// Map values to ExtraData based on SSA_KEYS array
-		ssaKeys := []string{"readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"}
 
 		for i := startIndex; i < 8 && i < len(values); i++ {
 			if i < len(ssaKeys) {
@@ -957,14 +953,13 @@ func (h *subtitleHandler) processSubtitleData(trackNum uint64, track *TrackInfo,
 		// Text is everything from index 8 onwards
 		if len(values) > 8 {
 			text := strings.Join(values[8:], ",")
-			subtitleEvent.Text = strings.TrimSpace(text)
+			subtitleEvent.Text = text
 		}
 	} else if track.CodecID == "S_TEXT/UTF8" {
 		// Convert UTF8 to ASS format
 		subtitleEvent.Text = UTF8ToASSText(initialText)
 
 		subtitleEvent.CodecID = "S_TEXT/ASS"
-		subtitleEvent.ExtraData = make(map[string]string)
 		subtitleEvent.ExtraData["readorder"] = "0"
 		subtitleEvent.ExtraData["layer"] = "0"
 		subtitleEvent.ExtraData["style"] = "Default"

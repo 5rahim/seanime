@@ -4102,6 +4102,7 @@ export type NativePlayer_PlaybackInfo = {
  * - Package: nativeplayer
  */
 export type NativePlayer_ServerEvent = "open-and-await" |
+    "abort-open" |
     "watch" |
     "subtitle-event" |
     "set-tracks" |

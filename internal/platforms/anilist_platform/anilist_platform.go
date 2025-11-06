@@ -156,15 +156,15 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, r
 	})
 }
 
-func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID int) error {
+func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID, entryId int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
 
 	// Check if this is a custom source entry
-	if handled, err := ap.helper.HandleCustomSourceDeleteEntry(ctx, mediaID); handled {
+	if handled, err := ap.helper.HandleCustomSourceDeleteEntry(ctx, mediaID, entryId); handled {
 		return err
 	}
 
-	_, err := ap.anilistClient.DeleteEntry(ctx, &mediaID)
+	_, err := ap.anilistClient.DeleteEntry(ctx, &entryId)
 	if err != nil {
 		return err
 	}

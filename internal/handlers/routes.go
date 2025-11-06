@@ -118,8 +118,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
 
-	v1.GET("/proxy", util.VideoProxy)
-	v1.HEAD("/proxy", util.VideoProxy)
+	v1.GET("/proxy", h.VideoProxy)
+	v1.HEAD("/proxy", h.VideoProxy)
 
 	v1.GET("/status", h.HandleGetStatus)
 	v1.GET("/status/home-items", h.HandleGetHomeItems)
@@ -564,8 +564,9 @@ func (h *Handler) RespondWithError(c echo.Context, err error) error {
 
 func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Skip directstream route
-		if strings.Contains(c.Request().URL.Path, "/directstream/stream") {
+		// Skip stream routes
+		if strings.Contains(c.Request().URL.Path, "/directstream/stream") ||
+			strings.Contains(c.Request().URL.Path, "/nakama") {
 			return next(c)
 		}
 

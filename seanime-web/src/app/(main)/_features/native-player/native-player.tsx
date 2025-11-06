@@ -325,6 +325,19 @@ export function NativePlayer() {
                     setMiniPlayer(false)
 
                     break
+                case "abort-open":
+                    log.info("Abort open event received", { payload })
+                    setState(draft => {
+                        draft.loadingState = "An error occurred while loading the stream: " + ((payload as string) || "Unknown error")
+                        draft.playbackError = payload as string
+                        draft.playbackInfo = null
+                        return
+                    })
+                    setTimeout(() => {
+                        handleTerminateStream()
+                    }, 3000)
+
+                    break
                 // 2. Watch
                 // We received the playback info
                 case "watch":

@@ -613,7 +613,6 @@ export default function Page() {
                                             <Field.Select
                                                 name="autoSelectTorrentProvider"
                                                 label="Auto-select Provider"
-                                                help="Used for auto-selecting torents when streaming. Select 'None' if you don't need torrent support."
                                                 options={[
                                                     ...(torrentProviderExtensions?.filter(ext => ext?.settings?.type === "main")?.map(ext => ({
                                                         label: ext.name,

@@ -502,13 +502,11 @@ func (t *RealDebrid) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (ret *deb
 		return nil, err
 	}
 
-	go func() {
-		// Remove the torrent
-		err = t.DeleteTorrent(torrent.ID)
-		if err != nil {
-			t.logger.Error().Err(err).Msg("realdebrid: Failed to delete torrent")
-		}
-	}()
+	// Remove the torrent
+	err = t.DeleteTorrent(torrent.ID)
+	if err != nil {
+		t.logger.Error().Err(err).Msg("realdebrid: Failed to delete torrent")
+	}
 
 	ret = toDebridTorrentInfo(torrent)
 
