@@ -1,9 +1,7 @@
 import { useLocalSyncSimulatedDataToAnilist } from "@/api/hooks/local.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsCard, SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsPageHeader } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
-import { Field } from "@/components/ui/form"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
@@ -20,8 +18,6 @@ export function AnilistSettings(props: Props) {
         ...rest
     } = props
 
-    const serverStatus = useServerStatus()
-
     const { mutate: upload, isPending: isUploading } = useLocalSyncSimulatedDataToAnilist()
 
     const confirmDialog = useConfirmationDialog({
@@ -30,6 +26,7 @@ export function AnilistSettings(props: Props) {
         actionText: "Upload",
         actionIntent: "primary",
         onConfirm: async () => {
+            if (isUploading) return
             upload()
         },
     })
