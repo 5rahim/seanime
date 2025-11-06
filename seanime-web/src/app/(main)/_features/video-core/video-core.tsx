@@ -824,6 +824,7 @@ export function VideoCore(props: VideoCoreProps) {
     }
     const handleUpload = useCallback(async (e: UploadEvent & Event) => {
         e.preventDefault()
+        toast.info("Adding subtitle file...")
         log.info("Upload event", e)
         const items = [...(e.dataTransfer ?? e.clipboardData)?.items ?? []]
 

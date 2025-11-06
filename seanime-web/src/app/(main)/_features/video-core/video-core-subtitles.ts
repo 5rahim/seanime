@@ -40,6 +40,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     private currentTrackNumber: number = NO_TRACK_NUMBER
     private fonts: string[] = []
 
+    private _onSelectedTrackChanged?: (track: number | null) => void
+
     constructor({
         videoElement,
         jassubOffscreenRender,
@@ -80,11 +82,16 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
+    registerOnSelectedTrackChanged(callback: (track: number | null) => void) {
+        this._onSelectedTrackChanged = callback
+    }
+
     // Sets the track to no track.
     setNoTrack() {
         this.currentTrackNumber = NO_TRACK_NUMBER
         this.libassRenderer?.setTrack(this.defaultSubtitleHeader)
         this.libassRenderer?.resize?.()
+        this._onSelectedTrackChanged?.(null)
     }
 
     // Selects a track by its number.
@@ -124,6 +131,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             return
         }
 
+        this._onSelectedTrackChanged?.(trackNumber)
+
         const codecPrivate = track.info.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
 
         this.currentTrackNumber = track.info.number // update the current track number
@@ -162,7 +171,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     onTrackAdded(track: MKVParser_TrackInfo) {
         subtitleLog.info("Subtitle track added", track)
-        toast.info(`Subtitle track added: ${track.name}`)
+        toast.success(`Subtitle track added: ${track.name}`)
         this._addTrack(track)
         this._storeTrackStyles()
         // Add the track to the video element
@@ -172,10 +181,14 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         trackEl.label = track.name || ""
         trackEl.srclang = track.language || "eng"
         this.videoElement.appendChild(trackEl)
-        this._selectDefaultTrack()
+        // this._selectDefaultTrack()
+        this.selectTrack(track.number)
         this._init()
         this.libassRenderer?.resize?.()
+    }
 
+    getTracks() {
+        return Object.values(this._getTracks()).map(t => t.info)
     }
 
     destroy() {
@@ -320,8 +333,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
             // offscreenRender: isApple() ? false : this.jassubOffscreenRender, // should be false for iOS
             offscreenRender: true,
+            // onDemandRender: false,
             // prescaleFactor: 0.8,
-            // onDemandRender: true,
             fonts: this.fonts,
             fallbackFont: "roboto medium",
             availableFonts: {
