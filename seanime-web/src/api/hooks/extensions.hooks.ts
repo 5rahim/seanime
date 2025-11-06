@@ -267,9 +267,11 @@ export function useGrantPluginPermissions() {
         endpoint: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
-        onSuccess: async () => {
-            toast.success("Plugin permissions granted successfully.")
-            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+        onSuccess: async (data) => {
+            if (data) {
+                toast.success("Plugin permissions granted successfully.")
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+            }
         },
     })
 }

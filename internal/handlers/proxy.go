@@ -1,4 +1,4 @@
-package util
+package handlers
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 
 var proxyUA = util.GetRandomUserAgent()
 
-var videoProxyClient = &http.Client{
+var videoProxyClient2 = &http.Client{
 	Transport: &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 10,
@@ -28,11 +28,12 @@ var videoProxyClient = &http.Client{
 	Timeout: 60 * time.Second,
 }
 
-func VideoProxy(c echo.Context) (err error) {
+func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	defer util.HandlePanicInModuleWithError("util/VideoProxy", &err)
 
 	url := c.QueryParam("url")
 	headers := c.QueryParam("headers")
+	authToken := c.QueryParam("token")
 
 	// Always use GET request internally, even for HEAD requests
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -58,7 +59,7 @@ func VideoProxy(c echo.Context) (err error) {
 		req.Header.Set("Range", rangeHeader)
 	}
 
-	resp, err := videoProxyClient.Do(req)
+	resp, err := videoProxyClient2.Do(req)
 
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error sending request")
@@ -128,7 +129,7 @@ func VideoProxy(c echo.Context) (err error) {
 						if !strings.HasPrefix(segment.URI, "http") {
 							segment.URI = resolveURL(baseURL, segment.URI)
 						}
-						segment.URI = rewriteProxyURL(segment.URI, headerMap)
+						segment.URI = rewriteProxyURL(segment.URI, headerMap, authToken)
 						needsRewrite = true
 					}
 				}
@@ -141,7 +142,7 @@ func VideoProxy(c echo.Context) (err error) {
 							if !strings.HasPrefix(key.URI, "http") {
 								keyURI = resolveURL(baseURL, key.URI)
 							}
-							segment.Keys[i].URI = rewriteProxyURL(keyURI, headerMap)
+							segment.Keys[i].URI = rewriteProxyURL(keyURI, headerMap, authToken)
 							needsRewrite = true
 						}
 					}
@@ -157,7 +158,7 @@ func VideoProxy(c echo.Context) (err error) {
 					if !strings.HasPrefix(key.URI, "http") {
 						keyURI = resolveURL(baseURL, key.URI)
 					}
-					mediaPl.Keys[i].URI = rewriteProxyURL(keyURI, headerMap)
+					mediaPl.Keys[i].URI = rewriteProxyURL(keyURI, headerMap, authToken)
 					needsRewrite = true
 				}
 			}
@@ -179,7 +180,7 @@ func VideoProxy(c echo.Context) (err error) {
 					if !strings.HasPrefix(variant.URI, "http") {
 						variantURI = resolveURL(baseURL, variant.URI)
 					}
-					variant.URI = rewriteProxyURL(variantURI, headerMap)
+					variant.URI = rewriteProxyURL(variantURI, headerMap, authToken)
 					needsRewrite = true
 				}
 			}
@@ -193,7 +194,7 @@ func VideoProxy(c echo.Context) (err error) {
 							if !strings.HasPrefix(alternative.URI, "http") {
 								alternativeURI = resolveURL(baseURL, alternative.URI)
 							}
-							alternative.URI = rewriteProxyURL(alternativeURI, headerMap)
+							alternative.URI = rewriteProxyURL(alternativeURI, headerMap, authToken)
 							needsRewrite = true
 						}
 					}
@@ -209,7 +210,7 @@ func VideoProxy(c echo.Context) (err error) {
 					if !strings.HasPrefix(alternative.URI, "http") {
 						alternativeURI = resolveURL(baseURL, alternative.URI)
 					}
-					alternative.URI = rewriteProxyURL(alternativeURI, headerMap)
+					alternative.URI = rewriteProxyURL(alternativeURI, headerMap, authToken)
 					needsRewrite = true
 				}
 			}
@@ -223,7 +224,7 @@ func VideoProxy(c echo.Context) (err error) {
 					if !strings.HasPrefix(sessionKey.URI, "http") {
 						sessionKeyURI = resolveURL(baseURL, sessionKey.URI)
 					}
-					masterPl.SessionKeys[i].URI = rewriteProxyURL(sessionKeyURI, headerMap)
+					masterPl.SessionKeys[i].URI = rewriteProxyURL(sessionKeyURI, headerMap, authToken)
 					needsRewrite = true
 				}
 			}
@@ -266,7 +267,7 @@ func resolveURL(base *url2.URL, relativeURI string) string {
 	return base.ResolveReference(relativeURL).String()
 }
 
-func rewriteProxyURL(targetMediaURL string, headerMap map[string]string) string {
+func rewriteProxyURL(targetMediaURL string, headerMap map[string]string, authToken string) string {
 	proxyURL := "/api/v1/proxy?url=" + url2.QueryEscape(targetMediaURL)
 	if len(headerMap) > 0 {
 		headersStrB, err := json.Marshal(headerMap)
@@ -274,6 +275,9 @@ func rewriteProxyURL(targetMediaURL string, headerMap map[string]string) string 
 		if err == nil && len(headersStrB) > 2 { // Check > 2 for "{}" empty map
 			proxyURL += "&headers=" + url2.QueryEscape(string(headersStrB))
 		}
+	}
+	if authToken != "" {
+		proxyURL += "&token=" + url2.QueryEscape(authToken)
 	}
 	return proxyURL
 }

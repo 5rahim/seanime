@@ -824,6 +824,7 @@ export function VideoCore(props: VideoCoreProps) {
     }
     const handleUpload = useCallback(async (e: UploadEvent & Event) => {
         e.preventDefault()
+        toast.info("Adding subtitle file...")
         log.info("Upload event", e)
         const items = [...(e.dataTransfer ?? e.clipboardData)?.items ?? []]
 
@@ -874,21 +875,21 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     useEffect(() => {
-        const playerContainer = containerRef.current
-        if (!playerContainer || !state.active) return
+        const player = videoRef.current
+        if (!player || !state.active) return
 
-        playerContainer.addEventListener("paste", handleUpload)
-        playerContainer.addEventListener("drop", handleUpload)
-        playerContainer.addEventListener("dragover", suppressEvent)
-        playerContainer.addEventListener("dragenter", suppressEvent)
+        player.addEventListener("paste", handleUpload)
+        player.addEventListener("drop", handleUpload)
+        player.addEventListener("dragover", suppressEvent)
+        player.addEventListener("dragenter", suppressEvent)
 
         return () => {
-            playerContainer.removeEventListener("paste", handleUpload)
-            playerContainer.removeEventListener("drop", handleUpload)
-            playerContainer.removeEventListener("dragover", suppressEvent)
-            playerContainer.removeEventListener("dragenter", suppressEvent)
+            player.removeEventListener("paste", handleUpload)
+            player.removeEventListener("drop", handleUpload)
+            player.removeEventListener("dragover", suppressEvent)
+            player.removeEventListener("dragenter", suppressEvent)
         }
-    }, [handleUpload, state.active])
+    }, [handleUpload, state.active, videoRef.current])
 
     /**
      * Restore last position

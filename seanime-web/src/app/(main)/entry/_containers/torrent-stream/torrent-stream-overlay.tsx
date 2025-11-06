@@ -12,7 +12,7 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { Inter } from "next/font/google"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { BiDownArrow, BiGroup, BiStop, BiUpArrow } from "react-icons/bi"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -50,13 +50,18 @@ export function TorrentStreamOverlay({ isNativePlayerComponent, show }: {
 
     const { mutate: stop, isPending } = useTorrentstreamStopStream()
 
+    const t = useRef<NodeJS.Timeout | null>(null)
+
     useWebsocketMessageListener({
         type: WSEvents.TORRENTSTREAM_STATE,
         onMessage: ({ state, data }: { state: string, data: any }) => {
+            if (state !== TorrentStreamEvents.TorrentLoading) {
+                if (t.current) clearTimeout(t.current)
+            }
             switch (state) {
                 case TorrentStreamEvents.TorrentLoading:
                     if (!data) {
-                        setTimeout(() => {
+                        t.current = setTimeout(() => {
                             setLoadingState("SEARCHING_TORRENTS")
                             setStatus(null)
                             setMediaPlayerStartedPlaying(false)

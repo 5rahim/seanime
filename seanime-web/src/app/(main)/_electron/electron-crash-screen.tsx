@@ -1,5 +1,6 @@
 "use client"
 
+import { Alert } from "@/components/ui/alert"
 import React from "react"
 
 export function ElectronCrashScreenError() {
@@ -19,8 +20,15 @@ export function ElectronCrashScreenError() {
     }, [])
 
     return (
-        <p className="px-4">
-            {msg || "An error occurred"}
-        </p>
+        <div className="px-4 space-y-4">
+            <p>
+                {msg || "An error occurred. Closing in 10 seconds."}
+            </p>
+
+            <Alert
+                intent="warning"
+                description="Make sure another instance of Seanime is not running."
+            />
+        </div>
     )
 }

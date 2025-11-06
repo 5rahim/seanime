@@ -17,7 +17,7 @@ type Platform interface {
 	// UpdateEntryRepeat updates the entry repeat number for the given media ID
 	UpdateEntryRepeat(context context.Context, mediaID int, repeat int) error
 	// DeleteEntry deletes the entry for the given media ID
-	DeleteEntry(context context.Context, mediaID int) error
+	DeleteEntry(context context.Context, mediaID int, entryID int) error
 	// GetAnime gets the anime for the given media ID
 	GetAnime(context context.Context, mediaID int) (*anilist.BaseAnime, error)
 	// GetAnimeByMalID gets the anime by MAL ID

@@ -236,11 +236,11 @@ func (sp *SimulatedPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int,
 	})
 }
 
-func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, entryId int) error {
-	sp.logger.Trace().Int("entryId", entryId).Msg("simulated platform: Deleting entry")
+func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, mediaId, entryId int) error {
+	sp.logger.Trace().Int("entryId", entryId).Int("mediaId", mediaId).Msg("simulated platform: Deleting entry")
 
 	// Check if this is a custom source entry
-	if handled, err := sp.helper.HandleCustomSourceDeleteEntry(ctx, entryId); handled {
+	if handled, err := sp.helper.HandleCustomSourceDeleteEntry(ctx, mediaId, entryId); handled {
 		return err
 	}
 

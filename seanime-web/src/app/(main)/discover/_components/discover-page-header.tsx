@@ -114,8 +114,9 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
 
     return (
         <div
+            data-discover-page-header-banner-image
             className={cn(
-                "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 bg-[--background] overflow-hidden",
+                "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 bg-[--background]",
                 !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                 __isDesktop__ && "top-[-2rem]",
                 ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
@@ -170,6 +171,7 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
                         transition={{ duration: 0.5 }}
                         onLoad={onTrailerLoad}
                         onError={onTrailerError}
+                        referrerPolicy="strict-origin-when-cross-origin"
                     />
                 </div>
             )}
@@ -180,17 +182,17 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
 
             <div
                 className={cn(
-                    "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                    "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-20% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                     "opacity-70 duration-500",
                 )}
             />
 
-            <div
-                className={cn(
-                    "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute -right-[10rem] &-right-[25rem] &-bottom-[10rem] bg-gradient-to-l from-[--background] &rotate-45 via-[--background] via-opacity-50 via-5% transition-opacity to-transparent",
-                    "opacity-100 duration-500",
-                )}
-            />
+            {/*<div*/}
+            {/*    className={cn(*/}
+            {/*        "hidden lg:block max-w-[60rem] w-[calc(100%_-_10rem)] z-[2] h-full absolute -right-[10rem] &-right-[25rem] &-bottom-[10rem] bg-gradient-to-l from-[--background] &rotate-45 via-[--background] via-opacity-50 via-5% transition-opacity to-transparent",*/}
+            {/*        "opacity-100 duration-500",*/}
+            {/*    )}*/}
+            {/*/>*/}
 
             {!ts.disableSidebarTransparency && (
                 <div
@@ -436,6 +438,7 @@ export function DiscoverPageHeader({ playTrailer }: { playTrailer?: boolean }) {
 
     return (
         <motion.div
+            data-discover-page-header
             className={cn(
                 "__header lg:h-[28rem] overflow-hidden",
                 ts.hideTopNavbar && "lg:h-[32rem]",

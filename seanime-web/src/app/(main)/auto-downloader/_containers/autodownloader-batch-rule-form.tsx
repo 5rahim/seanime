@@ -9,16 +9,17 @@ import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-load
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
-import { SeaImage } from "@/components/shared/sea-image"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
-import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { upath } from "@/lib/helpers/upath"
 import { uniq } from "lodash"
+import capitalize from "lodash/capitalize"
+import Image from "next/image"
 import React from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
@@ -57,9 +58,9 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return userMedia ?? []
     }, [userMedia])
 
-    // Upcoming & airing media
     const notFinishedMedia = React.useMemo(() => {
-        return allMedia.filter(media => media.status !== "FINISHED")
+        // return allMedia.filter(media => media.status !== "FINISHED")
+        return allMedia
     }, [allMedia])
 
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
@@ -314,32 +315,59 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                 <div key={field.id}>
                     <div className="flex gap-4 items-center w-full">
                         <div className="flex flex-col gap-2 w-full">
-                            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                            <div className="border rounded-[--radius] p-4 relative  space-y-3">
                                 <div className="flex gap-4 items-center">
-                                    <div
-                                        className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
-                                    >
-                                        {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <SeaImage
-                                            src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}
-                                            alt="banner"
-                                            fill
-                                            quality={80}
-                                            priority
-                                            sizes="20rem"
-                                            className="object-cover object-center"
-                                        />}
-                                    </div>
-                                    <Select
+                                    {/*<div*/}
+                                    {/*    className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"*/}
+                                    {/*>*/}
+                                    {/*    {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <SeaImage*/}
+                                    {/*        src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}*/}
+                                    {/*        alt="banner"*/}
+                                    {/*        fill*/}
+                                    {/*        quality={80}*/}
+                                    {/*        priority*/}
+                                    {/*        sizes="20rem"*/}
+                                    {/*        className="object-cover object-center"*/}
+                                    {/*    />}*/}
+                                    {/*</div>*/}
+                                    {/*<Select*/}
+                                    {/*    label="Library Entry"*/}
+                                    {/*    options={props.allMedia*/}
+                                    {/*        .map(media => ({*/}
+                                    {/*            label: media.title?.userPreferred || "N/A",*/}
+                                    {/*            value: String(media.id),*/}
+                                    {/*        }))*/}
+                                    {/*        .toSorted((a, b) => a.label.localeCompare(b.label))*/}
+                                    {/*    }*/}
+                                    {/*    value={String(field.mediaId)}*/}
+                                    {/*    onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}*/}
+                                    {/*/>*/}
+                                    <Combobox
                                         label="Library Entry"
-                                        options={props.allMedia
-                                            .map(media => ({
-                                                label: media.title?.userPreferred || "N/A",
+                                        options={props.allMedia.map(media => ({
+                                                label: <div className="flex items-center gap-2">
+                                                    <div className="size-10 rounded-full bg-gray-800 flex items-center justify-center relative overflow-hidden flex-none">
+                                                        <Image
+                                                            src={media.coverImage?.medium ?? "/no-cover.png"}
+                                                            alt="cover"
+                                                            sizes="2rem"
+                                                            fill
+                                                            className="object-cover object-center"
+                                                        />
+                                                    </div>
+                                                    <p>{media.title?.userPreferred || "N/A"}</p>
+                                                    <p className="text-[--muted] text-sm">{capitalize(media.status)?.replaceAll("_", " ")}</p>
+                                                </div>,
                                                 value: String(media.id),
+                                                textValue: media.title?.userPreferred || "N/A",
                                             }))
-                                            .toSorted((a, b) => a.label.localeCompare(b.label))
-                                        }
-                                        value={String(field.mediaId)}
-                                        onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
+                                            .toSorted((a, b) => a.textValue.localeCompare(b.textValue))}
+                                        value={[String(field.mediaId)]}
+                                        onValueChange={(v) => handleFieldChange(index,
+                                            { mediaId: v[0] ? parseInt(v[0]) : props.allMedia[0]?.id },
+                                            field)}
+                                        multiple={false}
+                                        emptyMessage="No media found"
                                     />
                                 </div>
                                 <Field.DirectorySelector
@@ -365,7 +393,7 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                         />
                     </div>
                     {(!!props.separatorText && index < fields.length - 1) && (
-                        <p className="text-center text-[--muted]">{props.separatorText}</p>
+                        <p className="text-center text-[--muted] my-4">{props.separatorText}</p>
                     )}
                 </div>
             ))}

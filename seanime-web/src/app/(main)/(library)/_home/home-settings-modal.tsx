@@ -26,7 +26,18 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { BiCog, BiPlus, BiStats, BiTrash } from "react-icons/bi"
 import { IoHomeOutline, IoLibraryOutline } from "react-icons/io5"
-import { LuBookOpen, LuCalendar, LuCalendarClock, LuCirclePlay, LuClock, LuCompass, LuHeading, LuLayoutPanelLeft } from "react-icons/lu"
+import {
+    LuBookOpen,
+    LuCalendar,
+    LuCalendarClock,
+    LuCirclePlay,
+    LuClock,
+    LuCompass,
+    LuHeading,
+    LuLayoutPanelLeft,
+    LuListTodo,
+    LuMilestone,
+} from "react-icons/lu"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { TbCarouselHorizontal } from "react-icons/tb"
 import { toast } from "sonner"
@@ -48,6 +59,8 @@ const HOME_ITEM_ICONS = {
     "manga-continue-reading": LuBookOpen,
     "manga-library": LuBookOpen,
     "centered-title": LuHeading,
+    "missed-sequels": LuMilestone,
+    "my-lists": LuListTodo,
 } as const
 
 export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibrary?: boolean, isNakamaLibrary: boolean }) {
@@ -60,7 +73,7 @@ export function HomeSettingsModal({ emptyLibrary, isNakamaLibrary }: { emptyLibr
 
     const [currentItems, setCurrentItems] = React.useState<Models_HomeItem[]>(_homeItems || DEFAULT_HOME_ITEMS)
     const availableItems = HOME_ITEM_IDS.filter(type => {
-        if (type === "anime-carousel" || type === "manga-carousel" || type === "centered-title") {
+        if (type === "anime-carousel" || type === "manga-carousel" || type === "centered-title" || type === "my-lists") {
             return true
         }
         return !currentItems.some(item => item.type === type)
@@ -410,7 +423,10 @@ function SortableHomeItem({ item, onRemove, onEditOptions, isUpdating, index }: 
             </div>
 
             <div className="flex-1">
-                <div className="font-medium text-white">{homeItemConfig.name}{!!item.options?.name && `: "${item.options.name}"`}{(item.type === "centered-title" && item.options?.text) && `: "${item.options.text}"`}</div>
+                <div className="font-medium text-white">{homeItemConfig.name}{!!item.options?.name && `: "${item.options.name}"`}
+                    {(item.type === "centered-title" && item.options?.text) && `: "${item.options.text}"`}
+                    {(item.type === "my-lists") && `: ${item.options?.type === "manga" ? "Manga" : "Anime"}`}
+                </div>
                 <p className="text-xs text-[--muted] line-clamp-1">
                     {homeItemConfig.description}
                 </p>

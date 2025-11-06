@@ -131,7 +131,8 @@ func (s *DebridStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, err e
 		}
 
 		// If the content type is an EBML content type, we can create a metadata parser
-		if isEbmlContent(s.LoadContentType()) {
+		// Note: We'll assume everything that comes from debrid is an EBML file
+		if isEbmlContent(s.LoadContentType()) || s.LoadContentType() == "application/octet-stream" || s.LoadContentType() == "application/force-download" {
 			reader, err := httputil.NewHttpReadSeekerFromURL(s.streamUrl)
 			//reader, err := s.getPriorityReader()
 			if err != nil {

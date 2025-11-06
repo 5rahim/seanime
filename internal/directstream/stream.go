@@ -76,6 +76,18 @@ func (m *Manager) PrepareNewStream(clientId string, step string) {
 	m.prepareNewStream(clientId, step)
 }
 
+func (m *Manager) StreamError(err error) {
+	// Clear the current stream if it exists
+	if stream, ok := m.currentStream.Get(); ok {
+		m.Logger.Warn().Err(err).Msgf("directstream: Terminating stream with error")
+		stream.StreamError(err)
+	}
+}
+
+func (m *Manager) AbortOpen(clientId string, err error) {
+	m.abortPreparation(clientId, err)
+}
+
 func (m *Manager) prepareNewStream(clientId string, step string) {
 	// Cancel the previous playback
 	if m.playbackCtxCancelFunc != nil {
@@ -94,6 +106,26 @@ func (m *Manager) prepareNewStream(clientId string, step string) {
 	m.Logger.Debug().Msgf("directstream: Signaling native player that a new stream is starting")
 	// Signal the native player that a new stream is starting
 	m.nativePlayer.OpenAndAwait(clientId, step)
+}
+
+func (m *Manager) abortPreparation(clientId string, err error) {
+	// Cancel the previous playback
+	if m.playbackCtxCancelFunc != nil {
+		m.Logger.Trace().Msgf("directstream: Cancelling previous playback")
+		m.playbackCtxCancelFunc()
+		m.playbackCtxCancelFunc = nil
+	}
+
+	// Clear the current stream if it exists
+	if stream, ok := m.currentStream.Get(); ok {
+		m.Logger.Debug().Msgf("directstream: Terminating previous stream before preparing new stream")
+		stream.Terminate()
+		m.currentStream = mo.None[Stream]()
+	}
+
+	m.Logger.Debug().Msgf("directstream: Signaling native player to abort stream preparation, reason: %s", err.Error())
+	// Signal the native player that a new stream is starting
+	m.nativePlayer.AbortOpen(clientId, err.Error())
 }
 
 // loadStream loads a new stream and cancels the previous one.

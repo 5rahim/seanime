@@ -85,6 +85,22 @@ export function useStoredMangaProviders(_extensions: ExtensionRepo_MangaProvider
                 [String(mediaId)]: providerId,
             }))
         },
+        overwriteStoredProvidersWith: (providerId: string) => {
+            // check provider exists
+            const ext = extensions?.find(p => p.id === providerId)
+            if (!ext) return
+            for (const [mediaId, currProvider] of Object.entries(storedProvider)) {
+                if (currProvider !== providerId) {
+                    setStoredProvider(prev => ({
+                        ...prev,
+                        [mediaId]: providerId,
+                    }))
+                }
+            }
+        },
+        overwriteStoredProviders: (rec: Record<string, string>) => {
+            setStoredProvider(rec)
+        },
     }
 }
 
@@ -256,7 +272,7 @@ export function getMangaEntryLatestChapterNumber(
 
     if (!provider) return null
 
-    const mangaLatestChapterNumbers = latestChapterNumbers[Number(mangaId)]?.filter(item => {
+    const mangaLatestChapterNumbers = latestChapterNumbers[Number(mangaId)]?.filter?.(item => {
         return item.provider === provider
     })
 

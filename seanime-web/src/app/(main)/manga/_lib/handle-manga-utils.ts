@@ -1,6 +1,7 @@
 "use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { HibikeManga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
@@ -27,6 +28,15 @@ export function isChapterAfter(a: string, b: string): boolean {
 
 export function useMangaReaderUtils() {
 
+    const { getHMACTokenQueryParam, password } = useServerHMACAuth()
+    const [tokenQueryParam, setTokenQueryParam] = React.useState<string>("")
+
+    React.useLayoutEffect(() => {
+        (async () => {
+            setTokenQueryParam(await getHMACTokenQueryParam("/api/v1/image-proxy", "&"))
+        })()
+    }, [password])
+
     const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
         if (url.startsWith("{{manga-local-assets}}")) {
             return `${getServerBaseUrl()}/api/v1/manga/local-page/${encodeURIComponent(url)}`
@@ -35,13 +45,14 @@ export function useMangaReaderUtils() {
         if (!isDownloaded) {
             if (headers && Object.keys(headers).length > 0) {
                 return `${getServerBaseUrl()}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
-                    JSON.stringify(headers))}`
+                    JSON.stringify(headers))}` + tokenQueryParam
             }
             return url
         }
 
         return `${getServerBaseUrl()}/manga-downloads/${url}`
-    }, [])
+    }, [tokenQueryParam])
+
     return {
         getChapterPageUrl,
     }

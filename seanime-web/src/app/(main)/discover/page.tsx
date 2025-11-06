@@ -15,7 +15,6 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { StaticTabs } from "@/components/ui/tabs"
-import { HIDE_IMAGES } from "@/types/constants"
 import { useAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -44,7 +43,7 @@ export default function Page() {
 
     return (
         <>
-            <DiscoverPageHeader playTrailer={!HIDE_IMAGES} />
+            <DiscoverPageHeader />
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

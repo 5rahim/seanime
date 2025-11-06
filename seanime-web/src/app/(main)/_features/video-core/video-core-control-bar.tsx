@@ -47,11 +47,13 @@ import {
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip } from "@/components/ui/tooltip"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
 import React from "react"
+import { AiFillInfoCircle } from "react-icons/ai"
 import { HiFastForward } from "react-icons/hi"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
 import {
@@ -561,23 +563,36 @@ export function VideoCoreSubtitleButton() {
     const videoElement = useAtomValue(vc_videoElement)
     const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
-    const subtitleTracks = state.playbackInfo?.mkvMetadata?.subtitleTracks
+    const [subtitleTracks, setSubtitleTracks] = React.useState(state.playbackInfo?.mkvMetadata?.subtitleTracks ?? [])
 
-    function onAudioChange() {
-        setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
+    function onTextTrackChange() {
+        setSubtitleTracks(p => subtitleManager?.getTracks?.() ?? p)
     }
+
+    function onTrackChange(trackNumber: number | null) {
+        setSelectedTrack(trackNumber)
+    }
+
+    const firstRender = React.useRef(true)
 
     React.useEffect(() => {
         if (!videoElement || !subtitleManager) return
 
-        videoElement?.textTracks?.addEventListener?.("change", onAudioChange)
+        if (firstRender.current) {
+            firstRender.current = false
+            setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
+        }
+
+        subtitleManager.registerOnSelectedTrackChanged(onTrackChange)
+
+        videoElement?.textTracks?.addEventListener?.("change", onTextTrackChange)
         return () => {
-            videoElement?.textTracks?.removeEventListener?.("change", onAudioChange)
+            videoElement?.textTracks?.removeEventListener?.("change", onTextTrackChange)
         }
     }, [videoElement, subtitleManager])
 
     React.useEffect(() => {
-        onAudioChange()
+        onTextTrackChange()
     }, [subtitleManager])
 
     if (isMiniPlayer || !subtitleTracks?.length) return null
@@ -595,7 +610,12 @@ export function VideoCoreSubtitleButton() {
                 }}
             />}
         >
-            <VideoCoreMenuTitle>Subtitles</VideoCoreMenuTitle>
+            <VideoCoreMenuTitle>Subtitles {<Tooltip
+                trigger={<AiFillInfoCircle className="text-sm" />}
+                className="z-[150]"
+            >
+                You can add subtitles by dragging and dropping files onto the player.
+            </Tooltip>}</VideoCoreMenuTitle>
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
                     options={subtitleTracks.map(track => ({
@@ -742,7 +762,7 @@ export function VideoCoreSettingsButton() {
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
                         <p className="text-[--muted] text-sm mb-2">
-                            Real-time upscaling. Do not enable if you have a low-end GPU or none.
+                            Real-time sharpening. GPU-intensive.
                         </p>
                         <VideoCoreSettingSelect
                             options={anime4kOptions.map(option => ({

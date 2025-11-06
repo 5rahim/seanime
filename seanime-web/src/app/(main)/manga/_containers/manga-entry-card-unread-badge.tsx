@@ -1,3 +1,4 @@
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __mangaLibrary_latestChapterNumbersAtom as __mangaLibrary_currentMangaDataAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { Badge } from "@/components/ui/badge"
 import { useThemeSettings } from "@/lib/theme/hooks"
@@ -21,6 +22,7 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
     const { showMangaUnreadCount } = useThemeSettings()
     const [mangaData] = useAtom(__mangaLibrary_currentMangaDataAtom)
 
@@ -31,10 +33,8 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
             mangaData.latestChapterNumbers,
             mangaData.storedProviders,
             mangaData.storedFilters)
-        if (latestChapterNumber) {
-            setProgressTotal(latestChapterNumber)
-        }
-    }, [mangaData])
+        setProgressTotal(latestChapterNumber || 0)
+    }, [mangaData, serverStatus?.settings?.manga?.defaultMangaProvider])
 
     if (!showMangaUnreadCount) return null
 

@@ -4,6 +4,7 @@ import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_qualityAtom,
@@ -217,27 +218,31 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
      */
     const { videoSource } = useOnlinestreamVideoSource(episodeSource)
 
+    const { getHMACTokenQueryParam } = useServerHMACAuth()
+
     /**
      * 3. Change the stream URL when the video source changes
      */
     React.useEffect(() => {
-        logger("ONLINESTREAM").info("Changing stream URL using videoSource", { videoSource })
-        setUrl(undefined)
-        logger("ONLINESTREAM").info("Setting stream URL to undefined")
-        if (videoSource?.url) {
-            setServer(videoSource.server)
-            let _url = videoSource.url
-            if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
-                _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
-                    videoSource?.headers))}`
-            } else {
-                _url = videoSource.url
+        (async () => {
+            logger("ONLINESTREAM").info("Changing stream URL using videoSource", { videoSource })
+            setUrl(undefined)
+            logger("ONLINESTREAM").info("Setting stream URL to undefined")
+            if (videoSource?.url) {
+                setServer(videoSource.server)
+                let _url = videoSource.url
+                if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
+                    _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
+                        videoSource?.headers))}` + (await getHMACTokenQueryParam("/api/v1/proxy", "&"))
+                } else {
+                    _url = videoSource.url
+                }
+                React.startTransition(() => {
+                    logger("ONLINESTREAM").info("Setting stream URL", { url: _url })
+                    setUrl(_url)
+                })
             }
-            React.startTransition(() => {
-                logger("ONLINESTREAM").info("Setting stream URL", { url: _url })
-                setUrl(_url)
-            })
-        }
+        })()
     }, [videoSource?.url])
 
     // When the provider changes, set the currentProviderRef

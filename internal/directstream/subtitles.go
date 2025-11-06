@@ -485,7 +485,7 @@ func (s *BaseStream) OnSubtitleFileUploaded(filename string, content string) {
 	probableLangExt := util.FileExt(name)
 
 	// if probableLangExt is not empty, use it as the language
-	lang := cmp.Or(strings.TrimPrefix(probableLangExt, "."), name)
+	lang := cmp.Or(strings.TrimPrefix(probableLangExt, "."), "unknown")
 	// cleanup lang
 	lang = strings.ReplaceAll(lang, "-", " ")
 	lang = strings.ReplaceAll(lang, "_", " ")

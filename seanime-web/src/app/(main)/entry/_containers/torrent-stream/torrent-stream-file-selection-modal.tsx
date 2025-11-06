@@ -68,6 +68,15 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         setter(undefined)
     }
 
+    React.useEffect(() => {
+        if (filePreviews && filePreviews.length === 1) {
+            setSelectedFileIdx(filePreviews[0].index)
+            setTimeout(() => {
+                onStream()
+            }, 300)
+        }
+    }, [filePreviews])
+
     const hasLikelyMatch = filePreviews?.some(f => f.isLikely)
     const hasOneLikelyMatch = filePreviews?.filter(f => f.isLikely).length === 1
 

@@ -1,7 +1,6 @@
 "use client"
 
 import { cva } from "class-variance-authority"
-import equal from "fast-deep-equal"
 import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandProps } from "../command"
@@ -60,7 +59,6 @@ export const ComboboxAnatomy = defineStyleAnatomy({
         "text-lg cursor-pointer transition ease-in hover:opacity-60",
     ]),
 })
-
 
 /* -------------------------------------------------------------------------------------------------
  * Combobox
@@ -161,56 +159,42 @@ export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>((prop
         rightIcon: props1.rightIcon,
     })
 
+    const isControlled = controlledValue !== undefined
+    const [internalValue, setInternalValue] = React.useState(defaultValue ?? [])
+    const value = isControlled ? controlledValue! : internalValue
+
+    const updateValue = React.useCallback((next: string[]) => {
+        if (!isControlled) setInternalValue(next)
+        onValueChange?.(next)
+    }, [isControlled, onValueChange])
+
     const buttonRef = React.useRef<HTMLButtonElement>(null)
-
-    const valueRef = React.useRef<string[]>(controlledValue || defaultValue || [])
-    const [value, setValue] = React.useState<string[]>(controlledValue || defaultValue || [])
-
     const [open, setOpen] = React.useState(false)
-
-    const handleUpdateValue = React.useCallback((value: string[]) => {
-        setValue(value)
-        valueRef.current = value
-    }, [])
-
-    React.useEffect(() => {
-        if (controlledValue !== undefined && !equal(controlledValue, valueRef.current)) {
-            handleUpdateValue(controlledValue)
-        }
-    }, [controlledValue])
-
-    React.useEffect(() => {
-        onValueChange?.(value)
-    }, [value])
 
     const selectedOptions = options.filter((option) => value.includes(option.value))
 
     const selectedValues = (
         (!!value.length && !!selectedOptions.length) ?
-            multiple ? selectedOptions.map((option) => <div key={option.value} className={cn(ComboboxAnatomy.item(), itemClass)}>
-                <span className="truncate">{option.textValue || option.value}</span>
-                <span
-                    className={cn(ComboboxAnatomy.removeItemButton(), "rounded-full", removeItemButtonClass)} onClick={(e) => {
-                    e.preventDefault()
-                    handleUpdateValue(value.filter((v) => v !== option.value))
-                    setOpen(false)
-                }}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"
-                        fill="currentColor"
+            multiple ? selectedOptions.map((option) => (
+                <div key={option.value} className={cn(ComboboxAnatomy.item(), itemClass)}>
+                    <span className="truncate">{option.textValue || option.value}</span>
+                    <span
+                        className={cn(ComboboxAnatomy.removeItemButton(), "rounded-full", removeItemButtonClass)}
+                        onClick={(e) => {
+                            e.preventDefault()
+                            updateValue(value.filter((v) => v !== option.value))
+                            if (!multiple) setOpen(false)
+                        }}
                     >
-                        <path
-                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
-                        ></path>
-                    </svg>
-                </span>
-            </div>) : <span className="truncate">{selectedOptions[0].label}</span>
+                        ✕
+                    </span>
+                </div>
+            )) : <span className="truncate">{selectedOptions[0].label}</span>
             : <span className={cn(ComboboxAnatomy.placeholder(), placeholderClass)}>{placeholder}</span>
     )
 
     return (
-        <BasicField{...basicFieldProps}>
+        <BasicField {...basicFieldProps}>
             <InputContainer {...inputContainerProps}>
                 <InputAddon {...leftAddonProps} />
                 <InputIcon {...leftIconProps} />
@@ -218,78 +202,65 @@ export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>((prop
                 <Popover
                     open={open}
                     onOpenChange={setOpen}
-                    className={cn(
-                        ComboboxAnatomy.popover(),
-                        popoverClass,
-                    )}
-                    trigger={<button
-                        ref={mergeRefs([buttonRef, ref])}
-                        id={basicFieldProps.id}
-                        role="combobox"
-                        aria-expanded={open}
-                        className={cn(
-                            InputAnatomy.root({
-                                size,
-                                intent,
-                                hasError: !!basicFieldProps.error,
-                                isDisabled: !!basicFieldProps.disabled,
-                                isReadonly: !!basicFieldProps.readonly,
-                                hasRightAddon: !!rightAddon,
-                                hasRightIcon: !!rightIcon,
-                                hasLeftAddon: !!leftAddon,
-                                hasLeftIcon: !!leftIcon,
-                            }),
-                            ComboboxAnatomy.root({
-                                size,
-                            }),
-                        )}
-                        {...rest}
-                    >
-                        <div className={cn(ComboboxAnatomy.inputValuesContainer())}>
-                            {selectedValues}
-                        </div>
-                        <div className="flex items-center">
-                            {(!!value.length && !!selectedOptions.length && !multiple) && (
-                                <span
-                                    className={cn(ComboboxAnatomy.removeItemButton(), removeItemButtonClass)} onClick={(e) => {
-                                    e.preventDefault()
-                                    handleUpdateValue([])
-                                    setOpen(false)
-                                }}
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
-                                        ></path>
-                                    </svg>
-                                </span>
+                    className={cn(ComboboxAnatomy.popover(), popoverClass)}
+                    trigger={
+                        <button
+                            ref={mergeRefs([buttonRef, ref])}
+                            id={basicFieldProps.id}
+                            role="combobox"
+                            aria-expanded={open}
+                            className={cn(
+                                InputAnatomy.root({
+                                    size,
+                                    intent,
+                                    hasError: !!basicFieldProps.error,
+                                    isDisabled: !!basicFieldProps.disabled,
+                                    isReadonly: !!basicFieldProps.readonly,
+                                    hasRightAddon: !!rightAddon,
+                                    hasRightIcon: !!rightIcon,
+                                    hasLeftAddon: !!leftAddon,
+                                    hasLeftIcon: !!leftIcon,
+                                }),
+                                ComboboxAnatomy.root({ size }),
+                                className,
                             )}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className={cn(
-                                    ComboboxAnatomy.chevronIcon(),
-                                    chevronIconClass,
+                            {...rest}
+                        >
+                            <div className={cn(ComboboxAnatomy.inputValuesContainer(), inputValuesContainerClass)}>
+                                {selectedValues}
+                            </div>
+
+                            <div className="flex items-center">
+                                {(!!value.length && !!selectedOptions.length && !multiple) && (
+                                    <span
+                                        className={cn(ComboboxAnatomy.removeItemButton(), removeItemButtonClass)}
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            updateValue([])
+                                            setOpen(false)
+                                        }}
+                                    >
+                                        ✕
+                                    </span>
                                 )}
-                            >
-                                <path d="m7 15 5 5 5-5" />
-                                <path d="m7 9 5-5 5 5" />
-                            </svg>
-                        </div>
-                    </button>}
+
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className={cn(ComboboxAnatomy.chevronIcon(), chevronIconClass)}
+                                >
+                                    <path d="m7 15 5 5 5-5" />
+                                    <path d="m7 9 5-5 5 5" />
+                                </svg>
+                            </div>
+                        </button>
+                    }
                 >
-                    <Command
-                        inputContainerClass="py-1"
-                        {...commandProps}
-                    >
+                    <Command inputContainerClass="py-1" {...commandProps}>
                         <CommandInput
                             placeholder={placeholder}
                             onValueChange={onTextChange}
@@ -302,33 +273,28 @@ export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>((prop
                                         key={option.value}
                                         value={option.textValue || option.value}
                                         onSelect={(currentValue) => {
-                                            const _option = options.find(n => (n.textValue || n.value).toLowerCase() === currentValue.toLowerCase())
+                                            const _option = options.find(
+                                                o => (o.textValue || o.value).toLowerCase() === currentValue.toLowerCase(),
+                                            )
                                             if (_option) {
-                                                if (!multiple) {
-                                                    handleUpdateValue(value.includes(_option.value) ? [] : [_option.value])
-                                                } else {
-                                                    handleUpdateValue(
-                                                        !value.includes(_option.value)
-                                                            ? [...value, _option.value]
-                                                            : value.filter((v) => v !== _option.value),
-                                                    )
-                                                }
+                                                const next = multiple
+                                                    ? (!value.includes(_option.value)
+                                                        ? [...value, _option.value]
+                                                        : value.filter((v) => v !== _option.value))
+                                                    : (value.includes(_option.value) ? [] : [_option.value])
+
+                                                updateValue(next)
                                             }
-                                            setOpen(false)
+
+                                            if (!multiple) setOpen(false)
                                         }}
                                         leftIcon={
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24"
-                                                fill="none"
                                                 stroke="currentColor"
                                                 strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className={cn(
-                                                    ComboboxAnatomy.checkIcon(),
-                                                    checkIconClass,
-                                                )}
+                                                className={cn(ComboboxAnatomy.checkIcon(), checkIconClass)}
                                                 data-selected={value.includes(option.value)}
                                             >
                                                 <path d="M20 6 9 17l-5-5" />

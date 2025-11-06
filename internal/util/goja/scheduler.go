@@ -87,6 +87,7 @@ func (s *Scheduler) start() {
 func (s *Scheduler) Stop() {
 	if s.cancel != nil {
 		s.cancel()
+		s.cancel = nil
 	}
 	//s.wg.Wait()
 }

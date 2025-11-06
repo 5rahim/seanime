@@ -68,7 +68,7 @@ export function VideoCoreMenuTitle(props: { children: React.ReactNode }) {
 
     const { children, ...rest } = props
     return (
-        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3" {...rest}>
+        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center" {...rest}>
             {children}
         </div>
     )
@@ -222,7 +222,7 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                 <div
                     key={option.value}
                     role="button"
-                    className="w-full p-2 flex items-center justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
+                    className="w-full p-2 flex items-center overflow-hidden justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
                     onClick={() => {
                         onValueChange(option.value)
                     }}
@@ -230,21 +230,24 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
                     <span className="w-8 flex justify-start items-center h-full flex-none">
                         {value === option.value && <LuCheck className="text-lg" />}
                     </span>
-                    <span className="w-full flex flex-1 text-sm font-medium line-clamp-2">
-                        {option.label}
-                    </span>
-                    {(option.moreInfo || option.description) && <div className="w-fit flex-none ml-2 flex gap-2 items-center">
-                        {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
-                            {option.moreInfo}
-                        </span>}
-                        {option.description && <Tooltip
-                            trigger={<AiFillInfoCircle className="text-sm" />}
-                            portalContainer={isFullscreen ? containerElement || undefined : undefined}
-                            className="z-[150]"
-                        >
-                            {option.description}
-                        </Tooltip>}
-                    </div>}
+                    <div className="flex-wrap flex flex-1 gap-2 items-center">
+                        <span className="w-fit flex-none text-sm font-medium line-clamp-2">
+                            {option.label}
+                        </span>
+                        <span className="flex-1"></span>
+                        {(option.moreInfo || option.description) && <div className="w-fit flex-none ml-2 flex gap-2 items-center">
+                            {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
+                                {option.moreInfo}
+                            </span>}
+                            {option.description && <Tooltip
+                                trigger={<AiFillInfoCircle className="text-sm" />}
+                                portalContainer={isFullscreen ? containerElement || undefined : undefined}
+                                className="z-[150]"
+                            >
+                                {option.description}
+                            </Tooltip>}
+                        </div>}
+                    </div>
 
                 </div>
             ))}

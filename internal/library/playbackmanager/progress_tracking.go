@@ -116,7 +116,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	})
 
 	// append next episode to media player if no playlist is active
-	if !pm.isPlaylistActive.Load() {
+	if !pm.isPlaylistActive.Load() && pm.settings.AutoPlayNextEpisode {
 		if nextEpisode, ok := currentLocalFileWrapperEntry.FindNextEpisode(currentLocalFile); ok {
 			pm.Logger.Debug().Msg("playback manager: Appending next episode file path to media player")
 			_ = pm.MediaPlayerRepository.Append(nextEpisode.Path)
