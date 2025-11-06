@@ -120,6 +120,8 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 	err = r.fileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, "manga_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
+
+	_ = r.fileCacher.Close()
 	return
 }
 

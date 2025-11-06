@@ -89,6 +89,13 @@ func (c *Cacher) Close() error {
 	return nil
 }
 
+func (c *Cacher) Clear() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.stores = make(map[string]*CacheStore)
+	return nil
+}
+
 // getStore returns a cache store for the given bucket name and TTL.
 func (c *Cacher) getStore(name string) (*CacheStore, error) {
 	c.mu.Lock()

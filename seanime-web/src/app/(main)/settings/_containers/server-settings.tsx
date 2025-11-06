@@ -35,7 +35,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 
     const { mutate: upload, isPending: isUploading } = useLocalSyncSimulatedDataToAnilist()
 
-    const { data: isApiWorking } = useGetAnilistCacheLayerStatus()
+    const { data: isApiWorking, isLoading: isFetchingApiStatus } = useGetAnilistCacheLayerStatus()
     const { mutate: toggleCacheLayer, isPending: isTogglingCacheLayer } = useToggleAnilistCacheLayerStatus()
 
     const confirmDialog = useConfirmationDialog({
@@ -44,6 +44,7 @@ export function ServerSettings(props: ServerSettingsProps) {
         actionText: "Upload",
         actionIntent: "primary",
         onConfirm: async () => {
+            if (isUploading) return
             upload()
         },
     })
@@ -51,7 +52,7 @@ export function ServerSettings(props: ServerSettingsProps) {
     return (
         <div className="space-y-4">
 
-            {!isApiWorking && (
+            {(!isApiWorking && !isFetchingApiStatus) && (
                 <Alert
                     intent="warning-basic"
                     description={<div className="space-y-1">
