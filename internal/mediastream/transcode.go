@@ -161,15 +161,13 @@ func (r *Repository) ShutdownTranscodeStream(clientId string) {
 		return
 	}
 
-	// Kill playback
+	// Kill playback but preserve transcoder for future sessions
 	r.playbackManager.KillPlayback()
+	r.logger.Debug().Msg("mediastream: Playback killed, transcoder preserved for future sessions")
 
-	// Destroy the current transcoder
-	r.transcoder.MustGet().Destroy()
-
-	// Load a new transcoder
-	r.transcoder = mo.None[*transcoder.Transcoder]()
-	r.initializeTranscoder(r.settings)
+	// Clean up the current media container
+	r.playbackManager.currentMediaContainer = mo.None[*MediaContainer]()
+	r.logger.Trace().Msg("mediastream: Removed current media container")
 
 	// Send event
 	r.wsEventManager.SendEvent(events.MediastreamShutdownStream, nil)

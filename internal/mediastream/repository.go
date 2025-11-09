@@ -2,8 +2,6 @@ package mediastream
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"os"
 	"path/filepath"
 	"seanime/internal/database/models"
@@ -13,6 +11,9 @@ import (
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util/filecache"
 	"sync"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -82,6 +83,22 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 		settings.FfprobePath = "ffprobe"
 	}
 
+	// Check if we need to refresh the transcoder due to settings change
+	oldSettings := r.settings
+	needsTranscoderRefresh := false
+	if oldSettings.IsPresent() {
+		old := oldSettings.MustGet()
+		if old.TranscodeEnabled != settings.TranscodeEnabled ||
+			old.TranscodeHwAccel != settings.TranscodeHwAccel ||
+			old.TranscodePreset != settings.TranscodePreset ||
+			old.FfmpegPath != settings.FfmpegPath ||
+			old.FfprobePath != settings.FfprobePath ||
+			old.TranscodeHwAccelCustomSettings != settings.TranscodeHwAccelCustomSettings {
+			needsTranscoderRefresh = true
+			r.logger.Info().Msg("mediastream: Transcoder settings changed, will refresh transcoder")
+		}
+	}
+
 	// Set the settings
 	r.settings = mo.Some[*models.MediastreamSettings](settings)
 
@@ -91,8 +108,11 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 	// Set the optimizer settings
 	r.optimizer.SetLibraryDir(settings.PreTranscodeLibraryDir)
 
-	// Initialize the transcoder
-	if ok := r.initializeTranscoder(r.settings); ok {
+	// Handle transcoder initialization or refresh
+	if needsTranscoderRefresh {
+		r.RefreshTranscoderOnSettingsChange()
+	} else if !r.initializeTranscoder(r.settings) {
+		r.logger.Warn().Msg("mediastream: Transcoder was not initialized (disabled or failed)")
 	}
 
 	r.logger.Info().Msg("mediastream: Module initialized")
@@ -186,10 +206,14 @@ func (r *Repository) RequestTranscodeStream(filepath string, clientId string) (r
 		return nil, errors.New("module not initialized")
 	}
 
-	// Reinitialize the transcoder for each new transcode request
-	if ok := r.initializeTranscoder(r.settings); !ok {
-		return nil, errors.New("real-time transcoder not initialized, check your settings")
+	// Only initialize the transcoder if it doesn't exist to prevent destroying active sessions
+	if !r.transcoder.IsPresent() {
+		r.logger.Debug().Msg("mediastream: Transcoder not present, initializing")
+		if ok := r.initializeTranscoder(r.settings); !ok {
+			return nil, errors.New("real-time transcoder not initialized, check your settings")
+		}
 	}
+	r.logger.Debug().Msg("mediastream: Using existing transcoder")
 
 	ret, err = r.playbackManager.RequestPlayback(filepath, StreamTypeTranscode)
 
@@ -242,11 +266,17 @@ func (r *Repository) RequestPreloadDirectPlay(filepath string) (err error) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) initializeTranscoder(settings mo.Option[*models.MediastreamSettings]) bool {
-	// Destroy the old transcoder if it exists
+	// Ensure thread-safe transcoder initialization
+	r.reqMu.Lock()
+	defer r.reqMu.Unlock()
+
 	if r.transcoder.IsPresent() {
-		tc, _ := r.transcoder.Get()
-		tc.Destroy()
+		r.logger.Debug().Msg("mediastream: Transcoder already initialized, skipping re-initialization")
+		return true
 	}
+
+	// Note: Transcoder is not destroyed here to prevent HLS segment interruption.
+	// Destruction only occurs on settings change, shutdown, or explicit cleanup.
 
 	r.transcoder = mo.None[*transcoder.Transcoder]()
 
@@ -281,4 +311,30 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 	r.transcoder = mo.Some[*transcoder.Transcoder](tc)
 
 	return true
+}
+
+// DestroyTranscoder explicitly destroys the transcoder and releases all associated resources.
+// Thread-safe. Only call when settings change, during shutdown, or for manual cleanup.
+// Transcoder must be re-initialized after calling this method.
+func (r *Repository) DestroyTranscoder() {
+	r.reqMu.Lock()
+	defer r.reqMu.Unlock()
+
+	if r.transcoder.IsPresent() {
+		r.logger.Debug().Msg("mediastream: Destroying transcoder explicitly")
+		tc, _ := r.transcoder.Get()
+		tc.Destroy()
+		r.transcoder = mo.None[*transcoder.Transcoder]()
+	}
+}
+
+// RefreshTranscoderOnSettingsChange safely refreshes the transcoder when settings are updated.
+// Destroys existing transcoder and re-initializes with current settings.
+// Thread-safe. Called automatically by InitializeModules on settings change.
+func (r *Repository) RefreshTranscoderOnSettingsChange() {
+	r.DestroyTranscoder()
+	if r.IsInitialized() {
+		r.initializeTranscoder(r.settings)
+		r.logger.Info().Msg("mediastream: Transcoder refreshed due to settings change")
+	}
 }
