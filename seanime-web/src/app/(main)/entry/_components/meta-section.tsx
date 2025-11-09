@@ -61,7 +61,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
     const { hasTorrentProvider } = useHasTorrentProvider()
     const { hasDebridService } = useHasDebridService()
-    const { currentView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
+    const { currentView, setView, isLibraryView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
 
     const listData = entry.listData
     const type = "anime"
@@ -182,7 +182,6 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
-                        && currentView === "library"
                         && hasTorrentProvider
                         && (
                             serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
@@ -192,6 +191,9 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     ) && (
                         <TorrentSearchButton
                             entry={entry}
+                            onClick={() => {
+                                if (currentView !== "library") setView("library")
+                            }}
                         />
                     )}
 
