@@ -42,7 +42,7 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 	identifiers := make(map[string]int)
 	found, _ := r.fileCacher.GetPerm(bucket, CustomSourceIdentifierKey, &identifiers)
 	if !found {
-		r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+		_ = r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
 	}
 
 	// Clean up old entries for extensions that no longer exist
@@ -63,7 +63,7 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 
 	// Save cleaned identifiers if any were removed
 	if changed {
-		r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+		_ = r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
 	}
 
 	if identifier, ok := identifiers[extId]; ok {
@@ -76,10 +76,10 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 		usedIdentifiers[identifier] = true
 	}
 
-	// Generate a new unique identifier (1-65535)
+	// Generate a new unique identifier (1-1023)
 	var newIdentifier int
 	for {
-		newIdentifier = rand.Intn(65535) + 1
+		newIdentifier = rand.Intn(1023) + 1
 		if !usedIdentifiers[newIdentifier] {
 			break
 		}
@@ -87,7 +87,7 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 
 	// Store the new identifier
 	identifiers[extId] = newIdentifier
-	r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+	_ = r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
 
 	return newIdentifier
 }

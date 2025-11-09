@@ -10,6 +10,7 @@ import {
     __torrentstream__isLoadedAtom,
     __torrentstream__loadingStateAtom,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { __torrentStream_currentSessionAutoSelectAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
@@ -42,6 +43,8 @@ export function useHandleStartTorrentStream() {
     const { torrentStreamingPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
     const clientId = useAtomValue(clientIdAtom)
+
+    const setCurrentSessionAutoSelect = useSetAtom(__torrentStream_currentSessionAutoSelectAtom)
 
     const playbackType = React.useMemo<Torrentstream_PlaybackType>(() => {
         if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
@@ -89,6 +92,9 @@ export function useHandleStartTorrentStream() {
             onError: () => {
                 setLoadingState(null)
                 setIsLoaded(false)
+                React.startTransition(() => {
+                    setCurrentSessionAutoSelect(false)
+                })
             },
         })
     }, [playbackType, clientId])

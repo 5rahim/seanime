@@ -107,6 +107,7 @@ export function useVideoCorePlaylist() {
 
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
+    const { setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
     const {
         handleStreamSelection: handleTorrentstreamSelection,
         handleAutoSelectStream: handleTorrentstreamAutoSelect,
@@ -120,7 +121,6 @@ export function useVideoCorePlaylist() {
     // If user is auto-selecting the file
     const [torrentStream_autoSelectFile] = useAtom(__torrentStream_autoSelectFileAtom)
     const [debridStream_autoSelectFile] = useAtom(__debridStream_autoSelectFileAtom)
-    const { setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
 
     // The torrent to continue playing from
     const { autoPlayTorrent } = useAutoPlaySelectedTorrent()

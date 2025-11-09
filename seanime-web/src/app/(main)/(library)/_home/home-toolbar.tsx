@@ -13,7 +13,6 @@ import { libraryExplorer_drawerOpenAtom } from "@/app/(main)/_features/library-e
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistEditorManager } from "@/app/(main)/_features/playlists/lib/playlist-editor-manager"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { AddExtensionModal } from "@/app/(main)/extensions/_containers/add-extension-modal"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -89,7 +88,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                     {nakamaStatus?.hostConnectionStatus?.username}'s Library
                 </Tooltip>}
                 {(!isExtensionsLoading && !allExtensions?.extensions?.some(n => n.type === "anime-torrent-provider") && serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE) &&
-                    <AddExtensionModal extensions={allExtensions?.extensions}>
+                    <SeaLink href="/extensions?tab=marketplace&type=anime-torrent-provider">
                         <span>
                             <Tooltip
                                 trigger={<Button
@@ -104,7 +103,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                                 No torrent providers installed.
                             </Tooltip>
                         </span>
-                    </AddExtensionModal>}
+                    </SeaLink>}
                 {(hasEntries) && (
                     <>
                         {(!isStreamingOnly && !isNakamaLibrary) && <Tooltip

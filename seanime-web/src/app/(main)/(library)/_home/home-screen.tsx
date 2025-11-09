@@ -579,7 +579,9 @@ export function HomeScreenItem(props: HomeScreenItemProps) {
 
     if (item.type === "missed-sequels") {
         return (
-            <DiscoverMissedSequelsSection title="Missed Sequels" />
+            <PageWrapper className="px-4">
+                <DiscoverMissedSequelsSection title="Missed Sequels" />
+            </PageWrapper>
         )
     }
 

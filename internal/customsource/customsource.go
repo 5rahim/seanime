@@ -24,12 +24,15 @@ const (
 )
 
 const (
+	JavascriptMaxSafeInteger uint64 = 1<<53 - 1 // 2^53 - 1
 	// ExtensionIdOffset uses the sign bit to separate custom source IDs from AniList IDs
-	// AniList IDs: 0 to 2^31-1
-	// Extension IDs: 2^31 to 2^32-1
-	ExtensionIdOffset      = 0x80000000 // 2^31
-	MaxLocalId             = 0x7FFF     // 32,767
-	MaxExtensionIdentifier = 0xFFFF     // 65,535
+	// AniList IDs: 0 to 2^31-1 (31 bits)
+	// Extension IDs: 2^31 to 2^53-1 (38 bits available)
+	// Bit allocation: 10 bits for ExtensionIdentifier (1,023 extensions) + 28 bits for LocalId (268,435,455 media per extension)
+	ExtensionIdOffset      uint64 = 1 << 31   // 2^31
+	MaxLocalId             uint64 = 0xFFFFFFF // 268,435,455 (28 bits)
+	MaxExtensionIdentifier uint64 = 0x3FF     // 1,023 (10 bits)
+	LocalIdBitShift        uint64 = 28        // Number of bits allocated for local IDs
 )
 
 type (
@@ -146,33 +149,26 @@ func (m *Manager) getProviderFromId(id int) (ext extension.CustomSourceExtension
 
 // IsExtensionId checks if an ID belongs to an extension using bit-based separation
 func IsExtensionId(id int) bool {
-	return id >= ExtensionIdOffset
-}
-
-func GetLocalId(extensionIdentifier int, mediaId int) int {
-	_, localId := ExtractExtensionData(mediaId)
-	return localId
+	return uint64(id) >= ExtensionIdOffset
 }
 
 // GenerateMediaId creates a runtime extension media ID from extension identifier and local ID
-func GenerateMediaId(extensionIdentifier int, localId int) int {
-	// Ensure inputs are within valid ranges
-	extensionIdentifier = extensionIdentifier & MaxExtensionIdentifier
-	localId = localId & MaxLocalId
-
-	return ExtensionIdOffset + (extensionIdentifier << 15) + localId
+func GenerateMediaId(extensionIdentifier, localId int) int {
+	ei := uint64(extensionIdentifier) & MaxExtensionIdentifier
+	lid := uint64(localId) & MaxLocalId
+	id := ExtensionIdOffset + (ei << LocalIdBitShift) + lid
+	return int(int64(id))
 }
 
-// ExtractExtensionData extracts extension identifier and local ID
 func ExtractExtensionData(mediaId int) (extensionIdentifier int, localId int) {
-	if !IsExtensionId(mediaId) {
+	u := uint64(mediaId)
+	if u < ExtensionIdOffset {
 		return 0, 0
 	}
-
-	offset := mediaId - ExtensionIdOffset
-	extensionIdentifier = offset >> 15
-	localId = offset & MaxLocalId
-	return extensionIdentifier, localId
+	offset := u - ExtensionIdOffset
+	extensionIdentifier = int(offset >> LocalIdBitShift)
+	localId = int(offset & MaxLocalId)
+	return
 }
 
 func formatSiteUrl(extId string, siteUrl *string) *string {
@@ -633,7 +629,7 @@ func (m *Manager) UpdateEntryProgress(ctx context.Context, mediaID int, progress
 }
 
 // UpdateEntryRepeat handles updating repeat count for a custom source entry
-func (m *Manager) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int) error {
+func (m *Manager) UpdateEntryRepeat(_ context.Context, mediaID int, repeat int) error {
 	customSource, localId, isCustom, extensionExists := m.GetProviderFromId(mediaID)
 	if !isCustom || !extensionExists {
 		return errors.New("custom source extension not found for media ID")
@@ -667,7 +663,7 @@ func (m *Manager) UpdateEntryRepeat(ctx context.Context, mediaID int, repeat int
 }
 
 // DeleteEntry handles deleting a custom source entry
-func (m *Manager) DeleteEntry(ctx context.Context, mediaID int, entryId int) error {
+func (m *Manager) DeleteEntry(_ context.Context, mediaID int, _ int) error {
 	customSource, localId, isCustom, extensionExists := m.GetProviderFromId(mediaID)
 	if !isCustom || !extensionExists {
 		return errors.New("custom source extension not found for media ID")
