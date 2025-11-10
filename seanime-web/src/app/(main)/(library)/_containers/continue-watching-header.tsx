@@ -374,7 +374,7 @@ function BannerImage({ episode, isTransitioning, shouldBlurBanner }: BannerImage
             />
 
             <AnimatePresence>
-                <div className="w-full h-full absolute z-[1] overflow-hidden">
+                <div className="w-full h-full absolute z-[1] overflow-hidden scroll-locked-offset-width">
                     {bannerImage && (
                         <MotionImage
                             src={bannerImage}
