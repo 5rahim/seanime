@@ -1,4 +1,4 @@
-/// <reference path="../doc.d.ts" />
+/// <reference path="../../../../extension_repo/goja_plugin_types/core.d.ts" />
 
 class Provider {
     async test() {

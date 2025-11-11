@@ -24,6 +24,10 @@ contextBridge.exposeInMainWorld(
             isMainWindow: () => ipcRenderer.send('window:isMainWindow'),
         },
 
+        localServer: {
+            getPort: () => ipcRenderer.invoke("get-local-server-port")
+        },
+
         // Event listeners
         on: (channel, callback) => {
             // Whitelist channels

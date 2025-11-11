@@ -63,7 +63,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	registry := new(gojarequire.Registry)
 	registry.Enable(vm)
 
-	fm := goja_bindings.DefaultFieldMapper{}
+	fm := FieldMapper{}
 	vm.SetFieldNameMapper(fm)
 	// goja.TagFieldNameMapper("json", true)
 

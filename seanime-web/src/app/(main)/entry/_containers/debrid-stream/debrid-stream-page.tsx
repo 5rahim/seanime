@@ -14,8 +14,8 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Popover } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import { Tooltip } from "@/components/ui/tooltip"
 import { logger } from "@/lib/helpers/debug"
 import { DEBRID_SERVICE } from "@/lib/server/settings"
 import { atom } from "jotai/index"
@@ -101,7 +101,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     const { selectedDebridService } = useSelectedDebridService()
 
     React.useEffect(() => {
-        setUsePreviousBatch(!!batchHistory?.torrent)
+        setUsePreviousBatch(!!batchHistory?.torrent?.isBatch)
     }, [batchHistory])
 
     // Function to set the debrid stream autoplay info
@@ -268,7 +268,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                             fieldClass="w-fit flex-none"
                         />
 
-                        {!autoSelect && (
+                        {!autoSelect && !usePreviousBatch && (
                             <Switch
                                 label="Auto-select file"
                                 value={autoSelectFile}
@@ -277,6 +277,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                                 }}
                                 moreHelp="The episode file will be automatically selected from your chosen batch torrent"
                                 fieldClass="w-fit flex-none"
+                                disabled={!autoSelect && usePreviousBatch}
                             />
                         )}
 
@@ -286,25 +287,25 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                                     <div className="flex items-center gap-2">
                                         <div className="flex flex-none items-center justify-center">
                                             <IconButton
-                                                intent="alert-basic"
+                                                intent="alert-glass"
                                                 icon={<BiX />}
-                                                size="sm"
+                                                size="xs"
                                                 onClick={() => setUsePreviousBatch(false)}
                                                 className="rounded-full"
                                             />
                                         </div>
                                         <div className="flex-1 flex items-center gap-2">
-                                            <div className="flex items-center flex-none gap-1">Using previous selection
-                                                <Tooltip
+                                            <div className="flex items-center flex-none gap-1">Auto-selecting from previous torrent
+                                                <Popover
                                                     className="text-sm"
                                                     trigger={
-                                                        <AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90" />}
+                                                        <AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90 cursor-pointer" />}
                                                 >
-                                                    The next episode will be played from this batch.
-                                                </Tooltip>
+                                                    {batchHistory.torrent?.name}
+                                                </Popover>
                                             </div>
                                             <p className="line-clamp-1 text-[--muted] text-xs tracking-wide w-0 transition-all duration-300 ease-in-out group-hover/torrent-stream-batch-history:w-[20rem]">
-                                                {batchHistory.torrent?.name}
+
                                             </p>
                                         </div>
                                     </div>

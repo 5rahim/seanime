@@ -1,4 +1,5 @@
 import { AL_BaseAnime } from "@/api/generated/types"
+import { ElectronYoutubeEmbed, useElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
@@ -24,7 +25,7 @@ import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { __isDesktop__ } from "@/types/constants"
+import { __isDesktop__, __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence, motion } from "motion/react"
@@ -38,6 +39,7 @@ export const __discover_clickedCarouselDotAtom = atom(0)
 
 const MotionImage = motion.create(SeaImage)
 const MotionIframe = motion.create("iframe")
+const MotionWebview = motion.create("webview")
 
 interface HeaderCarouselDotsProps {
     className?: string
@@ -112,6 +114,8 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
     const trailerId = (media as AL_BaseAnime)?.trailer?.id
     const trailerSite = (media as AL_BaseAnime)?.trailer?.site || "youtube"
 
+    const { electronEmbedAddress } = useElectronYoutubeEmbed()
+
     return (
         <div
             data-discover-page-header-banner-image
@@ -162,7 +166,19 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
                         !trailerLoaded && "opacity-0",
                     )}
                 >
-                    <MotionIframe
+                    {__isElectronDesktop__ && <motion.div
+                        className="w-full h-full absolute left-0 object-cover object-center lg:scale-[1.8] 2xl:scale-[2.5]"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: trailerLoaded ? 1 : 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <ElectronYoutubeEmbed
+                            trailerId={trailerId} isBanner
+                            onLoad={onTrailerLoad}
+                            onError={onTrailerError}
+                        />
+                    </motion.div>}
+                    {!__isElectronDesktop__ && <MotionIframe
                         src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja&enablejsapi=true`}
                         className="w-full h-full absolute left-0 object-cover object-center lg:scale-[1.8] 2xl:scale-[2.5]"
                         allow="autoplay"
@@ -171,8 +187,7 @@ function BannerImage({ media, isTransitioning, shouldBlurBanner, showTrailer, tr
                         transition={{ duration: 0.5 }}
                         onLoad={onTrailerLoad}
                         onError={onTrailerError}
-                        referrerPolicy="strict-origin-when-cross-origin"
-                    />
+                    />}
                 </div>
             )}
 

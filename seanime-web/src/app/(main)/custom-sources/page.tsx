@@ -35,13 +35,17 @@ export default function Page() {
 
     const shouldFetch = !!provider
 
+    const customSource = customSources?.find(s => s.id === provider)
+    const supportsAnime = customSource?.settings?.supportsAnime
+    const supportsManga = customSource?.settings?.supportsManga
+
     const animeQuery = useCustomSourceListAnime({
         provider: provider || "",
         search: params.search,
         page: params.page,
         perPage: params.perPage,
     }, {
-        enabled: shouldFetch && params.type === "anime",
+        enabled: shouldFetch && params.type === "anime" && !!customSource?.settings?.supportsAnime,
     })
 
     const mangaQuery = useCustomSourceListManga({
@@ -50,7 +54,7 @@ export default function Page() {
         page: params.page,
         perPage: params.perPage,
     }, {
-        enabled: shouldFetch && params.type === "manga",
+        enabled: shouldFetch && params.type === "manga" && !!customSource?.settings?.supportsManga,
     })
 
     const currentQuery = params.type === "anime" ? animeQuery : mangaQuery
@@ -84,6 +88,21 @@ export default function Page() {
         setSearchValue(params.search)
     }, [params.search])
 
+    React.useLayoutEffect(() => {
+        if (!customSource) return
+        if (params.type === "anime" && !supportsAnime && supportsManga) {
+            setParams(draft => {
+                draft.type = "manga"
+                return
+            })
+        } else if (params.type === "manga" && !supportsManga && supportsAnime) {
+            setParams(draft => {
+                draft.type = "anime"
+                return
+            })
+        }
+    }, [params, customSource])
+
     return (
         <>
             <CustomLibraryBanner discrete />
@@ -98,7 +117,7 @@ export default function Page() {
                 </div>
                 <AppLayoutStack>
                     <h3 data-search-page-title className="text-center xl:text-left">
-                        Custom source{provider ? `: ${customSources?.find(s => s.id === provider)?.name ?? ""}` : "s"}
+                        Custom source{provider ? `: ${customSource?.name ?? ""}` : "s"}
                     </h3>
 
                     <div className="flex gap-2">
@@ -122,8 +141,8 @@ export default function Page() {
                         <Select
                             className="w-full"
                             options={[
-                                { label: "Anime", value: "anime" },
-                                { label: "Manga", value: "manga" },
+                                ...((supportsAnime || !supportsManga) ? [{ label: "Anime", value: "anime" }] : []),
+                                ...((supportsManga || !supportsAnime) ? [{ label: "Manga", value: "manga" }] : []),
                             ]}
                             value={params.type}
                             onValueChange={v => setParams(draft => {
@@ -157,7 +176,7 @@ export default function Page() {
                     </div>}
 
                     {provider && <CustomSourceResults
-                        provider={customSources?.find(s => s.id === provider)?.name ?? ""}
+                        provider={customSource?.name ?? ""}
                         data={data}
                         isLoading={isLoading}
                         error={error}

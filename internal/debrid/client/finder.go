@@ -151,8 +151,8 @@ searchLoop:
 			goto searchLoop
 		}
 
-		r.logger.Error().Msg("debridstream: No torrents found")
-		return nil, "", fmt.Errorf("no torrents found")
+		r.logger.Error().Msg("debridstream: No torrents found by auto-select")
+		return nil, "", fmt.Errorf("no torrents found, please select manually")
 	}
 
 	// Sort by seeders from highest to lowest

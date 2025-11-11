@@ -227,3 +227,16 @@ func TestOptionalParams(t *testing.T) {
 		console.log(result2);
 	`)
 }
+
+func TestBigInt(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
+
+	_, err := vm.RunString(`
+		const hugeHex = BigInt("0x1fffffffffffff");
+		// 9007199254740991n
+		console.log(hugeHex + hugeHex);
+		console.log(Number(hugeHex + hugeHex))
+	`)
+	require.NoError(t, err)
+}

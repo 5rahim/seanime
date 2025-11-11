@@ -56,7 +56,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
                     (!ts.libraryScreenCustomBackgroundImage && dimmed) && "opacity-5", // If the user has scrolled down, dim the banner
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     __isDesktop__ && "top-[-2rem]",
-                    !ts.disableSidebarTransparency ? "scroll-locked-offset-custom-library-banner" : "scroll-locked-offset-fixed",
+                    !ts.disableSidebarTransparency ? "scroll-locked-offset-width" : "scroll-locked-offset-fixed",
                 )}
             >
                 {(!ts.disableSidebarTransparency && !discrete) && <div

@@ -244,7 +244,7 @@ func (r *Repository) GetExtensionPayload(id string) (ret string) {
 			}
 
 			// Fetch from payload URI
-			if ext.Payload == "" || ext.IsDevelopment {
+			if ext.IsDevelopment {
 				return
 			}
 

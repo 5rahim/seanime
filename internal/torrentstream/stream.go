@@ -121,7 +121,7 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
-		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
+		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil && opts.Torrent.IsBatch {
 			r.AddBatchHistory(opts.MediaId, opts.Torrent, opts.BatchEpisodeFiles) // ran in goroutine
 		}
 	}()

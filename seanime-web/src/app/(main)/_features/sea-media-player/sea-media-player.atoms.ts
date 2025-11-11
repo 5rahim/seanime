@@ -1,3 +1,4 @@
+import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 export const __seaMediaPlayer_autoPlayAtom = atomWithStorage("sea-media-player-autoplay", false, undefined, { getOnInit: true })
@@ -13,3 +14,5 @@ export const __seaMediaPlayer_volumeAtom = atomWithStorage("sea-media-player-vol
 export const __seaMediaPlayer_mutedAtom = atomWithStorage("sea-media-player-muted", false, undefined, { getOnInit: true })
 
 export const __seaMediaPlayer_playbackRateAtom = atomWithStorage("sea-media-playback-rate", 1, undefined, { getOnInit: true })
+
+export const __seaMediaPlayer_isFullscreenAtom = atom(false)

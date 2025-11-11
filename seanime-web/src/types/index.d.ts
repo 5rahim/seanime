@@ -44,6 +44,9 @@ declare global {
                 getCurrentWindow: () => Promise<string>;
                 isMainWindow: () => Promise<boolean>;
             };
+            localServer: {
+                getPort: () => Promise<number>;
+            },
             media?: {
                 setMetadata: (metadata: any) => Promise<boolean>
                 clearSession: () => Promise<boolean>
