@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.2
+
+- ⚡️ Extensions: Increased custom source media ID limit
+- 🦺 Extensions: Fixed Go to JS attribute mappings
+- 🦺 Debrid streaming: Fixed single-file torrents being added to selection history
+- 🦺 Extensions: Fixed "view code" when granting permissions
+- 🦺 Denshi: Fixed youtube trailer embeds
+- 🦺 Fix: Include more formats in anime relations
+- 🦺 Scanner: Less aggressive 'Special' episode detection
+- 🦺 Transcoding: Fixed some LibASS renderer issues
+- 🏗️ Streaming: Renamed "Using previous selection" to "Auto-selecting from previous torrent"
+- 🏗️ Streaming: Automatically disable "auto-select" when it fails
+- 🏗️ Anime: Keep download button visible on all views
+- 🏗️ Fixed 32-bit builds (integer overflow)
+
 ## v3.0.1
 
 - ⚡️ Home Screen: New "My Lists" and "Missed Sequels" items
