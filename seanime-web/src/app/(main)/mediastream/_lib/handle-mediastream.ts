@@ -4,9 +4,11 @@ import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } f
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { useIsCodecSupported } from "@/app/(main)/_features/sea-media-player/hooks"
+import { __seaMediaPlayer_isFullscreenAtom } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { useDebounce } from "@/hooks/use-debounce"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -111,6 +113,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
+    const [canPlay, setCanPlay] = React.useState<boolean>(false)
+    const _fullscreen = useAtomValue(__seaMediaPlayer_isFullscreenAtom)
+    const fullscreen = useDebounce(_fullscreen, 1000)
 
     // Refs
     const previousCurrentTimeRef = React.useRef(0)
@@ -238,55 +243,68 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts?.length) {
+        if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts?.length && canPlay) {
             logger("MEDIASTREAM").info("Adding JASSUB renderer to player", mediaContainer?.mediaInfo?.fonts?.length, "fonts")
+
+            const wasmUrl = new URL("/jassub/jassub-worker.wasm", window.location.origin).toString()
+            const workerUrl = new URL("/jassub/jassub-worker.js", window.location.origin).toString()
+            // const legacyWasmUrl = new URL("/jassub/jassub-worker.wasm.js", window.location.origin).toString()
+            const modernWasmUrl = new URL("/jassub/jassub-worker-modern.wasm", window.location.origin).toString()
+
             const legacyWasmUrl = process.env.NODE_ENV === "development"
                 ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
 
             logger("MEDIASTREAM").info("Loading JASSUB renderer")
 
-            const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${getServerBaseUrl()}/api/v1/mediastream/att/${name}`) || []
-
             // Extracted fonts
-            let availableFonts: Record<string, string> = {}
-            let firstFont = ""
-            if (!!fonts?.length) {
-                for (const font of fonts) {
-                    const name = font.split("/").pop()?.split(".")[0]
-                    if (name) {
-                        if (!firstFont) {
-                            firstFont = name.toLowerCase()
-                        }
-                        availableFonts[name.toLowerCase()] = font
-                    }
-                }
-            }
+            // let availableFonts: Record<string, string> = {}
+            // let firstFont = ""
+            // if (!!fonts?.length) {
+            //     for (const font of fonts) {
+            //         const name = font.split("/").pop()?.split(".")[0]
+            //         if (name) {
+            //             if (!firstFont) {
+            //                 firstFont = name.toLowerCase()
+            //             }
+            //             availableFonts[name.toLowerCase()] = font
+            //         }
+            //     }
+            // }
 
             // Fallback font if no fonts are available
-            if (!firstFont) {
-                firstFont = "liberation sans"
-            }
-            if (Object.keys(availableFonts).length === 0) {
-                availableFonts = {
-                    "liberation sans": getServerBaseUrl() + `/jassub/default.woff2`,
-                }
-            }
+            // if (!firstFont) {
+            //     firstFont = "liberation sans"
+            // }
+            // if (Object.keys(availableFonts).length === 0) {
+            //     availableFonts = {
+            //         "liberation sans": getServerBaseUrl() + `/jassub/default.woff2`,
+            //     }
+            // }
+            //
+            // logger("MEDIASTREAM").info("Available fonts:", availableFonts)
+            // logger("MEDIASTREAM").info("Fallback font:", firstFont)
 
-            logger("MEDIASTREAM").info("Available fonts:", availableFonts)
-            logger("MEDIASTREAM").info("Fallback font:", firstFont)
+            const defaultFontUrl = "/jassub/Roboto-Medium.ttf"
+            let fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${getServerBaseUrl()}/api/v1/mediastream/att/${name}`) || []
+            fonts = [defaultFontUrl, ...fonts]
 
             // @ts-expect-error
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
-                wasmUrl: "/jassub/jassub-worker.wasm",
-                workerUrl: "/jassub/jassub-worker.js",
+                wasmUrl: wasmUrl,
+                workerUrl: workerUrl,
                 legacyWasmUrl: legacyWasmUrl,
+                modernWasmUrl: modernWasmUrl,
                 // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
                 offscreenRender: jassubOffscreenRender, // should be false for iOS
                 prescaleFactor: 0.8,
-                onDemandRender: false,
                 fonts: fonts,
-                availableFonts: availableFonts,
-                fallbackFont: firstFont,
+                fallbackFont: "roboto medium",
+                availableFonts: {
+                    "roboto medium": defaultFontUrl,
+                },
+                libassGlyphLimit: 60500,
+                libassMemoryLimit: 1024,
+                dropAllBlur: true,
             })
             playerRef.current!.textRenderers.add(renderer)
 
@@ -301,6 +319,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         mediaContainer?.streamUrl,
         mediaContainer?.mediaInfo?.fonts,
         jassubOffscreenRender,
+        duration,
+        canPlay,
+        fullscreen,
     ])
 
     /**
@@ -308,6 +329,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * @param newUrl
      */
     function changeUrl(newUrl: string | undefined) {
+        setCanPlay(false)
         logger("MEDIASTREAM").info("[changeUrl] called,", "request url:", newUrl)
         if (prevUrlRef.current !== newUrl) {
             logger("MEDIASTREAM").info("Resetting playback error status")
@@ -344,6 +366,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }
 
     function onProviderSetup(provider: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) {
+        setCanPlay(false)
         if (isHLSProvider(provider)) {
             if (url) {
 
@@ -437,6 +460,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         logger("MEDIASTREAM").info("[onCanPlay] called", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
+        setCanPlay(true)
     }
 
     const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()

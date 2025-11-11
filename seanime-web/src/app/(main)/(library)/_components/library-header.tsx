@@ -145,7 +145,7 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                                     sizes="100vw"
                                     className={cn(
                                         "object-cover object-center z-[1] opacity-100 transition-opacity duration-700",
-                                        !ts.libraryScreenCustomBackgroundImage && "scroll-locked-offset",
+                                        !ts.libraryScreenCustomBackgroundImage && "scroll-locked-offset", // if fixed
                                         (shouldHideBanner || shouldBlurBanner) && "opacity-15",
                                         { "opacity-5": dimmed },
                                     )}

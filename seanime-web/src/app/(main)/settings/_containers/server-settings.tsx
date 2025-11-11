@@ -10,11 +10,12 @@ import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { useFormContext } from "react-hook-form"
 import { FaRedo } from "react-icons/fa"
-import { LuCloudUpload } from "react-icons/lu"
+import { LuCircleAlert, LuCloudUpload } from "react-icons/lu"
 import { useServerStatus } from "../../_hooks/use-server-status"
 
 type ServerSettingsProps = {
@@ -301,8 +302,12 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="disableUpdateCheck"
-                    label="Do not check for updates"
-                    help="If enabled, Seanime will not check for new releases."
+                    label={__isElectronDesktop__ ? "Do not fetch update notes" : "Do not check for updates"}
+                    help={__isElectronDesktop__ ? (<span className="flex gap-2 items-center">
+                        <LuCircleAlert className="size-4 text-[--blue]" />
+                        <span>If enabled, new releases won't be displayed. Seanime Denshi will still auto-update in the background.</span>
+                    </span>) : "If enabled, Seanime will not check for new releases."}
+                    moreHelp={__isElectronDesktop__ ? "You cannot disable auto-updates for Seanime Denshi." : undefined}
                 />
             </SettingsCard>
 

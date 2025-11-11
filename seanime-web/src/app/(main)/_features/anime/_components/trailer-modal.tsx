@@ -1,7 +1,9 @@
+import { ElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core/styling"
-import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
+import { __isElectronDesktop__ } from "@/types/constants"
 import React from "react"
 
 type PlaylistsModalProps = {
@@ -23,13 +25,11 @@ export function TrailerModal(props: PlaylistsModalProps) {
 
     return (
         <>
-            <Drawer
+            <Modal
                 open={isOpen}
                 onOpenChange={v => setIsOpen?.(v)}
                 trigger={trigger}
-                size="xl"
-                side="right"
-                contentClass="flex items-center justify-center"
+                contentClass="flex max-w-5xl items-center justify-center"
             >
                 <div
                     className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[5rem] absolute opacity-30 top-0 left-0 bg-no-repeat bg-right bg-cover"
@@ -40,7 +40,7 @@ export function TrailerModal(props: PlaylistsModalProps) {
                 </div>
 
                 <Content trailerId={trailerId} />
-            </Drawer>
+            </Modal>
         </>
     )
 }
@@ -57,7 +57,6 @@ export function Content(props: ContentProps) {
     } = props
 
     const [loaded, setLoaded] = React.useState(true)
-    const [muted, setMuted] = React.useState(true)
 
     if (!trailerId) return <LuffyError title="No trailer found" />
 
@@ -66,18 +65,19 @@ export function Content(props: ContentProps) {
             {!loaded && <LoadingSpinner className="" />}
             <div
                 className={cn(
-                    "relative aspect-video h-[85dvh] flex items-center overflow-hidden rounded-xl",
+                    "relative aspect-video w-full flex items-center overflow-hidden rounded-xl",
                     !loaded && "hidden",
                 )}
             >
-                <iframe
+                {__isElectronDesktop__ && <ElectronYoutubeEmbed trailerId={trailerId} />}
+                {!__isElectronDesktop__ && <iframe
                     src={`https://www.youtube.com/embed/${trailerId}`}
                     title="YouTube Video"
                     className="w-full aspect-video rounded-xl"
                     allowFullScreen
                     loading="lazy" // Lazy load the iframe
                     referrerPolicy="strict-origin-when-cross-origin"
-                />
+                />}
                 {/*<video*/}
                 {/*    src={`https://yewtu.be/latest_version?id=${animeDetails?.trailer?.id}&itag=18`}*/}
                 {/*    className={cn(*/}

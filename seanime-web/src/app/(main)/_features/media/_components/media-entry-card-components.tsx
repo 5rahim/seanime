@@ -1,4 +1,5 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
+import { ElectronYoutubeEmbed, useElectronYoutubeEmbed } from "@/app/(main)/_electron/electron-embed"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
@@ -10,6 +11,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { __isElectronDesktop__ } from "@/types/constants"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai/index"
 import capitalize from "lodash/capitalize"
@@ -489,6 +491,8 @@ export const MediaEntryCardHoverPopupBanner = memo(({
 
     const ts = useThemeSettings()
 
+    const { electronEmbedAddress } = useElectronYoutubeEmbed()
+
     React.useEffect(() => {
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
@@ -557,7 +561,13 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     !trailerLoaded && "hidden",
                 )}
             >
-                <iframe
+                {__isElectronDesktop__ && <ElectronYoutubeEmbed
+                    isCompact
+                    trailerId={`${trailerId}`}
+                    onLoad={() => setTimeout(() => setTrailerLoaded(true), 1500)}
+                    onError={() => setTrailerEnabled(false)}
+                />}
+                {!__isElectronDesktop__ && <iframe
                     data-media-entry-card-hover-popup-banner-trailer
                     src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja&enablejsapi=true`}
                     className={cn(
@@ -570,8 +580,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     // muted
                     onLoad={() => setTimeout(() => setTrailerLoaded(true), 1000)}
                     onError={() => setTrailerEnabled(false)}
-                    referrerPolicy="strict-origin-when-cross-origin"
-                />
+                />}
             </div>}
 
             {<div

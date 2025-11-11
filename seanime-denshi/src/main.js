@@ -1,13 +1,18 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol } = require("electron")
+const { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog, remote, net, protocol, contextBridge } = require("electron")
 const path = require("path")
 const { spawn } = require("child_process")
 const fs = require("fs")
+const http = require("http")
 let stripAnsi
 import("strip-ansi").then(module => {
     stripAnsi = module.default
 })
 const { autoUpdater } = require("electron-updater")
 const log = require("electron-log")
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Chromium flags
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function setupChromiumFlags() {
     // Bypass CSP and security
@@ -90,10 +95,87 @@ const _development = process.env.NODE_ENV === "development"
 
 // const _development = false;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Local server for youtube player embeds
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+let localServerPort
+
+// Start local server for youtube player embeds
+// Used by webviews inside React to load youtube embed and bypass 153 errors
+function startLocalServer() {
+    const server = http.createServer((req, res) => {
+        // serve /player/:id
+        const match = req.url.match(/^\/player\/([\w-]+)/)
+        if (match) {
+            const id = match[1]
+            let url = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&enablejsapi=1&autoplay=1&playsinline=1&modestbranding=1&rel=0e`
+            if (id.startsWith("compact_")) {
+                url = `https://www.youtube-nocookie.com/embed/${id.substring(8)}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${id.substring(8)}&cc_lang_pref=ja&enablejsapi=true`
+            }
+            if (id.startsWith("banner_")) {
+                url = `https://www.youtube-nocookie.com/embed/${id.substring(7)}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&playlist=${id.substring(7)}&cc_lang_pref=ja&enablejsapi=true`
+            }
+            const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: black;
+      }
+      iframe {
+        position: absolute;
+        inset: 0;       /* top:0; right:0; bottom:0; left:0 */
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+        <body style="margin:0;background:black;">
+          <iframe
+            src="${url}"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen
+            >
+          </iframe>
+        </body>
+        </html>
+      `
+            res.writeHead(200, { "Content-Type": "text/html" })
+            res.end(html)
+            return
+        }
+
+        res.writeHead(404)
+        res.end("Not found")
+    })
+
+    server.listen(0) // random free port
+    const port = server.address().port
+    console.log(`Local server running at http://localhost:${port}`)
+    localServerPort = port
+    return port
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Custom protocol for web content
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Custom protocol setup for serving web content in production
 function setupCustomProtocol() {
     protocol.registerSchemesAsPrivileged([{
         scheme: "app", privileges: {
-            standard: true, secure: true, allowServiceWorkers: true, supportFetchAPI: true, corsEnabled: true
+            standard: true,
+            secure: true,
+            allowServiceWorkers: true,
+            supportFetchAPI: true,
+            corsEnabled: true,
+            stream: true,
         }
     }
     ])
@@ -102,6 +184,7 @@ function setupCustomProtocol() {
 // call before app.whenReady
 setupCustomProtocol()
 
+// Sets up the app protocol to serve the next.js static files from web-denshi/
 function setupAppProtocol() {
     if (_development) return
 
@@ -147,6 +230,9 @@ function setupAppProtocol() {
     })
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Startup logs
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function logStartupEvent(stage, detail = "") {
     const message = `[STARTUP] ${stage}: ${detail}`
@@ -208,7 +294,7 @@ function logEnvironmentInfo() {
 
         const webPath = path.join(appPath, "web-denshi")
         if (fs.existsSync(webPath)) {
-            logStartupEvent("Web directory contents", JSON.stringify(fs.readdirSync(webPath)))
+            // logStartupEvent("Web directory contents", JSON.stringify(fs.readdirSync(webPath)))
         } else {
             logStartupEvent("ERROR", "web-denshi directory not found in app path")
         }
@@ -216,6 +302,10 @@ function logEnvironmentInfo() {
         logStartupEvent("ERROR reading app directory", err.message)
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Updater
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const updateConfig = {
     provider: "generic",
@@ -225,7 +315,7 @@ const updateConfig = {
     verifyUpdateCodeSignature: false,
 }
 
-// Override with environment variable if set
+// Override with environment variable if set (for testing)
 if (process.env.UPDATES_URL) {
     updateConfig.url = process.env.UPDATES_URL
 }
@@ -236,6 +326,9 @@ autoUpdater.setFeedURL(updateConfig)
 // Enable automatic download
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // App state
 let mainWindow = null
@@ -293,15 +386,22 @@ autoUpdater.on("error", (err) => {
     }
 })
 
-const gotTheLock = app.requestSingleInstanceLock()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Single instance
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const gotTheLock = app.requestSingleInstanceLock({ development: _development })
 
 /**
  * Force single instance
  */
 if (!gotTheLock) {
-    app.quit()
+    if (!_development) {
+        app.quit()
+    }
 } else {
     app.on("second-instance", (event, commandLine, workingDirectory, additionalData) => {
+        if (additionalData && additionalData.development) return
         // tried to run a second instance, focus the window.
         if (mainWindow && !mainWindow.isDestroyed()) {
             if (mainWindow.isMinimized()) mainWindow.restore()
@@ -316,9 +416,10 @@ if (!gotTheLock) {
     })
 }
 
-/**
- * Create the tray icon and menu
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tray
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createTray() {
     let iconPath = path.join(__dirname, "../assets/icon.png")
     if (process.platform === "darwin") {
@@ -365,9 +466,10 @@ function createTray() {
     })
 }
 
-/**
- * Launch the Seanime server
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Seanime server
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 async function launchSeanimeServer(isRestart) {
     return new Promise((resolve, reject) => {
         // TEST ONLY: Check for -no-binary flag
@@ -524,11 +626,13 @@ async function launchSeanimeServer(isRestart) {
     })
 }
 
-/**
- * Create main application window
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Main window
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createMainWindow() {
     logStartupEvent("Creating main window")
+
     const windowOptions = {
         width: 800, height: 600, show: false, webPreferences: {
             nodeIntegration: false,
@@ -537,7 +641,8 @@ function createMainWindow() {
             webSecurity: false,
             allowRunningInsecureContent: true,
             enableBlinkFeatures: "FontAccess, AudioVideoTracks",
-            backgroundThrottling: false
+            backgroundThrottling: false,
+            webviewTag: true,
         }
     }
 
@@ -568,7 +673,8 @@ function createMainWindow() {
         }
     })
 
-    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+
+    mainWindow.webContents.setWindowOpenHandler(({ webContents, frameName, url }) => {
         // Open external links in the default browser
         if (url.startsWith("http://") || url.startsWith("https://")) {
             shell.openExternal(url)
@@ -577,8 +683,8 @@ function createMainWindow() {
         // // Allow other URLs to open in the app
         // return {action: 'allow'};
 
-        // For internal app:// (or file://) links — do not spawn a new renderer.
-        // Instead navigate the main window (or the opener) so it remains a single renderer.
+        // For internal app:// (or file://) links, do not spawn a new renderer,
+        // navigate the main window (or the opener) so it remains a single renderer.
         try {
             const opener = webContents.fromId(frameName || 0) || mainWindow.webContents
             // load in mainWindow instead of spawning new window
@@ -619,9 +725,10 @@ function createMainWindow() {
     })
 }
 
-/**
- * Create splash screen window
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Splashscreen
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createSplashScreen() {
     logStartupEvent("Creating splash screen")
     splashScreen = new BrowserWindow({
@@ -641,9 +748,10 @@ function createSplashScreen() {
     }
 }
 
-/**
- * Create crash screen window
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Crash screen
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function createCrashScreen() {
     crashScreen = new BrowserWindow({
         width: 800, height: 600, frame: false, resizable: false, show: false, webPreferences: {
@@ -660,9 +768,10 @@ function createCrashScreen() {
     }
 }
 
-/**
- * Cleanup and exit the application gracefully
- */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Exit
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function cleanupAndExit() {
     console.log("[Main] Cleaning up and exiting")
     isShutdown = true
@@ -684,32 +793,38 @@ function cleanupAndExit() {
     }, 500)
 }
 
-app.on("web-contents-created", (event, contents) => {
-    console.log("[WCC] created id=", contents.id, "type=", contents.getType())
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    contents.on("did-start-navigation", (e, url, isInPlace, isMainFrame) => {
-        console.log("[WCC] did-start-navigation", contents.id, { url, isMainFrame, isInPlace })
-    })
+// app.on("web-contents-created", (event, contents) => {
+//     console.log("[WCC] created id=", contents.id, "type=", contents.getType())
+//
+//     contents.on("did-start-navigation", (e, url, isInPlace, isMainFrame) => {
+//         console.log("[WCC] did-start-navigation", contents.id, { url, isMainFrame, isInPlace })
+//     })
+//
+//     contents.on("did-navigate", (e, url) => {
+//         console.log("[WCC] did-navigate", contents.id, url)
+//     })
+//
+//     contents.on("did-frame-finish-load", () => {
+//         try {
+//             console.log("[WCC] URL after load", contents.id, contents.getURL())
+//         } catch (e) {
+//         }
+//     })
+//
+//     contents.on("destroyed", () => console.log("[WCC] destroyed", contents.id))
+//
+//     try {
+//         const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow()
+//         if (owner) console.log("[WCC] owner window id=", owner.id, "title=", owner.getTitle && owner.getTitle())
+//     } catch (e) {
+//     }
+// })
 
-    contents.on("did-navigate", (e, url) => {
-        console.log("[WCC] did-navigate", contents.id, url)
-    })
-
-    contents.on("did-frame-finish-load", () => {
-        try {
-            console.log("[WCC] URL after load", contents.id, contents.getURL())
-        } catch (e) {
-        }
-    })
-
-    contents.on("destroyed", () => console.log("[WCC] destroyed", contents.id))
-
-    try {
-        const owner = contents.getOwnerBrowserWindow && contents.getOwnerBrowserWindow()
-        if (owner) console.log("[WCC] owner window id=", owner.id, "title=", owner.getTitle && owner.getTitle())
-    } catch (e) {
-    }
-})
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Initialization
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Initialize the app
 app.whenReady().then(async () => {
@@ -763,12 +878,8 @@ app.whenReady().then(async () => {
         return false
     })
 
-    // Linux fix for compositing mode
-    if (process.platform === "linux") {
-        process.env.WEBKIT_DISABLE_COMPOSITING_MODE = "1"
-    }
-
     setupAppProtocol()
+    startLocalServer()
 
     // Create windows
     createMainWindow()
@@ -968,6 +1079,8 @@ app.whenReady().then(async () => {
         console.log("EVENT quit-app")
         cleanupAndExit()
     })
+
+    ipcMain.handle("get-local-server-port", () => localServerPort)
 
     app.on("window-all-closed", () => {
         if (process.platform !== "darwin") {

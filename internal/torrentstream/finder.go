@@ -154,7 +154,7 @@ searchLoop:
 			goto searchLoop
 		}
 
-		r.logger.Error().Msg("torrentstream: No torrents found")
+		r.logger.Error().Msg("torrentstream: No torrents found by auto-select, please select manually")
 		return nil, ErrNoTorrentsFound
 	}
 

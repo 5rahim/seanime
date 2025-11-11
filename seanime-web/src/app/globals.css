@@ -257,11 +257,15 @@ h6 {
         padding-right: 8px;
     }
 
+    body[data-scroll-locked] .scroll-locked-offset-relative {
+        right: 8px;
+    }
+
     body[data-scroll-locked] .scroll-locked-offset-fixed {
         width: calc(100vw - 8px) !important;
     }
 
-    body[data-scroll-locked] .scroll-locked-offset-custom-library-banner {
+    body[data-scroll-locked] .scroll-locked-offset-width {
         width: calc(100vw + 5rem - 8px) !important;
     }
 }

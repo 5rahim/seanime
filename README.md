@@ -7,13 +7,12 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="https://seanime.app/api/bucket/gh-showcase.png" alt="preview" width="100%"/>
+<img src="https://seanime.app/bucket/gh-showcase.webp" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
   <a href="https://seanime.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
-  <a href="#screenshots">Screenshots</a> |
   <a href="https://www.youtube.com/playlist?list=PLgQO-Ih6JClhFFdEVuNQJejyX_8iH82gl">Tutorials</a> |
   <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
 </p>
@@ -69,6 +68,10 @@ How to install Seanime
 </a>
 </p>
 
+## Disclaimer
+
+Seanime does not provide, host, or distribute any media content. You are responsible for obtaining media content through legal means. The software is a tool for organizing and consuming content you already own or have legal access to. By using Seanime, you agree to comply with your local laws and regulations.
+
 ## Goal
 
 This is a one-person project and may not meet every use case. If it doesn’t fully fit your needs, other tools might be a better match.
@@ -97,8 +100,3 @@ Building from source is straightforward, you'll need Node.js and Go installed on
 Development and testing might require additional configuration.
 
 [Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
-
-## Disclaimer
-
-Seanime and its developer do not host, store, or distribute any content found within the application. All content metadata, including images, are sourced from publicly available APIs such as AniList, AniDB and TheTVDB.
-Furthermore, Seanime does not endorse or promote piracy in any form. It is the user's responsibility to ensure that they are in compliance with their local laws and regulations.

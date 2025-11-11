@@ -20,6 +20,7 @@ import {
     __seaMediaPlayer_autoPlayAtom,
     __seaMediaPlayer_autoSkipIntroOutroAtom,
     __seaMediaPlayer_discreteControlsAtom,
+    __seaMediaPlayer_isFullscreenAtom,
     __seaMediaPlayer_mutedAtom,
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
@@ -50,7 +51,7 @@ import {
     type TrackProps,
 } from "@vidstack/react"
 import { DefaultVideoLayout, DefaultVideoLayoutProps } from "@vidstack/react/player/layouts/default"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import mousetrap from "mousetrap"
@@ -146,6 +147,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const checkTimeRef = React.useRef<number>(0)
     const canPlayRef = React.useRef<boolean>(false)
     const previousUrlRef = React.useRef<string | { src: string, type: string } | undefined>(undefined)
+
+    const setIsFullscreen = useSetAtom(__seaMediaPlayer_isFullscreenAtom)
 
     // Track last focused element
     const lastFocusedElementRef = React.useRef<HTMLElement | null>(null)
@@ -536,6 +539,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         onProviderChange={onProviderChange}
                         onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
                         onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
+                            setIsFullscreen(isFullscreen)
                             // Track fullscreen state
                             wasFullscreenRef.current = isFullscreen
 
