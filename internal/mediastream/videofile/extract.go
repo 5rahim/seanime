@@ -3,11 +3,12 @@ package videofile
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
 	"os"
 	"path/filepath"
 	"seanime/internal/util"
 	"seanime/internal/util/crashlog"
+
+	"github.com/rs/zerolog"
 )
 
 func GetFileSubsCacheDir(outDir string, hash string) string {

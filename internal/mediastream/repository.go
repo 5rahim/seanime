@@ -2,8 +2,6 @@ package mediastream
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"os"
 	"path/filepath"
 	"seanime/internal/database/models"
@@ -13,6 +11,9 @@ import (
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util/filecache"
 	"sync"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -276,6 +277,8 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 		r.logger.Error().Err(err).Msg("mediastream: Failed to initialize transcoder")
 		return false
 	}
+
+	r.playbackManager.mediaContainers.Clear()
 
 	r.logger.Info().Msg("mediastream: Transcoder module initialized")
 	r.transcoder = mo.Some[*transcoder.Transcoder](tc)

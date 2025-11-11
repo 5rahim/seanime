@@ -128,10 +128,17 @@ func (h *Handler) HandlePreloadMediastreamMediaContainer(c echo.Context) error {
 }
 
 func (h *Handler) HandleMediastreamGetSubtitles(c echo.Context) error {
+	c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response().Header().Set("Pragma", "no-cache")
+	c.Response().Header().Set("Expires", "0")
 	return h.App.MediastreamRepository.ServeEchoExtractedSubtitles(c)
 }
 
 func (h *Handler) HandleMediastreamGetAttachments(c echo.Context) error {
+	// tell the client not to cache the response
+	c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response().Header().Set("Pragma", "no-cache")
+	c.Response().Header().Set("Expires", "0")
 	return h.App.MediastreamRepository.ServeEchoExtractedAttachments(c)
 }
 

@@ -864,7 +864,7 @@ function AnimeCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
     const { data, isLoading } = useAnilistListAnime({
         page: 1,
         perPage: 20,
-        sort: options?.sorting ? [options.sorting] : ["SCORE_DESC"],
+        sort: !!options?.sorting?.length ? [options.sorting] : ["SCORE_DESC"],
         season: options?.season || undefined,
         seasonYear: !!options?.year ? options.year : undefined,
         genres: !!options?.genres?.length ? options?.genres : undefined,
@@ -873,8 +873,6 @@ function AnimeCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
         isAdult: options?.isAdult || undefined,
         countryOfOrigin: options?.countryOfOrigin || undefined,
     }, !!options?.name && isInView)
-
-    // if (!isLoading && !data && !isInView) return
 
     return (
         <PageWrapper className="space-y-0 px-4" ref={ref}>
@@ -905,6 +903,12 @@ function AnimeCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                     }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
                 </CarouselContent>
             </Carousel>}
+            {(!isLoading && !!data?.Page && !data.Page?.media?.length && isInView) &&
+                <PageWrapper className="rounded-xl bg-gray-900 border-2 border-dashed border-orange-400 p-4 !my-4">
+                    <p className="text-sm font-medium text-gray-400">
+                        Nothing was fetched, please update your options.
+                    </p>
+                </PageWrapper>}
         </PageWrapper>
     )
 }
@@ -1014,6 +1018,12 @@ function MangaCarousel(props: { libraryCollectionProps: HandleLibraryCollectionP
                     }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
                 </CarouselContent>
             </Carousel>}
+            {(!isLoading && !!data?.Page && !data.Page?.media?.length && isInView) &&
+                <PageWrapper className="rounded-xl bg-gray-900 border-2 border-dashed border-orange-400 p-4 !my-4">
+                    <p className="text-sm font-medium text-gray-400">
+                        Nothing was fetched, please update your options.
+                    </p>
+                </PageWrapper>}
         </PageWrapper>
     )
 }
