@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.4
+
+- ⚡️ Extensions: Increased custom source ID limit (Breaking)
+- 🦺 Extensions: Fixed adding custom sources to collection (Breaking)
+
 ## v3.0.3
 
 - ⚡️ Extensions: Added "notes" field to extension manifest for additional info

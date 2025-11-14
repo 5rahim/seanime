@@ -52,20 +52,6 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 		existingExtIds[ext.ID] = true
 	}
 
-	// Remove stale entries from the cache
-	changed := false
-	for cachedExtId := range identifiers {
-		if !existingExtIds[cachedExtId] && cachedExtId != extId {
-			delete(identifiers, cachedExtId)
-			changed = true
-		}
-	}
-
-	// Save cleaned identifiers if any were removed
-	if changed {
-		_ = r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
-	}
-
 	if identifier, ok := identifiers[extId]; ok {
 		return identifier
 	}

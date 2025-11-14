@@ -15,6 +15,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"strings"
 	"sync"
 	"time"
@@ -557,6 +558,34 @@ func (r *Repository) loadExternalExtensions() {
 	if r.firstExternalExtensionLoadedFunc != nil {
 		r.firstExternalExtensionLoadedFunc()
 	}
+
+	// Clean up the custom source identifiers cache
+	go func() {
+		bucket := filecache.NewPermanentBucket(CustomSourceIdentifierBucket)
+
+		identifiers := make(map[string]int)
+		found, _ := r.fileCacher.GetPerm(bucket, CustomSourceIdentifierKey, &identifiers)
+		if !found {
+			return
+		}
+		customSourceExtensions := r.ListCustomSourceExtensions()
+		existingExtIds := make(map[string]bool)
+		for _, ext := range customSourceExtensions {
+			existingExtIds[ext.ID] = true
+		}
+		// Remove stale entries from the cache
+		changed := false
+		for cachedExtId := range identifiers {
+			if _, ok := existingExtIds[cachedExtId]; !ok {
+				delete(identifiers, cachedExtId)
+				changed = true
+			}
+		}
+		// Save cleaned identifiers if any were removed
+		if changed {
+			_ = r.fileCacher.SetPerm(bucket, CustomSourceIdentifierKey, identifiers)
+		}
+	}()
 
 	r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
 }
