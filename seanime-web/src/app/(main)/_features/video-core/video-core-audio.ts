@@ -31,7 +31,7 @@ export class VideoCoreAudioManager {
         if (this.videoElement.audioTracks) {
             // Check that audio tracks are loaded
             if (this.videoElement.audioTracks.length <= 0) {
-                this.onError("The video element does not support the media's audio codec. Please try another media.")
+                this.onError("The player does not support this audio codec. Please try another file or use an external player.")
                 return
             }
             audioLog.info("Audio tracks", this.videoElement.audioTracks)
@@ -52,11 +52,20 @@ export class VideoCoreAudioManager {
         for (const preferredLang of preferredLanguages) {
             const foundTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => (t.language || "eng") === preferredLang)
             if (foundTracks?.length) {
-                // Find default or forced track
-                const defaultIndex = foundTracks.findIndex(t => t.forced)
+                // Find default track
+                const defaultIndex = foundTracks.findIndex(t => t.default)
                 this.selectTrack(foundTracks[defaultIndex >= 0 ? defaultIndex : 0].number)
                 return
             }
+        }
+
+        // No preferred tracks found, look for default or forced tracks
+        const defaultOrForcedTracks = this.playbackInfo.mkvMetadata?.audioTracks?.filter?.(t => t.default || t.forced)
+        if (defaultOrForcedTracks?.length) {
+            // Prioritize default tracks over forced tracks
+            const defaultIndex = defaultOrForcedTracks.findIndex(t => t.default)
+            this.selectTrack(defaultOrForcedTracks[defaultIndex >= 0 ? defaultIndex : 0].number)
+            return
         }
     }
 
