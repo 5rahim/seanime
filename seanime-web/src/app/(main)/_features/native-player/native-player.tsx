@@ -156,10 +156,10 @@ export function NativePlayer() {
                     errorMessage = "Media playback aborted"
                     break
                 case MediaError.MEDIA_ERR_NETWORK:
-                    errorMessage = "Network error occurred"
+                    errorMessage = "Network error occurred: Check the console and network tab for more details"
                     break
                 case MediaError.MEDIA_ERR_DECODE:
-                    errorMessage = "Media decode error - codec not supported or corrupted file"
+                    errorMessage = "Media decode error: codec not supported or corrupted file"
                     detailedInfo = "This is likely a codec compatibility issue."
                     break
                 case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:

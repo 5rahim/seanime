@@ -166,15 +166,15 @@ export function vc_getOPEDChapters(chapters: VideoCoreTimeRangeChapter[]): {
         if (!opening && !introIsOpening && type === "Opening") {
             opening = chapter
         }
-        if (!opening && introIsOpening && type === "Intro") {
-            opening = chapter
-        }
+        // if (!opening && introIsOpening && type === "Intro") {
+        //     opening = chapter
+        // }
         if (!ending && !introIsOpening && type === "Ending") {
             ending = chapter
         }
-        if (!ending && introIsOpening && type === "Outro") {
-            ending = chapter
-        }
+        // if (!ending && introIsOpening && type === "Outro") {
+        //     ending = chapter
+        // }
         if (opening && ending) break
     }
     return { opening, ending }

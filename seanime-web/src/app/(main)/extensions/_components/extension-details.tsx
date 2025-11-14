@@ -69,22 +69,61 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                     {extension.description}
                 </p>
 
-                <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">ID:</span> <span className="">{extension.id}</span>
-                </p>
-                <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Author:</span> <span className="">{extension.author}</span>
-                </p>
-                <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Language: </span>
-                    <span className="">{LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang}</span>
-                </p>
-                <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Programming language:</span> <span className="">{capitalize(extension.language)}</span>
-                </p>
-                {(!!extension.manifestURI && !isBuiltin) && <p className="text-md w-full">
-                    <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
+                <div className="flex gap-2 flex-wrap">
+                    {isBuiltin && <Badge className="rounded-md tracking-wide border-transparent px-0 italic opacity-50" intent="unstyled">
+                        Built-in
+                    </Badge>}
+                    {<Badge className="rounded-md tracking-wide" intent={"unstyled"}>
+                        ID: {extension.id}
+                    </Badge>}
+                    {!isBuiltin && <Badge className="rounded-md" intent="unstyled">
+                        Author: {extension.author}
+                    </Badge>}
+                    {<Badge className="rounded-md" intent="unstyled">
+                        {/*{extension.lang.toUpperCase()}*/}
+                        Language: {LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang?.toUpperCase() || "Unknown"}
+                    </Badge>}
+                    {<Badge className="rounded-md" intent="unstyled">
+                        {/*{extension.lang.toUpperCase()}*/}
+                        {capitalize(extension.language)}
+                    </Badge>}
+                </div>
+
+                {(!!extension.manifestURI && !isBuiltin) && <p className="text-sm w-full tracking-wide">
+                    <span className="text-[--muted]">Manifest URL:</span> <span className="select-all break-all">{extension.manifestURI}</span>
                 </p>}
+
+                {(!!extension.notes) && <div className="text-md w-full tracking-wide space-y-1 py-2">
+                    <p className="text-[--muted] text-sm">Notes:</p>
+                    <div className="text-pretty space-y-1">{extension.notes.split("\n").map((line, i) => {
+                        // return <p>
+                        //     {line.replaceAll("\t", "    ")}
+                        // </p>
+                        return <p
+                            key={i} className="flex flex-wrap" dangerouslySetInnerHTML={{
+                            __html: line.replaceAll("<", "&lt;")
+                                .replaceAll(">", "&gt;").replaceAll("\t", "<span class='w-3 relative block'></span>"),
+                        }}
+                        ></p>
+                    })}</div>
+                </div>}
+
+                {/*<p className="text-md line-clamp-1">*/}
+                {/*    <span className="text-[--muted]">ID:</span> <span className="">{extension.id}</span>*/}
+                {/*</p>*/}
+                {/*<p className="text-md line-clamp-1">*/}
+                {/*    <span className="text-[--muted]">Author:</span> <span className="">{extension.author}</span>*/}
+                {/*</p>*/}
+                {/*<p className="text-md line-clamp-1">*/}
+                {/*    <span className="text-[--muted]">Language: </span>*/}
+                {/*    <span className="">{LANGUAGES_LIST[extension.lang?.toLowerCase()]?.nativeName || extension.lang}</span>*/}
+                {/*</p>*/}
+                {/*<p className="text-md line-clamp-1">*/}
+                {/*    <span className="text-[--muted]">Programming language:</span> <span className="">{capitalize(extension.language)}</span>*/}
+                {/*</p>*/}
+                {/*{(!!extension.manifestURI && !isBuiltin) && <p className="text-md w-full">*/}
+                {/*    <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>*/}
+                {/*</p>}*/}
             </div>
         </>
     )

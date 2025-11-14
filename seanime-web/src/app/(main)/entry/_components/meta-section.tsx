@@ -182,7 +182,6 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
-                        && hasTorrentProvider
                         && (
                             serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
                             || hasDebridService

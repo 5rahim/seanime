@@ -223,7 +223,7 @@ export function ExtensionList(props: ExtensionListProps) {
                     <div className="flex items-center gap-4">
                         <h3 className="flex gap-3 items-center"><MdDataSaverOn />Custom Sources</h3>
                         <SeaLink href="/custom-sources" className="text-sm underline underline-offset-2 text-[--muted] hover:text-[--foreground]">
-                            Browse all media
+                            Browse all sources
                         </SeaLink>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">

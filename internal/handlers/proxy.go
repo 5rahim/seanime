@@ -115,52 +115,59 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	}
 
 	var modifiedPlaylistBytes []byte
-	needsRewrite := false // Flag to check if we actually need to rewrite
+	needsRewrite := false         // Flag to check if we actually need to rewrite
+	baseURL, _ := url2.Parse(url) // Base URL for resolving relative paths
 
 	if listType == m3u8.MEDIA {
 		mediaPl := playlist.(*m3u8.MediaPlaylist)
-		baseURL, _ := url2.Parse(url) // Base URL for resolving relative paths
 
 		for _, segment := range mediaPl.Segments {
 			if segment != nil {
 				// Rewrite Segment URI
-				if !isAlreadyProxied(segment.URI) {
-					if segment.URI != "" {
-						if !strings.HasPrefix(segment.URI, "http") {
-							segment.URI = resolveURL(baseURL, segment.URI)
-						}
-						segment.URI = rewriteProxyURL(segment.URI, headerMap, authToken)
+				if rewriteURI(&segment.URI, baseURL, headerMap, authToken) {
+					needsRewrite = true
+				}
+
+				// Rewrite encryption key URIs
+				for i := range segment.Keys {
+					if rewriteURI(&segment.Keys[i].URI, baseURL, headerMap, authToken) {
 						needsRewrite = true
 					}
 				}
 
-				// Rewrite encryption key URIs
-				for i, key := range segment.Keys {
-					if key.URI != "" {
-						if !isAlreadyProxied(key.URI) {
-							keyURI := key.URI
-							if !strings.HasPrefix(key.URI, "http") {
-								keyURI = resolveURL(baseURL, key.URI)
-							}
-							segment.Keys[i].URI = rewriteProxyURL(keyURI, headerMap, authToken)
-							needsRewrite = true
-						}
+				if segment.Map != nil {
+					if rewriteURI(&segment.Map.URI, baseURL, headerMap, authToken) {
+						needsRewrite = true
 					}
 				}
 			}
 		}
 
-		// Rewrite playlist-level encryption key URIs
-		for i, key := range mediaPl.Keys {
-			if key.URI != "" {
-				if !isAlreadyProxied(key.URI) {
-					keyURI := key.URI
-					if !strings.HasPrefix(key.URI, "http") {
-						keyURI = resolveURL(baseURL, key.URI)
-					}
-					mediaPl.Keys[i].URI = rewriteProxyURL(keyURI, headerMap, authToken)
+		for _, segment := range mediaPl.PartialSegments {
+			if segment != nil {
+				// Rewrite Segment URI
+				if rewriteURI(&segment.URI, baseURL, headerMap, authToken) {
 					needsRewrite = true
 				}
+			}
+		}
+
+		if mediaPl.PreloadHints != nil {
+			if rewriteURI(&mediaPl.PreloadHints.URI, baseURL, headerMap, authToken) {
+				needsRewrite = true
+			}
+		}
+
+		if mediaPl.Map != nil {
+			if rewriteURI(&mediaPl.Map.URI, baseURL, headerMap, authToken) {
+				needsRewrite = true
+			}
+		}
+
+		// Rewrite playlist-level encryption key URIs
+		for i := range mediaPl.Keys {
+			if rewriteURI(&mediaPl.Keys[i].URI, baseURL, headerMap, authToken) {
+				needsRewrite = true
 			}
 		}
 
@@ -171,62 +178,26 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 	} else if listType == m3u8.MASTER {
 		// Rewrite URIs in Master playlists
 		masterPl := playlist.(*m3u8.MasterPlaylist)
-		baseURL, _ := url2.Parse(url) // Base URL for resolving relative paths
 
 		for _, variant := range masterPl.Variants {
-			if variant != nil && variant.URI != "" {
-				if !isAlreadyProxied(variant.URI) {
-					variantURI := variant.URI
-					if !strings.HasPrefix(variant.URI, "http") {
-						variantURI = resolveURL(baseURL, variant.URI)
-					}
-					variant.URI = rewriteProxyURL(variantURI, headerMap, authToken)
-					needsRewrite = true
-				}
-			}
-
-			// Handle alternative media groups (audio, subtitles, etc.) for each variant
 			if variant != nil {
-				for _, alternative := range variant.Alternatives {
-					if alternative != nil && alternative.URI != "" {
-						if !isAlreadyProxied(alternative.URI) {
-							alternativeURI := alternative.URI
-							if !strings.HasPrefix(alternative.URI, "http") {
-								alternativeURI = resolveURL(baseURL, alternative.URI)
-							}
-							alternative.URI = rewriteProxyURL(alternativeURI, headerMap, authToken)
-							needsRewrite = true
-						}
-					}
-				}
-			}
-		}
-
-		allAlternatives := masterPl.GetAllAlternatives()
-		for _, alternative := range allAlternatives {
-			if alternative != nil && alternative.URI != "" {
-				if !isAlreadyProxied(alternative.URI) {
-					alternativeURI := alternative.URI
-					if !strings.HasPrefix(alternative.URI, "http") {
-						alternativeURI = resolveURL(baseURL, alternative.URI)
-					}
-					alternative.URI = rewriteProxyURL(alternativeURI, headerMap, authToken)
+				if rewriteURI(&variant.URI, baseURL, headerMap, authToken) {
 					needsRewrite = true
+				}
+
+				// Handle alternative media groups (audio, subtitles, etc.)
+				for _, alternative := range variant.Alternatives {
+					if alternative != nil && rewriteURI(&alternative.URI, baseURL, headerMap, authToken) {
+						needsRewrite = true
+					}
 				}
 			}
 		}
 
 		// Rewrite session key URIs
-		for i, sessionKey := range masterPl.SessionKeys {
-			if sessionKey.URI != "" {
-				if !isAlreadyProxied(sessionKey.URI) {
-					sessionKeyURI := sessionKey.URI
-					if !strings.HasPrefix(sessionKey.URI, "http") {
-						sessionKeyURI = resolveURL(baseURL, sessionKey.URI)
-					}
-					masterPl.SessionKeys[i].URI = rewriteProxyURL(sessionKeyURI, headerMap, authToken)
-					needsRewrite = true
-				}
+		for i := range masterPl.SessionKeys {
+			if rewriteURI(&masterPl.SessionKeys[i].URI, baseURL, headerMap, authToken) {
+				needsRewrite = true
 			}
 		}
 
@@ -239,21 +210,32 @@ func (h *Handler) VideoProxy(c echo.Context) (err error) {
 		modifiedPlaylistBytes = bodyBytes
 	}
 
-	// Set headers *after* potential modification
+	// Update headers
 	contentType := "application/vnd.apple.mpegurl"
 	c.Response().Header().Set(echo.HeaderContentType, contentType)
-	// Set Content-Length based on the *modified* playlist
 	c.Response().Header().Set(echo.HeaderContentLength, strconv.Itoa(len(modifiedPlaylistBytes)))
-
-	// Set Cache-Control headers appropriate for playlists (often no-cache for live)
 	if resp.Header.Get("Cache-Control") == "" {
 		c.Response().Header().Set("Cache-Control", "no-cache")
 	}
-
 	log.Debug().Bool("rewritten", needsRewrite).Str("url", url).Msg("proxy: Sending modified HLS playlist")
 	c.Response().WriteHeader(resp.StatusCode)
 
 	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), modifiedPlaylistBytes)
+}
+
+// rewriteURI rewrites a URI pointer if needed, returns true if modified
+func rewriteURI(uri *string, baseURL *url2.URL, headerMap map[string]string, authToken string) bool {
+	if *uri == "" || isAlreadyProxied(*uri) {
+		return false
+	}
+
+	// Resolve relative URLs
+	if !strings.HasPrefix(*uri, "http") {
+		*uri = resolveURL(baseURL, *uri)
+	}
+
+	*uri = toProxyURL(*uri, headerMap, authToken)
+	return true
 }
 
 func resolveURL(base *url2.URL, relativeURI string) string {
@@ -267,7 +249,7 @@ func resolveURL(base *url2.URL, relativeURI string) string {
 	return base.ResolveReference(relativeURL).String()
 }
 
-func rewriteProxyURL(targetMediaURL string, headerMap map[string]string, authToken string) string {
+func toProxyURL(targetMediaURL string, headerMap map[string]string, authToken string) string {
 	proxyURL := "/api/v1/proxy?url=" + url2.QueryEscape(targetMediaURL)
 	if len(headerMap) > 0 {
 		headersStrB, err := json.Marshal(headerMap)

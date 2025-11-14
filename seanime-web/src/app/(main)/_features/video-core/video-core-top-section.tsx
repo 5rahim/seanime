@@ -59,12 +59,18 @@ export function VideoCoreTopPlaybackInfo(props: { state: NativePlayerState, chil
                     (paused || hoveringControlBar) && "opacity-100",
                 )}
             >
-                <p className="text-white font-bold text-lg">
-                    {state.playbackInfo?.episode?.displayTitle}
-                </p>
-                <p className="text-white/50 text-base !font-normal">
-                    {state.playbackInfo?.episode?.episodeTitle}
-                </p>
+                {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred &&
+                    <p className="text-white/50 font-medium text-sm max-w-[400px] line-clamp-1">
+                        {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred}
+                    </p>}
+                <div className="flex flex-row gap-2">
+                    <p className="text-white font-bold text-base">
+                        {state.playbackInfo?.episode?.displayTitle}
+                    </p>
+                    {state.playbackInfo?.episode?.episodeTitle && <p className="text-white/50 text-base !font-normal max-w-[400px] line-clamp-1">
+                        {state.playbackInfo?.episode?.episodeTitle}
+                    </p>}
+                </div>
             </div>
         </>
     )

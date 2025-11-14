@@ -26,9 +26,11 @@ import { orderBy } from "lodash"
 import capitalize from "lodash/capitalize"
 import { useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
+import { AiOutlineExclamationCircle } from "react-icons/ai"
 import { BiSearch } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { LuBlocks, LuBookOpen, LuCheck, LuDownload, LuSettings } from "react-icons/lu"
+import { MdDataSaverOn } from "react-icons/md"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { toast } from "sonner"
 
@@ -143,6 +145,7 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
     const animeTorrentExtensions = filteredExtensions.filter(n => n.type === "anime-torrent-provider")
     const mangaExtensions = filteredExtensions.filter(n => n.type === "manga-provider")
     const onlinestreamExtensions = filteredExtensions.filter(n => n.type === "onlinestream-provider")
+    const customSources = filteredExtensions.filter(n => n.type === "custom-source")
 
     // if (isLoadingMarketplace || isLoadingAllExtensions) return <LoadingSpinner />
 
@@ -433,6 +436,32 @@ export function MarketplaceExtensions(props: MarketplaceExtensionsProps) {
                     <h3 className="flex gap-3 items-center"><CgMediaPodcast /> Online streaming</h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {onlinestreamExtensions.map(extension => (
+                            <MarketplaceExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                            />
+                        ))}
+                    </div>
+                </Card>
+            )}
+
+            {!!customSources?.length && (
+                <Card className="p-4 space-y-6">
+                    <div>
+                        <h3 className="flex gap-3 items-center"><MdDataSaverOn /> Custom sources <Popover
+                            className="text-sm"
+                            trigger={
+                                <AiOutlineExclamationCircle className="text-[1.2rem] transition-opacity opacity-45 hover:opacity-90 cursor-pointer" />}
+                        >
+                            Custom sources do not provide any streaming features. Torrent and online streaming providers are needed for this.
+                        </Popover></h3>
+                        <p className="text-[--muted] text-sm">
+                            Custom sources let you browse media beyond what AniList provides.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {customSources.map(extension => (
                             <MarketplaceExtensionCard
                                 key={extension.id}
                                 extension={extension}

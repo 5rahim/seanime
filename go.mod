@@ -7,6 +7,7 @@ require (
 	github.com/5rahim/go-astisub v0.2.1
 	github.com/5rahim/gomkv v0.2.1
 	github.com/5rahim/habari v0.1.7
+	github.com/Eyevinn/hls-m3u8 v0.6.0
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/PuerkitoBio/goquery v1.10.3
@@ -61,8 +62,6 @@ require (
 	gorm.io/gorm v1.30.1
 )
 
-require github.com/Eyevinn/hls-m3u8 v0.6.0
-
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
@@ -116,9 +115,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/pprof v0.0.0-20250423184734-337e5dd93bb4 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hekmon/cunits/v2 v2.1.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/icholy/digest v1.1.0 // indirect

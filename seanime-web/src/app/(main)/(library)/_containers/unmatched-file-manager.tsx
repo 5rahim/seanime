@@ -1,6 +1,7 @@
 import { Anime_UnmatchedGroup } from "@/api/generated/types"
 import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
+import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { useSeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
 import { useSeaCommandSearchSelectMedia } from "@/app/(main)/_features/sea-command/sea-command-search"
@@ -42,6 +43,9 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
     const [selectedPaths, setSelectedPaths] = React.useState<string[]>([])
 
     const [anilistId, setAnilistId] = React.useState(0)
+
+    const { data: customSources } = useListCustomSourceExtensions()
+    const hasCustomSources = !!customSources?.length
 
     const { mutate: openInExplorer } = useOpenInExplorer()
 
@@ -229,7 +233,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                 <div className="flex items-center flex-wrap gap-2">
                     <div className="flex gap-2 items-center w-full">
-                        <p className="flex-none text-lg mr-2 font-semibold">Anilist ID</p>
+                        <p className="flex-none text-lg mr-2 font-semibold">{!hasCustomSources ? "AniList" : "Media"} ID</p>
                         <AnilistIdInput />
                         <Button
                             intent="white"
@@ -319,6 +323,8 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                             Search on AniList
                         </Button>
                     {/*</SeaLink>*/}
+
+                    {/*TODO: Search on custom sources*/}
 
                     <div className="flex flex-1"></div>
 

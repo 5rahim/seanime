@@ -61,6 +61,10 @@ func (m *MangaProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
+func (m *MangaProviderExtensionImpl) GetNotes() string {
+	return m.ext.Notes
+}
+
 func (m *MangaProviderExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }

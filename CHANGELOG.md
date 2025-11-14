@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.4
+
+- ⚡️ Extensions: Increased custom source ID limit (Breaking)
+- 🦺 Extensions: Fixed adding custom sources to collection (Breaking)
+
+## v3.0.3
+
+- ⚡️ Extensions: Added "notes" field to extension manifest for additional info
+- 🦺 Anime: Display download button when no default torrent provider is selected
+- 🦺 Marketplace: Fixed empty custom source lists
+- 🦺 Video Proxy: Fixed certain URIs not being rewritten
+- 🦺 Custom sources: Fixed "Resolve hidden media" 
+- 🏗️ Denshi Player: Use default or forced subtitle/audio tracks
+- 🏗️ Denshi Player: Added "off" option for subtitles
+- 🏗️ Denshi Player: Show error message when subtitle format isn't supported
+- 🏗️ Server: Updated tray icon
+
 ## v3.0.2
 
 - ⚡️ Extensions: Increased custom source media ID limit

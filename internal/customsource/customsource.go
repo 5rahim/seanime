@@ -25,14 +25,20 @@ const (
 
 const (
 	JavascriptMaxSafeInteger uint64 = 1<<53 - 1 // 2^53 - 1
+	//ExtensionIdOffset        uint64 = 1 << 31   // 2^31
+	//MaxLocalId               uint64 = 0xFFFFFFF // 268,435,455 (28 bits)
+	//MaxExtensionIdentifier   uint64 = 0x3FF     // 1,023 (10 bits)
+	//LocalIdBitShift          uint64 = 28        // Number of bits allocated for local IDs
+
 	// ExtensionIdOffset uses the sign bit to separate custom source IDs from AniList IDs
-	// AniList IDs: 0 to 2^31-1 (31 bits)
-	// Extension IDs: 2^31 to 2^53-1 (38 bits available)
-	// Bit allocation: 10 bits for ExtensionIdentifier (1,023 extensions) + 28 bits for LocalId (268,435,455 media per extension)
-	ExtensionIdOffset      uint64 = 1 << 31   // 2^31
-	MaxLocalId             uint64 = 0xFFFFFFF // 268,435,455 (28 bits)
-	MaxExtensionIdentifier uint64 = 0x3FF     // 1,023 (10 bits)
-	LocalIdBitShift        uint64 = 28        // Number of bits allocated for local IDs
+	//	AniList IDs: 0 to 2^31-1 (31 bits)
+	//	Extension IDs: 2^31 to 2^53-1
+	//	Bit allocation: 10 bits for ExtensionIdentifier (1,023 extensions) + 40 bits for LocalId (~1.1 trillion media per extension)
+	//	Maximum ID: 2^31 + (2^10 - 1) * 2^40 + (2^40 - 1)
+	ExtensionIdOffset      uint64 = 1 << 31       // 2^31
+	MaxLocalId             uint64 = (1 << 40) - 1 // ~1.1 trillion (40 bits)
+	MaxExtensionIdentifier uint64 = 0x3FF         // 1,023 (10 bits)
+	LocalIdBitShift        uint64 = 40            // Number of bits allocated for local IDs
 )
 
 type (
@@ -70,7 +76,7 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *z
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
 				extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
-					logger.Debug().Str("extension", id).Msg("custom source: Extension loaded")
+					logger.Debug().Str("extension", id).Msg("custom source: (manager) Extension loaded")
 					ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 					ret.customSourcesById.Set(ext.GetID(), ext)
 					return true
@@ -86,7 +92,7 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *z
 
 	logger.Debug().Str("extension", id).Msg("custom source: Manager created, loading extensions")
 	extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
-		logger.Debug().Str("extension", ext.GetID()).Msg("custom source: Extension loaded")
+		logger.Debug().Str("extension", ext.GetID()).Msg("custom source: (manager) Extension loaded")
 		ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 		ret.customSourcesById.Set(ext.GetID(), ext)
 		return true

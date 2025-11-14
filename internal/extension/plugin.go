@@ -362,6 +362,10 @@ func (m *PluginExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
+func (m *PluginExtensionImpl) GetNotes() string {
+	return m.ext.Notes
+}
+
 func (m *PluginExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }

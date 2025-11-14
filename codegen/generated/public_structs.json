@@ -36929,6 +36929,15 @@
         "comments": []
       },
       {
+        "name": "Notes",
+        "jsonName": "notes",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Lang",
         "jsonName": "lang",
         "goType": "string",

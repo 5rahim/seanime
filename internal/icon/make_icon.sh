@@ -7,7 +7,7 @@ fi
 
 if [ ! -e "$GOPATH/bin/2goarray" ]; then
     echo "Installing 2goarray..."
-    go get github.com/cratonica/2goarray
+    go install github.com/cratonica/2goarray@latest
     if [ $? -ne 0 ]; then
         echo Failure executing go get github.com/cratonica/2goarray
         exit
@@ -22,7 +22,7 @@ fi
 if [ ! -f "$1" ]; then
     echo $1 is not a valid file
     exit
-fi    
+fi
 
 OUTPUT=iconunix.go
 echo Generating $OUTPUT
