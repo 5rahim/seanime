@@ -32,7 +32,12 @@ const (
 	ExtensionIdOffset      uint64 = 1 << 31   // 2^31
 	MaxLocalId             uint64 = 0xFFFFFFF // 268,435,455 (28 bits)
 	MaxExtensionIdentifier uint64 = 0x3FF     // 1,023 (10 bits)
-	LocalIdBitShift        uint64 = 28        // Number of bits allocated for local IDs
+	LocalIdBitShift        uint64 = 28        // Number of bits allocated for local IDs\
+
+	//ExtensionIdOffset      uint64 = 1 << 31       // 2^31
+	//MaxLocalId             uint64 = (1 << 42) - 1 // ~4.3 trillion (42 bits)
+	//MaxExtensionIdentifier uint64 = 0x3FF         // 1,023 (10 bits)
+	//LocalIdBitShift        uint64 = 42            // Number of bits allocated for local IDs
 )
 
 type (

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/customsource"
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
 	"seanime/internal/hook"
@@ -609,6 +610,22 @@ func (ap *AnilistPlatform) AddMediaToCollection(ctx context.Context, mIds []int)
 		go func(id int) {
 			rateLimiter.Wait()
 			defer wg.Done()
+
+			if customsource.IsExtensionId(id) {
+				_, err := ap.helper.HandleCustomSourceUpdateEntry(ctx,
+					id,
+					lo.ToPtr(anilist.MediaListStatusPlanning),
+					lo.ToPtr(0),
+					lo.ToPtr(0),
+					nil,
+					nil,
+				)
+				if err != nil {
+					ap.logger.Error().Msg("anilist: An error occurred while adding media to planning list: " + err.Error())
+				}
+				return
+			}
+
 			_, err := ap.anilistClient.UpdateMediaListEntry(
 				ctx,
 				&id,

@@ -8339,6 +8339,27 @@
     }
   },
   {
+    "name": "rewriteURI",
+    "trimmedName": "rewriteURI",
+    "comments": [
+      "rewriteURI rewrites a URI pointer if needed, returns true if modified",
+      ""
+    ],
+    "filepath": "internal/handlers/proxy.go",
+    "filename": "proxy.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleInstallLatestUpdate",
     "trimmedName": "InstallLatestUpdate",
     "comments": [

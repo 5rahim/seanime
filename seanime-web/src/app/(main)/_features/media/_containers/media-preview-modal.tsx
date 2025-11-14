@@ -273,7 +273,7 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                             </Button>}
                         />}
 
-                        {isCustomSource(media?.id) && <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
+                        {!isCustomSource(media?.id) && <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
                             <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
                         </SeaLink>}
 

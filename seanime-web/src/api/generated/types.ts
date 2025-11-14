@@ -2103,6 +2103,7 @@ export type Extension_Extension = {
     author: string
     icon: string
     website: string
+    notes?: string
     lang: string
     /**
      * NOT IMPLEMENTED
