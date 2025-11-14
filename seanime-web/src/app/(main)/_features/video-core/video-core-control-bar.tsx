@@ -62,8 +62,8 @@ import {
     LuChevronRight,
     LuChevronUp,
     LuHeadphones,
-    LuKeyboard,
     LuPaintbrush,
+    LuSettings2,
     LuSparkles,
     LuVolume,
     LuVolume1,
@@ -74,6 +74,7 @@ import { MdSpeed } from "react-icons/md"
 import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
 import { TbArrowForwardUp, TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
+import { toast } from "sonner"
 
 const VIDEOCORE_CONTROL_BAR_VPADDING = 5
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
@@ -571,6 +572,9 @@ export function VideoCoreSubtitleButton() {
 
     function onTrackChange(trackNumber: number | null) {
         setSelectedTrack(trackNumber)
+        if (trackNumber !== null && !subtitleManager?.isTrackSupported(trackNumber)) {
+            toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
+        }
     }
 
     const firstRender = React.useRef(true)
@@ -580,7 +584,8 @@ export function VideoCoreSubtitleButton() {
 
         if (firstRender.current) {
             firstRender.current = false
-            setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
+            // setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
+            onTrackChange(subtitleManager?.getSelectedTrack?.() ?? null)
         }
 
         subtitleManager.registerOnSelectedTrackChanged(onTrackChange)
@@ -618,24 +623,34 @@ export function VideoCoreSubtitleButton() {
             </Tooltip>}</VideoCoreMenuTitle>
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
-                    options={subtitleTracks.map(track => ({
-                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
-                        value: track.number,
-                        moreInfo: track.language
-                            ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
-                            : undefined,
-                    }))}
+                    options={[
+                        {
+                            label: "Off",
+                            value: -1,
+                        },
+                        ...subtitleTracks.map(track => ({
+                            label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
+                            value: track.number,
+                            moreInfo: track.language
+                                ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
+                                : undefined,
+                        })),
+                    ]}
                     onValueChange={(value) => {
+                        if (value === -1) {
+                            subtitleManager?.setNoTrack()
+                            return
+                        }
                         subtitleManager?.selectTrack(value)
                     }}
-                    value={selectedTrack || 0}
+                    value={selectedTrack ?? -1}
                 />
             </VideoCoreMenuBody>
         </VideoCoreMenu>
     )
 }
 
-function getSubtitleTrackType(codecID: string) {
+export function getSubtitleTrackType(codecID: string) {
     switch (codecID) {
         case "S_TEXT/ASS":
             return "ASS"
@@ -705,7 +720,7 @@ export function VideoCoreSettingsButton() {
                     <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
                     <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
-                    <VideoCoreMenuOption title="Keybinds & Defaults" icon={LuKeyboard} onClick={() => setKeybindingsModelOpen(true)} />
+                    <VideoCoreMenuOption title="Preferences" icon={LuSettings2} onClick={() => setKeybindingsModelOpen(true)} />
                 </VideoCoreMenuSectionBody>
                 <VideoCoreMenuSubmenuBody>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>

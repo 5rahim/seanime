@@ -72,6 +72,10 @@ func (m *CustomSourceExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
+func (m *CustomSourceExtensionImpl) GetNotes() string {
+	return m.ext.Notes
+}
+
 func (m *CustomSourceExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }

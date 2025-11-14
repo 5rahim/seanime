@@ -61,6 +61,10 @@ func (m *AnimeTorrentProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
+func (m *AnimeTorrentProviderExtensionImpl) GetNotes() string {
+	return m.ext.Notes
+}
+
 func (m *AnimeTorrentProviderExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }

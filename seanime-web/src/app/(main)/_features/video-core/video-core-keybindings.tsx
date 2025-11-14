@@ -189,14 +189,14 @@ export function VideoCoreKeybindingsModal() {
 
     return (
         <Modal
-            title="Keybinds and Defaults"
+            title="Preferences"
             description="Customize the keyboard shortcuts and defaults for the player"
             open={open}
             onOpenChange={setOpen}
             contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
         >
             <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-white">Language Preferences</h3>
+                <h3 className="text-lg font-semibold text-white">Language</h3>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-muted-foreground">

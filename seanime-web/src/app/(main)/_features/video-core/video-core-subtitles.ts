@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
+import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
@@ -208,6 +209,40 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // Selects a track to be used.
     // This should be called after the tracks are loaded.
     // When called for the first time, it will initialize the libass renderer.
+    isTrackSupported(trackNumber: number): boolean {
+        if (trackNumber === NO_TRACK_NUMBER) return true
+
+        const track = this.playbackInfo?.mkvMetadata?.subtitleTracks?.find(t => t.number === trackNumber)
+        if (!track) return true
+
+        return getSubtitleTrackType(track.codecID) !== "PGS"
+    }
+
+    private _addTrack(track: MKVParser_TrackInfo) {
+        this.tracks[track.number] = {
+            info: track,
+            events: new Map(),
+            styles: {},
+        }
+        return this.tracks[track.number]
+    }
+
+    private _getTracks() {
+        return Object.values(this.tracks).sort((a, b) => a.info.number - b.info.number)
+    }
+
+    getSelectedTrack(): number | null {
+        if (!this.videoElement.textTracks) return null
+
+        for (let i = 0; i < this.videoElement.textTracks.length; i++) {
+            if (this.videoElement.textTracks[i].mode === "showing") {
+                return Number(this.videoElement.textTracks[i].id)
+            }
+        }
+
+        return null
+    }
+
     //
     private _selectDefaultTrack() {
         if (this.currentTrackNumber !== NO_TRACK_NUMBER) return
@@ -244,41 +279,17 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             }
         }
 
-        // No default tracks found, select the english track
-        const englishTracks = tracks?.filter?.(t => (t.info.language || "eng") === "eng" || t.info.language === "en")
-        if (englishTracks?.length) {
-            const defaultIndex = englishTracks.findIndex(t => t.info.forced || t.info.default)
-            this.selectTrack(englishTracks[defaultIndex >= 0 ? defaultIndex : 0].info.number)
+        // No preferred tracks found, look for default or forced tracks
+        const defaultOrForcedTracks = tracks?.filter?.(t => t.info.default || t.info.forced)
+        if (defaultOrForcedTracks?.length) {
+            // Prioritize default tracks over forced tracks
+            const defaultIndex = defaultOrForcedTracks.findIndex(t => t.info.default)
+            this.selectTrack(defaultOrForcedTracks[defaultIndex >= 0 ? defaultIndex : 0].info.number)
             return
         }
 
-        // No tracks found, select the first track
+        // No forced/default tracks found, select the first track
         this.selectTrack(tracks?.[0]?.info?.number ?? NO_TRACK_NUMBER)
-    }
-
-    private _addTrack(track: MKVParser_TrackInfo) {
-        this.tracks[track.number] = {
-            info: track,
-            events: new Map(),
-            styles: {},
-        }
-        return this.tracks[track.number]
-    }
-
-    private _getTracks() {
-        return Object.values(this.tracks).sort((a, b) => a.info.number - b.info.number)
-    }
-
-    getSelectedTrack(): number | null {
-        if (!this.videoElement.textTracks) return null
-
-        for (let i = 0; i < this.videoElement.textTracks.length; i++) {
-            if (this.videoElement.textTracks[i].mode === "showing") {
-                return Number(this.videoElement.textTracks[i].id)
-            }
-        }
-
-        return null
     }
 
     //

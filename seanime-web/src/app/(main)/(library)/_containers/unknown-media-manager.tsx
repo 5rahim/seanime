@@ -1,6 +1,7 @@
 import { Anime_UnknownGroup } from "@/api/generated/types"
 import { useAddUnknownMedia } from "@/api/hooks/anime_collection.hooks"
 import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
+import { useListCustomSourceExtensions } from "@/api/hooks/extensions.hooks"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,8 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
     const { mutate: addUnknownMedia, isPending: isAdding } = useAddUnknownMedia()
     const { mutate: performBulkAction, isPending: isUnmatching } = useAnimeEntryBulkAction()
+
+    const { data: customSources } = useListCustomSourceExtensions()
 
     /**
      * Add all unknown media to AniList
@@ -66,6 +69,8 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
     const { setPreviewModalMediaId } = useMediaPreviewModal()
 
+    const hasCustomSources = !!customSources?.length
+
     if (unknownGroups.length === 0) return null
 
     return (
@@ -88,7 +93,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                     that {unknownGroups.length === 1
                     ? "is"
                     : "are"} absent from your
-                    AniList collection.<br />
+                    {!hasCustomSources ? "AniList" : ""} collection.<br />
                     Add the media to be able to see entries in your library or unmatch them if incorrect.
                 </p>
 
@@ -98,7 +103,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                     loading={isAdding}
                     disabled={isUnmatching}
                 >
-                    Add all to AniList
+                    Add all to {!hasCustomSources ? "AniList" : "collection"}
                 </Button>
 
                 <div className="divide divide-y divide-[--border] space-y-4">
@@ -108,7 +113,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                             <div key={group.mediaId} className="pt-4 space-y-2">
                                 <div className="flex items-center w-full justify-between">
                                     <h4 className="font-semibold flex gap-2 items-center">
-                                        <span>Anilist ID:{" "}</span>
+                                        <span>{!hasCustomSources ? "AniList" : "Media"} ID:{" "}</span>
                                         <p
                                             className="underline cursor-pointer text-brand-200 flex gap-1.5 items-center"
                                             onClick={() => { setPreviewModalMediaId(group.mediaId, "anime") }}
@@ -130,7 +135,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                             }}
                                             leftIcon={<BiPlus />}
                                         >
-                                            Add to AniList
+                                            Add to {!hasCustomSources ? "AniList" : "collection"}
                                         </Button>
                                         <Button
                                             size="sm"

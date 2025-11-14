@@ -61,6 +61,10 @@ func (m *OnlinestreamProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
+func (m *OnlinestreamProviderExtensionImpl) GetNotes() string {
+	return m.ext.Notes
+}
+
 func (m *OnlinestreamProviderExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }

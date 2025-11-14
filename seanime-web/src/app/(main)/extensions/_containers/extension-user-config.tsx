@@ -96,9 +96,10 @@ function Content({ extension, userConfigError }: { extension: Extension_Extensio
 
             {userConfigError && (
                 <Alert
-                    intent="alert-basic"
-                    title="Config error"
-                    description={userConfigError.reason}
+                    intent="warning"
+                    description={userConfigError.reason.includes("user config is missing")
+                        ? "Fill out the required configuration options."
+                        : userConfigError.reason}
                 />
             )}
 
