@@ -26,13 +26,12 @@ jobs:
         with:
           node-version: '20'
 
-      # outputs in "seanime-web/out/" and "seanime-web/out-desktop/"
+      # outputs in "seanime-web/out/" and "seanime-web/out-denshi/"
       - name: Install dependencies and build Next.js app
         run: |
           cd seanime-web/
           npm install
           npm run build
-          npm run build:desktop
           npm run build:denshi
           cd ..
       # Upload the output to be used in the next job
@@ -41,11 +40,6 @@ jobs:
         with:
           name: web
           path: seanime-web/out # output dir of build
-      - name: Upload web folder (Electron)
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-desktop
-          path: seanime-web/out-desktop # output dir of build:desktop
       - name: Upload web folder (Electron)
         uses: actions/upload-artifact@v4
         with:
