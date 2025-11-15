@@ -25,7 +25,7 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 }
 
 func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}

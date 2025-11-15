@@ -3,6 +3,7 @@ package extension_repo
 import (
 	"context"
 	"fmt"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/goja/goja_runtime"
@@ -15,8 +16,8 @@ type GojaOnlinestreamProvider struct {
 	*gojaProviderBase
 }
 
-func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (hibikeonlinestream.Provider, *GojaOnlinestreamProvider, error) {
-	base, err := initializeProviderBase(ext, language, logger, runtimeManager)
+func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, wsEventManager events.WSEventManagerInterface) (hibikeonlinestream.Provider, *GojaOnlinestreamProvider, error) {
+	base, err := initializeProviderBase(ext, language, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -2,6 +2,7 @@ package extension_repo
 
 import (
 	"context"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/goja/goja_runtime"
@@ -15,8 +16,8 @@ type GojaMangaProvider struct {
 	*gojaProviderBase
 }
 
-func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (hibikemanga.Provider, *GojaMangaProvider, error) {
-	base, err := initializeProviderBase(ext, language, logger, runtimeManager)
+func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, wsEventManager events.WSEventManagerInterface) (hibikemanga.Provider, *GojaMangaProvider, error) {
+	base, err := initializeProviderBase(ext, language, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -79,7 +79,7 @@ func (r *Repository) generateExtensionIdentifier(extId string) int {
 }
 
 func (r *Repository) loadExternalCustomSourceExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, gojaExt, err := NewGojaCustomSource(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaCustomSource(ext, language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}

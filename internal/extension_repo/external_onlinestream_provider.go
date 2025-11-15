@@ -28,7 +28,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 }
 
 func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, gojaExt, err := NewGojaOnlinestreamProvider(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaOnlinestreamProvider(ext, language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}

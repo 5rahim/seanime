@@ -28,7 +28,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 }
 
 func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}
