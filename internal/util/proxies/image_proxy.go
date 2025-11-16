@@ -6,23 +6,20 @@ import (
 	"net/http"
 	"seanime/internal/util"
 
+	"github.com/imroc/req/v3"
 	"github.com/labstack/echo/v4"
 )
 
 type ImageProxy struct{}
 
 func (ip *ImageProxy) GetImage(url string, headers map[string]string) ([]byte, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
+	request := req.C().NewRequest()
 
 	for key, value := range headers {
-		req.Header.Add(key, value)
+		request.SetHeader(key, value)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := request.Get(url)
 	if err != nil {
 		return nil, err
 	}
