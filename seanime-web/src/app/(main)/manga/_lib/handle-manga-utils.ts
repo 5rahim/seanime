@@ -54,6 +54,7 @@ export function useMangaReaderUtils() {
     }, [tokenQueryParam])
 
     return {
+        isReady: !password || (!!password && !!tokenQueryParam),
         getChapterPageUrl,
     }
 
