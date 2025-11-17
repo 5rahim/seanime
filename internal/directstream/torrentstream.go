@@ -108,7 +108,7 @@ func (s *TorrentStream) GetAttachmentByName(filename string) (*mkvparser.Attachm
 
 func (s *TorrentStream) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(torrent): Stream endpoint hit")
+		//s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(torrent): Stream endpoint hit")
 
 		if s.file == nil || s.torrent == nil {
 			s.logger.Error().Msg("directstream(torrent): No torrent to stream")

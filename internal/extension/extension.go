@@ -21,6 +21,7 @@ const (
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
 	TypeCustomSource         Type = "custom-source"
+	TypeTracker              Type = "tracker"
 	TypePlugin               Type = "plugin"
 )
 

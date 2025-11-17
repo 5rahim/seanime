@@ -1,4 +1,4 @@
-package mkvparser
+package legacymkvparser
 
 import (
 	"testing"

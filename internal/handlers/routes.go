@@ -39,6 +39,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 		"/api/v1/mediastream/transcode/",
 		"/api/v1/torrent-client/list",
 		"/api/v1/proxy",
+		"/api/v1/directstream/stream",
 	}
 
 	// Logging middleware

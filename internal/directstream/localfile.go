@@ -147,11 +147,11 @@ func (s *LocalFileStream) GetAttachmentByName(filename string) (*mkvparser.Attac
 
 func (s *LocalFileStream) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Trace().Str("method", r.Method).Msg("directstream: Received request")
-
-		defer func() {
-			s.logger.Trace().Msg("directstream: Request finished")
-		}()
+		//s.logger.Trace().Str("method", r.Method).Msg("directstream: Received request")
+		//
+		//defer func() {
+		//	s.logger.Trace().Msg("directstream: Request finished")
+		//}()
 
 		if r.Method == http.MethodHead {
 			// Get the file size
