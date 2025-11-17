@@ -2,6 +2,7 @@ import { ElectronManager } from "@/app/(main)/_electron/electron-manager"
 import { TauriManager } from "@/app/(main)/_tauri/tauri-manager"
 import { ClientProviders } from "@/app/client-providers"
 import { __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
+import { KeyboardShortcuts } from "@/components/shared/KeyboardShortcuts"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: {
         <ClientProviders>
             {__isTauriDesktop__ && <TauriManager />}
             {__isElectronDesktop__ && <ElectronManager />}
+            <KeyboardShortcuts />
             {children}
         </ClientProviders>
         </body>
