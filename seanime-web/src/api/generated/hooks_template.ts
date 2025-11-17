@@ -1762,24 +1762,6 @@
 //     })
 // }
 
-// export function useGetNakamaAnimeLibrary() {
-//     return useServerQuery<Nakama_NakamaAnimeLibrary>({
-//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibrary.endpoint,
-//         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibrary.methods[0],
-//         queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibrary.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useGetNakamaAnimeLibraryCollection() {
-//     return useServerQuery<Anime_LibraryCollection>({
-//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.endpoint,
-//         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.methods[0],
-//         queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.key],
-//         enabled: true,
-//     })
-// }
-
 // export function useGetNakamaAnimeLibraryFiles(id: number) {
 //     return useServerMutation<Array<Anime_LocalFile>>({
 //         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.endpoint.replace("{id}", String(id)),

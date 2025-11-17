@@ -425,7 +425,14 @@ func (mp *MetadataParser) generateMimeCodec(metadata *Metadata) string {
 		}
 	}
 
-	return strings.Join(codecStrings, ", ")
+	ret := ""
+	if len(codecStrings) > 0 {
+		ret = fmt.Sprintf("video/x-matroska; codecs=\"%s\"", strings.Join(codecStrings, ", "))
+	} else {
+		ret = "video/x-matroska"
+	}
+
+	return ret
 }
 
 // ExtractSubtitles extracts subtitles from a streaming source by reading it as a continuous flow.

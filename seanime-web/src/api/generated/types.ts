@@ -2206,7 +2206,12 @@ export type Extension_SavedUserConfig = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "custom-source" | "plugin"
+export type Extension_Type = "anime-torrent-provider" |
+    "manga-provider" |
+    "onlinestream-provider" |
+    "custom-source" |
+    "tracker" |
+    "plugin"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2690,7 +2695,7 @@ export type HibikeCustomSource_ListMangaResponse = {
 }
 
 /**
- * - Filepath: internal/extension/hibike/tracker/types.go
+ * - Filepath: internal/extension/hibike/customsource/types.go
  * - Filename: types.go
  * - Package: hibikecustomsource
  */
@@ -3902,16 +3907,6 @@ export type Nakama_HostConnectionStatus = {
 export type Nakama_MessageResponse = {
     success: boolean
     message: string
-}
-
-/**
- * - Filepath: internal/nakama/share.go
- * - Filename: share.go
- * - Package: nakama
- */
-export type Nakama_NakamaAnimeLibrary = {
-    localFiles?: Array<Anime_LocalFile>
-    animeCollection?: AL_AnimeCollection
 }
 
 /**

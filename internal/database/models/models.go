@@ -526,6 +526,12 @@ type CustomSourceCollection struct {
 	Value       []byte `gorm:"column:value" json:"value"` // Marshalled struct
 }
 
+type CustomSourceIdentifier struct {
+	BaseModel
+	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
+	Value       int    `gorm:"column:value;index" json:"value"`
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 type StringSlice []string

@@ -21,12 +21,13 @@ import {
 } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-unmatch-files-modal"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { openTab } from "@/lib/helpers/browser"
+import { copyToClipboard, openTab } from "@/lib/helpers/browser"
+import { isCustomSource } from "@/lib/server/utils"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiFolder, BiRightArrowAlt } from "react-icons/bi"
 import { FiArrowUpRight, FiDownload, FiTrash } from "react-icons/fi"
-import { LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
+import { LuCopy, LuFolderTree, LuGlobe, LuImage } from "react-icons/lu"
 import { MdOutlineRemoveDone } from "react-icons/md"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
@@ -89,6 +90,11 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     <FiArrowUpRight className="text-[--muted] text-sm" />
                 </DropdownMenuItem>}
 
+                {isCustomSource(entry.mediaId) && <DropdownMenuItem
+                    onClick={() => copyToClipboard(entry.mediaId.toString())}
+                >
+                    <LuCopy /> Copy ID
+                </DropdownMenuItem>}
                 <DropdownMenuItem
                     onClick={() => setIsMetadataManagerOpen(p => !p)}
                 >

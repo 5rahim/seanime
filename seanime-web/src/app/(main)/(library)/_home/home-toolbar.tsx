@@ -157,7 +157,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 >
                     {hasEntries ? "Refresh Anime Library" : "Scan Anime Library"}
                 </Tooltip>}
-                {(unmatchedLocalFiles.length > 0) && <Button
+                {(!isNakamaLibrary && unmatchedLocalFiles.length > 0) && <Button
                     data-home-toolbar-unmatched-button
                     intent="alert"
                     leftIcon={<IoLibrarySharp />}
@@ -166,7 +166,7 @@ export function HomeToolbar(props: HomeToolbarProps) {
                 >
                     Resolve unmatched ({unmatchedLocalFiles.length})
                 </Button>}
-                {(unknownGroups.length > 0) && <Button
+                {(!isNakamaLibrary && unknownGroups.length > 0) && <Button
                     data-home-toolbar-unknown-button
                     intent="warning"
                     leftIcon={<IoLibrarySharp />}

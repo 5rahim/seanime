@@ -187,6 +187,17 @@ func formatSiteUrl(extId string, siteUrl *string) *string {
 	return lo.ToPtr("ext_custom_source_" + extId + "|END|" + *siteUrl)
 }
 
+func GetCustomSourceExtensionIdFromSiteUrl(siteUrl *string) (string, bool) {
+	if siteUrl == nil {
+		return "", false
+	}
+	parts := strings.Split(*siteUrl, "|END|")
+	if len(parts) != 2 {
+		return "", false
+	}
+	return strings.Replace(parts[0], "ext_custom_source_", "", 1), true
+}
+
 func NormalizeMedia(extensionIdentifier int, extId string, obj interface{}) {
 	switch v := obj.(type) {
 	case *anilist.BaseAnime:

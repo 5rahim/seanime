@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
+	"seanime/internal/customsource"
 	"seanime/internal/directstream"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
@@ -32,6 +33,14 @@ type (
 		LocalFiles      []*anime.LocalFile       `json:"localFiles"`
 		AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
 	}
+
+	NakamaCustomSourceMap map[int]string
+
+	NakamaLocalFiles struct {
+		LocalFiles []*anime.LocalFile `json:"localFiles"`
+		// CustomSourceMap maps a generated ID to custom source extension ID
+		CustomSourceMap NakamaCustomSourceMap `json:"customSourceMap"`
+	}
 )
 
 // generateHMACToken generates an HMAC token for stream authentication
@@ -48,9 +57,16 @@ func (m *Manager) generateHMACToken(endpoint string) (string, error) {
 	return hmacAuth.GenerateToken(endpoint)
 }
 
-func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs []*anime.LocalFile, hydrated bool) {
+func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs []*anime.LocalFile, customSourceMap NakamaCustomSourceMap, hydrated bool) {
 	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
-		return nil, false
+		return nil, nil, false
+	}
+
+	// If we're trying to fetch a custom extension, get the entire local files instead
+	// This is because the custom source media ID is different on the host
+	// The host will return all the shared local files and a map allowing us to pinpoint the local files that match the custom source media
+	if len(mId) > 0 && customsource.IsExtensionId(mId[0]) {
+		mId = []int{}
 	}
 
 	var response *req.Response
@@ -61,7 +77,7 @@ func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs
 			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files/" + strconv.Itoa(mId[0]))
 		if err != nil {
-			return nil, false
+			return nil, nil, false
 		}
 	} else {
 		response, err = m.reqClient.R().
@@ -69,25 +85,25 @@ func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs
 			SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
 			Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/files")
 		if err != nil {
-			return nil, false
+			return nil, nil, false
 		}
 	}
 
 	if !response.IsSuccessState() {
-		return nil, false
+		return nil, nil, false
 	}
 
 	body := response.Bytes()
 
 	var entryResponse struct {
-		Data []*anime.LocalFile `json:"data"`
+		Data *NakamaLocalFiles `json:"data"`
 	}
 	err = json.Unmarshal(body, &entryResponse)
 	if err != nil {
-		return nil, false
+		return nil, nil, false
 	}
 
-	return entryResponse.Data, true
+	return entryResponse.Data.LocalFiles, entryResponse.Data.CustomSourceMap, true
 }
 
 func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibrary, hydrated bool) {
@@ -127,19 +143,6 @@ func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibra
 	return entryResponse.Data, true
 }
 
-func (m *Manager) getBaseServerURL() string {
-	ret := ""
-	host := m.serverHost
-	if host == "0.0.0.0" {
-		host = "127.0.0.1"
-	}
-	ret = fmt.Sprintf("http://%s:%d", host, m.serverPort)
-	if strings.HasPrefix(ret, "http://http") {
-		ret = strings.Replace(ret, "http://http", "http", 1)
-	}
-	return ret
-}
-
 func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
 	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
@@ -155,7 +158,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 	// If we can access it then the host is sharing its anime library
 	response, err := m.reqClient.R().
 		SetHeader("X-Seanime-Nakama-Token", m.settings.RemoteServerPassword).
-		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/collection")
+		Get(m.GetHostBaseServerURL() + "/api/v1/nakama/host/anime/library/shared")
 	if err != nil {
 		return fmt.Errorf("cannot access host's anime library: %w", err)
 	}

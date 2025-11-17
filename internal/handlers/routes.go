@@ -525,7 +525,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.POST("/reconnect", h.HandleNakamaReconnectToHost)
 	v1Nakama.POST("/cleanup", h.HandleNakamaRemoveStaleConnections)
 	v1Nakama.GET("/host/anime/library", h.HandleGetNakamaAnimeLibrary)
-	v1Nakama.GET("/host/anime/library/collection", h.HandleGetNakamaAnimeLibraryCollection)
+	v1Nakama.GET("/host/anime/library/shared", h.HandleGetNakamaAnimeLibraryShared)
 	v1Nakama.GET("/host/anime/library/files/:id", h.HandleGetNakamaAnimeLibraryFiles)
 	v1Nakama.GET("/host/anime/library/files", h.HandleGetNakamaAnimeAllLibraryFiles)
 	v1Nakama.POST("/play", h.HandleNakamaPlayVideo)

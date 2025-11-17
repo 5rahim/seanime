@@ -6,7 +6,7 @@ import {
     SendNakamaMessage_Variables,
 } from "../generated/endpoint.types"
 import { API_ENDPOINTS } from "../generated/endpoints"
-import { Anime_LibraryCollection, Nakama_MessageResponse } from "../generated/types"
+import { Nakama_MessageResponse } from "../generated/types"
 
 export function useNakamaWebSocket() {
     return useServerQuery<boolean>({
@@ -48,15 +48,6 @@ export function useNakamaRemoveStaleConnections() {
         onSuccess: async () => {
 
         },
-    })
-}
-
-export function useGetNakamaAnimeLibraryCollection() {
-    return useServerQuery<Anime_LibraryCollection>({
-        endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.endpoint,
-        method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.methods[0],
-        queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.key],
-        enabled: true,
     })
 }
 
