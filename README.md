@@ -28,7 +28,7 @@
     <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" alt="" />
   </a>
   <a href="https://discord.gg/Aruz7wdAaf">
-    <img src="https://img.shields.io/discord/953341991134064651?style=flat-square" alt="chat">
+    <img src="https://img.shields.io/discord/1224767201551192224?style=flat-square" alt="chat">
   </a>
 </div>
 
