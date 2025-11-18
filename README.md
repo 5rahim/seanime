@@ -110,5 +110,5 @@ Development and testing might require additional configuration.
 
 <br>
 
-> [!WARNING]
+> [!NOTE]
 > For copyright-related requests, please contact the maintainer using the provided contact information on [The Website](https://seanime.app/)
