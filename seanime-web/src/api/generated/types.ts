@@ -2206,12 +2206,7 @@ export type Extension_SavedUserConfig = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" |
-    "manga-provider" |
-    "onlinestream-provider" |
-    "custom-source" |
-    "tracker" |
-    "plugin"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "custom-source" | "plugin"
 
 /**
  * - Filepath: internal/extension/extension.go

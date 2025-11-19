@@ -1,19 +1,35 @@
 "use client"
 
+import Mousetrap from "mousetrap"
+import { useRouter } from "next/navigation"
 import React from "react"
 
-type ElectronManagerProps = {
-    children?: React.ReactNode
-}
-
 // This is only rendered on the Electron Desktop client
-export function ElectronManager(props: ElectronManagerProps) {
-    const {
-        children,
-        ...rest
-    } = props
+export function ElectronManager() {
+    const { back, forward } = useRouter()
 
-    // No-op
+    React.useEffect(() => {
+        if (!window.electron) return
+        const isMac = window.electron?.platform === "darwin"
+        const modifier = isMac ? "command" : "alt"
+
+        Mousetrap.bind(`${modifier}+left`, (e) => {
+            e.preventDefault()
+            back()
+            return false
+        })
+
+        Mousetrap.bind(`${modifier}+right`, (e) => {
+            e.preventDefault()
+            forward()
+            return false
+        })
+
+        return () => {
+            Mousetrap.unbind(`${modifier}+left`)
+            Mousetrap.unbind(`${modifier}+right`)
+        }
+    }, [])
 
     return null
 }
