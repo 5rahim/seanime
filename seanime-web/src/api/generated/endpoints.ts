@@ -1422,6 +1422,27 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route shares the local anime collection with Nakama clients.
+         *  This creates a new LibraryCollection struct and returns it.
+         *  This is used to share the local anime collection with Nakama clients.
+         */
+        GetNakamaAnimeLibrary: {
+            key: "NAKAMA-get-nakama-anime-library",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/host/anime/library",
+        },
+        /**
+         *  @description
+         *  Route returns true if the library is being shared.
+         *  This is used by Nakama peers to check if the library is being shared.
+         */
+        GetNakamaAnimeLibraryShared: {
+            key: "NAKAMA-get-nakama-anime-library-shared",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/host/anime/library/shared",
+        },
+        /**
+         *  @description
          *  Route return the local files for the given AniList anime media id.
          *  This is used by the anime media entry pages to get all the data about the anime.
          */

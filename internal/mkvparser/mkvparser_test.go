@@ -16,12 +16,8 @@ import (
 )
 
 var (
-	//testFile = "/Users/rahim/Documents/collection/Boku no Hero Academia FINAL SEASON/My.Hero.Academia.S08E07.From.Aizawa.1080p.NF.WEB-DL.AAC2.0.H.264-VARYG.mkv"
-	//testFile   = "/Users/rahim/Documents/collection/Sousou no Frieren/Frieren.Beyond.Journeys.End.S01E01.1080p.CR.WEB-DL.AAC2.0.Hin-Tam-Eng-Jpn-Ger-Spa-Spa-Fra-Por.H.264.MSubs-ToonsHub.mkv"
-	//testFile   = "/Users/rahim/Documents/collection/Sono Bisque Doll wa Koi wo Suru/[GJM] Sono Bisque Doll wa Koi wo Suru (My Dress-Up Darling) - 01 [472DE647].mkv"
-	testFile   = "/Users/rahim/Documents/collection/[GJM] Love Me, Love Me Not (BD 1080p) [841C23CD].mkv"
-	testMagnet = "magnet:?xt=urn:btih:d9ae4c0271b9a9574651da4c046db5567a577648&dn=My%20Hero%20Academia%20S08E07%20From%20Aizawa%201080p%20NF%20WEB-DL%20AAC2.0%20H%20264-VARYG%20%28Boku%20no%20Hero%20Academia%20FINAL%20SEASON%2C%20Multi-Subs%29&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
-	//testMagnet = "magnet:?xt=urn:btih:15c3e675f4859bba46a1a714938009b07571e7f0&dn=%5BSubsPlease%5D%20Spy%20x%20Family%20-%2044%20%281080p%29%20%5B17AECFFC%5D.mkv&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
+	testFile   = ""
+	testMagnet = ""
 
 	// Timeout for torrent operations
 	torrentInfoTimeout        = 60 * time.Second

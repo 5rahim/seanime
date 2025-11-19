@@ -7,14 +7,20 @@ import { PluginEpisodeGridItemMenuItems } from "@/app/(main)/_features/plugin/ac
 import { EpisodeListPaginatedGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
+import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
+import { ContextMenuItem } from "@/components/ui/context-menu"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import React, { useMemo } from "react"
+import { BiDotsHorizontal } from "react-icons/bi"
+import { LuTvMinimalPlay } from "react-icons/lu"
 
 type TorrentStreamEpisodeSectionProps = {
     entry: Anime_Entry
     episodeCollection: Anime_EpisodeCollection | undefined
     onEpisodeClick: (episode: Anime_Episode) => void
+    onPlayExternallyEpisodeClick?: (episode: Anime_Episode) => void
     onPlayNextEpisodeOnMount: (episode: Anime_Episode) => void
     bottomSection?: React.ReactNode
 }
@@ -28,10 +34,12 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
         onEpisodeClick,
         onPlayNextEpisodeOnMount,
         bottomSection,
+        onPlayExternallyEpisodeClick,
         ...rest
     } = props
 
     const { data: watchHistory } = useGetContinuityWatchHistory()
+
 
     /**
      * Organize episodes to watch
@@ -96,6 +104,13 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                     image: episode.baseAnime?.coverImage?.medium,
                                     title: episode?.baseAnime?.title?.userPreferred,
                                 }}
+                                additionalContextMenuItems={<>
+                                    {onPlayExternallyEpisodeClick && <ContextMenuItem
+                                        onClick={() => onPlayExternallyEpisodeClick(episode)}
+                                    >
+                                        <LuTvMinimalPlay /> Play externally
+                                    </ContextMenuItem>}
+                                </>}
                             />
                         </CarouselItem>
                     ))}
@@ -109,34 +124,54 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                     const episode = episodeCollection?.episodes?.[index]
                     return (<EpisodeGridItem
                             key={episode?.episodeNumber + (episode?.displayTitle || "")}
-                        media={episode?.baseAnime as any}
-                        title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
-                        image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
-                        episodeTitle={episode?.episodeTitle}
-                        onClick={() => {
-                            onEpisodeClick(episode as Anime_Episode)
-                        }}
-                        description={episode?.episodeMetadata?.overview}
-                        isFiller={episode?.episodeMetadata?.isFiller}
-                        length={episode?.episodeMetadata?.length}
+                            media={episode?.baseAnime as any}
+                            title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                            image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
+                            episodeTitle={episode?.episodeTitle}
+                            onClick={() => {
+                                onEpisodeClick(episode as Anime_Episode)
+                            }}
+                            description={episode?.episodeMetadata?.overview}
+                            isFiller={episode?.episodeMetadata?.isFiller}
+                            length={episode?.episodeMetadata?.length}
                             isWatched={!!entry.listData?.progress && entry.listData.progress >= (episode?.progressNumber || 0)}
-                        className="flex-none w-full"
+                            className="flex-none w-full"
                             episodeNumber={episode?.episodeNumber}
                             progressNumber={episode?.progressNumber}
-                        action={<>
-                            <MediaEpisodeInfoModal
-                                title={episode?.displayTitle}
-                                image={episode?.episodeMetadata?.image}
-                                episodeTitle={episode?.episodeTitle}
-                                airDate={episode?.episodeMetadata?.airDate}
-                                length={episode?.episodeMetadata?.length}
-                                summary={episode?.episodeMetadata?.overview}
-                                isInvalid={episode?.isInvalid}
-                            />
+                            action={<>
+                                <MediaEpisodeInfoModal
+                                    title={episode?.displayTitle}
+                                    image={episode?.episodeMetadata?.image}
+                                    episodeTitle={episode?.episodeTitle}
+                                    airDate={episode?.episodeMetadata?.airDate}
+                                    length={episode?.episodeMetadata?.length}
+                                    summary={episode?.episodeMetadata?.overview}
+                                    isInvalid={episode?.isInvalid}
+                                />
 
-                            <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="torrentstream" episode={episode as Anime_Episode} />
-                        </>}
-                    />
+                                {!!onPlayExternallyEpisodeClick && <DropdownMenu
+                                    trigger={
+                                        <IconButton
+                                            icon={<BiDotsHorizontal />}
+                                            intent="gray-basic"
+                                            size="xs"
+                                        />
+                                    }
+                                >
+
+                                    {onPlayExternallyEpisodeClick && <DropdownMenuItem
+                                        onClick={() => {
+                                            onPlayExternallyEpisodeClick(episode as Anime_Episode)
+                                        }}
+                                    >
+                                        <LuTvMinimalPlay />
+                                        Play externally
+                                    </DropdownMenuItem>}
+                                </DropdownMenu>}
+
+                                <PluginEpisodeGridItemMenuItems isDropdownMenu={true} type="torrentstream" episode={episode as Anime_Episode} />
+                            </>}
+                        />
                     )
                 }}
             />

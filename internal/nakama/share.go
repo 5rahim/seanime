@@ -143,7 +143,7 @@ func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibra
 	return entryResponse.Data, true
 }
 
-func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
+func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string, forcePlaybackMethod string) error {
 	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
@@ -184,8 +184,18 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 		windowTitle += " - Episode " + aniDBEpisode
 	}
 
+	playbackMethod := forcePlaybackMethod
+	if playbackMethod == "" {
+		if m.GetUseDenshiPlayer() {
+			playbackMethod = "nativeplayer"
+		} else {
+			playbackMethod = "playbackmanager"
+		}
+	}
+
 	// Playback Manager
-	if !m.GetUseDenshiPlayer() {
+	switch playbackMethod {
+	case "playbackmanager":
 		err = m.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 			Payload:   ret,
 			UserAgent: userAgent,
@@ -204,7 +214,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 				cancel()
 			}
 		})
-	} else {
+	case "nativeplayer":
 		// Native Player
 		err = m.directstreamManager.PlayNakamaStream(context.Background(), directstream.PlayNakamaStreamOptions{
 			StreamUrl:          ret,

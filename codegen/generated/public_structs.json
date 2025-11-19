@@ -31289,6 +31289,37 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
+    "name": "CustomSourceIdentifier",
+    "formattedName": "Models_CustomSourceIdentifier",
+    "package": "models",
+    "fields": [
+      {
+        "name": "ExtensionId",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
     "name": "StringSlice",
     "formattedName": "Models_StringSlice",
     "package": "models",
@@ -38828,46 +38859,6 @@
   {
     "filepath": "../internal/extension/hibike/tracker/types.go",
     "filename": "types.go",
-    "name": "SyncMode",
-    "formattedName": "SyncMode",
-    "package": "hibiketracker",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"manual\"",
-        "\"automatic\"",
-        "\"batch\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/hibike/tracker/types.go",
-    "filename": "types.go",
-    "name": "ErrorType",
-    "formattedName": "ErrorType",
-    "package": "hibiketracker",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"not_found\"",
-        "\"rate_limit\"",
-        "\"auth\"",
-        "\"network\"",
-        "\"conflict\"",
-        "\"invalid_data\"",
-        "\"unknown\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/hibike/tracker/types.go",
-    "filename": "types.go",
     "name": "Settings",
     "formattedName": "Settings",
     "package": "hibiketracker",
@@ -38895,17 +38886,6 @@
         "jsonName": "supportsBidirectionalSync",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SyncMode",
-        "jsonName": "syncMode",
-        "goType": "SyncMode",
-        "typescriptType": "SyncMode",
-        "usedTypescriptType": "SyncMode",
-        "usedStructName": "hibiketracker.SyncMode",
         "required": true,
         "public": true,
         "comments": []
@@ -38944,60 +38924,6 @@
   {
     "filepath": "../internal/extension/hibike/tracker/types.go",
     "filename": "types.go",
-    "name": "TrackerError",
-    "formattedName": "TrackerError",
-    "package": "hibiketracker",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "Type",
-        "goType": "ErrorType",
-        "typescriptType": "ErrorType",
-        "usedTypescriptType": "ErrorType",
-        "usedStructName": "hibiketracker.ErrorType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Message",
-        "jsonName": "Message",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "RetryAfter",
-        "jsonName": "RetryAfter",
-        "goType": "time.Duration",
-        "typescriptType": "Duration",
-        "usedTypescriptType": "Duration",
-        "usedStructName": "time.Duration",
-        "required": false,
-        "public": true,
-        "comments": [
-          " For rate limits"
-        ]
-      },
-      {
-        "name": "Err",
-        "jsonName": "Err",
-        "goType": "error",
-        "typescriptType": "error",
-        "usedTypescriptType": "error",
-        "usedStructName": "hibiketracker.error",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/hibike/tracker/types.go",
-    "filename": "types.go",
     "name": "MediaEntry",
     "formattedName": "MediaEntry",
     "package": "hibiketracker",
@@ -39012,7 +38938,7 @@
         "comments": []
       },
       {
-        "name": "MediaID",
+        "name": "MediaId",
         "jsonName": "mediaId",
         "goType": "int",
         "typescriptType": "number",
@@ -39021,7 +38947,7 @@
         "comments": []
       },
       {
-        "name": "ExternalID",
+        "name": "ExternalId",
         "jsonName": "externalId",
         "goType": "string",
         "typescriptType": "string",
@@ -65025,6 +64951,52 @@
         "usedTypescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "NakamaCustomSourceMap",
+    "formattedName": "Nakama_NakamaCustomSourceMap",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[int]string",
+      "typescriptType": "Record\u003cnumber, string\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "NakamaLocalFiles",
+    "formattedName": "Nakama_NakamaLocalFiles",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomSourceMap",
+        "jsonName": "customSourceMap",
+        "goType": "NakamaCustomSourceMap",
+        "typescriptType": "Nakama_NakamaCustomSourceMap",
+        "usedTypescriptType": "Nakama_NakamaCustomSourceMap",
+        "usedStructName": "nakama.NakamaCustomSourceMap",
+        "required": true,
         "public": true,
         "comments": []
       }

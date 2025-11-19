@@ -274,10 +274,11 @@ func (h *Handler) buildNakamaLocalFiles(lfs []*anime.LocalFile) (*nakama.NakamaL
 //	@returns bool
 func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 	type body struct {
-		Path         string `json:"path"`
-		MediaId      int    `json:"mediaId"`
-		AniDBEpisode string `json:"anidbEpisode"`
-		ClientId     string `json:"clientId"`
+		Path                string `json:"path"`
+		MediaId             int    `json:"mediaId"`
+		AniDBEpisode        string `json:"anidbEpisode"`
+		ClientId            string `json:"clientId"`
+		ForcePlaybackMethod string `json:"forcePlaybackMethod,omitempty"`
 	}
 	b := new(body)
 	if err := c.Bind(b); err != nil {
@@ -293,7 +294,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), b.ClientId, media, b.AniDBEpisode)
+	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), b.ClientId, media, b.AniDBEpisode, b.ForcePlaybackMethod)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

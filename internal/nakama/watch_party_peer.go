@@ -412,7 +412,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		case "debrid":
 			err = wpm.manager.PlayHostAnimeStream(payload.Session.CurrentMediaInfo.StreamType, "seanime/nakama", wpm.clientId, media, payload.Session.CurrentMediaInfo.AniDBEpisode)
 		case "file":
-			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", wpm.clientId, media, payload.Session.CurrentMediaInfo.AniDBEpisode)
+			err = wpm.manager.PlayHostAnimeLibraryFile(payload.Session.CurrentMediaInfo.StreamPath, "seanime/nakama", wpm.clientId, media, payload.Session.CurrentMediaInfo.AniDBEpisode, "")
 		case "online":
 			wpm.sendCommandToOnlineStream(OnlineStreamCommandStart, payload.Session.CurrentMediaInfo.OnlineStreamParams)
 		}

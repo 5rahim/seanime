@@ -40,6 +40,7 @@ type EpisodeCardProps = {
     minutesRemaining?: number
     allowAnimeInfo?: boolean
     forceSingleContainer?: boolean
+    additionalContextMenuItems?: React.ReactNode
     anime?: {
         id?: number
         image?: string
@@ -76,6 +77,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         forceSingleContainer,
         anime,
         episode,
+        additionalContextMenuItems,
         ...rest
     } = props
 
@@ -156,6 +158,8 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     >
                         <BiAddToQueue /> Add to Playlist
                     </ContextMenuItem>}
+
+                    {additionalContextMenuItems}
 
                     <PluginEpisodeCardContextMenuItems episode={props.episode} />
 

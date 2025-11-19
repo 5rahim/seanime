@@ -10,6 +10,7 @@ import {
     __torrentSearch_selectionEpisodeAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamEpisodeSection } from "@/app/(main)/entry/_containers/torrent-stream/_components/torrent-stream-episode-section"
+import { ForcePlaybackMethod, useForcePlaybackMethod } from "@/app/(main)/entry/_lib/handle-play-media"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
@@ -89,7 +90,9 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     }
 
     // Hook to handle starting the debrid stream
-    const { handleAutoSelectStream, handleStreamSelection } = useHandleStartDebridStream()
+    const { handleAutoSelectStream, handleStreamSelection, isUsingNativePlayer } = useHandleStartDebridStream()
+
+    const { forcePlaybackMethodFn } = useForcePlaybackMethod()
 
     // Hook to manage debrid stream autoplay information
     const { setDebridstreamAutoplayInfo } = useDebridstreamAutoplay()
@@ -140,13 +143,17 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     }
 
     // Function to handle episode click events
-    const handleEpisodeClick = (episode: Anime_Episode) => {
+    const handleEpisodeClick = (episode: Anime_Episode, forcePlaybackMethod?: ForcePlaybackMethod) => {
         if (!episode || !episode.aniDBEpisode) return
+
+        console.log("handleEpisodeClick", episode, forcePlaybackMethod)
 
         setTorrentSearchStreamEpisode(episode)
 
         if (autoSelect) {
-            handleAutoSelect(entry, episode)
+            forcePlaybackMethodFn(forcePlaybackMethod, () => {
+                handleAutoSelect(entry, episode)
+            })
         } else {
 
             let started = false
@@ -154,13 +161,15 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
             // If we're using the previous batch
             if (usePreviousBatch && batchHistory?.torrent && episode.aniDBEpisode) {
                 if (autoSelectFile) {
-                    handleStreamSelection({
-                        mediaId: entry.mediaId,
-                        episodeNumber: episode.episodeNumber,
-                        aniDBEpisode: episode.aniDBEpisode,
-                        torrent: batchHistory.torrent,
-                        chosenFileId: "",
-                        batchEpisodeFiles: undefined,
+                    forcePlaybackMethodFn(forcePlaybackMethod, () => {
+                        handleStreamSelection({
+                            mediaId: entry.mediaId,
+                            episodeNumber: episode.episodeNumber,
+                            aniDBEpisode: episode.aniDBEpisode!,
+                            torrent: batchHistory.torrent!,
+                            chosenFileId: "",
+                            batchEpisodeFiles: undefined,
+                        })
                     })
                     started = true
                 } else {
@@ -186,19 +195,21 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                         }
 
                         if (fileIndex !== undefined) {
-                            handleStreamSelection({
-                                mediaId: entry.mediaId,
-                                episodeNumber: episode.episodeNumber,
-                                aniDBEpisode: episode.aniDBEpisode,
-                                torrent: batchHistory.torrent,
-                                chosenFileId: String(fileIndex),
-                                batchEpisodeFiles: (batchHistory.batchEpisodeFiles) ? {
-                                    ...batchHistory.batchEpisodeFiles,
-                                    files: batchHistory.batchEpisodeFiles.files!,
-                                    current: fileIndex,
-                                    currentAniDBEpisode: episode.aniDBEpisode,
-                                    currentEpisodeNumber: episode.episodeNumber,
-                                } : undefined,
+                            forcePlaybackMethodFn(forcePlaybackMethod, () => {
+                                handleStreamSelection({
+                                    mediaId: entry.mediaId,
+                                    episodeNumber: episode.episodeNumber,
+                                    aniDBEpisode: episode.aniDBEpisode!,
+                                    torrent: batchHistory.torrent!,
+                                    chosenFileId: String(fileIndex),
+                                    batchEpisodeFiles: (batchHistory.batchEpisodeFiles) ? {
+                                        ...batchHistory.batchEpisodeFiles!,
+                                        files: batchHistory.batchEpisodeFiles!.files!,
+                                        current: fileIndex!,
+                                        currentAniDBEpisode: episode.aniDBEpisode!,
+                                        currentEpisodeNumber: episode.episodeNumber,
+                                    } : undefined,
+                                })
                             })
                             started = true
                         }
@@ -208,11 +219,10 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
 
             if (!started) {
                 setTorrentSearchEpisode(episode.episodeNumber)
-                React.startTransition(() => {
+                forcePlaybackMethodFn(forcePlaybackMethod, () => {
                     // If auto-select file is enabled, open the debrid stream select drawer
                     if (autoSelectFile) {
                         setTorrentSearchDrawerOpen("debridstream-select")
-
                         // Set the debrid stream autoplay info
                         handleSetDebridstreamAutoplayInfo(episode)
                     } else {
@@ -327,6 +337,9 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                         episodeCollection={episodeCollection}
                         entry={entry}
                         onEpisodeClick={handleEpisodeClick}
+                        onPlayExternallyEpisodeClick={!isUsingNativePlayer ? undefined : (episode) => {
+                            handleEpisodeClick(episode, "playbackmanager")
+                        }}
                         onPlayNextEpisodeOnMount={handlePlayNextEpisodeOnMount}
                         bottomSection={bottomSection}
                     />

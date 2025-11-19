@@ -1,4 +1,4 @@
-import { HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import {
     ElectronPlaybackMethod,
@@ -11,6 +11,7 @@ import {
     __torrentstream__loadingStateAtom,
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { __torrentStream_currentSessionAutoSelectAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
+import { ForcePlaybackMethod, useForcePlaybackMethod } from "@/app/(main)/entry/_lib/handle-play-media"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
@@ -46,60 +47,76 @@ export function useHandleStartTorrentStream() {
 
     const setCurrentSessionAutoSelect = useSetAtom(__torrentStream_currentSessionAutoSelectAtom)
 
-    const playbackType = React.useMemo<Torrentstream_PlaybackType>(() => {
-        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+    const { resetForcePlaybackMethod, getForcePlaybackMethod } = useForcePlaybackMethod()
+
+    const getPlaybackType = React.useCallback((forcePlaybackMethod?: ForcePlaybackMethod) => {
+        if (
+            (!forcePlaybackMethod && __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "nativeplayer")
+        ) {
             return "nativeplayer"
         }
-        if (!!externalPlayerLink?.length && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
+        if (!!externalPlayerLink?.length && (
+            (!forcePlaybackMethod && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "externalPlayerLink")
+        )) {
             return "externalPlayerLink"
         }
         return "default"
-    }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
+    }, [externalPlayerLink, torrentStreamingPlayback, electronPlaybackMethod])
 
-    const handleStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
-        logger("TORRENT STREAM SELECTION").info("Starting torrent stream", params)
-        mutate({
-            mediaId: params.mediaId,
-            episodeNumber: params.episodeNumber,
-            torrent: params.torrent,
-            aniDBEpisode: params.aniDBEpisode,
-            autoSelect: false,
-            fileIndex: params.chosenFileIndex ?? undefined,
-            playbackType: playbackType,
-            clientId: clientId || "",
-            batchEpisodeFiles: params.batchEpisodeFiles,
-        }, {
-            onSuccess: () => {
-                // setLoadingState(null)
-            },
-            onError: () => {
-                setLoadingState(null)
-                setIsLoaded(false)
-            },
-        })
-    }, [playbackType, clientId])
+    const handleStreamSelection = (params: ManualTorrentStreamSelectionProps) => {
+        (async () => {
+            logger("TORRENT STREAM SELECTION").info("Starting torrent stream", params, getPlaybackType(getForcePlaybackMethod()))
+            mutate({
+                mediaId: params.mediaId,
+                episodeNumber: params.episodeNumber,
+                torrent: params.torrent,
+                aniDBEpisode: params.aniDBEpisode,
+                autoSelect: false,
+                fileIndex: params.chosenFileIndex ?? undefined,
+                playbackType: getPlaybackType(getForcePlaybackMethod()),
+                clientId: clientId || "",
+                batchEpisodeFiles: params.batchEpisodeFiles,
+            }, {
+                onSuccess: () => {
+                    // setLoadingState(null)
+                },
+                onError: () => {
+                    setLoadingState(null)
+                    setIsLoaded(false)
+                },
+            })
+            resetForcePlaybackMethod()
+        })()
+    }
 
-    const handleAutoSelectStream = React.useCallback((params: AutoSelectTorrentStreamProps) => {
-        mutate({
-            mediaId: params.mediaId,
-            episodeNumber: params.episodeNumber,
-            aniDBEpisode: params.aniDBEpisode,
-            autoSelect: true,
-            torrent: undefined,
-            playbackType: playbackType,
-            clientId: clientId || "",
-        }, {
-            onError: () => {
-                setLoadingState(null)
-                setIsLoaded(false)
-                React.startTransition(() => {
-                    setCurrentSessionAutoSelect(false)
-                })
-            },
-        })
-    }, [playbackType, clientId])
+    const handleAutoSelectStream = (params: AutoSelectTorrentStreamProps) => {
+        (async () => {
+            logger("TORRENT STREAM SELECTION").info("Starting torrent stream (auto select)", params, getPlaybackType(getForcePlaybackMethod()))
+            mutate({
+                mediaId: params.mediaId,
+                episodeNumber: params.episodeNumber,
+                aniDBEpisode: params.aniDBEpisode,
+                autoSelect: true,
+                torrent: undefined,
+                playbackType: getPlaybackType(getForcePlaybackMethod()),
+                clientId: clientId || "",
+            }, {
+                onError: () => {
+                    setLoadingState(null)
+                    setIsLoaded(false)
+                    React.startTransition(() => {
+                        setCurrentSessionAutoSelect(false)
+                    })
+                },
+            })
+            resetForcePlaybackMethod()
+        })()
+    }
 
     return {
+        isUsingNativePlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
         handleStreamSelection,
         handleAutoSelectStream,
         isPending,

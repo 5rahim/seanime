@@ -3910,6 +3910,33 @@ export type Nakama_MessageResponse = {
 }
 
 /**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaAnimeLibrary = {
+    localFiles?: Array<Anime_LocalFile>
+    animeCollection?: AL_AnimeCollection
+}
+
+/**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaCustomSourceMap = Record<number, string>
+
+/**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaLocalFiles = {
+    localFiles?: Array<Anime_LocalFile>
+    customSourceMap: Nakama_NakamaCustomSourceMap
+}
+
+/**
  * - Filepath: internal/nakama/nakama.go
  * - Filename: nakama.go
  * - Package: nakama
