@@ -52,12 +52,12 @@ Seanime is a **media server** with a **web interface** and **desktop app** for w
 - Stream torrents directly to your media player without downloading using Bittorrent, Torbox and Real-Debrid
 - Support for qBittorrent, Transmission, Torbox and Real-Debrid for downloading
 - Auto-downloading for new episodes with custom filters
-- Built-in video player <sub>*(Denshi app only)*</sub> 
+- Built-in video player with Seanime Denshi
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
 - Online streaming with support for multiple web sources & extensions
 - Read and download manga chapters with support for multiple sources & extensions
-- Extensive extension and plugin system for adding new tools, sources, & providers.
+- Extension system for adding new sources and features
 - Schedule for tracking upcoming or missed episodes
 - Customizable UI
 - And more
@@ -83,10 +83,9 @@ This is a one-person project and may not meet every use case. If it doesn’t fu
 
 ### Not planned
 
-- Support for other build-in providers such as Trakt, SIMKL, etc. <sub>*(This does not include custom source plugins.)*</sub> 
+- Support for other build-in providers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
-- Support for other languages (translations) <sub>*(Translation plugin available.)*</sub> 
 
 Consider sponsoring or sharing the project if you want to see more features implemented.
 
@@ -110,5 +109,5 @@ Development and testing might require additional configuration.
 
 <br>
 
-> [!WARNING]
+> [!NOTE]
 > For copyright-related requests, please contact the maintainer using the provided contact information on [The Website](https://seanime.app/)
