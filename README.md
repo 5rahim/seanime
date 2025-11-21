@@ -14,7 +14,8 @@
   <a href="https://seanime.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
   <a href="https://www.youtube.com/playlist?list=PLgQO-Ih6JClhFFdEVuNQJejyX_8iH82gl">Tutorials</a> |
-  <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
+  <a href="https://discord.gg/Sbr7Phzt6m">Discord</a> |
+  <a href="https://seanime.app/docs/policies">Copyright</a>
 </p>
 
 <div align="center">
@@ -24,11 +25,11 @@
   <a href="https://github.com/5rahim/seanime/releases">
     <img src="https://img.shields.io/github/downloads/5rahim/seanime/total?style=flat-square&color=blue" alt="" />
   </a>
+	<a href="https://discord.gg/Aruz7wdAaf">
+	  <img src="https://img.shields.io/discord/1224767201551192224?style=flat-square&logo=Discord&color=blue&label=Discord" alt="discord">
+	</a>
   <a href="https://github.com/sponsors/5rahim">
     <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" alt="" />
-  </a>
-  <a href="https://discord.gg/Aruz7wdAaf">
-    <img src="https://img.shields.io/discord/1224767201551192224?style=flat-square" alt="chat">
   </a>
 </div>
 
@@ -83,7 +84,7 @@ This is a one-person project and may not meet every use case. If it doesn’t fu
 
 ### Not planned
 
-- Support for other build-in providers such as Trakt, SIMKL, etc.
+- Support for other trackers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
 
@@ -94,7 +95,6 @@ Consider sponsoring or sharing the project if you want to see more features impl
 The maintenance of this project is made possible by the sponsors.
 
 <p align="center">
-<!-- real-sponsors --><a href="https://github.com/tobenaii"><img src="https:&#x2F;&#x2F;github.com&#x2F;tobenaii.png" width="60px" alt="User avatar: tobenaii" /></a><!-- real-sponsors -->
 <!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
 </p>
 
@@ -110,4 +110,4 @@ Development and testing might require additional configuration.
 <br>
 
 > [!NOTE]
-> For copyright-related requests, please contact the maintainer using the provided contact information on [The Website](https://seanime.app/)
+> For copyright-related requests, please contact the maintainer using the contact information provided on [the website](https://seanime.app/docs/policies).
