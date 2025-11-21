@@ -65,14 +65,16 @@ export function useHandleStartDebridStream() {
     }, [externalPlayerLink, torrentStreamingPlayback, electronPlaybackMethod])
 
     const handleStreamSelection = (params: DebridStreamSelectionProps) => {
-        logger("DEBRID STREAM SELECTION").info("Starting debrid stream", params, getPlaybackType(getForcePlaybackMethod()))
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("DEBRID STREAM SELECTION").info("Starting debrid stream", params, getPlaybackType(forcePlaybackMethod))
         mutate({
             mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: params.torrent,
             aniDBEpisode: params.aniDBEpisode,
             fileId: params.chosenFileId,
-            playbackType: getPlaybackType(getForcePlaybackMethod()),
+            playbackType: getPlaybackType(forcePlaybackMethod),
             clientId: clientId || "",
             autoSelect: false,
             batchEpisodeFiles: params.batchEpisodeFiles,
@@ -83,18 +85,19 @@ export function useHandleStartDebridStream() {
                 setState(null)
             },
         })
-        resetForcePlaybackMethod()
     }
 
     const handleAutoSelectStream = (params: DebridStreamAutoSelectProps) => {
-        logger("DEBRID STREAM SELECTION").info("Starting debrid stream (auto select)", params, getPlaybackType(getForcePlaybackMethod()))
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("DEBRID STREAM SELECTION").info("Starting debrid stream (auto select)", params, getPlaybackType(forcePlaybackMethod))
         mutate({
             mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: undefined,
             aniDBEpisode: params.aniDBEpisode,
             fileId: "",
-            playbackType: getPlaybackType(getForcePlaybackMethod()),
+            playbackType: getPlaybackType(forcePlaybackMethod),
             clientId: clientId || "",
             autoSelect: true,
         }, {
@@ -107,7 +110,6 @@ export function useHandleStartDebridStream() {
                 })
             },
         })
-        resetForcePlaybackMethod()
     }
 
     return {

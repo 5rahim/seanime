@@ -42,7 +42,7 @@ export function useHandlePlayMedia() {
 
     const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
 
-    const { getForcePlaybackMethod } = useForcePlaybackMethod()
+    const { getForcePlaybackMethod, resetForcePlaybackMethod } = useForcePlaybackMethod()
 
     function playMediaFile({
         path,
@@ -56,6 +56,7 @@ export function useHandlePlayMedia() {
         const anidbEpisode = episode.localFile?.metadata?.aniDBEpisode ?? ""
 
         const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
 
         setTorrentstreamAutoplayInfo(null)
 

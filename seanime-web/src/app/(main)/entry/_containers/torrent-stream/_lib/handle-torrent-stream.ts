@@ -66,53 +66,51 @@ export function useHandleStartTorrentStream() {
     }, [externalPlayerLink, torrentStreamingPlayback, electronPlaybackMethod])
 
     const handleStreamSelection = (params: ManualTorrentStreamSelectionProps) => {
-        (async () => {
-            logger("TORRENT STREAM SELECTION").info("Starting torrent stream", params, getPlaybackType(getForcePlaybackMethod()))
-            mutate({
-                mediaId: params.mediaId,
-                episodeNumber: params.episodeNumber,
-                torrent: params.torrent,
-                aniDBEpisode: params.aniDBEpisode,
-                autoSelect: false,
-                fileIndex: params.chosenFileIndex ?? undefined,
-                playbackType: getPlaybackType(getForcePlaybackMethod()),
-                clientId: clientId || "",
-                batchEpisodeFiles: params.batchEpisodeFiles,
-            }, {
-                onSuccess: () => {
-                    // setLoadingState(null)
-                },
-                onError: () => {
-                    setLoadingState(null)
-                    setIsLoaded(false)
-                },
-            })
-            resetForcePlaybackMethod()
-        })()
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("TORRENT STREAM SELECTION").info("Starting torrent stream", params, getPlaybackType(forcePlaybackMethod))
+        mutate({
+            mediaId: params.mediaId,
+            episodeNumber: params.episodeNumber,
+            torrent: params.torrent,
+            aniDBEpisode: params.aniDBEpisode,
+            autoSelect: false,
+            fileIndex: params.chosenFileIndex ?? undefined,
+            playbackType: getPlaybackType(forcePlaybackMethod),
+            clientId: clientId || "",
+            batchEpisodeFiles: params.batchEpisodeFiles,
+        }, {
+            onSuccess: () => {
+                // setLoadingState(null)
+            },
+            onError: () => {
+                setLoadingState(null)
+                setIsLoaded(false)
+            },
+        })
     }
 
     const handleAutoSelectStream = (params: AutoSelectTorrentStreamProps) => {
-        (async () => {
-            logger("TORRENT STREAM SELECTION").info("Starting torrent stream (auto select)", params, getPlaybackType(getForcePlaybackMethod()))
-            mutate({
-                mediaId: params.mediaId,
-                episodeNumber: params.episodeNumber,
-                aniDBEpisode: params.aniDBEpisode,
-                autoSelect: true,
-                torrent: undefined,
-                playbackType: getPlaybackType(getForcePlaybackMethod()),
-                clientId: clientId || "",
-            }, {
-                onError: () => {
-                    setLoadingState(null)
-                    setIsLoaded(false)
-                    React.startTransition(() => {
-                        setCurrentSessionAutoSelect(false)
-                    })
-                },
-            })
-            resetForcePlaybackMethod()
-        })()
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("TORRENT STREAM SELECTION").info("Starting torrent stream (auto select)", params, getPlaybackType(forcePlaybackMethod))
+        mutate({
+            mediaId: params.mediaId,
+            episodeNumber: params.episodeNumber,
+            aniDBEpisode: params.aniDBEpisode,
+            autoSelect: true,
+            torrent: undefined,
+            playbackType: getPlaybackType(forcePlaybackMethod),
+            clientId: clientId || "",
+        }, {
+            onError: () => {
+                setLoadingState(null)
+                setIsLoaded(false)
+                React.startTransition(() => {
+                    setCurrentSessionAutoSelect(false)
+                })
+            },
+        })
     }
 
     return {
