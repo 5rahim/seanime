@@ -40,25 +40,30 @@ Leave a star if you like the project! ⭐️
 
 ## About
 
-Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, managing your local library, and reading manga.
+Seanime is a **media server** with a **web interface** and **desktop app** for managing your local library, streaming anime and reading manga.
+
+> [!IMPORTANT]
+>Seanime does not provide, host, or distribute any media content. Users are responsible for obtaining media through legal means and complying with their local laws. Extensions listed on the app are unaffiliated with Seanime and may be removed if they violated copyright laws. </strong>
+
 
 ## Features
 
 
 - Cross-platform web interface and desktop app
+- Built-in video player with Seanime Denshi (supports SSA/ASS subtitles, Anime4K sharpening, and more)
 - Complete AniList integration (browse, manage, score, discover, etc.)
-- Offline mode for both anime and manga
-- Scan your local library in seconds, no renaming needed
-- Integrated torrent search engine
+- Custom source support for adding series not available on AniList and even non-anime/manga series
+- Offline mode for use without an internet connection
+- Scan your anime library in seconds (no renaming or special folder structure required)
+- Integrated torrent search engine for extensions
 - Stream torrents directly to your media player without downloading using Bittorrent, Torbox and Real-Debrid
 - Support for qBittorrent, Transmission, Torbox and Real-Debrid for downloading
-- Auto-downloading for new episodes with custom filters
-- Built-in video player with Seanime Denshi
-- MPV, VLC, MPC-HC, and mobile player app support for watching
+- Automatically download new episodes with custom filters
+- MPV, VLC and MPC-HC support for watching on desktop
+- Watch on mobile with external player links to mobile apps (Outplayer, VLC, etc.)
 - Transcoding and direct play for streaming to any device web browser
-- Online streaming with support for multiple web sources & extensions
-- Read and download manga chapters with support for multiple sources & extensions
-- Extension system for adding new sources and features
+- Online streaming support for extensions
+- Read manga chapters from your local library or extensions
 - Schedule for tracking upcoming or missed episodes
 - Customizable UI
 - And more
@@ -74,9 +79,6 @@ How to install Seanime
 </p>
 
 <br>
-
-> [!IMPORTANT]
->Seanime does **not** provide, host, or distribute any media content. **You** are responsible for obtaining media content through legal means. The software is a tool for organizing and consuming content you already own or have legal access to. By using Seanime, you agree to comply with your local laws and regulations. </strong>
 
 ## Goal
 
