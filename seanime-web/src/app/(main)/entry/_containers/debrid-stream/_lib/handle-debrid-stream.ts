@@ -1,4 +1,4 @@
-import { HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, HibikeTorrent_BatchEpisodeFiles } from "@/api/generated/types"
 import { useDebridStartStream } from "@/api/hooks/debrid.hooks"
 import {
     ElectronPlaybackMethod,
@@ -8,6 +8,7 @@ import {
 } from "@/app/(main)/_atoms/playback.atoms"
 import { __debridstream_stateAtom } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-overlay"
 import { __debridStream_currentSessionAutoSelectAtom } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
+import { ForcePlaybackMethod, useForcePlaybackMethod } from "@/app/(main)/entry/_lib/handle-play-media"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
@@ -23,11 +24,13 @@ type DebridStreamSelectionProps = {
     aniDBEpisode: string
     chosenFileId: string
     batchEpisodeFiles: HibikeTorrent_BatchEpisodeFiles | undefined
+    forcePlaybackMethod?: ForcePlaybackMethod
 }
 type DebridStreamAutoSelectProps = {
     mediaId: number
     episodeNumber: number
     aniDBEpisode: string
+    forcePlaybackMethod?: ForcePlaybackMethod
 }
 
 export function useHandleStartDebridStream() {
@@ -43,25 +46,35 @@ export function useHandleStartDebridStream() {
 
     const [state, setState] = useAtom(__debridstream_stateAtom)
 
-    const playbackType = React.useMemo<Torrentstream_PlaybackType>(() => {
-        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+    const { resetForcePlaybackMethod, getForcePlaybackMethod } = useForcePlaybackMethod()
+
+    const getPlaybackType = React.useCallback((forcePlaybackMethod?: ForcePlaybackMethod) => {
+        if (
+            (!forcePlaybackMethod && __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "nativeplayer")
+        ) {
             return "nativeplayer"
         }
-        if (!!externalPlayerLink?.length && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) {
+        if (!!externalPlayerLink?.length && (
+            (!forcePlaybackMethod && torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "externalPlayerLink")
+        )) {
             return "externalPlayerLink"
         }
         return "default"
-    }, [torrentStreamingPlayback, externalPlayerLink, electronPlaybackMethod])
+    }, [externalPlayerLink, torrentStreamingPlayback, electronPlaybackMethod])
 
-    const handleStreamSelection = React.useCallback((params: DebridStreamSelectionProps) => {
-        logger("DEBRID STREAM SELECTION").info("Starting debrid stream", params)
+    const handleStreamSelection = (params: DebridStreamSelectionProps) => {
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("DEBRID STREAM SELECTION").info("Starting debrid stream", params, getPlaybackType(forcePlaybackMethod))
         mutate({
             mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: params.torrent,
             aniDBEpisode: params.aniDBEpisode,
             fileId: params.chosenFileId,
-            playbackType: playbackType,
+            playbackType: getPlaybackType(forcePlaybackMethod),
             clientId: clientId || "",
             autoSelect: false,
             batchEpisodeFiles: params.batchEpisodeFiles,
@@ -72,16 +85,19 @@ export function useHandleStartDebridStream() {
                 setState(null)
             },
         })
-    }, [playbackType, clientId])
+    }
 
-    const handleAutoSelectStream = React.useCallback((params: DebridStreamAutoSelectProps) => {
+    const handleAutoSelectStream = (params: DebridStreamAutoSelectProps) => {
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
+        logger("DEBRID STREAM SELECTION").info("Starting debrid stream (auto select)", params, getPlaybackType(forcePlaybackMethod))
         mutate({
             mediaId: params.mediaId,
             episodeNumber: params.episodeNumber,
             torrent: undefined,
             aniDBEpisode: params.aniDBEpisode,
             fileId: "",
-            playbackType: playbackType,
+            playbackType: getPlaybackType(forcePlaybackMethod),
             clientId: clientId || "",
             autoSelect: true,
         }, {
@@ -94,9 +110,10 @@ export function useHandleStartDebridStream() {
                 })
             },
         })
-    }, [playbackType, clientId])
+    }
 
     return {
+        isUsingNativePlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
         handleStreamSelection,
         handleAutoSelectStream,
         isPending,

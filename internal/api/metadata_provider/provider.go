@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/animap"
+	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/customsource"
 	"seanime/internal/database/db"
@@ -14,6 +15,7 @@ import (
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -30,6 +32,7 @@ type (
 		extensionBank       *extension.UnifiedBank
 		customSourceManager *customsource.Manager
 		db                  *db.Database
+		useFallbackProvider atomic.Bool
 	}
 
 	NewProviderImplOptions struct {
@@ -42,13 +45,11 @@ type (
 		// GetAnimeMetadata fetches anime metadata for the given platform from a source.
 		// In this case, the source is api.ani.zip.
 		GetAnimeMetadata(platform metadata.Platform, mId int) (*metadata.AnimeMetadata, error)
-
-		GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata]
 		// GetAnimeMetadataWrapper creates a wrapper for anime metadata.
 		GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) AnimeMetadataWrapper
-
 		InitExtensionBank(bank *extension.UnifiedBank)
-
+		GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata]
+		SetUseFallbackProvider(bool)
 		Close()
 	}
 
@@ -85,11 +86,19 @@ func (p *ProviderImpl) InitExtensionBank(bank *extension.UnifiedBank) {
 
 func (p *ProviderImpl) Close() {
 	p.customSourceManager.Close()
+	go p.animeMetadataCache.Clear()
 }
 
 // GetCache returns the anime metadata cache.
 func (p *ProviderImpl) GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata] {
 	return p.animeMetadataCache
+}
+
+func (p *ProviderImpl) SetUseFallbackProvider(useFallback bool) {
+	if useFallback != p.useFallbackProvider.Load() {
+		go p.animeMetadataCache.Clear()
+	}
+	p.useFallbackProvider.Store(useFallback)
 }
 
 func (p *ProviderImpl) GetAnimeMetadata(platform metadata.Platform, mId int) (ret *metadata.AnimeMetadata, err error) {
@@ -161,10 +170,13 @@ func (p *ProviderImpl) fetchAnimeMetadata(platform metadata.Platform, mId int) (
 			return nil, err
 		}
 		ret = m
+	} else if p.useFallbackProvider.Load() {
+		return p.AnizipFallback(platform, mId)
 	} else {
+		p.logger.Debug().Msgf("animap: Fetching metadata for %d", mId)
+
 		m, err := animap.FetchAnimapMedia(string(platform), mId)
 		if err != nil || m == nil {
-			//return p.AnizipFallback(platform, mId)
 			return nil, err
 		}
 
@@ -262,4 +274,122 @@ func (p *ProviderImpl) GetAnimeMetadataWrapper(media *anilist.BaseAnime, m *meta
 	}
 
 	return aw
+}
+
+func (p *ProviderImpl) AnizipFallback(platform metadata.Platform, mId int) (ret *metadata.AnimeMetadata, err error) {
+	ret, ok := p.animeMetadataCache.Get(GetAnimeMetadataCacheKey(platform, mId))
+	if ok {
+		return ret, nil
+	}
+
+	ret = &metadata.AnimeMetadata{
+		Titles:       make(map[string]string),
+		Episodes:     make(map[string]*metadata.EpisodeMetadata),
+		EpisodeCount: 0,
+		SpecialCount: 0,
+		Mappings:     &metadata.AnimeMappings{},
+	}
+
+	// Invoke AnimeMetadataRequested hook
+	reqEvent := &metadata.AnimeMetadataRequestedEvent{
+		MediaId:       mId,
+		AnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadataRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	mId = reqEvent.MediaId
+
+	// Default prevented by hook, return the metadata
+	if reqEvent.DefaultPrevented {
+		// Override the metadata
+		ret = reqEvent.AnimeMetadata
+
+		// Trigger the event
+		event := &metadata.AnimeMetadataEvent{
+			MediaId:       mId,
+			AnimeMetadata: ret,
+		}
+		err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		ret = event.AnimeMetadata
+		mId = event.MediaId
+
+		if ret == nil {
+			return nil, errors.New("no metadata was returned")
+		}
+		p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
+		return ret, nil
+	}
+
+	p.logger.Debug().Msgf("anizip: Fetching metadata for %d", mId)
+
+	anizipMedia, err := anizip.FetchAniZipMedia(string(platform), mId)
+	if err != nil || anizipMedia == nil {
+		return nil, err
+	}
+
+	ret.Titles = anizipMedia.Titles
+	ret.EpisodeCount = anizipMedia.EpisodeCount
+	ret.SpecialCount = anizipMedia.SpecialCount
+	ret.Mappings.AnimeplanetId = anizipMedia.Mappings.AnimeplanetID
+	ret.Mappings.KitsuId = anizipMedia.Mappings.KitsuID
+	ret.Mappings.MalId = anizipMedia.Mappings.MalID
+	ret.Mappings.Type = anizipMedia.Mappings.Type
+	ret.Mappings.AnilistId = anizipMedia.Mappings.AnilistID
+	ret.Mappings.AnisearchId = anizipMedia.Mappings.AnisearchID
+	ret.Mappings.AnidbId = anizipMedia.Mappings.AnidbID
+	ret.Mappings.NotifymoeId = anizipMedia.Mappings.NotifymoeID
+	ret.Mappings.LivechartId = anizipMedia.Mappings.LivechartID
+	ret.Mappings.ThetvdbId = anizipMedia.Mappings.ThetvdbID
+	ret.Mappings.ImdbId = anizipMedia.Mappings.ImdbID
+	ret.Mappings.ThemoviedbId = anizipMedia.Mappings.ThemoviedbID
+
+	for key, ep := range anizipMedia.Episodes {
+		em := &metadata.EpisodeMetadata{
+			AnidbId:               ep.AnidbEid,
+			TvdbId:                ep.TvdbEid,
+			Title:                 ep.GetTitle(),
+			Image:                 ep.Image,
+			AirDate:               ep.AirDate,
+			Length:                ep.Runtime,
+			Summary:               strings.ReplaceAll(ep.Summary, "`", "'"),
+			Overview:              strings.ReplaceAll(ep.Overview, "`", "'"),
+			EpisodeNumber:         ep.EpisodeNumber,
+			Episode:               ep.Episode,
+			SeasonNumber:          ep.SeasonNumber,
+			AbsoluteEpisodeNumber: ep.AbsoluteEpisodeNumber,
+			AnidbEid:              ep.AnidbEid,
+			HasImage:              ep.Image != "",
+		}
+		if em.Length == 0 && ep.Length > 0 {
+			em.Length = ep.Length
+		}
+		if em.Summary == "" && ep.Overview != "" {
+			em.Summary = ep.Overview
+		}
+		if em.Overview == "" && ep.Summary != "" {
+			em.Overview = ep.Summary
+		}
+		ret.Episodes[key] = em
+	}
+
+	// Event
+	event := &metadata.AnimeMetadataEvent{
+		MediaId:       mId,
+		AnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadata().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+	ret = event.AnimeMetadata
+	mId = event.MediaId
+
+	p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
+
+	return ret, nil
 }

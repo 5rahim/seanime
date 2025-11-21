@@ -43,6 +43,7 @@ type Status struct {
 	Updating              bool                          `json:"updating"`         // If true, a new screen will be displayed
 	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
 	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
+	DisabledFeatures      []core.FeatureKey             `json:"disabledFeatures"`
 	ServerReady           bool                          `json:"serverReady"`
 	ServerHasPassword     bool                          `json:"serverHasPassword"`
 }
@@ -105,6 +106,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		FeatureFlags:          h.App.FeatureFlags,
 		ServerReady:           h.App.ServerReady,
 		ServerHasPassword:     h.App.Config.Server.Password != "",
+		DisabledFeatures:      h.App.FeatureManager.DisabledFeatures,
 	}
 
 	if c.Get("unauthenticated") != nil && c.Get("unauthenticated").(bool) {

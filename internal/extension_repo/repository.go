@@ -249,6 +249,7 @@ func (r *Repository) GetExtensionPayload(id string) (ret string) {
 			}
 
 			ret, _ = r.downloadPayload(ext.PayloadURI)
+			return
 		}
 		return ""
 	}

@@ -1771,17 +1771,17 @@
 //     })
 // }
 
-// export function useGetNakamaAnimeLibraryCollection() {
-//     return useServerQuery<Anime_LibraryCollection>({
-//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.endpoint,
-//         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.methods[0],
-//         queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryCollection.key],
+// export function useGetNakamaAnimeLibraryShared() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryShared.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryShared.methods[0],
+//         queryKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryShared.key],
 //         enabled: true,
 //     })
 // }
 
 // export function useGetNakamaAnimeLibraryFiles(id: number) {
-//     return useServerMutation<Array<Anime_LocalFile>>({
+//     return useServerMutation<Nakama_NakamaLocalFiles>({
 //         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.endpoint.replace("{id}", String(id)),
 //         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeLibraryFiles.key],
@@ -1792,7 +1792,7 @@
 // }
 
 // export function useGetNakamaAnimeAllLibraryFiles() {
-//     return useServerMutation<Array<Anime_LocalFile>>({
+//     return useServerMutation<Nakama_NakamaLocalFiles>({
 //         endpoint: API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.endpoint,
 //         method: API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.GetNakamaAnimeAllLibraryFiles.key],

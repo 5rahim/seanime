@@ -500,7 +500,7 @@ func (s *BaseStream) OnSubtitleFileUploaded(filename string, content string) {
 
 	track := &mkvparser.TrackInfo{
 		Number:       num,
-		UID:          num + 900,
+		UID:          uint64(num + 900),
 		Type:         mkvparser.TrackTypeSubtitle,
 		CodecID:      "S_TEXT/ASS",
 		Name:         name,

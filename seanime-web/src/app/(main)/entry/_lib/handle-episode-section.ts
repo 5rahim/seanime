@@ -50,7 +50,6 @@ export function useHandleEpisodeSection(props: { entry: Anime_Entry }) {
 
     return {
         media,
-        playMediaFile,
         mainEpisodes,
         specialEpisodes,
         ncEpisodes,

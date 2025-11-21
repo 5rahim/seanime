@@ -18,7 +18,7 @@ import (
 
 // connectToHost establishes a connection to the Nakama host
 func (m *Manager) connectToHost() {
-	if m.settings == nil || !m.settings.Enabled || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
+	if *m.isOffline || m.settings == nil || !m.settings.Enabled || m.settings.RemoteServerURL == "" || m.settings.RemoteServerPassword == "" {
 		return
 	}
 

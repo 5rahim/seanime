@@ -6858,7 +6858,7 @@
       "\t@summary shares the local anime collection with Nakama clients.",
       "\t@desc This creates a new LibraryCollection struct and returns it.",
       "\t@desc This is used to share the local anime collection with Nakama clients.",
-      "\t@route /api/v1/nakama/host/anime/library/collection [GET]",
+      "\t@route /api/v1/nakama/host/anime/library [GET]",
       "\t@returns nakama.NakamaAnimeLibrary",
       ""
     ],
@@ -6870,7 +6870,7 @@
         "This creates a new LibraryCollection struct and returns it.",
         "This is used to share the local anime collection with Nakama clients."
       ],
-      "endpoint": "/api/v1/nakama/host/anime/library/collection",
+      "endpoint": "/api/v1/nakama/host/anime/library",
       "methods": [
         "GET"
       ],
@@ -6882,35 +6882,33 @@
     }
   },
   {
-    "name": "HandleGetNakamaAnimeLibraryCollection",
-    "trimmedName": "GetNakamaAnimeLibraryCollection",
+    "name": "HandleGetNakamaAnimeLibraryShared",
+    "trimmedName": "GetNakamaAnimeLibraryShared",
     "comments": [
-      "HandleGetNakamaAnimeLibraryCollection",
+      "HandleGetNakamaAnimeLibraryShared",
       "",
-      "\t@summary shares the local anime collection with Nakama clients.",
-      "\t@desc This creates a new LibraryCollection struct and returns it.",
-      "\t@desc This is used to share the local anime collection with Nakama clients.",
-      "\t@route /api/v1/nakama/host/anime/library/collection [GET]",
-      "\t@returns anime.LibraryCollection",
+      "\t@summary returns true if the library is being shared.",
+      "\t@desc This is used by Nakama peers to check if the library is being shared.",
+      "\t@route /api/v1/nakama/host/anime/library/shared [GET]",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",
     "filename": "nakama.go",
     "api": {
-      "summary": "shares the local anime collection with Nakama clients.",
+      "summary": "returns true if the library is being shared.",
       "descriptions": [
-        "This creates a new LibraryCollection struct and returns it.",
-        "This is used to share the local anime collection with Nakama clients."
+        "This is used by Nakama peers to check if the library is being shared."
       ],
-      "endpoint": "/api/v1/nakama/host/anime/library/collection",
+      "endpoint": "/api/v1/nakama/host/anime/library/shared",
       "methods": [
         "GET"
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "anime.LibraryCollection",
-      "returnGoType": "anime.LibraryCollection",
-      "returnTypescriptType": "Anime_LibraryCollection"
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -6923,7 +6921,7 @@
       "\t@desc This is used by the anime media entry pages to get all the data about the anime.",
       "\t@route /api/v1/nakama/host/anime/library/files/{id} [POST]",
       "\t@param id - int - true - \"AniList anime media ID\"",
-      "\t@returns []anime.LocalFile",
+      "\t@returns nakama.NakamaLocalFiles",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",
@@ -6951,9 +6949,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "[]anime.LocalFile",
-      "returnGoType": "anime.LocalFile",
-      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+      "returns": "nakama.NakamaLocalFiles",
+      "returnGoType": "nakama.NakamaLocalFiles",
+      "returnTypescriptType": "Nakama_NakamaLocalFiles"
     }
   },
   {
@@ -6965,7 +6963,7 @@
       "\t@summary return all the local files for the host.",
       "\t@desc This is used to share the local anime collection with Nakama clients.",
       "\t@route /api/v1/nakama/host/anime/library/files [POST]",
-      "\t@returns []anime.LocalFile",
+      "\t@returns nakama.NakamaLocalFiles",
       ""
     ],
     "filepath": "internal/handlers/nakama.go",
@@ -6981,9 +6979,52 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]anime.LocalFile",
-      "returnGoType": "anime.LocalFile",
-      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+      "returns": "nakama.NakamaLocalFiles",
+      "returnGoType": "nakama.NakamaLocalFiles",
+      "returnTypescriptType": "Nakama_NakamaLocalFiles"
+    }
+  },
+  {
+    "name": "getFilteredLocalFiles",
+    "trimmedName": "getFilteredLocalFiles",
+    "comments": [
+      "getFilteredLocalFiles retrieves and filters local files based on unshared anime IDs.",
+      "If mediaId is 0, returns all shared files. Otherwise, returns files for the specified media ID.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "buildNakamaLocalFiles",
+    "trimmedName": "buildNakamaLocalFiles",
+    "comments": [
+      "buildNakamaLocalFiles constructs a NakamaLocalFiles response with custom source mappings.",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -7042,6 +7083,15 @@
           "usedStructType": "",
           "typescriptType": "string",
           "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ForcePlaybackMethod",
+          "jsonName": "forcePlaybackMethod",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
           "descriptions": []
         }
       ],

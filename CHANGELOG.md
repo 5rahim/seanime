@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.5
+
+- ⚡️ Denshi: Added "Play externally" context menu option to episode cards
+- ⚡️ Nakama: Added support for sharing custom source media
+  - Shared episodes from custom sources are not supported by playlists
+- ⚡️ Denshi: Alt/Cmd+Arrow keys for navigation
+- 🦺 Denshi Player: Fixed parsing of Matroska files (missing subtitle tracks)
+- 🦺 Manga: Fixed "reload sources" not working
+- 🦺 Schedule: Fixed schedule breaking due to custom sources
+- 🦺 Nakama: Fixed "Resolve hidden media" appearing on peer's home screen
+- 🦺 Offline: Fixed local chapters being ignored when syncing
+- 🦺 Extensions: Fixed "View extension code" when downloading code
+- 🦺 Server: Fixed image proxy
+- 🏗️ Denshi: Implemented new Matroska Parser
+- 🏗️ Server: Added -host, -port, -password, -disable-password, -disable-features [list], -disable-all-features flags
+
 ## v3.0.4
 
 - ⚡️ Extensions: Increased custom source ID limit (Breaking)

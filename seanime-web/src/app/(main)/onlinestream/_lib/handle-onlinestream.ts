@@ -30,11 +30,11 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
 
     const { data, isLoading, isFetching, isSuccess, isError } = useGetOnlineStreamEpisodeList(mId, provider, dubbed)
 
-    React.useEffect(() => {
-        if (isError) {
-            router.push("/")
-        }
-    }, [isError])
+    // React.useEffect(() => {
+    //     if (isError) {
+    //         router.push("/")
+    //     }
+    // }, [isError])
 
     return {
         media: data?.media,

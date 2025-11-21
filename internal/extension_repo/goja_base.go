@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/plugin"
@@ -24,9 +25,16 @@ type gojaProviderBase struct {
 	runtimeManager *goja_runtime.Manager
 	store          *plugin.Store[string, any]
 	scheduler      *goja_util.Scheduler
+	wsEventManager events.WSEventManagerInterface
 }
 
-func initializeProviderBase(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*gojaProviderBase, error) {
+func initializeProviderBase(
+	ext *extension.Extension,
+	language extension.Language,
+	logger *zerolog.Logger,
+	runtimeManager *goja_runtime.Manager,
+	wsEventManager events.WSEventManagerInterface,
+) (*gojaProviderBase, error) {
 	// initFn, pr, err := SetupGojaExtensionVM(ext, language, logger)
 	// if err != nil {
 	// 	return nil, err
@@ -57,6 +65,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		runtimeManager: runtimeManager,
 		store:          plugin.NewStore[string, any](nil), // Create a store (must be stopped when unloading)
 		scheduler:      goja_util.NewScheduler(),          // Create a scheduler (must be stopped when unloading)
+		wsEventManager: wsEventManager,
 	}
 
 	initFn := func() *goja.Runtime {
@@ -64,7 +73,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		vm.SetParserOptions(parser.WithDisableSourceMaps)
 		providerBase.store.Bind(vm, providerBase.scheduler)
 		// Bind the shared bindings
-		ShareBinds(vm, logger)
+		ShareBinds(vm, logger, ext, wsEventManager)
 		goja_util.BindMutable(vm)
 		BindUserConfig(vm, ext, logger)
 		return vm

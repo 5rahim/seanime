@@ -121,7 +121,7 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 		return strings.HasPrefix(filename, "manga_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
 
-	_ = r.fileCacher.Close()
+	_ = r.fileCacher.Clear()
 	return
 }
 

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"seanime/internal/api/anilist"
+	"seanime/internal/customsource"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
@@ -28,9 +29,31 @@ import (
 
 func (h *Handler) getAnimeEntry(c echo.Context, lfs []*anime.LocalFile, mId int) (*anime.Entry, error) {
 	// Get the host anime library files
-	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
+	nakamaLfs, customSourceMap, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
 	if hydratedFromNakama && nakamaLfs != nil {
 		lfs = nakamaLfs
+		// for each local file, if it's matched to a custom source, convert the ID using the local extension identifier
+		// this is needed because the custom source media ID returned by the host will not match the local one
+		for _, lf := range lfs {
+			if !customsource.IsExtensionId(lf.MediaId) {
+				continue
+			}
+			_, localId := customsource.ExtractExtensionData(lf.MediaId)
+			extensionId, ok := customSourceMap[lf.MediaId]
+			if !ok {
+				continue // custom source not found
+			}
+
+			// Find the same extension, if it's not installed, skip it
+			customSource, ok := h.App.ExtensionRepository.GetCustomSourceExtensionByID(extensionId)
+			if !ok {
+				continue
+			}
+
+			// Generate a new ID for the custom source media
+			newId := customsource.GenerateMediaId(customSource.GetExtensionIdentifier(), localId)
+			lf.MediaId = newId
+		}
 	}
 
 	// Get the user's anilist collection

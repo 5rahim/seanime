@@ -26557,6 +26557,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "useFallbackProvider",
+        "jsonName": "useFallbackProvider",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -27796,6 +27807,28 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Flags",
+        "jsonName": "Flags",
+        "goType": "SeanimeFlags",
+        "typescriptType": "INTERNAL_SeanimeFlags",
+        "usedTypescriptType": "INTERNAL_SeanimeFlags",
+        "usedStructName": "core.SeanimeFlags",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FeatureManager",
+        "jsonName": "FeatureManager",
+        "goType": "FeatureManager",
+        "typescriptType": "INTERNAL_FeatureManager",
+        "usedTypescriptType": "INTERNAL_FeatureManager",
+        "usedStructName": "core.FeatureManager",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28357,15 +28390,15 @@
     "package": "core",
     "fields": [
       {
-        "name": "DataDir",
-        "jsonName": "DataDir",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Flags",
+        "jsonName": "Flags",
+        "goType": "SeanimeFlags",
+        "typescriptType": "INTERNAL_SeanimeFlags",
+        "usedTypescriptType": "INTERNAL_SeanimeFlags",
+        "usedStructName": "core.SeanimeFlags",
         "required": true,
         "public": true,
-        "comments": [
-          " The path to the Seanime data directory, if any"
-        ]
+        "comments": []
       },
       {
         "name": "OnVersionChange",
@@ -28386,17 +28419,6 @@
         "comments": [
           " The embedded logo"
         ]
-      },
-      {
-        "name": "IsDesktopSidecar",
-        "jsonName": "IsDesktopSidecar",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Run as the desktop sidecar"
-        ]
       }
     ],
     "comments": []
@@ -28408,6 +28430,91 @@
     "formattedName": "INTERNAL_CustomJSONSerializer",
     "package": "core",
     "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "FeatureKey",
+    "formattedName": "INTERNAL_FeatureKey",
+    "package": "core",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"ManageOfflineMode\"",
+        "\"ViewSettings\"",
+        "\"ViewLogs\"",
+        "\"UpdateSettings\"",
+        "\"ManagePlaylist\"",
+        "\"ManageLocalAnimeLibrary\"",
+        "\"ManageAccount\"",
+        "\"ViewAccount\"",
+        "\"ManageLists\"",
+        "\"RefreshMetadata\"",
+        "\"ManageMangaDownloads\"",
+        "\"WatchingLocalAnime\"",
+        "\"TorrentStreaming\"",
+        "\"DebridStreaming\"",
+        "\"OnlineStreaming\"",
+        "\"Transcode\"",
+        "\"Reading\"",
+        "\"ViewAutoDownloader\"",
+        "\"ManageAutoDownloader\"",
+        "\"ViewScanSummaries\"",
+        "\"ViewExtensions\"",
+        "\"ManageExtensions\"",
+        "\"ManageHomeScreen\"",
+        "\"OpenInExplorer\"",
+        "\"PluginTray\"",
+        "\"ManageNakama\"",
+        "\"ManageDebrid\"",
+        "\"Proxy\"",
+        "\"ManageMangaSource\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "FeatureManager",
+    "formattedName": "INTERNAL_FeatureManager",
+    "package": "core",
+    "fields": [
+      {
+        "name": "disabledFeatures",
+        "jsonName": "disabledFeatures",
+        "goType": "map[FeatureKey]bool",
+        "typescriptType": "Record\u003cFeatureKey, boolean\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "DisabledFeatures",
+        "jsonName": "DisabledFeatures",
+        "goType": "[]FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -28455,6 +28562,24 @@
         "comments": []
       },
       {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Update",
         "jsonName": "Update",
         "goType": "bool",
@@ -28466,6 +28591,44 @@
       {
         "name": "IsDesktopSidecar",
         "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableFeatures",
+        "jsonName": "DisableFeatures",
+        "goType": "[]FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Password",
+        "jsonName": "Password",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisablePassword",
+        "jsonName": "DisablePassword",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LockDown",
+        "jsonName": "LockDown",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -29236,6 +29399,15 @@
       {
         "name": "AutoSaveCurrentMediaOffline",
         "jsonName": "autoSaveCurrentMediaOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseFallbackMetadataProvider",
+        "jsonName": "useFallbackMetadataProvider",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -31282,6 +31454,37 @@
     "comments": [
       " CustomSourceCollection is parallel to the AniList collection, it stores custom source media."
     ],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "CustomSourceIdentifier",
+    "formattedName": "Models_CustomSourceIdentifier",
+    "package": "models",
+    "fields": [
+      {
+        "name": "ExtensionId",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
     "embeddedStructNames": [
       "models.BaseModel"
     ]
@@ -38828,8 +39031,8 @@
     "filepath": "../internal/extension/hibike/tracker/types.go",
     "filename": "types.go",
     "name": "Settings",
-    "formattedName": "HibikeCustomSource_Settings",
-    "package": "hibikecustomsource",
+    "formattedName": "Settings",
+    "package": "hibiketracker",
     "fields": [
       {
         "name": "SupportsAnime",
@@ -38846,6 +39049,159 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsBidirectionalSync",
+        "jsonName": "supportsBidirectionalSync",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/tracker/types.go",
+    "filename": "types.go",
+    "name": "UserInfo",
+    "formattedName": "UserInfo",
+    "package": "hibiketracker",
+    "fields": [
+      {
+        "name": "Username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AvatarURL",
+        "jsonName": "avatarUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/hibike/tracker/types.go",
+    "filename": "types.go",
+    "name": "MediaEntry",
+    "formattedName": "MediaEntry",
+    "package": "hibiketracker",
+    "fields": [
+      {
+        "name": "Source",
+        "jsonName": "source",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExternalId",
+        "jsonName": "externalId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaType",
+        "jsonName": "mediaType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedTypescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Repeat",
+        "jsonName": "repeat",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartedAt",
+        "jsonName": "startedAt",
+        "goType": "anilist.FuzzyDateInput",
+        "typescriptType": "AL_FuzzyDateInput",
+        "usedTypescriptType": "AL_FuzzyDateInput",
+        "usedStructName": "anilist.FuzzyDateInput",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "anilist.FuzzyDateInput",
+        "typescriptType": "AL_FuzzyDateInput",
+        "usedTypescriptType": "AL_FuzzyDateInput",
+        "usedStructName": "anilist.FuzzyDateInput",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -39239,6 +39595,17 @@
         "typescriptType": "Manager",
         "usedTypescriptType": "Manager",
         "usedStructName": "goja_runtime.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedTypescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -41435,6 +41802,17 @@
         "comments": []
       },
       {
+        "name": "DisabledFeatures",
+        "jsonName": "disabledFeatures",
+        "goType": "[]core.FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ServerReady",
         "jsonName": "serverReady",
         "goType": "bool",
@@ -42870,6 +43248,1448 @@
       "",
       "\t\tSomeField int",
       "\t}"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "TrackType",
+    "formattedName": "TrackType",
+    "package": "legacymkvparser",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"video\"",
+        "\"audio\"",
+        "\"subtitle\"",
+        "\"logo\"",
+        "\"buttons\"",
+        "\"complex\"",
+        "\"unknown\""
+      ]
+    },
+    "comments": [
+      " TrackType represents the type of a Matroska track."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "AttachmentType",
+    "formattedName": "AttachmentType",
+    "package": "legacymkvparser",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"font\"",
+        "\"subtitle\"",
+        "\"other\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "TrackInfo",
+    "formattedName": "TrackInfo",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UID",
+        "jsonName": "uid",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "TrackType",
+        "typescriptType": "TrackType",
+        "usedTypescriptType": "TrackType",
+        "usedStructName": "legacymkvparser.TrackType",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"video\", \"audio\", \"subtitle\", etc."
+        ]
+      },
+      {
+        "name": "CodecID",
+        "jsonName": "codecID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Best effort language code"
+        ]
+      },
+      {
+        "name": "LanguageIETF",
+        "jsonName": "languageIETF",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " IETF language code"
+        ]
+      },
+      {
+        "name": "Default",
+        "jsonName": "default",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Forced",
+        "jsonName": "forced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecPrivate",
+        "jsonName": "codecPrivate",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Raw CodecPrivate data, often used for subtitle headers (e.g., ASS/SSA styles)"
+        ]
+      },
+      {
+        "name": "Video",
+        "jsonName": "video",
+        "goType": "VideoTrack",
+        "typescriptType": "VideoTrack",
+        "usedTypescriptType": "VideoTrack",
+        "usedStructName": "legacymkvparser.VideoTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Audio",
+        "jsonName": "audio",
+        "goType": "AudioTrack",
+        "typescriptType": "AudioTrack",
+        "usedTypescriptType": "AudioTrack",
+        "usedStructName": "legacymkvparser.AudioTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "contentEncodings",
+        "jsonName": "",
+        "goType": "ContentEncodings",
+        "typescriptType": "ContentEncodings",
+        "usedTypescriptType": "ContentEncodings",
+        "usedStructName": "legacymkvparser.ContentEncodings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "defaultDuration",
+        "jsonName": "",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " in ns"
+        ]
+      }
+    ],
+    "comments": [
+      " TrackInfo holds extracted information about a media track."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "ChapterInfo",
+    "formattedName": "ChapterInfo",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "UID",
+        "jsonName": "uid",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Start",
+        "jsonName": "start",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Start time in seconds"
+        ]
+      },
+      {
+        "name": "End",
+        "jsonName": "end",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " End time in seconds"
+        ]
+      },
+      {
+        "name": "Text",
+        "jsonName": "text",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Languages",
+        "jsonName": "languages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Legacy 3-letter language codes"
+        ]
+      },
+      {
+        "name": "LanguagesIETF",
+        "jsonName": "languagesIETF",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " IETF language tags"
+        ]
+      },
+      {
+        "name": "EditionUID",
+        "jsonName": "",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterInfo holds extracted information about a chapter."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "AttachmentInfo",
+    "formattedName": "AttachmentInfo",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "UID",
+        "jsonName": "uid",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Mimetype",
+        "jsonName": "mimetype",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "AttachmentType",
+        "typescriptType": "AttachmentType",
+        "usedTypescriptType": "AttachmentType",
+        "usedStructName": "legacymkvparser.AttachmentType",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Data loaded into memory"
+        ]
+      },
+      {
+        "name": "IsCompressed",
+        "jsonName": "",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether the data is compressed"
+        ]
+      }
+    ],
+    "comments": [
+      " AttachmentInfo holds extracted information about an attachment."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/metadata.go",
+    "filename": "metadata.go",
+    "name": "Metadata",
+    "formattedName": "Metadata",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Duration in seconds"
+        ]
+      },
+      {
+        "name": "TimecodeScale",
+        "jsonName": "timecodeScale",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Original timecode scale from Info"
+        ]
+      },
+      {
+        "name": "MuxingApp",
+        "jsonName": "muxingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WritingApp",
+        "jsonName": "writingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tracks",
+        "jsonName": "tracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoTracks",
+        "jsonName": "videoTracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AudioTracks",
+        "jsonName": "audioTracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SubtitleTracks",
+        "jsonName": "subtitleTracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Chapters",
+        "jsonName": "chapters",
+        "goType": "[]ChapterInfo",
+        "typescriptType": "Array\u003cChapterInfo\u003e",
+        "usedTypescriptType": "ChapterInfo",
+        "usedStructName": "legacymkvparser.ChapterInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Attachments",
+        "jsonName": "attachments",
+        "goType": "[]AttachmentInfo",
+        "typescriptType": "Array\u003cAttachmentInfo\u003e",
+        "usedTypescriptType": "AttachmentInfo",
+        "usedStructName": "legacymkvparser.AttachmentInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeCodec",
+        "jsonName": "mimeCodec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " RFC 6381 codec string"
+        ]
+      },
+      {
+        "name": "Error",
+        "jsonName": "",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedTypescriptType": "error",
+        "usedStructName": "legacymkvparser.error",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Metadata holds all extracted metadata."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/mkvparser.go",
+    "filename": "mkvparser.go",
+    "name": "SubtitleEvent",
+    "formattedName": "SubtitleEvent",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "TrackNumber",
+        "jsonName": "trackNumber",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Text",
+        "jsonName": "text",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Content"
+        ]
+      },
+      {
+        "name": "StartTime",
+        "jsonName": "startTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Start time in seconds"
+        ]
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Duration in seconds"
+        ]
+      },
+      {
+        "name": "CodecID",
+        "jsonName": "codecID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g., \"S_TEXT/ASS\", \"S_TEXT/UTF8\""
+        ]
+      },
+      {
+        "name": "ExtraData",
+        "jsonName": "extraData",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HeadPos",
+        "jsonName": "",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Position in the stream"
+        ]
+      }
+    ],
+    "comments": [
+      " SubtitleEvent holds information for a single subtitle entry."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/mkvparser.go",
+    "filename": "mkvparser.go",
+    "name": "MetadataParser",
+    "formattedName": "MetadataParser",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "io.ReadSeeker",
+        "typescriptType": "ReadSeeker",
+        "usedTypescriptType": "ReadSeeker",
+        "usedStructName": "io.ReadSeeker",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "realLogger",
+        "jsonName": "realLogger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "parseErr",
+        "jsonName": "parseErr",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedTypescriptType": "error",
+        "usedStructName": "legacymkvparser.error",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "parseOnce",
+        "jsonName": "parseOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataOnce",
+        "jsonName": "metadataOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "timecodeScale",
+        "jsonName": "timecodeScale",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTrack",
+        "jsonName": "currentTrack",
+        "goType": "TrackInfo",
+        "typescriptType": "TrackInfo",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tracks",
+        "jsonName": "tracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "legacymkvparser.TrackInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "info",
+        "jsonName": "info",
+        "goType": "Info",
+        "typescriptType": "Info",
+        "usedTypescriptType": "Info",
+        "usedStructName": "legacymkvparser.Info",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapters",
+        "jsonName": "chapters",
+        "goType": "[]ChapterInfo",
+        "typescriptType": "Array\u003cChapterInfo\u003e",
+        "usedTypescriptType": "ChapterInfo",
+        "usedStructName": "legacymkvparser.ChapterInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "attachments",
+        "jsonName": "attachments",
+        "goType": "[]AttachmentInfo",
+        "typescriptType": "Array\u003cAttachmentInfo\u003e",
+        "usedTypescriptType": "AttachmentInfo",
+        "usedStructName": "legacymkvparser.AttachmentInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extractedMetadata",
+        "jsonName": "extractedMetadata",
+        "goType": "Metadata",
+        "typescriptType": "Metadata",
+        "usedTypescriptType": "Metadata",
+        "usedStructName": "legacymkvparser.Metadata",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MetadataParser parses Matroska metadata from a file."
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "Info",
+    "formattedName": "Info",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "Title",
+        "jsonName": "Title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MuxingApp",
+        "jsonName": "MuxingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WritingApp",
+        "jsonName": "WritingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimecodeScale",
+        "jsonName": "TimecodeScale",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateUTC",
+        "jsonName": "DateUTC",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Info element and its children"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "TrackEntry",
+    "formattedName": "TrackEntry",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "TrackNumber",
+        "jsonName": "TrackNumber",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackUID",
+        "jsonName": "TrackUID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackType",
+        "jsonName": "TrackType",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FlagEnabled",
+        "jsonName": "FlagEnabled",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FlagDefault",
+        "jsonName": "FlagDefault",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FlagForced",
+        "jsonName": "FlagForced",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DefaultDuration",
+        "jsonName": "DefaultDuration",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "Language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LanguageIETF",
+        "jsonName": "LanguageIETF",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecID",
+        "jsonName": "CodecID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecPrivate",
+        "jsonName": "CodecPrivate",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Video",
+        "jsonName": "Video",
+        "goType": "VideoTrack",
+        "typescriptType": "VideoTrack",
+        "usedTypescriptType": "VideoTrack",
+        "usedStructName": "legacymkvparser.VideoTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Audio",
+        "jsonName": "Audio",
+        "goType": "AudioTrack",
+        "typescriptType": "AudioTrack",
+        "usedTypescriptType": "AudioTrack",
+        "usedStructName": "legacymkvparser.AudioTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentEncodings",
+        "jsonName": "ContentEncodings",
+        "goType": "ContentEncodings",
+        "typescriptType": "ContentEncodings",
+        "usedTypescriptType": "ContentEncodings",
+        "usedStructName": "legacymkvparser.ContentEncodings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TrackEntry represents a track in the MKV file"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "VideoTrack",
+    "formattedName": "VideoTrack",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "PixelWidth",
+        "jsonName": "PixelWidth",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PixelHeight",
+        "jsonName": "PixelHeight",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " VideoTrack contains video-specific track data"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "AudioTrack",
+    "formattedName": "AudioTrack",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "SamplingFrequency",
+        "jsonName": "SamplingFrequency",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Channels",
+        "jsonName": "Channels",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BitDepth",
+        "jsonName": "BitDepth",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AudioTrack contains audio-specific track data"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "ContentEncodings",
+    "formattedName": "ContentEncodings",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "ContentEncoding",
+        "jsonName": "ContentEncoding",
+        "goType": "[]ContentEncoding",
+        "typescriptType": "Array\u003cContentEncoding\u003e",
+        "usedTypescriptType": "ContentEncoding",
+        "usedStructName": "legacymkvparser.ContentEncoding",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ContentEncodings contains information about how the track data is encoded"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "ContentEncoding",
+    "formattedName": "ContentEncoding",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "ContentEncodingOrder",
+        "jsonName": "ContentEncodingOrder",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentEncodingScope",
+        "jsonName": "ContentEncodingScope",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentEncodingType",
+        "jsonName": "ContentEncodingType",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentCompression",
+        "jsonName": "ContentCompression",
+        "goType": "ContentCompression",
+        "typescriptType": "ContentCompression",
+        "usedTypescriptType": "ContentCompression",
+        "usedStructName": "legacymkvparser.ContentCompression",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ContentEncoding describes a single encoding applied to the track data"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "ContentCompression",
+    "formattedName": "ContentCompression",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "ContentCompAlgo",
+        "jsonName": "ContentCompAlgo",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentCompSettings",
+        "jsonName": "ContentCompSettings",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ContentCompression describes how the track data is compressed"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "ChapterAtom",
+    "formattedName": "ChapterAtom",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "ChapterUID",
+        "jsonName": "ChapterUID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterTimeStart",
+        "jsonName": "ChapterTimeStart",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterTimeEnd",
+        "jsonName": "ChapterTimeEnd",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterDisplay",
+        "jsonName": "ChapterDisplay",
+        "goType": "[]ChapterDisplay",
+        "typescriptType": "Array\u003cChapterDisplay\u003e",
+        "usedTypescriptType": "ChapterDisplay",
+        "usedStructName": "legacymkvparser.ChapterDisplay",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterAtom represents a single chapter point"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "ChapterDisplay",
+    "formattedName": "ChapterDisplay",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "ChapString",
+        "jsonName": "ChapString",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapLanguage",
+        "jsonName": "ChapLanguage",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapLanguageIETF",
+        "jsonName": "ChapLanguageIETF",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterDisplay contains displayable chapter information"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "AttachedFile",
+    "formattedName": "AttachedFile",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "FileDescription",
+        "jsonName": "FileDescription",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileName",
+        "jsonName": "FileName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileMimeType",
+        "jsonName": "FileMimeType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileData",
+        "jsonName": "FileData",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileUID",
+        "jsonName": "FileUID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AttachedFile represents a file attached to the MKV container"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "Block",
+    "formattedName": "Block",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "TrackNumber",
+        "jsonName": "TrackNumber",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timecode",
+        "jsonName": "Timecode",
+        "goType": "int16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cArray\u003cstring\u003e\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Block represents a data block in the MKV file"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "BlockGroup",
+    "formattedName": "BlockGroup",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "Block",
+        "jsonName": "Block",
+        "goType": "Block",
+        "typescriptType": "Block",
+        "usedTypescriptType": "Block",
+        "usedStructName": "legacymkvparser.Block",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BlockDuration",
+        "jsonName": "BlockDuration",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " BlockGroup represents a group of blocks with additional information"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "Cluster",
+    "formattedName": "Cluster",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "Timecode",
+        "jsonName": "Timecode",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SimpleBlock",
+        "jsonName": "SimpleBlock",
+        "goType": "[]Block",
+        "typescriptType": "Array\u003cBlock\u003e",
+        "usedTypescriptType": "Block",
+        "usedStructName": "legacymkvparser.Block",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BlockGroup",
+        "jsonName": "BlockGroup",
+        "goType": "[]BlockGroup",
+        "typescriptType": "Array\u003cBlockGroup\u003e",
+        "usedTypescriptType": "BlockGroup",
+        "usedStructName": "legacymkvparser.BlockGroup",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Cluster represents a cluster of blocks in the MKV file"
+    ]
+  },
+  {
+    "filepath": "../internal/legacymkvparser/structs.go",
+    "filename": "structs.go",
+    "name": "Tracks",
+    "formattedName": "Tracks",
+    "package": "legacymkvparser",
+    "fields": [
+      {
+        "name": "TrackEntry",
+        "jsonName": "TrackEntry",
+        "goType": "[]TrackEntry",
+        "typescriptType": "Array\u003cTrackEntry\u003e",
+        "usedTypescriptType": "TrackEntry",
+        "usedStructName": "legacymkvparser.TrackEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Tracks element and its children"
     ]
   },
   {
@@ -54650,6 +56470,1692 @@
     "comments": []
   },
   {
+    "filepath": "../internal/matroska/ebml.go",
+    "filename": "ebml.go",
+    "name": "EBMLElement",
+    "formattedName": "EBMLElement",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The element ID that identifies the type of element"
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "Size",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The size of the element's data in bytes"
+        ]
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The raw data contained within the element"
+        ]
+      }
+    ],
+    "comments": [
+      " EBMLElement represents an EBML element with its ID, size, and data.",
+      "",
+      " An EBML element is the basic building block of EBML files. Each element consists of:",
+      "   - ID: A variable-length integer that identifies the type of element",
+      "   - Size: A variable-length integer that specifies the size of the element's data",
+      "   - Data: The actual data contained within the element",
+      "",
+      " The EBMLElement struct provides methods to extract different types of data from the element,",
+      " such as integers, floats, strings, and raw bytes."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/ebml.go",
+    "filename": "ebml.go",
+    "name": "EBMLReader",
+    "formattedName": "EBMLReader",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "r",
+        "jsonName": "r",
+        "goType": "io.ReadSeeker",
+        "typescriptType": "ReadSeeker",
+        "usedTypescriptType": "ReadSeeker",
+        "usedStructName": "io.ReadSeeker",
+        "required": false,
+        "public": false,
+        "comments": [
+          " The underlying reader for the EBML data"
+        ]
+      },
+      {
+        "name": "pos",
+        "jsonName": "pos",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current position in the stream"
+        ]
+      }
+    ],
+    "comments": [
+      " EBMLReader provides methods for reading EBML data from a stream.",
+      "",
+      " EBMLReader is the main type used for parsing EBML data. It wraps an io.ReadSeeker",
+      " and provides methods to read EBML elements, variable-length integers, and other",
+      " EBML-specific data structures.",
+      "",
+      " Example usage:",
+      "",
+      "\tfile, err := os.Open(\"video.mkv\")",
+      "\tif err != nil {",
+      "\t    log.Fatal(err)",
+      "\t}",
+      "\tdefer file.Close()",
+      "",
+      "\treader := NewEBMLReader(file)",
+      "\telement, err := reader.ReadElement()",
+      "\tif err != nil {",
+      "\t    log.Fatal(err)",
+      "\t}",
+      "",
+      "\tfmt.Printf(\"Element ID: 0x%X, Size: %d\\n\", element.ID, element.Size)"
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/ebml.go",
+    "filename": "ebml.go",
+    "name": "EBMLHeader",
+    "formattedName": "EBMLHeader",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Version",
+        "jsonName": "Version",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The version of EBML parser used to create the file"
+        ]
+      },
+      {
+        "name": "ReadVersion",
+        "jsonName": "ReadVersion",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The minimum EBML version needed to parse this file"
+        ]
+      },
+      {
+        "name": "MaxIDLength",
+        "jsonName": "MaxIDLength",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The maximum length of an EBML ID in bytes"
+        ]
+      },
+      {
+        "name": "MaxSizeLength",
+        "jsonName": "MaxSizeLength",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The maximum length of an EBML size in bytes"
+        ]
+      },
+      {
+        "name": "DocType",
+        "jsonName": "DocType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " A string that describes the type of document (e.g., \"matroska\")"
+        ]
+      },
+      {
+        "name": "DocTypeVersion",
+        "jsonName": "DocTypeVersion",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The version of the document type"
+        ]
+      },
+      {
+        "name": "DocTypeReadVersion",
+        "jsonName": "DocTypeReadVersion",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The minimum version of the document type parser needed to read this file"
+        ]
+      }
+    ],
+    "comments": [
+      " EBMLHeader represents the EBML header containing metadata about the file.",
+      "",
+      " The EBML header is the first element in an EBML file and contains information",
+      " about how to parse the rest of the file. It includes the EBML version, document type,",
+      " and other metadata that helps parsers understand the structure of the file.",
+      "",
+      " Example usage:",
+      "",
+      "\treader := NewEBMLReader(file)",
+      "\theader, err := reader.ReadEBMLHeader()",
+      "\tif err != nil {",
+      "\t    log.Fatal(err)",
+      "\t}",
+      "",
+      "\tfmt.Printf(\"DocType: %s, Version: %d\\n\", header.DocType, header.DocTypeVersion)"
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/matroska.go",
+    "filename": "matroska.go",
+    "name": "Demuxer",
+    "formattedName": "Demuxer",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "parser",
+        "jsonName": "parser",
+        "goType": "MatroskaParser",
+        "typescriptType": "MatroskaParser",
+        "usedTypescriptType": "MatroskaParser",
+        "usedStructName": "matroska.MatroskaParser",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "io.ReadSeeker",
+        "typescriptType": "ReadSeeker",
+        "usedTypescriptType": "ReadSeeker",
+        "usedStructName": "io.ReadSeeker",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Demuxer is a Matroska demuxer using pure Go implementation.",
+      "",
+      " The Demuxer struct provides the main interface for parsing and reading Matroska files.",
+      " It encapsulates the underlying parser and provides methods for accessing track information,",
+      " file metadata, and reading media packets. The Demuxer can work with both seekable and",
+      " non-seekable input streams.",
+      "",
+      " For seekable inputs, use NewDemuxer. For non-seekable streams (like network streams),",
+      " use NewStreamingDemuxer."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/parser.go",
+    "filename": "parser.go",
+    "name": "MatroskaParser",
+    "formattedName": "MatroskaParser",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "reader",
+        "jsonName": "reader",
+        "goType": "EBMLReader",
+        "typescriptType": "EBMLReader",
+        "usedTypescriptType": "EBMLReader",
+        "usedStructName": "matroska.EBMLReader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "header",
+        "jsonName": "header",
+        "goType": "EBMLHeader",
+        "typescriptType": "EBMLHeader",
+        "usedTypescriptType": "EBMLHeader",
+        "usedStructName": "matroska.EBMLHeader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "segment",
+        "jsonName": "segment",
+        "goType": "SegmentElement",
+        "typescriptType": "SegmentElement",
+        "usedTypescriptType": "SegmentElement",
+        "usedStructName": "matroska.SegmentElement",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tracks",
+        "jsonName": "tracks",
+        "goType": "[]TrackInfo",
+        "typescriptType": "Array\u003cTrackInfo\u003e",
+        "usedTypescriptType": "TrackInfo",
+        "usedStructName": "matroska.TrackInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileInfo",
+        "jsonName": "fileInfo",
+        "goType": "SegmentInfo",
+        "typescriptType": "SegmentInfo",
+        "usedTypescriptType": "SegmentInfo",
+        "usedStructName": "matroska.SegmentInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapters",
+        "jsonName": "chapters",
+        "goType": "[]Chapter",
+        "typescriptType": "Array\u003cChapter\u003e",
+        "usedTypescriptType": "Chapter",
+        "usedStructName": "matroska.Chapter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tags",
+        "jsonName": "tags",
+        "goType": "[]Tag",
+        "typescriptType": "Array\u003cTag\u003e",
+        "usedTypescriptType": "Tag",
+        "usedStructName": "matroska.Tag",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cues",
+        "jsonName": "cues",
+        "goType": "[]Cue",
+        "typescriptType": "Array\u003cCue\u003e",
+        "usedTypescriptType": "Cue",
+        "usedStructName": "matroska.Cue",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "attachments",
+        "jsonName": "attachments",
+        "goType": "[]Attachment",
+        "typescriptType": "Array\u003cAttachment\u003e",
+        "usedTypescriptType": "Attachment",
+        "usedStructName": "matroska.Attachment",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "elementsToParse",
+        "jsonName": "elementsToParse",
+        "goType": "map[uint32]__STRUCT__",
+        "inlineStructType": "map[uint32]struct{\n}",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "usedTypescriptType": "{ }",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "clusterTimestamp",
+        "jsonName": "clusterTimestamp",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTrackMask",
+        "jsonName": "currentTrackMask",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "segmentPos",
+        "jsonName": "segmentPos",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "segmentTopPos",
+        "jsonName": "segmentTopPos",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cuesPos",
+        "jsonName": "cuesPos",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cuesTopPos",
+        "jsonName": "cuesTopPos",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "noSeeking",
+        "jsonName": "noSeeking",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MatroskaParser represents a parser for Matroska and WebM files.",
+      "",
+      " It provides functionality to parse Matroska container files, extract metadata,",
+      " and read media packets. The parser maintains state information about the file",
+      " structure, including the EBML header, segment information, tracks, and other",
+      " metadata elements.",
+      "",
+      " The parser can operate in two modes:",
+      "   - With seeking enabled (noSeeking=false): Allows for more efficient parsing",
+      "     by seeking to specific positions in the file when needed.",
+      "   - With seeking disabled (noSeeking=true): Parses the file sequentially,",
+      "     which is useful for streaming or non-seekable input sources.",
+      "",
+      " After creating a parser with NewMatroskaParser, you can access file information,",
+      " track information, and read media packets using the provided methods."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/parser.go",
+    "filename": "parser.go",
+    "name": "SegmentElement",
+    "formattedName": "SegmentElement",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "Size",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " SegmentElement represents the main segment element in a Matroska file.",
+      "",
+      " The segment is the top-level element in a Matroska file that contains all",
+      " the actual data, including metadata, tracks, clusters, and other elements.",
+      " It is the largest element in the file and contains all other elements except",
+      " for the EBML header.",
+      "",
+      " The Position field indicates the byte offset from the beginning of the file",
+      " where the segment element starts, and the Size field indicates the total size",
+      " of the segment element in bytes."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Packet",
+    "formattedName": "Packet",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Track",
+        "jsonName": "Track",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTime",
+        "jsonName": "StartTime",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTime",
+        "jsonName": "EndTime",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FilePos",
+        "jsonName": "FilePos",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Flags",
+        "jsonName": "Flags",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Discard",
+        "jsonName": "Discard",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Packet contains a demuxed packet from a Matroska file.",
+      "",
+      " A Packet represents a single unit of media data that has been extracted (demuxed) from",
+      " a Matroska container. It contains all the necessary information to process the media data,",
+      " including timing information, track association, and the actual data payload."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "TrackInfo",
+    "formattedName": "TrackInfo",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "Number",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackOverlay",
+        "jsonName": "TrackOverlay",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UID",
+        "jsonName": "UID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinCache",
+        "jsonName": "MinCache",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxCache",
+        "jsonName": "MaxCache",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DefaultDuration",
+        "jsonName": "DefaultDuration",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecDelay",
+        "jsonName": "CodecDelay",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeekPreRoll",
+        "jsonName": "SeekPreRoll",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimecodeScale",
+        "jsonName": "TimecodeScale",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecPrivate",
+        "jsonName": "CodecPrivate",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompMethod",
+        "jsonName": "CompMethod",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompMethodPrivate",
+        "jsonName": "CompMethodPrivate",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MaxBlockAdditionID",
+        "jsonName": "MaxBlockAdditionID",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Enabled",
+        "jsonName": "Enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Default",
+        "jsonName": "Default",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Forced",
+        "jsonName": "Forced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Lacing",
+        "jsonName": "Lacing",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DecodeAll",
+        "jsonName": "DecodeAll",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompEnabled",
+        "jsonName": "CompEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Video",
+        "jsonName": "Video",
+        "goType": "TrackInfo_Video",
+        "inlineStructType": "struct{\nStereoMode uint8\nDisplayUnit uint8\nAspectRatioType uint8\nPixelWidth uint32\nPixelHeight uint32\nDisplayWidth uint32\nDisplayHeight uint32\nCropL uint32\nCropT uint32\nCropR uint32\nCropB uint32\nColourSpace uint32\nGammaValue float64\nColour __STRUCT__\nInterlaced bool}",
+        "typescriptType": "TrackInfo_Video",
+        "usedTypescriptType": "{ StereoMode: number; DisplayUnit: number; AspectRatioType: number; PixelWidth: number; PixelHeight: number; DisplayWidth: number; DisplayHeight: number; CropL: number; CropT: number; CropR: number; CropB: number; ColourSpace: number; GammaValue: number; Colour: { MatrixCoefficients: number; BitsPerChannel: number; ChromaSubsamplingHorz: number; ChromaSubsamplingVert: number; CbSubsamplingHorz: number; CbSubsamplingVert: number; ChromaSitingHorz: number; ChromaSitingVert: number; Range: number; TransferCharacteristics: number; Primaries: number; MaxCLL: number; MaxFALL: number; MasteringMetadata: { PrimaryRChromaticityX: number; PrimaryRChromaticityY: number; PrimaryGChromaticityX: number; PrimaryGChromaticityY: number; PrimaryBChromaticityX: number; PrimaryBChromaticityY: number; WhitePointChromaticityX: number; WhitePointChromaticityY: number; LuminanceMax: number; LuminanceMin: number; }; }; Interlaced: boolean; }",
+        "usedStructName": "matroska.TrackInfo_Video",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Audio",
+        "jsonName": "Audio",
+        "goType": "TrackInfo_Audio",
+        "inlineStructType": "struct{\nSamplingFreq float64\nOutputSamplingFreq float64\nChannels uint8\nBitDepth uint8}",
+        "typescriptType": "TrackInfo_Audio",
+        "usedTypescriptType": "{ SamplingFreq: number; OutputSamplingFreq: number; Channels: number; BitDepth: number; }",
+        "usedStructName": "matroska.TrackInfo_Audio",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "Language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LanguageIETF",
+        "jsonName": "LanguageIETF",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecID",
+        "jsonName": "CodecID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TrackInfo contains information about a track in a Matroska file.",
+      "",
+      " A TrackInfo structure holds all metadata and configuration information for a single",
+      " track within a Matroska file. This includes general track properties, codec information,",
+      " and type-specific settings for video, audio, or subtitle tracks."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "TrackInfo_Video",
+    "formattedName": "TrackInfo_Video",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "StereoMode",
+        "jsonName": "StereoMode",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisplayUnit",
+        "jsonName": "DisplayUnit",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AspectRatioType",
+        "jsonName": "AspectRatioType",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PixelWidth",
+        "jsonName": "PixelWidth",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PixelHeight",
+        "jsonName": "PixelHeight",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisplayWidth",
+        "jsonName": "DisplayWidth",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisplayHeight",
+        "jsonName": "DisplayHeight",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropL",
+        "jsonName": "CropL",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropT",
+        "jsonName": "CropT",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropR",
+        "jsonName": "CropR",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropB",
+        "jsonName": "CropB",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ColourSpace",
+        "jsonName": "ColourSpace",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GammaValue",
+        "jsonName": "GammaValue",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Colour",
+        "jsonName": "Colour",
+        "goType": "__STRUCT__",
+        "inlineStructType": "struct{\nMatrixCoefficients uint32\nBitsPerChannel uint32\nChromaSubsamplingHorz uint32\nChromaSubsamplingVert uint32\nCbSubsamplingHorz uint32\nCbSubsamplingVert uint32\nChromaSitingHorz uint32\nChromaSitingVert uint32\nRange uint32\nTransferCharacteristics uint32\nPrimaries uint32\nMaxCLL uint32\nMaxFALL uint32\nMasteringMetadata __STRUCT__}",
+        "typescriptType": "{ MatrixCoefficients: number; BitsPerChannel: number; ChromaSubsamplingHorz: number; ChromaSubsamplingVert: number; CbSubsamplingHorz: number; CbSubsamplingVert: number; ChromaSitingHorz: number; ChromaSitingVert: number; Range: number; TransferCharacteristics: number; Primaries: number; MaxCLL: number; MaxFALL: number; MasteringMetadata: { PrimaryRChromaticityX: number; PrimaryRChromaticityY: number; PrimaryGChromaticityX: number; PrimaryGChromaticityY: number; PrimaryBChromaticityX: number; PrimaryBChromaticityY: number; WhitePointChromaticityX: number; WhitePointChromaticityY: number; LuminanceMax: number; LuminanceMin: number; }; }",
+        "usedTypescriptType": "{ MatrixCoefficients: number; BitsPerChannel: number; ChromaSubsamplingHorz: number; ChromaSubsamplingVert: number; CbSubsamplingHorz: number; CbSubsamplingVert: number; ChromaSitingHorz: number; ChromaSitingVert: number; Range: number; TransferCharacteristics: number; Primaries: number; MaxCLL: number; MaxFALL: number; MasteringMetadata: { PrimaryRChromaticityX: number; PrimaryRChromaticityY: number; PrimaryGChromaticityX: number; PrimaryGChromaticityY: number; PrimaryBChromaticityX: number; PrimaryBChromaticityY: number; WhitePointChromaticityX: number; WhitePointChromaticityY: number; LuminanceMax: number; LuminanceMin: number; }; }",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Interlaced",
+        "jsonName": "Interlaced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TrackInfo contains information about a track in a Matroska file.",
+      "",
+      " A TrackInfo structure holds all metadata and configuration information for a single",
+      " track within a Matroska file. This includes general track properties, codec information,",
+      " and type-specific settings for video, audio, or subtitle tracks."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "TrackInfo_Audio",
+    "formattedName": "TrackInfo_Audio",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "SamplingFreq",
+        "jsonName": "SamplingFreq",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OutputSamplingFreq",
+        "jsonName": "OutputSamplingFreq",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Channels",
+        "jsonName": "Channels",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BitDepth",
+        "jsonName": "BitDepth",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TrackInfo contains information about a track in a Matroska file.",
+      "",
+      " A TrackInfo structure holds all metadata and configuration information for a single",
+      " track within a Matroska file. This includes general track properties, codec information,",
+      " and type-specific settings for video, audio, or subtitle tracks."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "SegmentInfo",
+    "formattedName": "SegmentInfo",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "UID",
+        "jsonName": "UID",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PrevUID",
+        "jsonName": "PrevUID",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextUID",
+        "jsonName": "NextUID",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PrevFilename",
+        "jsonName": "PrevFilename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextFilename",
+        "jsonName": "NextFilename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "Title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MuxingApp",
+        "jsonName": "MuxingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WritingApp",
+        "jsonName": "WritingApp",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimecodeScale",
+        "jsonName": "TimecodeScale",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateUTC",
+        "jsonName": "DateUTC",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateUTCValid",
+        "jsonName": "DateUTCValid",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " SegmentInfo contains file-level (segment) information about a Matroska stream.",
+      "",
+      " A SegmentInfo structure holds metadata about the entire Matroska file or segment.",
+      " This includes general information like title, duration, creation date, and",
+      " relationships to other files in a sequence."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Attachment",
+    "formattedName": "Attachment",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Length",
+        "jsonName": "Length",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UID",
+        "jsonName": "UID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "Description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeType",
+        "jsonName": "MimeType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Attachment contains information about a Matroska attachment.",
+      "",
+      " Matroska files can contain attached files, such as fonts, images, or other metadata.",
+      " The Attachment structure holds information about these attached files, including",
+      " their location, size, and metadata."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "ChapterDisplay",
+    "formattedName": "ChapterDisplay",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "String",
+        "jsonName": "String",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "Language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Country",
+        "jsonName": "Country",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterDisplay contains display information for a given Chapter.",
+      "",
+      " A ChapterDisplay structure holds the human-readable information for a chapter,",
+      " including its name, language, and country association. This allows chapters",
+      " to be displayed in multiple languages and with country-specific variations."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "ChapterCommand",
+    "formattedName": "ChapterCommand",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Time",
+        "jsonName": "Time",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Command",
+        "jsonName": "Command",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterCommand represents a command associated with a chapter.",
+      "",
+      " Chapter commands are used to execute specific actions at certain times during",
+      " chapter playback. This can be used for interactive content or special effects."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "ChapterProcess",
+    "formattedName": "ChapterProcess",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "CodecID",
+        "jsonName": "CodecID",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CodecPrivate",
+        "jsonName": "CodecPrivate",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Commands",
+        "jsonName": "Commands",
+        "goType": "[]ChapterCommand",
+        "typescriptType": "Array\u003cChapterCommand\u003e",
+        "usedTypescriptType": "ChapterCommand",
+        "usedStructName": "matroska.ChapterCommand",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ChapterProcess contains processing information for a chapter.",
+      "",
+      " Chapter processes are used to apply special processing to chapters,",
+      " such as codec-specific processing or command execution."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Chapter",
+    "formattedName": "Chapter",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "UID",
+        "jsonName": "UID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Start",
+        "jsonName": "Start",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "End",
+        "jsonName": "End",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tracks",
+        "jsonName": "Tracks",
+        "goType": "[]uint64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Display",
+        "jsonName": "Display",
+        "goType": "[]ChapterDisplay",
+        "typescriptType": "Array\u003cChapterDisplay\u003e",
+        "usedTypescriptType": "ChapterDisplay",
+        "usedStructName": "matroska.ChapterDisplay",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Children",
+        "jsonName": "Children",
+        "goType": "[]Chapter",
+        "typescriptType": "Array\u003cChapter\u003e",
+        "usedTypescriptType": "Chapter",
+        "usedStructName": "matroska.Chapter",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Process",
+        "jsonName": "Process",
+        "goType": "[]ChapterProcess",
+        "typescriptType": "Array\u003cChapterProcess\u003e",
+        "usedTypescriptType": "ChapterProcess",
+        "usedStructName": "matroska.ChapterProcess",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SegmentUID",
+        "jsonName": "SegmentUID",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hidden",
+        "jsonName": "Hidden",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Enabled",
+        "jsonName": "Enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Default",
+        "jsonName": "Default",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ordered",
+        "jsonName": "Ordered",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Chapter contains all information about a Matroska chapter.",
+      "",
+      " A Chapter structure represents a chapter or section within a Matroska file.",
+      " Chapters can be nested to create a hierarchical structure, and can contain",
+      " display information, processing commands, and timing information."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Cue",
+    "formattedName": "Cue",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Time",
+        "jsonName": "Time",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelativePosition",
+        "jsonName": "RelativePosition",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Block",
+        "jsonName": "Block",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Track",
+        "jsonName": "Track",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Cue contains all information about a Matroska cue.",
+      "",
+      " Cues are indexing points in a Matroska file that allow for efficient seeking.",
+      " A Cue structure contains the timing and position information needed to locate",
+      " specific points in the media stream."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Target",
+    "formattedName": "Target",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "UID",
+        "jsonName": "UID",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Target contains information about a tag's target.",
+      "",
+      " A Target structure identifies what a Matroska tag applies to.",
+      " Tags can be applied to tracks, chapters, attachments, or editions."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "SimpleTag",
+    "formattedName": "SimpleTag",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "Value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "Language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Default",
+        "jsonName": "Default",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " SimpleTag contains a simple Matroska tag.",
+      "",
+      " A SimpleTag structure represents a single key-value metadata tag.",
+      " These tags can be used to store information like title, artist, album, etc."
+    ]
+  },
+  {
+    "filepath": "../internal/matroska/types.go",
+    "filename": "types.go",
+    "name": "Tag",
+    "formattedName": "Tag",
+    "package": "matroska",
+    "fields": [
+      {
+        "name": "Targets",
+        "jsonName": "Targets",
+        "goType": "[]Target",
+        "typescriptType": "Array\u003cTarget\u003e",
+        "usedTypescriptType": "Target",
+        "usedStructName": "matroska.Target",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SimpleTags",
+        "jsonName": "SimpleTags",
+        "goType": "[]SimpleTag",
+        "typescriptType": "Array\u003cSimpleTag\u003e",
+        "usedTypescriptType": "SimpleTag",
+        "usedStructName": "matroska.SimpleTag",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Tag contains all information relating to a Matroska tag.",
+      "",
+      " A Tag structure represents a collection of metadata tags that can be applied",
+      " to various targets within a Matroska file. Tags are used to store metadata",
+      " like titles, descriptions, and other information about the content."
+    ]
+  },
+  {
     "filepath": "../internal/mediaplayers/iina/iina.go",
     "filename": "iina.go",
     "name": "Playback",
@@ -59045,7 +62551,7 @@
       {
         "name": "UID",
         "jsonName": "uid",
-        "goType": "int64",
+        "goType": "uint64",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -59672,65 +63178,12 @@
         "comments": []
       },
       {
-        "name": "timecodeScale",
-        "jsonName": "timecodeScale",
-        "goType": "uint64",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "currentTrack",
-        "jsonName": "currentTrack",
-        "goType": "TrackInfo",
-        "typescriptType": "MKVParser_TrackInfo",
-        "usedTypescriptType": "MKVParser_TrackInfo",
-        "usedStructName": "mkvparser.TrackInfo",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "tracks",
-        "jsonName": "tracks",
-        "goType": "[]TrackInfo",
-        "typescriptType": "Array\u003cMKVParser_TrackInfo\u003e",
-        "usedTypescriptType": "MKVParser_TrackInfo",
-        "usedStructName": "mkvparser.TrackInfo",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "info",
-        "jsonName": "info",
-        "goType": "Info",
-        "typescriptType": "MKVParser_Info",
-        "usedTypescriptType": "MKVParser_Info",
-        "usedStructName": "mkvparser.Info",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "chapters",
-        "jsonName": "chapters",
-        "goType": "[]ChapterInfo",
-        "typescriptType": "Array\u003cMKVParser_ChapterInfo\u003e",
-        "usedTypescriptType": "MKVParser_ChapterInfo",
-        "usedStructName": "mkvparser.ChapterInfo",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "attachments",
-        "jsonName": "attachments",
-        "goType": "[]AttachmentInfo",
-        "typescriptType": "Array\u003cMKVParser_AttachmentInfo\u003e",
-        "usedTypescriptType": "MKVParser_AttachmentInfo",
-        "usedStructName": "mkvparser.AttachmentInfo",
+        "name": "demuxer",
+        "jsonName": "demuxer",
+        "goType": "matroska.Demuxer",
+        "typescriptType": "Demuxer",
+        "usedTypescriptType": "Demuxer",
+        "usedStructName": "matroska.Demuxer",
         "required": false,
         "public": false,
         "comments": []
@@ -60863,6 +64316,15 @@
         "comments": [
           " Mutex for client settings"
         ]
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -60976,6 +64438,15 @@
         "typescriptType": "Directstream_Manager",
         "usedTypescriptType": "Directstream_Manager",
         "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
@@ -61680,6 +65151,52 @@
         "usedTypescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "NakamaCustomSourceMap",
+    "formattedName": "Nakama_NakamaCustomSourceMap",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[int]string",
+      "typescriptType": "Record\u003cnumber, string\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/nakama/share.go",
+    "filename": "share.go",
+    "name": "NakamaLocalFiles",
+    "formattedName": "Nakama_NakamaLocalFiles",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedTypescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomSourceMap",
+        "jsonName": "customSourceMap",
+        "goType": "NakamaCustomSourceMap",
+        "typescriptType": "Nakama_NakamaCustomSourceMap",
+        "usedTypescriptType": "Nakama_NakamaCustomSourceMap",
+        "usedStructName": "nakama.NakamaCustomSourceMap",
+        "required": true,
         "public": true,
         "comments": []
       }

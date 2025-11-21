@@ -1820,6 +1820,41 @@ export type INTERNAL_FeatureFlags = {
     MainServerTorrentStreaming: boolean
 }
 
+/**
+ * - Filepath: internal/core/feature_flags.go
+ * - Filename: feature_flags.go
+ * - Package: core
+ */
+export type INTERNAL_FeatureKey = "ManageOfflineMode" |
+    "ViewSettings" |
+    "ViewLogs" |
+    "UpdateSettings" |
+    "ManagePlaylist" |
+    "ManageLocalAnimeLibrary" |
+    "ManageAccount" |
+    "ViewAccount" |
+    "ManageLists" |
+    "RefreshMetadata" |
+    "ManageMangaDownloads" |
+    "WatchingLocalAnime" |
+    "TorrentStreaming" |
+    "DebridStreaming" |
+    "OnlineStreaming" |
+    "Transcode" |
+    "Reading" |
+    "ViewAutoDownloader" |
+    "ManageAutoDownloader" |
+    "ViewScanSummaries" |
+    "ViewExtensions" |
+    "ManageExtensions" |
+    "ManageHomeScreen" |
+    "OpenInExplorer" |
+    "PluginTray" |
+    "ManageNakama" |
+    "ManageDebrid" |
+    "Proxy" |
+    "ManageMangaSource"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2657,6 +2692,7 @@ export type Status = {
      */
     isDesktopSidecar: boolean
     featureFlags?: INTERNAL_FeatureFlags
+    disabledFeatures?: Array<INTERNAL_FeatureKey>
     serverReady: boolean
     serverHasPassword: boolean
 }
@@ -2690,7 +2726,7 @@ export type HibikeCustomSource_ListMangaResponse = {
 }
 
 /**
- * - Filepath: internal/extension/hibike/tracker/types.go
+ * - Filepath: internal/extension/hibike/customsource/types.go
  * - Filename: types.go
  * - Package: hibikecustomsource
  */
@@ -3632,6 +3668,7 @@ export type Models_LibrarySettings = {
     scannerMatchingAlgorithm: string
     autoSyncToLocalAccount: boolean
     autoSaveCurrentMediaOffline: boolean
+    useFallbackMetadataProvider: boolean
 }
 
 /**
@@ -3912,6 +3949,23 @@ export type Nakama_MessageResponse = {
 export type Nakama_NakamaAnimeLibrary = {
     localFiles?: Array<Anime_LocalFile>
     animeCollection?: AL_AnimeCollection
+}
+
+/**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaCustomSourceMap = Record<number, string>
+
+/**
+ * - Filepath: internal/nakama/share.go
+ * - Filename: share.go
+ * - Package: nakama
+ */
+export type Nakama_NakamaLocalFiles = {
+    localFiles?: Array<Anime_LocalFile>
+    customSourceMap: Nakama_NakamaCustomSourceMap
 }
 
 /**

@@ -125,6 +125,8 @@ type (
 		ServerPasswordHash string // SHA-256 hash of the server password
 		PlaylistManager    *playlist.Manager
 		LibraryExplorer    *library_explorer.LibraryExplorer
+		Flags              SeanimeFlags
+		FeatureManager     *FeatureManager
 	}
 )
 
@@ -177,7 +179,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	logger.Info().Msgf("app: Working directory: %s", cfg.Data.WorkingDir)
 
 	// Log if running in desktop sidecar mode
-	if configOpts.IsDesktopSidecar {
+	if configOpts.Flags.IsDesktopSidecar {
 		logger.Info().Msg("app: Desktop sidecar mode enabled")
 	}
 
@@ -212,7 +214,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	wsEventManager := events.NewWSEventManager(logger)
 
 	// Exit if no WebSocket connections in desktop sidecar mode
-	if configOpts.IsDesktopSidecar {
+	if configOpts.Flags.IsDesktopSidecar {
 		wsEventManager.ExitIfNoConnsAsDesktopSidecar()
 	}
 
@@ -326,6 +328,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Create the main app instance with initialized components
 	app := &App{
 		Config:                        cfg,
+		Flags:                         configOpts.Flags,
+		FeatureManager:                NewFeatureManager(logger, configOpts.Flags),
 		Database:                      database,
 		AnilistClient:                 anilistCW,
 		AnilistPlatform:               activePlatform,
@@ -362,7 +366,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
 		previousVersion:               previousVersion,
 		FeatureFlags:                  NewFeatureFlags(cfg, logger),
-		IsDesktopSidecar:              configOpts.IsDesktopSidecar,
+		IsDesktopSidecar:              configOpts.Flags.IsDesktopSidecar,
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings

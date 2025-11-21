@@ -83,108 +83,107 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		}
 	}
 
-	if len(chapterDirs) == 0 {
-		return nil, nil
-	}
+	if len(chapterDirs) > 0 {
 
-	// Now that we have all the chapter directories, we can get the chapter containers
+		// Now that we have all the chapter directories, we can get the chapter containers
 
-	keys := make([]*chapter_downloader.DownloadID, 0)
-	for _, dir := range chapterDirs {
-		downloadId, ok := chapter_downloader.ParseChapterDirName(dir)
-		if !ok {
-			continue
+		keys := make([]*chapter_downloader.DownloadID, 0)
+		for _, dir := range chapterDirs {
+			downloadId, ok := chapter_downloader.ParseChapterDirName(dir)
+			if !ok {
+				continue
+			}
+			keys = append(keys, &downloadId)
 		}
-		keys = append(keys, &downloadId)
-	}
 
-	providerAndMediaIdPairs := make(map[struct {
-		provider string
-		mediaId  int
-	}]bool)
-
-	for _, key := range keys {
-		providerAndMediaIdPairs[struct {
+		providerAndMediaIdPairs := make(map[struct {
 			provider string
 			mediaId  int
-		}{
-			provider: key.Provider,
-			mediaId:  key.MediaId,
-		}] = true
-	}
+		}]bool)
 
-	// Get the chapter containers
-	for pair := range providerAndMediaIdPairs {
-		provider := pair.provider
-		mediaId := pair.mediaId
+		for _, key := range keys {
+			providerAndMediaIdPairs[struct {
+				provider string
+				mediaId  int
+			}{
+				provider: key.Provider,
+				mediaId:  key.MediaId,
+			}] = true
+		}
 
-		//// Get the manga from the collection
-		//mangaEntry, ok := mangaCollection.GetListEntryFromMangaId(mediaId)
-		//if !ok {
-		//	r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
-		//	continue
-		//}
+		// Get the chapter containers
+		for pair := range providerAndMediaIdPairs {
+			provider := pair.provider
+			mediaId := pair.mediaId
 
-		// Get the list of chapters for the manga
-		// Check the permanent file cache
-		container, found := r.getChapterContainerFromPermanentFilecache(provider, mediaId)
-		if !found {
-			// Check the temporary file cache
-			container, found = r.getChapterContainerFromFilecache(provider, mediaId)
+			//// Get the manga from the collection
+			//mangaEntry, ok := mangaCollection.GetListEntryFromMangaId(mediaId)
+			//if !ok {
+			//	r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
+			//	continue
+			//}
+
+			// Get the list of chapters for the manga
+			// Check the permanent file cache
+			container, found := r.getChapterContainerFromPermanentFilecache(provider, mediaId)
 			if !found {
-				continue
-				//// Get the chapters from the provider
-				//// This stays here for backwards compatibility, but ideally the method should not require an internet connection
-				//// so this will fail if the chapters were not cached & with no internet
-				//opts := GetMangaChapterContainerOptions{
-				//	Provider: provider,
-				//	MediaId:  mediaId,
-				//	Titles:   mangaEntry.GetMedia().GetAllTitles(),
-				//	Year:     mangaEntry.GetMedia().GetStartYearSafe(),
-				//}
-				//container, err = r.GetMangaChapterContainer(&opts)
-				//if err != nil {
-				//	r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
-				//	continue
-				//}
-				//// Cache the chapter container in the permanent bucket
-				//go func() {
-				//	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
-				//	chapterContainer, found := r.getChapterContainerFromFilecache(provider, mediaId)
-				//	if found {
-				//		// Store the chapter container in the permanent bucket
-				//		permBucket := getPermanentChapterContainerCacheBucket(provider, mediaId)
-				//		_ = r.fileCacher.SetPerm(permBucket, chapterContainerKey, chapterContainer)
-				//	}
-				//}()
+				// Check the temporary file cache
+				container, found = r.getChapterContainerFromFilecache(provider, mediaId)
+				if !found {
+					continue
+					//// Get the chapters from the provider
+					//// This stays here for backwards compatibility, but ideally the method should not require an internet connection
+					//// so this will fail if the chapters were not cached & with no internet
+					//opts := GetMangaChapterContainerOptions{
+					//	Provider: provider,
+					//	MediaId:  mediaId,
+					//	Titles:   mangaEntry.GetMedia().GetAllTitles(),
+					//	Year:     mangaEntry.GetMedia().GetStartYearSafe(),
+					//}
+					//container, err = r.GetMangaChapterContainer(&opts)
+					//if err != nil {
+					//	r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
+					//	continue
+					//}
+					//// Cache the chapter container in the permanent bucket
+					//go func() {
+					//	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
+					//	chapterContainer, found := r.getChapterContainerFromFilecache(provider, mediaId)
+					//	if found {
+					//		// Store the chapter container in the permanent bucket
+					//		permBucket := getPermanentChapterContainerCacheBucket(provider, mediaId)
+					//		_ = r.fileCacher.SetPerm(permBucket, chapterContainerKey, chapterContainer)
+					//	}
+					//}()
+				}
+			} else {
+				r.logger.Trace().Int("mediaId", mediaId).Msg("manga: Found chapter container in permanent bucket")
 			}
-		} else {
-			r.logger.Trace().Int("mediaId", mediaId).Msg("manga: Found chapter container in permanent bucket")
-		}
 
-		downloadedContainer := &ChapterContainer{
-			MediaId:  container.MediaId,
-			Provider: container.Provider,
-			Chapters: make([]*hibikemanga.ChapterDetails, 0),
-		}
+			downloadedContainer := &ChapterContainer{
+				MediaId:  container.MediaId,
+				Provider: container.Provider,
+				Chapters: make([]*hibikemanga.ChapterDetails, 0),
+			}
 
-		// Now that we have the container, we'll filter out the chapters that are not downloaded
-		// Go through each chapter and check if it's downloaded
-		for _, chapter := range container.Chapters {
-			// For each chapter, check if the chapter directory exists
-			for _, dir := range chapterDirs {
-				if dir == chapter_downloader.FormatChapterDirName(provider, mediaId, chapter.ID, chapter.Chapter) {
-					downloadedContainer.Chapters = append(downloadedContainer.Chapters, chapter)
-					break
+			// Now that we have the container, we'll filter out the chapters that are not downloaded
+			// Go through each chapter and check if it's downloaded
+			for _, chapter := range container.Chapters {
+				// For each chapter, check if the chapter directory exists
+				for _, dir := range chapterDirs {
+					if dir == chapter_downloader.FormatChapterDirName(provider, mediaId, chapter.ID, chapter.Chapter) {
+						downloadedContainer.Chapters = append(downloadedContainer.Chapters, chapter)
+						break
+					}
 				}
 			}
-		}
 
-		if len(downloadedContainer.Chapters) == 0 {
-			continue
-		}
+			if len(downloadedContainer.Chapters) == 0 {
+				continue
+			}
 
-		ret = append(ret, downloadedContainer)
+			ret = append(ret, downloadedContainer)
+		}
 	}
 
 	// Add chapter containers from local provider

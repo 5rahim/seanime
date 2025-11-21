@@ -131,7 +131,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                         onClick={() => setTheaterMode(p => !p)}
                         intent="gray-basic"
                         icon={theaterMode ? <TbLayoutSidebarRightExpand /> : <TbLayoutSidebarRightCollapse />}
-                        className="hidden 2xl:block"
+                        className="hidden 2xl:flex"
                     />
                 </div>
             </div>

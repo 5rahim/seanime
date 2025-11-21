@@ -42,14 +42,29 @@ export function useHandlePlayMedia() {
 
     const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
 
-    function playMediaFile({ path, mediaId, episode }: { path: string, mediaId: number, episode: Anime_Episode }) {
+    const { getForcePlaybackMethod, resetForcePlaybackMethod } = useForcePlaybackMethod()
+
+    function playMediaFile({
+        path,
+        mediaId,
+        episode,
+    }: {
+        path: string,
+        mediaId: number,
+        episode: Anime_Episode
+    }) {
         const anidbEpisode = episode.localFile?.metadata?.aniDBEpisode ?? ""
+
+        const forcePlaybackMethod = getForcePlaybackMethod()
+        resetForcePlaybackMethod()
 
         setTorrentstreamAutoplayInfo(null)
 
         if (episode._isNakamaEpisode) {
             // If external player link is set, open the media file in the external player
-            if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {
+            if ((!forcePlaybackMethod && downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) ||
+                (forcePlaybackMethod && forcePlaybackMethod === "externalPlayerLink")
+            ) {
                 const link = new ExternalPlayerLink(externalPlayerLink)
                 link.setEpisodeNumber(episode.progressNumber)
                 link.setMediaTitle(episode.baseAnime?.title?.userPreferred)
@@ -73,7 +88,13 @@ export function useHandlePlayMedia() {
                 }
                 return
             }
-            return playNakamaVideo({ path, mediaId, anidbEpisode, clientId: clientId ?? "" })
+            return playNakamaVideo({
+                path,
+                mediaId,
+                anidbEpisode,
+                clientId: clientId ?? "",
+                forcePlaybackMethod: forcePlaybackMethod || undefined,
+            })
         }
 
         logger("PLAY MEDIA").info("Playing media file", path)
@@ -81,13 +102,18 @@ export function useHandlePlayMedia() {
         //
         // Electron native player
         //
-        if (__isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) {
+        if (__isElectronDesktop__ && (
+            (!forcePlaybackMethod && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "nativeplayer")
+        )) {
             directstreamPlayLocalFile({ path, clientId: clientId ?? "" })
             return
         }
 
         // If external player link is set, open the media file in the external player
-        if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {
+        if ((!forcePlaybackMethod && downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) ||
+            (forcePlaybackMethod && forcePlaybackMethod === "externalPlayerLink")
+        ) {
             if (!externalPlayerLink) {
                 toast.error("External player link is not set.")
                 return
@@ -115,6 +141,70 @@ export function useHandlePlayMedia() {
     }
 
     return {
+        isUsingNativePlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
         playMediaFile,
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type ForcePlaybackMethod = "playbackmanager" | "nativeplayer" | "externalPlayerLink"
+
+// maintain value outside react
+const __forcePlaybackMethodStore = (() => {
+    let current: ForcePlaybackMethod | undefined = undefined
+    const listeners = new Set<() => void>()
+    return {
+        get: () => current,
+        set: (val: ForcePlaybackMethod | undefined) => {
+            current = val
+            listeners.forEach(l => l())
+        },
+        subscribe: (l: () => void) => {
+            listeners.add(l)
+            return () => listeners.delete(l)
+        },
+    }
+})()
+
+// Returns the forced playback method, if any
+export function useForcePlaybackMethod() {
+    const queueRef = React.useRef<Array<{ method: ForcePlaybackMethod, cb?: () => void }>>([])
+    const processingRef = React.useRef(false)
+
+    const processQueue = React.useCallback(() => {
+        if (processingRef.current) return
+        if (queueRef.current.length === 0) return
+        processingRef.current = true
+        const { method, cb } = queueRef.current[0]
+        __forcePlaybackMethodStore.set(method)
+        Promise.resolve().then(() => {
+            cb?.()
+            // devnote: don't, this resets playback method before user selects a torrent
+            // __forcePlaybackMethodStore.set(undefined)
+            queueRef.current.shift()
+            processingRef.current = false
+            processQueue()
+        })
+    }, [])
+
+    const forcePlaybackMethodFn = React.useCallback((method: ForcePlaybackMethod | undefined, cb?: () => void) => {
+        if (!method) {
+            cb?.()
+            return
+        }
+        queueRef.current.push({ method, cb })
+        processQueue()
+    }, [processQueue])
+
+    const getForcePlaybackMethod = React.useCallback(() => __forcePlaybackMethodStore.get(), [])
+
+    const resetForcePlaybackMethod = React.useCallback(() => {
+        queueRef.current = []
+        processingRef.current = false
+        __forcePlaybackMethodStore.set(undefined)
+    }, [])
+
+    return { forcePlaybackMethodFn, resetForcePlaybackMethod, getForcePlaybackMethod }
+}
+
