@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.6
+
+- 🦺 Server: Fixed -datadir flag (regression)
+
 ## v3.0.5
 
 - ⚡️ Denshi: Added "Play externally" context menu option to episode cards

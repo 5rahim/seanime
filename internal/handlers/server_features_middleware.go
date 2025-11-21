@@ -115,12 +115,24 @@ func (h *Handler) FeaturesMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			{"/api/v1/library/explorer", h.App.FeatureManager.IsDisabled(core.ManageLocalAnimeLibrary), UpdateMethods, Empty},
 		}
 
+		pathPrefixes := make([]string, 0, len(pathFeatureConfigs))
 		for _, config := range pathFeatureConfigs {
+			pathPrefixes = append(pathPrefixes, config.PathStartsWith)
 			if config.ShouldReject &&
 				strings.HasPrefix(path, config.PathStartsWith) &&
 				!slices.ContainsFunc(config.ExcludePaths, func(i string) bool { return path == i }) {
 				if len(config.Methods) == 0 || strings.Contains(strings.Join(config.Methods, ","), strings.ToUpper(method)) {
 					return h.RespondWithError(c, ErrFeatureDisabled)
+				}
+			}
+		}
+
+		if h.App.FeatureManager.IsDisabled(core.PushRequests) {
+			pathPrefixes = append(pathPrefixes, "/api/v1/anilist/list-anime", "/api/v1/anilist/list-manga", "/api/v1/anilist/list-recent-anime", "/api/v1/manga/anilist/list", "/api/v1/announcements")
+			if !slices.ContainsFunc(pathPrefixes, func(i string) bool { return strings.HasPrefix(path, i) }) {
+				if strings.Contains(strings.Join(UpdateMethods, ","), strings.ToUpper(method)) {
+					//return h.RespondWithError(c, ErrFeatureDisabled)
+					return h.RespondWithData(c, nil)
 				}
 			}
 		}

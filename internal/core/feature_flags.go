@@ -58,6 +58,7 @@ const (
 	ManageDebrid      FeatureKey = "ManageDebrid"
 	Proxy             FeatureKey = "Proxy"
 	ManageMangaSource FeatureKey = "ManageMangaSource"
+	PushRequests      FeatureKey = "PushRequests"
 )
 
 func NewFeatureManager(logger *zerolog.Logger, flags SeanimeFlags) *FeatureManager {
@@ -98,6 +99,7 @@ func NewFeatureManager(logger *zerolog.Logger, flags SeanimeFlags) *FeatureManag
 			Proxy,
 			Transcode,
 			ManageMangaSource,
+			PushRequests,
 		}
 	}
 
