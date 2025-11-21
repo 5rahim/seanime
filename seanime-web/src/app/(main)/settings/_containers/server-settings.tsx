@@ -286,6 +286,12 @@ export function ServerSettings(props: ServerSettingsProps) {
                         />
                     </div>
                 )}
+                <Field.Switch
+                    side="right"
+                    name="useFallbackMetadataProvider"
+                    label="Use fallback metadata provider"
+                    help="If enabled, Seanime will use an alternative source to fetch episode metadata."
+                />
                 {/*<Separator />*/}
                 {/*<Field.Switch*/}
                 {/*    side="right"*/}

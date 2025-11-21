@@ -55,9 +55,7 @@ func isMkvOrWebm(r io.Reader) (string, bool) {
 	}
 }
 
-// UTF8ToASSText
-//
-// note: needs testing
+// UTF8ToASSText converts UTF8 subtitle text to ASS format
 func UTF8ToASSText(text string) string {
 	// Convert HTML entities to actual characters
 	type tags struct {

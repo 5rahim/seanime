@@ -16,6 +16,8 @@ dev.dockerfile
 
 go.work
 
+.github/*.md
+
 _docker-compose.yml
 
 logs

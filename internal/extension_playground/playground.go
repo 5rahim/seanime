@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
@@ -36,6 +37,7 @@ type (
 		baseMangaCache     *result.Cache[int, *anilist.BaseManga]
 		metadataProvider   metadata_provider.Provider
 		gojaRuntimeManager *goja_runtime.Manager
+		wsEventManager     events.WSEventManagerInterface
 	}
 
 	RunPlaygroundCodeResponse struct {
@@ -60,6 +62,7 @@ func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform,
 		baseAnimeCache:     result.NewCache[int, *anilist.BaseAnime](),
 		baseMangaCache:     result.NewCache[int, *anilist.BaseManga](),
 		gojaRuntimeManager: goja_runtime.NewManager(logger),
+		wsEventManager:     events.NewMockWSEventManager(logger),
 	}
 }
 
@@ -225,7 +228,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager, r.wsEventManager)
 		if err != nil {
 			return newPlaygroundResponse(playgroundLogger, err), nil
 		}
@@ -340,7 +343,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager, r.wsEventManager)
 		if err != nil {
 			return newPlaygroundResponse(playgroundLogger, err), nil
 		}
@@ -432,7 +435,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager)
+		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, playgroundLogger.logger, r.gojaRuntimeManager, r.wsEventManager)
 		if err != nil {
 			return newPlaygroundResponse(playgroundLogger, err), nil
 		}

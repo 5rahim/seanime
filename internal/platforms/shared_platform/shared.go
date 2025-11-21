@@ -308,6 +308,9 @@ func (h *PlatformHelper) BuildAnimeAiringSchedule(ctx context.Context, collectio
 	missingIds := make([]*int, 0)
 	for _, list := range collection.MediaListCollection.Lists {
 		for _, entry := range list.Entries {
+			if customsource.IsExtensionId(entry.Media.GetID()) {
+				continue
+			}
 			if _, found := foundIds[entry.GetMedia().GetID()]; found {
 				continue
 			}

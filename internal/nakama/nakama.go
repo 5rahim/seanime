@@ -70,6 +70,8 @@ type Manager struct {
 	// Client settings
 	useDenshiPlayer bool         // Whether this client uses Denshi player
 	clientMu        sync.RWMutex // Mutex for client settings
+
+	isOffline *bool
 }
 
 type NewManagerOptions struct {
@@ -83,6 +85,7 @@ type NewManagerOptions struct {
 	ServerPort              int
 	NativePlayer            *nativeplayer.NativePlayer
 	DirectStreamManager     *directstream.Manager
+	IsOffline               *bool
 }
 
 type ConnectionType string
@@ -221,6 +224,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		nativePlayer:            opts.NativePlayer,
 		useDenshiPlayer:         false,
 		directstreamManager:     opts.DirectStreamManager,
+		isOffline:               opts.IsOffline,
 	}
 
 	m.mediaController = NewMediaController(m)
@@ -362,6 +366,16 @@ func (m *Manager) GetHostBaseServerURL() string {
 	return url
 }
 
+func (m *Manager) Stop() {
+	if m.IsHost() {
+		m.stopHostServices()
+	}
+	if m.IsConnectedToHost() {
+		m.disconnectFromHost()
+	}
+	m.Cleanup()
+}
+
 func (m *Manager) IsHost() bool {
 	return m.settings.IsHost
 }
@@ -479,7 +493,7 @@ func (m *Manager) SendMessageToHost(msgType MessageType, payload interface{}) er
 	m.hostMu.RLock()
 	defer m.hostMu.RUnlock()
 
-	if m.hostConnection == nil || !m.hostConnection.Authenticated {
+	if *m.isOffline || m.hostConnection == nil || !m.hostConnection.Authenticated {
 		return errors.New("not connected to host")
 	}
 
@@ -528,7 +542,7 @@ func (m *Manager) GetUseDenshiPlayer() bool {
 func (m *Manager) IsConnectedToHost() bool {
 	m.hostMu.RLock()
 	defer m.hostMu.RUnlock()
-	return m.hostConnection != nil && m.hostConnection.Authenticated
+	return !*m.isOffline && m.hostConnection != nil && m.hostConnection.Authenticated
 }
 
 // GetHostConnectionStatus returns the status of the host connection

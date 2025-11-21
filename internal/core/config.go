@@ -61,25 +61,28 @@ type Config struct {
 }
 
 type ConfigOptions struct {
-	DataDir          string // The path to the Seanime data directory, if any
-	OnVersionChange  []func(oldVersion string, newVersion string)
-	EmbeddedLogo     []byte // The embedded logo
-	IsDesktopSidecar bool   // Run as the desktop sidecar
+	Flags           SeanimeFlags
+	OnVersionChange []func(oldVersion string, newVersion string)
+	EmbeddedLogo    []byte // The embedded logo
 }
 
 // NewConfig initializes the config
 func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) {
+	flags := options.Flags
 
 	logger.Debug().Msg("app: Initializing config")
 
-	// Set Seanime's environment variables
-	if os.Getenv("SEANIME_DATA_DIR") != "" {
-		options.DataDir = os.Getenv("SEANIME_DATA_DIR")
+	definedDataDir := ""
+
+	// Set data dir (flag overrides env var)
+	if flags.DataDir == "" && os.Getenv("SEANIME_DATA_DIR") != "" {
+		definedDataDir = os.Getenv("SEANIME_DATA_DIR")
 	}
 
 	defaultHost := "127.0.0.1"
 	defaultPort := 43211
 
+	// Environment variables override defaults
 	if os.Getenv("SEANIME_SERVER_HOST") != "" {
 		defaultHost = os.Getenv("SEANIME_SERVER_HOST")
 	}
@@ -91,8 +94,16 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 		}
 	}
 
+	// Flags override environment variables
+	if flags.Host != "" {
+		defaultHost = flags.Host
+	}
+	if flags.Port != 0 {
+		defaultPort = flags.Port
+	}
+
 	// Initialize the app data directory
-	dataDir, configPath, err := initAppDataDir(options.DataDir, logger)
+	dataDir, configPath, err := initAppDataDir(definedDataDir, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +145,43 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	// Read the config file
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
+	}
+
+	// Check if host or port have been overridden and differ from config file
+	existingHost := viper.GetString("server.host")
+	existingPort := viper.GetInt("server.port")
+	hostChanged := false
+	portChanged := false
+
+	if (flags.Host != "" || os.Getenv("SEANIME_SERVER_HOST") != "") && existingHost != defaultHost {
+		viper.Set("server.host", defaultHost)
+		hostChanged = true
+	}
+	if (flags.Port != 0 || os.Getenv("SEANIME_SERVER_PORT") != "") && existingPort != defaultPort {
+		viper.Set("server.port", defaultPort)
+		portChanged = true
+	}
+	if flags.Password != "" {
+		viper.Set("server.password", flags.Password)
+		logger.Info().Msg("app: Set server password")
+	}
+	if flags.DisablePassword {
+		viper.Set("server.password", "")
+		logger.Info().Msg("app: Disabled server password")
+	}
+
+	// Write config if host or port changed
+	if hostChanged || portChanged {
+		if err := viper.WriteConfig(); err != nil {
+			logger.Warn().Err(err).Msg("app: Failed to update config with new host/port")
+		} else {
+			logger.Info().
+				Bool("hostChanged", hostChanged).
+				Bool("portChanged", portChanged).
+				Str("host", defaultHost).
+				Int("port", defaultPort).
+				Msg("app: Updated config with new host/port")
+		}
 	}
 
 	// Unmarshal the config values

@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"seanime/internal/customsource"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 )
 
 // HandleCreatePlaylist
@@ -138,9 +140,14 @@ func (h *Handler) HandleGetPlaylistEpisodes(c echo.Context) error {
 	}
 
 	// Get the host anime library files
-	nakamaLfs, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
+	nakamaLfs, _, hydratedFromNakama := h.App.NakamaManager.GetHostAnimeLibraryFiles(c.Request().Context(), mId)
 	if hydratedFromNakama && len(nakamaLfs) > 0 {
 		lfs = nakamaLfs
+		// Filter out custom source local files
+		// TODO: Handle custom source local files (IDs to be converted to local use and back)
+		lfs = lo.Filter(lfs, func(item *anime.LocalFile, _ int) bool {
+			return !customsource.IsExtensionId(item.MediaId)
+		})
 	}
 
 	lfw := anime.NewLocalFileWrapper(lfs)

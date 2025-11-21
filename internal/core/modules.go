@@ -268,6 +268,7 @@ func (a *App) initModulesOnce() {
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
 		DirectStreamManager:     a.DirectStreamManager,
+		IsOffline:               a.IsOffline(),
 	})
 
 	// +---------------------+
@@ -344,6 +345,10 @@ func (a *App) InitOrRefreshModules() {
 	a.Settings = settings // Store settings instance in app
 	if settings.Library != nil {
 		a.LibraryDir = settings.GetLibrary().LibraryPath
+
+		if a.MetadataProvider != nil {
+			a.MetadataProvider.SetUseFallbackProvider(settings.GetLibrary().UseFallbackMetadataProvider)
+		}
 	}
 
 	if settings.Anilist != nil {

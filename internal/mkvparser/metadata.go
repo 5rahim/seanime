@@ -24,7 +24,7 @@ const (
 // TrackInfo holds extracted information about a media track.
 type TrackInfo struct {
 	Number       int64     `json:"number"`
-	UID          int64     `json:"uid"`
+	UID          uint64    `json:"uid"`
 	Type         TrackType `json:"type"` // "video", "audio", "subtitle", etc.
 	CodecID      string    `json:"codecID"`
 	Name         string    `json:"name,omitempty"`

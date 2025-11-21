@@ -47,7 +47,7 @@ export function ChapterPage(props: ChapterPageProps) {
         }
     }, [isLoaded])
 
-    const { getChapterPageUrl } = useMangaReaderUtils()
+    const { getChapterPageUrl, isReady } = useMangaReaderUtils()
 
     if (!page) return null
 
@@ -60,7 +60,7 @@ export function ChapterPage(props: ChapterPageProps) {
                 id={`page-${index}`}
                 tabIndex={-1}
             >
-                {isLoading &&
+                {(isLoading || !isReady) &&
                     <LoadingSpinner data-chapter-page-loading-spinner containerClass="h-full absolute inset-0 z-[1] w-full mx-auto" tabIndex={-1} />}
                 {hasError &&
                     <div
@@ -71,7 +71,7 @@ export function ChapterPage(props: ChapterPageProps) {
                     >
                         <IconButton intent="white" icon={<FaRedo id="retry-icon" />} onClick={retry} id="retry-button" tabIndex={-1} />
                     </div>}
-                <img
+                {isReady && <img
                     data-chapter-page-image
                     data-page-index={index}
                     src={getChapterPageUrl(page.url, pageContainer?.isDownloaded, page.headers)}
@@ -80,7 +80,7 @@ export function ChapterPage(props: ChapterPageProps) {
                     style={{ width: imageWidth, maxWidth: imageMaxWidth }}
                     ref={ref}
                     tabIndex={-1}
-                />
+                />}
             </div>
         </>
     )

@@ -184,7 +184,7 @@ var videoProxyClient = &http.Client{
 
 func (s *DebridStream) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(debrid): Stream endpoint hit")
+		//s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(debrid): Stream endpoint hit")
 
 		if s.streamUrl == "" {
 			s.logger.Error().Msg("directstream(debrid): No URL to stream")

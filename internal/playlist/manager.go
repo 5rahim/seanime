@@ -616,7 +616,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 	// nakama and desktop media player or native player, play it from server
 	if isNakama && (data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault || data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer) {
 		m.logger.Debug().Msg("playlist: Nakama stream and desktop media player, playing from server")
-		err := m.nakamaManager.PlayHostAnimeLibraryFile(episode.Episode.LocalFile.Path, "", m.clientId, episode.Episode.BaseAnime, episode.Episode.AniDBEpisode)
+		err := m.nakamaManager.PlayHostAnimeLibraryFile(episode.Episode.LocalFile.Path, "", m.clientId, episode.Episode.BaseAnime, episode.Episode.AniDBEpisode, "")
 		if err != nil {
 			m.logger.Error().Err(err).Msg("playlist: Failed to start playing nakama stream")
 			m.StopPlaylist("Failed to start playing nakama stream")

@@ -5,7 +5,7 @@ import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { __issueReport_overlayOpenAtom } from "@/app/(main)/_features/issue-report/issue-report"
-import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useServerDisabledFeatures, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
@@ -70,6 +70,7 @@ export const dynamic = "force-static"
 
 export default function Page() {
     const status = useServerStatus()
+    const { isFeatureDisabled, showFeatureWarning } = useServerDisabledFeatures()
     const setServerStatus = useSetServerStatus()
     const router = useRouter()
 
@@ -95,6 +96,8 @@ export default function Page() {
     const setIssueRecorderOpen = useSetAtom(__issueReport_overlayOpenAtom)
 
     function handleOpenIssueRecorder() {
+        if (isFeatureDisabled("UpdateSettings")) return showFeatureWarning()
+
         setIssueRecorderOpen(true)
         router.push("/")
     }
@@ -324,6 +327,7 @@ export default function Page() {
                                         scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
                                         autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
+                                        useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -478,6 +482,7 @@ export default function Page() {
                                 includeNakamaAnimeLibrary: status?.settings?.nakama?.includeNakamaAnimeLibrary ?? false,
                                 nakamaHostUnsharedAnimeIds: status?.settings?.nakama?.hostUnsharedAnimeIds ?? [],
                                 autoSaveCurrentMediaOffline: status?.settings?.library?.autoSaveCurrentMediaOffline ?? false,
+                                useFallbackMetadataProvider: status?.settings?.library?.useFallbackMetadataProvider ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >

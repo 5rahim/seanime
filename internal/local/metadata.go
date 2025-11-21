@@ -45,6 +45,10 @@ func (mp *OfflineMetadataProvider) Close() {
 	// no-op
 }
 
+func (mp *OfflineMetadataProvider) SetUseFallbackProvider(useFallback bool) {
+	// no-op
+}
+
 func (mp *OfflineMetadataProvider) loadAnimeSnapshots() {
 	animeSnapshots, ok := mp.manager.localDb.GetAnimeSnapshots()
 	if !ok {

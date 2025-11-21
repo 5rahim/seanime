@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikecustomsource "seanime/internal/extension/hibike/customsource"
 	"seanime/internal/goja/goja_runtime"
@@ -19,8 +20,8 @@ type GojaCustomSource struct {
 	extensionIdentifier int
 }
 
-func NewGojaCustomSource(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (hibikecustomsource.Provider, *GojaCustomSource, error) {
-	base, err := initializeProviderBase(ext, language, logger, runtimeManager)
+func NewGojaCustomSource(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, wsEventManager events.WSEventManagerInterface) (hibikecustomsource.Provider, *GojaCustomSource, error) {
+	base, err := initializeProviderBase(ext, language, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		return nil, nil, err
 	}

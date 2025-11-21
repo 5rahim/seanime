@@ -88,6 +88,8 @@ type LibrarySettings struct {
 	// v2.9+
 	AutoSyncToLocalAccount      bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
 	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
+	// v3+
+	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -524,6 +526,12 @@ type CustomSourceCollection struct {
 	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
 	Type        string `gorm:"column:type" json:"type"`   // "anime" or "manga"
 	Value       []byte `gorm:"column:value" json:"value"` // Marshalled struct
+}
+
+type CustomSourceIdentifier struct {
+	BaseModel
+	ExtensionId string `gorm:"column:extension_id;index" json:"extensionId"`
+	Value       int    `gorm:"column:value;index" json:"value"`
 }
 
 ///////////////////////////////////////////////////////////////////////////

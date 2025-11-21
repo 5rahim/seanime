@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/url"
+	"seanime/internal/core"
 	"seanime/internal/extension"
 	"seanime/internal/extension_playground"
 	"seanime/internal/util"
@@ -200,6 +201,10 @@ func (h *Handler) HandleGetAllExtensions(c echo.Context) error {
 	var b body
 	if err := c.Bind(&b); err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	if h.App.FeatureManager.IsDisabled(core.ManageExtensions) {
+		b.WithUpdates = false
 	}
 
 	extensions := h.App.ExtensionRepository.GetAllExtensions(b.WithUpdates)
@@ -410,6 +415,10 @@ func (h *Handler) HandleGetMarketplaceExtensions(c echo.Context) error {
 
 	if encodedMarketplaceUrl != "" {
 		marketplaceUrl, _ = url.PathUnescape(encodedMarketplaceUrl)
+	}
+
+	if h.App.FeatureManager.IsDisabled(core.ManageExtensions) {
+		marketplaceUrl = ""
 	}
 
 	extensions, err := h.App.ExtensionRepository.GetMarketplaceExtensions(marketplaceUrl)

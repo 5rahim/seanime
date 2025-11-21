@@ -173,7 +173,7 @@ func (s *Nakama) GetAttachmentByName(filename string) (*mkvparser.AttachmentInfo
 
 func (s *Nakama) GetStreamHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(nakama): Stream endpoint hit")
+		//s.logger.Trace().Str("range", r.Header.Get("Range")).Str("method", r.Method).Msg("directstream(nakama): Stream endpoint hit")
 
 		if s.streamUrl == "" {
 			s.logger.Error().Msg("directstream(nakama): No URL to stream")

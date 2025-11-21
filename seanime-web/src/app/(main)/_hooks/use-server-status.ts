@@ -1,3 +1,4 @@
+import { INTERNAL_FeatureKey } from "@/api/generated/types"
 import { serverAuthTokenAtom, serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { createNakamaHMACAuth, createServerPasswordHMACAuth } from "@/lib/server/hmac-auth"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
@@ -5,6 +6,7 @@ import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/index"
 import { useSetAtom } from "jotai/react"
 import React from "react"
+import { toast } from "sonner"
 
 export function useServerStatus() {
     return useAtomValue(serverStatusAtom)
@@ -153,6 +155,20 @@ export function useNakamaHMACAuth() {
                 console.error("Failed to generate Nakama HMAC token:", error)
                 return ""
             }
+        },
+    }
+}
+
+export function useServerDisabledFeatures() {
+    const status = useServerStatus()
+
+    return {
+        isFeatureDisabled: (feature: INTERNAL_FeatureKey) => {
+            if (!status?.disabledFeatures?.length) return false
+            return status?.disabledFeatures?.includes(feature)
+        },
+        showFeatureWarning: () => {
+            return toast.warning("This feature is disabled")
         },
     }
 }

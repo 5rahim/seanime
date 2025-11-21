@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"seanime/internal/api/anilist"
+	"seanime/internal/customsource"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/nakama"
@@ -80,7 +82,7 @@ func (h *Handler) HandleSendNakamaMessage(c echo.Context) error {
 //	@summary shares the local anime collection with Nakama clients.
 //	@desc This creates a new LibraryCollection struct and returns it.
 //	@desc This is used to share the local anime collection with Nakama clients.
-//	@route /api/v1/nakama/host/anime/library/collection [GET]
+//	@route /api/v1/nakama/host/anime/library [GET]
 //	@returns nakama.NakamaAnimeLibrary
 func (h *Handler) HandleGetNakamaAnimeLibrary(c echo.Context) error {
 	if !h.App.Settings.GetNakama().HostShareLocalAnimeLibrary {
@@ -133,59 +135,18 @@ func (h *Handler) HandleGetNakamaAnimeLibrary(c echo.Context) error {
 	})
 }
 
-// HandleGetNakamaAnimeLibraryCollection
+// HandleGetNakamaAnimeLibraryShared
 //
-//	@summary shares the local anime collection with Nakama clients.
-//	@desc This creates a new LibraryCollection struct and returns it.
-//	@desc This is used to share the local anime collection with Nakama clients.
-//	@route /api/v1/nakama/host/anime/library/collection [GET]
-//	@returns anime.LibraryCollection
-func (h *Handler) HandleGetNakamaAnimeLibraryCollection(c echo.Context) error {
+//	@summary returns true if the library is being shared.
+//	@desc This is used by Nakama peers to check if the library is being shared.
+//	@route /api/v1/nakama/host/anime/library/shared [GET]
+//	@returns bool
+func (h *Handler) HandleGetNakamaAnimeLibraryShared(c echo.Context) error {
 	if !h.App.Settings.GetNakama().HostShareLocalAnimeLibrary {
 		return h.RespondWithError(c, errors.New("host is not sharing its anime library"))
 	}
 
-	animeCollection, err := h.App.GetAnimeCollection(false)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	if animeCollection == nil {
-		return h.RespondWithData(c, &anime.LibraryCollection{})
-	}
-
-	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
-	unsharedAnimeIdsMap := make(map[int]struct{})
-	unsharedAnimeIdsMap[0] = struct{}{}
-	for _, id := range unsharedAnimeIds {
-		unsharedAnimeIdsMap[id] = struct{}{}
-	}
-	lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-		_, ok := unsharedAnimeIdsMap[lf.MediaId]
-		return !ok
-	})
-
-	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
-		AnimeCollection:  animeCollection,
-		Platform:         h.App.AnilistPlatform,
-		LocalFiles:       lfs,
-		MetadataProvider: h.App.MetadataProvider,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	// Hydrate total library size
-	if libraryCollection != nil && libraryCollection.Stats != nil {
-		libraryCollection.Stats.TotalSize = util.Bytes(h.App.TotalLibrarySize)
-	}
-
-	return h.RespondWithData(c, libraryCollection)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetNakamaAnimeLibraryFiles
@@ -194,7 +155,7 @@ func (h *Handler) HandleGetNakamaAnimeLibraryCollection(c echo.Context) error {
 //	@desc This is used by the anime media entry pages to get all the data about the anime.
 //	@route /api/v1/nakama/host/anime/library/files/{id} [POST]
 //	@param id - int - true - "AniList anime media ID"
-//	@returns []anime.LocalFile
+//	@returns nakama.NakamaLocalFiles
 func (h *Handler) HandleGetNakamaAnimeLibraryFiles(c echo.Context) error {
 	if !h.App.Settings.GetNakama().HostShareLocalAnimeLibrary {
 		return h.RespondWithError(c, errors.New("host is not sharing its anime library"))
@@ -205,27 +166,17 @@ func (h *Handler) HandleGetNakamaAnimeLibraryFiles(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	// Get all the local files
-	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
+	lfs, err := h.getFilteredLocalFiles(mId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
-	unsharedAnimeIdsMap := make(map[int]struct{})
-	unsharedAnimeIdsMap[0] = struct{}{}
-	for _, id := range unsharedAnimeIds {
-		unsharedAnimeIdsMap[id] = struct{}{}
+	ret, err := h.buildNakamaLocalFiles(lfs)
+	if err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	retLfs := lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-		if _, ok := unsharedAnimeIdsMap[lf.MediaId]; ok {
-			return false
-		}
-		return lf.MediaId == mId
-	})
-
-	return h.RespondWithData(c, retLfs)
+	return h.RespondWithData(c, ret)
 }
 
 // HandleGetNakamaAnimeAllLibraryFiles
@@ -233,16 +184,31 @@ func (h *Handler) HandleGetNakamaAnimeLibraryFiles(c echo.Context) error {
 //	@summary return all the local files for the host.
 //	@desc This is used to share the local anime collection with Nakama clients.
 //	@route /api/v1/nakama/host/anime/library/files [POST]
-//	@returns []anime.LocalFile
+//	@returns nakama.NakamaLocalFiles
 func (h *Handler) HandleGetNakamaAnimeAllLibraryFiles(c echo.Context) error {
 	if !h.App.Settings.GetNakama().HostShareLocalAnimeLibrary {
 		return h.RespondWithError(c, errors.New("host is not sharing its anime library"))
 	}
 
-	// Get all the local files
-	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
+	lfs, err := h.getFilteredLocalFiles(0)
 	if err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	ret, err := h.buildNakamaLocalFiles(lfs)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, ret)
+}
+
+// getFilteredLocalFiles retrieves and filters local files based on unshared anime IDs.
+// If mediaId is 0, returns all shared files. Otherwise, returns files for the specified media ID.
+func (h *Handler) getFilteredLocalFiles(mediaId int) ([]*anime.LocalFile, error) {
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
+	if err != nil {
+		return nil, err
 	}
 
 	unsharedAnimeIds := h.App.Settings.GetNakama().HostUnsharedAnimeIds
@@ -251,12 +217,54 @@ func (h *Handler) HandleGetNakamaAnimeAllLibraryFiles(c echo.Context) error {
 	for _, id := range unsharedAnimeIds {
 		unsharedAnimeIdsMap[id] = struct{}{}
 	}
-	lfs = lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
-		_, ok := unsharedAnimeIdsMap[lf.MediaId]
-		return !ok
-	})
 
-	return h.RespondWithData(c, lfs)
+	return lo.Filter(lfs, func(lf *anime.LocalFile, _ int) bool {
+		if _, ok := unsharedAnimeIdsMap[lf.MediaId]; ok {
+			return false
+		}
+		if mediaId != 0 {
+			return lf.MediaId == mediaId
+		}
+		return true
+	}), nil
+}
+
+// buildNakamaLocalFiles constructs a NakamaLocalFiles response with custom source mappings.
+func (h *Handler) buildNakamaLocalFiles(lfs []*anime.LocalFile) (*nakama.NakamaLocalFiles, error) {
+	animeCollection, err := h.App.GetAnimeCollection(false)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &nakama.NakamaLocalFiles{
+		LocalFiles:      lfs,
+		CustomSourceMap: make(nakama.NakamaCustomSourceMap),
+	}
+
+	util.Spew(animeCollection)
+
+	customSourceMediaMap := make(map[int]*anilist.BaseAnime)
+
+	for _, lf := range lfs {
+		if customsource.IsExtensionId(lf.MediaId) {
+			media, ok := customSourceMediaMap[lf.MediaId]
+			if !ok {
+				var found bool
+				media, found = animeCollection.FindAnime(lf.MediaId)
+				if !found {
+					continue
+				}
+				customSourceMediaMap[lf.MediaId] = media
+			}
+			customSourceExtId, ok := customsource.GetCustomSourceExtensionIdFromSiteUrl(media.GetSiteURL())
+			if !ok {
+				continue
+			}
+			ret.CustomSourceMap[lf.MediaId] = customSourceExtId
+		}
+	}
+
+	return ret, nil
 }
 
 // HandleNakamaPlayVideo
@@ -266,10 +274,11 @@ func (h *Handler) HandleGetNakamaAnimeAllLibraryFiles(c echo.Context) error {
 //	@returns bool
 func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 	type body struct {
-		Path         string `json:"path"`
-		MediaId      int    `json:"mediaId"`
-		AniDBEpisode string `json:"anidbEpisode"`
-		ClientId     string `json:"clientId"`
+		Path                string `json:"path"`
+		MediaId             int    `json:"mediaId"`
+		AniDBEpisode        string `json:"anidbEpisode"`
+		ClientId            string `json:"clientId"`
+		ForcePlaybackMethod string `json:"forcePlaybackMethod,omitempty"`
 	}
 	b := new(body)
 	if err := c.Bind(b); err != nil {
@@ -285,7 +294,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), b.ClientId, media, b.AniDBEpisode)
+	err = h.App.NakamaManager.PlayHostAnimeLibraryFile(b.Path, c.Request().Header.Get("User-Agent"), b.ClientId, media, b.AniDBEpisode, b.ForcePlaybackMethod)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

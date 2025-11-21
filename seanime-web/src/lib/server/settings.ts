@@ -109,6 +109,7 @@ export const settingsSchema = z.object({
     autoSaveCurrentMediaOffline: z.boolean().optional().default(false),
     disableCacheLayer: z.boolean().optional().default(false),
     autoSelectTorrentProvider: z.string().optional().default(""),
+    useFallbackMetadataProvider: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
@@ -137,6 +138,7 @@ export const getDefaultSettings = (data: z.infer<typeof gettingStartedSchema>): 
         scannerMatchingAlgorithm: "",
         autoSyncToLocalAccount: false,
         autoSaveCurrentMediaOffline: false,
+        useFallbackMetadataProvider: false,
     },
     nakama: {
         enabled: false,

@@ -1412,6 +1412,7 @@ export type NakamaPlayVideo_Variables = {
     mediaId: number
     anidbEpisode: string
     clientId: string
+    forcePlaybackMethod?: string
 }
 
 /**
