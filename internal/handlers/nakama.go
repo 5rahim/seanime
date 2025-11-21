@@ -241,8 +241,6 @@ func (h *Handler) buildNakamaLocalFiles(lfs []*anime.LocalFile) (*nakama.NakamaL
 		CustomSourceMap: make(nakama.NakamaCustomSourceMap),
 	}
 
-	util.Spew(animeCollection)
-
 	customSourceMediaMap := make(map[int]*anilist.BaseAnime)
 
 	for _, lf := range lfs {
