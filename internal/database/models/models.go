@@ -88,6 +88,8 @@ type LibrarySettings struct {
 	// v2.9+
 	AutoSyncToLocalAccount      bool `gorm:"column:auto_sync_to_local_account" json:"autoSyncToLocalAccount"`
 	AutoSaveCurrentMediaOffline bool `gorm:"column:auto_save_current_media_offline" json:"autoSaveCurrentMediaOffline"`
+	// v3+
+	UseFallbackMetadataProvider bool `gorm:"column:use_fallback_metadata_provider" json:"useFallbackMetadataProvider"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

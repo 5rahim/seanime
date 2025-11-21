@@ -30,6 +30,10 @@ func (a *App) SetOfflineMode(enabled bool) {
 
 	// Update the platform and metadata provider
 	if enabled {
+		if a.NakamaManager.IsConnectedToHost() || a.NakamaManager.IsHost() {
+			a.NakamaManager.Stop()
+		}
+
 		a.AnilistPlatform, _ = offline_platform.NewOfflinePlatform(a.LocalManager, a.AnilistClient, a.Logger)
 		a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
 		a.MetadataProvider = a.LocalManager.GetOfflineMetadataProvider()

@@ -8,6 +8,7 @@ import {
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerDisabledFeatures } from "@/app/(main)/_hooks/use-server-status"
 import { SeaImage } from "@/components/shared/sea-image"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -121,12 +122,15 @@ const ExtensionList = ({
                 >
                     <div className="space-y-1 max-h-[310px] overflow-y-auto" data-plugin-sidebar-debug-popover-content>
                         {/* <div className="text-sm">
-                            <p className="font-bold">
-                                Plugins
-                            </p>
-                        </div> */}
+                         <p className="font-bold">
+                         Plugins
+                         </p>
+                         </div> */}
                         {trayIcons?.map(trayIcon => (
-                            <div key={trayIcon.extensionId} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1 max-w-full">
+                            <div
+                                key={trayIcon.extensionId}
+                                className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1 max-w-full"
+                            >
                                 <div
                                     className="flex items-center gap-2 cursor-pointer max-w-full"
                                     onClick={() => {
@@ -152,12 +156,12 @@ const ExtensionList = ({
                                 </div>
                                 <div className="flex items-center gap-1">
                                     {/* <IconButton
-                                        intent="gray-basic"
-                                        size="sm"
-                                        icon={<LuRefreshCw className="size-4" />}
-                                        className="rounded-full"
-                                        onClick={() => reloadExternalExtension({ id: trayIcon.extensionId })}
-                                        loading={isReloadingExtension}
+                                     intent="gray-basic"
+                                     size="sm"
+                                     icon={<LuRefreshCw className="size-4" />}
+                                     className="rounded-full"
+                                     onClick={() => reloadExternalExtension({ id: trayIcon.extensionId })}
+                                     loading={isReloadingExtension}
                                      /> */}
                                     <Tooltip
                                         trigger={<div>
@@ -196,20 +200,20 @@ const ExtensionList = ({
                         </p>}
 
                         {/* {developmentModeExtensions?.map(extension => (
-                            <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
-                                <p className="text-sm font-medium">{extension.id}</p>
-                                <div>
-                                    <IconButton
-                                        intent="warning-basic"
-                                        size="sm"
-                                        icon={<LuRefreshCw className="size-5" />}
-                                        className="rounded-full"
-                                        onClick={() => reloadExternalExtension({ id: extension.id })}
-                                        loading={isReloadingExtension}
-                                    />
-                                </div>
-                            </div>
-                        ))} */}
+                         <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
+                         <p className="text-sm font-medium">{extension.id}</p>
+                         <div>
+                         <IconButton
+                         intent="warning-basic"
+                         size="sm"
+                         icon={<LuRefreshCw className="size-5" />}
+                         className="rounded-full"
+                         onClick={() => reloadExternalExtension({ id: extension.id })}
+                         loading={isReloadingExtension}
+                         />
+                         </div>
+                         </div>
+                         ))} */}
                     </div>
                 </Popover>
 
@@ -269,6 +273,7 @@ const ExtensionList = ({
 }
 
 export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
+    const { isFeatureDisabled } = useServerDisabledFeatures()
     const { width } = useWindowSize()
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
 
@@ -385,11 +390,12 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
             setTimeout(() => {
                 refetch()
             }, 1000)
-        }
+        },
     })
 
     const isMobile = width && width < 1024
 
+    if (isFeatureDisabled("PluginTray")) return null
 
     if (!trayIcons) return null
 

@@ -73,7 +73,12 @@ export function useServerMutation<R = void, V = void>(
     return useMutation<R | undefined, SeaError, V>({
         onError: error => {
             console.log("Mutation error", error)
-            toast.error(_handleSeaError(error.response?.data))
+            const errorMsg = _handleSeaError(error.response?.data)
+            if (errorMsg.includes("feature disabled")) {
+                toast.warning("This feature is disabled")
+                return
+            }
+            toast.error(errorMsg)
         },
         mutationFn: async (variables) => {
             return buildSeaQuery<R, V>({
@@ -136,6 +141,9 @@ export function useServerQuery<R, V = any>(
             }
             console.log("Server error", props.error)
             const errorMsg = _handleSeaError(props.error?.response?.data)
+            if (errorMsg.includes("feature disabled")) {
+                return
+            }
             if (!!errorMsg) {
                 toast.error(errorMsg)
             }

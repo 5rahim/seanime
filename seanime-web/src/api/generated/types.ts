@@ -1820,6 +1820,38 @@ export type INTERNAL_FeatureFlags = {
     MainServerTorrentStreaming: boolean
 }
 
+/**
+ * - Filepath: internal/core/feature_flags.go
+ * - Filename: feature_flags.go
+ * - Package: core
+ */
+export type INTERNAL_FeatureKey = "ManageOfflineMode" |
+    "ViewSettings" |
+    "ViewLogs" |
+    "UpdateSettings" |
+    "ManagePlaylist" |
+    "ManageLocalAnimeLibrary" |
+    "ManageAccount" |
+    "ViewAccount" |
+    "ManageLists" |
+    "RefreshMetadata" |
+    "ManageAnimeDownloads" |
+    "ManageMangaDownloads" |
+    "WatchingLocalAnime" |
+    "TorrentStreaming" |
+    "DebridStreaming" |
+    "OnlineStreaming" |
+    "Reading" |
+    "ViewAutoDownloader" |
+    "ManageAutoDownloader" |
+    "ViewScanSummaries" |
+    "ManageLibraryExplorer" |
+    "ViewExtensions" |
+    "ManageExtensions" |
+    "ManageHomeScreen" |
+    "OpenInExplorer" |
+    "PluginTray"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2657,6 +2689,7 @@ export type Status = {
      */
     isDesktopSidecar: boolean
     featureFlags?: INTERNAL_FeatureFlags
+    disabledFeatures?: Array<INTERNAL_FeatureKey>
     serverReady: boolean
     serverHasPassword: boolean
 }

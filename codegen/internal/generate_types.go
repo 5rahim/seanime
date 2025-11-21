@@ -28,6 +28,7 @@ var additionalStructNames = []string{
 	"nativeplayer.ClientEvent",
 	"mkvparser.SubtitleEvent",
 	"nakama.NakamaStatus",
+	"core.FeatureKey",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

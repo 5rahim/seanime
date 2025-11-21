@@ -27796,6 +27796,28 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Flags",
+        "jsonName": "Flags",
+        "goType": "SeanimeFlags",
+        "typescriptType": "INTERNAL_SeanimeFlags",
+        "usedTypescriptType": "INTERNAL_SeanimeFlags",
+        "usedStructName": "core.SeanimeFlags",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FeatureManager",
+        "jsonName": "FeatureManager",
+        "goType": "FeatureManager",
+        "typescriptType": "INTERNAL_FeatureManager",
+        "usedTypescriptType": "INTERNAL_FeatureManager",
+        "usedStructName": "core.FeatureManager",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28357,15 +28379,15 @@
     "package": "core",
     "fields": [
       {
-        "name": "DataDir",
-        "jsonName": "DataDir",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "Flags",
+        "jsonName": "Flags",
+        "goType": "SeanimeFlags",
+        "typescriptType": "INTERNAL_SeanimeFlags",
+        "usedTypescriptType": "INTERNAL_SeanimeFlags",
+        "usedStructName": "core.SeanimeFlags",
         "required": true,
         "public": true,
-        "comments": [
-          " The path to the Seanime data directory, if any"
-        ]
+        "comments": []
       },
       {
         "name": "OnVersionChange",
@@ -28386,17 +28408,6 @@
         "comments": [
           " The embedded logo"
         ]
-      },
-      {
-        "name": "IsDesktopSidecar",
-        "jsonName": "IsDesktopSidecar",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Run as the desktop sidecar"
-        ]
       }
     ],
     "comments": []
@@ -28408,6 +28419,77 @@
     "formattedName": "INTERNAL_CustomJSONSerializer",
     "package": "core",
     "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "FeatureKey",
+    "formattedName": "INTERNAL_FeatureKey",
+    "package": "core",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"ManageOfflineMode\"",
+        "\"ViewSettings\"",
+        "\"ViewLogs\"",
+        "\"UpdateSettings\"",
+        "\"ManagePlaylist\"",
+        "\"ManageLocalAnimeLibrary\"",
+        "\"ManageAccount\"",
+        "\"ViewAccount\"",
+        "\"ManageLists\"",
+        "\"RefreshMetadata\"",
+        "\"ManageAnimeDownloads\"",
+        "\"ManageMangaDownloads\"",
+        "\"WatchingLocalAnime\"",
+        "\"TorrentStreaming\"",
+        "\"DebridStreaming\"",
+        "\"OnlineStreaming\"",
+        "\"Reading\"",
+        "\"ViewAutoDownloader\"",
+        "\"ManageAutoDownloader\"",
+        "\"ViewScanSummaries\"",
+        "\"ManageLibraryExplorer\"",
+        "\"ViewExtensions\"",
+        "\"ManageExtensions\"",
+        "\"ManageHomeScreen\"",
+        "\"OpenInExplorer\"",
+        "\"PluginTray\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "FeatureManager",
+    "formattedName": "INTERNAL_FeatureManager",
+    "package": "core",
+    "fields": [
+      {
+        "name": "disabledFeatures",
+        "jsonName": "disabledFeatures",
+        "goType": "map[FeatureKey]bool",
+        "typescriptType": "Record\u003cFeatureKey, boolean\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "DisabledFeatures",
+        "jsonName": "DisabledFeatures",
+        "goType": "[]FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -28455,6 +28537,24 @@
         "comments": []
       },
       {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Update",
         "jsonName": "Update",
         "goType": "bool",
@@ -28466,6 +28566,44 @@
       {
         "name": "IsDesktopSidecar",
         "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableFeatures",
+        "jsonName": "DisableFeatures",
+        "goType": "[]FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Password",
+        "jsonName": "Password",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisablePassword",
+        "jsonName": "DisablePassword",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LockDown",
+        "jsonName": "LockDown",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -41625,6 +41763,17 @@
         "typescriptType": "INTERNAL_FeatureFlags",
         "usedTypescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisabledFeatures",
+        "jsonName": "disabledFeatures",
+        "goType": "[]core.FeatureKey",
+        "typescriptType": "Array\u003cINTERNAL_FeatureKey\u003e",
+        "usedTypescriptType": "INTERNAL_FeatureKey",
+        "usedStructName": "core.FeatureKey",
         "required": false,
         "public": true,
         "comments": []
@@ -64133,6 +64282,15 @@
         "comments": [
           " Mutex for client settings"
         ]
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -64246,6 +64404,15 @@
         "typescriptType": "Directstream_Manager",
         "usedTypescriptType": "Directstream_Manager",
         "usedStructName": "directstream.Manager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []

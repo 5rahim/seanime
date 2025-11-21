@@ -268,6 +268,7 @@ func (a *App) initModulesOnce() {
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
 		DirectStreamManager:     a.DirectStreamManager,
+		IsOffline:               a.IsOffline(),
 	})
 
 	// +---------------------+

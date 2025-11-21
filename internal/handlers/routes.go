@@ -115,6 +115,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// Auth middleware
 	//
 	v1.Use(h.OptionalAuthMiddleware)
+	v1.Use(h.FeaturesMiddleware)
 
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
