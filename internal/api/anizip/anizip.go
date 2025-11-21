@@ -11,8 +11,6 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// AniZip is the API used for fetching anime metadata and mappings.
-
 type (
 	Episode struct {
 		TvdbEid               int               `json:"tvdbEid,omitempty"`

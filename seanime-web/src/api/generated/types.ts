@@ -1835,22 +1835,25 @@ export type INTERNAL_FeatureKey = "ManageOfflineMode" |
     "ViewAccount" |
     "ManageLists" |
     "RefreshMetadata" |
-    "ManageAnimeDownloads" |
     "ManageMangaDownloads" |
     "WatchingLocalAnime" |
     "TorrentStreaming" |
     "DebridStreaming" |
     "OnlineStreaming" |
+    "Transcode" |
     "Reading" |
     "ViewAutoDownloader" |
     "ManageAutoDownloader" |
     "ViewScanSummaries" |
-    "ManageLibraryExplorer" |
     "ViewExtensions" |
     "ManageExtensions" |
     "ManageHomeScreen" |
     "OpenInExplorer" |
-    "PluginTray"
+    "PluginTray" |
+    "ManageNakama" |
+    "ManageDebrid" |
+    "Proxy" |
+    "ManageMangaSource"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Debrid
@@ -3665,6 +3668,7 @@ export type Models_LibrarySettings = {
     scannerMatchingAlgorithm: string
     autoSyncToLocalAccount: boolean
     autoSaveCurrentMediaOffline: boolean
+    useFallbackMetadataProvider: boolean
 }
 
 /**

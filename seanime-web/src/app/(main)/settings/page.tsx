@@ -327,6 +327,7 @@ export default function Page() {
                                         scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                         autoSyncToLocalAccount: data.autoSyncToLocalAccount ?? false,
                                         autoSaveCurrentMediaOffline: data.autoSaveCurrentMediaOffline ?? false,
+                                        useFallbackMetadataProvider: data.useFallbackMetadataProvider ?? false,
                                     },
                                     nakama: {
                                         enabled: data.nakamaEnabled ?? false,
@@ -481,6 +482,7 @@ export default function Page() {
                                 includeNakamaAnimeLibrary: status?.settings?.nakama?.includeNakamaAnimeLibrary ?? false,
                                 nakamaHostUnsharedAnimeIds: status?.settings?.nakama?.hostUnsharedAnimeIds ?? [],
                                 autoSaveCurrentMediaOffline: status?.settings?.library?.autoSaveCurrentMediaOffline ?? false,
+                                useFallbackMetadataProvider: status?.settings?.library?.useFallbackMetadataProvider ?? false,
                             }}
                             stackClass="space-y-0 relative"
                         >

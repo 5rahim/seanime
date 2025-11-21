@@ -26557,6 +26557,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "useFallbackProvider",
+        "jsonName": "useFallbackProvider",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -28442,22 +28453,25 @@
         "\"ViewAccount\"",
         "\"ManageLists\"",
         "\"RefreshMetadata\"",
-        "\"ManageAnimeDownloads\"",
         "\"ManageMangaDownloads\"",
         "\"WatchingLocalAnime\"",
         "\"TorrentStreaming\"",
         "\"DebridStreaming\"",
         "\"OnlineStreaming\"",
+        "\"Transcode\"",
         "\"Reading\"",
         "\"ViewAutoDownloader\"",
         "\"ManageAutoDownloader\"",
         "\"ViewScanSummaries\"",
-        "\"ManageLibraryExplorer\"",
         "\"ViewExtensions\"",
         "\"ManageExtensions\"",
         "\"ManageHomeScreen\"",
         "\"OpenInExplorer\"",
-        "\"PluginTray\""
+        "\"PluginTray\"",
+        "\"ManageNakama\"",
+        "\"ManageDebrid\"",
+        "\"Proxy\"",
+        "\"ManageMangaSource\""
       ]
     },
     "comments": []
@@ -28487,6 +28501,17 @@
         "usedStructName": "core.FeatureKey",
         "required": false,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -29374,6 +29399,15 @@
       {
         "name": "AutoSaveCurrentMediaOffline",
         "jsonName": "autoSaveCurrentMediaOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseFallbackMetadataProvider",
+        "jsonName": "useFallbackMetadataProvider",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
