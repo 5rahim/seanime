@@ -28,32 +28,31 @@ func (a *App) GetUserAnilistToken() string {
 
 // UpdatePlatform changes the current platform to the provided one.
 func (a *App) UpdatePlatform(platform platform.Platform) {
-	if a.AnilistPlatform != nil {
-		a.AnilistPlatform.Close()
+	if a.AnilistPlatformRef.IsPresent() {
+		a.AnilistPlatformRef.Get().Close()
 	}
-	a.AnilistPlatform = platform
-	a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	a.AnilistPlatformRef.Set(platform)
 	a.AddOnRefreshAnilistCollectionFunc("anilist-platform", func() {
-		a.AnilistPlatform.ClearCache()
+		a.AnilistPlatformRef.Get().ClearCache()
 	})
 }
 
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClient = anilist.NewAnilistClient(token, a.AnilistCacheDir)
-	a.AnilistPlatform.SetAnilistClient(a.AnilistClient) // Update Anilist Client Wrapper in Platform
+	ac := anilist.NewAnilistClient(token, a.AnilistCacheDir)
+	a.AnilistClientRef.Set(ac)
 }
 
 // GetAnimeCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
 func (a *App) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	return a.AnilistPlatform.GetAnimeCollection(context.Background(), bypassCache)
+	return a.AnilistPlatformRef.Get().GetAnimeCollection(context.Background(), bypassCache)
 }
 
 // GetRawAnimeCollection is the same as GetAnimeCollection but returns the raw collection that includes custom lists
 func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	return a.AnilistPlatform.GetRawAnimeCollection(context.Background(), bypassCache)
+	return a.AnilistPlatformRef.Get().GetRawAnimeCollection(context.Background(), bypassCache)
 }
 
 func (a *App) SyncAnilistToSimulatedCollection() {
@@ -75,7 +74,7 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 		})
 	}()
 
-	ret, err := a.AnilistPlatform.RefreshAnimeCollection(context.Background())
+	ret, err := a.AnilistPlatformRef.Get().RefreshAnimeCollection(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -107,17 +106,17 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 // GetMangaCollection is the same as GetAnimeCollection but for manga
 func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	return a.AnilistPlatform.GetMangaCollection(context.Background(), bypassCache)
+	return a.AnilistPlatformRef.Get().GetMangaCollection(context.Background(), bypassCache)
 }
 
 // GetRawMangaCollection does not exclude custom lists
 func (a *App) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	return a.AnilistPlatform.GetRawMangaCollection(context.Background(), bypassCache)
+	return a.AnilistPlatformRef.Get().GetRawMangaCollection(context.Background(), bypassCache)
 }
 
 // RefreshMangaCollection queries Anilist for the user's manga collection
 func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
-	mc, err := a.AnilistPlatform.RefreshMangaCollection(context.Background())
+	mc, err := a.AnilistPlatformRef.Get().RefreshMangaCollection(context.Background())
 
 	if err != nil {
 		return nil, err

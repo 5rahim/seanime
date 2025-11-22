@@ -9,6 +9,7 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 	"strconv"
 	"time"
 
@@ -29,18 +30,18 @@ type (
 		transmission                *transmission.Transmission
 		torrentRepository           *torrent.Repository
 		provider                    string
-		metadataProvider            metadata_provider.Provider
+		metadataProviderRef         *util.Ref[metadata_provider.Provider]
 		activeTorrentCountCtxCancel context.CancelFunc
 		activeTorrentCount          *ActiveCount
 	}
 
 	NewRepositoryOptions struct {
-		Logger            *zerolog.Logger
-		QbittorrentClient *qbittorrent.Client
-		Transmission      *transmission.Transmission
-		TorrentRepository *torrent.Repository
-		Provider          string
-		MetadataProvider  metadata_provider.Provider
+		Logger              *zerolog.Logger
+		QbittorrentClient   *qbittorrent.Client
+		Transmission        *transmission.Transmission
+		TorrentRepository   *torrent.Repository
+		Provider            string
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 
 	ActiveCount struct {
@@ -55,13 +56,13 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		opts.Provider = QbittorrentClient
 	}
 	return &Repository{
-		logger:             opts.Logger,
-		qBittorrentClient:  opts.QbittorrentClient,
-		transmission:       opts.Transmission,
-		torrentRepository:  opts.TorrentRepository,
-		provider:           opts.Provider,
-		metadataProvider:   opts.MetadataProvider,
-		activeTorrentCount: &ActiveCount{},
+		logger:              opts.Logger,
+		qBittorrentClient:   opts.QbittorrentClient,
+		transmission:        opts.Transmission,
+		torrentRepository:   opts.TorrentRepository,
+		provider:            opts.Provider,
+		metadataProviderRef: opts.MetadataProviderRef,
+		activeTorrentCount:  &ActiveCount{},
 	}
 }
 

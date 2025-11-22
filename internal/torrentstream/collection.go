@@ -7,6 +7,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"strconv"
 	"sync"
 
@@ -23,9 +24,9 @@ type (
 	}
 
 	HydrateStreamCollectionOptions struct {
-		AnimeCollection   *anilist.AnimeCollection
-		LibraryCollection *anime.LibraryCollection
-		MetadataProvider  metadata_provider.Provider
+		AnimeCollection     *anilist.AnimeCollection
+		LibraryCollection   *anime.LibraryCollection
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 )
 
@@ -138,7 +139,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			}
 
 			// Get the media info
-			animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
+			animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 			if err != nil {
 				r.logger.Error().Err(err).Msg("torrentstream: could not fetch AniDB media")
 				return
@@ -167,7 +168,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 				Media:                entry.GetMedia(),
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         false,
-				MetadataProvider:     r.metadataProvider,
+				MetadataProvider:     r.metadataProviderRef.Get(),
 			})
 			if !found {
 				episode.EpisodeTitle = entry.GetMedia().GetPreferredTitle()

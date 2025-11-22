@@ -11,6 +11,7 @@ import (
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
 	"time"
@@ -29,9 +30,9 @@ type (
 
 		wsEventManager             events.WSEventManagerInterface
 		continuityManager          *continuity.Manager
-		metadataProvider           metadata_provider.Provider
+		metadataProviderRef        *util.Ref[metadata_provider.Provider]
 		discordPresence            *discordrpc_presence.Presence
-		platform                   platform.Platform
+		platformRef                *util.Ref[platform.Platform]
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 
 		nativePlayer           *nativeplayer.NativePlayer
@@ -53,7 +54,7 @@ type (
 
 		settings *Settings
 
-		isOffline       *bool
+		isOfflineRef    *util.Ref[bool]
 		animeCollection mo.Option[*anilist.AnimeCollection]
 		animeCache      *result.Cache[int, *anilist.BaseAnime]
 
@@ -69,12 +70,12 @@ type (
 	NewManagerOptions struct {
 		Logger                     *zerolog.Logger
 		WSEventManager             events.WSEventManagerInterface
-		MetadataProvider           metadata_provider.Provider
+		MetadataProviderRef        *util.Ref[metadata_provider.Provider]
 		ContinuityManager          *continuity.Manager
 		DiscordPresence            *discordrpc_presence.Presence
-		Platform                   platform.Platform
+		PlatformRef                *util.Ref[platform.Platform]
 		RefreshAnimeCollectionFunc func()
-		IsOffline                  *bool
+		IsOfflineRef               *util.Ref[bool]
 		NativePlayer               *nativeplayer.NativePlayer
 	}
 )
@@ -83,12 +84,12 @@ func NewManager(options NewManagerOptions) *Manager {
 	ret := &Manager{
 		Logger:                     options.Logger,
 		wsEventManager:             options.WSEventManager,
-		metadataProvider:           options.MetadataProvider,
+		metadataProviderRef:        options.MetadataProviderRef,
 		continuityManager:          options.ContinuityManager,
 		discordPresence:            options.DiscordPresence,
-		platform:                   options.Platform,
+		platformRef:                options.PlatformRef,
 		refreshAnimeCollectionFunc: options.RefreshAnimeCollectionFunc,
-		isOffline:                  options.IsOffline,
+		isOfflineRef:               options.IsOfflineRef,
 		currentStream:              mo.None[Stream](),
 		nativePlayer:               options.NativePlayer,
 		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
@@ -127,7 +128,7 @@ func (m *Manager) getAnime(ctx context.Context, mediaId int) (*anilist.BaseAnime
 	}
 
 	// Find in platform
-	media, err := m.platform.GetAnime(ctx, mediaId)
+	media, err := m.platformRef.Get().GetAnime(ctx, mediaId)
 	if err != nil {
 		return nil, err
 	}

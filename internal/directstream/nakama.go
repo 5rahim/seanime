@@ -287,10 +287,10 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 	defer m.playbackMu.Unlock()
 
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    nil,
-		Media:            opts.Media,
-		MetadataProvider: m.metadataProvider,
-		Logger:           m.Logger,
+		AnimeMetadata:       nil,
+		Media:               opts.Media,
+		MetadataProviderRef: m.metadataProviderRef,
+		Logger:              m.Logger,
 	})
 	if err != nil {
 		return fmt.Errorf("cannot play local file, could not create episode collection: %w", err)

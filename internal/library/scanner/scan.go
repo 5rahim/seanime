@@ -22,20 +22,20 @@ import (
 )
 
 type Scanner struct {
-	DirPath            string
-	OtherDirPaths      []string
-	Enhanced           bool
-	Platform           platform.Platform
-	Logger             *zerolog.Logger
-	WSEventManager     events.WSEventManagerInterface
-	ExistingLocalFiles []*anime.LocalFile
-	SkipLockedFiles    bool
-	SkipIgnoredFiles   bool
-	ScanSummaryLogger  *summary.ScanSummaryLogger
-	ScanLogger         *ScanLogger
-	MetadataProvider   metadata_provider.Provider
-	MatchingThreshold  float64
-	MatchingAlgorithm  string
+	DirPath             string
+	OtherDirPaths       []string
+	Enhanced            bool
+	PlatformRef         *util.Ref[platform.Platform]
+	Logger              *zerolog.Logger
+	WSEventManager      events.WSEventManagerInterface
+	ExistingLocalFiles  []*anime.LocalFile
+	SkipLockedFiles     bool
+	SkipIgnoredFiles    bool
+	ScanSummaryLogger   *summary.ScanSummaryLogger
+	ScanLogger          *ScanLogger
+	MetadataProviderRef *util.Ref[metadata_provider.Provider]
+	MatchingThreshold   float64
+	MatchingAlgorithm   string
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -275,8 +275,8 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(ctx, &MediaFetcherOptions{
 		Enhanced:               scn.Enhanced,
-		Platform:               scn.Platform,
-		MetadataProvider:       scn.MetadataProvider,
+		PlatformRef:            scn.PlatformRef,
+		MetadataProviderRef:    scn.MetadataProviderRef,
 		LocalFiles:             localFiles,
 		CompleteAnimeCache:     completeAnimeCache,
 		Logger:                 scn.Logger,
@@ -343,15 +343,15 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		AllMedia:           mc.NormalizedMedia,
-		LocalFiles:         localFiles,
-		MetadataProvider:   scn.MetadataProvider,
-		Platform:           scn.Platform,
-		CompleteAnimeCache: completeAnimeCache,
-		AnilistRateLimiter: anilistRateLimiter,
-		Logger:             scn.Logger,
-		ScanLogger:         scn.ScanLogger,
-		ScanSummaryLogger:  scn.ScanSummaryLogger,
+		AllMedia:            mc.NormalizedMedia,
+		LocalFiles:          localFiles,
+		MetadataProviderRef: scn.MetadataProviderRef,
+		PlatformRef:         scn.PlatformRef,
+		CompleteAnimeCache:  completeAnimeCache,
+		AnilistRateLimiter:  anilistRateLimiter,
+		Logger:              scn.Logger,
+		ScanLogger:          scn.ScanLogger,
+		ScanSummaryLogger:   scn.ScanSummaryLogger,
 	}
 	hydrator.HydrateMetadata()
 
@@ -366,7 +366,7 @@ func (scn *Scanner) Scan(ctx context.Context) (lfs []*anime.LocalFile, err error
 	if len(mf.UnknownMediaIds) < 5 {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Adding missing media to AniList...")
 
-		if err = scn.Platform.AddMediaToCollection(ctx, mf.UnknownMediaIds); err != nil {
+		if err = scn.PlatformRef.Get().AddMediaToCollection(ctx, mf.UnknownMediaIds); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}

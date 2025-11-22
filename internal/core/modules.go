@@ -101,14 +101,14 @@ func (a *App) initModulesOnce() {
 
 	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		Logger:            a.Logger,
-		WSEventManager:    a.WSEventManager,
-		Platform:          a.AnilistPlatform,
-		MetadataProvider:  a.MetadataProvider,
-		Database:          a.Database,
-		DiscordPresence:   a.DiscordPresence,
-		IsOffline:         a.IsOffline(),
-		ContinuityManager: a.ContinuityManager,
+		Logger:              a.Logger,
+		WSEventManager:      a.WSEventManager,
+		PlatformRef:         a.AnilistPlatformRef,
+		MetadataProviderRef: a.MetadataProviderRef,
+		Database:            a.Database,
+		DiscordPresence:     a.DiscordPresence,
+		IsOfflineRef:        a.IsOfflineRef(),
+		ContinuityManager:   a.ContinuityManager,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},
@@ -119,8 +119,9 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.TorrentRepository = torrent.NewRepository(&torrent.NewRepositoryOptions{
-		Logger:           a.Logger,
-		MetadataProvider: a.MetadataProvider,
+		Logger:              a.Logger,
+		MetadataProviderRef: a.MetadataProviderRef,
+		ExtensionBankRef:    a.ExtensionBankRef,
 	})
 
 	// +---------------------+
@@ -133,7 +134,7 @@ func (a *App) initModulesOnce() {
 		WSEventManager: a.WSEventManager,
 		DownloadDir:    a.Config.Manga.DownloadDir,
 		Repository:     a.MangaRepository,
-		IsOffline:      a.IsOffline(),
+		IsOfflineRef:   a.IsOfflineRef(),
 	})
 
 	a.MangaDownloader.Start()
@@ -166,16 +167,16 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.DirectStreamManager = directstream.NewManager(directstream.NewManagerOptions{
-		Logger:            a.Logger,
-		WSEventManager:    a.WSEventManager,
-		ContinuityManager: a.ContinuityManager,
-		MetadataProvider:  a.MetadataProvider,
-		DiscordPresence:   a.DiscordPresence,
-		Platform:          a.AnilistPlatform,
+		Logger:              a.Logger,
+		WSEventManager:      a.WSEventManager,
+		ContinuityManager:   a.ContinuityManager,
+		MetadataProviderRef: a.MetadataProviderRef,
+		DiscordPresence:     a.DiscordPresence,
+		PlatformRef:         a.AnilistPlatformRef,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},
-		IsOffline:    a.IsOffline(),
+		IsOfflineRef: a.IsOfflineRef(),
 		NativePlayer: a.NativePlayer,
 	})
 
@@ -187,9 +188,9 @@ func (a *App) initModulesOnce() {
 		Logger:              a.Logger,
 		BaseAnimeCache:      anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache:  anilist.NewCompleteAnimeCache(),
-		MetadataProvider:    a.MetadataProvider,
+		MetadataProviderRef: a.MetadataProviderRef,
 		TorrentRepository:   a.TorrentRepository,
-		Platform:            a.AnilistPlatform,
+		PlatformRef:         a.AnilistPlatformRef,
 		PlaybackManager:     a.PlaybackManager,
 		WSEventManager:      a.WSEventManager,
 		Database:            a.Database,
@@ -205,8 +206,8 @@ func (a *App) initModulesOnce() {
 		Logger:              a.Logger,
 		WSEventManager:      a.WSEventManager,
 		Database:            a.Database,
-		MetadataProvider:    a.MetadataProvider,
-		Platform:            a.AnilistPlatform,
+		MetadataProviderRef: a.MetadataProviderRef,
+		PlatformRef:         a.AnilistPlatformRef,
 		PlaybackManager:     a.PlaybackManager,
 		TorrentRepository:   a.TorrentRepository,
 		DirectStreamManager: a.DirectStreamManager,
@@ -227,9 +228,9 @@ func (a *App) initModulesOnce() {
 		TorrentRepository:       a.TorrentRepository,
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
-		MetadataProvider:        a.MetadataProvider,
+		MetadataProviderRef:     a.MetadataProviderRef,
 		DebridClientRepository:  a.DebridClientRepository,
-		IsOffline:               a.IsOffline(),
+		IsOfflineRef:            a.IsOfflineRef(),
 	})
 
 	// This is run in a goroutine
@@ -240,14 +241,14 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
-		Database:         a.Database,
-		Platform:         a.AnilistPlatform,
-		Logger:           a.Logger,
-		WSEventManager:   a.WSEventManager,
-		Enabled:          false, // Will be set in InitOrRefreshModules
-		AutoDownloader:   a.AutoDownloader,
-		MetadataProvider: a.MetadataProvider,
-		LogsDir:          a.Config.Logs.Dir,
+		Database:            a.Database,
+		PlatformRef:         a.AnilistPlatformRef,
+		Logger:              a.Logger,
+		WSEventManager:      a.WSEventManager,
+		Enabled:             false, // Will be set in InitOrRefreshModules
+		AutoDownloader:      a.AutoDownloader,
+		MetadataProviderRef: a.MetadataProviderRef,
+		LogsDir:             a.Config.Logs.Dir,
 	})
 
 	// This is run in a goroutine
@@ -263,12 +264,12 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:         a.PlaybackManager,
 		TorrentstreamRepository: a.TorrentstreamRepository,
 		DebridClientRepository:  a.DebridClientRepository,
-		Platform:                a.AnilistPlatform,
+		PlatformRef:             a.AnilistPlatformRef,
 		ServerHost:              a.Config.Server.Host,
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
 		DirectStreamManager:     a.DirectStreamManager,
-		IsOffline:               a.IsOffline(),
+		IsOfflineRef:            a.IsOfflineRef(),
 	})
 
 	// +---------------------+
@@ -279,7 +280,7 @@ func (a *App) initModulesOnce() {
 		TorrentstreamRepository: a.TorrentstreamRepository,
 		DebridClientRepository:  a.DebridClientRepository,
 		DirectStreamManager:     a.DirectStreamManager,
-		Platform:                a.AnilistPlatform,
+		PlatformRef:             a.AnilistPlatformRef,
 		PlaybackManager:         a.PlaybackManager,
 		WSEventManager:          a.WSEventManager,
 		NakamaManager:           a.NakamaManager,
@@ -292,9 +293,9 @@ func (a *App) initModulesOnce() {
 	// |   Anime Library     |
 	// +---------------------+
 	a.LibraryExplorer = library_explorer.NewLibraryExplorer(library_explorer.NewLibraryExplorerOptions{
-		Platform: a.AnilistPlatform,
-		Logger:   a.Logger,
-		Database: a.Database,
+		PlatformRef: a.AnilistPlatformRef,
+		Logger:      a.Logger,
+		Database:    a.Database,
 	})
 
 }
@@ -346,8 +347,8 @@ func (a *App) InitOrRefreshModules() {
 	if settings.Library != nil {
 		a.LibraryDir = settings.GetLibrary().LibraryPath
 
-		if a.MetadataProvider != nil {
-			a.MetadataProvider.SetUseFallbackProvider(settings.GetLibrary().UseFallbackMetadataProvider)
+		if a.MetadataProviderRef.IsPresent() {
+			a.MetadataProviderRef.Get().SetUseFallbackProvider(settings.GetLibrary().UseFallbackMetadataProvider)
 		}
 	}
 
@@ -483,12 +484,12 @@ func (a *App) InitOrRefreshModules() {
 
 		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
-			Logger:            a.Logger,
-			QbittorrentClient: qbit,
-			Transmission:      trans,
-			TorrentRepository: a.TorrentRepository,
-			Provider:          settings.Torrent.Default,
-			MetadataProvider:  a.MetadataProvider,
+			Logger:              a.Logger,
+			QbittorrentClient:   qbit,
+			Transmission:        trans,
+			TorrentRepository:   a.TorrentRepository,
+			Provider:            settings.Torrent.Default,
+			MetadataProviderRef: a.MetadataProviderRef,
 		})
 
 		a.TorrentClientRepository.InitActiveTorrentCount(settings.Torrent.ShowActiveTorrentCount, a.WSEventManager)
@@ -704,7 +705,7 @@ func (a *App) InitOrRefreshAnilistData() {
 	a.user = currUser
 
 	// Set username to Anilist platform
-	a.AnilistPlatform.SetUsername(currUser.Viewer.Name)
+	a.AnilistPlatformRef.Get().SetUsername(currUser.Viewer.Name)
 
 	a.Logger.Info().Msg("app: Authenticated to AniList")
 

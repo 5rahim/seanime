@@ -11,6 +11,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
@@ -33,40 +34,41 @@ var (
 
 type (
 	Repository struct {
-		logger                *zerolog.Logger
-		fileCacher            *filecache.Cacher
-		cacheDir              string
-		providerExtensionBank *extension.UnifiedBank
-		serverUri             string
-		wsEventManager        events.WSEventManagerInterface
-		mu                    sync.Mutex
-		downloadDir           string
-		db                    *db.Database
+		logger           *zerolog.Logger
+		fileCacher       *filecache.Cacher
+		cacheDir         string
+		extensionBankRef *util.Ref[*extension.UnifiedBank]
+		serverUri        string
+		wsEventManager   events.WSEventManagerInterface
+		mu               sync.Mutex
+		downloadDir      string
+		db               *db.Database
 
 		settings *models.Settings
 	}
 
 	NewRepositoryOptions struct {
-		Logger         *zerolog.Logger
-		CacheDir       string
-		FileCacher     *filecache.Cacher
-		ServerURI      string
-		WsEventManager events.WSEventManagerInterface
-		DownloadDir    string
-		Database       *db.Database
+		Logger           *zerolog.Logger
+		CacheDir         string
+		FileCacher       *filecache.Cacher
+		ServerURI        string
+		WsEventManager   events.WSEventManagerInterface
+		DownloadDir      string
+		Database         *db.Database
+		ExtensionBankRef *util.Ref[*extension.UnifiedBank]
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:                opts.Logger,
-		fileCacher:            opts.FileCacher,
-		cacheDir:              opts.CacheDir,
-		serverUri:             opts.ServerURI,
-		wsEventManager:        opts.WsEventManager,
-		downloadDir:           opts.DownloadDir,
-		providerExtensionBank: extension.NewUnifiedBank(),
-		db:                    opts.Database,
+		logger:           opts.Logger,
+		fileCacher:       opts.FileCacher,
+		cacheDir:         opts.CacheDir,
+		serverUri:        opts.ServerURI,
+		wsEventManager:   opts.WsEventManager,
+		downloadDir:      opts.DownloadDir,
+		extensionBankRef: opts.ExtensionBankRef,
+		db:               opts.Database,
 	}
 	return r
 }
@@ -77,19 +79,12 @@ func (r *Repository) SetSettings(settings *models.Settings) {
 	r.settings = settings
 }
 
-func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.providerExtensionBank = bank
-	r.logger.Debug().Msg("manga: Initialized provider extension bank")
-}
-
 func (r *Repository) RemoveProvider(id string) {
-	r.providerExtensionBank.Delete(id)
+	r.extensionBankRef.Get().Delete(id)
 }
 
 func (r *Repository) GetProviderExtensionBank() *extension.UnifiedBank {
-	return r.providerExtensionBank
+	return r.extensionBankRef.Get()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

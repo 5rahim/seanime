@@ -187,7 +187,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 	}
 
 	// Add chapter containers from local provider
-	localProviderB, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, manga_providers.LocalProvider)
+	localProviderB, ok := extension.GetExtension[extension.MangaProviderExtension](r.extensionBankRef.Get(), manga_providers.LocalProvider)
 	if ok {
 		_, ok := localProviderB.GetProvider().(*manga_providers.Local)
 		if ok {

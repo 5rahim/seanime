@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/extension"
 	"seanime/internal/local"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -24,27 +24,22 @@ var (
 // OfflinePlatform used when offline.
 // It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op.
 type OfflinePlatform struct {
-	logger        *zerolog.Logger
-	localManager  local.Manager
-	client        anilist.AnilistClient
-	extensionBank *extension.UnifiedBank
+	logger       *zerolog.Logger
+	localManager local.Manager
+	clientRef    *util.Ref[anilist.AnilistClient]
 }
 
-func NewOfflinePlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
+func NewOfflinePlatform(localManager local.Manager, clientRef *util.Ref[anilist.AnilistClient], logger *zerolog.Logger) (platform.Platform, error) {
 	ap := &OfflinePlatform{
 		logger:       logger,
 		localManager: localManager,
-		client:       client,
+		clientRef:    clientRef,
 	}
 
 	return ap, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (lp *OfflinePlatform) InitExtensionBank(bank *extension.UnifiedBank) {
-	lp.extensionBank = bank
-}
 
 func (lp *OfflinePlatform) SetUsername(username string) {
 	// no-op
@@ -457,7 +452,7 @@ func (lp *OfflinePlatform) GetStudioDetails(ctx context.Context, studioID int) (
 }
 
 func (lp *OfflinePlatform) GetAnilistClient() anilist.AnilistClient {
-	return lp.client
+	return lp.clientRef.Get()
 }
 
 func (lp *OfflinePlatform) GetViewerStats(ctx context.Context) (*anilist.ViewerStats, error) {

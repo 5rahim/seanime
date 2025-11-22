@@ -24,7 +24,7 @@ func (pm *PlaybackManager) StartRandomVideo(opts *StartRandomVideoOptions) error
 		return err
 	}
 
-	animeCollection, err := pm.platform.GetAnimeCollection(context.Background(), false)
+	animeCollection, err := pm.platformRef.Get().GetAnimeCollection(context.Background(), false)
 	if err != nil {
 		return err
 	}

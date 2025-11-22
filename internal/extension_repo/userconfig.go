@@ -94,7 +94,7 @@ func (r *Repository) GetExtensionUserConfig(id string) (ret *ExtensionUserConfig
 
 	defer util.HandlePanicInModuleThen("extension_repo/GetExtensionUserConfig", func() {})
 
-	ext, found := r.extensionBank.Get(id)
+	ext, found := r.extensionBankRef.Get().Get(id)
 	if !found {
 		return
 	}

@@ -177,7 +177,7 @@ func (r *Repository) getEpisodeContainer(provider string, media *anilist.BaseAni
 func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *hibikeonlinestream.EpisodeDetails) ([]*hibikeonlinestream.EpisodeServer, error) {
 	var providerServers []*hibikeonlinestream.EpisodeServer
 
-	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.extensionBankRef.Get(), provider)
 	if !ok {
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}
@@ -207,7 +207,7 @@ func (r *Repository) getProviderEpisodeList(provider string, media *anilist.Base
 	romajiTitle := media.GetRomajiTitleSafe()
 	englishTitle := media.GetEnglishTitleSafe()
 
-	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.extensionBankRef.Get(), provider)
 	if !ok {
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}

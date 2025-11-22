@@ -28,7 +28,7 @@ func (h *Handler) HandlePopulateFillerData(c echo.Context) error {
 	media, found := animeCollection.FindAnime(b.MediaId)
 	if !found {
 		// Fetch media
-		media, err = h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
+		media, err = h.App.AnilistPlatformRef.Get().GetAnime(c.Request().Context(), b.MediaId)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}

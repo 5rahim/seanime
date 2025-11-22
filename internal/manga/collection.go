@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"slices"
 
 	"github.com/samber/lo"
@@ -35,7 +36,7 @@ type (
 type (
 	NewCollectionOptions struct {
 		MangaCollection *anilist.MangaCollection
-		Platform        platform.Platform
+		PlatformRef     *util.Ref[platform.Platform]
 	}
 )
 
@@ -44,7 +45,7 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 	if opts.MangaCollection == nil {
 		return nil, nil
 	}
-	if opts.Platform == nil {
+	if !opts.PlatformRef.IsPresent() {
 		return nil, fmt.Errorf("platform is nil")
 	}
 

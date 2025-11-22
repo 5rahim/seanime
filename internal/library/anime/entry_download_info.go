@@ -7,6 +7,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
+	"seanime/internal/util"
 	"strconv"
 
 	"github.com/samber/lo"
@@ -34,12 +35,12 @@ type (
 type (
 	NewEntryDownloadInfoOptions struct {
 		// Media's local files
-		LocalFiles       []*LocalFile
-		AnimeMetadata    *metadata.AnimeMetadata
-		Media            *anilist.BaseAnime
-		Progress         *int
-		Status           *anilist.MediaListStatus
-		MetadataProvider metadata_provider.Provider
+		LocalFiles          []*LocalFile
+		AnimeMetadata       *metadata.AnimeMetadata
+		Media               *anilist.BaseAnime
+		Progress            *int
+		Status              *anilist.MediaListStatus
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 )
 
@@ -219,7 +220,7 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 				Media:                opts.Media,
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         false,
-				MetadataProvider:     opts.MetadataProvider,
+				MetadataProvider:     opts.MetadataProviderRef.Get(),
 			})
 			str.Episode.AniDBEpisode = ep.aniDBEpisode
 			// Reset the local file to nil, since it's a placeholder

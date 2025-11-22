@@ -380,9 +380,9 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 	media, found = r.completeAnimeCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		media, err = r.platform.GetAnimeWithRelations(ctx, mediaId)
+		media, err = r.platformRef.Get().GetAnimeWithRelations(ctx, mediaId)
 		if err != nil {
-			baseAnime, lErr := r.platform.GetAnime(ctx, mediaId)
+			baseAnime, lErr := r.platformRef.Get().GetAnime(ctx, mediaId)
 			if lErr != nil {
 				return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 			}
@@ -392,7 +392,7 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 	}
 
 	// Get the media
-	animeMetadata, err = r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
+	animeMetadata, err = r.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	if err != nil {
 		//return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
 		animeMetadata = &metadata.AnimeMetadata{

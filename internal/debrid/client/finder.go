@@ -233,12 +233,12 @@ searchLoop:
 
 		// Create a new Torrent Analyzer
 		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:           r.logger,
-			Filepaths:        filepaths,
-			Media:            media,
-			Platform:         r.platform,
-			MetadataProvider: r.metadataProvider,
-			ForceMatch:       true,
+			Logger:              r.logger,
+			Filepaths:           filepaths,
+			Media:               media,
+			PlatformRef:         r.platformRef,
+			MetadataProviderRef: r.metadataProviderRef,
+			ForceMatch:          true,
 		})
 
 		r.logger.Debug().Msgf("debridstream: Analyzing torrent %s", searchT.Link)
@@ -360,12 +360,12 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 
 		// Create a new Torrent Analyzer
 		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:           r.logger,
-			Filepaths:        filepaths,
-			Media:            media,
-			Platform:         r.platform,
-			MetadataProvider: r.metadataProvider,
-			ForceMatch:       true,
+			Logger:              r.logger,
+			Filepaths:           filepaths,
+			Media:               media,
+			PlatformRef:         r.platformRef,
+			MetadataProviderRef: r.metadataProviderRef,
+			ForceMatch:          true,
 		})
 
 		// Analyze torrent files

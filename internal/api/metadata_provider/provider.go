@@ -12,6 +12,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
 	"seanime/internal/hook"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"strings"
@@ -29,16 +30,17 @@ type (
 		fileCacher          *filecache.Cacher
 		animeMetadataCache  *result.BoundedCache[string, *metadata.AnimeMetadata]
 		singleflight        *singleflight.Group
-		extensionBank       *extension.UnifiedBank
+		extensionBankRef    *util.Ref[*extension.UnifiedBank]
 		customSourceManager *customsource.Manager
 		db                  *db.Database
 		useFallbackProvider atomic.Bool
 	}
 
 	NewProviderImplOptions struct {
-		Logger     *zerolog.Logger
-		FileCacher *filecache.Cacher
-		Database   *db.Database
+		Logger           *zerolog.Logger
+		FileCacher       *filecache.Cacher
+		Database         *db.Database
+		ExtensionBankRef *util.Ref[*extension.UnifiedBank]
 	}
 
 	Provider interface {
@@ -47,7 +49,6 @@ type (
 		GetAnimeMetadata(platform metadata.Platform, mId int) (*metadata.AnimeMetadata, error)
 		// GetAnimeMetadataWrapper creates a wrapper for anime metadata.
 		GetAnimeMetadataWrapper(anime *anilist.BaseAnime, metadata *metadata.AnimeMetadata) AnimeMetadataWrapper
-		InitExtensionBank(bank *extension.UnifiedBank)
 		GetCache() *result.BoundedCache[string, *metadata.AnimeMetadata]
 		SetUseFallbackProvider(bool)
 		Close()
@@ -69,22 +70,16 @@ func GetAnimeMetadataCacheKey(platform metadata.Platform, mId int) string {
 // NewProvider creates a new metadata provider.
 func NewProvider(options *NewProviderImplOptions) Provider {
 	ret := &ProviderImpl{
-		logger:             options.Logger,
-		fileCacher:         options.FileCacher,
-		animeMetadataCache: result.NewBoundedCache[string, *metadata.AnimeMetadata](100),
-		singleflight:       &singleflight.Group{},
-		db:                 options.Database,
+		logger:              options.Logger,
+		fileCacher:          options.FileCacher,
+		animeMetadataCache:  result.NewBoundedCache[string, *metadata.AnimeMetadata](100),
+		singleflight:        &singleflight.Group{},
+		db:                  options.Database,
+		extensionBankRef:    options.ExtensionBankRef,
+		customSourceManager: customsource.NewManager(options.ExtensionBankRef, options.Database, options.Logger),
 	}
 
 	return ret
-}
-
-func (p *ProviderImpl) InitExtensionBank(bank *extension.UnifiedBank) {
-	if p.customSourceManager != nil {
-		p.customSourceManager.Close()
-	}
-	p.extensionBank = bank
-	p.customSourceManager = customsource.NewManager(bank, p.db, p.logger)
 }
 
 func (p *ProviderImpl) Close() {

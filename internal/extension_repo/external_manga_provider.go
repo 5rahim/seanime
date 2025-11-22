@@ -32,7 +32,7 @@ func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, lang
 
 	// Add the extension to the map
 	retExt := extension.NewMangaProviderExtension(ext, provider)
-	r.extensionBank.Set(ext.ID, retExt)
+	r.extensionBankRef.Get().Set(ext.ID, retExt)
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 	return nil
 }

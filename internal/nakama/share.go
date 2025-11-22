@@ -24,9 +24,9 @@ import (
 
 type (
 	HydrateHostAnimeLibraryOptions struct {
-		AnimeCollection   *anilist.AnimeCollection
-		LibraryCollection *anime.LibraryCollection
-		MetadataProvider  metadata_provider.Provider
+		AnimeCollection     *anilist.AnimeCollection
+		LibraryCollection   *anime.LibraryCollection
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 
 	NakamaAnimeLibrary struct {

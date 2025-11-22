@@ -25,7 +25,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refreshAnilistTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				RefreshAnilistDataJob(ctx)
@@ -38,7 +38,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refreshLocalDataTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				SyncLocalDataJob(ctx)
@@ -50,7 +50,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refetchReleaseTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				app.Updater.ShouldRefetchReleases()
@@ -62,7 +62,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refetchAnnouncementsTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				app.Updater.FetchAnnouncements()

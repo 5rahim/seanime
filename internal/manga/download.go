@@ -33,7 +33,7 @@ type (
 
 		chapterDownloadedCh chan chapter_downloader.DownloadID
 		readingDownloadDir  bool
-		isOffline           *bool
+		isOfflineRef        *util.Ref[bool]
 	}
 
 	// MediaMap is created after reading the download directory.
@@ -67,7 +67,7 @@ type (
 		WSEventManager events.WSEventManagerInterface
 		DownloadDir    string
 		Repository     *Repository
-		IsOffline      *bool
+		IsOfflineRef   *util.Ref[bool]
 	}
 
 	DownloadChapterOptions struct {
@@ -90,7 +90,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		repository:     opts.Repository,
 		mediaMap:       new(MediaMap),
 		filecacher:     filecacher,
-		isOffline:      opts.IsOffline,
+		isOfflineRef:   opts.IsOfflineRef,
 	}
 
 	d.chapterDownloader = chapter_downloader.NewDownloader(&chapter_downloader.NewDownloaderOptions{
@@ -113,7 +113,7 @@ func (d *Downloader) Start() {
 			select {
 			// Listen for downloaded chapters
 			case downloadId := <-d.chapterDownloader.ChapterDownloaded():
-				if d.isOffline != nil && *d.isOffline {
+				if d.isOfflineRef.Get() {
 					continue
 				}
 
@@ -185,7 +185,7 @@ func (r *Repository) getChapterContainerFromPermanentFilecache(provider string, 
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
-	if d.isOffline != nil && *d.isOffline {
+	if d.isOfflineRef.Get() {
 		return errors.New("manga downloader: Manga downloader is in offline mode")
 	}
 
@@ -202,7 +202,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	}
 
 	// Fetch the chapter pages
-	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false, &[]bool{false}[0])
+	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false, util.NewRef(false))
 	if err != nil {
 		return err
 	}

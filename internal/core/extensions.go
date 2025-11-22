@@ -8,27 +8,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func (a *App) AddExtensionBankToConsumers() {
-
-	var consumers = []extension.Consumer{
-		a.MangaRepository,
-		a.OnlinestreamRepository,
-		a.TorrentRepository,
-		a.AnilistPlatform,
-		a.MetadataProvider,
-	}
-
-	for _, consumer := range consumers {
-		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-	}
-}
-
 func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zerolog.Logger, config *Config) {
-
-	//
-	// Built-in manga providers
-	//
-
+	// Load built-in extensions
 	extensionRepository.ReloadBuiltInExtension(extension.Extension{
 		ID:          manga_providers.LocalProvider,
 		Name:        "Local",
@@ -41,5 +22,6 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/local-manga.png",
 	}, manga_providers.NewLocal(config.Manga.LocalDir, logger))
 
+	// Load external extensions
 	extensionRepository.ReloadExternalExtensions()
 }

@@ -303,7 +303,7 @@ func (h *Handler) HandleDebridGetTorrentFilePreviews(c echo.Context) error {
 	b.Torrent.MagnetLink = magnet
 
 	// Get the media
-	animeMetadata, _ := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
+	animeMetadata, _ := h.App.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
 	absoluteOffset := 0
 	if animeMetadata != nil {
 		absoluteOffset = animeMetadata.GetOffset()

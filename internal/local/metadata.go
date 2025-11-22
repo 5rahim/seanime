@@ -4,7 +4,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
-	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"strconv"
 
@@ -35,10 +34,6 @@ func NewOfflineMetadataProvider(manager *ManagerImpl) metadata_provider.Provider
 	ret.loadAnimeSnapshots()
 
 	return ret
-}
-
-func (mp *OfflineMetadataProvider) InitExtensionBank(bank *extension.UnifiedBank) {
-	// no-op
 }
 
 func (mp *OfflineMetadataProvider) Close() {

@@ -24,16 +24,16 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles         []*anime.LocalFile       // Local files to hydrate
-	AllMedia           []*anime.NormalizedMedia // All media used to hydrate local files
-	CompleteAnimeCache *anilist.CompleteAnimeCache
-	Platform           platform.Platform
-	MetadataProvider   metadata_provider.Provider
-	AnilistRateLimiter *limiter.Limiter
-	Logger             *zerolog.Logger
-	ScanLogger         *ScanLogger                // optional
-	ScanSummaryLogger  *summary.ScanSummaryLogger // optional
-	ForceMediaId       int                        // optional - force all local files to have this media ID
+	LocalFiles          []*anime.LocalFile       // Local files to hydrate
+	AllMedia            []*anime.NormalizedMedia // All media used to hydrate local files
+	CompleteAnimeCache  *anilist.CompleteAnimeCache
+	PlatformRef         *util.Ref[platform.Platform]
+	MetadataProviderRef *util.Ref[metadata_provider.Provider]
+	AnilistRateLimiter  *limiter.Limiter
+	Logger              *zerolog.Logger
+	ScanLogger          *ScanLogger                // optional
+	ScanSummaryLogger   *summary.ScanSummaryLogger // optional
+	ForceMediaId        int                        // optional - force all local files to have this media ID
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseAnime.
@@ -315,12 +315,12 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				mediaTreeFetchStart := time.Now()
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
-				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.Platform.GetAnilistClient(), fh.AnilistRateLimiter, tree, fh.CompleteAnimeCache); err == nil {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.PlatformRef.Get().GetAnilistClient(), fh.AnilistRateLimiter, tree, fh.CompleteAnimeCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
-						tree:             tree,
-						metadataProvider: fh.MetadataProvider,
-						rateLimiter:      rateLimiter,
+						tree:                tree,
+						metadataProviderRef: fh.MetadataProviderRef,
+						rateLimiter:         rateLimiter,
 					})
 					// Hoist the media tree analysis, so it will be used by other files
 					// We don't care if it's nil because [normalizeEpisodeNumberAndHydrate] will handle it
@@ -386,7 +386,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 			// When we encounter a file with an episode number higher than the media's episode count
 			// we have a forced media ID, we will fetch the media from AniList and get the offset
-			animeMetadata, err := fh.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, fh.ForceMediaId)
+			animeMetadata, err := fh.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, fh.ForceMediaId)
 			if err != nil {
 				/*Log */
 				if fh.ScanLogger != nil {

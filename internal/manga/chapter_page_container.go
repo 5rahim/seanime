@@ -3,11 +3,10 @@ package manga
 import (
 	"fmt"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"sync"
-
-	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (
@@ -36,7 +35,7 @@ func (r *Repository) GetMangaPageContainer(
 	mediaId int,
 	chapterId string,
 	doublePage bool,
-	isOffline *bool,
+	isOfflineRef *util.Ref[bool],
 ) (ret *PageContainer, err error) {
 	defer util.HandlePanicInModuleWithError("manga/GetMangaPageContainer", &err)
 
@@ -44,7 +43,7 @@ func (r *Repository) GetMangaPageContainer(
 	// |      Downloads      |
 	// +---------------------+
 
-	providerExtension, extensionExists := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, extensionExists := extension.GetExtension[extension.MangaProviderExtension](r.extensionBankRef.Get(), provider)
 
 	var isLocalProvider bool
 
@@ -52,7 +51,7 @@ func (r *Repository) GetMangaPageContainer(
 		_, isLocalProvider = providerExtension.GetProvider().(*manga_providers.Local)
 	}
 
-	if *isOffline && !isLocalProvider && extensionExists {
+	if isOfflineRef.Get() && !isLocalProvider && extensionExists {
 		ret, err = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
 		if err != nil {
 			return nil, err

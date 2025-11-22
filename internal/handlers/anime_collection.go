@@ -167,10 +167,10 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
-		AnimeCollection:  animeCollection,
-		Platform:         h.App.AnilistPlatform,
-		LocalFiles:       lfs,
-		MetadataProvider: h.App.MetadataProvider,
+		AnimeCollection:     animeCollection,
+		PlatformRef:         h.App.AnilistPlatformRef,
+		LocalFiles:          lfs,
+		MetadataProviderRef: h.App.MetadataProviderRef,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -186,9 +186,9 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 			(h.App.Settings.GetLibrary() != nil && h.App.Settings.GetLibrary().EnableOnlinestream && h.App.Settings.GetLibrary().IncludeOnlineStreamingInLibrary) ||
 			(h.App.SecondarySettings.Debrid != nil && h.App.SecondarySettings.Debrid.Enabled && h.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
 			h.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
-				AnimeCollection:   animeCollection,
-				LibraryCollection: libraryCollection,
-				MetadataProvider:  h.App.MetadataProvider,
+				AnimeCollection:     animeCollection,
+				LibraryCollection:   libraryCollection,
+				MetadataProviderRef: h.App.MetadataProviderRef,
 			})
 		}
 	}
@@ -241,7 +241,7 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 		return h.RespondWithData(c, ret)
 	}
 
-	animeSchedule, err := h.App.AnilistPlatform.GetAnimeAiringSchedule(c.Request().Context())
+	animeSchedule, err := h.App.AnilistPlatformRef.Get().GetAnimeAiringSchedule(c.Request().Context())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -277,7 +277,7 @@ func (h *Handler) HandleAddUnknownMedia(c echo.Context) error {
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := h.App.AnilistPlatform.AddMediaToCollection(c.Request().Context(), b.MediaIds); err != nil {
+	if err := h.App.AnilistPlatformRef.Get().AddMediaToCollection(c.Request().Context(), b.MediaIds); err != nil {
 		return h.RespondWithError(c, errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 

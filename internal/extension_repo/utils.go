@@ -138,7 +138,7 @@ func isValidExtensionIDString(id string) bool {
 
 func (r *Repository) isUniqueExtensionID(id string) error {
 	// Check if the ID is not a reserved built-in extension ID
-	_, found := r.extensionBank.Get(id)
+	_, found := r.extensionBankRef.Get().Get(id)
 	if found {
 		return errors.New("extension ID is already in use")
 	}

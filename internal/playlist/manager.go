@@ -14,6 +14,7 @@ import (
 	"seanime/internal/nativeplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
+	"seanime/internal/util"
 	"sync"
 	"sync/atomic"
 
@@ -99,7 +100,7 @@ type (
 		currentEpisode        mo.Option[*anime.PlaylistEpisode]
 		currentPlaybackMethod ClientPlaybackMethod
 		db                    *db.Database
-		platform              platform.Platform
+		platformRef           *util.Ref[platform.Platform]
 		wsEventManager        events.WSEventManagerInterface
 
 		directstreamManager     *directstream.Manager
@@ -133,7 +134,7 @@ type (
 		NativePlayer            *nativeplayer.NativePlayer
 		NakamaManager           *nakama.Manager
 		Logger                  *zerolog.Logger
-		Platform                platform.Platform
+		PlatformRef             *util.Ref[platform.Platform]
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
 	}
@@ -148,7 +149,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		debridClientRepository:  opts.DebridClientRepository,
 		nativePlayer:            opts.NativePlayer,
 		nakamaManager:           opts.NakamaManager,
-		platform:                opts.Platform,
+		platformRef:             opts.PlatformRef,
 		db:                      opts.Database,
 		wsEventManager:          opts.WSEventManager,
 	}
@@ -508,7 +509,7 @@ func (m *Manager) markCurrentAsCompleted() {
 			m.logger.Error().Err(err).Msg("playlist: Failed to update playlist")
 		}
 		// update the progress
-		err = m.platform.UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
+		err = m.platformRef.Get().UpdateEntryProgress(context.Background(), currentEpisode.Episode.BaseAnime.GetID(), currentEpisode.Episode.ProgressNumber, currentEpisode.Episode.BaseAnime.Episodes)
 		if err != nil {
 			m.logger.Error().Err(err).Msg("playlist: Failed to update progress")
 		}

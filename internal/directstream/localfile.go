@@ -275,12 +275,12 @@ func (m *Manager) PlayLocalFile(ctx context.Context, opts PlayLocalFileOptions) 
 	}
 
 	episodeCollection, err := anime.NewEpisodeCollectionFromLocalFiles(ctx, anime.NewEpisodeCollectionFromLocalFilesOptions{
-		LocalFiles:       opts.LocalFiles,
-		Media:            media,
-		AnimeCollection:  animeCollection,
-		Platform:         m.platform,
-		MetadataProvider: m.metadataProvider,
-		Logger:           m.Logger,
+		LocalFiles:          opts.LocalFiles,
+		Media:               media,
+		AnimeCollection:     animeCollection,
+		PlatformRef:         m.platformRef,
+		MetadataProviderRef: m.metadataProviderRef,
+		Logger:              m.Logger,
 	})
 	if err != nil {
 		return fmt.Errorf("cannot play local file, could not create episode collection: %w", err)

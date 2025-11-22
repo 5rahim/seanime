@@ -3,13 +3,10 @@ package platform
 import (
 	"context"
 	"seanime/internal/api/anilist"
-	"seanime/internal/extension"
 )
 
 type Platform interface {
 	SetUsername(username string)
-	// SetAnilistClient sets the AniList client to use for the platform
-	SetAnilistClient(client anilist.AnilistClient)
 	// UpdateEntry updates the entry for the given media ID
 	UpdateEntry(context context.Context, mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error
 	// UpdateEntryProgress updates the entry progress for the given media ID
@@ -60,7 +57,6 @@ type Platform interface {
 	GetViewerStats(context context.Context) (*anilist.ViewerStats, error)
 	// GetAnimeAiringSchedule gets the schedule for airing anime in the collection
 	GetAnimeAiringSchedule(context context.Context) (*anilist.AnimeAiringSchedule, error)
-	InitExtensionBank(bank *extension.UnifiedBank)
 	ClearCache()
 	Close()
 }

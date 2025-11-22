@@ -37,7 +37,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 
 	// Add the extension to the map
 	retExt := extension.NewPluginExtension(ext)
-	r.extensionBank.Set(ext.ID, retExt)
+	r.extensionBankRef.Get().Set(ext.ID, retExt)
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	return

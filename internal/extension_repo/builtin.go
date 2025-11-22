@@ -22,7 +22,7 @@ func (r *Repository) reloadBuiltInExtension(ext extension.Extension, provider in
 
 	// Unload the extension
 	// Remove extension from bank
-	r.extensionBank.Delete(ext.ID)
+	r.extensionBankRef.Get().Delete(ext.ID)
 
 	// Kill Goja VM if it exists
 	gojaExtension, ok := r.gojaExtensions.Get(ext.ID)
@@ -124,17 +124,17 @@ func (r *Repository) loadBuiltInExtension(ext extension.Extension, provider inte
 }
 
 func (r *Repository) loadBuiltInMangaProviderExtension(ext extension.Extension, provider hibikemanga.Provider) {
-	r.extensionBank.Set(ext.ID, extension.NewMangaProviderExtension(&ext, provider))
+	r.extensionBankRef.Get().Set(ext.ID, extension.NewMangaProviderExtension(&ext, provider))
 	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded built-in manga provider extension")
 }
 
 func (r *Repository) loadBuiltInAnimeTorrentProviderExtension(ext extension.Extension, provider hibiketorrent.AnimeProvider) {
-	r.extensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(&ext, provider))
+	r.extensionBankRef.Get().Set(ext.ID, extension.NewAnimeTorrentProviderExtension(&ext, provider))
 	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded built-in anime torrent provider extension")
 }
 
 func (r *Repository) loadBuiltInOnlinestreamProviderExtension(ext extension.Extension, provider hibikeonlinestream.Provider) {
-	r.extensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(&ext, provider))
+	r.extensionBankRef.Get().Set(ext.ID, extension.NewOnlinestreamProviderExtension(&ext, provider))
 	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 

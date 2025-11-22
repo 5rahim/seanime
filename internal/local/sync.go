@@ -564,7 +564,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	if diff.DiffType == DiffTypeMissing || diff.DiffType == DiffTypeMetadata {
 		// Get the anime metadata
 		var err error
-		animeMetadata, err = q.manager.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
+		animeMetadata, err = q.manager.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 		if err != nil {
 			// If the anime metadata doesn't exist, create a fake one
 			animeCollection, ok := q.manager.animeCollection.Get()
@@ -578,7 +578,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 				MediaId:         entry.Media.ID,
 				LocalFiles:      lfs,
 				AnimeCollection: animeCollection,
-				Platform:        q.manager.anilistPlatform,
+				PlatformRef:     q.manager.anilistPlatformRef,
 			})
 			if err != nil {
 				q.sendAnimeToFailedQueue(entry)
@@ -589,7 +589,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 			animeMetadata = anime.NewAnimeMetadataFromEntry(entry.Media, simpleEntry.Episodes)
 		}
 
-		metadataWrapper = q.manager.metadataProvider.GetAnimeMetadataWrapper(diff.AnimeEntry.Media, animeMetadata)
+		metadataWrapper = q.manager.metadataProviderRef.Get().GetAnimeMetadataWrapper(diff.AnimeEntry.Media, animeMetadata)
 	}
 
 	//

@@ -35,7 +35,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.
 
 	// Add the extension to the map
 	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
-	r.extensionBank.Set(ext.ID, retExt)
+	r.extensionBankRef.Get().Set(ext.ID, retExt)
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 	return nil
 }
