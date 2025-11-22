@@ -29,13 +29,7 @@ func RunJobs(app *core.App) {
 					continue
 				}
 				RefreshAnilistDataJob(ctx)
-				if app.LocalManager != nil &&
-					!app.GetUser().IsSimulated &&
-					app.Settings != nil &&
-					app.Settings.Library != nil &&
-					app.Settings.Library.AutoSyncToLocalAccount {
-					_ = app.LocalManager.SynchronizeAnilistToSimulatedCollection()
-				}
+				app.SyncAnilistToSimulatedCollection()
 			}
 		}
 	}()

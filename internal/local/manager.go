@@ -874,6 +874,7 @@ func (m *ManagerImpl) GetSimulatedMangaCollection() mo.Option[*anilist.MangaColl
 }
 
 func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) {
+	m.logger.Trace().Msg("local manager: Saving simulated anime collection to database")
 	//// Remove airing dates from each entry
 	//for _, list := range ac.MediaListCollection.Lists {
 	//	for _, entry := range list.Entries {
@@ -884,10 +885,13 @@ func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) 
 }
 
 func (m *ManagerImpl) SaveSimulatedMangaCollection(mc *anilist.MangaCollection) {
+	m.logger.Trace().Msg("local manager: Saving simulated manga collection to database")
 	_ = m.localDb.SaveSimulatedMangaCollection(mc)
 }
 
 func (m *ManagerImpl) SynchronizeAnilistToSimulatedCollection() error {
+	m.logger.Trace().Msg("local manager: Synchronizing Anilist to simulated (local) collection")
+
 	if animeCollection, ok := m.animeCollection.Get(); ok {
 		m.SaveSimulatedAnimeCollection(animeCollection)
 	}

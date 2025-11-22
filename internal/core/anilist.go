@@ -56,6 +56,16 @@ func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection,
 	return a.AnilistPlatform.GetRawAnimeCollection(context.Background(), bypassCache)
 }
 
+func (a *App) SyncAnilistToSimulatedCollection() {
+	if a.LocalManager != nil &&
+		!a.GetUser().IsSimulated &&
+		a.Settings != nil &&
+		a.Settings.Library != nil &&
+		a.Settings.Library.AutoSyncToLocalAccount {
+		_ = a.LocalManager.SynchronizeAnilistToSimulatedCollection()
+	}
+}
+
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	go func() {
@@ -85,6 +95,8 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 	// Save the collection to LibraryExplorer
 	a.LibraryExplorer.SetAnimeCollection(ret)
+
+	//a.SyncAnilistToSimulatedCollection()
 
 	a.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
 
