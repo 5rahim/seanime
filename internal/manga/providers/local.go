@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util/comparison"
+	"seanime/internal/util/result"
 	"slices"
 	"strconv"
 	"strings"
@@ -31,7 +32,7 @@ type Local struct {
 	mu                 sync.Mutex
 	currentChapterPath string
 	currentZipCloser   io.Closer
-	currentPages       map[string]*loadedPage
+	currentPages       *result.Map[string, *loadedPage]
 }
 
 type loadedPage struct {
@@ -51,7 +52,7 @@ func NewLocal(dir string, logger *zerolog.Logger) hibikemanga.Provider {
 	return &Local{
 		dir:          dir,
 		logger:       logger,
-		currentPages: make(map[string]*loadedPage),
+		currentPages: result.NewMap[string, *loadedPage](),
 	}
 }
 
@@ -401,10 +402,12 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 	if p.currentZipCloser != nil {
 		_ = p.currentZipCloser.Close()
 	}
-	for _, loadedPage := range p.currentPages {
+
+	p.currentPages.Range(func(_ string, loadedPage *loadedPage) bool {
 		loadedPage.buf = nil
-	}
-	p.currentPages = make(map[string]*loadedPage)
+		return true
+	})
+	p.currentPages.Clear()
 	p.currentZipCloser = nil
 	p.currentChapterPath = fullpath
 
@@ -429,7 +432,7 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 			if err != nil {
 				return nil, fmt.Errorf("failed to read page: %w", err)
 			}
-			p.currentPages[strings.ToLower(f.Name)] = &loadedPage{
+			p.currentPages.Set(strings.ToLower(f.Name), &loadedPage{
 				buf: buf,
 				page: &hibikemanga.ChapterPage{
 					Provider: LocalProvider,
@@ -437,7 +440,7 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 					Index:    0, // placeholder, will be set later
 					Buf:      buf,
 				},
-			}
+			})
 		}
 	case ".pdf":
 		// doc, err := fitz.New(fullpath)
@@ -496,7 +499,7 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 			if err != nil {
 				return nil, fmt.Errorf("failed to read page: %w", err)
 			}
-			p.currentPages[strings.ToLower(entry.Name())] = &loadedPage{
+			p.currentPages.Set(strings.ToLower(entry.Name()), &loadedPage{
 				buf: buf,
 				page: &hibikemanga.ChapterPage{
 					Provider: LocalProvider,
@@ -504,7 +507,7 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 					Index:    0, // placeholder, will be set later
 					Buf:      buf,
 				},
-			}
+			})
 		}
 	}
 
@@ -516,16 +519,17 @@ func (p *Local) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err
 	pages := make([]*pageStruct, 0)
 
 	// Parse and order the pages
-	for _, loadedPage := range p.currentPages {
+	p.currentPages.Range(func(key string, loadedPage *loadedPage) bool {
 		scannedPage, ok := parsePageFilename(filepath.Base(loadedPage.page.URL))
 		if !ok {
-			continue
+			return true
 		}
 		pages = append(pages, &pageStruct{
 			Number:     scannedPage.Number,
 			LoadedPage: loadedPage,
 		})
-	}
+		return true
+	})
 
 	// Sort pages
 	slices.SortFunc(pages, func(a, b *pageStruct) int {
@@ -545,8 +549,9 @@ func (p *Local) ReadPage(path string) (ret io.ReadCloser, err error) {
 	// e.g. path = "/series/chapter_1.cbz/image_1.jpg"
 
 	// If the pages are already in memory, return them
-	if len(p.currentPages) > 0 {
-		page, ok := p.currentPages[strings.ToLower(filepath.Base(path))]
+
+	if len(p.currentPages.Keys()) > 0 {
+		page, ok := p.currentPages.Get(strings.ToLower(filepath.Base(path)))
 		if ok {
 			return io.NopCloser(bytes.NewReader(page.buf)), nil // Return the page
 		}
