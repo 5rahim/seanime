@@ -91,16 +91,16 @@ jobs:
         with:
           go-version: '1.25.1'
 
-      # Cache Go modules
-      - name: Cache Go modules 💾
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      #      # Cache Go modules
+      #      - name: Cache Go modules 💾
+      #        uses: actions/cache@v4
+      #        with:
+      #          path: |
+      #            ~/go/pkg/mod
+      #            ~/.cache/go-build
+      #          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-go-
 
       # Download the web folders
       # TODO Uncomment if building web
