@@ -250,7 +250,7 @@ export function PluginTray(props: TrayPluginProps) {
                         }}
                         data-plugin-tray-popover-content={props.trayIcon.extensionId}
                     >
-                        <div className="absolute inset-0 top-[-2.5rem]">
+                        <div className="absolute w-full top-[-2.5rem]">
                             <div className="flex items-center justify-between">
                                 <p
                                     className="text-sm border font-medium text-gray-300 px-1.5 py-0.5 rounded-lg bg-black/60"

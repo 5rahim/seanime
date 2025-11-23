@@ -58,77 +58,112 @@ import (
 
 type (
 	App struct {
-		Config                        *Config
-		Database                      *db.Database
-		Logger                        *zerolog.Logger
-		TorrentClientRepository       *torrent_client.Repository
-		TorrentRepository             *torrent.Repository
-		DebridClientRepository        *debrid_client.Repository
-		Watcher                       *scanner.Watcher
-		AnilistClientRef              *util.Ref[anilist.AnilistClient]
-		AnilistPlatformRef            *util.Ref[platform.Platform]
-		OfflinePlatformRef            *util.Ref[platform.Platform]
-		MetadataProviderRef           *util.Ref[metadata_provider.Provider]
-		LocalManager                  local.Manager
-		FillerManager                 *fillermanager.FillerManager
-		WSEventManager                *events.WSEventManager
-		AutoDownloader                *autodownloader.AutoDownloader
+		// Core
+		Config   *Config
+		Database *db.Database
+		Logger   *zerolog.Logger
+
+		// Torrent and debrid services
+		TorrentClientRepository *torrent_client.Repository
+		TorrentRepository       *torrent.Repository
+		DebridClientRepository  *debrid_client.Repository
+
+		// File system monitoring
+		Watcher *scanner.Watcher
+
+		// API clients and providers
+		AnilistClientRef    *util.Ref[anilist.AnilistClient]
+		AnilistPlatformRef  *util.Ref[platform.Platform]
+		OfflinePlatformRef  *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+
+		// Library
+		FillerManager   *fillermanager.FillerManager
+		AutoDownloader  *autodownloader.AutoDownloader
+		AutoScanner     *autoscanner.AutoScanner
+		PlaybackManager *playbackmanager.PlaybackManager
+
+		// Real-time communication
+		WSEventManager *events.WSEventManager
+
+		// Extensions
 		ExtensionRepository           *extension_repo.Repository
 		ExtensionBankRef              *util.Ref[*extension.UnifiedBank]
 		ExtensionPlaygroundRepository *extension_playground.PlaygroundRepository
-		DirectStreamManager           *directstream.Manager
-		NativePlayer                  *nativeplayer.NativePlayer
-		MediaPlayer                   struct {
+
+		// Streaming
+		DirectStreamManager     *directstream.Manager
+		OnlinestreamRepository  *onlinestream.Repository
+		MediastreamRepository   *mediastream.Repository
+		TorrentstreamRepository *torrentstream.Repository
+
+		// Players
+		NativePlayer *nativeplayer.NativePlayer
+		MediaPlayer  struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 			Iina  *iina.Iina
 		}
-		MediaPlayerRepository           *mediaplayer.Repository
-		Version                         string
-		Updater                         *updater.Updater
-		AutoScanner                     *autoscanner.AutoScanner
-		PlaybackManager                 *playbackmanager.PlaybackManager
-		FileCacher                      *filecache.Cacher
-		OnlinestreamRepository          *onlinestream.Repository
-		MangaRepository                 *manga.Repository
-		DiscordPresence                 *discordrpc_presence.Presence
-		MangaDownloader                 *manga.Downloader
-		ContinuityManager               *continuity.Manager
+		MediaPlayerRepository *mediaplayer.Repository
+
+		// Manga services
+		MangaRepository *manga.Repository
+		MangaDownloader *manga.Downloader
+
+		// Offline and local account
+		LocalManager local.Manager
+
+		// Utilities
+		FileCacher       *filecache.Cacher
+		Updater          *updater.Updater
+		SelfUpdater      *updater.SelfUpdater
+		ReportRepository *report.Repository
+
+		// Integrations
+		DiscordPresence *discordrpc_presence.Presence
+
+		// Continuity and sync
+		ContinuityManager *continuity.Manager
+
+		// Lifecycle management
 		Cleanups                        []func()
 		OnRefreshAnilistCollectionFuncs *result.Map[string, func()]
 		OnFlushLogs                     func()
-		MediastreamRepository           *mediastream.Repository
-		TorrentstreamRepository         *torrentstream.Repository
-		FeatureFlags                    FeatureFlags
-		Settings                        *models.Settings
-		SecondarySettings               struct {
+
+		// Configuration and feature flags
+		FeatureFlags      FeatureFlags
+		FeatureManager    *FeatureManager
+		Settings          *models.Settings
+		SecondarySettings struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 			Debrid        *models.DebridSettings
-		} // Struct for other settings sent to clientN
-		SelfUpdater        *updater.SelfUpdater
-		ReportRepository   *report.Repository
-		TotalLibrarySize   uint64 // Initialized in modules.go
-		LibraryDir         string
-		AnilistCacheDir    string
-		IsDesktopSidecar   bool
-		animeCollection    *anilist.AnimeCollection
-		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
-		mangaCollection    *anilist.MangaCollection
-		rawMangaCollection *anilist.MangaCollection // (retains custom lists)
+		}
+
+		// Metadata
+		Version          string
+		TotalLibrarySize uint64
+		LibraryDir       string
+		AnilistCacheDir  string
+		IsDesktopSidecar bool
+		Flags            SeanimeFlags
+
+		// Internal state
 		user               *user.User
 		previousVersion    string
 		moduleMu           sync.Mutex
-		HookManager        hook.Manager
-		ServerReady        bool // Whether the Anilist data from the first request has been fetched
+		ServerReady        bool
 		isOfflineRef       *util.Ref[bool]
-		NakamaManager      *nakama.Manager
-		ServerPasswordHash string // SHA-256 hash of the server password
-		PlaylistManager    *playlist.Manager
-		LibraryExplorer    *library_explorer.LibraryExplorer
-		Flags              SeanimeFlags
-		FeatureManager     *FeatureManager
+		ServerPasswordHash string
+
+		// Plugin system
+		HookManager hook.Manager
+
+		// Features
+		PlaylistManager *playlist.Manager
+		LibraryExplorer *library_explorer.LibraryExplorer
+		NakamaManager   *nakama.Manager
 	}
 )
 
@@ -390,7 +425,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater:                     selfupdater,
 		moduleMu:                        sync.Mutex{},
-		OnRefreshAnilistCollectionFuncs: result.NewResultMap[string, func()](),
+		OnRefreshAnilistCollectionFuncs: result.NewMap[string, func()](),
 		HookManager:                     hookManager,
 		isOfflineRef:                    isOfflineRef,
 		ServerPasswordHash:              serverPasswordHash,

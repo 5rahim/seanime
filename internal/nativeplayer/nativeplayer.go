@@ -81,7 +81,7 @@ func New(options NewNativePlayerOptions) *NativePlayer {
 		playbackStatus:              &PlaybackStatus{},
 		wsEventManager:              options.WsEventManager,
 		clientPlayerEventSubscriber: options.WsEventManager.SubscribeToClientNativePlayerEvents("nativeplayer"),
-		subscribers:                 result.NewResultMap[string, *Subscriber](),
+		subscribers:                 result.NewMap[string, *Subscriber](),
 		logger:                      options.Logger,
 	}
 

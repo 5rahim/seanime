@@ -1,4 +1,5 @@
 import { Manga_ChapterContainer, Manga_PageContainer, Nullish } from "@/api/generated/types"
+import { manga_doFlashAction } from "@/app/(main)/manga/_containers/chapter-reader/manga-reader-action-display"
 import { useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getDecimalFromChapter, isChapterAfter, isChapterBefore } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import {
@@ -360,26 +361,72 @@ export function useSwitchSettingsWithKeys() {
     const [pageFit, setPageFit] = useAtom(__manga_pageFitAtom)
     const [pageStretch, setPageStretch] = useAtom(__manga_pageStretchAtom)
     const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
+    const setFlashAction = useSetAtom(manga_doFlashAction)
 
-    const switchValue = (currentValue: string, possibleValues: string[], setValue: (v: any) => void) => {
+    const getReadingModeLabel = (value: string) => {
+        const labels: Record<string, string> = {
+            [MangaReadingMode.LONG_STRIP]: "Long Strip",
+            [MangaReadingMode.PAGED]: "Single Page",
+            [MangaReadingMode.DOUBLE_PAGE]: "Double Page",
+        }
+        return labels[value] || value
+    }
+
+    const getReadingDirectionLabel = (value: string) => {
+        const labels: Record<string, string> = {
+            [MangaReadingDirection.LTR]: "Left to Right",
+            [MangaReadingDirection.RTL]: "Right to Left",
+        }
+        return labels[value] || value
+    }
+
+    const getPageFitLabel = (value: string) => {
+        const labels: Record<string, string> = {
+            [MangaPageFit.CONTAIN]: "Contain",
+            [MangaPageFit.LARGER]: "Overflow",
+            [MangaPageFit.COVER]: "Cover",
+            [MangaPageFit.TRUE_SIZE]: "True size",
+        }
+        return labels[value] || value
+    }
+
+    const getPageStretchLabel = (value: string) => {
+        const labels: Record<string, string> = {
+            [MangaPageStretch.NONE]: "None",
+            [MangaPageStretch.STRETCH]: "Stretch",
+        }
+        return labels[value] || value
+    }
+
+    const switchValue = (currentValue: string, possibleValues: string[], setValue: (v: any) => void, getLabel: (v: string) => string) => {
         const currentIndex = possibleValues.indexOf(currentValue)
         const nextIndex = (currentIndex + 1) % possibleValues.length
-        setValue(possibleValues[nextIndex])
+        const nextValue = possibleValues[nextIndex]
+        setValue(nextValue)
+        setFlashAction({ message: getLabel(nextValue) })
     }
 
     const incrementOffset = () => {
-        setDoublePageOffset(prev => Math.max(0, prev + 1))
+        setDoublePageOffset(prev => {
+            const newValue = Math.max(0, prev + 1)
+            setFlashAction({ message: `Double Page Offset: ${newValue}` })
+            return newValue
+        })
     }
 
     const decrementOffset = () => {
-        setDoublePageOffset(prev => Math.max(0, prev - 1))
+        setDoublePageOffset(prev => {
+            const newValue = Math.max(0, prev - 1)
+            setFlashAction({ message: `Double Page Offset: ${newValue}` })
+            return newValue
+        })
     }
 
     React.useEffect(() => {
-        mousetrap.bind("m", () => switchValue(readingMode, Object.values(MangaReadingMode), setReadingMode))
-        mousetrap.bind("d", () => switchValue(readingDirection, Object.values(MangaReadingDirection), setReadingDirection))
-        mousetrap.bind("f", () => switchValue(pageFit, Object.values(MangaPageFit), setPageFit))
-        mousetrap.bind("s", () => switchValue(pageStretch, Object.values(MangaPageStretch), setPageStretch))
+        mousetrap.bind("m", () => switchValue(readingMode, Object.values(MangaReadingMode), setReadingMode, getReadingModeLabel))
+        mousetrap.bind("d", () => switchValue(readingDirection, Object.values(MangaReadingDirection), setReadingDirection, getReadingDirectionLabel))
+        mousetrap.bind("f", () => switchValue(pageFit, Object.values(MangaPageFit), setPageFit, getPageFitLabel))
+        mousetrap.bind("s", () => switchValue(pageStretch, Object.values(MangaPageStretch), setPageStretch, getPageStretchLabel))
         mousetrap.bind("shift+right", () => incrementOffset())
         mousetrap.bind("shift+left", () => decrementOffset())
 

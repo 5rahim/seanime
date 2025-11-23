@@ -199,7 +199,7 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
-	// |  Debrid Client Repo |
+	// | Debrid Client Repo  |
 	// +---------------------+
 
 	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
@@ -237,7 +237,7 @@ func (a *App) initModulesOnce() {
 	a.AutoDownloader.Start()
 
 	// +---------------------+
-	// |   Auto Scanner      |
+	// |    Auto Scanner     |
 	// +---------------------+
 
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{

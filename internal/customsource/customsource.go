@@ -62,8 +62,8 @@ func NewManager(extensionBankRef *util.Ref[*extension.UnifiedBank], db *db.Datab
 	ret := &Manager{
 		extensionBankRef:        extensionBankRef,
 		extensionBankSubscriber: extensionBankRef.Get().Subscribe(id),
-		customSources:           result.NewResultMap[int, extension.CustomSourceExtension](),
-		customSourcesById:       result.NewResultMap[string, extension.CustomSourceExtension](),
+		customSources:           result.NewMap[int, extension.CustomSourceExtension](),
+		customSourcesById:       result.NewMap[string, extension.CustomSourceExtension](),
 		closedCh:                make(chan struct{}),
 		db:                      db,
 		logger:                  logger,
@@ -73,17 +73,17 @@ func NewManager(extensionBankRef *util.Ref[*extension.UnifiedBank], db *db.Datab
 		for {
 			select {
 			case <-ret.extensionBankSubscriber.OnCustomSourcesChanged():
-				logger.Debug().Msg("custom source: Custom sources changed")
+				logger.Debug().Str("id", id).Msg("custom source: Custom sources changed")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
-				extension.RangeExtensions(extensionBankRef.Get(), func(id string, ext extension.CustomSourceExtension) bool {
-					logger.Debug().Str("extension", id).Msg("custom source: (manager) Extension loaded")
+				extension.RangeExtensions(extensionBankRef.Get(), func(extId string, ext extension.CustomSourceExtension) bool {
+					logger.Trace().Str("extension", extId).Str("id", id).Msg("custom source: Updated extension on manager")
 					ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 					ret.customSourcesById.Set(ext.GetID(), ext)
 					return true
 				})
 			case <-ret.closedCh:
-				logger.Trace().Msg("custom source: Closed manager")
+				logger.Trace().Str("id", id).Msg("custom source: Closed manager")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
 				return
@@ -91,9 +91,9 @@ func NewManager(extensionBankRef *util.Ref[*extension.UnifiedBank], db *db.Datab
 		}
 	}()
 
-	logger.Debug().Str("extension", id).Msg("custom source: Manager created, loading extensions")
+	logger.Debug().Str("id", id).Msg("custom source: Manager created, loading extensions")
 	extension.RangeExtensions(extensionBankRef.Get(), func(id string, ext extension.CustomSourceExtension) bool {
-		logger.Debug().Str("extension", ext.GetID()).Msg("custom source: (manager) Extension loaded")
+		logger.Trace().Str("extension", ext.GetID()).Str("id", id).Msg("custom source: Extension loaded on manager")
 		ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 		ret.customSourcesById.Set(ext.GetID(), ext)
 		return true

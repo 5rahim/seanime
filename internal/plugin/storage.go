@@ -41,9 +41,9 @@ func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, e
 		ext:             ext,
 		logger:          &storageLogger,
 		runtime:         vm,
-		pluginDataCache: result.NewResultMap[string, *models.PluginData](),
-		keyDataCache:    result.NewResultMap[string, interface{}](),
-		keySubscribers:  result.NewResultMap[string, []chan interface{}](),
+		pluginDataCache: result.NewMap[string, *models.PluginData](),
+		keyDataCache:    result.NewMap[string, interface{}](),
+		keySubscribers:  result.NewMap[string, []chan interface{}](),
 		scheduler:       scheduler,
 	}
 	storageObj := vm.NewObject()

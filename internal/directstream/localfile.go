@@ -308,8 +308,8 @@ func (m *Manager) PlayLocalFile(ctx context.Context, opts PlayLocalFileOptions) 
 			media:                 media,
 			episode:               episode,
 			episodeCollection:     episodeCollection,
-			subtitleEventCache:    result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			activeSubtitleStreams: result.NewResultMap[string, *SubtitleStream](),
+			subtitleEventCache:    result.NewMap[string, *mkvparser.SubtitleEvent](),
+			activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
 		},
 	}
 

@@ -151,7 +151,7 @@ func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-var studioDetailsMap = result.NewResultMap[int, *anilist.StudioDetails]()
+var studioDetailsMap = result.NewMap[int, *anilist.StudioDetails]()
 
 // HandleGetAnilistStudioDetails
 //

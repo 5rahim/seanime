@@ -32,7 +32,7 @@ type StoreKeySubscriber[K comparable, T any] struct {
 func NewStore[K comparable, T any](data map[K]T) *Store[K, T] {
 	s := &Store[K, T]{
 		data:           make(map[K]T),
-		keySubscribers: result.NewResultMap[K, []*StoreKeySubscriber[K, T]](),
+		keySubscribers: result.NewMap[K, []*StoreKeySubscriber[K, T]](),
 		deleted:        0,
 	}
 

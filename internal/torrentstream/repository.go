@@ -82,7 +82,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		client:                          nil,
 		handler:                         nil,
 		settings:                        mo.Option[Settings]{},
-		selectionHistoryMap:             result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
+		selectionHistoryMap:             result.NewMap[int, *hibiketorrent.AnimeTorrent](),
 		torrentRepository:               opts.TorrentRepository,
 		baseAnimeCache:                  opts.BaseAnimeCache,
 		completeAnimeCache:              opts.CompleteAnimeCache,

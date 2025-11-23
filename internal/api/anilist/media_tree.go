@@ -2,11 +2,12 @@ package anilist
 
 import (
 	"context"
-	"github.com/samber/lo"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/result"
 	"sync"
+
+	"github.com/samber/lo"
 )
 
 type (
@@ -26,7 +27,7 @@ const (
 // NewCompleteAnimeRelationTree returns a new result.Map[int, *CompleteAnime].
 // It is used to store the results of FetchMediaTree or FetchMediaTree calls.
 func NewCompleteAnimeRelationTree() *CompleteAnimeRelationTree {
-	return &CompleteAnimeRelationTree{result.NewResultMap[int, *CompleteAnime]()}
+	return &CompleteAnimeRelationTree{result.NewMap[int, *CompleteAnime]()}
 }
 
 func (m *BaseAnime) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient AnilistClient, rl *limiter.Limiter, tree *CompleteAnimeRelationTree, cache *CompleteAnimeCache) (err error) {

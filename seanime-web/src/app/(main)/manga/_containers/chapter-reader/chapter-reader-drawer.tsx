@@ -4,6 +4,7 @@ import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inje
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
+import { MangaReaderActionDisplay } from "@/app/(main)/manga/_containers/chapter-reader/manga-reader-action-display"
 import { MangaReaderBar } from "@/app/(main)/manga/_containers/chapter-reader/manga-reader-bar"
 import {
     useCurrentChapter,
@@ -330,6 +331,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                     hiddenBar && "max-h-dvh",
                 )} tabIndex={-1}
             >
+                <MangaReaderActionDisplay />
+
                 {pageContainerError ? (
                     <LuffyError
                         title="Failed to load pages"

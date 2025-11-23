@@ -41,8 +41,8 @@ func NewFileStream(
 	ret := &FileStream{
 		Path:     path,
 		Out:      filepath.Join(settings.StreamDir, sha),
-		videos:   result.NewResultMap[Quality, *VideoStream](),
-		audios:   result.NewResultMap[int32, *AudioStream](),
+		videos:   result.NewMap[Quality, *VideoStream](),
+		audios:   result.NewMap[int32, *AudioStream](),
 		logger:   logger,
 		settings: settings,
 		Info:     mediaInfo,

@@ -24,8 +24,8 @@ type BankSubscriber struct {
 
 func NewUnifiedBank() *UnifiedBank {
 	return &UnifiedBank{
-		extensions:  result.NewResultMap[string, BaseExtension](),
-		subscribers: result.NewResultMap[string, *BankSubscriber](),
+		extensions:  result.NewMap[string, BaseExtension](),
+		subscribers: result.NewMap[string, *BankSubscriber](),
 		mu:          sync.RWMutex{},
 	}
 }
@@ -41,7 +41,7 @@ func (b *UnifiedBank) Unlock() {
 func (b *UnifiedBank) Reset() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.extensions = result.NewResultMap[string, BaseExtension]()
+	b.extensions = result.NewMap[string, BaseExtension]()
 }
 
 func (b *UnifiedBank) Subscribe(id string) *BankSubscriber {

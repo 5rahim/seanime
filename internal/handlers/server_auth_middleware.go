@@ -22,7 +22,6 @@ func (h *Handler) OptionalAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 			path == "/api/v1/status" || // for interface
 			path == "/events" || // for server events
 			strings.HasPrefix(path, "/api/v1/directstream") || // ID & path based
-			// strings.HasPrefix(path, "/api/v1/mediastream") || // used by media players // NOTE: DO NOT
 			strings.HasPrefix(path, "/api/v1/mediastream/att/") || // used by media players
 			strings.HasPrefix(path, "/api/v1/mediastream/direct") || // used by media players
 			strings.HasPrefix(path, "/api/v1/mediastream/transcode/") || // used by media players

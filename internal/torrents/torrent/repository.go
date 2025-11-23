@@ -39,8 +39,8 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                         opts.Logger,
 		metadataProviderRef:            opts.MetadataProviderRef,
 		extensionBankRef:               opts.ExtensionBankRef,
-		animeProviderSearchCaches:      result.NewResultMap[string, *result.Cache[string, *SearchData]](),
-		animeProviderSmartSearchCaches: result.NewResultMap[string, *result.Cache[string, *SearchData]](),
+		animeProviderSearchCaches:      result.NewMap[string, *result.Cache[string, *SearchData]](),
+		animeProviderSmartSearchCaches: result.NewMap[string, *result.Cache[string, *SearchData]](),
 		settings:                       RepositorySettings{},
 		mu:                             sync.Mutex{},
 	}
@@ -70,8 +70,8 @@ func (r *Repository) OnExtensionReloaded() {
 // This is called each time a new extension is added or removed
 func (r *Repository) reloadExtensions() {
 	// Clear the search caches
-	r.animeProviderSearchCaches = result.NewResultMap[string, *result.Cache[string, *SearchData]]()
-	r.animeProviderSmartSearchCaches = result.NewResultMap[string, *result.Cache[string, *SearchData]]()
+	r.animeProviderSearchCaches = result.NewMap[string, *result.Cache[string, *SearchData]]()
+	r.animeProviderSmartSearchCaches = result.NewMap[string, *result.Cache[string, *SearchData]]()
 
 	go func() {
 		// Create new caches for each provider

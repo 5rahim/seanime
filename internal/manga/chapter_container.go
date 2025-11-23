@@ -321,7 +321,7 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 
 const ChapterCountMapCacheKey = 1
 
-var mangaLatestChapterNumberMap = result.NewResultMap[int, map[int][]MangaLatestChapterNumberItem]()
+var mangaLatestChapterNumberMap = result.NewMap[int, map[int][]MangaLatestChapterNumberItem]()
 
 type MangaLatestChapterNumberItem struct {
 	Provider  string `json:"provider"`

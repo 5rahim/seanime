@@ -152,7 +152,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		wsEventManager:        opts.WSEventManager,
 		continuityManager:     opts.ContinuityManager,
 		completionThreshold:   0.8,
-		subscribers:           result.NewResultMap[string, *RepositorySubscriber](),
+		subscribers:           result.NewMap[string, *RepositorySubscriber](),
 		currentPlaybackStatus: &PlaybackStatus{},
 		exitedCh:              make(chan struct{}),
 	}

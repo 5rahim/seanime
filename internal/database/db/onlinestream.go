@@ -6,7 +6,7 @@ import (
 	"seanime/internal/util/result"
 )
 
-var onlinestreamMappingCache = result.NewResultMap[string, *models.OnlinestreamMapping]()
+var onlinestreamMappingCache = result.NewMap[string, *models.OnlinestreamMapping]()
 
 func formatOnlinestreamMappingCacheKey(provider string, mediaId int) string {
 	return fmt.Sprintf("%s$%d", provider, mediaId)

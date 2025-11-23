@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	metadataCache = result.NewResultMap[string, *TorrentMetadata]()
+	metadataCache = result.NewMap[string, *TorrentMetadata]()
 )
 
 type (

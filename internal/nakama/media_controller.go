@@ -7,7 +7,6 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
-
 	"sync/atomic"
 )
 
@@ -31,7 +30,7 @@ func NewMediaController(manager *Manager) *MediaController {
 	return &MediaController{
 		manager:                 manager,
 		current:                 MediaControllerTypePlaybackManager,
-		nativePlayerSubscribers: result.NewResultMap[string, *NativePlayerToPlaybackManagerSubscriber](),
+		nativePlayerSubscribers: result.NewMap[string, *NativePlayerToPlaybackManagerSubscriber](),
 	}
 }
 

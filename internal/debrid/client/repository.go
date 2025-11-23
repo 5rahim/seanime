@@ -75,7 +75,7 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		playbackManager:       opts.PlaybackManager,
 		metadataProviderRef:   opts.MetadataProviderRef,
 		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
-		ctxMap:                result.NewResultMap[string, context.CancelFunc](),
+		ctxMap:                result.NewMap[string, context.CancelFunc](),
 		previousStreamOptions: mo.None[*StartStreamOptions](),
 		directStreamManager:   opts.DirectStreamManager,
 	}

@@ -125,14 +125,14 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:             opts.Logger,
 		extensionDir:       opts.ExtensionDir,
 		wsEventManager:     opts.WSEventManager,
-		gojaExtensions:     result.NewResultMap[string, GojaExtension](),
+		gojaExtensions:     result.NewMap[string, GojaExtension](),
 		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger),
 		extensionBankRef:   opts.ExtensionBankRef,
-		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
+		invalidExtensions:  result.NewMap[string, *extension.InvalidExtension](),
 		fileCacher:         opts.FileCacher,
 		hookManager:        opts.HookManager,
 		client:             http.DefaultClient,
-		builtinExtensions:  result.NewResultMap[string, *builtinExtension](),
+		builtinExtensions:  result.NewMap[string, *builtinExtension](),
 		updateData:         make([]UpdateData, 0),
 	}
 

@@ -208,7 +208,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		logger:                  opts.Logger,
 		wsEventManager:          opts.WSEventManager,
 		playbackManager:         opts.PlaybackManager,
-		peerConnections:         result.NewResultMap[string, *PeerConnection](),
+		peerConnections:         result.NewMap[string, *PeerConnection](),
 		platformRef:             opts.PlatformRef,
 		ctx:                     ctx,
 		cancel:                  cancel,

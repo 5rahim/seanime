@@ -79,10 +79,10 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 	ret := &WSEventManager{
 		Logger:                             logger,
 		Conns:                              make([]*WSConn, 0),
-		clientEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
-		clientNativePlayerEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
-		nakamaEventSubscribers:             result.NewResultMap[string, *ClientEventSubscriber](),
-		playlistEventSubscribers:           result.NewResultMap[string, *ClientEventSubscriber](),
+		clientEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
+		clientNativePlayerEventSubscribers: result.NewMap[string, *ClientEventSubscriber](),
+		nakamaEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
+		playlistEventSubscribers:           result.NewMap[string, *ClientEventSubscriber](),
 	}
 	GlobalWSEventManager = &GlobalWSEventManagerWrapper{
 		WSEventManager: ret,

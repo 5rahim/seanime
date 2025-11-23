@@ -312,8 +312,8 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 			filename:              "",
 			episode:               episode,
 			episodeCollection:     episodeCollection,
-			subtitleEventCache:    result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			activeSubtitleStreams: result.NewResultMap[string, *SubtitleStream](),
+			subtitleEventCache:    result.NewMap[string, *mkvparser.SubtitleEvent](),
+			activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
 		},
 		streamReadyCh: make(chan struct{}),
 	}

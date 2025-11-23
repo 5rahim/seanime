@@ -227,7 +227,7 @@ func NewCacheLayer(anilistClientRef *util.Ref[anilist.AnilistClient]) anilist.An
 		fileCacher:         fileCacher,
 		buckets:            buckets,
 		logger:             logger,
-		collectionMediaIDs: result.NewResultMap[int, struct{}](),
+		collectionMediaIDs: result.NewMap[int, struct{}](),
 	}
 
 	AnilistClient.Store(anilistClientRef.Get())
