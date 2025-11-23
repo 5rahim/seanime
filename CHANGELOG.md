@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.0.8
+
+- 🦺 Extensions: Fixed "incompatible or obsolete" extension error on startup (regression)
+
 ## v3.0.7
 
 - ⚡️ Manga Reader: Added visual feedback for selected settings #525

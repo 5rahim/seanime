@@ -277,8 +277,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager:      hookManager,
 		ExtensionBankRef: extensionBankRef,
 	})
-	// Load extensions in background
-	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize metadata provider for media information
 	metadataProvider := metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
@@ -351,10 +349,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		activePlatformRef.Set(simulatedPlatform)
 	}
 
+	isOfflineRef := util.NewRef(cfg.Server.Offline)
 	offlinePlatformRef := util.NewRef[platform.Platform](offlinePlatform)
 
 	// Update plugin context with new modules
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		IsOfflineRef:        isOfflineRef,
 		AnilistPlatformRef:  activePlatformRef,
 		WSEventManager:      wsEventManager,
 		MetadataProviderRef: metadataProviderRef,
@@ -373,7 +373,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize extension playground for testing extensions
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatformRef, metadataProviderRef)
 
-	isOfflineRef := util.NewRef(cfg.Server.Offline)
+	// Load extensions in background
+	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Create the main app instance with initialized components
 	app := &App{
@@ -438,7 +439,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.initModulesOnce()
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		IsOfflineRef:            app.IsOfflineRef(),
 		ContinuityManager:       app.ContinuityManager,
 		AutoScanner:             app.AutoScanner,
 		AutoDownloader:          app.AutoDownloader,
