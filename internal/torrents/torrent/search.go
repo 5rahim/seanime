@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	metadataCache = result.NewResultMap[string, *TorrentMetadata]()
+	metadataCache = result.NewMap[string, *TorrentMetadata]()
 )
 
 type (
@@ -75,7 +75,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 	r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent repo: Searching for anime torrents")
 
 	// Find the provider by ID
-	providerExtension, ok := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, opts.Provider)
+	providerExtension, ok := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBankRef.Get(), opts.Provider)
 	if !ok {
 		// Get the default provider
 		providerExtension, ok = r.GetDefaultAnimeProviderExtension()
@@ -92,7 +92,7 @@ func (r *Repository) SearchAnime(ctx context.Context, opts AnimeSearchOptions) (
 
 	// Fetch Animap media
 	animeMetadata := mo.None[*metadata.AnimeMetadata]()
-	animeMetadataF, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
+	animeMetadataF, err := r.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
 	if err == nil {
 		animeMetadata = mo.Some(animeMetadataF)
 	}
@@ -397,7 +397,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 					Media:                opts.media,
 					ProgressOffset:       0,
 					IsDownloaded:         false,
-					MetadataProvider:     r.metadataProvider,
+					MetadataProvider:     r.metadataProviderRef.Get(),
 				})
 				episode.IsInvalid = false
 
@@ -431,7 +431,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 				AbsoluteEpisodeNumber: 0,
 				LocalFile:             nil,
 				IsDownloaded:          false,
-				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.animeMetadata.MustGet(), nil, opts.media, r.metadataProvider),
+				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.animeMetadata.MustGet(), nil, opts.media, r.metadataProviderRef.Get()),
 				FileMetadata:          nil,
 				IsInvalid:             false,
 				MetadataIssue:         "",

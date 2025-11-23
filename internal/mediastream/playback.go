@@ -45,7 +45,7 @@ func NewPlaybackManager(repository *Repository) *PlaybackManager {
 	return &PlaybackManager{
 		logger:          repository.logger,
 		repository:      repository,
-		mediaContainers: result.NewResultMap[string, *MediaContainer](),
+		mediaContainers: result.NewMap[string, *MediaContainer](),
 	}
 }
 

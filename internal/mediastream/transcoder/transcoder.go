@@ -56,7 +56,7 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 	}
 
 	ret := &Transcoder{
-		streams:    result.NewResultMap[string, *FileStream](),
+		streams:    result.NewMap[string, *FileStream](),
 		clientChan: make(chan ClientInfo, 1000),
 		logger:     opts.Logger,
 		settings: Settings{
@@ -95,7 +95,7 @@ func (t *Transcoder) Destroy() {
 	}
 	t.streams.Clear()
 	//close(t.clientChan)
-	t.streams = result.NewResultMap[string, *FileStream]()
+	t.streams = result.NewMap[string, *FileStream]()
 	t.clientChan = make(chan ClientInfo, 10)
 	t.logger.Debug().Msg("transcoder: Transcoder destroyed")
 }

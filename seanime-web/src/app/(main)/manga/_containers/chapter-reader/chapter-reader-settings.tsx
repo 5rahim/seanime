@@ -39,6 +39,7 @@ import { AiOutlineColumnHeight, AiOutlineColumnWidth } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
 import { FaRedo, FaRegImage } from "react-icons/fa"
 import { GiResize } from "react-icons/gi"
+import { LuSettings } from "react-icons/lu"
 import { MdMenuBook, MdOutlinePhotoSizeSelectLarge } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiReadCvLogoLight, PiScrollDuotone } from "react-icons/pi"
 import { TbArrowAutofitHeight } from "react-icons/tb"
@@ -67,6 +68,12 @@ const radioGroupClasses = {
     ),
 }
 
+export const MANGA_READING_MODE_ICONS = {
+    [MangaReadingMode.LONG_STRIP]: <PiScrollDuotone className="text-xl" />,
+    [MangaReadingMode.PAGED]: <PiReadCvLogoLight className="text-xl" />,
+    [MangaReadingMode.DOUBLE_PAGE]: <MdMenuBook className="text-xl" />,
+}
+
 export const MANGA_READING_MODE_OPTIONS = [
     {
         value: MangaReadingMode.LONG_STRIP,
@@ -82,6 +89,11 @@ export const MANGA_READING_MODE_OPTIONS = [
     },
 ]
 
+export const MANGA_READING_DIRECTION_ICONS = {
+    [MangaReadingDirection.LTR]: <PiArrowCircleRightDuotone className="text-2xl" />,
+    [MangaReadingDirection.RTL]: <PiArrowCircleLeftDuotone className="text-2xl" />,
+}
+
 export const MANGA_READING_DIRECTION_OPTIONS = [
     {
         value: MangaReadingDirection.LTR,
@@ -92,6 +104,13 @@ export const MANGA_READING_DIRECTION_OPTIONS = [
         label: <span className="flex gap-2 items-center"><PiArrowCircleLeftDuotone className="text-2xl" /> <span>Right to Left</span></span>,
     },
 ]
+
+export const MANGA_PAGE_FIT_ICONS = {
+    [MangaPageFit.CONTAIN]: <AiOutlineColumnHeight className="text-xl" />,
+    [MangaPageFit.LARGER]: <TbArrowAutofitHeight className="text-xl" />,
+    [MangaPageFit.COVER]: <AiOutlineColumnWidth className="text-xl" />,
+    [MangaPageFit.TRUE_SIZE]: <FaRegImage className="text-xl" />,
+}
 
 export const MANGA_PAGE_FIT_OPTIONS = [
     {
@@ -111,6 +130,11 @@ export const MANGA_PAGE_FIT_OPTIONS = [
         label: <span className="flex gap-2 items-center"><FaRegImage className="text-xl" /> <span>True size</span></span>,
     },
 ]
+
+export const MANGA_PAGE_STRETCH_ICONS = {
+    [MangaPageStretch.NONE]: <MdOutlinePhotoSizeSelectLarge className="text-xl" />,
+    [MangaPageStretch.STRETCH]: <GiResize className="text-xl" />,
+}
 
 export const MANGA_PAGE_STRETCH_OPTIONS = [
     {
@@ -335,9 +359,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
             <DropdownMenu
                 trigger={<IconButton
                     data-chapter-reader-settings-dropdown-menu-trigger
-                    icon={<BiCog />}
+                    icon={<LuSettings />}
                     intent="gray-basic"
                     className="flex lg:hidden"
+                    tabIndex={-1}
                 />}
                 className="block lg:hidden"
                 data-chapter-reader-settings-dropdown-menu

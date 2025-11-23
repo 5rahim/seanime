@@ -22,7 +22,7 @@ type (
 func NewMockWSEventManager(logger *zerolog.Logger) *MockWSEventManager {
 	return &MockWSEventManager{
 		Logger:                 logger,
-		ClientEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
+		ClientEventSubscribers: result.NewMap[string, *ClientEventSubscriber](),
 	}
 }
 

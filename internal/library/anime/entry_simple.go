@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"sort"
 	"strconv"
 
@@ -36,14 +37,14 @@ type (
 		MediaId         int
 		LocalFiles      []*LocalFile // All local files
 		AnimeCollection *anilist.AnimeCollection
-		Platform        platform.Platform
+		PlatformRef     *util.Ref[platform.Platform]
 	}
 )
 
 func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 
 	if opts.AnimeCollection == nil ||
-		opts.Platform == nil {
+		opts.PlatformRef.IsAbsent() {
 		return nil, errors.New("missing arguments when creating simple media entry")
 	}
 	// Create new Entry
@@ -64,7 +65,7 @@ func NewSimpleEntry(ctx context.Context, opts *NewSimpleAnimeEntryOptions) (*Sim
 		anilistEntry = &anilist.AnimeListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.PlatformRef.Get().GetAnime(ctx, opts.MediaId)
 		if err != nil {
 			return nil, err
 		}

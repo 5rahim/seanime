@@ -31,8 +31,8 @@ type DOMEventListener struct {
 func NewDOMManager(ctx *Context) *DOMManager {
 	return &DOMManager{
 		ctx:              ctx,
-		elementObservers: result.NewResultMap[string, *ElementObserver](),
-		eventListeners:   result.NewResultMap[string, *DOMEventListener](),
+		elementObservers: result.NewMap[string, *ElementObserver](),
+		eventListeners:   result.NewMap[string, *DOMEventListener](),
 	}
 }
 

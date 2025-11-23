@@ -24,8 +24,8 @@ type BankSubscriber struct {
 
 func NewUnifiedBank() *UnifiedBank {
 	return &UnifiedBank{
-		extensions:  result.NewResultMap[string, BaseExtension](),
-		subscribers: result.NewResultMap[string, *BankSubscriber](),
+		extensions:  result.NewMap[string, BaseExtension](),
+		subscribers: result.NewMap[string, *BankSubscriber](),
 		mu:          sync.RWMutex{},
 	}
 }
@@ -41,7 +41,7 @@ func (b *UnifiedBank) Unlock() {
 func (b *UnifiedBank) Reset() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.extensions = result.NewResultMap[string, BaseExtension]()
+	b.extensions = result.NewMap[string, BaseExtension]()
 }
 
 func (b *UnifiedBank) Subscribe(id string) *BankSubscriber {
@@ -56,19 +56,17 @@ func (b *UnifiedBank) Subscribe(id string) *BankSubscriber {
 }
 
 func (b *UnifiedBank) Unsubscribe(id string) {
-	b.subscribers.Range(func(id string, sub *BankSubscriber) bool {
-		if sub.id != id {
-			return true
-		}
-		sub.closeOnce.Do(func() {
-			sub.closed.Store(true)
-			b.mu.Lock()
-			close(sub.extensionAddedCh)
-			close(sub.extensionRemovedCh)
-			close(sub.customSourcesChangedCh)
-			b.mu.Unlock()
-		})
-		return false
+	sub, ok := b.subscribers.Get(id)
+	if !ok {
+		return
+	}
+	sub.closeOnce.Do(func() {
+		sub.closed.Store(true)
+		b.mu.Lock()
+		close(sub.extensionAddedCh)
+		close(sub.extensionRemovedCh)
+		close(sub.customSourcesChangedCh)
+		b.mu.Unlock()
 	})
 	b.subscribers.Delete(id)
 	return
@@ -78,12 +76,17 @@ func (b *UnifiedBank) RemoveExternalExtensions() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	var ids []string
 	b.extensions.Range(func(id string, ext BaseExtension) bool {
 		if ext.GetManifestURI() != "builtin" {
-			b.extensions.Delete(id)
+			ids = append(ids, id)
 		}
 		return true
 	})
+
+	for _, id := range ids {
+		b.Delete(id)
+	}
 }
 
 func (b *UnifiedBank) Set(id string, ext BaseExtension) {

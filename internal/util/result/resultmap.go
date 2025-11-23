@@ -12,7 +12,7 @@ type mapItem[K interface{}, V any] struct {
 	value V
 }
 
-func NewResultMap[K interface{}, V any]() *Map[K, V] {
+func NewMap[K interface{}, V any]() *Map[K, V] {
 	return &Map[K, V]{}
 }
 

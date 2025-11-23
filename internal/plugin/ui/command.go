@@ -59,7 +59,7 @@ func NewCommandPaletteManager(ctx *Context) *CommandPaletteManager {
 	return &CommandPaletteManager{
 		ctx:              ctx,
 		componentManager: &ComponentManager{ctx: ctx},
-		items:            result.NewResultMap[string, *commandItem](),
+		items:            result.NewMap[string, *commandItem](),
 		renderedItems:    make([]*CommandItemJSON, 0),
 	}
 }

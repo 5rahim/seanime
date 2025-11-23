@@ -38,9 +38,9 @@ type (
 		torrentRepository               *torrent.Repository
 		baseAnimeCache                  *anilist.BaseAnimeCache
 		completeAnimeCache              *anilist.CompleteAnimeCache
-		platform                        platform.Platform
+		platformRef                     *util.Ref[platform.Platform]
 		wsEventManager                  events.WSEventManagerInterface
-		metadataProvider                metadata_provider.Provider
+		metadataProviderRef             *util.Ref[metadata_provider.Provider]
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
@@ -66,8 +66,8 @@ type (
 		TorrentRepository   *torrent.Repository
 		BaseAnimeCache      *anilist.BaseAnimeCache
 		CompleteAnimeCache  *anilist.CompleteAnimeCache
-		Platform            platform.Platform
-		MetadataProvider    metadata_provider.Provider
+		PlatformRef         *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 		PlaybackManager     *playbackmanager.PlaybackManager
 		WSEventManager      events.WSEventManagerInterface
 		Database            *db.Database
@@ -82,13 +82,13 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		client:                          nil,
 		handler:                         nil,
 		settings:                        mo.Option[Settings]{},
-		selectionHistoryMap:             result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
+		selectionHistoryMap:             result.NewMap[int, *hibiketorrent.AnimeTorrent](),
 		torrentRepository:               opts.TorrentRepository,
 		baseAnimeCache:                  opts.BaseAnimeCache,
 		completeAnimeCache:              opts.CompleteAnimeCache,
-		platform:                        opts.Platform,
+		platformRef:                     opts.PlatformRef,
 		wsEventManager:                  opts.WSEventManager,
-		metadataProvider:                opts.MetadataProvider,
+		metadataProviderRef:             opts.MetadataProviderRef,
 		playbackManager:                 opts.PlaybackManager,
 		mediaPlayerRepository:           nil,
 		mediaPlayerRepositorySubscriber: nil,

@@ -19,13 +19,13 @@ func (a *App) SetOfflineMode(enabled bool) {
 		a.Logger.Err(err).Msg("app: Failed to write config after setting offline mode")
 	}
 	a.Logger.Info().Bool("enabled", enabled).Msg("app: Offline mode set")
-	a.isOffline = &enabled
+	a.isOfflineRef.Set(enabled)
 
-	if a.AnilistPlatform != nil {
-		a.AnilistPlatform.Close()
+	if a.AnilistPlatformRef.IsPresent() {
+		a.AnilistPlatformRef.Get().Close()
 	}
-	if a.MetadataProvider != nil {
-		a.MetadataProvider.Close()
+	if a.MetadataProviderRef.IsPresent() {
+		a.MetadataProviderRef.Get().Close()
 	}
 
 	// Update the platform and metadata provider
@@ -34,22 +34,22 @@ func (a *App) SetOfflineMode(enabled bool) {
 			a.NakamaManager.Stop()
 		}
 
-		a.AnilistPlatform, _ = offline_platform.NewOfflinePlatform(a.LocalManager, a.AnilistClient, a.Logger)
-		a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-		a.MetadataProvider = a.LocalManager.GetOfflineMetadataProvider()
+		anilistPlatform, _ := offline_platform.NewOfflinePlatform(a.LocalManager, a.AnilistClientRef, a.Logger)
+		a.AnilistPlatformRef.Set(anilistPlatform)
+		a.MetadataProviderRef.Set(a.LocalManager.GetOfflineMetadataProvider())
 	} else {
 		// DEVNOTE: We don't handle local platform since the feature doesn't allow offline mode
-		a.AnilistPlatform = anilist_platform.NewAnilistPlatform(a.AnilistClient, a.Logger, a.Database)
-		a.AnilistPlatform.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-		a.MetadataProvider = metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
-			Logger:     a.Logger,
-			FileCacher: a.FileCacher,
-		})
-		a.MetadataProvider.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+		anilistPlatform := anilist_platform.NewAnilistPlatform(a.AnilistClientRef, a.ExtensionBankRef, a.Logger, a.Database)
+		a.AnilistPlatformRef.Set(anilistPlatform)
+		a.MetadataProviderRef.Set(metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
+			Logger:           a.Logger,
+			FileCacher:       a.FileCacher,
+			ExtensionBankRef: a.ExtensionBankRef,
+		}))
 		a.InitOrRefreshAnilistData()
 	}
 	a.AddOnRefreshAnilistCollectionFunc("anilist-platform", func() {
-		a.AnilistPlatform.ClearCache()
+		a.AnilistPlatformRef.Get().ClearCache()
 	})
 
 	a.InitOrRefreshModules()

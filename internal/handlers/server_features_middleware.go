@@ -35,7 +35,7 @@ func (h *Handler) FeaturesMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			{"/api/v1/local", h.App.FeatureManager.IsDisabled(core.ManageOfflineMode), UpdateMethods, Empty},
 			// settings
 			{"/api/v1/start", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, Empty},
-			{"/api/v1/settings", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, []string{"/api/v1/settings/auto-downloader"}},
+			{"/api/v1/settings", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, Empty},
 			{"/api/v1/torrentstream/settings", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, Empty},
 			{"/api/v1/debrid/settings", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, Empty},
 			{"/api/v1/mediastream/settings", h.App.FeatureManager.IsDisabled(core.UpdateSettings), UpdateMethods, Empty},
@@ -44,7 +44,7 @@ func (h *Handler) FeaturesMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			{"/api/v1/memory", h.App.FeatureManager.IsDisabled(core.UpdateSettings), Empty, Empty},
 			{"/api/v1/filecache", h.App.FeatureManager.IsDisabled(core.UpdateSettings), Empty, Empty},
 			// account
-			{"/api/v1/auth/logout", h.App.FeatureManager.IsDisabled(core.ManageAccount), UpdateMethods, Empty},
+			{"/api/v1/auth", h.App.FeatureManager.IsDisabled(core.ManageAccount), UpdateMethods, Empty},
 			{"/api/v1/mal/auth", h.App.FeatureManager.IsDisabled(core.ManageAccount), UpdateMethods, Empty},
 			{"/api/v1/mal/logout", h.App.FeatureManager.IsDisabled(core.ManageAccount), UpdateMethods, Empty},
 			// lists

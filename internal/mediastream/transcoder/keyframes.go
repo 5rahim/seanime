@@ -64,7 +64,7 @@ func (kf *Keyframe) AddListener(callback func(keyframes []float64)) {
 	kf.info.listeners = append(kf.info.listeners, callback)
 }
 
-var keyframes = result.NewResultMap[string, *Keyframe]()
+var keyframes = result.NewMap[string, *Keyframe]()
 
 func GetKeyframes(
 	path string,

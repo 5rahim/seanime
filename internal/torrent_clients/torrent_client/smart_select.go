@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/platforms/platform"
 	torrent_analyzer "seanime/internal/torrents/analyzer"
+	"seanime/internal/util"
 	"time"
-
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 type (
@@ -76,7 +76,7 @@ type (
 		Media            *anilist.CompleteAnime
 		Destination      string
 		ShouldAddTorrent bool
-		Platform         platform.Platform
+		PlatformRef      *util.Ref[platform.Platform]
 	}
 )
 
@@ -84,7 +84,7 @@ type (
 // If the torrent has not been added yet, set SmartSelect.ShouldAddTorrent to true.
 // The torrent will NOT be removed if the selection fails.
 func (r *Repository) SmartSelect(p *SmartSelectParams) error {
-	if p.Media == nil || p.Platform == nil || r.torrentRepository == nil {
+	if p.Media == nil || p.PlatformRef.IsAbsent() || r.torrentRepository == nil {
 		r.logger.Error().Msg("torrent client: media or platform is nil (smart select)")
 		return errors.New("media or anilist client wrapper is nil")
 	}
@@ -135,11 +135,11 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 
 	// AnalyzeTorrentFiles the torrent files
 	analyzer := torrent_analyzer.NewAnalyzer(&torrent_analyzer.NewAnalyzerOptions{
-		Logger:           r.logger,
-		Filepaths:        filepaths,
-		Media:            p.Media,
-		Platform:         p.Platform,
-		MetadataProvider: r.metadataProvider,
+		Logger:              r.logger,
+		Filepaths:           filepaths,
+		Media:               p.Media,
+		PlatformRef:         p.PlatformRef,
+		MetadataProviderRef: r.metadataProviderRef,
 	})
 
 	r.logger.Debug().Msg("torrent client: analyzing torrent files (smart select)")

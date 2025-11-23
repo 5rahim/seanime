@@ -46,13 +46,13 @@ type (
 		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
-		metadataProvider        metadata_provider.Provider
+		metadataProviderRef     *util.Ref[metadata_provider.Provider]
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
 		startCh                 chan struct{}
 		debugTrace              bool
 		mu                      sync.Mutex
-		isOffline               *bool
+		isOfflineRef            *util.Ref[bool]
 	}
 
 	NewAutoDownloaderOptions struct {
@@ -61,9 +61,9 @@ type (
 		TorrentRepository       *torrent.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
-		MetadataProvider        metadata_provider.Provider
+		MetadataProviderRef     *util.Ref[metadata_provider.Provider]
 		DebridClientRepository  *debrid_client.Repository
-		IsOffline               *bool
+		IsOfflineRef            *util.Ref[bool]
 	}
 
 	tmpTorrentToDownload struct {
@@ -80,7 +80,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
 		animeCollection:         mo.None[*anilist.AnimeCollection](),
-		metadataProvider:        opts.MetadataProvider,
+		metadataProviderRef:     opts.MetadataProviderRef,
 		debridClientRepository:  opts.DebridClientRepository,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              "", // Default provider, will be updated after the settings are fetched
@@ -94,7 +94,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		startCh:           make(chan struct{}, 1),
 		debugTrace:        true,
 		mu:                sync.Mutex{},
-		isOffline:         opts.IsOffline,
+		isOfflineRef:      opts.IsOfflineRef,
 	}
 }
 
@@ -234,13 +234,13 @@ func (ad *AutoDownloader) start() {
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
-	if ad.isOffline != nil && *ad.isOffline {
+	if ad.isOfflineRef.Get() {
 		ad.logger.Debug().Msg("autodownloader: Skipping check for new episodes. AutoDownloader is in offline mode.")
 		return
 	}
 
 	ad.mu.Lock()
-	if ad == nil || ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
+	if ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. AutoDownloader is not enabled or provider is not set.")
 		ad.mu.Unlock()
 		return
@@ -925,7 +925,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
 		// Fetch the Animap media in order to normalize the episode number
 		ad.mu.Lock()
-		animeMetadata, err := ad.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
+		animeMetadata, err := ad.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
 		// If the media is found and the offset is greater than 0
 		if err == nil && animeMetadata.GetOffset() > 0 {
 			hasAbsoluteEpisode = true

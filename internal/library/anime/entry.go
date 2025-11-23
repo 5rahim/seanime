@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"sort"
 
 	"github.com/samber/lo"
@@ -47,12 +48,12 @@ type (
 type (
 	// NewEntryOptions is a constructor for Entry.
 	NewEntryOptions struct {
-		MediaId          int
-		LocalFiles       []*LocalFile // All local files
-		AnimeCollection  *anilist.AnimeCollection
-		Platform         platform.Platform
-		MetadataProvider metadata_provider.Provider
-		IsSimulated      bool // If the account is simulated
+		MediaId             int
+		LocalFiles          []*LocalFile // All local files
+		AnimeCollection     *anilist.AnimeCollection
+		PlatformRef         *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		IsSimulated         bool // If the account is simulated
 	}
 )
 
@@ -105,7 +106,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	}
 
 	if opts.AnimeCollection == nil ||
-		opts.Platform == nil {
+		opts.PlatformRef.IsAbsent() {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
 
@@ -123,7 +124,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 		anilistEntry = &anilist.AnimeListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.PlatformRef.Get().GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +143,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	// the media from AniList to ensure we have the latest data
 	if opts.IsSimulated && found {
 		// Fetch the media
-		fetchedMedia, err := opts.Platform.GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.PlatformRef.Get().GetAnime(ctx, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}
@@ -171,7 +172,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	// +---------------------+
 
 	// Fetch AniDB data and cache it for 30 minutes
-	animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.MediaId)
+	animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.MediaId)
 	if err != nil {
 
 		// +---------------- Start
@@ -184,7 +185,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 			MediaId:         opts.MediaId,
 			LocalFiles:      opts.LocalFiles,
 			AnimeCollection: opts.AnimeCollection,
-			Platform:        opts.Platform,
+			PlatformRef:     opts.PlatformRef,
 		})
 		if err != nil {
 			return nil, err
@@ -227,7 +228,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 	// +---------------------+
 
 	// Create episode entities
-	entry.hydrateEntryEpisodeData(anilistEntry, animeMetadata, opts.MetadataProvider)
+	entry.hydrateEntryEpisodeData(anilistEntry, animeMetadata, opts.MetadataProviderRef)
 
 	event := &AnimeEntryEvent{
 		Entry: entry,
@@ -247,7 +248,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (*Entry, error) {
 func (e *Entry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.AnimeListEntry,
 	animeMetadata *metadata.AnimeMetadata,
-	metadataProvider metadata_provider.Provider,
+	metadataProviderRef *util.Ref[metadata_provider.Provider],
 ) {
 
 	if animeMetadata.Episodes == nil && len(animeMetadata.Episodes) == 0 {
@@ -286,7 +287,7 @@ func (e *Entry) hydrateEntryEpisodeData(
 				Media:                e.Media,
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         true,
-				MetadataProvider:     metadataProvider,
+				MetadataProvider:     metadataProviderRef.Get(),
 			})
 		})
 	}
@@ -302,12 +303,12 @@ func (e *Entry) hydrateEntryEpisodeData(
 	// +---------------------+
 
 	info, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
-		LocalFiles:       e.LocalFiles,
-		AnimeMetadata:    animeMetadata,
-		Progress:         anilistEntry.Progress,
-		Status:           anilistEntry.Status,
-		Media:            e.Media,
-		MetadataProvider: metadataProvider,
+		LocalFiles:          e.LocalFiles,
+		AnimeMetadata:       animeMetadata,
+		Progress:            anilistEntry.Progress,
+		Status:              anilistEntry.Status,
+		Media:               e.Media,
+		MetadataProviderRef: metadataProviderRef,
 	})
 	if err == nil {
 		e.EntryDownloadInfo = info

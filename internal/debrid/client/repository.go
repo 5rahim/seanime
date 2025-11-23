@@ -16,6 +16,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 
 	"github.com/rs/zerolog"
@@ -38,11 +39,11 @@ type (
 		torrentRepository      *torrent.Repository
 		directStreamManager    *directstream.Manager
 
-		playbackManager    *playbackmanager.PlaybackManager
-		streamManager      *StreamManager
-		completeAnimeCache *anilist.CompleteAnimeCache
-		metadataProvider   metadata_provider.Provider
-		platform           platform.Platform
+		playbackManager     *playbackmanager.PlaybackManager
+		streamManager       *StreamManager
+		completeAnimeCache  *anilist.CompleteAnimeCache
+		metadataProviderRef *util.Ref[metadata_provider.Provider]
+		platformRef         *util.Ref[platform.Platform]
 
 		previousStreamOptions mo.Option[*StartStreamOptions]
 	}
@@ -55,8 +56,8 @@ type (
 		TorrentRepository   *torrent.Repository
 		PlaybackManager     *playbackmanager.PlaybackManager
 		DirectStreamManager *directstream.Manager
-		MetadataProvider    metadata_provider.Provider
-		Platform            platform.Platform
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		PlatformRef         *util.Ref[platform.Platform]
 	}
 )
 
@@ -70,11 +71,11 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 			Enabled: false,
 		},
 		torrentRepository:     opts.TorrentRepository,
-		platform:              opts.Platform,
+		platformRef:           opts.PlatformRef,
 		playbackManager:       opts.PlaybackManager,
-		metadataProvider:      opts.MetadataProvider,
+		metadataProviderRef:   opts.MetadataProviderRef,
 		completeAnimeCache:    anilist.NewCompleteAnimeCache(),
-		ctxMap:                result.NewResultMap[string, context.CancelFunc](),
+		ctxMap:                result.NewMap[string, context.CancelFunc](),
 		previousStreamOptions: mo.None[*StartStreamOptions](),
 		directStreamManager:   opts.DirectStreamManager,
 	}

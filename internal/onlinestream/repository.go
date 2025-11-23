@@ -10,6 +10,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
@@ -22,10 +23,10 @@ import (
 type (
 	Repository struct {
 		logger                *zerolog.Logger
-		providerExtensionBank *extension.UnifiedBank
+		extensionBankRef      *util.Ref[*extension.UnifiedBank]
 		fileCacher            *filecache.Cacher
-		metadataProvider      metadata_provider.Provider
-		platform              platform.Platform
+		metadataProviderRef   *util.Ref[metadata_provider.Provider]
+		platformRef           *util.Ref[platform.Platform]
 		anilistBaseAnimeCache *anilist.BaseAnimeCache
 		db                    *db.Database
 	}
@@ -70,30 +71,25 @@ type (
 
 type (
 	NewRepositoryOptions struct {
-		Logger           *zerolog.Logger
-		FileCacher       *filecache.Cacher
-		MetadataProvider metadata_provider.Provider
-		Platform         platform.Platform
-		Database         *db.Database
+		Logger              *zerolog.Logger
+		FileCacher          *filecache.Cacher
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		PlatformRef         *util.Ref[platform.Platform]
+		Database            *db.Database
+		ExtensionBankRef    *util.Ref[*extension.UnifiedBank]
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return &Repository{
 		logger:                opts.Logger,
-		metadataProvider:      opts.MetadataProvider,
+		metadataProviderRef:   opts.MetadataProviderRef,
 		fileCacher:            opts.FileCacher,
-		providerExtensionBank: extension.NewUnifiedBank(),
+		extensionBankRef:      opts.ExtensionBankRef,
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
-		platform:              opts.Platform,
+		platformRef:           opts.PlatformRef,
 		db:                    opts.Database,
 	}
-}
-
-func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
-	r.providerExtensionBank = bank
-
-	r.logger.Debug().Msg("onlinestream: Initialized provider extension bank")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +114,7 @@ func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) fileca
 
 func (r *Repository) getMedia(ctx context.Context, mId int) (*anilist.BaseAnime, error) {
 	media, err := r.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
-		media, err := r.platform.GetAnime(ctx, mId)
+		media, err := r.platformRef.Get().GetAnime(ctx, mId)
 		if err != nil {
 			return nil, err
 		}
@@ -157,10 +153,10 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	//aw := r.metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    nil,
-		Media:            media,
-		MetadataProvider: r.metadataProvider,
-		Logger:           r.logger,
+		AnimeMetadata:       nil,
+		Media:               media,
+		MetadataProviderRef: r.metadataProviderRef,
+		Logger:              r.logger,
 	})
 	foundEpisodeCollection := err == nil && episodeCollection != nil
 

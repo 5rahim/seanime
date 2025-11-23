@@ -6,7 +6,7 @@ import (
 	"seanime/internal/util/result"
 )
 
-var mangaMappingCache = result.NewResultMap[string, *models.MangaMapping]()
+var mangaMappingCache = result.NewMap[string, *models.MangaMapping]()
 
 func formatMangaMappingCacheKey(provider string, mediaId int) string {
 	return fmt.Sprintf("%s$%d", provider, mediaId)
@@ -53,7 +53,7 @@ func (db *Database) DeleteMangaMapping(provider string, mediaId int) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var mangaChapterContainerCache = result.NewResultMap[string, *models.MangaChapterContainer]()
+var mangaChapterContainerCache = result.NewMap[string, *models.MangaChapterContainer]()
 
 func formatMangaChapterContainerCacheKey(provider string, mediaId int, chapterId string) string {
 	return fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)

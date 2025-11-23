@@ -32,8 +32,8 @@ type MediaFetcher struct {
 
 type MediaFetcherOptions struct {
 	Enhanced               bool
-	Platform               platform.Platform
-	MetadataProvider       metadata_provider.Provider
+	PlatformRef            *util.Ref[platform.Platform]
+	MetadataProviderRef    *util.Ref[metadata_provider.Provider]
 	LocalFiles             []*anime.LocalFile
 	CompleteAnimeCache     *anilist.CompleteAnimeCache
 	Logger                 *zerolog.Logger
@@ -49,10 +49,10 @@ type MediaFetcherOptions struct {
 func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error) {
 	defer util.HandlePanicInModuleWithError("library/scanner/NewMediaFetcher", &retErr)
 
-	if opts.Platform == nil ||
+	if opts.PlatformRef.IsAbsent() ||
 		opts.LocalFiles == nil ||
 		opts.CompleteAnimeCache == nil ||
-		opts.MetadataProvider == nil ||
+		opts.MetadataProviderRef.IsAbsent() ||
 		opts.Logger == nil ||
 		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
@@ -82,7 +82,7 @@ func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *Media
 	// +---------------------+
 
 	// Fetch latest user's AniList collection
-	animeCollectionWithRelations, err := opts.Platform.GetAnimeCollectionWithRelations(ctx)
+	animeCollectionWithRelations, err := opts.PlatformRef.Get().GetAnimeCollectionWithRelations(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -130,10 +130,10 @@ func NewMediaFetcher(ctx context.Context, opts *MediaFetcherOptions) (ret *Media
 
 		_, ok := FetchMediaFromLocalFiles(
 			ctx,
-			opts.Platform,
+			opts.PlatformRef.Get(),
 			opts.LocalFiles,
 			opts.CompleteAnimeCache, // CompleteAnimeCache will be populated on success
-			opts.MetadataProvider,
+			opts.MetadataProviderRef.Get(),
 			opts.AnilistRateLimiter,
 			mf.ScanLogger,
 		)

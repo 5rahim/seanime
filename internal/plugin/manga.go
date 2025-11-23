@@ -96,12 +96,12 @@ func (m *Manga) getDownloadedChapterContainers() ([]*manga.ChapterContainer, err
 	if !ok {
 		return nil, errors.New("manga repository not found")
 	}
-	anilistPlatform, foundAnilistPlatform := m.ctx.anilistPlatform.Get()
+	anilistPlatformRef, foundAnilistPlatform := m.ctx.anilistPlatformRef.Get()
 	if !foundAnilistPlatform {
 		return nil, errors.New("anilist platform not found")
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
+	mangaCollection, err := anilistPlatformRef.Get().GetMangaCollection(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -109,18 +109,18 @@ func (m *Manga) getDownloadedChapterContainers() ([]*manga.ChapterContainer, err
 }
 
 func (m *Manga) getCollection() (*manga.Collection, error) {
-	anilistPlatform, foundAnilistPlatform := m.ctx.anilistPlatform.Get()
+	anilistPlatformRef, foundAnilistPlatform := m.ctx.anilistPlatformRef.Get()
 	if !foundAnilistPlatform {
 		return nil, errors.New("anilist platform not found")
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
+	mangaCollection, err := anilistPlatformRef.Get().GetMangaCollection(context.Background(), false)
 	if err != nil {
 		return nil, err
 	}
 	return manga.NewCollection(&manga.NewCollectionOptions{
 		MangaCollection: mangaCollection,
-		Platform:        anilistPlatform,
+		PlatformRef:     anilistPlatformRef,
 	})
 }
 
@@ -133,14 +133,14 @@ func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) goj
 		_ = reject(jsErr)
 		return m.vm.ToValue(promise)
 	}
-	anilistPlatform, foundAnilistPlatform := m.ctx.anilistPlatform.Get()
+	anilistPlatformRef, foundAnilistPlatform := m.ctx.anilistPlatformRef.Get()
 	if !foundAnilistPlatform {
 		jsErr := m.vm.NewGoError(errors.New("anilist platform not found"))
 		_ = reject(jsErr)
 		return m.vm.ToValue(promise)
 	}
 
-	mangaCollection, err := anilistPlatform.GetMangaCollection(context.Background(), false)
+	mangaCollection, err := anilistPlatformRef.Get().GetMangaCollection(context.Background(), false)
 	if err != nil {
 		reject(err.Error())
 		return m.vm.ToValue(promise)

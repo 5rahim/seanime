@@ -14,7 +14,7 @@ import (
 type LibraryExplorer struct {
 	mu              sync.RWMutex
 	animeCollection *anilist.AnimeCollection
-	platform        platform.Platform
+	platformRef     *util.Ref[platform.Platform]
 	libraryPaths    []string
 	logger          *zerolog.Logger
 	database        *db.Database
@@ -24,16 +24,16 @@ type LibraryExplorer struct {
 }
 
 type NewLibraryExplorerOptions struct {
-	Platform platform.Platform
-	Logger   *zerolog.Logger
-	Database *db.Database
+	PlatformRef *util.Ref[platform.Platform]
+	Logger      *zerolog.Logger
+	Database    *db.Database
 }
 
 func NewLibraryExplorer(opts NewLibraryExplorerOptions) *LibraryExplorer {
 	return &LibraryExplorer{
-		platform: opts.Platform,
-		logger:   opts.Logger,
-		database: opts.Database,
+		platformRef: opts.PlatformRef,
+		logger:      opts.Logger,
+		database:    opts.Database,
 	}
 }
 

@@ -112,19 +112,19 @@ func NewContext(ui *UI) *Context {
 		ext:                           ui.ext,
 		logger:                        ui.logger,
 		vm:                            ui.vm,
-		states:                        result.NewResultMap[string, *State](),
+		states:                        result.NewMap[string, *State](),
 		fetchSem:                      make(chan struct{}, MaxConcurrentFetchRequests),
 		stateSubscribers:              make([]chan *State, 0),
-		eventBus:                      result.NewResultMap[ClientEventType, *result.Map[string, *EventListener]](),
+		eventBus:                      result.NewMap[ClientEventType, *result.Map[string, *EventListener]](),
 		wsEventManager:                ui.wsEventManager,
 		effectStack:                   make(map[string]bool),
 		effectCalls:                   make(map[string][]time.Time),
 		pendingStateUpdates:           make(map[string]struct{}),
 		lastUIUpdateAt:                time.Now().Add(-time.Hour), // Initialize to a time in the past
 		atomicCleanupCounter:          atomic.Int64{},
-		onCleanupFns:                  result.NewResultMap[int64, func()](),
+		onCleanupFns:                  result.NewMap[int64, func()](),
 		cron:                          mo.None[*plugin.Cron](),
-		registeredInlineEventHandlers: result.NewResultMap[string, *EventListener](),
+		registeredInlineEventHandlers: result.NewMap[string, *EventListener](),
 		pendingClientEvents:           make([]*ServerPluginEvent, 0, maxEventBatchSize),
 		eventBatchSize:                0,
 	}
@@ -239,7 +239,7 @@ func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListene
 	// Register the listener for each event type
 	for _, event := range events {
 		if !c.eventBus.Has(event) {
-			c.eventBus.Set(event, result.NewResultMap[string, *EventListener]())
+			c.eventBus.Set(event, result.NewMap[string, *EventListener]())
 		}
 		listeners, _ := c.eventBus.Get(event)
 		listeners.Set(id, listener)

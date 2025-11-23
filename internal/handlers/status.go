@@ -48,7 +48,7 @@ type Status struct {
 	ServerHasPassword     bool                          `json:"serverHasPassword"`
 }
 
-var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
+var clientInfoCache = result.NewMap[string, util.ClientInfo]()
 
 // NewStatus returns a new Status struct.
 // It uses the RouteCtx to get the App instance containing the Database instance.

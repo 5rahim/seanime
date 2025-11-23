@@ -3,11 +3,10 @@ package manga
 import (
 	"errors"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
-
-	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 var searchResultCache = result.NewCache[string, []*hibikemanga.SearchResult]()
@@ -20,7 +19,7 @@ func (r *Repository) ManualSearch(provider string, query string) (ret []*hibikem
 	}
 
 	// Get the search results
-	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.extensionBankRef.Get(), provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")

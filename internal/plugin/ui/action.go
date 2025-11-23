@@ -196,13 +196,13 @@ func NewActionManager(ctx *Context) *ActionManager {
 	return &ActionManager{
 		ctx: ctx,
 
-		animePageButtons:            result.NewResultMap[string, *AnimePageButton](),
-		animeLibraryDropdownItems:   result.NewResultMap[string, *AnimeLibraryDropdownMenuItem](),
-		animePageDropdownItems:      result.NewResultMap[string, *AnimePageDropdownMenuItem](),
-		mangaPageButtons:            result.NewResultMap[string, *MangaPageButton](),
-		mediaCardContextMenuItems:   result.NewResultMap[string, *MediaCardContextMenuItem](),
-		episodeCardContextMenuItems: result.NewResultMap[string, *EpisodeCardContextMenuItem](),
-		episodeGridItemMenuItems:    result.NewResultMap[string, *EpisodeGridItemMenuItem](),
+		animePageButtons:            result.NewMap[string, *AnimePageButton](),
+		animeLibraryDropdownItems:   result.NewMap[string, *AnimeLibraryDropdownMenuItem](),
+		animePageDropdownItems:      result.NewMap[string, *AnimePageDropdownMenuItem](),
+		mangaPageButtons:            result.NewMap[string, *MangaPageButton](),
+		mediaCardContextMenuItems:   result.NewMap[string, *MediaCardContextMenuItem](),
+		episodeCardContextMenuItems: result.NewMap[string, *EpisodeCardContextMenuItem](),
+		episodeGridItemMenuItems:    result.NewMap[string, *EpisodeGridItemMenuItem](),
 	}
 }
 

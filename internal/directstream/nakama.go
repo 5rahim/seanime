@@ -287,10 +287,10 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 	defer m.playbackMu.Unlock()
 
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    nil,
-		Media:            opts.Media,
-		MetadataProvider: m.metadataProvider,
-		Logger:           m.Logger,
+		AnimeMetadata:       nil,
+		Media:               opts.Media,
+		MetadataProviderRef: m.metadataProviderRef,
+		Logger:              m.Logger,
 	})
 	if err != nil {
 		return fmt.Errorf("cannot play local file, could not create episode collection: %w", err)
@@ -312,8 +312,8 @@ func (m *Manager) PlayNakamaStream(ctx context.Context, opts PlayNakamaStreamOpt
 			filename:              "",
 			episode:               episode,
 			episodeCollection:     episodeCollection,
-			subtitleEventCache:    result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			activeSubtitleStreams: result.NewResultMap[string, *SubtitleStream](),
+			subtitleEventCache:    result.NewMap[string, *mkvparser.SubtitleEvent](),
+			activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
 		},
 		streamReadyCh: make(chan struct{}),
 	}
