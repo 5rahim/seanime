@@ -9,7 +9,7 @@ Electron-based desktop client for Seanime. Embeds server and web interface. Succ
 </p>
 
 <p align="center">
-<img src="../docs/images/4/anime-entry-torrent-stream--sq.jpg" alt="preview" width="70%"/>
+<img src="https://seanime.app/bucket/img-2025-10-29-17-13-15.webp?updatedAt=1761758012992" alt="preview" width="80%"/>
 </p>
 
 ---

@@ -1,12 +1,13 @@
 package core
 
 import (
-	"github.com/rs/zerolog"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 func TrimLogEntries(dir string, logger *zerolog.Logger) {

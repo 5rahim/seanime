@@ -380,7 +380,7 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		wpm.resetBufferingState()
 
 		// Fetch the media info
-		media, err := wpm.manager.platform.GetAnime(context.Background(), payload.Session.CurrentMediaInfo.MediaId)
+		media, err := wpm.manager.platformRef.Get().GetAnime(context.Background(), payload.Session.CurrentMediaInfo.MediaId)
 		if err != nil {
 			wpm.logger.Error().Err(err).Msg("nakama: Failed to fetch media info for watch party")
 			return

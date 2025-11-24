@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -31,13 +32,14 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	}
 
 	repository := NewRepository(&NewRepositoryOptions{
-		Logger:         logger,
-		FileCacher:     fileCacher,
-		CacheDir:       cacheDir,
-		ServerURI:      "",
-		WsEventManager: events.NewMockWSEventManager(logger),
-		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
-		Database:       nil, // FIX
+		Logger:           logger,
+		FileCacher:       fileCacher,
+		CacheDir:         cacheDir,
+		ServerURI:        "",
+		WsEventManager:   events.NewMockWSEventManager(logger),
+		DownloadDir:      filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
+		Database:         nil, // FIX
+		ExtensionBankRef: util.NewRef(extension.NewUnifiedBank()),
 	})
 
 	// Test

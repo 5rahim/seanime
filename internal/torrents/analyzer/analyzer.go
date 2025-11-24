@@ -19,12 +19,12 @@ type (
 	// Analyzer is a service similar to the scanner, but it is used to analyze torrent files.
 	// i.e. torrent files instead of local files.
 	Analyzer struct {
-		files            []*File
-		media            *anilist.CompleteAnime
-		platform         platform.Platform
-		logger           *zerolog.Logger
-		metadataProvider metadata_provider.Provider
-		forceMatch       bool
+		files               []*File
+		media               *anilist.CompleteAnime
+		platformRef         *util.Ref[platform.Platform]
+		logger              *zerolog.Logger
+		metadataProviderRef *util.Ref[metadata_provider.Provider]
+		forceMatch          bool
 	}
 
 	// Analysis contains the results of the analysis.
@@ -44,11 +44,11 @@ type (
 
 type (
 	NewAnalyzerOptions struct {
-		Logger           *zerolog.Logger
-		Filepaths        []string               // Filepath of the torrent files
-		Media            *anilist.CompleteAnime // The media to compare the files with
-		Platform         platform.Platform
-		MetadataProvider metadata_provider.Provider
+		Logger              *zerolog.Logger
+		Filepaths           []string               // Filepath of the torrent files
+		Media               *anilist.CompleteAnime // The media to compare the files with
+		PlatformRef         *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 		// This basically skips the matching process and forces the media ID to be set.
 		// Used for the auto-select feature because the media is already known.
 		ForceMatch bool
@@ -60,18 +60,18 @@ func NewAnalyzer(opts *NewAnalyzerOptions) *Analyzer {
 		return newFile(idx, filepath)
 	})
 	return &Analyzer{
-		files:            files,
-		media:            opts.Media,
-		platform:         opts.Platform,
-		logger:           opts.Logger,
-		metadataProvider: opts.MetadataProvider,
-		forceMatch:       opts.ForceMatch,
+		files:               files,
+		media:               opts.Media,
+		platformRef:         opts.PlatformRef,
+		logger:              opts.Logger,
+		metadataProviderRef: opts.MetadataProviderRef,
+		forceMatch:          opts.ForceMatch,
 	}
 }
 
 // AnalyzeTorrentFiles scans the files and returns an Analysis struct containing methods to get the results.
 func (a *Analyzer) AnalyzeTorrentFiles() (*Analysis, error) {
-	if a.platform == nil {
+	if a.platformRef.IsAbsent() {
 		return nil, errors.New("anilist client wrapper is nil")
 	}
 
@@ -206,7 +206,7 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	tree := anilist.NewCompleteAnimeRelationTree()
-	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.platform.GetAnilistClient(), anilistRateLimiter, tree, completeAnimeCache); err != nil {
+	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.platformRef.Get().GetAnilistClient(), anilistRateLimiter, tree, completeAnimeCache); err != nil {
 		return err
 	}
 
@@ -247,16 +247,16 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	fh := &scanner.FileHydrator{
-		LocalFiles:         lfs,
-		AllMedia:           mc.NormalizedMedia,
-		CompleteAnimeCache: completeAnimeCache,
-		Platform:           a.platform,
-		MetadataProvider:   a.metadataProvider,
-		AnilistRateLimiter: anilistRateLimiter,
-		Logger:             a.logger,
-		ScanLogger:         nil,
-		ScanSummaryLogger:  nil,
-		ForceMediaId:       map[bool]int{true: a.media.GetID(), false: 0}[a.forceMatch],
+		LocalFiles:          lfs,
+		AllMedia:            mc.NormalizedMedia,
+		CompleteAnimeCache:  completeAnimeCache,
+		PlatformRef:         a.platformRef,
+		MetadataProviderRef: a.metadataProviderRef,
+		AnilistRateLimiter:  anilistRateLimiter,
+		Logger:              a.logger,
+		ScanLogger:          nil,
+		ScanSummaryLogger:   nil,
+		ForceMediaId:        map[bool]int{true: a.media.GetID(), false: 0}[a.forceMatch],
 	}
 
 	fh.HydrateMetadata()

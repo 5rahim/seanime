@@ -141,7 +141,7 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 
 		wg := sync.WaitGroup{}
 		downloadUrls := strings.Split(downloadUrl, ",")
-		downloadMap := result.NewResultMap[string, downloadStatus]()
+		downloadMap := result.NewMap[string, downloadStatus]()
 
 		for _, url := range downloadUrls {
 			wg.Add(1)

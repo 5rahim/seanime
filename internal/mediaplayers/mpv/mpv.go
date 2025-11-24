@@ -76,7 +76,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string, optionalArgs
 		SocketName:  sn,
 		AppPath:     appPath,
 		Args:        additionalArgs,
-		subscribers: result.NewResultMap[string, *Subscriber](),
+		subscribers: result.NewMap[string, *Subscriber](),
 		exitedCh:    make(chan struct{}),
 	}
 }

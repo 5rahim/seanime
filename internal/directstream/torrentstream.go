@@ -192,10 +192,10 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 	defer m.playbackMu.Unlock()
 
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    nil,
-		Media:            opts.Media,
-		MetadataProvider: m.metadataProvider,
-		Logger:           m.Logger,
+		AnimeMetadata:       nil,
+		Media:               opts.Media,
+		MetadataProviderRef: m.metadataProviderRef,
+		Logger:              m.Logger,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cannot play local file, could not create episode collection: %w", err)
@@ -218,8 +218,8 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 			filename:              filepath.Base(opts.File.DisplayPath()),
 			episode:               episode,
 			episodeCollection:     episodeCollection,
-			subtitleEventCache:    result.NewResultMap[string, *mkvparser.SubtitleEvent](),
-			activeSubtitleStreams: result.NewResultMap[string, *SubtitleStream](),
+			subtitleEventCache:    result.NewMap[string, *mkvparser.SubtitleEvent](),
+			activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
 			isNakamaWatchParty:    opts.IsNakamaWatchParty,
 		},
 		streamReadyCh: make(chan struct{}),

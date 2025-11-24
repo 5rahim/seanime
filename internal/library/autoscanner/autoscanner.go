@@ -22,32 +22,32 @@ import (
 
 type (
 	AutoScanner struct {
-		fileActionCh     chan struct{} // Used to notify the scanner that a file action has occurred.
-		waiting          bool          // Used to prevent multiple scans from occurring at the same time.
-		missedAction     bool          // Used to indicate that a file action was missed while scanning.
-		mu               sync.Mutex
-		scannedCh        chan struct{}
-		waitTime         time.Duration // Wait time to listen to additional changes before triggering a scan.
-		enabled          bool
-		settings         models.LibrarySettings
-		platform         platform.Platform
-		logger           *zerolog.Logger
-		wsEventManager   events.WSEventManagerInterface
-		db               *db.Database                   // Database instance is required to update the local files.
-		autoDownloader   *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
-		metadataProvider metadata_provider.Provider
-		logsDir          string
+		fileActionCh        chan struct{} // Used to notify the scanner that a file action has occurred.
+		waiting             bool          // Used to prevent multiple scans from occurring at the same time.
+		missedAction        bool          // Used to indicate that a file action was missed while scanning.
+		mu                  sync.Mutex
+		scannedCh           chan struct{}
+		waitTime            time.Duration // Wait time to listen to additional changes before triggering a scan.
+		enabled             bool
+		settings            models.LibrarySettings
+		platformRef         *util.Ref[platform.Platform]
+		logger              *zerolog.Logger
+		wsEventManager      events.WSEventManagerInterface
+		db                  *db.Database                   // Database instance is required to update the local files.
+		autoDownloader      *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
+		metadataProviderRef *util.Ref[metadata_provider.Provider]
+		logsDir             string
 	}
 	NewAutoScannerOptions struct {
-		Database         *db.Database
-		Platform         platform.Platform
-		Logger           *zerolog.Logger
-		WSEventManager   events.WSEventManagerInterface
-		Enabled          bool
-		AutoDownloader   *autodownloader.AutoDownloader
-		WaitTime         time.Duration
-		MetadataProvider metadata_provider.Provider
-		LogsDir          string
+		Database            *db.Database
+		PlatformRef         *util.Ref[platform.Platform]
+		Logger              *zerolog.Logger
+		WSEventManager      events.WSEventManagerInterface
+		Enabled             bool
+		AutoDownloader      *autodownloader.AutoDownloader
+		WaitTime            time.Duration
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		LogsDir             string
 	}
 )
 
@@ -58,20 +58,20 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 	}
 
 	return &AutoScanner{
-		fileActionCh:     make(chan struct{}, 1),
-		waiting:          false,
-		missedAction:     false,
-		mu:               sync.Mutex{},
-		scannedCh:        make(chan struct{}, 1),
-		waitTime:         wt,
-		enabled:          opts.Enabled,
-		platform:         opts.Platform,
-		logger:           opts.Logger,
-		wsEventManager:   opts.WSEventManager,
-		db:               opts.Database,
-		autoDownloader:   opts.AutoDownloader,
-		metadataProvider: opts.MetadataProvider,
-		logsDir:          opts.LogsDir,
+		fileActionCh:        make(chan struct{}, 1),
+		waiting:             false,
+		missedAction:        false,
+		mu:                  sync.Mutex{},
+		scannedCh:           make(chan struct{}, 1),
+		waitTime:            wt,
+		enabled:             opts.Enabled,
+		platformRef:         opts.PlatformRef,
+		logger:              opts.Logger,
+		wsEventManager:      opts.WSEventManager,
+		db:                  opts.Database,
+		autoDownloader:      opts.AutoDownloader,
+		metadataProviderRef: opts.MetadataProviderRef,
+		logsDir:             opts.LogsDir,
 	}
 }
 
@@ -217,20 +217,20 @@ func (as *AutoScanner) scan() {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:            settings.Library.LibraryPath,
-		OtherDirPaths:      settings.Library.LibraryPaths,
-		Enhanced:           false, // Do not use enhanced mode for auto scanner.
-		Platform:           as.platform,
-		Logger:             as.logger,
-		WSEventManager:     as.wsEventManager,
-		ExistingLocalFiles: existingLfs,
-		SkipLockedFiles:    true, // Skip locked files by default.
-		SkipIgnoredFiles:   true,
-		ScanSummaryLogger:  scanSummaryLogger,
-		ScanLogger:         scanLogger,
-		MetadataProvider:   as.metadataProvider,
-		MatchingThreshold:  as.settings.ScannerMatchingThreshold,
-		MatchingAlgorithm:  as.settings.ScannerMatchingAlgorithm,
+		DirPath:             settings.Library.LibraryPath,
+		OtherDirPaths:       settings.Library.LibraryPaths,
+		Enhanced:            false, // Do not use enhanced mode for auto scanner.
+		PlatformRef:         as.platformRef,
+		Logger:              as.logger,
+		WSEventManager:      as.wsEventManager,
+		ExistingLocalFiles:  existingLfs,
+		SkipLockedFiles:     true, // Skip locked files by default.
+		SkipIgnoredFiles:    true,
+		ScanSummaryLogger:   scanSummaryLogger,
+		ScanLogger:          scanLogger,
+		MetadataProviderRef: as.metadataProviderRef,
+		MatchingThreshold:   as.settings.ScannerMatchingThreshold,
+		MatchingAlgorithm:   as.settings.ScannerMatchingAlgorithm,
 	}
 
 	allLfs, err := sc.Scan(context.Background())

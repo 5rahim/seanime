@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 
 	"github.com/rs/zerolog"
@@ -36,7 +37,7 @@ type (
 		Logger          *zerolog.Logger
 		FileCacher      *filecache.Cacher
 		MangaCollection *anilist.MangaCollection
-		Platform        platform.Platform
+		PlatformRef     *util.Ref[platform.Platform]
 	}
 )
 
@@ -77,7 +78,7 @@ func NewEntry(ctx context.Context, opts *NewEntryOptions) (entry *Entry, err err
 
 	// If the entry is not found, we fetch the manga from the Anilist API.
 	if !found {
-		media, err := opts.Platform.GetManga(ctx, opts.MediaId)
+		media, err := opts.PlatformRef.Get().GetManga(ctx, opts.MediaId)
 		if err != nil {
 			return nil, err
 		}

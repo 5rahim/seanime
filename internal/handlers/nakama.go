@@ -115,10 +115,10 @@ func (h *Handler) HandleGetNakamaAnimeLibrary(c echo.Context) error {
 	})
 
 	libraryCollection, err := anime.NewLibraryCollection(c.Request().Context(), &anime.NewLibraryCollectionOptions{
-		AnimeCollection:  animeCollection,
-		Platform:         h.App.AnilistPlatform,
-		LocalFiles:       lfs,
-		MetadataProvider: h.App.MetadataProvider,
+		AnimeCollection:     animeCollection,
+		PlatformRef:         h.App.AnilistPlatformRef,
+		LocalFiles:          lfs,
+		MetadataProviderRef: h.App.MetadataProviderRef,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -287,7 +287,7 @@ func (h *Handler) HandleNakamaPlayVideo(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("not connected to host"))
 	}
 
-	media, err := h.App.AnilistPlatform.GetAnime(c.Request().Context(), b.MediaId)
+	media, err := h.App.AnilistPlatformRef.Get().GetAnime(c.Request().Context(), b.MediaId)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

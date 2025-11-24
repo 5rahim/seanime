@@ -56,7 +56,7 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 	mediaId := opts.MediaId
 	titles := opts.Titles
 
-	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.extensionBankRef.Get(), provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")
@@ -273,7 +273,7 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 		go func() {
 			defer wg.Done()
 			// Get the selected provider
-			provider, ok := r.providerExtensionBank.Get(selectedProviderId)
+			provider, ok := r.extensionBankRef.Get().Get(selectedProviderId)
 			if !ok {
 				r.logger.Warn().Str("provider", selectedProviderId).Int("mediaId", mediaId).Msg("manga: Provider not found")
 				return
@@ -321,7 +321,7 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 
 const ChapterCountMapCacheKey = 1
 
-var mangaLatestChapterNumberMap = result.NewResultMap[int, map[int][]MangaLatestChapterNumberItem]()
+var mangaLatestChapterNumberMap = result.NewMap[int, map[int][]MangaLatestChapterNumberItem]()
 
 type MangaLatestChapterNumberItem struct {
 	Provider  string `json:"provider"`

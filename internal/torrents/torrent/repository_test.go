@@ -10,15 +10,15 @@ import (
 func getTestRepo(t *testing.T) *Repository {
 	logger := util.NewLogger()
 	metadataProvider := metadata_provider.GetMockProvider(t, nil)
+	metadataProviderRef := util.NewRef[metadata_provider.Provider](metadataProvider)
 
 	extensionBank := extension.NewUnifiedBank()
 
 	repo := NewRepository(&NewRepositoryOptions{
-		Logger:           logger,
-		MetadataProvider: metadataProvider,
+		Logger:              logger,
+		MetadataProviderRef: metadataProviderRef,
+		ExtensionBankRef:    util.NewRef(extensionBank),
 	})
-
-	repo.InitExtensionBank(extensionBank)
 
 	repo.SetSettings(&RepositorySettings{
 		DefaultAnimeProvider: "",

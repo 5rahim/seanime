@@ -124,7 +124,7 @@ func (pm *PlaybackManager) handleTrackingStarted(status *mediaplayer.PlaybackSta
 	}
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
 			ID:                  pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
 			Title:               pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
@@ -208,7 +208,7 @@ func (pm *PlaybackManager) handleTrackingStopped(reason string) {
 	}
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.Close()
 	}
 }
@@ -244,7 +244,7 @@ func (pm *PlaybackManager) handlePlaybackStatus(status *mediaplayer.PlaybackStat
 	pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.UpdateAnimeActivity(int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds), int(pm.currentMediaPlaybackStatus.DurationInSeconds), !pm.currentMediaPlaybackStatus.Playing)
 	}
 }
@@ -312,7 +312,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStarted(status *mediaplayer.Pl
 	})
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
 			ID:                  pm.currentStreamMedia.MustGet().GetID(),
 			Title:               pm.currentStreamMedia.MustGet().GetPreferredTitle(),
@@ -362,7 +362,7 @@ func (pm *PlaybackManager) handleStreamingPlaybackStatus(status *mediaplayer.Pla
 	pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.UpdateAnimeActivity(int(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds), int(pm.currentMediaPlaybackStatus.DurationInSeconds), !pm.currentMediaPlaybackStatus.Playing)
 	}
 }
@@ -432,7 +432,7 @@ func (pm *PlaybackManager) handleStreamingTrackingStopped(reason string) {
 	pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, reason)
 
 	// ------- Discord ------- //
-	if pm.discordPresence != nil && !*pm.isOffline {
+	if pm.discordPresence != nil && !pm.isOfflineRef.Get() {
 		go pm.discordPresence.Close()
 	}
 }
@@ -667,7 +667,7 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 	}
 
 	// Update the progress on AniList
-	err = pm.platform.UpdateEntryProgress(
+	err = pm.platformRef.Get().UpdateEntryProgress(
 		context.Background(),
 		mediaId,
 		epNum,

@@ -347,7 +347,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 	r.logger.Trace().Msg("extensions: Checking for updates")
 
 	// Check for updates for all extensions
-	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
+	r.extensionBankRef.Get().Range(func(key string, ext extension.BaseExtension) bool {
 		wg.Add(1)
 		go func(ext extension.BaseExtension) {
 			defer wg.Done()
@@ -507,7 +507,7 @@ func (r *Repository) unloadExternalExtensions() {
 			}
 		}
 	}
-	r.extensionBank.RemoveExternalExtensions()
+	r.extensionBankRef.Get().RemoveExternalExtensions()
 
 	r.logger.Debug().Int("count", count).Msg("extensions: Unloaded external extensions")
 }
@@ -771,7 +771,7 @@ func (r *Repository) reloadExtension(id string) {
 	// 1. Unload the extension
 
 	// Remove extension from bank
-	r.extensionBank.Delete(id)
+	r.extensionBankRef.Get().Delete(id)
 
 	// Delete the plugin pool
 	go r.gojaRuntimeManager.DeletePluginPool(id)

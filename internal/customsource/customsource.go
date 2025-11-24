@@ -8,6 +8,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/extension"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
 	"sync"
@@ -43,7 +44,7 @@ const (
 
 type (
 	Manager struct {
-		extensionBank           *extension.UnifiedBank
+		extensionBankRef        *util.Ref[*extension.UnifiedBank]
 		extensionBankSubscriber *extension.BankSubscriber
 		customSources           *result.Map[int, extension.CustomSourceExtension]    // key is extension identifier
 		customSourcesById       *result.Map[string, extension.CustomSourceExtension] // key is extension ID
@@ -56,13 +57,13 @@ type (
 
 // NewManager creates a new custom source manager.
 // Should be created each time the extension bank is updated.
-func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *zerolog.Logger) *Manager {
+func NewManager(extensionBankRef *util.Ref[*extension.UnifiedBank], db *db.Database, logger *zerolog.Logger) *Manager {
 	id := uuid.New().String()
 	ret := &Manager{
-		extensionBank:           extensionBank,
-		extensionBankSubscriber: extensionBank.Subscribe(id),
-		customSources:           result.NewResultMap[int, extension.CustomSourceExtension](),
-		customSourcesById:       result.NewResultMap[string, extension.CustomSourceExtension](),
+		extensionBankRef:        extensionBankRef,
+		extensionBankSubscriber: extensionBankRef.Get().Subscribe(id),
+		customSources:           result.NewMap[int, extension.CustomSourceExtension](),
+		customSourcesById:       result.NewMap[string, extension.CustomSourceExtension](),
 		closedCh:                make(chan struct{}),
 		db:                      db,
 		logger:                  logger,
@@ -72,17 +73,17 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *z
 		for {
 			select {
 			case <-ret.extensionBankSubscriber.OnCustomSourcesChanged():
-				logger.Debug().Msg("custom source: Custom sources changed")
+				logger.Debug().Str("id", id).Msg("custom source: Custom sources changed")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
-				extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
-					logger.Debug().Str("extension", id).Msg("custom source: (manager) Extension loaded")
+				extension.RangeExtensions(extensionBankRef.Get(), func(extId string, ext extension.CustomSourceExtension) bool {
+					logger.Trace().Str("extension", extId).Str("id", id).Msg("custom source: Updated extension on manager")
 					ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 					ret.customSourcesById.Set(ext.GetID(), ext)
 					return true
 				})
 			case <-ret.closedCh:
-				logger.Trace().Msg("custom source: Closed manager")
+				logger.Trace().Str("id", id).Msg("custom source: Closed manager")
 				ret.customSources.Clear()
 				ret.customSourcesById.Clear()
 				return
@@ -90,9 +91,9 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *z
 		}
 	}()
 
-	logger.Debug().Str("extension", id).Msg("custom source: Manager created, loading extensions")
-	extension.RangeExtensions(extensionBank, func(id string, ext extension.CustomSourceExtension) bool {
-		logger.Debug().Str("extension", ext.GetID()).Msg("custom source: (manager) Extension loaded")
+	logger.Debug().Str("id", id).Msg("custom source: Manager created, loading extensions")
+	extension.RangeExtensions(extensionBankRef.Get(), func(id string, ext extension.CustomSourceExtension) bool {
+		logger.Trace().Str("extension", ext.GetID()).Str("id", id).Msg("custom source: Extension loaded on manager")
 		ret.customSources.Set(ext.GetExtensionIdentifier(), ext)
 		ret.customSourcesById.Set(ext.GetID(), ext)
 		return true
@@ -104,7 +105,7 @@ func NewManager(extensionBank *extension.UnifiedBank, db *db.Database, logger *z
 func (m *Manager) Close() {
 	m.once.Do(func() {
 		close(m.closedCh)
-		m.extensionBank.Unsubscribe(m.extensionBankSubscriber.ID())
+		m.extensionBankRef.Get().Unsubscribe(m.extensionBankSubscriber.ID())
 	})
 }
 

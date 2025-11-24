@@ -11,6 +11,7 @@ import (
 	"seanime/internal/local"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/platforms/shared_platform"
+	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sync"
 	"time"
@@ -42,13 +43,13 @@ type SimulatedPlatform struct {
 	db                             *db.Database
 }
 
-func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClient, logger *zerolog.Logger, db *db.Database) (platform.Platform, error) {
+func NewSimulatedPlatform(localManager local.Manager, client *util.Ref[anilist.AnilistClient], extensionBankRef *util.Ref[*extension.UnifiedBank], logger *zerolog.Logger, db *db.Database) (platform.Platform, error) {
 	sp := &SimulatedPlatform{
 		logger:           logger,
 		localManager:     localManager,
 		client:           shared_platform.NewCacheLayer(client),
 		anilistRateLimit: limiter.NewAnilistLimiter(),
-		helper:           shared_platform.NewPlatformHelper(logger),
+		helper:           shared_platform.NewPlatformHelper(extensionBankRef, db, logger),
 		db:               db,
 	}
 
@@ -58,10 +59,6 @@ func NewSimulatedPlatform(localManager local.Manager, client anilist.AnilistClie
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Implementation
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (sp *SimulatedPlatform) InitExtensionBank(bank *extension.UnifiedBank) {
-	sp.helper.InitExtensionBank(bank, sp.db)
-}
 
 func (sp *SimulatedPlatform) SetUsername(username string) {
 	// no-op
@@ -73,10 +70,6 @@ func (sp *SimulatedPlatform) Close() {
 
 func (sp *SimulatedPlatform) ClearCache() {
 	sp.helper.ClearCache()
-}
-
-func (sp *SimulatedPlatform) SetAnilistClient(client anilist.AnilistClient) {
-	sp.client = client // DEVNOTE: Should only be unauthenticated
 }
 
 // UpdateEntry updates the entry for the given media ID.

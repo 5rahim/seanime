@@ -9,6 +9,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"time"
 
@@ -22,24 +23,20 @@ type PlatformHelper struct {
 	baseAnimeCache      *result.BoundedCache[int, *anilist.BaseAnime]
 	baseMangaCache      *result.BoundedCache[int, *anilist.BaseManga]
 	completeAnimeCache  *result.BoundedCache[int, *anilist.CompleteAnime]
+	extensionBankRef    *util.Ref[*extension.UnifiedBank]
 }
 
-func NewPlatformHelper(logger *zerolog.Logger) *PlatformHelper {
+func NewPlatformHelper(extensionBankRef *util.Ref[*extension.UnifiedBank], db *db.Database, logger *zerolog.Logger) *PlatformHelper {
 	helper := &PlatformHelper{
-		logger:             logger,
-		baseAnimeCache:     result.NewBoundedCache[int, *anilist.BaseAnime](50),
-		baseMangaCache:     result.NewBoundedCache[int, *anilist.BaseManga](50),
-		completeAnimeCache: result.NewBoundedCache[int, *anilist.CompleteAnime](10),
+		logger:              logger,
+		baseAnimeCache:      result.NewBoundedCache[int, *anilist.BaseAnime](50),
+		baseMangaCache:      result.NewBoundedCache[int, *anilist.BaseManga](50),
+		completeAnimeCache:  result.NewBoundedCache[int, *anilist.CompleteAnime](10),
+		extensionBankRef:    extensionBankRef,
+		customSourceManager: customsource.NewManager(extensionBankRef, db, logger),
 	}
 
 	return helper
-}
-
-func (h *PlatformHelper) InitExtensionBank(bank *extension.UnifiedBank, db *db.Database) {
-	if h.customSourceManager != nil {
-		h.customSourceManager.Close()
-	}
-	h.customSourceManager = customsource.NewManager(bank, db, h.logger)
 }
 
 func (h *PlatformHelper) Close() {

@@ -35,8 +35,8 @@ func (h *Handler) HandleTestDump(c echo.Context) error {
 
 	mc, err := scanner.NewMediaFetcher(c.Request().Context(), &scanner.MediaFetcherOptions{
 		Enhanced:               false,
-		Platform:               h.App.AnilistPlatform,
-		MetadataProvider:       h.App.MetadataProvider,
+		PlatformRef:            h.App.AnilistPlatformRef,
+		MetadataProviderRef:    h.App.MetadataProviderRef,
 		LocalFiles:             localFiles,
 		CompleteAnimeCache:     completeAnimeCache,
 		Logger:                 h.App.Logger,

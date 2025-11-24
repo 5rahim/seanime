@@ -9,6 +9,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
 	"time"
@@ -31,10 +32,10 @@ type (
 
 type NewEpisodeCollectionOptions struct {
 	// AnimeMetadata can be nil, if not provided, it will be fetched from the metadata provider.
-	AnimeMetadata    *metadata.AnimeMetadata
-	Media            *anilist.BaseAnime
-	MetadataProvider metadata_provider.Provider
-	Logger           *zerolog.Logger
+	AnimeMetadata       *metadata.AnimeMetadata
+	Media               *anilist.BaseAnime
+	MetadataProviderRef *util.Ref[metadata_provider.Provider]
+	Logger              *zerolog.Logger
 }
 
 // NewEpisodeCollection creates a new episode collection by leveraging EntryDownloadInfo.
@@ -52,7 +53,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 		return nil, fmt.Errorf("cannont create episode collectiom, media is nil")
 	}
 
-	if opts.MetadataProvider == nil {
+	if opts.MetadataProviderRef.IsAbsent() {
 		return nil, fmt.Errorf("cannot create episode collection, metadata provider is nil")
 	}
 
@@ -63,7 +64,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 
 	if opts.AnimeMetadata == nil {
 		// Fetch the metadata
-		opts.AnimeMetadata, err = opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.ID)
+		opts.AnimeMetadata, err = opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.ID)
 		if err != nil {
 			opts.AnimeMetadata = &metadata.AnimeMetadata{
 				Titles:       make(map[string]string),
@@ -107,12 +108,12 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	// +---------------------+
 
 	info, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
-		LocalFiles:       nil,
-		AnimeMetadata:    opts.AnimeMetadata,
-		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
-		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
-		Media:            opts.Media,
-		MetadataProvider: opts.MetadataProvider,
+		LocalFiles:          nil,
+		AnimeMetadata:       opts.AnimeMetadata,
+		Progress:            lo.ToPtr(0), // Progress is 0 because we want the entire list
+		Status:              lo.ToPtr(anilist.MediaListStatusCurrent),
+		Media:               opts.Media,
+		MetadataProviderRef: opts.MetadataProviderRef,
 	})
 	if err != nil {
 		opts.Logger.Error().Err(err).Msg("torrentstream: could not get media entry info")
@@ -126,7 +127,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 		for epIdx := range opts.Media.GetCurrentEpisodeCount() {
 			episodeNumber := epIdx + 1
 
-			mediaWrapper := opts.MetadataProvider.GetAnimeMetadataWrapper(opts.Media, nil)
+			mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(opts.Media, nil)
 			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
 
 			episode := &Episode{
@@ -193,12 +194,12 @@ func ClearEpisodeCollectionCache() {
 /////////
 
 type NewEpisodeCollectionFromLocalFilesOptions struct {
-	LocalFiles       []*LocalFile
-	Media            *anilist.BaseAnime
-	AnimeCollection  *anilist.AnimeCollection
-	Platform         platform.Platform
-	MetadataProvider metadata_provider.Provider
-	Logger           *zerolog.Logger
+	LocalFiles          []*LocalFile
+	Media               *anilist.BaseAnime
+	AnimeCollection     *anilist.AnimeCollection
+	PlatformRef         *util.Ref[platform.Platform]
+	MetadataProviderRef *util.Ref[metadata_provider.Provider]
+	Logger              *zerolog.Logger
 }
 
 func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeCollectionFromLocalFilesOptions) (*EpisodeCollection, error) {
@@ -213,18 +214,18 @@ func NewEpisodeCollectionFromLocalFiles(ctx context.Context, opts NewEpisodeColl
 
 	// Create a new media entry
 	entry, err := NewEntry(ctx, &NewEntryOptions{
-		MediaId:          opts.Media.GetID(),
-		LocalFiles:       opts.LocalFiles,
-		AnimeCollection:  opts.AnimeCollection,
-		Platform:         opts.Platform,
-		MetadataProvider: opts.MetadataProvider,
+		MediaId:             opts.Media.GetID(),
+		LocalFiles:          opts.LocalFiles,
+		AnimeCollection:     opts.AnimeCollection,
+		PlatformRef:         opts.PlatformRef,
+		MetadataProviderRef: opts.MetadataProviderRef,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cannot play local file, could not create entry: %w", err)
 	}
 
 	// Should be cached if it exists
-	animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.ID)
+	animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.ID)
 	if err != nil {
 		animeMetadata = &metadata.AnimeMetadata{
 			Titles:       make(map[string]string),

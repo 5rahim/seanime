@@ -80,8 +80,12 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	definedDataDir := ""
 
 	// Set data dir (flag overrides env var)
-	if flags.DataDir == "" && os.Getenv("SEANIME_DATA_DIR") != "" {
+	if os.Getenv("SEANIME_DATA_DIR") != "" {
 		definedDataDir = os.Getenv("SEANIME_DATA_DIR")
+	}
+
+	if flags.DataDir != "" {
+		definedDataDir = flags.DataDir
 	}
 
 	defaultHost := "127.0.0.1"

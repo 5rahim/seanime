@@ -83,7 +83,7 @@ func (h *Handler) HandleGetMangaCollection(c echo.Context) error {
 
 	collection, err := manga.NewCollection(&manga.NewCollectionOptions{
 		MangaCollection: animeCollection,
-		Platform:        h.App.AnilistPlatform,
+		PlatformRef:     h.App.AnilistPlatformRef,
 	})
 	if err != nil {
 		return h.RespondWithError(c, err)
@@ -115,7 +115,7 @@ func (h *Handler) HandleGetMangaEntry(c echo.Context) error {
 		MediaId:         id,
 		Logger:          h.App.Logger,
 		FileCacher:      h.App.FileCacher,
-		Platform:        h.App.AnilistPlatform,
+		PlatformRef:     h.App.AnilistPlatformRef,
 		MangaCollection: animeCollection,
 	})
 	if err != nil {
@@ -147,7 +147,7 @@ func (h *Handler) HandleGetMangaEntryDetails(c echo.Context) error {
 		return h.RespondWithData(c, detailsMedia)
 	}
 
-	details, err := h.App.AnilistPlatform.GetMangaDetails(c.Request().Context(), id)
+	details, err := h.App.AnilistPlatformRef.Get().GetMangaDetails(c.Request().Context(), id)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -249,7 +249,7 @@ func (h *Handler) HandleGetMangaEntryChapters(c echo.Context) error {
 	baseManga, found := baseMangaCache.Get(b.MediaId)
 	if !found {
 		var err error
-		baseManga, err = h.App.AnilistPlatform.GetManga(c.Request().Context(), b.MediaId)
+		baseManga, err = h.App.AnilistPlatformRef.Get().GetManga(c.Request().Context(), b.MediaId)
 		if err != nil {
 			return h.RespondWithError(c, err)
 		}
@@ -296,7 +296,7 @@ func (h *Handler) HandleGetMangaEntryPages(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	container, err := h.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage, h.App.IsOffline())
+	container, err := h.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage, h.App.IsOfflineRef())
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
@@ -394,7 +394,7 @@ func (h *Handler) HandleAnilistListManga(c echo.Context) error {
 	}
 
 	ret, err := anilist.ListMangaM(
-		shared_platform.NewCacheLayer(h.App.AnilistClient),
+		shared_platform.NewCacheLayer(h.App.AnilistClientRef),
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -441,7 +441,7 @@ func (h *Handler) HandleUpdateMangaProgress(c echo.Context) error {
 	}
 
 	// Update the progress on AniList
-	err := h.App.AnilistPlatform.UpdateEntryProgress(
+	err := h.App.AnilistPlatformRef.Get().UpdateEntryProgress(
 		c.Request().Context(),
 		b.MediaId,
 		b.ChapterNumber,

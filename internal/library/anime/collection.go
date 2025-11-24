@@ -87,10 +87,10 @@ type (
 type (
 	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
-		AnimeCollection  *anilist.AnimeCollection
-		LocalFiles       []*LocalFile
-		Platform         platform.Platform
-		MetadataProvider metadata_provider.Provider
+		AnimeCollection     *anilist.AnimeCollection
+		LocalFiles          []*LocalFile
+		PlatformRef         *util.Ref[platform.Platform]
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 )
 
@@ -140,8 +140,8 @@ func NewLibraryCollection(ctx context.Context, opts *NewLibraryCollectionOptions
 		ctx,
 		opts.LocalFiles,
 		opts.AnimeCollection,
-		opts.Platform,
-		opts.MetadataProvider,
+		opts.PlatformRef,
+		opts.MetadataProviderRef,
 	)
 
 	lc.UnmatchedLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
@@ -350,8 +350,8 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	ctx context.Context,
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
-	platform platform.Platform,
-	metadataProvider metadata_provider.Provider,
+	platformRef *util.Ref[platform.Platform],
+	metadataProviderRef *util.Ref[metadata_provider.Provider],
 ) {
 
 	// Get currently watching list
@@ -375,11 +375,11 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	for _, mId := range mIds {
 		mEntryPool.Go(func() *Entry {
 			me, _ := NewEntry(ctx, &NewEntryOptions{
-				MediaId:          mId,
-				LocalFiles:       localFiles,
-				AnimeCollection:  animeCollection,
-				Platform:         platform,
-				MetadataProvider: metadataProvider,
+				MediaId:             mId,
+				LocalFiles:          localFiles,
+				AnimeCollection:     animeCollection,
+				PlatformRef:         platformRef,
+				MetadataProviderRef: metadataProviderRef,
 			})
 			return me
 		})

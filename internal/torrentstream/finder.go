@@ -243,12 +243,12 @@ searchLoop:
 
 		// Create a new Torrent Analyzer
 		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:           r.logger,
-			Filepaths:        filepaths,
-			Media:            media,
-			Platform:         r.platform,
-			MetadataProvider: r.metadataProvider,
-			ForceMatch:       true,
+			Logger:              r.logger,
+			Filepaths:           filepaths,
+			Media:               media,
+			PlatformRef:         r.platformRef,
+			MetadataProviderRef: r.metadataProviderRef,
+			ForceMatch:          true,
 		})
 
 		r.logger.Debug().Msgf("torrentstream: Analyzing torrent %s", searchT.Link)
@@ -364,12 +364,12 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 
 		// Create a new Torrent Analyzer
 		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:           r.logger,
-			Filepaths:        filepaths,
-			Media:            media,
-			Platform:         r.platform,
-			MetadataProvider: r.metadataProvider,
-			ForceMatch:       true,
+			Logger:              r.logger,
+			Filepaths:           filepaths,
+			Media:               media,
+			PlatformRef:         r.platformRef,
+			MetadataProviderRef: r.metadataProviderRef,
+			ForceMatch:          true,
 		})
 
 		// Analyze torrent files

@@ -25,17 +25,11 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refreshAnilistTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				RefreshAnilistDataJob(ctx)
-				if app.LocalManager != nil &&
-					!app.GetUser().IsSimulated &&
-					app.Settings != nil &&
-					app.Settings.Library != nil &&
-					app.Settings.Library.AutoSyncToLocalAccount {
-					_ = app.LocalManager.SynchronizeAnilistToSimulatedCollection()
-				}
+				app.SyncAnilistToSimulatedCollection()
 			}
 		}
 	}()
@@ -44,7 +38,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refreshLocalDataTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				SyncLocalDataJob(ctx)
@@ -56,7 +50,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refetchReleaseTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				app.Updater.ShouldRefetchReleases()
@@ -68,7 +62,7 @@ func RunJobs(app *core.App) {
 		for {
 			select {
 			case <-refetchAnnouncementsTicker.C:
-				if *app.IsOffline() {
+				if app.IsOffline() {
 					continue
 				}
 				app.Updater.FetchAnnouncements()

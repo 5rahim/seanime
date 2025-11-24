@@ -13,6 +13,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -98,11 +99,11 @@ type (
 		isOffline      bool
 
 		logger                  *zerolog.Logger
-		metadataProvider        metadata_provider.Provider
+		metadataProviderRef     *util.Ref[metadata_provider.Provider]
 		mangaRepository         *manga.Repository
 		wsEventManager          events.WSEventManagerInterface
 		offlineMetadataProvider metadata_provider.Provider
-		anilistPlatform         platform.Platform
+		anilistPlatformRef      *util.Ref[platform.Platform]
 
 		syncer *Syncer
 
@@ -131,15 +132,15 @@ type (
 	}
 
 	NewManagerOptions struct {
-		LocalDir         string
-		AssetDir         string
-		Logger           *zerolog.Logger
-		MetadataProvider metadata_provider.Provider
-		MangaRepository  *manga.Repository
-		Database         *db.Database
-		WSEventManager   events.WSEventManagerInterface
-		AnilistPlatform  platform.Platform
-		IsOffline        bool
+		LocalDir            string
+		AssetDir            string
+		Logger              *zerolog.Logger
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
+		MangaRepository     *manga.Repository
+		Database            *db.Database
+		WSEventManager      events.WSEventManagerInterface
+		AnilistPlatformRef  *util.Ref[platform.Platform]
+		IsOffline           bool
 	}
 )
 
@@ -162,13 +163,13 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 		mangaCollection:               mo.None[*anilist.MangaCollection](),
 		localAnimeCollection:          mo.None[*anilist.AnimeCollection](),
 		localMangaCollection:          mo.None[*anilist.MangaCollection](),
-		metadataProvider:              opts.MetadataProvider,
+		metadataProviderRef:           opts.MetadataProviderRef,
 		mangaRepository:               opts.MangaRepository,
 		downloadedChapterContainers:   make([]*manga.ChapterContainer, 0),
 		localFiles:                    make([]*anime.LocalFile, 0),
 		wsEventManager:                opts.WSEventManager,
 		isOffline:                     opts.IsOffline,
-		anilistPlatform:               opts.AnilistPlatform,
+		anilistPlatformRef:            opts.AnilistPlatformRef,
 		RefreshAnilistCollectionsFunc: func() {},
 	}
 
@@ -683,7 +684,7 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 					score = lo.ToPtr(int(*entry.GetScore()))
 				}
 
-				_ = m.anilistPlatform.UpdateEntry(
+				_ = m.anilistPlatformRef.Get().UpdateEntry(
 					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
@@ -746,7 +747,7 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 					score = lo.ToPtr(int(*entry.GetScore()))
 				}
 
-				_ = m.anilistPlatform.UpdateEntry(
+				_ = m.anilistPlatformRef.Get().UpdateEntry(
 					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
@@ -874,6 +875,7 @@ func (m *ManagerImpl) GetSimulatedMangaCollection() mo.Option[*anilist.MangaColl
 }
 
 func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) {
+	m.logger.Trace().Msg("local manager: Saving simulated anime collection to database")
 	//// Remove airing dates from each entry
 	//for _, list := range ac.MediaListCollection.Lists {
 	//	for _, entry := range list.Entries {
@@ -884,10 +886,13 @@ func (m *ManagerImpl) SaveSimulatedAnimeCollection(ac *anilist.AnimeCollection) 
 }
 
 func (m *ManagerImpl) SaveSimulatedMangaCollection(mc *anilist.MangaCollection) {
+	m.logger.Trace().Msg("local manager: Saving simulated manga collection to database")
 	_ = m.localDb.SaveSimulatedMangaCollection(mc)
 }
 
 func (m *ManagerImpl) SynchronizeAnilistToSimulatedCollection() error {
+	m.logger.Trace().Msg("local manager: Synchronizing Anilist to simulated (local) collection")
+
 	if animeCollection, ok := m.animeCollection.Get(); ok {
 		m.SaveSimulatedAnimeCollection(animeCollection)
 	}
@@ -952,7 +957,7 @@ func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {
 					score = lo.ToPtr(0)
 				}
 
-				_ = m.anilistPlatform.UpdateEntry(
+				_ = m.anilistPlatformRef.Get().UpdateEntry(
 					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),
@@ -1017,7 +1022,7 @@ func (m *ManagerImpl) SynchronizeSimulatedCollectionToAnilist() error {
 					score = lo.ToPtr(0)
 				}
 
-				_ = m.anilistPlatform.UpdateEntry(
+				_ = m.anilistPlatformRef.Get().UpdateEntry(
 					context.Background(),
 					entry.GetMedia().GetID(),
 					entry.GetStatus(),

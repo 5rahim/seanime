@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/extension"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
-
-	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 )
 
 var searchResultCache = result.NewCache[string, []*hibikeonlinestream.SearchResult]()
@@ -21,7 +20,7 @@ func (r *Repository) ManualSearch(provider string, query string, dub bool) (ret 
 	}
 
 	// Get the search results
-	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.providerExtensionBank, provider)
+	providerExtension, ok := extension.GetExtension[extension.OnlinestreamProviderExtension](r.extensionBankRef.Get(), provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("onlinestream: Provider not found")
 		return nil, errors.New("onlinestream: Provider not found")

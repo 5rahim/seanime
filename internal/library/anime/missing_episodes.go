@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/hook"
+	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
@@ -22,10 +23,10 @@ type (
 	}
 
 	NewMissingEpisodesOptions struct {
-		AnimeCollection  *anilist.AnimeCollection
-		LocalFiles       []*LocalFile
-		SilencedMediaIds []int
-		MetadataProvider metadata_provider.Provider
+		AnimeCollection     *anilist.AnimeCollection
+		LocalFiles          []*LocalFile
+		SilencedMediaIds    []int
+		MetadataProviderRef *util.Ref[metadata_provider.Provider]
 	}
 )
 
@@ -83,19 +84,19 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			}
 			rateLimiter.Wait()
 			// Fetch anime metadata
-			animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
+			animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 			if err != nil {
 				return nil
 			}
 
 			// Get download info
 			downloadInfo, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
-				LocalFiles:       lfs,
-				AnimeMetadata:    animeMetadata,
-				Media:            entry.Media,
-				Progress:         entry.Progress,
-				Status:           entry.Status,
-				MetadataProvider: opts.MetadataProvider,
+				LocalFiles:          lfs,
+				AnimeMetadata:       animeMetadata,
+				Media:               entry.Media,
+				Progress:            entry.Progress,
+				Status:              entry.Status,
+				MetadataProviderRef: opts.MetadataProviderRef,
 			})
 			if err != nil {
 				return nil

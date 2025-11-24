@@ -37,7 +37,7 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 	h.App.UpdateAnilistClientToken(b.Token)
 
 	// Get viewer data from AniList
-	getViewer, err := h.App.AnilistClient.GetViewer(context.Background())
+	getViewer, err := h.App.AnilistClientRef.Get().GetViewer(context.Background())
 	if err != nil {
 		h.App.Logger.Error().Msg("Could not authenticate to AniList")
 		return h.RespondWithError(c, err)
@@ -71,7 +71,7 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 	h.App.Logger.Info().Msg("app: Authenticated to AniList")
 
 	// Update the platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(h.App.AnilistClient, h.App.Logger, h.App.Database)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(h.App.AnilistClientRef, h.App.ExtensionBankRef, h.App.Logger, h.App.Database)
 	h.App.UpdatePlatform(anilistPlatform)
 
 	// Create a new status
@@ -106,7 +106,7 @@ func (h *Handler) HandleLogout(c echo.Context) error {
 	h.App.UpdateAnilistClientToken("")
 
 	// Update the platform
-	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(h.App.LocalManager, h.App.AnilistClient, h.App.Logger, h.App.Database)
+	simulatedPlatform, err := simulated_platform.NewSimulatedPlatform(h.App.LocalManager, h.App.AnilistClientRef, h.App.ExtensionBankRef, h.App.Logger, h.App.Database)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

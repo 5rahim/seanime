@@ -5,7 +5,6 @@ go 1.25.1
 require (
 	fyne.io/systray v1.11.0
 	github.com/5rahim/go-astisub v0.2.1
-	github.com/5rahim/gomkv v0.2.1
 	github.com/5rahim/habari v0.1.7
 	github.com/Eyevinn/hls-m3u8 v0.6.0
 	github.com/Masterminds/semver/v3 v3.4.0

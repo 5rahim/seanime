@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
+	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
@@ -16,9 +17,9 @@ import (
 
 type (
 	MediaTreeAnalysisOptions struct {
-		tree             *anilist.CompleteAnimeRelationTree
-		metadataProvider metadata_provider.Provider
-		rateLimiter      *limiter.Limiter
+		tree                *anilist.CompleteAnimeRelationTree
+		metadataProviderRef *util.Ref[metadata_provider.Provider]
+		rateLimiter         *limiter.Limiter
 	}
 
 	MediaTreeAnalysis struct {
@@ -59,7 +60,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 		p.Go(func() (*MediaTreeAnalysisBranch, error) {
 			opts.rateLimiter.Wait()
 
-			animeMetadata, err := opts.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, rel.ID)
+			animeMetadata, err := opts.metadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, rel.ID)
 			if err != nil {
 				return nil, err
 			}

@@ -54,8 +54,8 @@ type (
 		discordPresence            *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
-		platform                   platform.Platform
-		metadataProvider           metadata_provider.Provider
+		platformRef                *util.Ref[platform.Platform]
+		metadataProviderRef        *util.Ref[metadata_provider.Provider]
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.RWMutex
@@ -95,7 +95,7 @@ type (
 		currentManualTrackingState  mo.Option[*ManualTrackingState]
 		manualTrackingWg            sync.WaitGroup
 
-		isOffline       *bool
+		isOfflineRef    *util.Ref[bool]
 		animeCollection mo.Option[*anilist.AnimeCollection]
 
 		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
@@ -181,12 +181,12 @@ type (
 	NewPlaybackManagerOptions struct {
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
-		Platform                   platform.Platform
-		MetadataProvider           metadata_provider.Provider
+		PlatformRef                *util.Ref[platform.Platform]
+		MetadataProviderRef        *util.Ref[metadata_provider.Provider]
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
-		IsOffline                  *bool
+		IsOfflineRef               *util.Ref[bool]
 		ContinuityManager          *continuity.Manager
 	}
 
@@ -213,14 +213,14 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		settings:                     &Settings{},
 		discordPresence:              opts.DiscordPresence,
 		wsEventManager:               opts.WSEventManager,
-		platform:                     opts.Platform,
-		metadataProvider:             opts.MetadataProvider,
+		platformRef:                  opts.PlatformRef,
+		metadataProviderRef:          opts.MetadataProviderRef,
 		refreshAnimeCollectionFunc:   opts.RefreshAnimeCollectionFunc,
 		mu:                           sync.Mutex{},
 		autoPlayMu:                   sync.Mutex{},
 		eventMu:                      sync.RWMutex{},
 		historyMap:                   make(map[string]PlaybackState),
-		isOffline:                    opts.IsOffline,
+		isOfflineRef:                 opts.IsOfflineRef,
 		nextEpisodeLocalFile:         mo.None[*anime.LocalFile](),
 		currentStreamEpisode:         mo.None[*anime.Episode](),
 		currentStreamMedia:           mo.None[*anilist.BaseAnime](),
@@ -231,7 +231,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		currentLocalFileWrapperEntry: mo.None[*anime.LocalFileWrapperEntry](),
 		currentMediaListEntry:        mo.None[*anilist.AnimeListEntry](),
 		continuityManager:            opts.ContinuityManager,
-		playbackStatusSubscribers:    result.NewResultMap[string, *PlaybackStatusSubscriber](),
+		playbackStatusSubscribers:    result.NewMap[string, *PlaybackStatusSubscriber](),
 	}
 
 	return pm
@@ -406,7 +406,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 		return nil
 	}
 
-	if *pm.isOffline {
+	if pm.isOfflineRef.Get() {
 		return errors.New("cannot stream when offline")
 	}
 
@@ -430,10 +430,10 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 
 	// Find the current episode being stream
 	episodeCollection, err := anime.NewEpisodeCollection(anime.NewEpisodeCollectionOptions{
-		AnimeMetadata:    nil,
-		Media:            event.Media,
-		MetadataProvider: pm.metadataProvider,
-		Logger:           pm.Logger,
+		AnimeMetadata:       nil,
+		Media:               event.Media,
+		MetadataProviderRef: pm.metadataProviderRef,
+		Logger:              pm.Logger,
 	})
 
 	pm.currentStreamAniDbEpisode = mo.Some(aniDbEpisode)
@@ -621,7 +621,7 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 
 	if pm.animeCollection.IsAbsent() {
 		// If the anime collection is not present, we retrieve it from the platform
-		collection, err := pm.platform.GetAnimeCollection(context.Background(), false)
+		collection, err := pm.platformRef.Get().GetAnimeCollection(context.Background(), false)
 		if err != nil {
 			return err
 		}

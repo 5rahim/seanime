@@ -61,20 +61,20 @@ func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:            libraryPath,
-		OtherDirPaths:      additionalLibraryPaths,
-		Enhanced:           b.Enhanced,
-		Platform:           h.App.AnilistPlatform,
-		Logger:             h.App.Logger,
-		WSEventManager:     h.App.WSEventManager,
-		ExistingLocalFiles: existingLfs,
-		SkipLockedFiles:    b.SkipLockedFiles,
-		SkipIgnoredFiles:   b.SkipIgnoredFiles,
-		ScanSummaryLogger:  scanSummaryLogger,
-		ScanLogger:         scanLogger,
-		MetadataProvider:   h.App.MetadataProvider,
-		MatchingAlgorithm:  h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
-		MatchingThreshold:  h.App.Settings.GetLibrary().ScannerMatchingThreshold,
+		DirPath:             libraryPath,
+		OtherDirPaths:       additionalLibraryPaths,
+		Enhanced:            b.Enhanced,
+		PlatformRef:         h.App.AnilistPlatformRef,
+		Logger:              h.App.Logger,
+		WSEventManager:      h.App.WSEventManager,
+		ExistingLocalFiles:  existingLfs,
+		SkipLockedFiles:     b.SkipLockedFiles,
+		SkipIgnoredFiles:    b.SkipIgnoredFiles,
+		ScanSummaryLogger:   scanSummaryLogger,
+		ScanLogger:          scanLogger,
+		MetadataProviderRef: h.App.MetadataProviderRef,
+		MatchingAlgorithm:   h.App.Settings.GetLibrary().ScannerMatchingAlgorithm,
+		MatchingThreshold:   h.App.Settings.GetLibrary().ScannerMatchingThreshold,
 	}
 
 	// Scan the library

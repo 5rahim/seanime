@@ -45,7 +45,7 @@ func NewManager(logger *zerolog.Logger) *Manager {
 // GetOrCreatePrivatePool returns the pool for the given extension.
 func (m *Manager) GetOrCreatePrivatePool(extID string, initFn func() *goja.Runtime) (*Pool, error) {
 	if m.pluginPools == nil {
-		m.pluginPools = result.NewResultMap[string, *Pool]()
+		m.pluginPools = result.NewMap[string, *Pool]()
 	}
 
 	pool, ok := m.pluginPools.Get(extID)
