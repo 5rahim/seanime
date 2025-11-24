@@ -3,9 +3,9 @@ import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
-import { nativePlayer_stateAtom, NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCoreNextButton, VideoCorePreviousButton } from "@/app/(main)/_features/video-core/video-core-control-bar"
+import { VideoCorePlaybackState, VideoCorePlaybackType } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
     __debridStream_autoSelectFileAtom,
@@ -32,7 +32,7 @@ import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
 type VideoCorePlaylistState = {
-    type: NonNullable<NativePlayerState["playbackInfo"]>["streamType"]
+    type: VideoCorePlaybackType
     episodes: Anime_Episode[]
     previousEpisode: Anime_Episode | null
     nextEpisode: Anime_Episode | null
@@ -44,16 +44,16 @@ type VideoCorePlaylistState = {
 const log = logger("VIDEO CORE PLAYLIST")
 
 export const vc_playlistState = atom<VideoCorePlaylistState | null>(null)
-
 // call once, maintains playlist state
-export function useVideoCorePlaylistSetup() {
+export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState) {
     const [playlistState, setPlaylistState] = useAtom(vc_playlistState)
 
-    const state = useAtomValue(nativePlayer_stateAtom)
-    const playbackInfo = state.playbackInfo
-    const streamType = state.playbackInfo?.streamType
-    const mediaId = state.playbackInfo?.media?.id
-    const mediaType = state.playbackInfo?.streamType
+    const state = providedState
+
+    const playbackInfo = state?.playbackInfo
+    const streamType = state?.playbackInfo?.streamType
+    const mediaId = state?.playbackInfo?.media?.id
+    const mediaType = state?.playbackInfo?.streamType
 
     const currProgressNumber = playbackInfo?.episode?.progressNumber || 0
 
@@ -66,7 +66,7 @@ export function useVideoCorePlaylistSetup() {
         if (mediaId) {
             refetch()
         }
-    }, [state.playbackInfo, mediaId])
+    }, [playbackInfo, mediaId])
 
     // Get the episodes depending on the stream type
     const episodes = React.useMemo(() => {
@@ -102,7 +102,7 @@ export function useVideoCorePlaylistSetup() {
 
 export function useVideoCorePlaylist() {
     const playlistState = useAtomValue(vc_playlistState)
-    const streamType = useAtomValue(nativePlayer_stateAtom)?.playbackInfo?.streamType
+    const streamType = playlistState?.type
     const animeEntry = playlistState?.animeEntry
 
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
@@ -222,6 +222,7 @@ export function useVideoCorePlaylist() {
 
         log.info("Requesting episode", which)
 
+        // If global playlist is active, use it instead
         if (globalCurrentPlaylist) {
             log.info("Playing global playlist episode", which)
             switch (which) {

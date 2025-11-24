@@ -1,7 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
+import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
 import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-control-bar"
-import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCorePlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import JASSUB, { ASS_Event, JassubOptions } from "jassub"
@@ -37,7 +37,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         styles: Record<string, number>
     }> = {}
 
-    private playbackInfo: NativePlayer_PlaybackInfo
+    private playbackInfo: VideoCorePlaybackInfo
     private currentTrackNumber: number = NO_TRACK_NUMBER
     private fonts: string[] = []
 
@@ -51,7 +51,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }: {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
-        playbackInfo: NativePlayer_PlaybackInfo
+        playbackInfo: VideoCorePlaybackInfo
         settings: VideoCoreSettings
     }) {
         this.videoElement = videoElement

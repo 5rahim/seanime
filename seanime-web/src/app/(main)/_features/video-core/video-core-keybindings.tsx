@@ -24,7 +24,6 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
-import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
@@ -81,7 +80,7 @@ const KeybindingRow = ({
     handleKeyRecord: (actionKey: keyof VideoCoreKeybindings) => void
     formatKeyDisplay?: (actionKey: keyof VideoCoreKeybindings) => keyof VideoCoreKeybindings | string
 }) => (
-    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-b-0">
+    <div className="flex items-center justify-between py-2 border rounded-lg px-3 bg-[--paper]">
         <div className="flex-1">
             <div className="font-medium text-sm">{action}</div>
             {hasValue && (
@@ -102,7 +101,7 @@ const KeybindingRow = ({
         </div>
         <div className="flex items-center gap-2">
             <Button
-                intent={recordingKey === actionKey ? "white-subtle" : "gray-outline"}
+                intent={recordingKey === actionKey ? "white-subtle" : "gray-glass"}
                 size="sm"
                 onClick={() => handleKeyRecord(actionKey)}
                 className={cn(
@@ -190,10 +189,10 @@ export function VideoCoreKeybindingsModal() {
     return (
         <Modal
             title="Preferences"
-            description="Customize the keyboard shortcuts and defaults for the player"
             open={open}
             onOpenChange={setOpen}
-            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
+            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-[--background] backdrop-blur-sm z-[101]"
+            overlayClass="z-[150] bg-black/50"
         >
             <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-white">Language</h3>
@@ -225,38 +224,14 @@ export function VideoCoreKeybindingsModal() {
                 </div>
             </div>
 
-            <Separator />
+            {/*<Separator />*/}
 
             <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-3 gap-3">
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
-                        <div className="space-y-0">
-                            <KeybindingRow
-                                action="Seek Forward"
-                                description="Seek forward"
-                                actionKey="seekForward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Seek Backward"
-                                description="Seek backward"
-                                actionKey="seekBackward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Seek Forward (Fine)"
                                 description="Seek forward (fine)"
@@ -273,6 +248,30 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Backward (Fine)"
                                 description="Seek backward (fine)"
                                 actionKey="seekBackwardFine"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Forward"
+                                description="Seek forward"
+                                actionKey="seekForward"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Backward"
+                                description="Seek backward"
+                                actionKey="seekBackward"
                                 editedKeybindings={editedKeybindings}
                                 setEditedKeybindings={setEditedKeybindings}
                                 recordingKey={recordingKey}
@@ -310,7 +309,7 @@ export function VideoCoreKeybindingsModal() {
 
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
-                        <div className="space-y-0">
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Next Chapter"
                                 description="Skip to next chapter"
@@ -396,7 +395,7 @@ export function VideoCoreKeybindingsModal() {
 
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
-                        <div className="space-y-0">
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Volume Up"
                                 description="Increase volume"
@@ -446,7 +445,7 @@ export function VideoCoreKeybindingsModal() {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
+            <div className="flex items-center justify-between pt-6">
                 <Button
                     intent="gray-outline"
                     onClick={handleReset}

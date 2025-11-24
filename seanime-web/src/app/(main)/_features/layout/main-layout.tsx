@@ -104,7 +104,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            {(__isElectronDesktop__) && <VideoCoreProvider>
+            {(__isElectronDesktop__) && <VideoCoreProvider id="native-player">
                 <NativePlayer />
             </VideoCoreProvider>}
             <NakamaManager />

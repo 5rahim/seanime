@@ -1,4 +1,4 @@
-import { MKVParser_ChapterInfo, NativePlayer_PlaybackInfo } from "@/api/generated/types"
+import { MKVParser_ChapterInfo } from "@/api/generated/types"
 import {
     vc_buffering,
     vc_currentTime,
@@ -15,11 +15,11 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
-import { useAtomValue } from "jotai"
-import { useSetAtom } from "jotai/react"
+import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
-export function useVideoCoreBindings(playbackInfo: NativePlayer_PlaybackInfo | null | undefined) {
+export function useVideoCoreBindings(playbackInfo: VideoCorePlaybackInfo | null | undefined) {
 
     const v = useAtomValue(vc_videoElement)
     const setVideoSize = useSetAtom(vc_videoSize)

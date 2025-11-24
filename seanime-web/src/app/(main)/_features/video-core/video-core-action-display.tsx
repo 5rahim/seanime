@@ -1,8 +1,8 @@
 // Flash notification system
 import { vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { cn } from "@/components/ui/core/styling"
-import { atom, useAtomValue } from "jotai"
-import { useAtom } from "jotai/index"
+import { atom } from "jotai"
+import { useAtom, useAtomValue } from "jotai/react"
 import { motion } from "motion/react"
 import React from "react"
 import { PiPauseDuotone, PiPlayDuotone } from "react-icons/pi"

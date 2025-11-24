@@ -1,9 +1,8 @@
-import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { vc_busy, vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
+import { VideoCorePlaybackState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { cn } from "@/components/ui/core/styling"
 import { useAtomValue } from "jotai"
-import { motion } from "motion/react"
 import React from "react"
 
 export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
@@ -41,7 +40,7 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
     )
 }
 
-export function VideoCoreTopPlaybackInfo(props: { state: NativePlayerState, children?: React.ReactNode }) {
+export function VideoCoreTopPlaybackInfo(props: { state: VideoCorePlaybackState, children?: React.ReactNode }) {
     const { state, children, ...rest } = props
 
     const busy = useAtomValue(vc_busy)

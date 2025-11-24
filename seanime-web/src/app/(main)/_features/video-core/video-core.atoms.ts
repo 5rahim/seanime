@@ -1,4 +1,26 @@
+import { AL_BaseAnime, Anime_Episode, MKVParser_Metadata } from "@/api/generated/types"
 import { atomWithStorage } from "jotai/utils"
+
+// Generic playback state interface
+export type VideoCorePlaybackState = {
+    active: boolean
+    playbackInfo: VideoCorePlaybackInfo | null
+    playbackError: string | null
+    loadingState: string | null
+}
+
+export type VideoCorePlaybackType = "localfile" | "torrent" | "debrid" | "nakama" | "onlinestream"
+
+export type VideoCorePlaybackInfo = {
+    id: string
+    streamType: VideoCorePlaybackType
+    streamUrl: string
+    mkvMetadata?: MKVParser_Metadata
+    media?: AL_BaseAnime
+    episode?: Anime_Episode
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type VideoCoreSettings = {
     preferredSubtitleLanguage: string

@@ -1,5 +1,4 @@
-import { NativePlayer_PlaybackInfo } from "@/api/generated/types"
-import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCorePlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 
 const audioLog = logger("AUDIO")
@@ -10,7 +9,7 @@ export class VideoCoreAudioManager {
     private videoElement: HTMLVideoElement
     private settings: VideoCoreSettings
     // Playback info
-    private playbackInfo: NativePlayer_PlaybackInfo
+    private playbackInfo: VideoCorePlaybackInfo
 
     constructor({
         videoElement,
@@ -20,7 +19,7 @@ export class VideoCoreAudioManager {
     }: {
         videoElement: HTMLVideoElement
         settings: VideoCoreSettings
-        playbackInfo: NativePlayer_PlaybackInfo
+        playbackInfo: VideoCorePlaybackInfo
         onError: (error: string) => void
     }) {
         this.videoElement = videoElement

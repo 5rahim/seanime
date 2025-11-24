@@ -52,6 +52,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             trigger={<div>{trigger}</div>}
             sideOffset={4}
             align="center"
+            side="top"
             modal={false}
             className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]"
             portalContainer={isFullscreen ? containerElement || undefined : undefined}

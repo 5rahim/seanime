@@ -1,5 +1,5 @@
-import { NativePlayer_PlaybackInfo } from "@/api/generated/types"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
+import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
 
@@ -17,7 +17,7 @@ export class VideoCorePipManager {
     private pipProxy: HTMLVideoElement | null = null
     private isSyncingFromMain = false
     private isSyncingFromPip = false
-    private playbackInfo: NativePlayer_PlaybackInfo | null = null
+    private playbackInfo: VideoCorePlaybackInfo | null = null
 
     constructor(onPipElementChange: (element: HTMLVideoElement | null) => void) {
         this.onPipElementChange = onPipElementChange
@@ -38,7 +38,7 @@ export class VideoCorePipManager {
         }, { signal: this.controller.signal })
     }
 
-    setVideo(video: HTMLVideoElement, playbackInfo: NativePlayer_PlaybackInfo) {
+    setVideo(video: HTMLVideoElement, playbackInfo: VideoCorePlaybackInfo) {
         this.video = video
 
         if (this.video) {
@@ -82,7 +82,7 @@ export class VideoCorePipManager {
         }
 
         try {
-            const hasActiveSubtitles = this.subtitleManager?.getSelectedTrack?.() !== null
+            const hasActiveSubtitles = !!this.subtitleManager?.getSelectedTrack?.() !== null && this.subtitleManager?.getSelectedTrack?.() !== undefined
             if (!hasActiveSubtitles) {
                 log.info("Entering PiP without subtitles")
                 await this.video.requestPictureInPicture()

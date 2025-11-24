@@ -442,6 +442,7 @@ export function NativePlayer() {
     return (
         <>
             <VideoCore
+                id="native-player"
                 state={state}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
