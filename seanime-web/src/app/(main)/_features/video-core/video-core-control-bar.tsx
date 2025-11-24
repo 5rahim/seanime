@@ -251,10 +251,11 @@ type VideoCoreControlButtonProps = {
     className?: string
     iconClass?: string
     onClick: () => void
+    onWheel?: (e: React.WheelEvent<HTMLButtonElement>) => void
 }
 
 function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
-    const { icons, state, className, iconClass, onClick } = props
+    const { icons, state, className, iconClass, onClick, onWheel } = props
 
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
 
@@ -271,6 +272,7 @@ function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
                 className,
             )}
             onClick={onClick}
+            onWheel={onWheel}
         >
             <AnimatePresence>
                 {icons.map(n => {
@@ -371,6 +373,15 @@ export function VideoCoreVolumeButton() {
         }
     }
 
+    function handleWheel(e: React.WheelEvent<HTMLButtonElement | HTMLDivElement>) {
+        e.stopPropagation()
+
+        const delta = -e.deltaY / 1000
+        const newVolume = Math.max(0, Math.min(1, volume + delta))
+        setVolume(newVolume)
+        setMuted(newVolume === 0)
+    }
+
     return (
         <div
             className={cn(
@@ -398,6 +409,7 @@ export function VideoCoreVolumeButton() {
                         return !p
                     })
                 }}
+                onWheel={handleWheel}
             />
             <div
                 className={cn(
@@ -417,6 +429,7 @@ export function VideoCoreVolumeButton() {
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerCancel={handlePointerUp}
+                    onWheel={handleWheel}
                 >
                     <div
                         className={cn(
