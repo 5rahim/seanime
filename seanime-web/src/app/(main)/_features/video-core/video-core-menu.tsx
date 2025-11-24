@@ -212,7 +212,7 @@ type VideoCoreSettingSelectProps<T extends string | number> = {
     value: T
     onValueChange: (value: T) => void
     isFullscreen?: boolean
-    containerElement?: HTMLElement | null
+    containerElement?: HTMLElement | null | undefined
 }
 
 export function VideoCoreSettingSelect<T extends string | number>(props: VideoCoreSettingSelectProps<T>) {

@@ -197,7 +197,7 @@ export function VideoCoreControlBar(props: {
                     "vc-control-bar-section",
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-all duration-300 opacity-0",
-                    "z-[100] h-28",
+                    "z-[10] h-28",
                     !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
                 )}
@@ -229,7 +229,7 @@ export function VideoCoreControlBar(props: {
 
                     <div
                         className={cn(
-                            "vc-control-bar-main-section",
+                            "vc-control-bar-main-section z-[100] relative",
                             "transform-gpu duration-100 flex items-center pb-2",
                         )}
                         style={{
@@ -500,6 +500,8 @@ export function VideoCoreAudioButton() {
     const state = useAtomValue(nativePlayer_stateAtom)
     const audioManager = useAtomValue(vc_audioManager)
     const videoElement = useAtomValue(vc_videoElement)
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
     const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
     const audioTracks = state.playbackInfo?.mkvMetadata?.audioTracks
@@ -540,6 +542,8 @@ export function VideoCoreAudioButton() {
             <VideoCoreMenuTitle>Audio</VideoCoreMenuTitle>
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
+                    isFullscreen={isFullscreen}
+                    containerElement={containerElement}
                     options={audioTracks.map(track => ({
                         label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                         value: track.number,
@@ -562,6 +566,8 @@ export function VideoCoreSubtitleButton() {
     const state = useAtomValue(nativePlayer_stateAtom)
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const videoElement = useAtomValue(vc_videoElement)
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
     const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
     const [subtitleTracks, setSubtitleTracks] = React.useState(state.playbackInfo?.mkvMetadata?.subtitleTracks ?? [])
@@ -623,6 +629,8 @@ export function VideoCoreSubtitleButton() {
             </Tooltip>}</VideoCoreMenuTitle>
             <VideoCoreMenuBody>
                 <VideoCoreSettingSelect
+                    isFullscreen={isFullscreen}
+                    containerElement={containerElement}
                     options={[
                         {
                             label: "Off",
@@ -669,6 +677,8 @@ export function VideoCoreSettingsButton() {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const playbackRate = useAtomValue(vc_playbackRate)
     const setPlaybackRate = useSetAtom(vc_storedPlaybackRateAtom)
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
 
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
@@ -780,6 +790,8 @@ export function VideoCoreSettingsButton() {
                             Real-time sharpening. GPU-intensive.
                         </p>
                         <VideoCoreSettingSelect
+                            isFullscreen={isFullscreen}
+                            containerElement={containerElement}
                             options={anime4kOptions.map(option => ({
                                 label: `${option.label}`,
                                 value: option.value,

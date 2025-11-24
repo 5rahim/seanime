@@ -93,6 +93,7 @@ export type ModalProps =
      * Whether to hide the close button
      */
     hideCloseButton?: boolean
+    portalContainer?: HTMLElement
 }
 
 export function Modal(props: ModalProps) {
@@ -119,6 +120,7 @@ export function Modal(props: ModalProps) {
         onEscapeKeyDown,
         onPointerDownCapture,
         onInteractOutside,
+        portalContainer,
         ...rest
     } = props
 
@@ -126,7 +128,7 @@ export function Modal(props: ModalProps) {
 
         {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
 
-        <DialogPrimitive.Portal>
+        <DialogPrimitive.Portal container={portalContainer}>
             <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
                 <div
                     className={cn(

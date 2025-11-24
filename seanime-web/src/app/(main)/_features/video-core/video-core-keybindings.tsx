@@ -1,5 +1,6 @@
 import {
     vc_audioManager,
+    vc_containerElement,
     vc_dispatchAction,
     vc_isFullscreen,
     vc_isMuted,
@@ -116,6 +117,8 @@ const KeybindingRow = ({
 )
 
 export function VideoCoreKeybindingsModal() {
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
     const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
     const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
     const [editedKeybindings, setEditedKeybindings] = useState<VideoCoreKeybindings>(keybindings)
@@ -193,6 +196,7 @@ export function VideoCoreKeybindingsModal() {
             onOpenChange={setOpen}
             contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-[--background] backdrop-blur-sm z-[101]"
             overlayClass="z-[150] bg-black/50"
+            portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
             <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-white">Language</h3>
