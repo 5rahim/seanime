@@ -51,9 +51,8 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
     const state = providedState
 
     const playbackInfo = state?.playbackInfo
-    const streamType = state?.playbackInfo?.streamType
+    const playbackType = state?.playbackInfo?.playbackType
     const mediaId = state?.playbackInfo?.media?.id
-    const mediaType = state?.playbackInfo?.streamType
 
     const currProgressNumber = playbackInfo?.episode?.progressNumber || 0
 
@@ -72,12 +71,12 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
     const episodes = React.useMemo(() => {
         if (!episodeCollection) return []
 
-        if (streamType === "localfile") {
+        if (playbackType === "localfile") {
             return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
         }
 
         return episodeCollection?.episodes ?? []
-    }, [animeEntry?.episodes, episodeCollection?.episodes, currProgressNumber, streamType])
+    }, [animeEntry?.episodes, episodeCollection?.episodes, currProgressNumber, playbackType])
 
     const currentEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber) ?? null
     const previousEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber - 1) ?? null
@@ -90,7 +89,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
         }
 
         setPlaylistState({
-            type: mediaType!,
+            type: playbackType!,
             episodes: episodes ?? [],
             currentEpisode,
             previousEpisode,
@@ -102,7 +101,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
 
 export function useVideoCorePlaylist() {
     const playlistState = useAtomValue(vc_playlistState)
-    const streamType = playlistState?.type
+    const playbackType = playlistState?.type
     const animeEntry = playlistState?.animeEntry
 
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
@@ -137,16 +136,16 @@ export function useVideoCorePlaylist() {
         if (!playlistState?.animeEntry || !episode.aniDBEpisode) return
         log.info("Stream requested for ", episode.episodeNumber)
 
-        if (streamType === "torrent" || streamType === "debrid") {
+        if (playbackType === "torrent" || playbackType === "debrid") {
             log.info("Auto selecting torrent for ", episode.episodeNumber)
-            if (streamType === "torrent" && torrentStream_currentSessionAutoSelect) {
+            if (playbackType === "torrent" && torrentStream_currentSessionAutoSelect) {
                 handleTorrentstreamAutoSelect({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
                     aniDBEpisode: episode.aniDBEpisode,
                 })
                 return
-            } else if (streamType === "debrid" && debridStream_currentSessionAutoSelect) {
+            } else if (playbackType === "debrid" && debridStream_currentSessionAutoSelect) {
 
                 handleDebridstreamAutoSelect({
                     mediaId: playlistState.animeEntry.mediaId,
@@ -167,7 +166,7 @@ export function useVideoCorePlaylist() {
                     fileIndex = file.index
                 }
             }
-            if (streamType === "torrent") {
+            if (playbackType === "torrent") {
                 handleTorrentstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
@@ -181,7 +180,7 @@ export function useVideoCorePlaylist() {
                         currentAniDBEpisode: episode.aniDBEpisode,
                     } : undefined,
                 })
-            } else if (streamType === "debrid") {
+            } else if (playbackType === "debrid") {
                 handleDebridstreamSelection({
                     mediaId: playlistState.animeEntry.mediaId,
                     episodeNumber: episode.episodeNumber,
@@ -201,9 +200,9 @@ export function useVideoCorePlaylist() {
             setTorrentSearchStreamEpisode(episode)
             log.info("Torrent search for ", episode.episodeNumber)
             React.startTransition(() => {
-                if (streamType === "torrent") {
+                if (playbackType === "torrent") {
                     setTorrentSearch(torrentStream_autoSelectFile ? "torrentstream-select" : "torrentstream-select-file")
-                } else if (streamType === "debrid") {
+                } else if (playbackType === "debrid") {
                     setTorrentSearch(debridStream_autoSelectFile ? "debridstream-select" : "debridstream-select-file")
                 }
             })
@@ -264,7 +263,7 @@ export function useVideoCorePlaylist() {
 
         log.info("Playing episode", episode)
 
-        switch (streamType) {
+        switch (playbackType) {
             case "localfile":
                 if (!episode?.localFile?.path) {
                     toast.error("Local file not found")

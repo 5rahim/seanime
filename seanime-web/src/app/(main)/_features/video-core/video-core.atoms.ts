@@ -11,13 +11,25 @@ export type VideoCorePlaybackState = {
 
 export type VideoCorePlaybackType = "localfile" | "torrent" | "debrid" | "nakama" | "onlinestream"
 
+export type VideoCoreSubtitleTrack = {
+    index: number
+    src: string
+    label: string
+    language: string
+    type?: "srt" | "vtt" | "ass" | "ssa"
+    default?: boolean
+    useLibassRenderer?: boolean
+}
+
 export type VideoCorePlaybackInfo = {
     id: string
-    streamType: VideoCorePlaybackType
+    playbackType: VideoCorePlaybackType
     streamUrl: string
     mkvMetadata?: MKVParser_Metadata
+    subtitleTracks?: VideoCoreSubtitleTrack[] // For non-MKV streams, rendered by MediaCaptionsManager
     media?: AL_BaseAnime
     episode?: Anime_Episode
+    streamType: "stream" | "hls"
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

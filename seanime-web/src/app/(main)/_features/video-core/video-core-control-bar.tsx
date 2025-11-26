@@ -1,5 +1,6 @@
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import {
+    MediaCaptionsTrack,
     vc_audioManager,
     vc_containerElement,
     vc_currentTime,
@@ -8,6 +9,7 @@ import {
     vc_duration,
     vc_isFullscreen,
     vc_isMuted,
+    vc_mediaCaptionsManager,
     vc_miniPlayer,
     vc_paused,
     vc_pip,
@@ -20,6 +22,13 @@ import {
 } from "@/app/(main)/_features/video-core/video-core"
 import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import {
+    vc_hlsAudioTracks,
+    vc_hlsCurrentAudioTrack,
+    vc_hlsCurrentQuality,
+    vc_hlsQualityLevels,
+    vc_hlsSetQuality,
+} from "@/app/(main)/_features/video-core/video-core-hls"
 import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import {
     vc_menuOpen,
@@ -33,6 +42,7 @@ import {
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { NormalizedTrackInfo } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import {
     vc_autoNextAtom,
     vc_autoPlayVideoAtom,
@@ -61,6 +71,7 @@ import {
     LuChevronLeft,
     LuChevronRight,
     LuChevronUp,
+    LuFilm,
     LuHeadphones,
     LuPaintbrush,
     LuSettings2,
@@ -517,7 +528,16 @@ export function VideoCoreAudioButton() {
     const containerElement = useAtomValue(vc_containerElement)
     const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
-    const audioTracks = state.playbackInfo?.mkvMetadata?.audioTracks
+    // Get MKV audio tracks
+    const mkvAudioTracks = state.playbackInfo?.mkvMetadata?.audioTracks
+
+    // Get HLS audio tracks
+    const hlsAudioTracks = useAtomValue(vc_hlsAudioTracks)
+    const hlsCurrentAudioTrack = useAtomValue(vc_hlsCurrentAudioTrack)
+
+    // Determine which audio tracks to use
+    const audioTracks = mkvAudioTracks || (hlsAudioTracks.length > 0 ? hlsAudioTracks : null)
+    const isHls = !mkvAudioTracks && hlsAudioTracks.length > 0
 
     function onAudioChange() {
         setSelectedTrack(audioManager?.getSelectedTrack?.() ?? null)
@@ -535,6 +555,13 @@ export function VideoCoreAudioButton() {
     React.useEffect(() => {
         onAudioChange()
     }, [audioManager])
+
+    // Update selected track when HLS audio track changes
+    React.useEffect(() => {
+        if (isHls && hlsCurrentAudioTrack !== -1) {
+            setSelectedTrack(hlsCurrentAudioTrack)
+        }
+    }, [hlsCurrentAudioTrack, isHls])
 
     if (isMiniPlayer || !audioTracks?.length || audioTracks.length === 1) return null
 
@@ -557,16 +584,80 @@ export function VideoCoreAudioButton() {
                 <VideoCoreSettingSelect
                     isFullscreen={isFullscreen}
                     containerElement={containerElement}
-                    options={audioTracks.map(track => ({
-                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
-                        value: track.number,
-                        moreInfo: track.language?.toUpperCase(),
-                    }))}
+                    options={audioTracks.map(track => {
+                        if (isHls) {
+                            // HLS track format
+                            const hlsTrack = track as any
+                            return {
+                                label: hlsTrack.name || hlsTrack.language?.toUpperCase() || `Track ${hlsTrack.id + 1}`,
+                                value: hlsTrack.id,
+                                moreInfo: hlsTrack.language?.toUpperCase(),
+                            }
+                        } else {
+                            // MKV track format
+                            const mkvTrack = track as any
+                            return {
+                                label: `${mkvTrack.name || mkvTrack.language?.toUpperCase() || mkvTrack.languageIETF?.toUpperCase()}`,
+                                value: mkvTrack.number,
+                                moreInfo: mkvTrack.language?.toUpperCase(),
+                            }
+                        }
+                    })}
                     onValueChange={(value) => {
                         audioManager?.selectTrack(value)
-                        action({ type: "seek", payload: { time: -1 } })
+                        if (!isHls) {
+                            action({ type: "seek", payload: { time: -1 } })
+                        }
                     }}
                     value={selectedTrack || 0}
+                />
+            </VideoCoreMenuBody>
+        </VideoCoreMenu>
+    )
+}
+
+export function VideoCoreQualityButton() {
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const qualityLevels = useAtomValue(vc_hlsQualityLevels)
+    const currentQuality = useAtomValue(vc_hlsCurrentQuality)
+    const setQuality = useAtomValue(vc_hlsSetQuality)
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
+
+    if (isMiniPlayer || !qualityLevels?.length) return null
+
+    return (
+        <VideoCoreMenu
+            name="quality"
+            trigger={<VideoCoreControlButtonIcon
+                icons={[
+                    ["default", LuFilm],
+                ]}
+                state="default"
+                onClick={() => {}}
+                className="text-2xl"
+            />}
+        >
+            <VideoCoreMenuTitle>Quality</VideoCoreMenuTitle>
+            <VideoCoreMenuBody>
+                <VideoCoreSettingSelect
+                    isFullscreen={isFullscreen}
+                    containerElement={containerElement}
+                    options={[
+                        {
+                            label: "Auto",
+                            value: -1,
+                        },
+                        ...qualityLevels.map((level: any) => ({
+                            label: level.name,
+                            value: level.index,
+                            moreInfo: `${Math.round(level.bitrate / 1000)}kbps`,
+                        })).toReversed(),
+                    ]}
+                    onValueChange={(value) => {
+                        setQuality?.(value)
+                    }}
+                    value={currentQuality}
                 />
             </VideoCoreMenuBody>
         </VideoCoreMenu>
@@ -578,12 +669,14 @@ export function VideoCoreSubtitleButton() {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const state = useAtomValue(nativePlayer_stateAtom)
     const subtitleManager = useAtomValue(vc_subtitleManager)
+    const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
     const videoElement = useAtomValue(vc_videoElement)
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const containerElement = useAtomValue(vc_containerElement)
     const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
 
-    const [subtitleTracks, setSubtitleTracks] = React.useState(state.playbackInfo?.mkvMetadata?.subtitleTracks ?? [])
+    const [subtitleTracks, setSubtitleTracks] = React.useState<NormalizedTrackInfo[]>([])
+    const [mediaCaptionsTracks, setMediaCaptionsTracks] = React.useState<MediaCaptionsTrack[]>([])
 
     function onTextTrackChange() {
         setSubtitleTracks(p => subtitleManager?.getTracks?.() ?? p)
@@ -591,7 +684,7 @@ export function VideoCoreSubtitleButton() {
 
     function onTrackChange(trackNumber: number | null) {
         setSelectedTrack(trackNumber)
-        if (trackNumber !== null && !subtitleManager?.isTrackSupported(trackNumber)) {
+        if (trackNumber !== null && subtitleManager && !subtitleManager?.isTrackSupported(trackNumber)) {
             toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
         }
     }
@@ -599,27 +692,51 @@ export function VideoCoreSubtitleButton() {
     const firstRender = React.useRef(true)
 
     React.useEffect(() => {
-        if (!videoElement || !subtitleManager) return
+        if (!videoElement) return
 
-        if (firstRender.current) {
-            firstRender.current = false
-            // setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
-            onTrackChange(subtitleManager?.getSelectedTrack?.() ?? null)
+        /**
+         * MKV subtitle tracks
+         */
+        if (subtitleManager) {
+            if (firstRender.current) {
+                // firstRender.current = false
+                onTrackChange(subtitleManager?.getSelectedTrackNumberOrNull?.() ?? null)
+            }
+
+            // Listen for subtitle track changes
+            subtitleManager.addTrackChangedEventListener(onTrackChange)
+
+            // Listen for when the subtitle tracks are mounted
+            videoElement?.textTracks?.addEventListener?.("change", onTextTrackChange)
+            return () => {
+                videoElement?.textTracks?.removeEventListener?.("change", onTextTrackChange)
+            }
+        } else if (mediaCaptionsManager) {
+            /**
+             * Media captions tracks
+             */
+            if (firstRender.current) {
+                // firstRender.current = false
+                setSelectedTrack(mediaCaptionsManager.getSelectedTrackIndexOrNull?.() ?? null)
+            }
+
+            // Listen for subtitle track changes
+            mediaCaptionsManager.addTrackChangedEventListener(onTrackChange)
+
+            const tracks = mediaCaptionsManager.getTracks?.() ?? []
+            setMediaCaptionsTracks(tracks)
         }
-
-        subtitleManager.registerOnSelectedTrackChanged(onTrackChange)
-
-        videoElement?.textTracks?.addEventListener?.("change", onTextTrackChange)
-        return () => {
-            videoElement?.textTracks?.removeEventListener?.("change", onTextTrackChange)
-        }
-    }, [videoElement, subtitleManager])
+    }, [videoElement, subtitleManager, mediaCaptionsManager])
 
     React.useEffect(() => {
         onTextTrackChange()
     }, [subtitleManager])
 
-    if (isMiniPlayer || !subtitleTracks?.length) return null
+    // Get active manager
+    const activeManager = subtitleManager || mediaCaptionsManager
+    const activeTracks = subtitleManager ? subtitleTracks : mediaCaptionsTracks
+
+    if (isMiniPlayer || !activeTracks?.length) return null
 
     return (
         <VideoCoreMenu
@@ -634,7 +751,7 @@ export function VideoCoreSubtitleButton() {
                 }}
             />}
         >
-            <VideoCoreMenuTitle>Subtitles {<Tooltip
+            <VideoCoreMenuTitle>Subtitles {!subtitleManager && <Tooltip
                 trigger={<AiFillInfoCircle className="text-sm" />}
                 className="z-[150]"
             >
@@ -649,20 +766,36 @@ export function VideoCoreSubtitleButton() {
                             label: "Off",
                             value: -1,
                         },
-                        ...subtitleTracks.map(track => ({
-                            label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
-                            value: track.number,
-                            moreInfo: track.language
-                                ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
-                                : undefined,
-                        })),
+                        ...subtitleTracks.map(track => {
+                            // MKV subtitle tracks
+                            return {
+                                label: `${track.label || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
+                                value: track.number,
+                                moreInfo: track.language
+                                    ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
+                                    : undefined,
+                            }
+                        }),
+                        ...mediaCaptionsTracks.map(track => {
+                            return {
+                                label: track.label,
+                                value: track.number,
+                                moreInfo: track.language?.toUpperCase(),
+                            }
+                        }),
                     ]}
-                    onValueChange={(value) => {
+                    onValueChange={(value): any => {
                         if (value === -1) {
-                            subtitleManager?.setNoTrack()
+                            activeManager?.setNoTrack()
+                            setSelectedTrack(null)
                             return
                         }
-                        subtitleManager?.selectTrack(value)
+                        if (subtitleManager) {
+                            subtitleManager.selectTrack(value)
+                        } else if (mediaCaptionsManager) {
+                            mediaCaptionsManager.selectTrack(value)
+                            setSelectedTrack(value)
+                        }
                     }}
                     value={selectedTrack ?? -1}
                 />

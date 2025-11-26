@@ -86,7 +86,7 @@ export class VideoCoreMediaSessionManager {
     private onDisconnect() {
         if (!("mediaSession" in navigator)) return
 
-        console.warn("Media session disconnected")
+        // console.warn("Media session disconnected")
 
         for (const action of actions) {
             navigator.mediaSession.setActionHandler(action, null)

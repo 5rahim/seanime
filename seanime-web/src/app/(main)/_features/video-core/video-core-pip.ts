@@ -82,7 +82,7 @@ export class VideoCorePipManager {
         }
 
         try {
-            const hasActiveSubtitles = !!this.subtitleManager?.getSelectedTrack?.() !== null && this.subtitleManager?.getSelectedTrack?.() !== undefined
+            const hasActiveSubtitles = !!this.subtitleManager?.getSelectedTrackNumberOrNull?.() !== null && this.subtitleManager?.getSelectedTrackNumberOrNull?.() !== undefined
             if (!hasActiveSubtitles) {
                 log.info("Entering PiP without subtitles")
                 await this.video.requestPictureInPicture()

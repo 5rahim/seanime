@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import {
     useCancelDiscordActivity,
     useSetDiscordAnimeActivityWithProgress,
@@ -17,6 +18,7 @@ import {
     VideoCoreFullscreenButton,
     VideoCorePipButton,
     VideoCorePlayButton,
+    VideoCoreQualityButton,
     VideoCoreSettingsButton,
     VideoCoreSubtitleButton,
     VideoCoreTimestamp,
@@ -24,7 +26,9 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreHls, vc_hlsAudioTracks, vc_hlsCurrentAudioTrack, vc_hlsSetAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
+import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
 import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
@@ -133,6 +137,7 @@ export const vc_videoElement = atom<HTMLVideoElement | null>(null)
 export const vc_containerElement = atom<HTMLDivElement | null>(null)
 
 export const vc_subtitleManager = atom<VideoCoreSubtitleManager | null>(null)
+export const vc_mediaCaptionsManager = atom<MediaCaptionsManager | null>(null)
 export const vc_audioManager = atom<VideoCoreAudioManager | null>(null)
 export const vc_previewManager = atom<VideoCorePreviewManager | null>(null)
 export const vc_anime4kManager = atom<VideoCoreAnime4KManager | null>(null)
@@ -150,7 +155,6 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
     const videoElement = get(vc_videoElement)
     const duration = get(vc_duration)
     let t = 0
-    console.warn("Dispatching action", action, !!videoElement)
     if (videoElement) {
         switch (action.type) {
             // for smooth seeking, we don't want to peg the current time to the actual video time
@@ -165,7 +169,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 }
                 break
             case "seek":
-                if (isNaN(duration) || duration <= 1 || action.payload.time < 0) return
+                if (isNaN(duration) || duration <= 1) return
                 const currentTime = get(vc_currentTime)
                 t = Math.min(duration, Math.max(0, currentTime + action.payload.time))
                 videoElement.currentTime = t
@@ -179,7 +183,6 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 break
             case "restoreProgress":
                 // Restore time to the last known position
-                console.warn("Set restoring progress to", action.payload)
                 if (action.payload) {
                     set(vc_lastKnownProgress, {
                         mediaId: action.payload.mediaId,
@@ -288,6 +291,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [, setContainerElement] = useAtom(vc_containerElement)
 
     const [subtitleManager, setSubtitleManager] = useAtom(vc_subtitleManager)
+    const [mediaCaptionsManager, setMediaCaptionsManager] = useAtom(vc_mediaCaptionsManager)
     const [audioManager, setAudioManager] = useAtom(vc_audioManager)
     const [previewManager, setPreviewManager] = useAtom(vc_previewManager)
     const [anime4kManager, setAnime4kManager] = useAtom(vc_anime4kManager)
@@ -326,6 +330,12 @@ export function VideoCore(props: VideoCoreProps) {
     const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
     const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
+
+    const { mutate: fetchAndConvertToASS } = useDirectstreamFetchAndConvertToASS({
+        onSuccess: (data) => {
+            // Success is handled by the subtitle manager
+        },
+    })
 
     React.useEffect(() => {
         setIsMiniPlayer(false)
@@ -442,6 +452,8 @@ export function VideoCore(props: VideoCoreProps) {
             setVideoElement(null)
             subtitleManager?.destroy?.()
             setSubtitleManager(null)
+            mediaCaptionsManager?.destroy?.()
+            setMediaCaptionsManager(null)
             previewManager?.cleanup?.()
             setPreviewManager(null)
             setAudioManager(null)
@@ -471,7 +483,20 @@ export function VideoCore(props: VideoCoreProps) {
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
+    // Initialize HLS
+    useVideoCoreHls({
+        videoElement: videoRef.current,
+        streamUrl: streamUrl,
+        autoPlay: autoPlay,
+        streamType: state.playbackInfo?.streamType,
+    })
+
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
+
+    // Get HLS audio track values
+    const hlsAudioTracks = useAtomValue(vc_hlsAudioTracks)
+    const hlsCurrentAudioTrack = useAtomValue(vc_hlsCurrentAudioTrack)
+    const hlsSetAudioTrack = useAtomValue(vc_hlsSetAudioTrack)
 
     // events
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -497,8 +522,13 @@ export function VideoCore(props: VideoCoreProps) {
 
         currentPlaybackRef.current = state.playbackInfo.id
 
-        // Initialize the subtitle manager if the stream is MKV
-        if (!!state.playbackInfo?.mkvMetadata) {
+        /*
+         * MKV streams OR non-MKV streams with useLibassRenderer tracks
+         */
+        const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
+
+        // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
+        if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
             setSubtitleManager(p => {
                 if (p) p.destroy()
                 return new VideoCoreSubtitleManager({
@@ -506,9 +536,48 @@ export function VideoCore(props: VideoCoreProps) {
                     playbackInfo: state.playbackInfo!,
                     jassubOffscreenRender: true,
                     settings: settings,
+                    fetchAndConvertToASS: (url: string) => {
+                        return new Promise((resolve, reject) => {
+                            fetchAndConvertToASS({ url }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
                 })
             })
 
+            // Initialize audio manager for MKV streams
+            if (!!state.playbackInfo?.mkvMetadata) {
+                setAudioManager(new VideoCoreAudioManager({
+                    videoElement: v!,
+                    playbackInfo: state.playbackInfo,
+                    settings: settings,
+                    onError: (error) => {
+                        log.error("Audio manager error", error)
+                        onError?.(error)
+                    },
+                }))
+            }
+        }
+
+        /*
+         * Non-MKV subtitle tracks that don't use libass renderer
+         */
+        const nonLibassSubtitleTracks = state.playbackInfo?.subtitleTracks?.filter(t => !t.useLibassRenderer)
+        if (nonLibassSubtitleTracks && nonLibassSubtitleTracks.length > 0) {
+            setMediaCaptionsManager(p => {
+                if (p) p.destroy()
+                return new MediaCaptionsManager({
+                    videoElement: v!,
+                    tracks: nonLibassSubtitleTracks,
+                    settings: settings,
+                })
+            })
+        }
+
+        // Initialize audio manager for HLS streams
+        if (hlsAudioTracks.length > 0 && hlsSetAudioTrack) {
             setAudioManager(new VideoCoreAudioManager({
                 videoElement: v!,
                 playbackInfo: state.playbackInfo,
@@ -517,6 +586,9 @@ export function VideoCore(props: VideoCoreProps) {
                     log.error("Audio manager error", error)
                     onError?.(error)
                 },
+                hlsSetAudioTrack: hlsSetAudioTrack,
+                hlsAudioTracks: hlsAudioTracks,
+                hlsCurrentAudioTrack: hlsCurrentAudioTrack,
             }))
         }
 
@@ -584,7 +656,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Initializing preview manager")
         setPreviewManager(p => {
             if (p) p.cleanup()
-            return new VideoCorePreviewManager(v!, state.playbackInfo?.streamType !== "onlinestream" ? streamUrl : undefined)
+            return new VideoCorePreviewManager(v!, state.playbackInfo?.playbackType !== "onlinestream" ? streamUrl : undefined)
         })
 
         if (
@@ -702,7 +774,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         const v = e.currentTarget
-        log.info("Volume changed", v.volume)
+        // log.info("Volume changed", v.volume)
         onVolumeChange?.()
     }
 
@@ -921,7 +993,6 @@ export function VideoCore(props: VideoCoreProps) {
      */
     const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
     React.useEffect(() => {
-        console.warn("Restoring progress to", restoreProgressTo)
         if (!anime4kManager || !restoreProgressTo) return
 
         if (restoreProgressTo.mediaId !== state.playbackInfo?.media?.id || restoreProgressTo.progressNumber !== state.playbackInfo?.episode?.progressNumber) {
@@ -1042,7 +1113,7 @@ export function VideoCore(props: VideoCoreProps) {
                                 data-video-core-element
                                 crossOrigin="anonymous"
                                 preload="auto"
-                                src={streamUrl!}
+                                src={streamUrl && !streamUrl.includes(".m3u8") ? streamUrl : undefined}
                                 ref={combineRef}
                                 onLoadedMetadata={handleLoadedMetadata}
                                 onTimeUpdate={handleTimeUpdate}
@@ -1125,6 +1196,7 @@ export function VideoCore(props: VideoCoreProps) {
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreSettingsButton />
                             <VideoCoreAudioButton />
+                            <VideoCoreQualityButton />
                             <VideoCoreSubtitleButton />
                             <VideoCorePipButton />
                             <VideoCoreFullscreenButton />
@@ -1289,3 +1361,4 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     return <Content />
 }
 
+export type { MediaCaptionsTrack } from "@/app/(main)/_features/video-core/video-core-media-captions"

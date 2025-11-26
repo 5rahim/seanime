@@ -357,7 +357,7 @@ export function NativePlayer() {
                     break
                 case "add-subtitle-track":
                     log.info("Add subtitle track event received", payload)
-                    subtitleManager?.onTrackAdded(payload as MKVParser_TrackInfo)
+                    subtitleManager?.onMkvTrackAdded(payload as MKVParser_TrackInfo)
                     break
                 case "terminate":
                     log.info("Terminate event received")
@@ -443,7 +443,20 @@ export function NativePlayer() {
         <>
             <VideoCore
                 id="native-player"
-                state={state}
+                state={{
+                    active: state.active,
+                    loadingState: state.loadingState,
+                    playbackError: state.playbackError,
+                    playbackInfo: {
+                        id: state.playbackInfo?.id!,
+                        playbackType: state.playbackInfo?.streamType!,
+                        streamUrl: state.playbackInfo?.streamUrl!,
+                        mkvMetadata: state.playbackInfo?.mkvMetadata,
+                        media: state.playbackInfo?.media,
+                        episode: state.playbackInfo?.episode,
+                        streamType: "stream",
+                    },
+                }}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
                 onLoadedMetadata={handleLoadedMetadata}

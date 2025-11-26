@@ -4,6 +4,7 @@ import {
     vc_dispatchAction,
     vc_isFullscreen,
     vc_isMuted,
+    vc_mediaCaptionsManager,
     vc_pip,
     vc_subtitleManager,
     vc_volume,
@@ -507,6 +508,7 @@ export function VideoCoreKeybindingController(props: {
     const action = useSetAtom(vc_dispatchAction)
 
     const subtitleManager = useAtomValue(vc_subtitleManager)
+    const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
     const audioManager = useAtomValue(vc_audioManager)
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const pipManager = useAtomValue(vc_pipManager)
@@ -779,42 +781,40 @@ export function VideoCoreKeybindingController(props: {
 
     const handleCycleSubtitles = useCallback(() => {
         if (!videoRef.current) return
+        // TODO: make it work when both types are combined
+        let found = false
+        if (subtitleManager) {
+            // Cycle to next track or disable if we're at the end
+            const nextTrackNumber = subtitleManager.getNextTrackNumber(subtitleManager.getSelectedTrackNumberOrNull())
 
-        const textTracks = Array.from(videoRef.current.textTracks).filter(track => track.kind === "subtitles")
-        if (textTracks.length === 0) {
-            flashAction({ message: "No subtitle tracks" })
-            return
+            // Enable next track if available
+            if (nextTrackNumber > -1) {
+                subtitleManager?.selectTrack(nextTrackNumber)
+                const trackName = subtitleManager.getTrack(nextTrackNumber)?.label || `Track ${nextTrackNumber}`
+                flashAction({ message: `Subtitles: ${trackName}` })
+                found = true
+            }
         }
+        if (mediaCaptionsManager) {
+            const currentTrackIdx = mediaCaptionsManager.getSelectedTrackIndexOrNull() ?? -1
+            const nextTrackIdx = currentTrackIdx + 1
+            const nextTrack = mediaCaptionsManager.getTrack(nextTrackIdx)
 
-        // Find currently showing track
-        let currentTrackIndex = -1
-        for (let i = 0; i < textTracks.length; i++) {
-            if (textTracks[i].mode === "showing") {
-                currentTrackIndex = i
-                break
+            // Enable next track if available
+            if (nextTrack) {
+                mediaCaptionsManager?.selectTrack(nextTrackIdx)
+                const trackName = mediaCaptionsManager.getTrack(nextTrackIdx)?.label || `Track ${nextTrackIdx}`
+                flashAction({ message: `Subtitles: ${trackName}` })
+                found = true
             }
         }
 
-        // Cycle to next track or disable if we're at the end
-        const nextIndex = currentTrackIndex + 1
-
-        // Disable all tracks first
-        for (let i = 0; i < textTracks.length; i++) {
-            textTracks[i].mode = "disabled"
-        }
-
-        // Enable next track if available
-        if (nextIndex < textTracks.length) {
-            textTracks[nextIndex].mode = "showing"
-            subtitleManager?.selectTrack(Number(textTracks[nextIndex].id))
-            const trackName = textTracks[nextIndex].label || `Track ${nextIndex + 1}`
-            flashAction({ message: `Subtitles: ${trackName}` })
-        } else {
-            // If we've cycled through all, disable subtitles
-            subtitleManager?.setNoTrack()
+        if (!found) {
             flashAction({ message: "Subtitles: Off" })
+            subtitleManager?.setNoTrack()
+            mediaCaptionsManager?.setNoTrack()
         }
-    }, [subtitleManager])
+    }, [subtitleManager, mediaCaptionsManager])
 
     const handleCycleAudio = useCallback(() => {
         if (!videoRef.current) return

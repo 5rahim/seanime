@@ -10,6 +10,7 @@ import (
 
 const (
 	SubtitleTypeASS = iota
+	SubtitleTypeSSA
 	SubtitleTypeSRT
 	SubtitleTypeSTL
 	SubtitleTypeTTML
@@ -45,6 +46,8 @@ func ConvertToASS(content string, from int) (string, error) {
 
 read:
 	switch from {
+	case SubtitleTypeSSA:
+		o, err = astisub.ReadFromSSA(reader)
 	case SubtitleTypeSRT:
 		o, err = astisub.ReadFromSRT(reader)
 	case SubtitleTypeSTL:
