@@ -33,7 +33,7 @@ import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
-export const videoCoreKeybindingsModalAtom = atom(false)
+export const videoCorePreferencesModalAtom = atom(false)
 
 const KeybindingValueInput = ({
     actionKey,
@@ -117,16 +117,17 @@ const KeybindingRow = ({
     </div>
 )
 
-export function VideoCoreKeybindingsModal() {
+export function VideoCorePreferencesModal() {
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const containerElement = useAtomValue(vc_containerElement)
-    const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
+    const [open, setOpen] = useAtom(videoCorePreferencesModalAtom)
     const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
     const [editedKeybindings, setEditedKeybindings] = useState<VideoCoreKeybindings>(keybindings)
     const [recordingKey, setRecordingKey] = useState<string | null>(null)
     const [settings, setSettings] = useAtom(vc_settings)
     const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
+    const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
 
     // Reset edited keybindings and language preferences when modal opens
     useEffect(() => {
@@ -134,6 +135,7 @@ export function VideoCoreKeybindingsModal() {
             setEditedKeybindings(keybindings)
             setEditedSubLanguage(settings.preferredSubtitleLanguage)
             setEditedAudioLanguage(settings.preferredAudioLanguage)
+            setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
         }
     }, [open, keybindings, settings])
 
@@ -166,6 +168,7 @@ export function VideoCoreKeybindingsModal() {
             ...settings,
             preferredSubtitleLanguage: editedSubLanguage,
             preferredAudioLanguage: editedAudioLanguage,
+            preferredSubtitleBlacklist: editedSubsBlacklist,
         })
         setOpen(false)
     }
@@ -174,6 +177,7 @@ export function VideoCoreKeybindingsModal() {
         setEditedKeybindings(vc_defaultKeybindings)
         setEditedSubLanguage(vc_initialSettings.preferredSubtitleLanguage)
         setEditedAudioLanguage(vc_initialSettings.preferredAudioLanguage)
+        setEditedSubsBlacklist(vc_initialSettings.preferredSubtitleBlacklist)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -222,6 +226,18 @@ export function VideoCoreKeybindingsModal() {
                             value={editedAudioLanguage}
                             onValueChange={setEditedAudioLanguage}
                             placeholder="jpn,eng,kor"
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Blacklist Subtitle Name
+                        </label>
+                        <TextInput
+                            value={editedSubsBlacklist}
+                            onValueChange={setEditedSubsBlacklist}
+                            placeholder="signs,songs,sign & songs"
                             onKeyDown={(e) => e.stopPropagation()}
                             onInput={(e) => e.stopPropagation()}
                         />
@@ -496,7 +512,7 @@ export function VideoCoreKeybindingController(props: {
     } = props
 
     const [keybindings] = useAtom(vc_keybindingsAtom)
-    const isKeybindingsModalOpen = useAtomValue(videoCoreKeybindingsModalAtom)
+    const isKeybindingsModalOpen = useAtomValue(videoCorePreferencesModalAtom)
     const fullscreen = useAtomValue(vc_isFullscreen)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)

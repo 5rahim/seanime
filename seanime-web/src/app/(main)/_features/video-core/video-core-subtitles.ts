@@ -520,7 +520,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
 export function getDefaultSubtitleTrackNumber(
     settings: VideoCoreSettings,
-    tracks: { language?: string, number: number, forced?: boolean, default?: boolean }[] | null = null,
+    tracks: { label?: string, language?: string, number: number, forced?: boolean, default?: boolean }[] | null = null,
 ): number {
     // Split preferred languages by comma and trim whitespace
     const preferredLanguages = settings.preferredSubtitleLanguage
@@ -528,9 +528,14 @@ export function getDefaultSubtitleTrackNumber(
         .map(lang => lang.trim())
         .filter(lang => lang.length > 0)
 
+    const blacklistLabels = (settings.preferredSubtitleBlacklist ?? "")
+        .split(",")
+        .map(label => label.trim().toLowerCase())
+        .filter(label => label.length > 0)
+
     // Try each preferred language in order
     for (const preferredLang of preferredLanguages) {
-        const foundTracks = tracks?.filter?.(t => t.language === preferredLang)
+        const foundTracks = tracks?.filter?.(t => t.language === preferredLang && !blacklistLabels.includes(t.label?.toLowerCase() || ""))
         if (foundTracks?.length) {
             // Find default or forced track
             const defaultIndex = foundTracks.findIndex(t => t.forced)

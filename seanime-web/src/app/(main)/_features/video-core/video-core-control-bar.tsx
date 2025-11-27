@@ -29,7 +29,6 @@ import {
     vc_hlsQualityLevels,
     vc_hlsSetQuality,
 } from "@/app/(main)/_features/video-core/video-core-hls"
-import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
 import {
     vc_menuOpen,
     vc_menuSectionOpen,
@@ -42,6 +41,7 @@ import {
     VideoCoreSettingSelect,
 } from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { videoCorePreferencesModalAtom } from "@/app/(main)/_features/video-core/video-core-preferences"
 import { NormalizedTrackInfo } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import {
     vc_autoNextAtom,
@@ -829,7 +829,7 @@ export function VideoCoreSettingsButton() {
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
     const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
 
-    const [, setKeybindingsModelOpen] = useAtom(videoCoreKeybindingsModalAtom)
+    const [, setKeybindingsModelOpen] = useAtom(videoCorePreferencesModalAtom)
 
     const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
     const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)

@@ -29,7 +29,7 @@ export default function TestPage() {
                                     language: "en",
                                     type: "vtt",
                                     default: true,
-                                    // useLibassRenderer: true
+                                    useLibassRenderer: true,
                                 },
                             ],
                         },

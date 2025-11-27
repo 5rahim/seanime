@@ -1,21 +1,21 @@
-import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
-import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
-import { vc_autoNextAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
-import { clientIdAtom } from "@/app/websocket-provider"
-import { logger } from "@/lib/helpers/debug"
-import { WSEvents } from "@/lib/server/ws-events"
-import { useQueryClient } from "@tanstack/react-query"
-import { useAtom, useAtomValue } from "jotai"
-import { useSetAtom } from "jotai/react"
+import {API_ENDPOINTS} from "@/api/generated/endpoints"
+import {MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent} from "@/api/generated/types"
+import {useUpdateAnimeEntryProgress} from "@/api/hooks/anime_entries.hooks"
+import {useHandleCurrentMediaContinuity} from "@/api/hooks/continuity.hooks"
+import {vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore} from "@/app/(main)/_features/video-core/video-core"
+import {vc_autoNextAtom} from "@/app/(main)/_features/video-core/video-core.atoms"
+import {clientIdAtom} from "@/app/websocket-provider"
+import {logger} from "@/lib/helpers/debug"
+import {WSEvents} from "@/lib/server/ws-events"
+import {useQueryClient} from "@tanstack/react-query"
+import {useAtom, useAtomValue} from "jotai"
+import {useSetAtom} from "jotai/react"
 import React from "react"
-import { toast } from "sonner"
-import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
-import { useServerStatus } from "../../_hooks/use-server-status"
-import { useSkipData } from "../sea-media-player/aniskip"
-import { nativePlayer_stateAtom } from "./native-player.atoms"
+import {toast} from "sonner"
+import {useWebsocketMessageListener, useWebsocketSender} from "../../_hooks/handle-websockets"
+import {useServerStatus} from "../../_hooks/use-server-status"
+import {useSkipData} from "../sea-media-player/aniskip"
+import {nativePlayer_stateAtom} from "./native-player.atoms"
 
 const enum VideoPlayerEvents {
     LOADED_METADATA = "loaded-metadata",
@@ -439,24 +439,28 @@ export function NativePlayer() {
         })
     }
 
+    const ps = React.useMemo(() => {
+        return {
+            active: state.active,
+            loadingState: state.loadingState,
+            playbackError: state.playbackError,
+            playbackInfo: {
+                id: state.playbackInfo?.id!,
+                playbackType: state.playbackInfo?.streamType!,
+                streamUrl: state.playbackInfo?.streamUrl!,
+                mkvMetadata: state.playbackInfo?.mkvMetadata,
+                media: state.playbackInfo?.media,
+                episode: state.playbackInfo?.episode,
+                streamType: "stream",
+            },
+        } as any
+    }, [state])
+
     return (
         <>
             <VideoCore
                 id="native-player"
-                state={{
-                    active: state.active,
-                    loadingState: state.loadingState,
-                    playbackError: state.playbackError,
-                    playbackInfo: {
-                        id: state.playbackInfo?.id!,
-                        playbackType: state.playbackInfo?.streamType!,
-                        streamUrl: state.playbackInfo?.streamUrl!,
-                        mkvMetadata: state.playbackInfo?.mkvMetadata,
-                        media: state.playbackInfo?.media,
-                        episode: state.playbackInfo?.episode,
-                        streamType: "stream",
-                    },
-                }}
+                state={ps}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
                 onLoadedMetadata={handleLoadedMetadata}

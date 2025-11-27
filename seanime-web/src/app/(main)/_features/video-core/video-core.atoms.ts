@@ -36,6 +36,7 @@ export type VideoCorePlaybackInfo = {
 
 export type VideoCoreSettings = {
     preferredSubtitleLanguage: string
+    preferredSubtitleBlacklist: string
     preferredAudioLanguage: string
     // Video enhancement settings
     videoEnhancement: {
@@ -48,6 +49,7 @@ export type VideoCoreSettings = {
 
 export const vc_initialSettings: VideoCoreSettings = {
     preferredSubtitleLanguage: "en,eng",
+    preferredSubtitleBlacklist: "",
     preferredAudioLanguage: "jpn,jp,jap",
     videoEnhancement: {
         enabled: true,

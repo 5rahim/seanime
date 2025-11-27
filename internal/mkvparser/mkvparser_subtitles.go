@@ -84,7 +84,7 @@ read:
 	}
 
 	//Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-	//Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1.3,0,2,20,20,23,0
+	//Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,1.3,1.5,2,20,20,23,0
 	o.Styles["Default"] = &astisub.Style{
 		ID: "Default",
 		InlineStyle: &astisub.StyleAttributes{
@@ -112,7 +112,7 @@ read:
 				Red:   0,
 				Green: 0,
 				Blue:  0,
-				Alpha: 0,
+				Alpha: 225,
 			},
 			SSABold:           &[]bool{false}[0],
 			SSAItalic:         &[]bool{false}[0],
@@ -124,7 +124,7 @@ read:
 			SSAAngle:          &[]float64{0}[0],
 			SSABorderStyle:    &[]int{1}[0],
 			SSAOutline:        &[]float64{1.3}[0],
-			SSAShadow:         &[]float64{0}[0],
+			SSAShadow:         &[]float64{1}[0],
 			SSAAlignment:      &[]int{2}[0],
 			SSAMarginLeft:     &[]int{20}[0],
 			SSAMarginRight:    &[]int{20}[0],
