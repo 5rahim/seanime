@@ -16,16 +16,13 @@ import {
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
+import { VideoCoreAudioMenu } from "@/app/(main)/_features/video-core/video-core-audio-menu"
 import {
     vc_hoveringControlBar,
-    VideoCoreAudioButton,
     VideoCoreControlBar,
     VideoCoreFullscreenButton,
     VideoCorePipButton,
     VideoCorePlayButton,
-    VideoCoreQualityButton,
-    VideoCoreSettingsButton,
-    VideoCoreSubtitleButton,
     VideoCoreTimestamp,
     VideoCoreVolumeButton,
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
@@ -44,6 +41,9 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { VideoCoreKeybindingController, VideoCorePreferencesModal } from "@/app/(main)/_features/video-core/video-core-preferences"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
+import { VideoCoreQualityMenu } from "@/app/(main)/_features/video-core/video-core-quality-menu"
+import { VideoCoreSettingsMenu } from "@/app/(main)/_features/video-core/video-core-settings-menu"
+import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
@@ -527,10 +527,10 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreTimestamp />
                             <div className="flex flex-1" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
-                            <VideoCoreSettingsButton />
-                            <VideoCoreQualityButton />
-                            <VideoCoreSubtitleButton />
-                            <VideoCoreAudioButton />
+                            <VideoCoreSettingsMenu />
+                            <VideoCoreQualityMenu />
+                            <VideoCoreSubtitleMenu />
+                            <VideoCoreAudioMenu />
                             <VideoCorePipButton />
                             <VideoCoreFullscreenButton />
                         </VideoCoreControlBar>

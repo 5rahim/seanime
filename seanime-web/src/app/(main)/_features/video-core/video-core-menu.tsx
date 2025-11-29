@@ -73,7 +73,7 @@ export function VideoCoreMenuTitle(props: { children: React.ReactNode }) {
 
     const { children, ...rest } = props
     return (
-        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center" {...rest}>
+        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center relative" {...rest}>
             {children}
         </div>
     )

@@ -1,6 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
-import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-control-bar"
+
+import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCorePlaybackInfo, VideoCoreSettings, VideoCoreSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
