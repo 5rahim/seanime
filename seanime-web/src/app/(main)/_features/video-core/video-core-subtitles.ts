@@ -3,13 +3,26 @@ import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/ty
 import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCorePlaybackInfo, VideoCoreSettings, VideoCoreSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { legacy_getAssetUrl } from "@/lib/server/assets"
-import JASSUB, { ASS_Event, JassubOptions } from "jassub"
+import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
+import JASSUB, { ASS_Event, ASS_Style, JassubOptions } from "jassub"
 import { toast } from "sonner"
 
 const subtitleLog = logger("SUBTITLE")
 
 const NO_TRACK_NUMBER = -1
+const DEFAULT_FONT_NAME = "roboto medium"
+
+function hexToASSColor(hex: string, alpha: number = 0): number {
+    hex = hex.replace(/^#/, "")
+    if (hex.length === 3) {
+        hex = hex.split("").map(c => c + c).join("")
+    }
+    const val = parseInt(hex, 16)
+    const r = (val >> 16) & 0xFF
+    const g = (val >> 8) & 0xFF
+    const b = val & 0xFF
+    return ((r << 24) | (g << 16) | (b << 8) | alpha) >>> 0
+}
 
 export type NormalizedTrackInfo = {
     language?: string
@@ -201,6 +214,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         // Set the track
         this.libassRenderer?.setTrack(codecPrivate)
+
+        // Apply customization to Default styles
+        this._applySubtitleCustomization()
+
         const trackEventMap = this.mkvTracks[track.number]?.events
         if (!trackEventMap) {
             return
@@ -244,6 +261,15 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     getSelectedTrackNumberOrNull(): number | null {
         if (this.currentTrackNumber === NO_TRACK_NUMBER) return null
         return this.currentTrackNumber
+    }
+
+    // Update settings and reapply subtitle customization to current track
+    updateSettings(newSettings: VideoCoreSettings) {
+        this.settings = newSettings
+        // Reapply customization if a track is currently selected
+        if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
+            this._applySubtitleCustomization()
+        }
     }
 
     onMkvTrackAdded(track: MKVParser_TrackInfo) {
@@ -318,13 +344,14 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             // onDemandRender: false,
             // prescaleFactor: 0.8,
             fonts: this.fonts,
-            fallbackFont: "roboto medium",
+            fallbackFont: DEFAULT_FONT_NAME,
             availableFonts: {
-                "roboto medium": defaultFontUrl,
+                [DEFAULT_FONT_NAME]: defaultFontUrl,
             },
             libassGlyphLimit: 60500,
             libassMemoryLimit: 1024,
             dropAllBlur: true,
+            debug: false,
         })
 
         this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
@@ -334,6 +361,104 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         for (const font of this.fonts) {
             this.libassRenderer.addFont(font)
+        }
+    }
+
+    private _applySubtitleCustomization() {
+        if (!this.libassRenderer) {
+            return
+        }
+
+        // Handle undefined or disabled customization
+        if (!this.settings.subtitleCustomization?.enabled) {
+            // Disable style override if customization is disabled
+            this.libassRenderer.disableStyleOverride()
+            this.libassRenderer.setDefaultFont(DEFAULT_FONT_NAME)
+            return
+        }
+
+        // check if the track has only one style, if so, apply the customization to that style
+        let found = false
+        const mkvTrack = this.mkvTracks[this.currentTrackNumber]
+        if (mkvTrack) {
+            found = true
+            if (mkvTrack.styles && Object.keys(mkvTrack.styles).length > 1) {
+                subtitleLog.info("Track has multiple styles, not applying customization")
+                return
+            }
+        }
+        const nonMkvTrack = this.nonMkvTracks[this.currentTrackNumber]
+        if (nonMkvTrack) {
+            found = true
+            // if it's a non-MKV track, it was converted from another format so has only one style
+        }
+
+        if (!found) return
+
+        const opts = this.settings.subtitleCustomization
+
+        const primaryColor = hexToASSColor(opts.primaryColor || "#FFFFFF", 0)
+        const outlineColor = hexToASSColor(opts.outlineColor || "#000000", 0)
+        const backColor = hexToASSColor(opts.backColor || "#000000", 0)
+
+        // devnote: jassub scales down to 30% of the og scale
+        // /jassub/blob/main/src/JASSUB.cpp#L709
+        const customStyle = {
+            Name: "CustomDefault",
+            FontName: DEFAULT_FONT_NAME, // opts.fontName || DEFAULT_FONT_NAME,
+            FontSize: opts.fontSize || 62,
+            PrimaryColour: primaryColor,
+            SecondaryColour: primaryColor,
+            OutlineColour: outlineColor,
+            BackColour: backColor,
+            ScaleX: ((opts.scaleX || 100) / 100),
+            ScaleY: ((opts.scaleY || 100) / 100),
+            Outline: opts.outline ?? 3,
+            Shadow: opts.shadow ?? 0,
+            MarginV: opts.marginV ?? 120,
+            BorderStyle: 1,
+            Alignment: 2, // Bottom center
+            MarginL: 20,
+            MarginR: 20,
+            Bold: 0, // customization.bold ? 1 : 0,
+            Encoding: 1,
+            Justify: 0,
+            Blur: 0,
+            Italic: 0,
+            Underline: 0,
+            StrikeOut: 0,
+            Spacing: 0,
+            Angle: 0,
+            treat_fontname_as_pattern: 0,
+        }
+
+        // Apply the style override
+        this.libassRenderer.styleOverride(customStyle)
+        subtitleLog.info("Applied subtitle customization override", customStyle)
+
+        // Apply font change
+        // fontName can be something like "Noto Sans SC" or "Noto Sans SC.ttf"
+        if (opts.fontName) {
+            const _fontName = opts.fontName.trim()
+            let url = getAssetUrl(`${_fontName}.woff2`)
+            if (_fontName.includes(".")) {
+                url = getAssetUrl(_fontName) // use the fontname as filename if there's an extension
+            }
+
+            // if the font is not already loaded, load it
+            const fontName = _fontName.split(".")[0]
+            if (this.fonts.includes(url)) {
+                subtitleLog.info("Setting default font to", fontName)
+                this.libassRenderer.setDefaultFont(fontName)
+                return
+            }
+
+            subtitleLog.info("Applying font change", url, ", setting default font to", fontName)
+            this.fonts.push(url)
+            this.libassRenderer.addFont(url)
+            this.libassRenderer!.setDefaultFont(fontName)
+        } else {
+            this.libassRenderer.setDefaultFont(DEFAULT_FONT_NAME)
         }
     }
 
@@ -475,6 +600,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (!!nonMkvTrack.content) {
             subtitleLog.info("Using cached converted content for track", trackNumber)
             this.libassRenderer?.setTrack(nonMkvTrack.content)
+            this._applySubtitleCustomization()
             this.libassRenderer?.resize?.()
             return
         }
@@ -485,6 +611,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 subtitleLog.info("Fetching subtitle content", nonMkvTrack.info.src)
                 const content = await fetch(nonMkvTrack.info.src).then(res => res.text())
                 this.libassRenderer?.setTrack(content)
+                this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
             }
             catch (error) {
@@ -508,6 +635,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 // Load the converted content
                 subtitleLog.info("Loading converted ASS content")
                 this.libassRenderer?.setTrack(assContent)
+                this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
             }
             catch (error) {

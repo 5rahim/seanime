@@ -1,4 +1,5 @@
 import { AL_BaseAnime, Anime_Episode, MKVParser_Metadata } from "@/api/generated/types"
+import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 // Generic playback state interface
@@ -45,6 +46,22 @@ export type VideoCoreSettings = {
         saturation: number    // 0.8 - 1.3 (1.0 = default)
         brightness: number    // 0.9 - 1.1 (1.0 = default)
     }
+    // Subtitle customization settings
+    subtitleCustomization: {
+        enabled: boolean
+        fontSize?: number
+        fontName?: string
+        primaryColor?: string
+        outlineColor?: string
+        backColor?: string
+        bold?: boolean
+        italic?: boolean
+        outline?: number
+        shadow?: number
+        scaleX?: number
+        scaleY?: number
+        marginV?: number
+    }
 }
 
 export const vc_initialSettings: VideoCoreSettings = {
@@ -57,12 +74,37 @@ export const vc_initialSettings: VideoCoreSettings = {
         saturation: 1.1,
         brightness: 1.02,
     },
+    subtitleCustomization: {
+        enabled: false,
+    },
 }
 
-export const vc_settings = atomWithStorage<VideoCoreSettings>("sea-video-core-settings",
+// Wrapped atom for backward compatibility
+export const vc_settingsRaw = atomWithStorage<Partial<VideoCoreSettings>>("sea-video-core-settings",
     vc_initialSettings,
     undefined,
     { getOnInit: true })
+
+export const vc_settings = atom(
+    (get) => {
+        const settings = get(vc_settingsRaw)
+        return {
+            ...vc_initialSettings,
+            ...settings,
+            subtitleCustomization: {
+                ...vc_initialSettings.subtitleCustomization,
+                ...(settings.subtitleCustomization || {}),
+            },
+            videoEnhancement: {
+                ...vc_initialSettings.videoEnhancement,
+                ...(settings.videoEnhancement || {}),
+            },
+        } as VideoCoreSettings
+    },
+    (get, set, update: VideoCoreSettings) => {
+        set(vc_settingsRaw, update)
+    },
+)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

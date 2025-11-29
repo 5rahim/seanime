@@ -128,6 +128,10 @@ export function VideoCorePreferencesModal() {
     const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
     const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
+    // const [editedSubCustomization, setEditedSubCustomization] = useState<VideoCoreSettings["subtitleCustomization"]>(
+    //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
+    // )
+    const subtitleManager = useAtomValue(vc_subtitleManager)
 
     // Reset edited keybindings and language preferences when modal opens
     useEffect(() => {
@@ -136,6 +140,7 @@ export function VideoCorePreferencesModal() {
             setEditedSubLanguage(settings.preferredSubtitleLanguage)
             setEditedAudioLanguage(settings.preferredAudioLanguage)
             setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
+            // setEditedSubCustomization(settings.subtitleCustomization || vc_initialSettings.subtitleCustomization)
         }
     }, [open, keybindings, settings])
 
@@ -164,12 +169,16 @@ export function VideoCorePreferencesModal() {
 
     const handleSave = () => {
         setKeybindings(editedKeybindings)
-        setSettings({
+        const newSettings = {
             ...settings,
             preferredSubtitleLanguage: editedSubLanguage,
             preferredAudioLanguage: editedAudioLanguage,
             preferredSubtitleBlacklist: editedSubsBlacklist,
-        })
+            // subtitleCustomization: editedSubCustomization,
+        }
+        setSettings(newSettings)
+        // Update subtitle manager with new settings
+        subtitleManager?.updateSettings(newSettings)
         setOpen(false)
     }
 
@@ -178,6 +187,7 @@ export function VideoCorePreferencesModal() {
         setEditedSubLanguage(vc_initialSettings.preferredSubtitleLanguage)
         setEditedAudioLanguage(vc_initialSettings.preferredAudioLanguage)
         setEditedSubsBlacklist(vc_initialSettings.preferredSubtitleBlacklist)
+        // setEditedSubCustomization(vc_initialSettings.subtitleCustomization)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -237,13 +247,152 @@ export function VideoCorePreferencesModal() {
                         <TextInput
                             value={editedSubsBlacklist}
                             onValueChange={setEditedSubsBlacklist}
-                            placeholder="signs,songs,sign & songs"
+                            placeholder="sign & songs"
                             onKeyDown={(e) => e.stopPropagation()}
                             onInput={(e) => e.stopPropagation()}
                         />
                     </div>
                 </div>
             </div>
+
+            {/*<Separator />*/}
+
+            {/*<div className="space-y-3">*/}
+            {/*    <div className="flex items-center justify-between">*/}
+            {/*        <h3 className="text-lg font-semibold text-white">Subtitle Customization</h3>*/}
+            {/*        <Switch*/}
+            {/*            value={editedSubCustomization?.enabled}*/}
+            {/*            onValueChange={(checked) => setEditedSubCustomization(prev => ({ ...prev, enabled: checked }))}*/}
+            {/*        />*/}
+            {/*    </div>*/}
+            {/*    {editedSubCustomization?.enabled && (*/}
+            {/*        <div className="grid grid-cols-3 gap-4 pt-2">*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Font Size</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.fontSize}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, fontSize: val || 24 }))}*/}
+            {/*                    min={12}*/}
+            {/*                    max={72}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Font Name</label>*/}
+            {/*                <TextInput*/}
+            {/*                    value={editedSubCustomization?.fontName}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, fontName: val }))}*/}
+            {/*                    size="sm"*/}
+            {/*                    onKeyDown={(e) => e.stopPropagation()}*/}
+            {/*                    onInput={(e) => e.stopPropagation()}*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Text Color</label>*/}
+            {/*                <TextInput*/}
+            {/*                    value={editedSubCustomization?.primaryColor}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, primaryColor: val }))}*/}
+            {/*                    placeholder="#FFFFFF"*/}
+            {/*                    size="sm"*/}
+            {/*                    onKeyDown={(e) => e.stopPropagation()}*/}
+            {/*                    onInput={(e) => e.stopPropagation()}*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Outline Color</label>*/}
+            {/*                <TextInput*/}
+            {/*                    value={editedSubCustomization?.outlineColor}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, outlineColor: val }))}*/}
+            {/*                    placeholder="#000000"*/}
+            {/*                    size="sm"*/}
+            {/*                    onKeyDown={(e) => e.stopPropagation()}*/}
+            {/*                    onInput={(e) => e.stopPropagation()}*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Shadow Color</label>*/}
+            {/*                <TextInput*/}
+            {/*                    value={editedSubCustomization?.backColor}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, backColor: val }))}*/}
+            {/*                    placeholder="#000000"*/}
+            {/*                    size="sm"*/}
+            {/*                    onKeyDown={(e) => e.stopPropagation()}*/}
+            {/*                    onInput={(e) => e.stopPropagation()}*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Outline Width</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.outline}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, outline: val || 0 }))}*/}
+            {/*                    min={0}*/}
+            {/*                    max={4}*/}
+            {/*                    step={0.1}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Shadow Depth</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.shadow}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, shadow: val || 0 }))}*/}
+            {/*                    min={0}*/}
+            {/*                    max={4}*/}
+            {/*                    step={0.1}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Scale X (%)</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.scaleX}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, scaleX: val || 100 }))}*/}
+            {/*                    min={50}*/}
+            {/*                    max={200}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Scale Y (%)</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.scaleY}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, scaleY: val || 100 }))}*/}
+            {/*                    min={50}*/}
+            {/*                    max={200}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2">*/}
+            {/*                <label className="text-sm font-medium text-muted-foreground">Vertical Margin</label>*/}
+            {/*                <NumberInput*/}
+            {/*                    value={editedSubCustomization?.marginV}*/}
+            {/*                    onValueChange={(val) => setEditedSubCustomization(prev => ({ ...prev, marginV: val || 0 }))}*/}
+            {/*                    min={0}*/}
+            {/*                    max={200}*/}
+            {/*                    size="sm"*/}
+            {/*                />*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2 flex items-end">*/}
+            {/*                <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer">*/}
+            {/*                    <Switch*/}
+            {/*                        value={editedSubCustomization?.bold}*/}
+            {/*                        onValueChange={(checked) => setEditedSubCustomization(prev => ({ ...prev, bold: checked }))}*/}
+            {/*                    />*/}
+            {/*                    Bold*/}
+            {/*                </label>*/}
+            {/*            </div>*/}
+            {/*            <div className="space-y-2 flex items-end">*/}
+            {/*                <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer">*/}
+            {/*                    <Switch*/}
+            {/*                        value={editedSubCustomization?.italic}*/}
+            {/*                        onValueChange={(checked) => setEditedSubCustomization(prev => ({ ...prev, italic: checked }))}*/}
+            {/*                    />*/}
+            {/*                    Italic*/}
+            {/*                </label>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    )}*/}
+            {/*</div>*/}
 
             {/*<Separator />*/}
 

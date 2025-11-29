@@ -84,6 +84,8 @@ seanime-web/analyze
 seanime-web/TODO-priv.md
 seanime-web/CHANGELOG-priv.md
 
+seanime-web/public/test*
+
 codegen/generated/hooks.mdx
 
 
