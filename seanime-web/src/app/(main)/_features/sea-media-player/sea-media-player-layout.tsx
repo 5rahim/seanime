@@ -27,7 +27,7 @@ export type SeaMediaPlayerLayoutProps = {
     mediaPlayer: React.ReactNode
     episodeList: React.ReactNode
     episodes: any[] | undefined
-    loading?: boolean
+    loadingEpisodeList?: boolean
 }
 
 export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
@@ -40,7 +40,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
         mediaPlayer,
         episodeList,
         episodes,
-        loading,
+        loadingEpisodeList,
     } = props
 
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
@@ -85,7 +85,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 clearTimeout(scrollTimeoutRef.current)
             }
         }
-    }, [width, episodes, loading, progress.currentEpisodeNumber, theaterMode])
+    }, [width, episodes, loadingEpisodeList, progress.currentEpisodeNumber, theaterMode])
 
     const handleProgressUpdate = React.useCallback(() => {
         if (!media || !progressItem || isUpdatingProgress || hasUpdatedProgress) return
@@ -136,7 +136,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 </div>
             </div>
 
-            {!(loading === false) ? <div
+            {!loadingEpisodeList ? <div
                 data-sea-media-player-layout-content
                 className={cn(
                     "flex gap-4 w-full flex-col 2xl:flex-row",

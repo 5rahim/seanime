@@ -38288,6 +38288,15 @@
         "comments": []
       },
       {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Quality",
         "jsonName": "quality",
         "goType": "string",
@@ -66141,11 +66150,31 @@
         "comments": []
       },
       {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Quality",
         "jsonName": "quality",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "hibikeonlinestream.VideoSourceType",
+        "typescriptType": "HibikeOnlinestream_VideoSourceType",
+        "usedTypescriptType": "HibikeOnlinestream_VideoSourceType",
+        "usedStructName": "hibikeonlinestream.VideoSourceType",
+        "required": false,
         "public": true,
         "comments": []
       }

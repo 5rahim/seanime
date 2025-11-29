@@ -1,5 +1,5 @@
 import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
-import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
+import { useLegacyOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/legacy-onlinestream-manager"
 import {
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedProviderAtom,
@@ -42,7 +42,7 @@ const radioGroupItemContainerClass = "px-2 py-1.5 rounded-[--radius-md] hover:bg
 
 export function OnlinestreamVideoQualitySubmenu() {
 
-    const { customQualities, videoSource, changeQuality } = useOnlinestreamManagerContext()
+    const { customQualities, videoSource, changeQuality } = useLegacyOnlinestreamManagerContext()
 
     return (
         <Menu.Root>
@@ -77,7 +77,7 @@ export function OnlinestreamVideoQualitySubmenu() {
 
 export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
 
-    const { servers, providerExtensionOptions, changeProvider, changeServer } = useOnlinestreamManagerContext()
+    const { servers, providerExtensionOptions, changeProvider, changeServer } = useLegacyOnlinestreamManagerContext()
 
     const router = useRouter()
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
@@ -178,7 +178,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
         ...rest
     } = props
 
-    const { changeProvider, providerExtensionOptions, servers, changeServer } = useOnlinestreamManagerContext()
+    const { changeProvider, providerExtensionOptions, servers, changeServer } = useLegacyOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
@@ -268,7 +268,7 @@ export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubme
 
 export function SwitchSubOrDubButton() {
     const [dubbed] = useAtom(__onlinestream_selectedDubbedAtom)
-    const { selectedExtension, toggleDubbed } = useOnlinestreamManagerContext()
+    const { selectedExtension, toggleDubbed } = useLegacyOnlinestreamManagerContext()
 
     if (!selectedExtension || !selectedExtension?.supportsDub) return null
 

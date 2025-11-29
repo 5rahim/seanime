@@ -219,6 +219,7 @@ export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
             style={{}}
             className={cn(
                 "vc-control-button flex items-center justify-center px-2 transition-opacity hover:opacity-80 relative h-full",
+                "focus-visible:outline-none focus:outline-none focus-visible:opacity-50",
                 "text-3xl",
                 isMiniPlayer && "text-2xl",
                 className,

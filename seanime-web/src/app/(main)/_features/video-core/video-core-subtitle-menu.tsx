@@ -150,7 +150,7 @@ export function VideoCoreSubtitleMenu() {
                             return {
                                 label: `${track.label || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
                                 value: track.number,
-                                moreInfo: track.language
+                                moreInfo: track.language && track.language !== track.label
                                     ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
                                     : undefined,
                             }

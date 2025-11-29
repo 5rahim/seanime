@@ -32,8 +32,11 @@ export const vc_hlsSetAudioTrack = atom<((trackId: number) => void) | null>(null
 
 const hlsLog = logger("VIDEO CORE HLS")
 
-export function isHlsStream(streamUrl: string): boolean {
-    return streamUrl.includes(".m3u8")
+
+export const HLS_VIDEO_EXTENSIONS = /\.(m3u8)($|\?)/i
+
+export function isHLSSrc(src: string): boolean {
+    return HLS_VIDEO_EXTENSIONS.test(src)
 }
 
 export function useVideoCoreHls({
@@ -41,11 +44,15 @@ export function useVideoCoreHls({
     streamUrl,
     autoPlay,
     streamType,
+    onFatalError,
+    onMediaDetached,
 }: {
     videoElement: HTMLVideoElement | null
     streamUrl: string | undefined
     autoPlay: boolean
     streamType?: string
+    onMediaDetached?: () => void
+    onFatalError?: (error: ErrorData) => void
 }) {
     const hlsRef = useRef<Hls | null>(null)
 
@@ -61,7 +68,7 @@ export function useVideoCoreHls({
     useEffect(() => {
         if (!streamUrl || !videoElement) return
 
-        const isHls = streamType === "hls" || isHlsStream(streamUrl)
+        const isHls = streamType === "hls" || isHLSSrc(streamUrl)
 
         if (!isHls) {
             hlsLog.info("Non-HLS stream, using native video element")
@@ -122,6 +129,11 @@ export function useVideoCoreHls({
             hls.on(Events.MEDIA_ATTACHED, () => {
                 hlsLog.info("HLS media attached")
                 hls.loadSource(streamUrl)
+            })
+
+            hls.on(Events.MEDIA_DETACHED, () => {
+                hlsLog.info("HLS media detached")
+                onMediaDetached?.()
             })
 
             hls.on(Events.MANIFEST_PARSED, (event, data) => {
@@ -190,21 +202,21 @@ export function useVideoCoreHls({
             hls.on(Events.ERROR, (event, data: ErrorData) => {
                 hlsLog.error("HLS error", data)
                 if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hlsLog.error("Fatal network error, trying to recover")
-                            hls.startLoad()
-                            break
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            hlsLog.error("Fatal media error, trying to recover")
-                            hls.recoverMediaError()
-                            break
-                        default:
-                            hlsLog.error("Fatal error, cannot recover")
-                            hls.destroy()
-                            toast.error("Playback error occurred")
-                            break
-                    }
+                    hlsLog.error("Fatal error, cannot recover")
+                    hls.destroy()
+                    onFatalError?.(data)
+                    // switch (data.type) {
+                    //     case Hls.ErrorTypes.NETWORK_ERROR:
+                    //         hlsLog.error("Fatal network error, trying to recover")
+                    //         hls.startLoad()
+                    //         break
+                    //     case Hls.ErrorTypes.MEDIA_ERROR:
+                    //         hlsLog.error("Fatal media error, trying to recover")
+                    //         hls.recoverMediaError()
+                    //         break
+                    //     default:
+                    //         break
+                    // }
                 }
             })
 

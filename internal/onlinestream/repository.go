@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
 	"seanime/internal/extension"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
@@ -52,10 +53,12 @@ type (
 	}
 
 	VideoSource struct {
-		Server  string            `json:"server"`
-		Headers map[string]string `json:"headers,omitempty"`
-		URL     string            `json:"url"`
-		Quality string            `json:"quality"`
+		Server  string                             `json:"server"`
+		Headers map[string]string                  `json:"headers,omitempty"`
+		URL     string                             `json:"url"`
+		Label   string                             `json:"label,omitempty"`
+		Quality string                             `json:"quality"`
+		Type    hibikeonlinestream.VideoSourceType `json:"type"`
 	}
 
 	EpisodeListResponse struct {
@@ -134,6 +137,8 @@ func (r *Repository) EmptyCache(mediaId int) error {
 	_ = r.fileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, "onlinestream_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
+	// clear all stores
+	_ = r.fileCacher.Clear()
 	return nil
 }
 
@@ -256,7 +261,9 @@ func (r *Repository) GetEpisodeSources(ctx context.Context, provider string, mId
 						Server:  es.Server,
 						Headers: es.Headers,
 						URL:     vs.URL,
+						Label:   vs.Label,
 						Quality: vs.Quality,
+						Type:    vs.Type,
 					})
 					// Add subtitles if available
 					// Subtitles are stored in each video source, but they are the same, so only add them once.

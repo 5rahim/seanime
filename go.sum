@@ -10,11 +10,11 @@ github.com/5rahim/go-astisub v0.2.1 h1:DVPOJmrIIY5i5yyQgJzFqfakuZpbiWzioRKPacNW4
 github.com/5rahim/go-astisub v0.2.1/go.mod h1:UgSAUWCMt+ifn227w/g1n7XSlqDYFHMYPYAl/84jljU=
 github.com/5rahim/habari v0.1.7 h1:MBcsneiZPEL+bIWHXqhcrht2Pjubi2rWn8O7WQHbJkA=
 github.com/5rahim/habari v0.1.7/go.mod h1:0nBj4/5OxTAoIICP4P3+/YJGNf8L7w+gnU1ivj7nFJA=
+github.com/5rahim/hls-m3u8 v0.1.0 h1:budttK+sJ4mos+W9/7eGTj5Lp2jAWOvLK5CFML4Z4Vk=
+github.com/5rahim/hls-m3u8 v0.1.0/go.mod h1:yd2ILWHFjLaI3wm0f/AV+IJAZ9Gcv/GTcc8BPshkhaI=
 github.com/99designs/gqlgen v0.17.54 h1:AsF49k/7RJlwA00RQYsYN0T8cQuaosnV/7G1dHC3Uh8=
 github.com/99designs/gqlgen v0.17.54/go.mod h1:77/+pVe6zlTsz++oUg2m8VLgzdUPHxjoAG3BxI5y8Rc=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/Eyevinn/hls-m3u8 v0.6.0 h1:i4eyofj5zStgUPcy+UwUQ4oOgcLJVGbrw4XOcxVMVw8=
-github.com/Eyevinn/hls-m3u8 v0.6.0/go.mod h1:9jzVfwCo1+TC6yz+TKDBt9gIshzI9fhVE7M5AhcOSnQ=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=

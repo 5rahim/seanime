@@ -28,7 +28,15 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { useVideoCoreHls, vc_hlsAudioTracks, vc_hlsCurrentAudioTrack, vc_hlsSetAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
+import {
+    useVideoCoreHls,
+    vc_hlsAudioTracks,
+    vc_hlsCurrentAudioTrack,
+    vc_hlsCurrentQuality,
+    vc_hlsQualityLevels,
+    vc_hlsSetAudioTrack,
+    vc_hlsSetQuality,
+} from "@/app/(main)/_features/video-core/video-core-hls"
 import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
 import { vc_menuOpen, vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-menu"
@@ -41,7 +49,7 @@ import {
 } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { VideoCoreKeybindingController, VideoCorePreferencesModal } from "@/app/(main)/_features/video-core/video-core-preferences"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
-import { VideoCoreQualityMenu } from "@/app/(main)/_features/video-core/video-core-quality-menu"
+import { VideoCoreResolutionMenu } from "@/app/(main)/_features/video-core/video-core-resolution-menu"
 import { VideoCoreSettingsMenu } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
@@ -57,6 +65,7 @@ import {
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
     VideoCorePlaybackState,
+    VideoCoreVideoSource,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
     detectSubtitleType,
@@ -83,11 +92,12 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { __isDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
+import { ErrorData } from "hls.js"
 import { atom } from "jotai"
 import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
@@ -269,6 +279,12 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_flashActionTimeout,
                 vc_playlistState,
                 vc_timeRangeElement,
+                vc_hlsQualityLevels,
+                vc_hlsCurrentQuality,
+                vc_hlsSetQuality,
+                vc_hlsAudioTracks,
+                vc_hlsCurrentAudioTrack,
+                vc_hlsSetAudioTrack,
             ]}
         >
             {children}
@@ -307,6 +323,7 @@ interface PlayerContentProps {
     handleCanPlay: (e: React.SyntheticEvent<HTMLVideoElement>) => void
     handleStalled: (e: React.SyntheticEvent<HTMLVideoElement>) => void
     onTerminateStream: () => void
+    onVideoSourceChange: ((source: VideoCoreVideoSource) => void) | undefined
 }
 
 const PlayerContent = React.memo<PlayerContentProps>(({
@@ -334,6 +351,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     handleCanPlay,
     handleStalled,
     onTerminateStream,
+    onVideoSourceChange,
 }) => {
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const busy = useAtomValue(vc_busy)
@@ -528,7 +546,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <div className="flex flex-1" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreSettingsMenu />
-                            <VideoCoreQualityMenu />
+                            <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
                             <VideoCoreSubtitleMenu />
                             <VideoCoreAudioMenu />
                             <VideoCorePipButton />
@@ -580,9 +598,13 @@ export interface VideoCoreProps {
     onError?: (error: string) => void
     onPlaybackRateChange?: () => void
     onFileUploaded: (data: { name: string, content: string }) => void
+    onVideoSourceChange?: ((source: VideoCoreVideoSource) => void) | undefined
+    inlineClassName?: string
+    onHlsMediaDetached?: () => void
+    onHlsFatalError?: (error: ErrorData) => void
     // Inline mode renders VideoCore without drawer wrapper
     inline?: boolean
-    inlineClassName?: string
+    mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
 
 export function VideoCore(props: VideoCoreProps) {
@@ -607,7 +629,13 @@ export function VideoCore(props: VideoCoreProps) {
         onFileUploaded,
         inline = false,
         inlineClassName,
+        onVideoSourceChange,
+        onHlsMediaDetached,
+        onHlsFatalError,
+        mRef,
     } = props
+
+    const [streamType, setStreamType] = useState<NonNullable<VideoCorePlaybackState["playbackInfo"]>["streamType"]>(state.playbackInfo?.streamType ?? "stream")
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -669,6 +697,8 @@ export function VideoCore(props: VideoCoreProps) {
         },
     })
 
+    const isFirstError = React.useRef(true)
+
     React.useEffect(() => {
         setIsMiniPlayer(false)
     }, [])
@@ -719,6 +749,9 @@ export function VideoCore(props: VideoCoreProps) {
 
     const combineRef = (instance: HTMLVideoElement | null) => {
         videoRef.current = instance
+        if (mRef) {
+            mRef.current = instance
+        }
         if (instance) measureRef(instance)
         setVideoElement(instance)
     }
@@ -775,6 +808,7 @@ export function VideoCore(props: VideoCoreProps) {
         if (!state.playbackInfo) {
             log.info("Cleaning up")
             cancelDiscordActivity()
+            isFirstError.current = true
             if (videoRef.current) {
                 videoRef.current.pause()
                 videoRef.current.removeAttribute("src")
@@ -808,7 +842,8 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
-            log.info("New stream loaded")
+            log.info("New stream loaded", state.playbackInfo)
+            setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
         }
     }, [state.playbackInfo?.id, videoRef.current])
@@ -820,7 +855,9 @@ export function VideoCore(props: VideoCoreProps) {
         videoElement: videoRef.current,
         streamUrl: streamUrl,
         autoPlay: autoPlay,
-        streamType: state.playbackInfo?.streamType,
+        streamType: streamType,
+        onMediaDetached: onHlsMediaDetached,
+        onFatalError: onHlsFatalError,
     })
 
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
@@ -1121,7 +1158,16 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onError?.("")
+        log.error("Video error", e)
+        if (isFirstError.current) {
+            // Change stream type to HLS if it failed to load
+            log.warning("Video player could not load the URL, switching to HLS")
+            setStreamType("hls")
+            isFirstError.current = false
+            return
+        }
+
+        onError?.(`Video playback error occurred. (Code: ${(e.currentTarget.error && e.currentTarget.error.code) || "unknown"})`)
     }
 
     const handleWaiting = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -1358,7 +1404,7 @@ export function VideoCore(props: VideoCoreProps) {
                     className={cn(
                         "relative w-full h-full",
                         inlineClassName,
-                        fullscreen && "fixed z-[9999] inset-0",
+                        fullscreen && "fixed z-[99999] inset-0",
                     )}
                 >
                     <PlayerContent
@@ -1386,6 +1432,7 @@ export function VideoCore(props: VideoCoreProps) {
                         handleCanPlay={handleCanPlay}
                         handleStalled={handleStalled}
                         onTerminateStream={onTerminateStream}
+                        onVideoSourceChange={onVideoSourceChange}
                     />
                 </div>
             </ScopeProvider>
@@ -1463,6 +1510,7 @@ export function VideoCore(props: VideoCoreProps) {
                         handleCanPlay={handleCanPlay}
                         handleStalled={handleStalled}
                         onTerminateStream={onTerminateStream}
+                        onVideoSourceChange={onVideoSourceChange}
                     />
                 </VideoCoreDrawer>
 

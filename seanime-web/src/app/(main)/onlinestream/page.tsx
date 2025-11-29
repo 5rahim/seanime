@@ -2,7 +2,7 @@
 
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
-import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
+import { LegacyOnlinestreamPage } from "@/app/(main)/onlinestream/_containers/legacy-onlinestream-page"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSearchParams } from "next/navigation"
 import React from "react"
@@ -34,7 +34,7 @@ export default function Page() {
     return (
         <>
             <div data-onlinestream-page-container className="relative p-4 lg:p-8 z-[5] space-y-4">
-                <OnlinestreamPage animeEntry={animeEntry} animeEntryLoading={animeEntryLoading} />
+                <LegacyOnlinestreamPage animeEntry={animeEntry} animeEntryLoading={animeEntryLoading} />
             </div>
             <MediaEntryPageSmallBanner bannerImage={animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge} />
         </>

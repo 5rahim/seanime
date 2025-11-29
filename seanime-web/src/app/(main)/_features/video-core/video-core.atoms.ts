@@ -22,12 +22,22 @@ export type VideoCoreSubtitleTrack = {
     useLibassRenderer?: boolean
 }
 
+export type VideoCoreVideoSource = {
+    index: number,
+    resolution: string,
+    url?: string,
+    label?: string,
+    moreInfo?: string,
+}
+
 export type VideoCorePlaybackInfo = {
     id: string
     playbackType: VideoCorePlaybackType
     streamUrl: string
     mkvMetadata?: MKVParser_Metadata
-    subtitleTracks?: VideoCoreSubtitleTrack[] // For non-MKV streams, rendered by MediaCaptionsManager
+    subtitleTracks?: VideoCoreSubtitleTrack[]
+    videoSources?: VideoCoreVideoSource[]
+    selectedVideoSource?: number
     media?: AL_BaseAnime
     episode?: Anime_Episode
     streamType: "stream" | "hls"

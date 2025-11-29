@@ -23,7 +23,7 @@ import React from "react"
 import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
-export function useOnlinestreamEpisodeList(mId: string | null) {
+export function useOnlinestreamEpisodeList(mId: number) {
     const router = useRouter()
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
@@ -47,7 +47,7 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
 }
 
 
-export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_OnlinestreamProviderExtensionItem[], mId: string | null, isSuccess: boolean) {
+export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_OnlinestreamProviderExtensionItem[], mId: number, isSuccess: boolean) {
 
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
@@ -124,7 +124,7 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
         }
 
 
-        logger("ONLINESTREAM").info("videoSources", videoSources)
+        logger("ONLINESTREAM").info("Filtered video sources", videoSources)
 
         return videoSources[0]
     }, [episodeSource, selectedServer, quality])
@@ -134,13 +134,15 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type HandleOnlinestreamProps = {
-    mediaId: string | null
+
+type LegacyHandleOnlinestreamProps = {
+    mediaId: number
     ref: React.RefObject<MediaPlayerInstance>
 }
 
-export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
+export function useLegacyHandleOnlinestream(props: LegacyHandleOnlinestreamProps) {
     const { mediaId, ref: playerRef } = props
 
     const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
@@ -472,7 +474,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
 }
 
-export type OnlinestreamManagerOpts = ReturnType<typeof useHandleOnlinestream>
+export type OnlinestreamManagerOpts = ReturnType<typeof useLegacyHandleOnlinestream>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

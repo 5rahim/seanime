@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Eyevinn/hls-m3u8/m3u8"
+	"github.com/5rahim/hls-m3u8/m3u8"
 	"github.com/goccy/go-json"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"

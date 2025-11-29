@@ -314,7 +314,13 @@ export function AnimeEntryPage() {
                                     animeEntryLoading={animeEntryLoading}
                                     hideBackButton
                                 />
+                                {/*<LegacyOnlinestreamPage*/}
+                                {/*    animeEntry={animeEntry}*/}
+                                {/*    animeEntryLoading={animeEntryLoading}*/}
+                                {/*    hideBackButton*/}
+                                {/*/>*/}
                                 <MediaEntryCharactersSection details={animeDetails} />
+                                <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
                             </div>
                         </PageWrapper>}
 
