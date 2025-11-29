@@ -528,9 +528,9 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <div className="flex flex-1" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreSettingsButton />
-                            <VideoCoreAudioButton />
                             <VideoCoreQualityButton />
                             <VideoCoreSubtitleButton />
+                            <VideoCoreAudioButton />
                             <VideoCorePipButton />
                             <VideoCoreFullscreenButton />
                         </VideoCoreControlBar>

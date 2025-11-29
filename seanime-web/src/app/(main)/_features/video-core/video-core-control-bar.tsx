@@ -554,7 +554,7 @@ export function VideoCoreAudioButton() {
     const isHls = !mkvAudioTracks && hlsAudioTracks.length > 0
 
     function onAudioChange() {
-        setSelectedTrack(audioManager?.getSelectedTrack?.() ?? null)
+        setSelectedTrack(audioManager?.getSelectedTrackNumberOrNull?.() ?? null)
     }
 
     React.useEffect(() => {
@@ -619,9 +619,7 @@ export function VideoCoreAudioButton() {
                     })}
                     onValueChange={(value: number) => {
                         audioManager?.selectTrack(value)
-                        if (!isHls) {
-                            action({ type: "seek", payload: { time: -1 } })
-                        }
+                        action({ type: "seek", payload: { time: -1 } })
                     }}
                     value={selectedTrack || 0}
                 />

@@ -982,7 +982,28 @@ export function VideoCoreKeybindingController(props: {
     }, [subtitleManager, mediaCaptionsManager])
 
     const handleCycleAudio = useCallback(() => {
-        if (!videoRef.current) return
+        if (!videoRef.current || !audioManager) return
+
+        // HLS stream
+        if (audioManager.isHlsStream()) {
+            const currentTrackNumber = audioManager.getSelectedTrackNumberOrNull()
+            if (currentTrackNumber === null) {
+                flashAction({ message: "No additional audio tracks" })
+                return
+            }
+            const audioTracks = audioManager.getHlsAudioTracks()
+
+            const nextTrackNumber = (currentTrackNumber + 1) % (audioTracks.length)
+
+            const nextTrack = audioTracks.find(n => n.id === nextTrackNumber)
+            if (nextTrack) {
+                const trackName = nextTrack.name || nextTrack.language || `Track ${nextTrack.id + 1}`
+                flashAction({ message: `Audio: ${trackName}` })
+                audioManager.selectTrack(nextTrackNumber)
+            }
+
+            return
+        }
 
         const audioTracks = videoRef.current.audioTracks
         if (!audioTracks || audioTracks.length <= 1) {
@@ -1013,7 +1034,7 @@ export function VideoCoreKeybindingController(props: {
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
         flashAction({ message: `Audio: ${trackName}` })
-    }, [])
+    }, [audioManager])
 
     const log = logger("VideoCoreKeybindings")
 

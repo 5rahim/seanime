@@ -1,3 +1,4 @@
+import { HlsAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCorePlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 
@@ -12,7 +13,7 @@ export class VideoCoreAudioManager {
     private playbackInfo: VideoCorePlaybackInfo
     // HLS-specific
     private readonly hlsSetAudioTrack: ((trackId: number) => void) | null = null
-    private readonly hlsAudioTracks: any[] = []
+    private readonly hlsAudioTracks: HlsAudioTrack[] = []
     private hlsCurrentAudioTrack: number = -1
 
     constructor({
@@ -29,7 +30,7 @@ export class VideoCoreAudioManager {
         playbackInfo: VideoCorePlaybackInfo
         onError: (error: string) => void
         hlsSetAudioTrack?: ((trackId: number) => void) | null
-        hlsAudioTracks?: any[]
+        hlsAudioTracks?: HlsAudioTrack[]
         hlsCurrentAudioTrack?: number
     }) {
         this.videoElement = videoElement
@@ -59,16 +60,16 @@ export class VideoCoreAudioManager {
 
     _selectDefaultTrack() {
         // Check if we're dealing with HLS
-        if (this._isHlsStream()) {
-            this._selectDefaultHlsTrack()
+        if (this.isHlsStream()) {
+            this.__selectDefaultHlsTrack()
             return
         }
 
         // MKV track selection
-        this._selectDefaultMkvTrack()
+        this.__selectDefaultMkvTrack()
     }
 
-    _selectDefaultMkvTrack() {
+    __selectDefaultMkvTrack() {
         // MKV track selection
         // Split preferred languages by comma and trim whitespace
         const preferredLanguages = this.settings.preferredAudioLanguage
@@ -97,8 +98,8 @@ export class VideoCoreAudioManager {
         }
     }
 
-    _selectDefaultHlsTrack() {
-        if (!this.hlsSetAudioTrack || !this._isHlsStream()) return
+    __selectDefaultHlsTrack() {
+        if (!this.hlsSetAudioTrack || !this.isHlsStream()) return
 
         // Split preferred languages by comma and trim whitespace
         const preferredLanguages = this.settings.preferredAudioLanguage
@@ -156,7 +157,7 @@ export class VideoCoreAudioManager {
         }
     }
 
-    getSelectedTrack(): number | null {
+    getSelectedTrackNumberOrNull(): number | null {
         // Check if we're dealing with HLS
         if (this.hlsSetAudioTrack) {
             return this.hlsCurrentAudioTrack
@@ -174,12 +175,16 @@ export class VideoCoreAudioManager {
         return null
     }
 
+    getHlsAudioTracks() {
+        return this.hlsAudioTracks
+    }
+
     // Update the current HLS audio track (called externally when track changes)
     onHlsTrackChange(trackId: number) {
         this.hlsCurrentAudioTrack = trackId
     }
 
-    private _isHlsStream() {
+    isHlsStream() {
         return this.hlsSetAudioTrack !== null && this.hlsAudioTracks.length > 0
     }
 

@@ -18,8 +18,8 @@ export default function TestPage() {
                         playbackInfo: {
                             id: "Test",
                             playbackType: "onlinestream",
-                            // streamUrl: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8",
-                            streamUrl: "https://stream.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/low.mp4",
+                            streamUrl: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8",
+                            // streamUrl: "https://stream.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/low.mp4",
                             streamType: "stream",
                             subtitleTracks: [
                                 {
