@@ -56,7 +56,7 @@ export type VideoCoreSettings = {
         saturation: number    // 0.8 - 1.3 (1.0 = default)
         brightness: number    // 0.9 - 1.1 (1.0 = default)
     }
-    // Subtitle customization settings
+    // Subtitle customization settings (ASS)
     subtitleCustomization: {
         enabled: boolean
         fontSize?: number
@@ -64,13 +64,19 @@ export type VideoCoreSettings = {
         primaryColor?: string
         outlineColor?: string
         backColor?: string
-        bold?: boolean
-        italic?: boolean
+        backColorOpacity?: number
         outline?: number
         shadow?: number
-        scaleX?: number
-        scaleY?: number
-        marginV?: number
+    }
+    // Caption customization settings (non-ASS)
+    captionCustomization: {
+        enabled: boolean
+        fontSize?: number
+        textColor?: string
+        backgroundColor?: string
+        backgroundOpacity?: number
+        textShadow?: number
+        textShadowColor?: string
     }
 }
 
@@ -86,6 +92,18 @@ export const vc_initialSettings: VideoCoreSettings = {
     },
     subtitleCustomization: {
         enabled: false,
+    },
+    captionCustomization: {
+        enabled: false,
+        // fontSize: 4, // 4% of video width
+        // fontFamily: "Inter, Arial, sans-serif",
+        // textColor: "#FFFFFF",
+        // backgroundColor: "#000000",
+        // outlineColor: "#000000",
+        // bold: true,
+        // outlineWidth: undefined,
+        // backgroundOpacity: 0.8,
+        // shadow: 2, // shadow blur in px
     },
 }
 
@@ -104,6 +122,10 @@ export const vc_settings = atom(
             subtitleCustomization: {
                 ...vc_initialSettings.subtitleCustomization,
                 ...(settings.subtitleCustomization || {}),
+            },
+            captionCustomization: {
+                ...vc_initialSettings.captionCustomization,
+                ...(settings.captionCustomization || {}),
             },
             videoEnhancement: {
                 ...vc_initialSettings.videoEnhancement,
@@ -161,6 +183,8 @@ export const vc_defaultKeybindings: VideoCoreKeybindings = {
 }
 
 export const vc_keybindingsAtom = atomWithStorage("sea-video-core-keybindings", vc_defaultKeybindings, undefined, { getOnInit: true })
+
+export const vc_useLibassRendererAtom = atomWithStorage("sea-video-core-use-libass-renderer", true, undefined, { getOnInit: true })
 
 export const vc_showChapterMarkersAtom = atomWithStorage("sea-video-core-chapter-markers", true, undefined, { getOnInit: true })
 export const vc_highlightOPEDChaptersAtom = atomWithStorage("sea-video-core-highlight-op-ed-chapters", true, undefined, { getOnInit: true })

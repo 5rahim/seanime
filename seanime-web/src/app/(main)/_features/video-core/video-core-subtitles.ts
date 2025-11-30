@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
+import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 
 import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCorePlaybackInfo, VideoCoreSettings, VideoCoreSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
@@ -398,25 +399,25 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         const opts = this.settings.subtitleCustomization
 
-        const primaryColor = hexToASSColor(opts.primaryColor || "#FFFFFF", 0)
-        const outlineColor = hexToASSColor(opts.outlineColor || "#000000", 0)
-        const backColor = hexToASSColor(opts.backColor || "#000000", 0)
+        const primaryColor = hexToASSColor(vc_getSubtitleStyle(opts, "primaryColor"), 0)
+        const outlineColor = hexToASSColor(vc_getSubtitleStyle(opts, "outlineColor"), 0)
+        const backColor = hexToASSColor(vc_getSubtitleStyle(opts, "backColor"), vc_getSubtitleStyle(opts, "backColorOpacity"))
 
         // devnote: jassub scales down to 30% of the og scale
         // /jassub/blob/main/src/JASSUB.cpp#L709
         const customStyle = {
             Name: "CustomDefault",
             FontName: DEFAULT_FONT_NAME, // opts.fontName || DEFAULT_FONT_NAME,
-            FontSize: opts.fontSize || 62,
+            FontSize: vc_getSubtitleStyle(opts, "fontSize"),
             PrimaryColour: primaryColor,
             SecondaryColour: primaryColor,
             OutlineColour: outlineColor,
             BackColour: backColor,
-            ScaleX: ((opts.scaleX || 100) / 100),
-            ScaleY: ((opts.scaleY || 100) / 100),
-            Outline: opts.outline ?? 3,
-            Shadow: opts.shadow ?? 0,
-            MarginV: opts.marginV ?? 120,
+            ScaleX: ((100) / 100),
+            ScaleY: ((100) / 100),
+            Outline: vc_getSubtitleStyle(opts, "outline"),
+            Shadow: vc_getSubtitleStyle(opts, "shadow"),
+            MarginV: 120,
             BorderStyle: 1,
             Alignment: 2, // Bottom center
             MarginL: 20,

@@ -90,8 +90,9 @@ export function VideoCoreSubtitleMenu() {
             // Listen for subtitle track changes
             mediaCaptionsManager.addTrackChangedEventListener(onTrackChange)
 
-            const tracks = mediaCaptionsManager.getTracks?.() ?? []
-            setMediaCaptionsTracks(tracks)
+            mediaCaptionsManager.addTracksLoadedEventListener(tracks => {
+                setMediaCaptionsTracks(tracks)
+            })
         }
     }, [videoElement, subtitleManager, mediaCaptionsManager])
 
@@ -159,7 +160,7 @@ export function VideoCoreSubtitleMenu() {
                             return {
                                 label: track.label,
                                 value: track.number,
-                                moreInfo: track.language?.toUpperCase(),
+                                moreInfo: track.language && track.language !== track.label ? track.language?.toUpperCase() : undefined,
                             }
                         }),
                     ]}

@@ -973,3 +973,8 @@ media-preview-chapter-display {
     image-rendering: -webkit-crisp-edges;
     image-rendering: crisp-edges;
 }
+
+:where([data-part="captions"] [data-part="cue"]) {
+    border-radius: .6rem;
+    font-weight: 700;
+}

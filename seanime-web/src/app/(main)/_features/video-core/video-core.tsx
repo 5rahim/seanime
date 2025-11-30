@@ -86,7 +86,6 @@ import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-str
 import { GradientBackground } from "@/components/shared/gradient-background"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
-import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
@@ -804,18 +803,15 @@ export function VideoCore(props: VideoCoreProps) {
         action({ type: "seek", payload: { time: -1 } })
     }
 
-    useUpdateEffect(() => {
-        if (!state.playbackInfo) {
+    const prevPlaybackIdRef = useRef<string | null>(null)
+
+    React.useEffect(() => {
+        if (!videoRef.current) return
+        // Cleanup function
+        const performCleanup = () => {
             log.info("Cleaning up")
             cancelDiscordActivity()
             isFirstError.current = true
-            if (videoRef.current) {
-                videoRef.current.pause()
-                videoRef.current.removeAttribute("src")
-                videoRef.current.load()
-                videoRef.current = null
-            }
-            setVideoElement(null)
             subtitleManager?.destroy?.()
             setSubtitleManager(null)
             mediaCaptionsManager?.destroy?.()
@@ -838,13 +834,46 @@ export function VideoCore(props: VideoCoreProps) {
             }
             setMediaSessionManager(null)
             currentPlaybackRef.current = null
-            videoRef.current = null
+            if (videoRef.current) {
+                videoRef.current.pause()
+                videoRef.current.removeAttribute("src")
+                videoRef.current.load()
+            }
         }
 
-        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
+        const currentId = state.playbackInfo?.id
+        const prevId = prevPlaybackIdRef.current
+
+        // Cleanup when playback info is removed
+        if (!state.playbackInfo) {
+            if (prevId !== null) {
+                performCleanup()
+                setVideoElement(null)
+                videoRef.current = null
+            }
+        }
+        // Cleanup when ID changes (switching videos)
+        else if (prevId !== null && currentId !== prevId) {
+            performCleanup()
             log.info("New stream loaded", state.playbackInfo)
             setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
+        }
+        // First load
+        else if (prevId === null && currentId) {
+            log.info("New stream loaded", state.playbackInfo)
+            setStreamType(state.playbackInfo.streamType)
+            vc_logGeneralInfo(videoRef.current)
+        }
+
+        // Update previous ID
+        prevPlaybackIdRef.current = currentId ?? null
+
+        // Cleanup on unmount
+        return () => {
+            if (prevPlaybackIdRef.current !== null) {
+                performCleanup()
+            }
         }
     }, [state.playbackInfo?.id, videoRef.current])
 
@@ -1210,8 +1239,9 @@ export function VideoCore(props: VideoCoreProps) {
         if (pipManager && videoRef.current && state.playbackInfo) {
             pipManager.setVideo(videoRef.current, state.playbackInfo)
             if (subtitleManager) pipManager.setSubtitleManager(subtitleManager)
+            if (mediaCaptionsManager) pipManager.setMediaCaptionsManager(mediaCaptionsManager)
         }
-    }, [pipManager, subtitleManager, videoRef.current, state.playbackInfo])
+    }, [pipManager, subtitleManager, mediaCaptionsManager, videoRef.current, state.playbackInfo])
 
     // Update fullscreen manager
     React.useEffect(() => {
@@ -1230,16 +1260,6 @@ export function VideoCore(props: VideoCoreProps) {
             mediaSessionManager.deactivate()
         }
     }, [mediaSessionManager, videoRef.current, state.playbackInfo, state.active, playEpisode])
-
-    React.useEffect(() => {
-        return () => {
-            log.info("VideoCore unmounting, cleaning up media session")
-            if (mediaSessionManager) {
-                mediaSessionManager.setVideo(null)
-                mediaSessionManager.destroy()
-            }
-        }
-    }, [mediaSessionManager])
 
     //
 

@@ -11,6 +11,7 @@ import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/se
 import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc } from "@/app/(main)/_features/video-core/video-core-hls"
+import { vc_useLibassRendererAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
@@ -39,7 +40,7 @@ import { useWindowSize } from "@uidotdev/usehooks"
 import { AxiosError } from "axios"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import { uniq } from "lodash"
+import { uniq, uniqBy } from "lodash"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
@@ -120,7 +121,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         error: errorEpisodeSource,
     } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isSuccess && !waitForWatchHistory))
 
-    const hasMultipleVideoSources = !!episodeSource?.videoSources?.length && episodeSource?.videoSources?.length > 1
+    const videoSources = uniqBy(episodeSource?.videoSources, n => n.url)
+    const hasMultipleVideoSources = !!videoSources?.length && videoSources?.length > 1
 
     // list of servers
     const servers = React.useMemo(() => {
@@ -175,6 +177,17 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     function handleChangeEpisodeNumber(episodeNumber: number) {
         setSelectedEpisodeNumber(episodeNumber)
     }
+
+    const changeQuality = React.useCallback((quality: string) => {
+        try {
+            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+            previousIsPlayingRef.current = playerRef.current?.paused === false
+            log.info("Changing quality", { quality })
+        }
+        catch {
+        }
+        setQuality(quality)
+    }, [videoSource])
 
     // Provider
     const changeProvider = React.useCallback((provider: string) => {
@@ -300,6 +313,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     //////////////////////////////////////////////////////////////
     // Video player
     //////////////////////////////////////////////////////////////
+
+    const useLibassRenderer = useAtomValue(vc_useLibassRendererAtom)
 
     // Store the errored servers, so we can switch to the next server
     const [erroredServers, setErroredServers] = React.useState<string[]>([])
@@ -494,7 +509,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                                 src: sub.url,
                                                 language: sub.language,
                                                 default: index === 0,
-                                                // useLibassRenderer: true,
+                                                useLibassRenderer: useLibassRenderer,
                                             })),
                                             videoSources: hasMultipleVideoSources ? episodeSource?.videoSources?.map((source, index) => ({
                                                 index: index,
@@ -514,7 +529,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     onError={v => onFatalError("Could not play the video")}
                                     onFileUploaded={() => {}}
                                     onVideoSourceChange={source => {
-                                        setQuality(source.resolution)
+                                        changeQuality(source.resolution)
                                     }}
                                     onHlsFatalError={(err) => onFatalError(`HLS error: ${err.error.message}`)}
                                     onHlsMediaDetached={() => {}}

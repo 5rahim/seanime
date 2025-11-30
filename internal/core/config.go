@@ -112,6 +112,9 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 		return nil, err
 	}
 
+	// Create assets directory if it doesn't exist
+	_ = os.MkdirAll(filepath.Join(dataDir, "assets"), 0700)
+
 	// Set Seanime's default custom environment variables
 	if err = setDataDirEnv(dataDir); err != nil {
 		return nil, err

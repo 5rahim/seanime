@@ -1,3 +1,4 @@
+import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
@@ -29,6 +30,7 @@ export type MediaCaptionsManagerOptions = {
 }
 
 type LoadedTrack = {
+    index: number
     metadata: MediaCaptionsTrackInfo
     cues: VTTCue[]
     regions: any[]
@@ -78,19 +80,46 @@ export class MediaCaptionsManager {
     private currentTrackIndex: number = NO_TRACK_IDX
     private timeUpdateListener: (() => void) | null = null
     private readonly settings: VideoCoreSettings
+    private captionCustomization: VideoCoreSettings["captionCustomization"]
 
     private _onSelectedTrackChanged?: (track: number | null) => void
+    private _onTracksLoaded?: (tracks: MediaCaptionsTrack[]) => void
 
     constructor(options: MediaCaptionsManagerOptions) {
         this.videoElement = options.videoElement
         this.tracks = options.tracks
         this.settings = options.settings
+        this.captionCustomization = options.settings.captionCustomization
 
         this.init()
     }
 
+    public updateSettings(settings: VideoCoreSettings) {
+        this.captionCustomization = settings.captionCustomization
+        this.applyCaptionStyles()
+
+        if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
+            this.renderer.currentTime = this.videoElement.currentTime
+        }
+    }
+
+    addTracksLoadedEventListener(callback: (tracks: MediaCaptionsTrack[]) => void) {
+        this._onTracksLoaded = callback
+    }
+
     addTrackChangedEventListener(callback: (track: number | null) => void) {
         this._onSelectedTrackChanged = callback
+    }
+
+    public getTracks(): MediaCaptionsTrack[] {
+        return this.loadedTracks.map((loadedTrack, index) => {
+            return {
+                number: loadedTrack.index,
+                label: loadedTrack.metadata.label,
+                language: loadedTrack.metadata.language,
+                selected: this.currentTrackIndex === index,
+            }
+        })
     }
 
     public selectTrack(index: number) {
@@ -128,13 +157,99 @@ export class MediaCaptionsManager {
         log.info("Disabled subtitles")
     }
 
-    public getTracks(): MediaCaptionsTrack[] {
-        return this.tracks.map((track, index) => ({
-            number: index,
-            label: track.label,
-            language: track.language,
-            selected: this.currentTrackIndex === index,
-        }))
+    /*
+     * Render captions to a canvas context for PIP mode
+     */
+    public renderToCanvas(context: CanvasRenderingContext2D, width: number, height: number, currentTime: number) {
+        if (this.currentTrackIndex === NO_TRACK_IDX || !this.renderer) return
+
+        const track = this.loadedTracks[this.currentTrackIndex]
+        if (!track) return
+
+        // Find active cues for current time
+        const activeCues = track.cues.filter(cue =>
+            currentTime >= cue.startTime && currentTime <= cue.endTime,
+        )
+
+        if (activeCues.length === 0) return
+
+        // Render each active cue
+        activeCues.forEach((cue) => {
+            const text = cue.text
+            if (!text) return
+
+            context.save()
+
+            // Calculate position (bottom center by default)
+            const fontSize = Math.max(width * 0.04, 20) // 4% of video width
+            const padding = fontSize * 0.5
+            const bottomMargin = height * 0.1 // 10% from bottom
+            const maxWidth = width * 0.9 // Use 90% of canvas width
+            const lineHeight = fontSize * 1.3
+
+            // Setup text rendering
+            context.font = `bold ${fontSize}px Inter, Arial, sans-serif`
+            context.textAlign = "center"
+            context.textBaseline = "bottom"
+
+            // Word wrap the text
+            const words = text.split(" ")
+            const lines: string[] = []
+            let currentLine = ""
+
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word
+                const metrics = context.measureText(testLine)
+
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = testLine
+                }
+            }
+            if (currentLine) {
+                lines.push(currentLine)
+            }
+
+            // Calculate dimensions for all lines
+            let maxLineWidth = 0
+            lines.forEach(line => {
+                const metrics = context.measureText(line)
+                maxLineWidth = Math.max(maxLineWidth, metrics.width)
+            })
+
+            const totalHeight = lines.length * lineHeight
+            const x = width / 2
+            const y = height - bottomMargin
+
+            // Draw background box
+            context.fillStyle = "rgba(0, 0, 0, 0.8)"
+            context.fillRect(
+                x - maxLineWidth / 2 - padding,
+                y - totalHeight - padding,
+                maxLineWidth + padding * 2,
+                totalHeight + padding * 2,
+            )
+
+            // Draw each line with outline
+            context.strokeStyle = "black"
+            context.lineWidth = fontSize * 0.1
+            context.lineJoin = "round"
+
+            lines.forEach((line, index) => {
+                const lineY = y - (lines.length - 1 - index) * lineHeight
+                context.strokeText(line, x, lineY)
+            })
+
+            context.fillStyle = "white"
+            lines.forEach((line, index) => {
+                const lineY = y - (lines.length - 1 - index) * lineHeight
+                context.fillText(line, x, lineY)
+            })
+
+            context.restore()
+        })
     }
 
     public getSelectedTrack(): MediaCaptionsTrackInfo | null {
@@ -149,6 +264,73 @@ export class MediaCaptionsManager {
     public getSelectedTrackIndexOrNull() {
         if (this.currentTrackIndex === NO_TRACK_IDX) return null
         return this.currentTrackIndex
+    }
+
+    private applyCaptionStyles() {
+        if (!this.overlayElement) return
+
+        const custom = this.captionCustomization
+        const useCustom = true // custom.enabled
+
+        if (!useCustom) {
+            // Remove custom styles
+            this.overlayElement.style.removeProperty("--media-font-family")
+            this.overlayElement.style.removeProperty("--cue-height")
+            this.overlayElement.style.removeProperty("--cue-font-size")
+            this.overlayElement.style.removeProperty("--cue-line-height")
+            this.overlayElement.style.removeProperty("--media-text-color")
+            this.overlayElement.style.removeProperty("--cue-color")
+            this.overlayElement.style.removeProperty("--cue-bg-color")
+            this.overlayElement.style.removeProperty("--cue-font-weight")
+            this.overlayElement.style.removeProperty("--cue-padding-x")
+            this.overlayElement.style.removeProperty("--cue-padding-y")
+            this.overlayElement.style.removeProperty("--cue-text-shadow")
+            this.overlayElement.style.removeProperty("--overlay-padding")
+            return
+        }
+
+        this.overlayElement.style.setProperty("--overlay-padding", "3%")
+
+        // if (custom.fontFamily) {
+        //     this.overlayElement.style.setProperty("--media-font-family", custom.fontFamily)
+        // }
+        const fontSize = vc_getCaptionStyle(custom, "fontSize")
+        if (fontSize) {
+            // Override the calculated font size and recalculate all dependent values
+            const newFontSize = `calc(var(--overlay-height) / 100 * ${fontSize})`
+            this.overlayElement.style.setProperty("--cue-font-size", newFontSize)
+            // this.overlayElement.style.setProperty("--cue-line-height", `calc(${newFontSize} * 1.2)`)
+            // this.overlayElement.style.setProperty("--cue-padding-x", `calc(${newFontSize} * 0.6)`)
+            // this.overlayElement.style.setProperty("--cue-padding-y", `calc(${newFontSize} * 0.4)`)
+        }
+        const textColor = vc_getCaptionStyle(custom, "textColor")
+        if (textColor) {
+            this.overlayElement.style.setProperty("--media-text-color", textColor)
+            this.overlayElement.style.setProperty("--cue-color", textColor)
+        }
+        const backgroundColor = vc_getCaptionStyle(custom, "backgroundColor")
+        const backgroundOpacity = vc_getCaptionStyle(custom, "backgroundOpacity")
+        if (backgroundColor) {
+            const opacity = backgroundOpacity !== undefined ? backgroundOpacity : 0.8
+            const hex = backgroundColor.replace("#", "")
+            const r = parseInt(hex.substring(0, 2), 16)
+            const g = parseInt(hex.substring(2, 4), 16)
+            const b = parseInt(hex.substring(4, 6), 16)
+            this.overlayElement.style.setProperty("--cue-bg-color", `rgba(${r}, ${g}, ${b}, ${opacity})`)
+        }
+        // if (custom.bold !== undefined) {
+        //     this.overlayElement.style.setProperty("--cue-font-weight", custom.bold ? "bold" : "normal")
+        // }
+        const textShadow = vc_getCaptionStyle(custom, "textShadow")
+        const textShadowColor = vc_getCaptionStyle(custom, "textShadowColor")
+        if (textShadow !== undefined) {
+            if (textShadow === 0) {
+                this.overlayElement.style.setProperty("--cue-text-shadow", "none")
+            } else {
+                const shadowColor = textShadowColor || "#000000"
+                this.overlayElement.style.setProperty("--cue-text-shadow", `${shadowColor} 1px 1px ${textShadow}px`)
+            }
+        }
     }
 
     public destroy() {
@@ -192,6 +374,9 @@ export class MediaCaptionsManager {
         // Create renderer
         this.renderer = new CaptionsRenderer(this.overlayElement)
 
+        // Apply custom styles
+        this.applyCaptionStyles()
+
         // Load all tracks
         await this.loadTracks()
 
@@ -213,24 +398,30 @@ export class MediaCaptionsManager {
     }
 
     private async loadTracks() {
-        for (const track of this.tracks) {
+        for (let i = 0; i < this.tracks.length; i++) {
+            const track = this.tracks[i]
             try {
                 const result = await parseResponse(fetch(track.src), {
                     // type: track.type,
                 })
 
                 this.loadedTracks.push({
+                    index: i,
                     metadata: track,
                     cues: result.cues,
                     regions: result.regions,
                 })
 
                 log.info(`Loaded track: ${track.label}`, result)
+                // this._onTracksLoaded?.(this.getTracks())
+                // const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.getTracks().map((t, idx) => ({ ...t, number: idx })))
+                // this.selectTrack(defaultTrackNumber)
             }
             catch (error) {
                 log.error(`Failed to load track: ${track.label}`, error)
             }
         }
+        this._onTracksLoaded?.(this.getTracks())
     }
 }
 
