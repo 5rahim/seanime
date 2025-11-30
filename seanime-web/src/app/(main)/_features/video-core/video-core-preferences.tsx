@@ -252,9 +252,9 @@ export function VideoCorePreferencesModal() {
                 </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 hidden lg:block">
                 <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
                         <div className="space-y-3">

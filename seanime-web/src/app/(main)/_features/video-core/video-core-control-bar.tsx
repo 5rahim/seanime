@@ -5,7 +5,9 @@ import {
     vc_dispatchAction,
     vc_duration,
     vc_isFullscreen,
+    vc_isMobile,
     vc_isMuted,
+    vc_isSwiping,
     vc_miniPlayer,
     vc_paused,
     vc_pip,
@@ -28,7 +30,6 @@ import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
 import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
 
-const VIDEOCORE_CONTROL_BAR_VPADDING = 5
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI = 28
 
@@ -52,12 +53,15 @@ export function VideoCoreControlBar(props: {
     const containerElement = useAtomValue(vc_containerElement)
     const seeking = useAtomValue(vc_seeking)
 
+    const isMobile = useAtomValue(vc_isMobile)
+
     const mainSectionHeight = isMiniPlayer ? VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI : VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT
 
     // when the user is approaching the control bar
     const [cursorPosition, setCursorPosition] = React.useState<"outside" | "approaching" | "hover">("outside")
 
-    const showOnlyTimeRange =
+    // On mobile, always show controls when paused or when tapping
+    const showOnlyTimeRange = isMobile ? false : (
         VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (
                 (!paused && cursorPosition === "approaching")
             ) :
@@ -65,27 +69,39 @@ export function VideoCoreControlBar(props: {
             (!paused && cursorPosition === "approaching")
             // or cursor not hovering and video is paused
             || (paused && cursorPosition === "outside") || (paused && cursorPosition === "approaching")
+    )
 
-    const controlBarBottomPx = VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (cursorBusy || hoveringControlBar || paused) ? 0 : (
-        showOnlyTimeRange ? -(mainSectionHeight) : (
-            cursorPosition === "hover" ? 0 : -300
-        )
+    const controlBarBottomPx = isMobile ? (
+        // On mobile, show controls when paused or interacting
+        (paused || cursorBusy || hoveringControlBar) ? 0 : -300
     ) : (
-        (cursorBusy || hoveringControlBar) ? 0 : (
+        VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (cursorBusy || hoveringControlBar || paused) ? 0 : (
             showOnlyTimeRange ? -(mainSectionHeight) : (
                 cursorPosition === "hover" ? 0 : -300
+            )
+        ) : (
+            (cursorBusy || hoveringControlBar) ? 0 : (
+                showOnlyTimeRange ? -(mainSectionHeight) : (
+                    cursorPosition === "hover" ? 0 : -300
+                )
             )
         )
     )
 
-    const hideShadow = isMiniPlayer ? !paused : VIDEOCORE_CONTROL_BAR_TYPE === "classic"
-        ? (!paused && cursorPosition !== "hover" && !cursorBusy)
-        : (cursorPosition !== "hover" && !cursorBusy)
+    const hideShadow = isMobile ? !paused : (
+        isMiniPlayer ? !paused : VIDEOCORE_CONTROL_BAR_TYPE === "classic"
+            ? (!paused && cursorPosition !== "hover" && !cursorBusy)
+            : (cursorPosition !== "hover" && !cursorBusy)
+    )
 
-    // const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar
-    const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar && (VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? !paused : true)
+    // On mobile, show control bar when paused or cursor busy
+    const hideControlBar = isMobile ? (!paused && !cursorBusy && !hoveringControlBar) : (
+        !showOnlyTimeRange && !cursorBusy && !hoveringControlBar && (VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? !paused : true)
+    )
 
     function handleVideoContainerPointerMove(e: Event) {
+        if (isMobile) return
+
         if (!containerElement) {
             setCursorPosition("outside")
             return
@@ -105,7 +121,8 @@ export function VideoCoreControlBar(props: {
         }
     }
 
-    function handleVideoContainerPointerLeave(e: Event) {
+    function handleVideoContainerPointerLeave(_e: Event) {
+        if (isMobile) return
         setCursorPosition("outside")
     }
 
@@ -157,19 +174,20 @@ export function VideoCoreControlBar(props: {
                     bottom: `${controlBarBottomPx}px`,
                 }}
                 onPointerEnter={() => {
-                    setHoveringControlBar(true)
+                    if (!isMobile) setHoveringControlBar(true)
                 }}
                 onPointerLeave={() => {
-                    setHoveringControlBar(false)
+                    if (!isMobile) setHoveringControlBar(false)
                 }}
                 onPointerCancel={() => {
-                    setHoveringControlBar(false)
+                    if (!isMobile) setHoveringControlBar(false)
                 }}
             >
                 <div
                     className={cn(
                         "vc-control-bar",
-                        "absolute bottom-0 w-full px-4",
+                        "absolute bottom-0 w-full",
+                        isMobile ? "px-2" : "px-4",
                         VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                     )}
                     // style={{
@@ -182,7 +200,8 @@ export function VideoCoreControlBar(props: {
                     <div
                         className={cn(
                             "vc-control-bar-main-section z-[100] relative",
-                            "transform-gpu duration-100 flex items-center pb-2",
+                            "transform-gpu duration-100 flex items-center",
+                            isMobile ? "pb-1" : "pb-2",
                         )}
                         style={{
                             height: `${mainSectionHeight}px`,
@@ -197,6 +216,127 @@ export function VideoCoreControlBar(props: {
     )
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function VideoCoreMobileControlBar(props: {
+    children?: React.ReactNode
+    timeRange: React.ReactNode
+    topLeftSection: React.ReactNode
+    topRightSection: React.ReactNode
+    bottomLeftSection: React.ReactNode
+    bottomRightSection: React.ReactNode
+}) {
+    const { children, timeRange, topLeftSection, topRightSection, bottomLeftSection, bottomRightSection } = props
+
+    const paused = useAtomValue(vc_paused)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const cursorBusy = useAtomValue(vc_cursorBusy)
+    const containerElement = useAtomValue(vc_containerElement)
+    const seeking = useAtomValue(vc_seeking)
+    const isSwiping = useAtomValue(vc_isSwiping)
+    const [, setHoveringControlBar] = useAtom(vc_hoveringControlBar)
+
+    const [isSwipingDebounced, setIsSwipingDebounced] = React.useState(false)
+    const sieT = React.useRef<NodeJS.Timeout>()
+    React.useEffect(() => {
+        if (isSwiping) {
+            setIsSwipingDebounced(true)
+        } else {
+            sieT.current = setTimeout(() => {
+                setIsSwipingDebounced(false)
+            }, 200)
+        }
+        return () => {
+            if (sieT.current) clearTimeout(sieT.current)
+        }
+    }, [isSwiping])
+    React.useEffect(() => {
+        setHoveringControlBar(false)
+    }, [])
+
+    const showShadow = paused || cursorBusy
+
+    const bottomSectionBottomPx = (paused || cursorBusy) ? 0 : -300
+
+    return (
+        <>
+            <div
+                className={cn(
+                    "vc-mobile-control-bar-bottom-gradient pointer-events-none",
+                    "absolute bottom-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
+                    "bg-gradient-to-t to-transparent",
+                    !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
+                    "h-20",
+                    (showShadow || isSwiping) && "opacity-100",
+                )}
+            />
+            <div
+                className={cn(
+                    "vc-mobile-control-bar-top-gradient pointer-events-none",
+                    "absolute top-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
+                    "bg-gradient-to-b to-transparent",
+                    !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
+                    "h-20",
+                    (showShadow) && "opacity-100",
+                )}
+            />
+
+            {/*Top*/}
+            <div
+                data-vc-mobile-control-bar-top-section
+                className={cn(
+                    "vc-mobile-control-bar-top-section",
+                    "absolute transition-all left-0 right-0 top-0 w-full z-[11]",
+                    "px-2 pt-3",
+                    VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
+                )}
+                style={{
+                    top: bottomSectionBottomPx,
+                }}
+            >
+                <div
+                    className={cn(
+                        "transform-gpu duration-100 flex items-center",
+                    )}
+                >
+                    {topLeftSection}
+                    <div className="flex flex-1"></div>
+                    {topRightSection}
+                </div>
+            </div>
+
+            {/*Bottom*/}
+            <div
+                data-vc-mobile-control-bar-bottom-section
+                className={cn(
+                    "vc-mobile-control-bar-bottom-section",
+                    "absolute transition-all left-0 right-0 bottom-0 w-full z-[11]",
+                    "px-2",
+                    VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
+                    isSwiping && "transition-none",
+                )}
+                style={{
+                    bottom: isSwiping ? 0 : bottomSectionBottomPx,
+                }}
+            >
+                <div
+                    className={cn(
+                        "transform-gpu duration-100 flex items-center",
+                        (isSwiping || isSwipingDebounced) && "hidden",
+                    )}
+                >
+                    {bottomLeftSection}
+                    <div className="flex flex-1"></div>
+                    {bottomRightSection}
+                </div>
+                {timeRange}
+            </div>
+        </>
+    )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type VideoCoreControlButtonProps = {
     icons: [string, React.ElementType][]
     state: string
@@ -210,18 +350,18 @@ export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
     const { icons, state, className, iconClass, onClick, onWheel } = props
 
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
-
-    const size = isMiniPlayer ? VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI : VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT
+    const isMobile = useAtomValue(vc_isMobile)
 
     return (
         <button
             role="button"
             style={{}}
             className={cn(
-                "vc-control-button flex items-center justify-center px-2 transition-opacity hover:opacity-80 relative h-full",
+                "vc-control-button flex items-center justify-center transition-opacity relative h-full",
                 "focus-visible:outline-none focus:outline-none focus-visible:opacity-50",
-                "text-3xl",
-                isMiniPlayer && "text-2xl",
+                // Better touch targets on mobile
+                isMobile ? "px-1 text-2xl" : "px-2 text-3xl hover:opacity-80",
+                isMiniPlayer && !isMobile && "text-2xl",
                 className,
             )}
             onClick={onClick}
@@ -280,6 +420,7 @@ export function VideoCoreVolumeButton() {
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const setMuted = useSetAtom(vc_storedMutedAtom)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const isMobile = useAtomValue(vc_isMobile)
 
     const [isSliding, setIsSliding] = React.useState(false)
 
@@ -364,46 +505,49 @@ export function VideoCoreVolumeButton() {
                 }}
                 onWheel={handleWheel}
             />
-            <div
-                className={cn(
-                    "vc-control-volume-slider-container relative w-0 flex group-hover/vc-control-volume:w-[6rem] h-6",
-                    "transition-[width] duration-300",
-                )}
-            >
+            {/* Hide volume slider on mobile */}
+            {!isMobile && (
                 <div
                     className={cn(
-                        "vc-control-volume-slider",
-                        "flex h-full w-full relative items-center",
-                        "rounded-full",
-                        "cursor-pointer",
-                        "transition-all duration-300",
+                        "vc-control-volume-slider-container relative w-0 flex group-hover/vc-control-volume:w-[6rem] h-6",
+                        "transition-[width] duration-300",
                     )}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerCancel={handlePointerUp}
-                    onWheel={handleWheel}
                 >
                     <div
                         className={cn(
-                            "vc-control-volume-slider-progress h-1.5",
-                            "absolute bg-white",
+                            "vc-control-volume-slider",
+                            "flex h-full w-full relative items-center",
                             "rounded-full",
+                            "cursor-pointer",
+                            "transition-all duration-300",
                         )}
-                        style={{
-                            width: `${volumeToLinear(volume) * 100}%`,
-                        }}
-                    />
-                    <div
-                        className={cn(
-                            "vc-control-volume-slider-progress h-1.5 w-full",
-                            "absolute bg-white/20",
-                            "rounded-full",
-                        )}
-                    />
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerCancel={handlePointerUp}
+                        onWheel={handleWheel}
+                    >
+                        <div
+                            className={cn(
+                                "vc-control-volume-slider-progress h-1.5",
+                                "absolute bg-white",
+                                "rounded-full",
+                            )}
+                            style={{
+                                width: `${volumeToLinear(volume) * 100}%`,
+                            }}
+                        />
+                        <div
+                            className={cn(
+                                "vc-control-volume-slider-progress h-1.5 w-full",
+                                "absolute bg-white/20",
+                                "rounded-full",
+                            )}
+                        />
+                    </div>
+                    <div className="w-4" />
                 </div>
-                <div className="w-4" />
-            </div>
+            )}
         </div>
     )
 }
@@ -445,6 +589,7 @@ export function VideoCoreTimestamp() {
     const duration = useAtomValue(vc_duration)
     const currentTime = useAtomValue(vc_currentTime)
     const [type, setType] = useAtom(vc_timestampType)
+    const isMobile = useAtomValue(vc_isMobile)
 
     function handleSwitchType() {
         setType(p => p === "elapsed" ? "remaining" : "elapsed")
@@ -453,7 +598,13 @@ export function VideoCoreTimestamp() {
     if (duration <= 1 || isNaN(duration)) return null
 
     return (
-        <p className="font-medium text-sm opacity-100 hover:opacity-80 cursor-pointer" onClick={handleSwitchType}>
+        <p
+            className={cn(
+                "font-medium opacity-100 cursor-pointer",
+                isMobile ? "text-xs text-white" : "text-sm hover:opacity-80",
+            )}
+            onClick={handleSwitchType}
+        >
             {type === "remaining" ? "-" : ""}{vc_formatTime(Math.max(0,
             Math.min(duration, type === "elapsed" ? currentTime : duration - currentTime)))} / {vc_formatTime(duration)}
         </p>

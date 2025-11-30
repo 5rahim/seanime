@@ -65,7 +65,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }> = {}
 
     // URL-based tracks (will use internal API to convert to ASS)
-    private nonMkvTracks: Record<string, {
+    nonMkvTracks: Record<string, {
         info: VideoCoreSubtitleTrack
         content: string | null // converted content
     }> = {}

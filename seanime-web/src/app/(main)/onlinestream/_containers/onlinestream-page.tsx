@@ -310,6 +310,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }
 
+    function handlePlayEpisode(which: "next" | "previous") {
+        if (which === "next") {
+            goToNextEpisode()
+        } else {
+            goToPreviousEpisode()
+        }
+    }
+
     //////////////////////////////////////////////////////////////
     // Video player
     //////////////////////////////////////////////////////////////
@@ -502,6 +510,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             id: "onlinestream",
                                             playbackType: "onlinestream",
                                             streamUrl: url!,
+                                            media: media,
+                                            episode: currentEpisode?.metadata,
+                                            playlistExternalEpisodeNumbers: episodes?.map(e => e.number),
                                             streamType: ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "stream",
                                             subtitleTracks: episodeSource?.subtitles?.map((sub, index) => ({
                                                 index: index,
@@ -527,6 +538,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     inline
                                     onLoadedMetadata={onCanPlay}
                                     onError={v => onFatalError("Could not play the video")}
+                                    onPlayEpisode={handlePlayEpisode}
                                     onFileUploaded={() => {}}
                                     onVideoSourceChange={source => {
                                         changeQuality(source.resolution)

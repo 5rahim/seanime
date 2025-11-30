@@ -3652,6 +3652,7 @@ declare namespace $app {
         image?: string;
         description?: string;
         isFiller?: boolean;
+        metadata?: Anime_Episode;
     }
 
     /**

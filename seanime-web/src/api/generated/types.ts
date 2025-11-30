@@ -4199,6 +4199,7 @@ export type Onlinestream_Episode = {
     image?: string
     description?: string
     isFiller?: boolean
+    metadata?: Anime_Episode
 }
 
 /**

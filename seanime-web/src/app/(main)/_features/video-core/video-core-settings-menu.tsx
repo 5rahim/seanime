@@ -3,6 +3,7 @@ import {
     vc_containerElement,
     vc_dispatchAction,
     vc_isFullscreen,
+    vc_isMobile,
     vc_mediaCaptionsManager,
     vc_miniPlayer,
     vc_playbackRate,
@@ -48,7 +49,7 @@ import React, { useState } from "react"
 import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
+import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
 import { MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
@@ -195,6 +196,7 @@ export function vc_getCaptionStyleLabel<T extends keyof VideoCoreSettings["capti
 
 export function VideoCoreSettingsMenu() {
     const serverStatus = useServerStatus()
+    const isMobile = useAtomValue(vc_isMobile)
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const playbackRate = useAtomValue(vc_playbackRate)
@@ -312,9 +314,10 @@ export function VideoCoreSettingsMenu() {
                 name="settings"
                 trigger={<VideoCoreControlButtonIcon
                     icons={[
-                        ["default", LuChevronUp],
+                        ["default", isMobile ? LuSettings : LuChevronUp],
                     ]}
                     state="default"
+                    className={isMobile ? "text-xl" : ""}
                     onClick={() => {
                     }}
                 />}

@@ -39,13 +39,19 @@ type VideoCorePlaylistState = {
     currentEpisode: Anime_Episode
     currentTorrent?: HibikeTorrent_AnimeTorrent // for torrent and debrid stream type
     animeEntry: Anime_Entry | null
+    onPlayEpisode?: VideoCorePlaylistPlayEpisodeFunction
 }
+
+type VideoCorePlaylistPlayEpisodeFunction = (which: "previous" | "next") => void
 
 const log = logger("VIDEO CORE PLAYLIST")
 
 export const vc_playlistState = atom<VideoCorePlaylistState | null>(null)
+
 // call once, maintains playlist state
-export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState) {
+export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
+    onPlayEpisode: VideoCorePlaylistPlayEpisodeFunction | undefined = undefined,
+) {
     const [playlistState, setPlaylistState] = useAtom(vc_playlistState)
 
     const state = providedState
@@ -74,9 +80,12 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
         if (playbackType === "localfile") {
             return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
         }
+        if (state.playbackInfo?.playlistExternalEpisodeNumbers) {
+            return episodeCollection?.episodes?.filter(ep => state.playbackInfo?.playlistExternalEpisodeNumbers?.includes(ep.episodeNumber)) ?? []
+        }
 
         return episodeCollection?.episodes ?? []
-    }, [animeEntry?.episodes, episodeCollection?.episodes, currProgressNumber, playbackType])
+    }, [animeEntry?.episodes, episodeCollection?.episodes, currProgressNumber, playbackType, state.playbackInfo?.playlistExternalEpisodeNumbers])
 
     const currentEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber) ?? null
     const previousEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber - 1) ?? null
@@ -84,10 +93,18 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
 
     React.useEffect(() => {
         if (!playbackInfo || !currentEpisode || !episodes.length || !animeEntry) {
+            log.info("No playback info or episodes found, clearing playlist state")
             setPlaylistState(null)
             return
         }
 
+        log.info("Updating playlist state", {
+            playbackType,
+            episodeCount: episodes.length,
+            currentEpisode: currentEpisode.episodeNumber,
+            nextEpisode: nextEpisode?.episodeNumber,
+            previousEpisode: previousEpisode?.episodeNumber,
+        })
         setPlaylistState({
             type: playbackType!,
             episodes: episodes ?? [],
@@ -95,8 +112,9 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState)
             previousEpisode,
             nextEpisode,
             animeEntry,
+            onPlayEpisode,
         })
-    }, [animeEntry, playbackInfo, currentEpisode, previousEpisode, nextEpisode])
+    }, [animeEntry, playbackInfo, currentEpisode, previousEpisode, nextEpisode, onPlayEpisode])
 }
 
 export function useVideoCorePlaylist() {
@@ -279,6 +297,11 @@ export function useVideoCorePlaylist() {
             case "debrid":
                 startStream(episode)
                 break
+            default:
+                playlistState.onPlayEpisode?.(which as "previous" | "next")
+                if (!playlistState.onPlayEpisode) {
+                    log.error("No onPlayEpisode function found for playback type", playbackType)
+                }
         }
     }
 

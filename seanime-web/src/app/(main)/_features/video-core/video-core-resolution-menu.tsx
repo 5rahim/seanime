@@ -51,7 +51,7 @@ export function VideoCoreResolutionMenu({ state, onVideoSourceChange }: {
                 ]}
                 state="default"
                 onClick={() => {}}
-                className="text-2xl"
+                className="text-xl lg:text-2xl"
             />}
         >
             <VideoCoreMenuTitle>Quality</VideoCoreMenuTitle>

@@ -21,6 +21,7 @@ import {
     vc_hoveringControlBar,
     VideoCoreControlBar,
     VideoCoreFullscreenButton,
+    VideoCoreMobileControlBar,
     VideoCorePipButton,
     VideoCorePlayButton,
     VideoCoreTimestamp,
@@ -37,9 +38,11 @@ import {
     vc_hlsSetAudioTrack,
     vc_hlsSetQuality,
 } from "@/app/(main)/_features/video-core/video-core-hls"
+import { useVideoCoreIOSFullscreenSubtitles } from "@/app/(main)/_features/video-core/video-core-ios-fullscreen-subtitles"
 import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
 import { vc_menuOpen, vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-menu"
+import { useVideoCoreMobileGestures } from "@/app/(main)/_features/video-core/video-core-mobile-gestures"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
     useVideoCorePlaylist,
@@ -102,7 +105,7 @@ import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure } from "react-use"
+import { useMeasure, useWindowSize } from "react-use"
 import { toast } from "sonner"
 
 const log = logger("VIDEO CORE")
@@ -113,6 +116,9 @@ const DELAY_BEFORE_NOT_BUSY = 1_000 //ms
 
 export const vc_activePlayerId = atom<string | null>(null)
 
+export const vc_isMobile = atom(false)
+export const vc_isSwiping = atom(false) // Mobile swipe state
+export const vc_swipeSeekTime = atom<number | null>(null) // Mobile swipe seek time
 export const vc_videoSize = atom({ width: 1, height: 1 })
 export const vc_realVideoSize = atom({ width: 0, height: 0 })
 export const vc_duration = atom(1)
@@ -352,6 +358,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
     onTerminateStream,
     onVideoSourceChange,
 }) => {
+    const isMobile = useAtomValue(vc_isMobile)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const busy = useAtomValue(vc_busy)
     const paused = useAtomValue(vc_paused)
@@ -377,7 +384,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                 <div className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4">
                     <div className="text-white text-center">
                         {!isMiniPlayer ? (
-                            <LuffyError title="Playback Error" />
+                            <LuffyError title="Playback Error" imageContainerClass="size-[3.5rem] lg:size-[8rem]" />
                         ) : (
                             <h1 className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback Error</h1>
                         )}
@@ -506,7 +513,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             </video>
                         </div>
 
-                        <VideoCoreTopSection>
+                        {!isMobile && <VideoCoreTopSection>
                             <VideoCoreTopPlaybackInfo state={state} />
                             {!inline && (
                                 <div
@@ -519,7 +526,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                     <FloatingButtons part="video" onTerminateStream={onTerminateStream} />
                                 </div>
                             )}
-                        </VideoCoreTopSection>
+                        </VideoCoreTopSection>}
 
                         {isPip && (
                             <div className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center">
@@ -535,7 +542,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             </div>
                         )}
 
-                        <VideoCoreControlBar
+                        {!isMobile ? <VideoCoreControlBar
                             timeRange={<VideoCoreTimeRange chapterCues={chapterCues ?? []} />}
                         >
                             <VideoCorePlayButton />
@@ -550,7 +557,26 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreAudioMenu />
                             <VideoCorePipButton />
                             <VideoCoreFullscreenButton />
-                        </VideoCoreControlBar>
+                        </VideoCoreControlBar> : <VideoCoreMobileControlBar
+                            timeRange={<VideoCoreTimeRange chapterCues={chapterCues ?? []} />}
+                            topLeftSection={<>
+                                <VideoCorePlaylistControl />
+                            </>}
+                            topRightSection={<>
+                                <VideoCoreSettingsMenu />
+                                <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
+                                <VideoCoreSubtitleMenu />
+                                <VideoCoreAudioMenu />
+                                <VideoCorePipButton />
+                                <VideoCoreVolumeButton />
+                            </>}
+                            bottomRightSection={<>
+                                <VideoCoreFullscreenButton />
+                            </>}
+                            bottomLeftSection={<>
+                                <VideoCoreTimestamp />
+                            </>}
+                        />}
                     </>
                 ) : (
                     <div className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md">
@@ -598,6 +624,7 @@ export interface VideoCoreProps {
     onPlaybackRateChange?: () => void
     onFileUploaded: (data: { name: string, content: string }) => void
     onVideoSourceChange?: ((source: VideoCoreVideoSource) => void) | undefined
+    onPlayEpisode?: (which: "previous" | "next") => void
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
@@ -631,6 +658,7 @@ export function VideoCore(props: VideoCoreProps) {
         onVideoSourceChange,
         onHlsMediaDetached,
         onHlsFatalError,
+        onPlayEpisode,
         mRef,
     } = props
 
@@ -639,10 +667,16 @@ export function VideoCore(props: VideoCoreProps) {
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
+    const { width: windowWidth } = useWindowSize()
+    const [isMobilePlayer, setIsMobilePlayer] = useAtom(vc_isMobile)
+    React.useEffect(() => {
+        setIsMobilePlayer(windowWidth < 1024)
+    }, [windowWidth < 1024])
+
     const setVideoElement = useSetAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
     useVideoCoreBindings(state.playbackInfo)
-    useVideoCorePlaylistSetup(state)
+    useVideoCorePlaylistSetup(state, onPlayEpisode)
 
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
@@ -1248,7 +1282,10 @@ export function VideoCore(props: VideoCoreProps) {
         if (fullscreenManager && containerRef.current) {
             fullscreenManager.setContainer(containerRef.current)
         }
-    }, [fullscreenManager, containerRef.current])
+        if (fullscreenManager && videoRef.current) {
+            fullscreenManager.setVideoElement(videoRef.current)
+        }
+    }, [fullscreenManager, containerRef.current, videoRef.current])
 
     React.useEffect(() => {
         if (mediaSessionManager && videoRef.current && state.playbackInfo && state.active) {
@@ -1261,7 +1298,21 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [mediaSessionManager, videoRef.current, state.playbackInfo, state.active, playEpisode])
 
-    //
+    // Handle iOS fullscreen subtitles
+    useVideoCoreIOSFullscreenSubtitles({
+        videoElement: videoRef.current,
+    })
+
+    // Handle mobile gestures
+    useVideoCoreMobileGestures({
+        videoElement: videoRef.current,
+        containerElement: containerRef.current,
+        onSeek: (time) => {
+            if (videoRef.current) {
+                videoRef.current.currentTime = time
+            }
+        },
+    })
 
     // container events
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)

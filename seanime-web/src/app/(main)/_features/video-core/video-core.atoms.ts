@@ -37,6 +37,9 @@ export type VideoCorePlaybackInfo = {
     mkvMetadata?: MKVParser_Metadata
     subtitleTracks?: VideoCoreSubtitleTrack[]
     videoSources?: VideoCoreVideoSource[]
+    // Video Core Playlist manager needs to know the episodes that can be played
+    // Used for online streaming
+    playlistExternalEpisodeNumbers?: number[]
     selectedVideoSource?: number
     media?: AL_BaseAnime
     episode?: Anime_Episode

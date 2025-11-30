@@ -48,12 +48,12 @@ export function VideoCoreActionDisplay() {
             >
                 {notification.message === "PLAY" &&
                     <PiPlayDuotone
-                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
                 {notification.message === "PAUSE" &&
                     <PiPauseDuotone
-                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
             </motion.div>

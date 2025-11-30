@@ -39,11 +39,12 @@ var (
 
 type (
 	Episode struct {
-		Number      int    `json:"number"`
-		Title       string `json:"title,omitempty"`
-		Image       string `json:"image,omitempty"`
-		Description string `json:"description,omitempty"`
-		IsFiller    bool   `json:"isFiller,omitempty"`
+		Number      int            `json:"number"`
+		Title       string         `json:"title,omitempty"`
+		Image       string         `json:"image,omitempty"`
+		Description string         `json:"description,omitempty"`
+		IsFiller    bool           `json:"isFiller,omitempty"`
+		Metadata    *anime.Episode `json:"metadata"`
 	}
 
 	EpisodeSource struct {
@@ -201,6 +202,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 						Image:       episode.EpisodeMetadata.Image,
 						Description: episode.EpisodeMetadata.Summary,
 						IsFiller:    episode.EpisodeMetadata.IsFiller,
+						Metadata:    episode,
 					})
 				} else {
 					episodes = append(episodes, &Episode{

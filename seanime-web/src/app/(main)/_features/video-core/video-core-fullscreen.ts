@@ -1,4 +1,5 @@
 import { logger } from "@/lib/helpers/debug"
+import { isApple } from "@/lib/utils/browser-detection"
 import { atom } from "jotai"
 
 const log = logger("VIDEO CORE FULLSCREEN")
@@ -7,6 +8,7 @@ export const vc_fullscreenManager = atom<VideoCoreFullscreenManager | null>(null
 
 export class VideoCoreFullscreenManager {
     private containerElement: HTMLElement | null = null
+    private videoElement: HTMLVideoElement | null = null
     private controller = new AbortController()
     private onFullscreenChange: (isFullscreen: boolean) => void
     private isElectronNativeFullscreen = false
@@ -20,19 +22,15 @@ export class VideoCoreFullscreenManager {
     setContainer(containerElement: HTMLElement) {
         this.containerElement = containerElement
     }
+    private attachVideoListeners?: () => void
 
-    isFullscreen(): boolean {
-        // Check Electron native fullscreen first
-        if (this.isElectron() && this.isElectronNativeFullscreen) {
-            return true
+    setVideoElement(videoElement: HTMLVideoElement) {
+        this.videoElement = videoElement
+
+        // Attach iOS-specific listeners
+        if (isApple() && this.attachVideoListeners) {
+            this.attachVideoListeners()
         }
-
-        return !!(
-            document.fullscreenElement ||
-            (document as any).webkitFullscreenElement ||
-            (document as any).mozFullScreenElement ||
-            (document as any).msFullscreenElement
-        )
     }
 
     async toggleFullscreen() {
@@ -43,10 +41,35 @@ export class VideoCoreFullscreenManager {
         }
     }
 
+    isFullscreen(): boolean {
+        // Check Electron native fullscreen first
+        if (this.isElectron() && this.isElectronNativeFullscreen) {
+            return true
+        }
+
+        // Check iOS video fullscreen
+        if (isApple() && this.videoElement) {
+            return !!(this.videoElement as any).webkitDisplayingFullscreen
+        }
+
+        return !!(
+            document.fullscreenElement ||
+            (document as any).webkitFullscreenElement ||
+            (document as any).mozFullScreenElement ||
+            (document as any).msFullscreenElement
+        )
+    }
+
     async exitFullscreen() {
         try {
             if (this.isElectron() && this.shouldUseElectronFullscreen()) {
                 await this.exitElectronFullscreen()
+                return
+            }
+
+            if (isApple() && this.videoElement && (this.videoElement as any).webkitDisplayingFullscreen) {
+                await (this.videoElement as any).webkitExitFullscreen()
+                log.info("Exited iOS fullscreen")
                 return
             }
 
@@ -78,6 +101,14 @@ export class VideoCoreFullscreenManager {
                 return
             }
 
+            if (isApple() && this.videoElement) {
+                if ((this.videoElement as any).webkitEnterFullscreen) {
+                    await (this.videoElement as any).webkitEnterFullscreen()
+                    log.info("Entered iOS fullscreen")
+                    return
+                }
+            }
+
             if (this.containerElement.requestFullscreen) {
                 await this.containerElement.requestFullscreen()
             } else if ((this.containerElement as any).webkitRequestFullscreen) {
@@ -92,11 +123,6 @@ export class VideoCoreFullscreenManager {
         catch (error) {
             log.error("Failed to enter fullscreen", error)
         }
-    }
-
-    destroy() {
-        this.controller.abort()
-        this.containerElement = null
     }
 
     private isElectron(): boolean {
@@ -158,6 +184,12 @@ export class VideoCoreFullscreenManager {
         }
     }
 
+    destroy() {
+        this.controller.abort()
+        this.containerElement = null
+        this.videoElement = null
+    }
+
     private attachDocumentListeners() {
         document.addEventListener("fullscreenchange", this.handleFullscreenChange, {
             signal: this.controller.signal,
@@ -171,6 +203,23 @@ export class VideoCoreFullscreenManager {
         document.addEventListener("msfullscreenchange", this.handleFullscreenChange, {
             signal: this.controller.signal,
         })
+
+        if (isApple()) {
+            const attachVideoListeners = () => {
+                if (this.videoElement) {
+                    this.videoElement.addEventListener("webkitbeginfullscreen", this.handleFullscreenChange, {
+                        signal: this.controller.signal,
+                    })
+                    this.videoElement.addEventListener("webkitendfullscreen", this.handleFullscreenChange, {
+                        signal: this.controller.signal,
+                    })
+                }
+            }
+
+            attachVideoListeners()
+
+            this.attachVideoListeners = attachVideoListeners
+        }
     }
 
     private handleFullscreenChange = () => {
