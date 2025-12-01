@@ -7,10 +7,13 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
-import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/sea-media-player-layout"
-import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc } from "@/app/(main)/_features/video-core/video-core-hls"
+import {
+    VideoCoreInlineHelpers,
+    VideoCoreInlineHelperUpdateProgressButton,
+    VideoCoreInlineLayout,
+} from "@/app/(main)/_features/video-core/video-core-inline-helpers"
 import { vc_useLibassRendererAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
@@ -73,14 +76,13 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const searchParams = useSearchParams()
     const urlMediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
-    const media = animeEntry?.media
+    const media = animeEntry?.media!
     const mediaId = media?.id!
     const progress = animeEntry?.listData?.progress ?? 0
 
     const [episodeViewMode, setEpisodeViewMode] = useAtom(__onlineStream_episodeViewModeAtom)
 
     const playerRef = React.useRef<HTMLVideoElement | null>(null)
-
 
     const [currentEpisodeNumber, setSelectedEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
     const [server, setServer] = useAtom(__onlinestream_selectedServerAtom)
@@ -105,7 +107,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         episodes,
         isFetching: isFetchingEpisodeList,
         isLoading: isLoadingEpisodeList,
-        isSuccess,
+        isSuccess: isEpisodeListFetched,
         isError: isEpisodeListError,
     } = useOnlinestreamEpisodeList(mediaId)
 
@@ -119,7 +121,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         isFetching: isFetchingEpisodeSource,
         isError: isErrorEpisodeSource,
         error: errorEpisodeSource,
-    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isSuccess && !waitForWatchHistory))
+    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isEpisodeListFetched && !waitForWatchHistory))
 
     const videoSources = uniqBy(episodeSource?.videoSources, n => n.url)
     const hasMultipleVideoSources = !!videoSources?.length && videoSources?.length > 1
@@ -318,10 +320,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }
 
-    //////////////////////////////////////////////////////////////
-    // Video player
-    //////////////////////////////////////////////////////////////
-
     const useLibassRenderer = useAtomValue(vc_useLibassRendererAtom)
 
     // Store the errored servers, so we can switch to the next server
@@ -443,16 +441,16 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     </div>
 
     return (
-        <SeaMediaPlayerProvider
-            media={media}
-            progress={{
-                currentProgress: progress,
-                currentEpisodeNumber,
-                currentEpisodeTitle: currentEpisode?.title || null,
-            }}
-        >
-            <SeaMediaPlayerLayout
+        <>
+            <VideoCoreInlineHelpers
+                playerRef={playerRef}
+                currentEpisodeNumber={currentEpisodeNumber}
+                currentProgress={progress}
+                media={media}
+            />
+            <VideoCoreInlineLayout
                 mediaId={mediaId ? Number(mediaId) : undefined}
+                currentEpisodeNumber={currentEpisodeNumber}
                 title={media?.title?.userPreferred}
                 hideBackButton={hideBackButton}
                 episodes={episodes}
@@ -482,6 +480,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     <div className="hidden lg:flex flex-1"></div>
                 </>}
                 rightHeaderActions={<>
+                    <VideoCoreInlineHelperUpdateProgressButton />
                     <IconButton
                         size="sm"
                         intent={episodeViewMode === "list" ? "gray-basic" : "white-subtle"}
@@ -537,7 +536,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     }}
                                     inline
                                     onLoadedMetadata={onCanPlay}
-                                    onError={v => onFatalError("Could not play the video")}
+                                    onError={v => onFatalError(v)}
                                     onPlayEpisode={handlePlayEpisode}
                                     onFileUploaded={() => {}}
                                     onVideoSourceChange={source => {
@@ -613,12 +612,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                     </AnimatePresence>
                 </>}
             />
-        </SeaMediaPlayerProvider>
+        </>
     )
 }
 
 
-function IsomorphicPopover(props: PopoverProps & ModalProps) {
+function IsomorphicPopover
+(
+    props: PopoverProps & ModalProps) {
     const { title, children, ...rest } = props
     const { width } = useWindowSize()
 

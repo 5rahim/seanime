@@ -30,12 +30,6 @@ export function useOnlinestreamEpisodeList(mId: number) {
 
     const { data, isLoading, isFetching, isSuccess, isError } = useGetOnlineStreamEpisodeList(mId, provider, dubbed)
 
-    // React.useEffect(() => {
-    //     if (isError) {
-    //         router.push("/")
-    //     }
-    // }, [isError])
-
     return {
         media: data?.media,
         episodes: data?.episodes,
@@ -47,7 +41,10 @@ export function useOnlinestreamEpisodeList(mId: number) {
 }
 
 
-export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_OnlinestreamProviderExtensionItem[], mId: number, isSuccess: boolean) {
+export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_OnlinestreamProviderExtensionItem[],
+    mId: number,
+    episodeListFetched: boolean,
+) {
 
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
@@ -60,7 +57,7 @@ export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_Onlinestr
         provider,
         episodeNumber,
         (!!extension?.supportsDub) && dubbed,
-        !!mId && episodeNumber !== undefined && isSuccess,
+        !!mId && episodeNumber !== undefined && episodeListFetched,
     )
 
     return {

@@ -1,21 +1,21 @@
-import {API_ENDPOINTS} from "@/api/generated/endpoints"
-import {MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent} from "@/api/generated/types"
-import {useUpdateAnimeEntryProgress} from "@/api/hooks/anime_entries.hooks"
-import {useHandleCurrentMediaContinuity} from "@/api/hooks/continuity.hooks"
-import {vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore} from "@/app/(main)/_features/video-core/video-core"
-import {vc_autoNextAtom} from "@/app/(main)/_features/video-core/video-core.atoms"
-import {clientIdAtom} from "@/app/websocket-provider"
-import {logger} from "@/lib/helpers/debug"
-import {WSEvents} from "@/lib/server/ws-events"
-import {useQueryClient} from "@tanstack/react-query"
-import {useAtom, useAtomValue} from "jotai"
-import {useSetAtom} from "jotai/react"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
+import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { vc_autoNextAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { clientIdAtom } from "@/app/websocket-provider"
+import { logger } from "@/lib/helpers/debug"
+import { WSEvents } from "@/lib/server/ws-events"
+import { useQueryClient } from "@tanstack/react-query"
+import { useAtom, useAtomValue } from "jotai"
+import { useSetAtom } from "jotai/react"
 import React from "react"
-import {toast} from "sonner"
-import {useWebsocketMessageListener, useWebsocketSender} from "../../_hooks/handle-websockets"
-import {useServerStatus} from "../../_hooks/use-server-status"
-import {useSkipData} from "../sea-media-player/aniskip"
-import {nativePlayer_stateAtom} from "./native-player.atoms"
+import { toast } from "sonner"
+import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
+import { useServerStatus } from "../../_hooks/use-server-status"
+import { useSkipData } from "../sea-media-player/aniskip"
+import { nativePlayer_stateAtom } from "./native-player.atoms"
 
 const enum VideoPlayerEvents {
     LOADED_METADATA = "loaded-metadata",
@@ -357,7 +357,7 @@ export function NativePlayer() {
                     break
                 case "add-subtitle-track":
                     log.info("Add subtitle track event received", payload)
-                    subtitleManager?.onMkvTrackAdded(payload as MKVParser_TrackInfo)
+                    subtitleManager?.onEventTrackAdded(payload as MKVParser_TrackInfo)
                     break
                 case "terminate":
                     log.info("Terminate event received")

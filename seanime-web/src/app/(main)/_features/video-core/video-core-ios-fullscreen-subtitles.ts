@@ -63,13 +63,13 @@ export function useVideoCoreIOSFullscreenSubtitles({
                     if (selectedTrackNumber !== null) {
                         const selectedTrack = subtitleManager.getTrack(selectedTrackNumber)
 
-                        // For non-MKV tracks, we need to get the URL
-                        const nonMkvTrack = subtitleManager.nonMkvTracks?.[selectedTrackNumber]
-                        if (nonMkvTrack?.info?.src) {
-                            subtitleSrc = nonMkvTrack.info.src
-                            subtitleLabel = nonMkvTrack.info.label || selectedTrack?.label || "Subtitles"
-                            subtitleLanguage = nonMkvTrack.info.language || selectedTrack?.language || "en"
-                            log.info("Using SubtitleManager non-MKV track", nonMkvTrack)
+                        // For file tracks, we need to get the URL
+                        const fileTrack = subtitleManager.getFileTrack(selectedTrackNumber)
+                        if (fileTrack?.info?.src) {
+                            subtitleSrc = fileTrack.info.src
+                            subtitleLabel = fileTrack.info.label || selectedTrack?.label || "Subtitles"
+                            subtitleLanguage = fileTrack.info.language || selectedTrack?.language || "en"
+                            log.info("Using SubtitleManager file track", fileTrack)
                         } else {
                             log.warning("Selected track is MKV-based, cannot use for iOS native subtitles")
                             return

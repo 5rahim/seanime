@@ -65,12 +65,12 @@ export class VideoCoreAudioManager {
             return
         }
 
-        // MKV track selection
-        this.__selectDefaultMkvTrack()
+        // Event based track selection
+        this.__selectDefaultEventTrack()
     }
 
-    __selectDefaultMkvTrack() {
-        // MKV track selection
+    __selectDefaultEventTrack() {
+        // Event based track selection
         // Split preferred languages by comma and trim whitespace
         const preferredLanguages = this.settings.preferredAudioLanguage
             .split(",")

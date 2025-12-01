@@ -1,3 +1,4 @@
+import { MKVParser_TrackInfo } from "@/api/generated/types"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import {
     vc_audioManager,
@@ -8,7 +9,7 @@ import {
     vc_videoElement,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
-import { vc_hlsAudioTracks, vc_hlsCurrentAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
+import { HlsAudioTrack, vc_hlsAudioTracks, vc_hlsCurrentAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCoreMenu, VideoCoreMenuBody, VideoCoreMenuTitle, VideoCoreSettingSelect } from "@/app/(main)/_features/video-core/video-core-menu"
 import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
@@ -84,19 +85,19 @@ export function VideoCoreAudioMenu() {
                     options={audioTracks.map(track => {
                         if (isHls) {
                             // HLS track format
-                            const hlsTrack = track as any
+                            const hlsTrack = track as HlsAudioTrack
                             return {
                                 label: hlsTrack.name || hlsTrack.language?.toUpperCase() || `Track ${hlsTrack.id + 1}`,
                                 value: hlsTrack.id,
                                 moreInfo: hlsTrack.language?.toUpperCase(),
                             }
                         } else {
-                            // MKV track format
-                            const mkvTrack = track as any
+                            // Event track format
+                            const eventTrack = track as MKVParser_TrackInfo
                             return {
-                                label: `${mkvTrack.name || mkvTrack.language?.toUpperCase() || mkvTrack.languageIETF?.toUpperCase()}`,
-                                value: mkvTrack.number,
-                                moreInfo: mkvTrack.language?.toUpperCase(),
+                                label: `${eventTrack.name || eventTrack.language?.toUpperCase() || eventTrack.languageIETF?.toUpperCase()}`,
+                                value: eventTrack.number,
+                                moreInfo: eventTrack.language?.toUpperCase(),
                             }
                         }
                     })}

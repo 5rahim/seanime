@@ -99,7 +99,7 @@ import { atom } from "jotai"
 import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useMemo, useRef, useState } from "react"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
@@ -290,6 +290,9 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_hlsAudioTracks,
                 vc_hlsCurrentAudioTrack,
                 vc_hlsSetAudioTrack,
+                vc_isSwiping,
+                vc_isMobile,
+                vc_swipeSeekTime,
             ]}
         >
             {children}
@@ -614,10 +617,11 @@ export interface VideoCoreProps {
     onCompleted?: () => void
     onPlay?: () => void
     onPause?: () => void
-    onTimeUpdate?: () => void
-    onLoadedData?: () => void
-    onLoadedMetadata?: () => void
+    onTimeUpdate?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
+    onLoadedData?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
+    onLoadedMetadata?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
     onVolumeChange?: () => void
+    onFullscreenChange?: (fullscreen: boolean) => void
     onSeeking?: () => void
     onSeeked?: (time: number) => void
     onError?: (error: string) => void
@@ -628,7 +632,6 @@ export interface VideoCoreProps {
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
-    // Inline mode renders VideoCore without drawer wrapper
     inline?: boolean
     mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
@@ -648,6 +651,7 @@ export function VideoCore(props: VideoCoreProps) {
         onLoadedData,
         onLoadedMetadata,
         onVolumeChange,
+        onFullscreenChange,
         onSeeking,
         onSeeked,
         onError,
@@ -932,7 +936,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     // events
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onLoadedMetadata?.()
+        onLoadedMetadata?.(e)
         if (!videoRef.current) return
         const v = videoRef.current
 
@@ -955,7 +959,7 @@ export function VideoCore(props: VideoCoreProps) {
         currentPlaybackRef.current = state.playbackInfo.id
 
         /*
-         * MKV streams OR non-MKV streams with useLibassRenderer tracks
+         * Event or file tracks using libass renderer
          */
         const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
 
@@ -994,7 +998,7 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         /*
-         * Non-MKV subtitle tracks that don't use libass renderer
+         * File subtitle tracks that don't use libass renderer
          */
         const nonLibassSubtitleTracks = state.playbackInfo?.subtitleTracks?.filter(t => !t.useLibassRenderer)
         if (nonLibassSubtitleTracks && nonLibassSubtitleTracks.length > 0) {
@@ -1054,6 +1058,7 @@ export function VideoCore(props: VideoCoreProps) {
             if (p) p.destroy()
             return new VideoCoreFullscreenManager((isFullscreen: boolean) => {
                 setIsFullscreen(isFullscreen)
+                onFullscreenChange?.(isFullscreen)
             })
         })
 
@@ -1121,7 +1126,7 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onTimeUpdate?.()
+        onTimeUpdate?.(e)
         if (!videoRef.current) return
         const v = videoRef.current
 
@@ -1197,7 +1202,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const handleLoadedData = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Loaded data")
-        onLoadedData?.()
+        onLoadedData?.(e)
         if (!videoRef.current) return
         if (autoPlay) {
             videoRef.current.play().catch()
@@ -1420,7 +1425,7 @@ export function VideoCore(props: VideoCoreProps) {
         e.preventDefault()
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
         const player = videoRef.current
         if (!player || !state.active) return
 
