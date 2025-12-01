@@ -45,6 +45,11 @@ export function VideoCoreInlineHelpers({
     )
 
     React.useEffect(() => {
+        setProgressUpdateData(null)
+        setHasUpdateProgress(false)
+    }, [media, currentProgress])
+
+    React.useEffect(() => {
 
         if (!playerRef.current || !media || currentEpisodeNumber === null) return
 
@@ -65,14 +70,18 @@ export function VideoCoreInlineHelpers({
 
             if (serverStatus?.settings?.library?.autoUpdateProgress) {
                 if (!isUpdatingProgress) {
+                    setHasUpdateProgress(true)
                     updateProgress({
-                        episodeNumber: currentProgress,
+                        episodeNumber: currentProgress + 1,
                         mediaId: media?.id,
                         totalEpisodes: media?.episodes || 0,
                         malId: media?.idMal || undefined,
                     }, {
                         onSuccess: () => {
                             setHasUpdateProgress(true)
+                        },
+                        onError: () => {
+                            setHasUpdateProgress(false)
                         },
                     })
                 }
@@ -90,7 +99,9 @@ export function VideoCoreInlineHelpers({
         return () => {
             playerRef.current?.removeEventListener("timeupdate", onTimeUpdate)
         }
-    }, [currentEpisodeNumber, media, playerRef.current])
+        },
+        [currentEpisodeNumber, media, playerRef.current, hasUpdatedProgress, serverStatus?.settings?.library?.autoUpdateProgress, currentProgress,
+            progressUpdateData])
 
     return null
 }
@@ -107,7 +118,7 @@ export function VideoCoreInlineHelperUpdateProgressButton() {
     function handleProgressUpdate() {
         if (!progressUpdateData || !progressUpdateData.media) return
         updateProgress({
-            episodeNumber: progressUpdateData?.currentEpisodeNumber || 0,
+            episodeNumber: (progressUpdateData?.currentEpisodeNumber || 0) + 1,
             mediaId: progressUpdateData?.media?.id,
             totalEpisodes: progressUpdateData?.media?.episodes || 0,
             malId: progressUpdateData?.media?.idMal || undefined,

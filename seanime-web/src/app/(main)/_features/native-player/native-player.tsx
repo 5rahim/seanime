@@ -233,29 +233,6 @@ export function NativePlayer() {
                 },
             },
         })
-
-        if (!state.playbackInfo?.isNakamaWatchParty) {
-            if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
-                const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
-                    videoElement?.currentTime,
-                    videoElement?.duration)
-                logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
-                if (lastWatchedTime > 0) {
-                    logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                    dispatchEvent({ type: "restoreProgress",
-                        payload: {
-                            mediaId: state.playbackInfo?.media?.id!,
-                            progressNumber: state.playbackInfo?.episode?.progressNumber,
-                            time: lastWatchedTime,
-                        },
-                    })
-                }
-            } else {
-                dispatchEvent({ type: "restoreProgress", payload: null })
-            }
-        } else {
-            log.info("This stream is a watch party, only listen")
-        }
     }
 
     const handlePause = () => {

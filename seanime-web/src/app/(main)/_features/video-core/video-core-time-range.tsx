@@ -197,7 +197,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         // actually seek the video
         action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
         // resume playing
-        if (!previouslyPaused) videoElement?.play()
+        if (!previouslyPaused) videoElement?.play()?.catch()
     }
 
     // handle interrupted touch/pointer
@@ -209,7 +209,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         if (seeking) {
             setSeeking(false)
             action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
-            if (!previouslyPaused) videoElement?.play()
+            if (!previouslyPaused) videoElement?.play()?.catch()
         }
     }
 

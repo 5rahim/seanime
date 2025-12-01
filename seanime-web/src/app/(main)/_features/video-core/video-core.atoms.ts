@@ -40,6 +40,15 @@ export type VideoCorePlaybackInfo = {
     // Video Core Playlist manager needs to know the episodes that can be played
     // Used for online streaming
     playlistExternalEpisodeNumbers?: number[]
+    // If true, watch continuity will be ignored
+    disableRestoreFromContinuity?: boolean
+    // The player will be initialized with this state when the stream is ready
+    initialState?: {
+        currentTime?: number,
+        paused?: boolean,
+    }
+    // If true, the player will periodically update the progress
+    trackContinuity?: boolean
     selectedVideoSource?: number
     media?: AL_BaseAnime
     episode?: Anime_Episode

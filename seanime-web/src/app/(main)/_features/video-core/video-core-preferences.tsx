@@ -575,7 +575,7 @@ export function VideoCoreKeybindingController(props: {
         }
         action({ type: "seek", payload: { time: seconds, flashTime: true } })
         if (!isPaused) {
-            videoRef.current?.play()
+            videoRef.current?.play()?.catch()
         }
     }
 
@@ -586,7 +586,7 @@ export function VideoCoreKeybindingController(props: {
         }
         action({ type: "seekTo", payload: { time: to, flashTime: true } })
         if (!isPaused) {
-            videoRef.current?.play()
+            videoRef.current?.play()?.catch()
         }
     }
 

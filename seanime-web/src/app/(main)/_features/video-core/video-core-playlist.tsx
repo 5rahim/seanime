@@ -71,7 +71,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
         if (mediaId) {
             refetch()
         }
-    }, [playbackInfo, mediaId])
+    }, [playbackInfo?.streamUrl, mediaId])
 
     // Get the episodes depending on the stream type
     const episodes = React.useMemo(() => {
@@ -92,7 +92,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
     const nextEpisode = episodes.find?.(ep => ep.progressNumber === currProgressNumber + 1) ?? null
 
     React.useEffect(() => {
-        if (!playbackInfo || !currentEpisode || !episodes.length || !animeEntry) {
+        if (!playbackInfo || !playbackInfo.streamUrl || !currentEpisode || !episodes.length || !animeEntry) {
             log.info("No playback info or episodes found, clearing playlist state")
             setPlaylistState(null)
             return

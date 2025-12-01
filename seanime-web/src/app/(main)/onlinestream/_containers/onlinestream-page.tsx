@@ -1,7 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Entry } from "@/api/generated/types"
-import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
+import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource, useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -18,12 +17,7 @@ import { vc_useLibassRendererAtom } from "@/app/(main)/_features/video-core/vide
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
-import {
-    useNakamaOnlineStreamWatchParty,
-    useOnlinestreamEpisodeList,
-    useOnlinestreamEpisodeSource,
-    useOnlinestreamVideoSource,
-} from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_qualityAtom,
@@ -96,6 +90,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // get extensions
     const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
+    const extension = React.useMemo(() => providerExtensions.find(p => p.id === provider), [providerExtensions, provider])
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
@@ -104,26 +99,33 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // get the list of episodes from the provider
     const {
-        episodes,
+        data: episodeListResponse,
         isFetching: isFetchingEpisodeList,
         isLoading: isLoadingEpisodeList,
         isSuccess: isEpisodeListFetched,
         isError: isEpisodeListError,
-    } = useOnlinestreamEpisodeList(mediaId)
+    } = useGetOnlineStreamEpisodeList(mediaId, provider, dubbed)
 
-    // get the watch history for the media
-    const { waitForWatchHistory } = useHandleCurrentMediaContinuity(mediaId)
+    const episodes = episodeListResponse?.episodes
+    const currentEpisode = episodes?.find(e => e.number === currentEpisodeNumber)
 
     // get the current episode source from the provider
     const {
-        episodeSource,
+        data: episodeSource,
         isLoading: isLoadingEpisodeSource,
         isFetching: isFetchingEpisodeSource,
         isError: isErrorEpisodeSource,
         error: errorEpisodeSource,
-    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isEpisodeListFetched && !waitForWatchHistory))
+    } = useGetOnlineStreamEpisodeSource(
+        mediaId,
+        provider,
+        currentEpisodeNumber,
+        (!!extension?.supportsDub) && dubbed,
+        !!mediaId && currentEpisodeNumber !== null && isEpisodeListFetched,
+    )
 
-    const videoSources = uniqBy(episodeSource?.videoSources, n => n.url)
+    // de-duplicate video sources by url
+    const videoSources = uniqBy(episodeSource?.videoSources, n => n.url && n.quality)
     const hasMultipleVideoSources = !!videoSources?.length && videoSources?.length > 1
 
     // list of servers
@@ -132,21 +134,75 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             log.info("Updating servers, no episode source", [])
             return []
         }
-        const servers = episodeSource.videoSources?.map((source) => source.server)
+        const servers = videoSources?.map((source) => source.server)
         log.info("Updating servers", servers)
         return uniq(servers)
-    }, [episodeSource])
+    }, [videoSources])
 
     // get the video source from the episode source
-    const { videoSource } = useOnlinestreamVideoSource(episodeSource)
+    // devnote: use videoSources instead of episodeSource.videoSources
+    const videoSource = React.useMemo(() => {
+        if (!episodeSource || !videoSources) return undefined
+
+        let filtered = [...videoSources]
+
+        log.info("Selecting video source", { quality, server })
+        // If server is set, filter sources by server
+        if (server && filtered.some(n => n.server === server)) {
+            filtered = filtered.filter(s => s.server === server)
+        }
+
+        const hasQuality = filtered.some(n => n.quality === quality)
+        const hasAuto = filtered.some(n => n.quality === "auto")
+
+        log.info("Filtering video sources by quality", {
+            hasAuto,
+            hasQuality,
+        })
+
+        // If quality is set, filter sources by quality
+        // Only filter by quality if the quality is present in the sources
+        if (quality && hasQuality) {
+            filtered = filtered.filter(s => s.quality === quality)
+        } else if (hasAuto) {
+            filtered = filtered.filter(s => s.quality === "auto")
+        } else {
+
+            log.info("Choosing a quality")
+
+            if (filtered.some(n => n.quality.includes("1080p"))) {
+                filtered = filtered.filter(s => s.quality.includes("1080p"))
+            } else if (filtered.some(n => n.quality.includes("720p"))) {
+                filtered = filtered.filter(s => s.quality.includes("720p"))
+            } else if (filtered.some(n => n.quality.includes("480p"))) {
+                filtered = filtered.filter(s => s.quality.includes("480p"))
+            } else if (filtered.some(n => n.quality.includes("360p"))) {
+                filtered = filtered.filter(s => s.quality.includes("360p"))
+            }
+
+            if (filtered.some(n => n.quality.includes("default"))) {
+                filtered = filtered.filter(s => s.quality.includes("default"))
+            }
+        }
+
+        log.info("Selected video source", filtered[0])
+
+        return filtered[0]
+    }, [episodeSource, videoSources, server, quality])
 
     // Stream URL
     const [url, setUrl] = React.useState<string | null>(null)
 
     // Refs
     const currentProviderRef = React.useRef<string | null>(null)
-    const previousCurrentTimeRef = React.useRef(0)
-    const previousIsPlayingRef = React.useRef(false)
+    const [previousState, setPreviousState] = React.useState<{ currentTime: number, paused: boolean } | null>(null)
+
+    React.useEffect(() => {
+        setPreviousState(null)
+        React.startTransition(() => {
+            setPreviousState(null)
+        })
+    }, [currentEpisodeNumber, media])
 
     const { getHMACTokenQueryParam } = useServerHMACAuth()
 
@@ -172,7 +228,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 })
             }
         })()
-    }, [videoSource?.url])
+    }, [videoSource, server, quality, dubbed, provider])
 
     const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
@@ -180,52 +236,41 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         setSelectedEpisodeNumber(episodeNumber)
     }
 
+    function savePreviousStateThen(cb: () => void) {
+        setPreviousState({
+            currentTime: playerRef.current?.currentTime ?? 0,
+            paused: playerRef.current?.paused ?? true,
+        })
+        React.startTransition(() => {
+            cb()
+        })
+    }
+
     const changeQuality = React.useCallback((quality: string) => {
-        try {
-            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-            previousIsPlayingRef.current = playerRef.current?.paused === false
-            log.info("Changing quality", { quality })
-        }
-        catch {
-        }
-        setQuality(quality)
+        savePreviousStateThen(() => {
+            setQuality(quality)
+        })
     }, [videoSource])
 
     // Provider
     const changeProvider = React.useCallback((provider: string) => {
-        try {
-            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-            previousIsPlayingRef.current = playerRef.current?.paused === false
-            log.info("Changing provider", { provider })
-        }
-        catch {
-        }
-        setProvider(provider)
+        savePreviousStateThen(() => {
+            setProvider(provider)
+        })
     }, [videoSource])
 
     // Server
     const changeServer = React.useCallback((server: string) => {
-        try {
-            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-            previousIsPlayingRef.current = playerRef.current?.paused === false
-            log.info("Changing server", { server })
-        }
-        catch {
-        }
-        setServer(server)
+        savePreviousStateThen(() => {
+            setServer(server)
+        })
     }, [videoSource])
-
 
     // Dubbed
     const toggleDubbed = React.useCallback(() => {
-        try {
-            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-            previousIsPlayingRef.current = playerRef.current?.paused === false
-            log.info("Toggling dubbed")
-        }
-        catch {
-        }
-        setDubbed((prev) => !prev)
+        savePreviousStateThen(() => {
+            setDubbed((prev) => !prev)
+        })
     }, [videoSource])
 
     const episodeListLoading = isFetchingEpisodeList || isLoadingEpisodeList
@@ -277,15 +322,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }
 
-    const currentEpisode = episodes?.find(e => e.number === currentEpisodeNumber)
-
-    const hasNextEpisode = currentPlaylist
-        ? !!nextPlaylistEpisode
-        : !!episodes?.find(e => currentEpisodeNumber !== null && e.number === currentEpisodeNumber + 1)
-    const hasPreviousEpisode = currentPlaylist
-        ? !!prevPlaylistEpisode
-        : !!episodes?.find(e => currentEpisodeNumber !== null && e.number === currentEpisodeNumber - 1)
-
     function goToNextEpisode() {
         if (currentEpisodeNumber === null) return
         if (currentPlaylist) {
@@ -313,11 +349,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     }
 
     function handlePlayEpisode(which: "next" | "previous") {
-        if (which === "next") {
-            goToNextEpisode()
-        } else {
-            goToPreviousEpisode()
-        }
+        setUrl(null)
+        React.startTransition(() => {
+            if (which === "next") {
+                goToNextEpisode()
+            } else {
+                goToPreviousEpisode()
+            }
+        })
     }
 
     const useLibassRenderer = useAtomValue(vc_useLibassRendererAtom)
@@ -505,8 +544,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     mRef={playerRef}
                                     state={{
                                         active: true,
-                                        playbackInfo: {
-                                            id: "onlinestream",
+                                        playbackInfo: !!url ? {
+                                            id: url,
                                             playbackType: "onlinestream",
                                             streamUrl: url!,
                                             media: media,
@@ -521,14 +560,16 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                                 default: index === 0,
                                                 useLibassRenderer: useLibassRenderer,
                                             })),
-                                            videoSources: hasMultipleVideoSources ? episodeSource?.videoSources?.map((source, index) => ({
+                                            videoSources: hasMultipleVideoSources ? videoSources?.map((source, index) => ({
                                                 index: index,
                                                 label: source.label,
                                                 src: source.url,
                                                 resolution: source.quality,
                                             })) : undefined,
-                                            selectedVideoSource: episodeSource?.videoSources?.findIndex(source => source.quality === quality) ?? undefined,
-                                        },
+                                            selectedVideoSource: videoSources?.findIndex(source => source.quality === quality) ?? undefined,
+                                            trackContinuity: true,
+                                            initialState: previousState ?? undefined,
+                                        } : null,
                                         playbackError: isErrorEpisodeSource
                                             ? (errorEpisodeSource as AxiosError<{ error: string }>)?.response?.data?.error ?? null
                                             : playbackError,

@@ -17,6 +17,7 @@ export class VideoCoreFullscreenManager {
         this.onFullscreenChange = onFullscreenChange
         this.attachDocumentListeners()
         this.attachElectronListeners()
+        this.initElectronFullscreenState()
     }
 
     setContainer(containerElement: HTMLElement) {
@@ -43,7 +44,7 @@ export class VideoCoreFullscreenManager {
 
     isFullscreen(): boolean {
         // Check Electron native fullscreen first
-        if (this.isElectron() && this.isElectronNativeFullscreen) {
+        if (this._isElectron() && this.isElectronNativeFullscreen) {
             return true
         }
 
@@ -62,14 +63,16 @@ export class VideoCoreFullscreenManager {
 
     async exitFullscreen() {
         try {
-            if (this.isElectron() && this.shouldUseElectronFullscreen()) {
-                await this.exitElectronFullscreen()
+            if (this._isElectron() && this._shouldUseElectronFullscreen()) {
+                await this._exitElectronFullscreen()
+                this._focusVideo()
                 return
             }
 
             if (isApple() && this.videoElement && (this.videoElement as any).webkitDisplayingFullscreen) {
                 await (this.videoElement as any).webkitExitFullscreen()
                 log.info("Exited iOS fullscreen")
+                this._focusVideo()
                 return
             }
 
@@ -83,6 +86,7 @@ export class VideoCoreFullscreenManager {
                 await (document as any).msExitFullscreen()
             }
             log.info("Exited fullscreen")
+            this._focusVideo()
         }
         catch (error) {
             log.error("Failed to exit fullscreen", error)
@@ -96,8 +100,9 @@ export class VideoCoreFullscreenManager {
         }
 
         try {
-            if (this.isElectron() && this.shouldUseElectronFullscreen()) {
-                await this.enterElectronFullscreen()
+            if (this._isElectron() && this._shouldUseElectronFullscreen()) {
+                await this._enterElectronFullscreen()
+                this._focusVideo()
                 return
             }
 
@@ -105,6 +110,7 @@ export class VideoCoreFullscreenManager {
                 if ((this.videoElement as any).webkitEnterFullscreen) {
                     await (this.videoElement as any).webkitEnterFullscreen()
                     log.info("Entered iOS fullscreen")
+                    this._focusVideo()
                     return
                 }
             }
@@ -119,22 +125,52 @@ export class VideoCoreFullscreenManager {
                 await (this.containerElement as any).msRequestFullscreen()
             }
             log.info("Entered fullscreen")
+            this._focusVideo()
         }
         catch (error) {
             log.error("Failed to enter fullscreen", error)
         }
     }
 
-    private isElectron(): boolean {
+    destroy() {
+        // this.exitFullscreen()
+        this.controller.abort()
+        this.containerElement = null
+        this.videoElement = null
+    }
+
+    private _isElectron(): boolean {
         return !!(window as any)?.electron
     }
 
-    private shouldUseElectronFullscreen(): boolean {
-        // return this.isElectron() && window.electron?.platform === "win32"
-        return this.isElectron()
+    private async initElectronFullscreenState(): Promise<void> {
+        if (!this._isElectron() || !window.electron?.window?.isFullscreen) {
+            return
+        }
+
+        try {
+            this.isElectronNativeFullscreen = await window.electron.window.isFullscreen()
+            log.info("Initial Electron fullscreen state:", this.isElectronNativeFullscreen)
+        }
+        catch (error) {
+            log.error("Failed to get initial Electron fullscreen state", error)
+        }
     }
 
-    private async enterElectronFullscreen(): Promise<void> {
+    private _focusVideo(): void {
+        if (this.videoElement) {
+            setTimeout(() => {
+                this.videoElement?.focus()
+            }, 100)
+        }
+    }
+
+    private _shouldUseElectronFullscreen(): boolean {
+        // return this._isElectron() && window.electron?.platform === "win32"
+        return this._isElectron()
+    }
+
+    private async _enterElectronFullscreen(): Promise<void> {
         if (!(window as any)?.electron?.window?.setFullscreen) {
             log.warning("Electron fullscreen API not available")
             return
@@ -150,7 +186,7 @@ export class VideoCoreFullscreenManager {
         }
     }
 
-    private async exitElectronFullscreen(): Promise<void> {
+    private async _exitElectronFullscreen(): Promise<void> {
         if (!window.electron?.window?.setFullscreen) {
             log.warning("Electron fullscreen API not available")
             return
@@ -167,7 +203,7 @@ export class VideoCoreFullscreenManager {
     }
 
     private attachElectronListeners() {
-        if (!this.isElectron()) return
+        if (!this._isElectron()) return
 
         const removeFullscreenListener = window.electron?.on?.("window:fullscreen", (isFullscreen: boolean) => {
             this.isElectronNativeFullscreen = isFullscreen
@@ -182,12 +218,6 @@ export class VideoCoreFullscreenManager {
                 originalAbort()
             }
         }
-    }
-
-    destroy() {
-        this.controller.abort()
-        this.containerElement = null
-        this.videoElement = null
     }
 
     private attachDocumentListeners() {

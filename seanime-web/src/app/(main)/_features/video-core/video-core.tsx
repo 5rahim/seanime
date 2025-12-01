@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import {
     useCancelDiscordActivity,
@@ -105,7 +106,7 @@ import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure, useWindowSize } from "react-use"
+import { useMeasure, useUpdateEffect, useWindowSize } from "react-use"
 import { toast } from "sonner"
 
 const log = logger("VIDEO CORE")
@@ -174,7 +175,7 @@ export const vc_lastKnownProgress = atom<{ mediaId: number, progressNumber: numb
 export const vc_skipOpeningTime = atom<number | null>(null)
 export const vc_skipEndingTime = atom<number | null>(null)
 
-type VideoCoreAction = "seekTo" | "seek" | "togglePlay" | "restoreProgress"
+type VideoCoreAction = "seekTo" | "seek" | "togglePlay"
 
 export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCoreAction; payload?: any }) => {
     const videoElement = get(vc_videoElement)
@@ -205,18 +206,6 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 break
             case "togglePlay":
                 videoElement.paused ? videoElement.play() : videoElement.pause()
-                break
-            case "restoreProgress":
-                // Restore time to the last known position
-                if (action.payload) {
-                    set(vc_lastKnownProgress, {
-                        mediaId: action.payload.mediaId,
-                        progressNumber: action.payload.progressNumber,
-                        time: action.payload.time,
-                    })
-                } else {
-                    set(vc_lastKnownProgress, null)
-                }
                 break
         }
     }
@@ -516,7 +505,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             </video>
                         </div>
 
-                        {!isMobile && <VideoCoreTopSection>
+                        {!isMobile && <VideoCoreTopSection inline={inline}>
                             <VideoCoreTopPlaybackInfo state={state} />
                             {!inline && (
                                 <div
@@ -700,6 +689,7 @@ export function VideoCore(props: VideoCoreProps) {
     const action = useSetAtom(vc_dispatchAction)
 
     // States
+    const qc = useQueryClient()
     const settings = useAtomValue(vc_settings)
     const [isMiniPlayer, setIsMiniPlayer] = useAtom(vc_miniPlayer)
     const [busy, setBusy] = useAtom(vc_busy)
@@ -740,6 +730,7 @@ export function VideoCore(props: VideoCoreProps) {
         setIsMiniPlayer(false)
     }, [])
 
+    // Discord rich presence
     React.useEffect(() => {
         const interval = setInterval(() => {
             if (!videoRef.current) return
@@ -756,6 +747,7 @@ export function VideoCore(props: VideoCoreProps) {
         return () => clearInterval(interval)
     }, [serverStatus?.settings?.discord, videoRef.current])
 
+    // Measure video element size
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
     React.useEffect(() => {
         setRealVideoSize({
@@ -764,7 +756,7 @@ export function VideoCore(props: VideoCoreProps) {
         })
     }, [width, height])
 
-    const qc = useQueryClient()
+    // Cancel discord rich presence and refetch continuity data when playback info changes
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
@@ -775,6 +767,7 @@ export function VideoCore(props: VideoCoreProps) {
     }, [state.playbackInfo])
 
 
+    // Re-focus the video element when playback info changes
     React.useEffect(() => {
         if (state.active && videoRef.current && !!state.playbackInfo) {
             // Small delay to ensure the video element is fully rendered
@@ -782,8 +775,9 @@ export function VideoCore(props: VideoCoreProps) {
                 videoRef.current?.focus()
             }, 100)
         }
-    }, [state.active])
+    }, [state.active, state.playbackInfo])
 
+    // Merge refs
     const combineRef = (instance: HTMLVideoElement | null) => {
         videoRef.current = instance
         if (mRef) {
@@ -792,6 +786,7 @@ export function VideoCore(props: VideoCoreProps) {
         if (instance) measureRef(instance)
         setVideoElement(instance)
     }
+
     const combineContainerRef = (instance: HTMLDivElement | null) => {
         containerRef.current = instance
         setContainerElement(instance)
@@ -800,7 +795,7 @@ export function VideoCore(props: VideoCoreProps) {
     // actions
     function togglePlay() {
         if (videoRef?.current?.paused) {
-            videoRef?.current?.play()
+            videoRef?.current?.play().catch()
             onPlay?.()
             flashAction({ message: "PLAY", type: "icon" })
         } else {
@@ -841,15 +836,43 @@ export function VideoCore(props: VideoCoreProps) {
         action({ type: "seek", payload: { time: -1 } })
     }
 
-    const prevPlaybackIdRef = useRef<string | null>(null)
+    // Continuity
+    const {
+        watchHistory,
+        waitForWatchHistory,
+        shouldWaitForWatchHistory,
+        getEpisodeContinuitySeekTo,
+    } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
+    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(videoRef,
+        state?.playbackInfo?.episode?.episodeNumber,
+        state?.playbackInfo?.media?.id)
 
     React.useEffect(() => {
-        if (!videoRef.current) return
-        // Cleanup function
-        const performCleanup = () => {
+        if (watchHistory) {
+            log.info("Continuity watch history", watchHistory)
+        }
+    }, [watchHistory])
+
+    const hasSoughtRef = React.useRef(false)
+
+    // Lifecycle
+    useUpdateEffect(() => {
+        // Wait for watch history to be ready before starting playback (only if continuity is enabled)
+        if (waitForWatchHistory && shouldWaitForWatchHistory && !state.playbackInfo?.disableRestoreFromContinuity) return
+
+        // If the playback info is null, the stream is loading or unmounted
+        if (!state.playbackInfo) {
             log.info("Cleaning up")
             cancelDiscordActivity()
+            hasSoughtRef.current = false
             isFirstError.current = true
+            if (videoRef.current) {
+                videoRef.current.pause()
+                videoRef.current.removeAttribute("src")
+                videoRef.current.load()
+                videoRef.current = null
+            }
+            setVideoElement(null)
             subtitleManager?.destroy?.()
             setSubtitleManager(null)
             mediaCaptionsManager?.destroy?.()
@@ -864,56 +887,25 @@ export function VideoCore(props: VideoCoreProps) {
             setPipElement(null)
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
-            setIsFullscreen(false)
-            setRestoreProgressTo(null)
+            // setIsFullscreen(false)
             if (mediaSessionManager) {
                 mediaSessionManager.setVideo(null)
                 mediaSessionManager.destroy()
             }
             setMediaSessionManager(null)
             currentPlaybackRef.current = null
-            if (videoRef.current) {
-                videoRef.current.pause()
-                videoRef.current.removeAttribute("src")
-                videoRef.current.load()
-            }
+            videoRef.current = null
         }
 
-        const currentId = state.playbackInfo?.id
-        const prevId = prevPlaybackIdRef.current
-
-        // Cleanup when playback info is removed
-        if (!state.playbackInfo) {
-            if (prevId !== null) {
-                performCleanup()
-                setVideoElement(null)
-                videoRef.current = null
-            }
-        }
-        // Cleanup when ID changes (switching videos)
-        else if (prevId !== null && currentId !== prevId) {
-            performCleanup()
+        // When a new playback info is received
+        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
+            hasSoughtRef.current = false
+            isFirstError.current = true
             log.info("New stream loaded", state.playbackInfo)
             setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
         }
-        // First load
-        else if (prevId === null && currentId) {
-            log.info("New stream loaded", state.playbackInfo)
-            setStreamType(state.playbackInfo.streamType)
-            vc_logGeneralInfo(videoRef.current)
-        }
-
-        // Update previous ID
-        prevPlaybackIdRef.current = currentId ?? null
-
-        // Cleanup on unmount
-        return () => {
-            if (prevPlaybackIdRef.current !== null) {
-                performCleanup()
-            }
-        }
-    }, [state.playbackInfo?.id, videoRef.current])
+    }, [state.playbackInfo?.id, videoRef.current, waitForWatchHistory, shouldWaitForWatchHistory])
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
@@ -1125,6 +1117,8 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
+    const lastUpdatedWatchHistoryRef = React.useRef(Date.now())
+
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         onTimeUpdate?.(e)
         if (!videoRef.current) return
@@ -1135,6 +1129,16 @@ export function VideoCore(props: VideoCoreProps) {
         if (!!v.duration && !videoCompletedRef.current && percent >= 0.8) {
             videoCompletedRef.current = true
             onCompleted?.()
+        }
+
+
+        if (state.playbackInfo?.trackContinuity) {
+            // Update watch history (continuity) every 20s
+            const now = Date.now()
+            if (now - lastUpdatedWatchHistoryRef.current > 20_000) {
+                lastUpdatedWatchHistoryRef.current = now
+                handleUpdateWatchHistory()
+            }
         }
     }
 
@@ -1203,10 +1207,6 @@ export function VideoCore(props: VideoCoreProps) {
     const handleLoadedData = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Loaded data")
         onLoadedData?.(e)
-        if (!videoRef.current) return
-        if (autoPlay) {
-            videoRef.current.play().catch()
-        }
     }
 
     const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -1242,8 +1242,65 @@ export function VideoCore(props: VideoCoreProps) {
         setBuffering(true)
     }
 
+    function restoreSeekTime(time: number, showMessage: boolean, paused?: boolean) {
+        if (!videoRef.current) return
+        if (anime4kOption === "off" || anime4kManager?.canvas !== null) {
+            if (showMessage) flashAction({ message: "Progress restored", duration: 1500 })
+            videoRef.current.currentTime = time
+            if (paused && !videoRef.current.paused) {
+                videoRef.current.pause()
+            } else if (paused === false && videoRef.current.paused) {
+                videoRef.current.play().catch()
+            }
+        } else if (anime4kOption !== ("off" as Anime4KOption)) {
+            videoRef.current.pause()
+            if (showMessage) flashAction({ message: "Restoring progress", duration: 1500 })
+            anime4kManager.registerOnCanvasCreatedOnce(() => {
+                if (!videoRef.current) return
+                videoRef.current.currentTime = time
+                if (paused && !videoRef.current.paused) {
+                    videoRef.current.pause()
+                } else if (paused === false && videoRef.current.paused) {
+                    videoRef.current.play().catch()
+                }
+            })
+        }
+    }
+
     const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         setBuffering(false)
+
+        if (!hasSoughtRef.current) {
+            if (!state.playbackInfo || !videoRef.current) return
+            hasSoughtRef.current = true
+            // if (autoPlay) {
+            //     videoRef.current.play().catch()
+            // }
+
+            // Restore previous position if available
+            if (!state.playbackInfo.disableRestoreFromContinuity && !state.playbackInfo.initialState) {
+                if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
+                    const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
+                        videoRef.current?.currentTime,
+                        videoRef.current?.duration)
+                    log.info("Watch continuity: Fetched last watched time", { lastWatchedTime })
+                    if (lastWatchedTime > 0) {
+                        log.info("Watch continuity: Seeking to", lastWatchedTime)
+                        restoreSeekTime(lastWatchedTime, true)
+                    }
+                }
+            }
+
+            if (state.playbackInfo.initialState) {
+                log.info("Setting initial stream state", state.playbackInfo.initialState)
+                if (state.playbackInfo.initialState.currentTime) {
+                    // action({ type: "seekTo", payload: { time: state.playbackInfo.initialState.currentTime } })
+                    restoreSeekTime(state.playbackInfo.initialState.currentTime, false, state.playbackInfo.initialState.paused)
+                }
+            } else if (autoPlay) {
+                videoRef.current.play().catch()
+            }
+        }
     }
 
     const handleStalled = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -1442,34 +1499,6 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [handleUpload, state.active, videoRef.current])
 
-    /**
-     * Restore last position
-     */
-    const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
-    React.useEffect(() => {
-        if (!anime4kManager || !restoreProgressTo) return
-
-        if (restoreProgressTo.mediaId !== state.playbackInfo?.media?.id || restoreProgressTo.progressNumber !== state.playbackInfo?.episode?.progressNumber) {
-            setRestoreProgressTo(null)
-            return
-        }
-
-        if (anime4kOption === "off" || anime4kManager.canvas !== null) {
-            flashAction({ message: "Progress restored", duration: 1500 })
-            dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
-        } else if (anime4kOption !== ("off" as Anime4KOption)) {
-            flashAction({ message: "Restoring progress", duration: 1500 })
-            anime4kManager.registerOnCanvasCreatedOnce(() => {
-                dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
-            })
-        }
-        setRestoreProgressTo(null)
-        if (autoPlay) {
-            videoRef.current?.play()
-        }
-
-    }, [anime4kManager, anime4kOption, restoreProgressTo, autoPlay])
-
     // Inline mode
     if (inline) {
         return (
@@ -1659,5 +1688,3 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
 
     return <Content />
 }
-
-export type { MediaCaptionsTrack } from "@/app/(main)/_features/video-core/video-core-media-captions"
