@@ -101,6 +101,7 @@ import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useCallback, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
@@ -1505,6 +1506,7 @@ export function VideoCore(props: VideoCoreProps) {
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
                 <VideoCoreAnime4K />
                 <VideoCorePreferencesModal />
+                {fullscreen && <RemoveScrollBar />}
                 <div
                     className={cn(
                         "relative w-full h-full",
@@ -1687,4 +1689,13 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     }
 
     return <Content />
+}
+
+const ConditionalPortal = ({ children, isFullscreen }: { children: React.ReactNode, isFullscreen: boolean }) => {
+    // If fullscreen, move to body. If not, render normally in place.
+    if (isFullscreen) {
+        return createPortal(children, document.body)
+    }
+
+    return children
 }
