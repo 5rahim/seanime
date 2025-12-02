@@ -30,6 +30,7 @@ export class VideoCorePgsRenderer {
     private _events: Map<string, PgsEvent> = new Map()
     private _imageCache: Map<string, HTMLImageElement> = new Map()
     private _currentEvent: PgsEvent | null = null
+    private _currentEventRendered: boolean = false
     private _animationFrameId: number | null = null
     private _delay: number = 0 // Subtitle delay in seconds
     private _debug: boolean = false
@@ -102,6 +103,9 @@ export class VideoCorePgsRenderer {
         this._canvas.style.left = `${offsetX}px`
         this._canvas.style.top = `${offsetY}px`
 
+        // Force re-render on resize
+        this._currentEventRendered = false
+
         if (this._debug) {
             log.info("Resized canvas", {
                 width: this._canvas.width,
@@ -117,16 +121,18 @@ export class VideoCorePgsRenderer {
     }
 
     stop() {
-        this._currentEvent = null
-        if (this._ctx && this._canvas) {
-            this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
-        }
+        // this._currentEvent = null
+        // this._currentEventRendered = false
+        // if (this._ctx && this._canvas) {
+        //     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
+        // }
     }
 
     clear() {
         this._events.clear()
         this._imageCache.clear()
         this._currentEvent = null
+        this._currentEventRendered = false
 
         if (this._ctx && this._canvas) {
             this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
@@ -249,6 +255,7 @@ export class VideoCorePgsRenderer {
         // If event changed, clear canvas and log
         if (eventToDisplay !== this._currentEvent) {
             this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
+            this._currentEventRendered = false
 
             if (this._debug && eventToDisplay) {
                 log.info("Displaying new PGS event", {
@@ -265,9 +272,14 @@ export class VideoCorePgsRenderer {
             this._currentEvent = eventToDisplay
         }
 
-        // Render current event
-        if (eventToDisplay) {
+        // Render current event only if it hasn't been rendered yet
+        if (eventToDisplay && !this._currentEventRendered) {
             this._renderEvent(eventToDisplay)
+            this._currentEventRendered = true
+        } else if (!eventToDisplay) {
+            // No event to display, ensure canvas is clear
+            this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
+            this._currentEventRendered = false
         }
     }
 
@@ -314,6 +326,7 @@ export class VideoCorePgsRenderer {
                 scaleY,
                 imgWidth: img.width,
                 imgHeight: img.height,
+                dataURL: img.src,
             })
         }
 
@@ -337,7 +350,11 @@ export class VideoCorePgsRenderer {
         }
 
         if (this._debug) {
-            // Draw debug border
+            // Draw translucent overlay over entire canvas when subtitle is present
+            this._ctx.fillStyle = "rgba(255, 0, 255, 0.1)"
+            this._ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+
+            // Draw debug border around subtitle
             this._ctx.strokeStyle = "purple"
             this._ctx.lineWidth = 2
             this._ctx.strokeRect(x, y, width, height)

@@ -674,6 +674,40 @@ func (mp *MetadataParser) processSubtitleData(
 			return nil
 		}
 
+		// Check if this is a clear command (no objects to display)
+		if decoder.IsClearCommand() {
+			sampler.Debug().
+				Uint8("track", trackNum).
+				Float64("clearTime", milliseconds).
+				Msg("mkvparser: PGS clear command received")
+
+			// Update the previous subtitle's duration to end at this clear command
+			if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
+				calculatedDuration := milliseconds - lastEvent.StartTime
+				if calculatedDuration > 0 {
+					updatedLastEvent := *lastEvent
+					updatedLastEvent.Duration = calculatedDuration
+
+					sampler.Debug().
+						Uint8("trackNum", trackNum).
+						Float64("previousStartTime", lastEvent.StartTime).
+						Float64("clearDuration", calculatedDuration).
+						Msg("mkvparser: Updated PGS subtitle duration from clear command")
+
+					select {
+					case subtitleCh <- &updatedLastEvent:
+					case <-ctx.Done():
+						return nil
+					}
+
+					// Remove the last event as it's now been properly terminated
+					delete(lastSubtitleEvents, trackNum)
+				}
+			}
+
+			return nil
+		}
+
 		// Only process if we got an image
 		if img != nil {
 			sampler.Debug().
@@ -681,6 +715,27 @@ func (mp *MetadataParser) processSubtitleData(
 				Int("width", img.Bounds().Dx()).
 				Int("height", img.Bounds().Dy()).
 				Msg("mkvparser: PGS image decoded successfully")
+
+			// If there's a buffered event, send it now with duration up to this new subtitle
+			if bufferedEvent, exists := lastSubtitleEvents[trackNum]; exists {
+				calculatedDuration := milliseconds - bufferedEvent.StartTime
+				if calculatedDuration > 0 {
+					bufferedEvent.Duration = calculatedDuration
+
+					sampler.Debug().
+						Uint8("trackNum", trackNum).
+						Float64("startTime", bufferedEvent.StartTime).
+						Float64("duration", calculatedDuration).
+						Msg("mkvparser: Sending previous PGS subtitle (replaced by new one)")
+
+					select {
+					case subtitleCh <- bufferedEvent:
+					case <-ctx.Done():
+						return nil
+					}
+				}
+			}
+
 			// Encode image to base64 PNG
 			encodedImage, err := pgs.EncodePgsImageToBase64PNG(img, png.BestSpeed)
 			if err != nil {
@@ -692,6 +747,9 @@ func (mp *MetadataParser) processSubtitleData(
 			subtitleEvent.ExtraData["type"] = "image"
 			subtitleEvent.ExtraData["width"] = fmt.Sprintf("%d", img.Bounds().Dx())
 			subtitleEvent.ExtraData["height"] = fmt.Sprintf("%d", img.Bounds().Dy())
+
+			// Don't set duration yet, will be calculated when clear command or next subtitle arrives
+			subtitleEvent.Duration = 0
 
 			// Add composition information if available
 			if comp := decoder.GetCurrentComposition(); comp != nil {
@@ -712,6 +770,12 @@ func (mp *MetadataParser) processSubtitleData(
 					}
 				}
 			}
+
+			// Buffer this event, wait for clear command or next subtitle
+			// Return nil to skip the normal send logic
+			eventCopy := *subtitleEvent
+			lastSubtitleEvents[trackNum] = &eventCopy
+			return nil
 		} else {
 			// Packet processed but no complete image yet (multi-segment)
 			return nil
@@ -719,23 +783,26 @@ func (mp *MetadataParser) processSubtitleData(
 	}
 
 	// Handle previous subtitle event duration
-	if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
-		if lastEvent.Duration == 0 {
-			calculatedDuration := milliseconds - lastEvent.StartTime
-			if calculatedDuration > 0 {
-				updatedLastEvent := *lastEvent
-				updatedLastEvent.Duration = calculatedDuration
+	// For non-PGS subs, calculate the duration from the previous subtitle event
+	if track.CodecID != "S_HDMV/PGS" {
+		if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
+			if lastEvent.Duration == 0 {
+				calculatedDuration := milliseconds - lastEvent.StartTime
+				if calculatedDuration > 0 {
+					updatedLastEvent := *lastEvent
+					updatedLastEvent.Duration = calculatedDuration
 
-				sampler.Trace().
-					Uint8("trackNum", trackNum).
-					Float64("previousStartTime", lastEvent.StartTime).
-					Float64("calculatedDuration", calculatedDuration).
-					Msg("mkvparser: Updated previous subtitle event duration")
+					sampler.Trace().
+						Uint8("trackNum", trackNum).
+						Float64("previousStartTime", lastEvent.StartTime).
+						Float64("calculatedDuration", calculatedDuration).
+						Msg("mkvparser: Updated previous subtitle event duration")
 
-				select {
-				case subtitleCh <- &updatedLastEvent:
-				case <-ctx.Done():
-					return nil
+					select {
+					case subtitleCh <- &updatedLastEvent:
+					case <-ctx.Done():
+						return nil
+					}
 				}
 			}
 		}
@@ -748,8 +815,10 @@ func (mp *MetadataParser) processSubtitleData(
 		Str("codecId", track.CodecID).
 		Msg("mkvparser: Subtitle event")
 
-	// Send current event if it has duration
-	if duration > 0 {
+	// Send current event
+	// PGS subtitles are buffered and sent from within their handling code
+	// Other subtitles are sent if they have a duration
+	if track.CodecID != "S_HDMV/PGS" && duration > 0 {
 		select {
 		case subtitleCh <- subtitleEvent:
 		case <-ctx.Done():

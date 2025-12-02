@@ -21,6 +21,13 @@ const (
 	SegEND = 0x80 // End of Display Set
 )
 
+const (
+	CompStateNormal           = 0x00 // Normal: New display
+	CompStateAcquisitionPoint = 0x40 // Acquisition Point: New epoch start
+	CompStateEpochStart       = 0x80 // Epoch Start: Palette update
+	CompStateEpochContinue    = 0xC0 // Epoch Continue: Update existing
+)
+
 // PgsDecoder decodes PGS packets into images
 type PgsDecoder struct {
 	Palette            color.Palette
@@ -195,13 +202,15 @@ func (d *PgsDecoder) parsePCS(data []byte) error {
 		obj := CompositionObject{
 			ObjectID: binary.BigEndian.Uint16(data[offset : offset+2]),
 			WindowID: data[offset+2],
-			X:        binary.BigEndian.Uint16(data[offset+3 : offset+5]),
-			Y:        binary.BigEndian.Uint16(data[offset+5 : offset+7]),
 		}
 
-		// Byte at offset+7 contains the cropping flag (bit 7)
-		cropFlag := data[offset+7]
+		// Byte at offset+3 contains the cropping flag (bit 7)
+		cropFlag := data[offset+3]
 		obj.Cropped = (cropFlag & 0x80) != 0
+
+		// X and Y come after the crop flag
+		obj.X = binary.BigEndian.Uint16(data[offset+4 : offset+6])
+		obj.Y = binary.BigEndian.Uint16(data[offset+6 : offset+8])
 
 		if obj.Cropped {
 			// Cropped object needs 8 more bytes for crop info
@@ -554,6 +563,30 @@ func ListPgsSegments(packet []byte) []string {
 	}
 
 	return segments
+}
+
+// IsClearCommand checks if the current composition is a clear command
+// A clear command is a PCS with Normal state (0x00) or Acquisition Point state (0x40) with no objects
+func (d *PgsDecoder) IsClearCommand() bool {
+	if d.currentComposition == nil {
+		return false
+	}
+
+	comp := d.currentComposition
+	// Clear command: Normal or Acquisition Point state with no objects to display
+	if (comp.CompositionState == CompStateNormal || comp.CompositionState == CompStateAcquisitionPoint) && len(comp.Objects) == 0 {
+		return true
+	}
+
+	return false
+}
+
+// GetCompositionState returns the current composition state, or -1 if no composition exists
+func (d *PgsDecoder) GetCompositionState() int {
+	if d.currentComposition == nil {
+		return -1
+	}
+	return int(d.currentComposition.CompositionState)
 }
 
 // ClearCompositionState clears the current composition and associated state
