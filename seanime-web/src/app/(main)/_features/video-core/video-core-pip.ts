@@ -320,6 +320,7 @@ export class VideoCorePipManager {
                     return
                 }
                 this.subtitleManager?.libassRenderer?.resize(width, height)
+                this.subtitleManager?.pgsRenderer?.resize()
             }, { signal: this.canvasController.signal })
 
             log.info("Successfully entered PiP")

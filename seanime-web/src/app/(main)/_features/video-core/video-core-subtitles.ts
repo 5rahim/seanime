@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
+import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-core-pgs-renderer"
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
 
 import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
@@ -26,6 +27,10 @@ function hexToASSColor(hex: string, alpha: number = 0): number {
     return ((r << 24) | (g << 16) | (b << 8) | alpha) >>> 0
 }
 
+function isPGS(str: string) {
+    return str == "S_HDMV/PGS"
+}
+
 // Event or file track info.
 export type NormalizedTrackInfo = {
     type: "event" | "file"
@@ -38,11 +43,12 @@ export type NormalizedTrackInfo = {
     default: boolean
 }
 
-// Manages ASS subtitle streams.
+// Manages ASS and PGS subtitle streams.
 export class VideoCoreSubtitleManager {
     private readonly videoElement: HTMLVideoElement
     private readonly jassubOffscreenRender: boolean
     libassRenderer: JASSUB | null = null
+    pgsRenderer: VideoCorePgsRenderer | null = null
     private settings: VideoCoreSettings
     private defaultSubtitleHeader = `[Script Info]
 Title: English (US)
@@ -64,6 +70,12 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         info: MKVParser_TrackInfo
         events: Map<string, { event: MKVParser_SubtitleEvent, assEvent: ASS_Event }>
         styles: Record<string, number>
+    }> = {}
+
+    // PGS event-based tracks
+    private pgsEventTracks: Record<string, {
+        info: MKVParser_TrackInfo
+        events: Map<string, MKVParser_SubtitleEvent>
     }> = {}
 
     // URL-based tracks (will use internal API to convert to ASS)
@@ -132,11 +144,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         subtitleLog.info("Text tracks", this.videoElement.textTracks)
         subtitleLog.info("Event Tracks", this.eventTracks)
+        subtitleLog.info("PGS Event Tracks", this.pgsEventTracks)
         subtitleLog.info("File tracks", this.fileTracks)
-    }
-
-    addTrackChangedEventListener(callback: (track: number | null) => void) {
-        this._onSelectedTrackChanged = callback
     }
 
     // Sets the track to no track.
@@ -144,7 +153,12 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.currentTrackNumber = NO_TRACK_NUMBER
         this.libassRenderer?.setTrack(this.defaultSubtitleHeader)
         this.libassRenderer?.resize?.()
+        this.pgsRenderer?.clear()
         this._onSelectedTrackChanged?.(NO_TRACK_NUMBER)
+    }
+
+    addTrackChangedEventListener(callback: (track: number | null) => void) {
+        this._onSelectedTrackChanged = callback
     }
 
     // Selects a track by its number.
@@ -216,24 +230,64 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         // Handle event track
         const codecPrivate = eventTrack.info.codecPrivate?.slice?.(0, -1) || this.defaultSubtitleHeader
 
-        // Set the track
-        this.libassRenderer?.setTrack(codecPrivate)
+        // Check if this is a PGS track
+        if (isPGS(eventTrack.info.codecID)) {
+            // Clear PGS renderer and libass
+            this.pgsRenderer?.clear()
+            this.libassRenderer?.setTrack(this.defaultSubtitleHeader)
 
-        // Apply customization to Default styles
-        this._applySubtitleCustomization()
+            // Add all cached PGS events from the event map
+            const pgsTrack = this.pgsEventTracks[track.number]
+            if (pgsTrack?.events) {
+                subtitleLog.info("Found", pgsTrack.events.size, "PGS events for track", track.number)
+                for (const event of pgsTrack.events.values()) {
+                    this._addPgsEvent(event)
+                }
+                this.pgsRenderer?.resize?.()
+            } else {
+                subtitleLog.warning("No PGS events found for track", track.number)
+            }
+        } else {
+            // Handle regular ASS/text subtitles
+            this.pgsRenderer?.clear()
 
-        const trackEventMap = this.eventTracks[track.number]?.events
-        if (!trackEventMap) {
-            return
+            // Set the track
+            this.libassRenderer?.setTrack(codecPrivate)
+
+            // Apply customization to Default styles
+            this._applySubtitleCustomization()
+
+            const trackEventMap = this.eventTracks[track.number]?.events
+            if (!trackEventMap) {
+                return
+            }
+            subtitleLog.info("Found", trackEventMap.size, "events for track", track.number)
+
+            // Add the cached events to the libass renderer
+            for (const { assEvent } of trackEventMap.values()) {
+                this.libassRenderer?.createEvent(assEvent)
+            }
+
+            this.libassRenderer?.resize?.()
         }
-        subtitleLog.info("Found", trackEventMap.size, "events for track", track.number)
+    }
 
-        // Add the events to the libass renderer
-        for (const { assEvent } of trackEventMap.values()) {
-            this.libassRenderer?.createEvent(assEvent)
+    destroy() {
+        subtitleLog.info("Destroying subtitle manager")
+        this.libassRenderer?.destroy()
+        this.libassRenderer = null
+        this.pgsRenderer?.destroy()
+        this.pgsRenderer = null
+        for (const trackNumber in this.eventTracks) {
+            this.eventTracks[trackNumber].events.clear()
         }
-
-        this.libassRenderer?.resize?.()
+        this.eventTracks = {}
+        for (const trackNumber in this.pgsEventTracks) {
+            this.pgsEventTracks[trackNumber].events.clear()
+        }
+        this.pgsEventTracks = {}
+        this.fileTracks = {}
+        this.currentTrackNumber = NO_TRACK_NUMBER
     }
 
     getTracks() {
@@ -248,32 +302,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         const tracks = this._getTracks()
         const nextTrackNumber = tracks.find(t => t.number > (trackNumber ?? NO_TRACK_NUMBER))?.number
         return nextTrackNumber ?? NO_TRACK_NUMBER
-    }
-
-    destroy() {
-        subtitleLog.info("Destroying subtitle manager")
-        this.libassRenderer?.destroy()
-        this.libassRenderer = null
-        for (const trackNumber in this.eventTracks) {
-            this.eventTracks[trackNumber].events.clear()
-        }
-        this.eventTracks = {}
-        this.fileTracks = {}
-        this.currentTrackNumber = NO_TRACK_NUMBER
-    }
-
-    getSelectedTrackNumberOrNull(): number | null {
-        if (this.currentTrackNumber === NO_TRACK_NUMBER) return null
-        return this.currentTrackNumber
-    }
-
-    // Update settings and reapply subtitle customization to current track
-    updateSettings(newSettings: VideoCoreSettings) {
-        this.settings = newSettings
-        // Reapply customization if a track is currently selected
-        if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
-            this._applySubtitleCustomization()
-        }
     }
 
     onEventTrackAdded(track: MKVParser_TrackInfo) {
@@ -292,62 +320,44 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.selectTrack(track.number)
         this._init()
         this.libassRenderer?.resize?.()
+        this.pgsRenderer?.resize()
+    }
+
+    getSelectedTrackNumberOrNull(): number | null {
+        if (this.currentTrackNumber === NO_TRACK_NUMBER) return null
+        return this.currentTrackNumber
+    }
+
+    // Update settings and reapply subtitle customization to current track
+    updateSettings(newSettings: VideoCoreSettings) {
+        this.settings = newSettings
+        // Reapply customization if a track is currently selected
+        if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
+            this._applySubtitleCustomization()
+        }
+    }
+
+    // This will record the events and add them to the libass renderer if they are new.
+    onSubtitleEvent(event: MKVParser_SubtitleEvent) {
+        // Check if this is a PGS event
+        if (event.codecID === "S_HDMV/PGS") {
+            this._handlePgsEvent(event)
+            return
+        }
+
+        // Handle ASS events
+        const { isNew, assEvent } = this._recordSubtitleEvent(event)
+
+        if (!assEvent) return
+
+        // if the event is new and is from the selected track, add it to the libass renderer
+        if (this.libassRenderer && isNew && event.trackNumber === this.currentTrackNumber) {
+            this.libassRenderer.createEvent(assEvent)
+        }
     }
 
     getFileTrack(trackNumber: number) {
         return this.fileTracks[trackNumber] || null
-    }
-
-    // Selects a track to be used.
-    // This should be called after the tracks are loaded.
-
-    private _init() {
-        if (!!this.libassRenderer) return
-
-        subtitleLog.info("Initializing libass renderer")
-
-        const wasmUrl = new URL("/jassub/jassub-worker.wasm", window.location.origin).toString()
-        const workerUrl = new URL("/jassub/jassub-worker.js", window.location.origin).toString()
-        // const legacyWasmUrl = new URL("/jassub/jassub-worker.wasm.js", window.location.origin).toString()
-        const modernWasmUrl = new URL("/jassub/jassub-worker-modern.wasm", window.location.origin).toString()
-
-        const legacyWasmUrl = process.env.NODE_ENV === "development"
-            ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
-
-        const defaultFontUrl = "/jassub/Roboto-Medium.ttf"
-
-        this.libassRenderer = new JASSUB({
-            video: this.videoElement,
-            subContent: this.defaultSubtitleHeader, // needed
-            // subUrl: new URL("/jassub/test.ass", window.location.origin).toString(),
-            wasmUrl: wasmUrl,
-            workerUrl: workerUrl,
-            legacyWasmUrl: legacyWasmUrl,
-            modernWasmUrl: modernWasmUrl,
-            // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
-            // offscreenRender: isApple() ? false : this.jassubOffscreenRender, // should be false for iOS
-            offscreenRender: true,
-            // onDemandRender: false,
-            // prescaleFactor: 0.8,
-            fonts: this.fonts,
-            fallbackFont: DEFAULT_FONT_NAME,
-            availableFonts: {
-                [DEFAULT_FONT_NAME]: defaultFontUrl,
-            },
-            libassGlyphLimit: 60500,
-            libassMemoryLimit: 1024,
-            dropAllBlur: true,
-            debug: false,
-        })
-
-        this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
-            ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
-
-        this.fonts = [defaultFontUrl, ...this.fonts]
-
-        for (const font of this.fonts) {
-            this.libassRenderer.addFont(font)
-        }
     }
 
     private _getTracks(): NormalizedTrackInfo[] {
@@ -378,20 +388,112 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // |      Event Tracks     |
     // +-----------------------+
 
-    // This will record the events and add them to the libass renderer if they are new.
-    onSubtitleEvent(event: MKVParser_SubtitleEvent) {
-        // Record the event
-        const { isNew, assEvent } = this._recordSubtitleEvent(event)
-        // subtitleLog.info("Subtitle event received", event.trackNumber, this.currentTrackNumber)
+    private _init() {
+        if (!this.libassRenderer) {
+            subtitleLog.info("Initializing libass renderer")
 
-        if (!assEvent) return
+            const wasmUrl = new URL("/jassub/jassub-worker.wasm", window.location.origin).toString()
+            const workerUrl = new URL("/jassub/jassub-worker.js", window.location.origin).toString()
+            // const legacyWasmUrl = new URL("/jassub/jassub-worker.wasm.js", window.location.origin).toString()
+            const modernWasmUrl = new URL("/jassub/jassub-worker-modern.wasm", window.location.origin).toString()
 
-        // if the event is new and is from the selected track, add it to the libass renderer
-        if (this.libassRenderer && isNew && event.trackNumber === this.currentTrackNumber) {
-            // console.log("Creating event", event.text)
-            // console.table(assEvent)
-            this.libassRenderer.createEvent(assEvent)
+            const legacyWasmUrl = process.env.NODE_ENV === "development"
+                ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
+
+            const defaultFontUrl = "/jassub/Roboto-Medium.ttf"
+
+            this.libassRenderer = new JASSUB({
+                video: this.videoElement,
+                subContent: this.defaultSubtitleHeader, // needed
+                // subUrl: new URL("/jassub/test.ass", window.location.origin).toString(),
+                wasmUrl: wasmUrl,
+                workerUrl: workerUrl,
+                legacyWasmUrl: legacyWasmUrl,
+                modernWasmUrl: modernWasmUrl,
+                // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
+                // offscreenRender: isApple() ? false : this.jassubOffscreenRender, // should be false for iOS
+                offscreenRender: true,
+                // onDemandRender: false,
+                // prescaleFactor: 0.8,
+                fonts: this.fonts,
+                fallbackFont: DEFAULT_FONT_NAME,
+                availableFonts: {
+                    [DEFAULT_FONT_NAME]: defaultFontUrl,
+                },
+                libassGlyphLimit: 60500,
+                libassMemoryLimit: 1024,
+                dropAllBlur: true,
+                debug: false,
+            })
+
+            this.fonts = this.playbackInfo.mkvMetadata?.attachments?.filter(a => a.type === "font")
+                ?.map(a => `${getServerBaseUrl()}/api/v1/directstream/att/${a.filename}`) || []
+
+            this.fonts = [defaultFontUrl, ...this.fonts]
+
+            for (const font of this.fonts) {
+                this.libassRenderer.addFont(font)
+            }
         }
+
+        if (!this.pgsRenderer) {
+            this.pgsRenderer = new VideoCorePgsRenderer({
+                videoElement: this.videoElement,
+                debug: true,
+            })
+        }
+    }
+
+    private _handlePgsEvent(event: MKVParser_SubtitleEvent) {
+        // Ensure the PGS track exists
+        if (!this.pgsEventTracks[event.trackNumber]) {
+            subtitleLog.warning("PGS track not initialized for track number", event.trackNumber)
+            return
+        }
+
+        const trackEventMap = this.pgsEventTracks[event.trackNumber].events
+        const eventKey = this._getPgsEventKey(event)
+
+        // Check if the event is already recorded
+        if (trackEventMap.has(eventKey)) {
+            return
+        }
+
+        // Store the event
+        trackEventMap.set(eventKey, event)
+
+        // If this is the currently selected track, add the event to the renderer
+        if (event.trackNumber === this.currentTrackNumber && this.pgsRenderer) {
+            this._addPgsEvent(event)
+        }
+    }
+
+    private _getPgsEventKey(event: MKVParser_SubtitleEvent): string {
+        return `${event.startTime}-${event.duration}-${event.text.substring(0, 50)}`
+    }
+
+    private _addPgsEvent(event: MKVParser_SubtitleEvent) {
+        if (!this.pgsRenderer) {
+            return
+        }
+
+        const pgsEvent = {
+            startTime: event.startTime / 1e3,
+            duration: event.duration / 1e3,
+            imageData: event.text, // base64 PNG
+            width: parseInt(event.extraData?.width || "0", 10),
+            height: parseInt(event.extraData?.height || "0", 10),
+            x: event.extraData?.x ? parseInt(event.extraData.x, 10) : undefined,
+            y: event.extraData?.y ? parseInt(event.extraData.y, 10) : undefined,
+            canvasWidth: event.extraData?.canvas_width ? parseInt(event.extraData.canvas_width, 10) : undefined,
+            canvasHeight: event.extraData?.canvas_height ? parseInt(event.extraData.canvas_height, 10) : undefined,
+            cropX: event.extraData?.crop_x ? parseInt(event.extraData.crop_x, 10) : undefined,
+            cropY: event.extraData?.crop_y ? parseInt(event.extraData.crop_y, 10) : undefined,
+            cropWidth: event.extraData?.crop_width ? parseInt(event.extraData.crop_width, 10) : undefined,
+            cropHeight: event.extraData?.crop_height ? parseInt(event.extraData.crop_height, 10) : undefined,
+        }
+
+        this.pgsRenderer.addEvent(pgsEvent)
     }
 
     // When called for the first time, it will initialize the libass renderer.
@@ -527,7 +629,15 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             events: new Map(),
             styles: {},
         }
-        return this.eventTracks[track.number]
+
+        // If this is a PGS track, initialize it in the PGS events map
+        // PGS tracks will also have an entry in eventTracks
+        if (track.codecID === "S_HDMV/PGS") {
+            this.pgsEventTracks[track.number] = {
+                info: track,
+                events: new Map(),
+            }
+        }
     }
 
     private __eventMapKey(event: MKVParser_SubtitleEvent): string {
@@ -613,6 +723,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             this.libassRenderer?.setTrack(fileTrack.content)
             this._applySubtitleCustomization()
             this.libassRenderer?.resize?.()
+            this.pgsRenderer?.resize()
             return
         }
 
@@ -624,6 +735,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 this.libassRenderer?.setTrack(content)
                 this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
+                this.pgsRenderer?.resize()
             }
             catch (error) {
                 subtitleLog.error("Error fetching subtitle content", error)
@@ -648,6 +760,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 this.libassRenderer?.setTrack(assContent)
                 this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
+                this.pgsRenderer?.resize()
             }
             catch (error) {
                 subtitleLog.error("Error converting subtitle to ASS", error)

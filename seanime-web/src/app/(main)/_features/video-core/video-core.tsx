@@ -242,7 +242,7 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_isMuted,
                 vc_volume,
                 vc_subtitleDelay,
-                vc_isFullscreen,
+                // vc_isFullscreen, expose this
                 vc_seeking,
                 vc_seekingTargetProgress,
                 vc_timeRanges,
@@ -1146,6 +1146,7 @@ export function VideoCore(props: VideoCoreProps) {
     const { playEpisode } = useVideoCorePlaylist()
     const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Video ended")
+        subtitleManager?.pgsRenderer?.stop()
         onEnded?.()
         if (autoNext) {
             // videoRef?.current?.pause()
@@ -1202,6 +1203,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const handlePause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Video paused")
+        subtitleManager?.pgsRenderer?.stop()
         onPause?.()
     }
 

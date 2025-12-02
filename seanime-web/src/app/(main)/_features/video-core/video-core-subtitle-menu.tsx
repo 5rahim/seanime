@@ -26,7 +26,6 @@ import { useSetAtom } from "jotai/react"
 import React from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCaptions, LuPaintbrush } from "react-icons/lu"
-import { toast } from "sonner"
 
 export function VideoCoreSubtitleMenu() {
     const action = useSetAtom(vc_dispatchAction)
@@ -51,9 +50,9 @@ export function VideoCoreSubtitleMenu() {
 
     function onTrackChange(trackNumber: number | null) {
         setSelectedTrack(trackNumber)
-        if (trackNumber !== null && subtitleManager && !subtitleManager?.isTrackSupported(trackNumber)) {
-            toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
-        }
+        // if (trackNumber !== null && subtitleManager && !subtitleManager?.isTrackSupported(trackNumber)) {
+        //     toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
+        // }
     }
 
     const firstRender = React.useRef(true)
