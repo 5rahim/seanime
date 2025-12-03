@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
@@ -19,8 +20,9 @@ import (
 func setupTestVM(t *testing.T) *goja.Runtime {
 	vm := goja.New()
 	vm.SetParserOptions(parser.WithDisableSourceMaps)
-	// Bind the shared bindings
-	extension_repo.ShareBinds(vm, util.NewLogger())
+	logger := util.NewLogger()
+	ext := &extension.Extension{}
+	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
 	fm := extension_repo.FieldMapper{}
 	vm.SetFieldNameMapper(fm)
 	return vm
@@ -73,6 +75,7 @@ func TestMultipleReturns(t *testing.T) {
 }
 
 func TestUserConfig(t *testing.T) {
+	logger := util.NewLogger()
 	vm := setupTestVM(t)
 	defer vm.ClearInterrupt()
 
@@ -94,7 +97,7 @@ func TestUserConfig(t *testing.T) {
 			},
 		},
 	}
-	extension_repo.ShareBinds(vm, util.NewLogger())
+	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
 	extension_repo.BindUserConfig(vm, ext, util.NewLogger())
 
 	vm.RunString(`
@@ -107,6 +110,7 @@ func TestUserConfig(t *testing.T) {
 }
 
 func TestByteSliceToUint8Array(t *testing.T) {
+	logger := util.NewLogger()
 	// Initialize a new Goja VM
 	vm := goja.New()
 
@@ -116,7 +120,8 @@ func TestByteSliceToUint8Array(t *testing.T) {
 	// Set the byte slice in the Goja VM
 	vm.Set("data", data)
 
-	extension_repo.ShareBinds(vm, util.NewLogger())
+	ext := &extension.Extension{}
+	extension_repo.ShareBinds(vm, util.NewLogger(), ext, events.NewMockWSEventManager(logger))
 
 	// JavaScript code to verify the type and contents of 'data'
 	jsCode := `

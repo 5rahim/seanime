@@ -340,3 +340,227 @@ declare interface $torrentUtils {
      */
     getMagnetLinkFromTorrentData(b64: string): string
 }
+
+/**
+ * ChromeDP
+ */
+
+declare interface ChromeBrowserOptions {
+    /** Timeout in seconds, defaults to 30 */
+    timeout?: number;
+    /** CSS selector to wait for after page load */
+    waitSelector?: string;
+    /** Milliseconds to wait after page load */
+    waitDuration?: number;
+    /** Custom user agent */
+    userAgent?: string;
+    /** Run in headless mode, defaults to true */
+    headless?: boolean;
+}
+
+declare interface NewChromeBrowserOptions {
+    /** Timeout in seconds, defaults to 30 */
+    timeout?: number;
+    /** Custom user agent */
+    userAgent?: string;
+    /** Run in headless mode, defaults to true */
+    headless?: boolean;
+}
+
+declare interface ChromeBrowser {
+    /**
+     * Navigate to a URL
+     * @param url - The URL to navigate to
+     */
+    navigate(url: string): Promise<void>;
+
+    /**
+     * Wait for a selector to be visible
+     * @param selector - CSS selector
+     */
+    waitVisible(selector: string): Promise<void>;
+
+    /**
+     * Wait for a selector to be ready
+     * @param selector - CSS selector
+     */
+    waitReady(selector: string): Promise<void>;
+
+    /**
+     * Click on an element
+     * @param selector - CSS selector
+     */
+    click(selector: string): Promise<void>;
+
+    /**
+     * Type text into an element
+     * @param selector - CSS selector
+     * @param keys - Text to type
+     */
+    sendKeys(selector: string, keys: string): Promise<void>;
+
+    /**
+     * Evaluate JavaScript in the browser context
+     * @param jsCode - JavaScript code to evaluate
+     * @returns The result of the evaluation
+     */
+    evaluate(jsCode: string): Promise<any>;
+
+    /**
+     * Get the inner HTML of an element
+     * @param selector - CSS selector
+     * @returns The inner HTML
+     */
+    innerHTML(selector: string): Promise<string>;
+
+    /**
+     * Get the outer HTML of an element
+     * @param selector - CSS selector
+     * @returns The outer HTML
+     */
+    outerHTML(selector: string): Promise<string>;
+
+    /**
+     * Get the text content of an element
+     * @param selector - CSS selector
+     * @returns The text content
+     */
+    text(selector: string): Promise<string>;
+
+    /**
+     * Get an attribute value of an element
+     * @param selector - CSS selector
+     * @param attributeName - Name of the attribute
+     * @returns The attribute value or null if not found
+     */
+    attribute(selector: string, attributeName: string): Promise<string | null>;
+
+    /**
+     * Capture a screenshot of a specific element
+     * @param selector - CSS selector
+     * @returns The screenshot as a byte array
+     */
+    screenshot(selector: string): Promise<Uint8Array>;
+
+    /**
+     * Capture a full page screenshot
+     * @returns The screenshot as a byte array
+     */
+    fullScreenshot(): Promise<Uint8Array>;
+
+    /**
+     * Sleep for a duration
+     * @param milliseconds - Duration in milliseconds
+     */
+    sleep(milliseconds: number): Promise<void>;
+
+    /**
+     * Close the browser instance
+     */
+    close(): Promise<void>;
+}
+
+declare class ChromeDP {
+    /**
+     * Create a new browser instance.
+     * The default timeout is 30 seconds.
+     * @param options - Browser options
+     * @returns A browser instance
+     */
+    static newBrowser(options?: NewChromeBrowserOptions): Promise<ChromeBrowser>;
+
+    /**
+     * Navigate to a URL and return the HTML content
+     * @param url - The URL to scrape
+     * @param options - Scraping options
+     * @returns The HTML content
+     */
+    static scrape(url: string, options?: ChromeBrowserOptions): Promise<string>;
+
+    /**
+     * Capture a screenshot of a webpage
+     * @param url - The URL to screenshot
+     * @param options - Screenshot options
+     * @returns The screenshot as a byte array
+     */
+    static screenshot(url: string, options?: ChromeBrowserOptions): Promise<Uint8Array>;
+
+    /**
+     * Run JavaScript code in the browser context and return the result
+     * @param url - The URL to navigate to
+     * @param jsCode - JavaScript code to evaluate
+     * @param options - Evaluation options
+     * @returns The result of the evaluation
+     */
+    static evaluate(url: string, jsCode: string, options?: ChromeBrowserOptions): Promise<any>;
+}
+
+declare namespace $store {
+    /**
+     * Sets a value in the store.
+     * @param key - The key to set
+     * @param value - The value to set
+     */
+    function set(key: string, value: any): void
+
+    /**
+     * Gets a value from the store.
+     * @param key - The key to get
+     * @returns The value associated with the key
+     */
+    function get<T = any>(key: string): T
+
+    /**
+     * Checks if a key exists in the store.
+     * @param key - The key to check
+     * @returns True if the key exists, false otherwise
+     */
+    function has(key: string): boolean
+
+    /**
+     * Gets a value from the store or sets it if it doesn't exist.
+     * @param key - The key to get or set
+     * @param setFunc - The function to set the value
+     * @returns The value associated with the key
+     */
+    function getOrSet<T = any>(key: string, setFunc: () => T): T
+
+    /**
+     * Sets a value in the store if it's less than the limit.
+     * @param key - The key to set
+     * @param value - The value to set
+     * @param maxAllowedElements - The maximum allowed elements
+     */
+    function setIfLessThanLimit<T = any>(key: string, value: T, maxAllowedElements: number): boolean
+
+    /**
+     * Unmarshals a JSON string.
+     * @param data - The JSON string to unmarshal
+     */
+    function unmarshalJSON(data: string): void
+
+    /**
+     * Marshals a value to a JSON string.
+     * @param value - The value to marshal
+     * @returns The JSON string
+     */
+    function marshalJSON(value: any): string
+
+    /**
+     * Resets the store.
+     */
+    function reset(): void
+
+    /**
+     * Gets all values from the store.
+     * @returns An array of all values in the store
+     */
+    function values(): any[]
+
+    /**
+     * Watches a key in the store.
+     * @param key - The key to watch
+     * @param callback - The callback to call when the key changes
+     */
+    function watch<T = any>(key: string, callback: (value: T) => void): void
+}
