@@ -32,6 +32,7 @@ export class VideoCorePgsRenderer {
     private _isDestroyed: boolean = false
     private _canvasWidth: number = 0
     private _canvasHeight: number = 0
+    private _resizeObserver: ResizeObserver | null = null
 
     constructor(options: VideoCorePgsRendererOptions) {
         this._videoElement = options.videoElement
@@ -134,9 +135,9 @@ export class VideoCorePgsRenderer {
         }
 
         // Clean up resize observer
-        if (this._canvas && (this._canvas as any)._resizeObserver) {
-            (this._canvas as any)._resizeObserver.disconnect()
-            (this._canvas as any)._resizeObserver = null
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect()
+            this._resizeObserver = null
         }
 
         if (this._canvas && this._canvas.parentElement) {
@@ -213,14 +214,11 @@ export class VideoCorePgsRenderer {
     private _setupResizeObserver() {
         if (!this._videoElement || !this._canvas) return
 
-        const resizeObserver = new ResizeObserver(() => {
+        this._resizeObserver = new ResizeObserver(() => {
             this.resize()
         })
 
-        resizeObserver.observe(this._videoElement)
-
-        // Store for cleanup
-        ;(this._canvas as any)._resizeObserver = resizeObserver
+        this._resizeObserver.observe(this._videoElement)
     }
 
     private _startRenderLoop() {

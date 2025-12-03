@@ -398,7 +398,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             }
         }
 
-        if (!this.pgsRenderer) {
+        if (!this.pgsRenderer && this.playbackInfo.mkvMetadata?.tracks?.some(t => isPGS(t.codecID))) {
             this.pgsRenderer = new VideoCorePgsRenderer({
                 videoElement: this.videoElement,
                 // debug: process.env.NODE_ENV === "development",

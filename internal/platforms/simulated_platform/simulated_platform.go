@@ -232,27 +232,28 @@ func (sp *SimulatedPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int,
 func (sp *SimulatedPlatform) DeleteEntry(ctx context.Context, mediaId, entryId int) error {
 	sp.logger.Trace().Int("entryId", entryId).Int("mediaId", mediaId).Msg("simulated platform: Deleting entry")
 
-	// Check if this is a custom source entry
-	if handled, err := sp.helper.HandleCustomSourceDeleteEntry(ctx, mediaId, entryId); handled {
-		return err
-	}
+	return sp.helper.TriggerDeleteEntryHooks(ctx, mediaId, entryId, func(event *platform.PreDeleteEntryEvent) error {
+		if handled, err := sp.helper.HandleCustomSourceDeleteEntry(ctx, *event.MediaID, *event.EntryID); handled {
+			return err
+		}
 
-	sp.mu.Lock()
-	defer sp.mu.Unlock()
+		sp.mu.Lock()
+		defer sp.mu.Unlock()
 
-	// Try anime first
-	wrapper := sp.GetAnimeCollectionWrapper()
-	if _, err := wrapper.FindEntry(entryId, true); err == nil {
-		return wrapper.DeleteEntry(entryId, true)
-	}
+		// Try anime first
+		wrapper := sp.GetAnimeCollectionWrapper()
+		if _, err := wrapper.FindEntry(*event.EntryID, true); err == nil {
+			return wrapper.DeleteEntry(*event.EntryID, true)
+		}
 
-	// Try manga
-	wrapper = sp.GetMangaCollectionWrapper()
-	if _, err := wrapper.FindEntry(entryId, true); err == nil {
-		return wrapper.DeleteEntry(entryId, true)
-	}
+		// Try manga
+		wrapper = sp.GetMangaCollectionWrapper()
+		if _, err := wrapper.FindEntry(*event.EntryID, true); err == nil {
+			return wrapper.DeleteEntry(*event.EntryID, true)
+		}
 
-	return ErrMediaNotFound
+		return ErrMediaNotFound
+	})
 }
 
 func (sp *SimulatedPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {

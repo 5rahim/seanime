@@ -42276,6 +42276,63 @@
     "comments": []
   },
   {
+    "filepath": "../internal/hook/helper.go",
+    "filename": "helper.go",
+    "name": "HookTriggerOptions",
+    "formattedName": "HookTriggerOptions",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "Event",
+        "jsonName": "Event",
+        "goType": "T",
+        "typescriptType": "T",
+        "usedTypescriptType": "T",
+        "usedStructName": "hook.T",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hook",
+        "jsonName": "Hook",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnError",
+        "jsonName": "OnError",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnDefaultPrevented",
+        "jsonName": "OnDefaultPrevented",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnSuccess",
+        "jsonName": "OnSuccess",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/hook/hook.go",
     "filename": "hook.go",
     "name": "Handler",
@@ -42549,6 +42606,24 @@
       {
         "name": "onPostUpdateEntryRepeat",
         "jsonName": "onPostUpdateEntryRepeat",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPreDeleteEntry",
+        "jsonName": "onPreDeleteEntry",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPostDeleteEntry",
+        "jsonName": "onPostDeleteEntry",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -66323,6 +66398,391 @@
     "comments": []
   },
   {
+    "filepath": "../internal/pgs/pgs.go",
+    "filename": "pgs.go",
+    "name": "PgsDecoder",
+    "formattedName": "PgsDecoder",
+    "package": "pgs",
+    "fields": [
+      {
+        "name": "Palette",
+        "jsonName": "Palette",
+        "goType": "color.Palette",
+        "typescriptType": "Palette",
+        "usedTypescriptType": "Palette",
+        "usedStructName": "color.Palette",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "currentObject",
+        "jsonName": "currentObject",
+        "goType": "PgsObject",
+        "typescriptType": "PgsObject",
+        "usedTypescriptType": "PgsObject",
+        "usedStructName": "pgs.PgsObject",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentComposition",
+        "jsonName": "currentComposition",
+        "goType": "PgsComposition",
+        "typescriptType": "PgsComposition",
+        "usedTypescriptType": "PgsComposition",
+        "usedStructName": "pgs.PgsComposition",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "objects",
+        "jsonName": "objects",
+        "goType": "map[uint16]PgsObject",
+        "typescriptType": "Record\u003cnumber, PgsObject\u003e",
+        "usedTypescriptType": "PgsObject",
+        "usedStructName": "pgs.PgsObject",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Store completed objects by ID"
+        ]
+      },
+      {
+        "name": "windows",
+        "jsonName": "windows",
+        "goType": "map[uint8]WindowDefinition",
+        "typescriptType": "Record\u003cnumber, WindowDefinition\u003e",
+        "usedTypescriptType": "WindowDefinition",
+        "usedStructName": "pgs.WindowDefinition",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PgsDecoder decodes PGS packets into images"
+    ]
+  },
+  {
+    "filepath": "../internal/pgs/pgs.go",
+    "filename": "pgs.go",
+    "name": "PgsObject",
+    "formattedName": "PgsObject",
+    "package": "pgs",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "Version",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "Width",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "Height",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "Data",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Complete",
+        "jsonName": "Complete",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/pgs/pgs.go",
+    "filename": "pgs.go",
+    "name": "PgsComposition",
+    "formattedName": "PgsComposition",
+    "package": "pgs",
+    "fields": [
+      {
+        "name": "PTS",
+        "jsonName": "PTS",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Presentation timestamp"
+        ]
+      },
+      {
+        "name": "DTS",
+        "jsonName": "DTS",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Decode timestamp"
+        ]
+      },
+      {
+        "name": "Width",
+        "jsonName": "Width",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "Height",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FrameRate",
+        "jsonName": "FrameRate",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompositionNum",
+        "jsonName": "CompositionNum",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompositionState",
+        "jsonName": "CompositionState",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PaletteUpdate",
+        "jsonName": "PaletteUpdate",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PaletteID",
+        "jsonName": "PaletteID",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Objects",
+        "jsonName": "Objects",
+        "goType": "[]CompositionObject",
+        "typescriptType": "Array\u003cCompositionObject\u003e",
+        "usedTypescriptType": "CompositionObject",
+        "usedStructName": "pgs.CompositionObject",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/pgs/pgs.go",
+    "filename": "pgs.go",
+    "name": "CompositionObject",
+    "formattedName": "CompositionObject",
+    "package": "pgs",
+    "fields": [
+      {
+        "name": "ObjectID",
+        "jsonName": "ObjectID",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WindowID",
+        "jsonName": "WindowID",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "X",
+        "jsonName": "X",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Y",
+        "jsonName": "Y",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Cropped",
+        "jsonName": "Cropped",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropX",
+        "jsonName": "CropX",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropY",
+        "jsonName": "CropY",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropWidth",
+        "jsonName": "CropWidth",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CropHeight",
+        "jsonName": "CropHeight",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/pgs/pgs.go",
+    "filename": "pgs.go",
+    "name": "WindowDefinition",
+    "formattedName": "WindowDefinition",
+    "package": "pgs",
+    "fields": [
+      {
+        "name": "WindowID",
+        "jsonName": "WindowID",
+        "goType": "uint8",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "X",
+        "jsonName": "X",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Y",
+        "jsonName": "Y",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "Width",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "Height",
+        "goType": "uint16",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/platforms/anilist_platform/anilist_platform.go",
     "filename": "anilist_platform.go",
     "name": "AnilistPlatform",
@@ -67022,6 +67482,71 @@
       {
         "name": "MediaID",
         "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PreDeleteEntryEvent",
+    "formattedName": "PreDeleteEntryEvent",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EntryID",
+        "jsonName": "entryId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PreDeleteEntryEvent is triggered when an entry is about to be deleted.",
+      " Prevent default to skip the default deletion and override the deletion."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PostDeleteEntryEvent",
+    "formattedName": "PostDeleteEntryEvent",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EntryID",
+        "jsonName": "entryId",
         "goType": "int",
         "typescriptType": "number",
         "required": false,

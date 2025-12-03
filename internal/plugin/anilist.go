@@ -5,6 +5,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/library/anime"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -78,7 +79,6 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 		_ = anilistObj.Set("getStudioDetails", func(studioID int) (*anilist.StudioDetails, error) {
 			return anilistPlatformRef.Get().GetStudioDetails(context.Background(), studioID)
 		})
-
 		_ = anilistObj.Set("listAnime", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool) (*anilist.ListAnime, error) {
 			return anilistPlatformRef.Get().GetAnilistClient().ListAnime(context.Background(), page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult)
 		})
@@ -87,6 +87,10 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 		})
 		_ = anilistObj.Set("listRecentAnime", func(page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool) (*anilist.ListRecentAnime, error) {
 			return anilistPlatformRef.Get().GetAnilistClient().ListRecentAnime(context.Background(), page, perPage, airingAtGreater, airingAtLesser, notYetAired)
+		})
+		_ = anilistObj.Set("clearCache", func() {
+			anilistPlatformRef.Get().ClearCache()
+			anime.ClearEpisodeCollectionCache()
 		})
 		_ = anilistObj.Set("customQuery", func(body map[string]interface{}, token string) (interface{}, error) {
 			return anilist.CustomQuery(body, a.logger, token)

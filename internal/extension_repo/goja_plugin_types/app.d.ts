@@ -1367,6 +1367,37 @@ declare namespace $app {
         mediaId?: number;
     }
 
+    /**
+     * @event PreDeleteEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     * @description
+     * PreDeleteEntryEvent is triggered when an entry is about to be deleted.
+     * Prevent default to skip the default deletion and override the deletion.
+     */
+    function onPreDeleteEntry(cb: (event: PreDeleteEntryEvent) => void): void;
+
+    interface PreDeleteEntryEvent {
+        mediaId?: number;
+        entryId?: number;
+
+        next(): void;
+
+        preventDefault(): void;
+    }
+
+    /**
+     * @event PostDeleteEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onPostDeleteEntry(cb: (event: PostDeleteEntryEvent) => void): void;
+
+    interface PostDeleteEntryEvent {
+        mediaId?: number;
+        entryId?: number;
+
+        next(): void;
+    }
+
 
     /**
      * @package playbackmanager

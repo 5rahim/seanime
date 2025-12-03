@@ -1085,6 +1085,12 @@ declare namespace $ui {
          * @throws Error if a needed repository is not found
          */
         getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
+
+        /**
+         * Clears episode metadata cache.
+         * Note: To clear the anime entry cache, use $anilist.clearCache() (requires 'anilist' permission).
+         */
+        clearEpisodeMetadataCache(): void
     }
 
     interface Manga {
@@ -1380,6 +1386,11 @@ declare namespace $storage {
 }
 
 declare namespace $anilist {
+    /**
+     * Deletes all cached data.
+     */
+    function clearCache(): void
+
     /**
      * Refresh the anime collection.
      * This will cause the frontend to refetch queries that depend on the anime collection.
