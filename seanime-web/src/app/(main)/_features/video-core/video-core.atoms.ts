@@ -43,6 +43,7 @@ export type VideoCorePlaybackInfo = {
     // If true, watch continuity will be ignored
     disableRestoreFromContinuity?: boolean
     // The player will be initialized with this state when the stream is ready
+    enableDiscordRichPresence?: boolean
     initialState?: {
         currentTime?: number,
         paused?: boolean,

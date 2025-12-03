@@ -569,6 +569,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             selectedVideoSource: videoSources?.findIndex(source => source.quality === quality) ?? undefined,
                                             trackContinuity: true,
                                             initialState: previousState ?? undefined,
+                                            enableDiscordRichPresence: true,
                                         } : null,
                                         playbackError: isErrorEpisodeSource
                                             ? (errorEpisodeSource as AxiosError<{ error: string }>)?.response?.data?.error ?? null

@@ -715,6 +715,8 @@ export function VideoCore(props: VideoCoreProps) {
     const [muted] = useAtom(vc_storedMutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
+    const discordRichPresenceEnabled = state.playbackInfo?.enableDiscordRichPresence ?? false
+
     const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
     const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
@@ -733,6 +735,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     // Discord rich presence
     React.useEffect(() => {
+        if (!discordRichPresenceEnabled) return
         const interval = setInterval(() => {
             if (!videoRef.current) return
 
@@ -746,7 +749,7 @@ export function VideoCore(props: VideoCoreProps) {
         }, 6000)
 
         return () => clearInterval(interval)
-    }, [serverStatus?.settings?.discord, videoRef.current])
+    }, [serverStatus?.settings?.discord, videoRef.current, discordRichPresenceEnabled])
 
     // Measure video element size
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
@@ -762,10 +765,10 @@ export function VideoCore(props: VideoCoreProps) {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
 
-        if (!state.playbackInfo || state.playbackInfo.id !== currentPlaybackRef.current) {
-            cancelDiscordActivity()
+        return () => {
+            if (discordRichPresenceEnabled) cancelDiscordActivity()
         }
-    }, [state.playbackInfo])
+    }, [state.playbackInfo, discordRichPresenceEnabled])
 
 
     // Re-focus the video element when playback info changes
@@ -1090,6 +1093,7 @@ export function VideoCore(props: VideoCoreProps) {
         })
 
         if (
+            discordRichPresenceEnabled &&
             serverStatus?.settings?.discord?.enableRichPresence &&
             serverStatus?.settings?.discord?.enableAnimeRichPresence &&
             !!state.playbackInfo?.media?.id &&
@@ -1197,12 +1201,12 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handlePlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Video resumed")
+        // log.info("Video resumed")
         onPlay?.()
     }
 
     const handlePause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Video paused")
+        // log.info("Video paused")
         subtitleManager?.pgsRenderer?.stop()
         onPause?.()
     }
