@@ -2,6 +2,7 @@ package core
 
 import (
 	"embed"
+	"errors"
 	"io/fs"
 	"log"
 	"net/http"
@@ -20,6 +21,7 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 	e.HidePort = true
 	e.Debug = false
 	e.JSONSerializer = &CustomJSONSerializer{}
+	e.StdLogger = log.Default()
 
 	distFS, err := fs.Sub(webFS, "web")
 	if err != nil {
@@ -27,7 +29,7 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 	}
 
 	if app.Config.Server.Tls.Enabled {
-		app.Logger.Info().Msg("app: TLS is enabled, adding security middleware (HSTS).")
+		app.Logger.Debug().Msg("app: TLS is enabled, adding security middleware")
 		e.Use(middleware.Secure())
 	}
 
@@ -101,12 +103,11 @@ func RunEchoServer(app *App, e *echo.Echo) {
 			}
 
 			app.Logger.Info().Msg("app: Starting server with TLS enabled")
-			if err := e.StartTLS(serverAddr, certFile, keyFile); err != nil && err != http.ErrServerClosed {
+			if err := e.StartTLS(serverAddr, certFile, keyFile); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				app.Logger.Fatal().Err(err).Msg("app: Could not start TLS server")
 			}
 		} else {
-			app.Logger.Info().Msg("app: Starting server without TLS")
-			if err := e.Start(serverAddr); err != nil && err != http.ErrServerClosed {
+			if err := e.Start(serverAddr); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				app.Logger.Fatal().Err(err).Msg("app: Could not start server")
 			}
 		}

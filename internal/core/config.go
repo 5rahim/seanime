@@ -138,9 +138,6 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
 	// viper.SetDefault("server.systray", true)
-	viper.SetDefault("server.tls.enabled", true)
-	viper.SetDefault("server.tls.certPath", "$SEANIME_DATA_DIR/certs/cert.pem")
-	viper.SetDefault("server.tls.keyPath", "$SEANIME_DATA_DIR/certs/key.pem")
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
@@ -219,6 +216,15 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	expandEnvironmentValues(cfg)
 	cfg.Data.AppDataDir = dataDir
 	cfg.Data.WorkingDir = os.Getenv("SEANIME_WORKING_DIR")
+
+	if cfg.Server.Tls.Enabled && (cfg.Server.Tls.CertPath == "" || cfg.Server.Tls.KeyPath == "") {
+		viper.SetDefault("server.tls.certPath", "$SEANIME_DATA_DIR/certs/cert.pem")
+		viper.SetDefault("server.tls.keyPath", "$SEANIME_DATA_DIR/certs/key.pem")
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
+		_ = viper.Unmarshal(cfg)
+		expandEnvironmentValues(cfg)
+	}
 
 	// Check validity of the config
 	if err := validateConfig(cfg, logger); err != nil {
