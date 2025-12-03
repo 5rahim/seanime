@@ -392,7 +392,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                 ref={combineContainerRef}
                 className={cn(
                     "relative w-full h-full bg-black overflow-clip flex items-center justify-center",
-                    (!busy && !isMiniPlayer && !inline) && "cursor-none",
+                    (!busy && !isMiniPlayer) && "cursor-none",
                 )}
                 onPointerMove={handleContainerPointerMove}
             >
