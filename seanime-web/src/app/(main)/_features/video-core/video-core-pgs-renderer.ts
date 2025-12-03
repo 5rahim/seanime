@@ -25,7 +25,7 @@ const log = logger("PGS RENDERER")
 
 export class VideoCorePgsRenderer {
     private _videoElement: HTMLVideoElement
-    private _canvas: HTMLCanvasElement | null = null
+    _canvas: HTMLCanvasElement | null = null
     private _ctx: CanvasRenderingContext2D | null = null
     private _events: Map<string, PgsEvent> = new Map()
     private _imageCache: Map<string, HTMLImageElement> = new Map()

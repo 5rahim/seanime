@@ -173,6 +173,12 @@ export class VideoCorePipManager {
             context.drawImage(subtitleCanvas, 0, 0, context.canvas.width, context.canvas.height)
         }
 
+        // Draw PGS subtitles
+        const pgsCanvas = this.subtitleManager?.pgsRenderer?._canvas
+        if (pgsCanvas && context.canvas.width && context.canvas.height) {
+            context.drawImage(pgsCanvas, 0, 0, context.canvas.width, context.canvas.height)
+        }
+
         // Draw media captions
         if (this.mediaCaptionsManager) {
             this.mediaCaptionsManager.renderToCanvas(context, context.canvas.width, context.canvas.height, this.video.currentTime)
@@ -252,6 +258,10 @@ export class VideoCorePipManager {
         const subtitleCanvas = this.subtitleManager?.libassRenderer?._canvas
         if (subtitleCanvas && canvas.width && canvas.height) {
             context.drawImage(subtitleCanvas, 0, 0, canvas.width, canvas.height)
+        }
+        const pgsCanvas = this.subtitleManager?.pgsRenderer?._canvas
+        if (pgsCanvas && canvas.width && canvas.height) {
+            context.drawImage(pgsCanvas, 0, 0, canvas.width, canvas.height)
         }
         if (this.mediaCaptionsManager) {
             this.mediaCaptionsManager.renderToCanvas(context, canvas.width, canvas.height, this.video.currentTime)
