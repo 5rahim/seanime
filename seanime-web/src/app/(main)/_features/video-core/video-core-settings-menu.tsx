@@ -50,7 +50,7 @@ import { HiFastForward } from "react-icons/hi"
 import { ImFileText } from "react-icons/im"
 import { IoCaretForwardCircleOutline } from "react-icons/io5"
 import { LuChevronUp, LuHeading, LuPaintbrush, LuPalette, LuSettings, LuSettings2, LuSparkles, LuTvMinimalPlay } from "react-icons/lu"
-import { MdOutlineSubtitles, MdSpeed } from "react-icons/md"
+import { MdOutlineAccessTime, MdOutlineSubtitles, MdSpeed } from "react-icons/md"
 import { RiShadowLine } from "react-icons/ri"
 import { TbArrowForwardUp } from "react-icons/tb"
 import { VscTextSize } from "react-icons/vsc"
@@ -128,6 +128,8 @@ export function vc_getSubtitleStyleLabel<T extends keyof VideoCoreSettings["subt
         case "outlineColor":
         case "backColor":
             return SUBTITLE_STYLES_COLOR_OPTIONS.find(o => o.value === vc_getSubtitleStyle(settings, key))?.label ?? ""
+        // case "backColorOpacity":
+        //     return `${((vc_getSubtitleStyle(settings, "backColorOpacity")-255) / 255 * 100).toFixed(0)}%`
     }
     return ""
 }
@@ -161,7 +163,6 @@ export const CAPTION_STYLES_BACKGROUND_OPACITY_OPTIONS = [
 export const CAPTION_STYLES_COLOR_OPTIONS = SUBTITLE_STYLES_COLOR_OPTIONS
 
 export const vc_captionsStylesDefaults: VideoCoreSettings["captionCustomization"] = {
-    enabled: true,
     fontSize: CAPTION_STYLES_FONT_SIZE_OPTIONS[1].value,
     textColor: CAPTION_STYLES_COLOR_OPTIONS[0].value,
     backgroundColor: SUBTITLE_STYLES_COLOR_OPTIONS[1].value,
@@ -188,6 +189,8 @@ export function vc_getCaptionStyleLabel<T extends keyof VideoCoreSettings["capti
         case "textShadowColor":
         case "textColor":
             return CAPTION_STYLES_COLOR_OPTIONS.find(o => o.value === vc_getCaptionStyle(settings, key))?.label ?? ""
+        case "backgroundOpacity":
+            return `${(vc_getCaptionStyle(settings, "backgroundOpacity") * 100).toFixed(0)}%`
     }
     return ""
 }
@@ -234,6 +237,8 @@ export function VideoCoreSettingsMenu() {
         settings.captionCustomization || vc_initialSettings.captionCustomization,
     )
 
+    const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
+
     const [subFontName, setSubFontName] = useState<string>(editedSubCustomization?.fontName || "")
 
     React.useEffect(() => {
@@ -242,6 +247,9 @@ export function VideoCoreSettingsMenu() {
         }
         if (openMenuSection === "Caption Styles") {
             setEditedCaptionCustomization(settings.captionCustomization || vc_initialSettings.captionCustomization)
+        }
+        if (openMenuSection === "Subtitle Delay") {
+            setEditedSubtitleDelay(settings.subtitleDelay)
         }
     }, [openMenuSection, settings])
 
@@ -294,6 +302,17 @@ export function VideoCoreSettingsMenu() {
         })
     }
 
+    const handleSubtitleDelayChange = (delay: number): void => {
+        setEditedSubtitleDelay(delay)
+        const newSettings = {
+            ...settings,
+            subtitleDelay: delay,
+        }
+        setSettings(newSettings)
+        subtitleManager?.updateSettings(newSettings)
+        mediaCaptionsManager?.updateSettings(newSettings)
+    }
+
     if (isMiniPlayer) return null
 
     return (
@@ -329,6 +348,11 @@ export function VideoCoreSettingsMenu() {
                     <VideoCoreMenuOption title="Auto Next" icon={HiFastForward} value={autoNext ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
                     <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
+                    {(subtitleManager || mediaCaptionsManager) && <VideoCoreMenuOption
+                        title="Subtitle Delay"
+                        icon={MdOutlineAccessTime}
+                        value={`${settings.subtitleDelay.toFixed(1)}s`}
+                    />}
                     {subtitleManager && <VideoCoreMenuOption
                         title="Subtitle Styles"
                         icon={MdOutlineSubtitles}
@@ -337,7 +361,6 @@ export function VideoCoreSettingsMenu() {
                     {mediaCaptionsManager && <VideoCoreMenuOption
                         title="Caption Styles"
                         icon={MdOutlineSubtitles}
-                        value={editedCaptionCustomization?.enabled ? "On" : "Off"}
                     />}
                     <VideoCoreMenuOption title="Player Appearance" icon={LuTvMinimalPlay} />
                     <VideoCoreMenuOption title="Preferences" icon={LuSettings2} onClick={() => setKeybindingsModelOpen(true)} />
@@ -381,13 +404,15 @@ export function VideoCoreSettingsMenu() {
                                 title="Outline"
                                 icon={ImFileText}
                                 parentId="Subtitle Styles"
-                                value={vc_getSubtitleStyleLabel(settings.subtitleCustomization, "outline")}
+                                value={`${vc_getSubtitleStyleLabel(settings.subtitleCustomization,
+                                    "outline")}, ${vc_getSubtitleStyleLabel(settings.subtitleCustomization, "outlineColor")}`}
                             />
                             <VideoCoreMenuSubOption
                                 title="Shadow"
                                 icon={RiShadowLine}
                                 parentId="Subtitle Styles"
-                                value={vc_getSubtitleStyleLabel(settings.subtitleCustomization, "shadow")}
+                                value={`${vc_getSubtitleStyleLabel(settings.subtitleCustomization,
+                                    "shadow")}, ${vc_getSubtitleStyleLabel(settings.subtitleCustomization, "backColor")}`}
                             />
                         </>}
                     </VideoCoreMenuOption>
@@ -420,16 +445,52 @@ export function VideoCoreSettingsMenu() {
                             title="Background"
                             icon={LuPaintbrush}
                             parentId="Caption Styles"
-                            value={vc_getCaptionStyleLabel(settings.captionCustomization, "backgroundColor")}
+                            value={`${vc_getCaptionStyleLabel(settings.captionCustomization,
+                                "backgroundOpacity")}, ${vc_getCaptionStyleLabel(settings.captionCustomization, "backgroundColor")}`}
                         />
                         {/*<VideoCoreMenuSubOption title="Outline" icon={ImFileText} parentId="Caption Styles" />*/}
                         <VideoCoreMenuSubOption
                             title="Shadow"
                             icon={RiShadowLine}
                             parentId="Caption Styles"
-                            value={vc_getCaptionStyleLabel(settings.captionCustomization, "textShadow")}
+                            value={`${vc_getCaptionStyleLabel(settings.captionCustomization,
+                                "textShadow")}, ${vc_getCaptionStyleLabel(settings.captionCustomization, "textShadowColor")}`}
                         />
                         {/*</>}*/}
+                    </VideoCoreMenuOption>
+                    <VideoCoreMenuOption title="Subtitle Delay" icon={MdOutlineAccessTime}>
+                        <p className="text-sm text-[--muted] mb-2">Positive values delay subtitles, negative values advance them.</p>
+                        <VideoCoreSettingSelect
+                            options={[
+                                { label: "-2.0s", value: -2.0 },
+                                { label: "-1.0s", value: -1.0 },
+                                { label: "-0.9s", value: -0.9 },
+                                { label: "-0.8s", value: -0.8 },
+                                { label: "-0.7s", value: -0.7 },
+                                { label: "-0.6s", value: -0.6 },
+                                { label: "-0.5s", value: -0.5 },
+                                { label: "-0.4s", value: -0.4 },
+                                { label: "-0.3s", value: -0.3 },
+                                { label: "-0.2s", value: -0.2 },
+                                { label: "-0.1s", value: -0.1 },
+                                { label: "0s", value: 0 },
+                                { label: "0.1s", value: 0.1 },
+                                { label: "0.2s", value: 0.2 },
+                                { label: "0.3s", value: 0.3 },
+                                { label: "0.4s", value: 0.4 },
+                                { label: "0.5s", value: 0.5 },
+                                { label: "0.6s", value: 0.6 },
+                                { label: "0.7s", value: 0.7 },
+                                { label: "0.8s", value: 0.8 },
+                                { label: "0.9s", value: 0.9 },
+                                { label: "1.0s", value: 1.0 },
+                                { label: "2.0s", value: 2.0 },
+                            ]}
+                            onValueChange={(v: number) => {
+                                handleSubtitleDelayChange(v)
+                            }}
+                            value={editedSubtitleDelay}
+                        />
                     </VideoCoreMenuOption>
                     <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
                         <VideoCoreSettingSelect
@@ -597,17 +658,17 @@ export function VideoCoreSettingsMenu() {
                             onValueChange={(v: number) => handleSubtitleCustomizationChange("shadow", v)}
                             value={vc_getSubtitleStyle(editedSubCustomization, "shadow")}
                         />
-                        <p className="text-[--muted] text-sm my-2">Shadow Color</p>
-                        <VideoCoreSettingSelect
-                            options={SUBTITLE_STYLES_COLOR_OPTIONS}
-                            onValueChange={(v: string) => handleSubtitleCustomizationChange("backColor", v)}
-                            value={vc_getSubtitleStyle(editedSubCustomization, "backColor")}
-                        />
                         <p className="text-[--muted] text-sm my-2">Shadow Opacity</p>
                         <VideoCoreSettingSelect
                             options={SUBTITLE_STYLES_BACK_COLOR_OPACITY_OPTIONS}
                             onValueChange={(v: number) => handleSubtitleCustomizationChange("backColorOpacity", v)}
                             value={vc_getSubtitleStyle(editedSubCustomization, "backColorOpacity")}
+                        />
+                        <p className="text-[--muted] text-sm my-2">Shadow Color</p>
+                        <VideoCoreSettingSelect
+                            options={SUBTITLE_STYLES_COLOR_OPTIONS}
+                            onValueChange={(v: string) => handleSubtitleCustomizationChange("backColor", v)}
+                            value={vc_getSubtitleStyle(editedSubCustomization, "backColor")}
                         />
                     </VideoCoreMenuSubOption>
                     <VideoCoreMenuSubOption title="Font Size" icon={VscTextSize} parentId="Caption Styles">
@@ -640,17 +701,17 @@ export function VideoCoreSettingsMenu() {
                         />
                     </VideoCoreMenuSubOption>
                     <VideoCoreMenuSubOption title="Background" icon={LuPaintbrush} parentId="Caption Styles">
-                        <p className="text-[--muted] text-sm mb-2">Background Color</p>
-                        <VideoCoreSettingSelect
-                            options={CAPTION_STYLES_COLOR_OPTIONS}
-                            onValueChange={(v: string) => handleCaptionCustomizationChange("backgroundColor", v)}
-                            value={vc_getCaptionStyle(editedCaptionCustomization, "backgroundColor")}
-                        />
                         <p className="text-[--muted] text-sm my-2">Background Opacity</p>
                         <VideoCoreSettingSelect
                             options={CAPTION_STYLES_BACKGROUND_OPACITY_OPTIONS}
                             onValueChange={(v: number) => handleCaptionCustomizationChange("backgroundOpacity", v)}
                             value={vc_getCaptionStyle(editedCaptionCustomization, "backgroundOpacity")}
+                        />
+                        <p className="text-[--muted] text-sm mb-2">Background Color</p>
+                        <VideoCoreSettingSelect
+                            options={CAPTION_STYLES_COLOR_OPTIONS}
+                            onValueChange={(v: string) => handleCaptionCustomizationChange("backgroundColor", v)}
+                            value={vc_getCaptionStyle(editedCaptionCustomization, "backgroundColor")}
                         />
                     </VideoCoreMenuSubOption>
                     <VideoCoreMenuSubOption title="Shadow" icon={RiShadowLine} parentId="Caption Styles">

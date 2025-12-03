@@ -61,6 +61,7 @@ export type VideoCoreSettings = {
     preferredSubtitleLanguage: string
     preferredSubtitleBlacklist: string
     preferredAudioLanguage: string
+    subtitleDelay: number // in seconds
     // Video enhancement settings
     videoEnhancement: {
         enabled: boolean
@@ -82,7 +83,6 @@ export type VideoCoreSettings = {
     }
     // Caption customization settings (non-ASS)
     captionCustomization: {
-        enabled: boolean
         fontSize?: number
         textColor?: string
         backgroundColor?: string
@@ -96,6 +96,7 @@ export const vc_initialSettings: VideoCoreSettings = {
     preferredSubtitleLanguage: "en,eng",
     preferredSubtitleBlacklist: "",
     preferredAudioLanguage: "jpn,jp,jap",
+    subtitleDelay: 0,
     videoEnhancement: {
         enabled: true,
         contrast: 1.05,
@@ -105,18 +106,7 @@ export const vc_initialSettings: VideoCoreSettings = {
     subtitleCustomization: {
         enabled: false,
     },
-    captionCustomization: {
-        enabled: false,
-        // fontSize: 4, // 4% of video width
-        // fontFamily: "Inter, Arial, sans-serif",
-        // textColor: "#FFFFFF",
-        // backgroundColor: "#000000",
-        // outlineColor: "#000000",
-        // bold: true,
-        // outlineWidth: undefined,
-        // backgroundOpacity: 0.8,
-        // shadow: 2, // shadow blur in px
-    },
+    captionCustomization: {},
 }
 
 // Wrapped atom for backward compatibility

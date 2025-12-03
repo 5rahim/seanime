@@ -81,6 +81,7 @@ export class MediaCaptionsManager {
     private timeUpdateListener: (() => void) | null = null
     private readonly settings: VideoCoreSettings
     private captionCustomization: VideoCoreSettings["captionCustomization"]
+    private subtitleDelay = 0
 
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: MediaCaptionsTrack[]) => void
@@ -90,16 +91,18 @@ export class MediaCaptionsManager {
         this.tracks = options.tracks
         this.settings = options.settings
         this.captionCustomization = options.settings.captionCustomization
+        this.subtitleDelay = options.settings.subtitleDelay ?? 0
 
         this.init()
     }
 
     public updateSettings(settings: VideoCoreSettings) {
         this.captionCustomization = settings.captionCustomization
+        this.setSubtitleDelay(settings.subtitleDelay ?? 0)
         this.applyCaptionStyles()
 
         if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
-            this.renderer.currentTime = this.videoElement.currentTime
+            this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
         }
     }
 
@@ -109,6 +112,10 @@ export class MediaCaptionsManager {
 
     addTrackChangedEventListener(callback: (track: number | null) => void) {
         this._onSelectedTrackChanged = callback
+    }
+
+    setSubtitleDelay(delay: number) {
+        this.subtitleDelay = delay
     }
 
     public getTracks(): MediaCaptionsTrack[] {
@@ -142,7 +149,7 @@ export class MediaCaptionsManager {
                 cues: track.cues,
                 regions: track.regions,
             })
-            this.renderer.currentTime = this.videoElement.currentTime
+            this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
         }
 
         this._onSelectedTrackChanged?.(index)
@@ -378,26 +385,28 @@ export class MediaCaptionsManager {
         this.applyCaptionStyles()
 
         // Load all tracks
-        await this.loadTracks()
+        await this.loadTracks(() => {
+                // When the first track is loaded, start rendering captions
+                // Select default track
+                const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.tracks.map((t, idx) => ({ ...t, number: idx })))
+                this.selectTrack(defaultTrackNumber)
+                // Setup time update listener
+                this.timeUpdateListener = () => {
+                    if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
+                        this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
+                    }
+                }
+                this.videoElement.addEventListener("timeupdate", this.timeUpdateListener)
+                this._onTracksLoaded?.(this.getTracks())
+            },
+            () => {
+                this._onTracksLoaded?.(this.getTracks())
+            })
 
-        // Select default track
-        // const defaultTrackIndex = this.tracks.findIndex(t => t.default)
-        // if (defaultTrackIndex !== -1) {
-        //     this.selectTrack(defaultTrackIndex)
-        // }
-        const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.tracks.map((t, idx) => ({ ...t, number: idx })))
-        this.selectTrack(defaultTrackNumber)
-
-        // Setup time update listener
-        this.timeUpdateListener = () => {
-            if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
-                this.renderer.currentTime = this.videoElement.currentTime
-            }
-        }
-        this.videoElement.addEventListener("timeupdate", this.timeUpdateListener)
     }
 
-    private async loadTracks() {
+    private async loadTracks(onFirstTrackLoaded: () => void, onTrackLoaded: () => void) {
+        let isFirstTrackLoaded = false
         for (let i = 0; i < this.tracks.length; i++) {
             const track = this.tracks[i]
             try {
@@ -412,16 +421,18 @@ export class MediaCaptionsManager {
                     regions: result.regions,
                 })
 
-                log.info(`Loaded track: ${track.label}`, result)
-                // this._onTracksLoaded?.(this.getTracks())
-                // const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.getTracks().map((t, idx) => ({ ...t, number: idx })))
-                // this.selectTrack(defaultTrackNumber)
+                log.info(`Loaded track: ${track.label}`)
+                if (!isFirstTrackLoaded) {
+                    onFirstTrackLoaded()
+                    isFirstTrackLoaded = true
+                } else {
+                    onTrackLoaded()
+                }
             }
             catch (error) {
                 log.error(`Failed to load track: ${track.label}`, error)
             }
         }
-        this._onTracksLoaded?.(this.getTracks())
     }
 }
 

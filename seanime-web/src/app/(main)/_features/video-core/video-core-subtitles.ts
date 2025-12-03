@@ -2,8 +2,6 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
 import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-core-pgs-renderer"
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
-
-import { getSubtitleTrackType } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCorePlaybackInfo, VideoCoreSettings, VideoCoreSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
@@ -28,7 +26,7 @@ function hexToASSColor(hex: string, alpha: number = 0): number {
 }
 
 function isPGS(str: string) {
-    return str == "S_HDMV/PGS"
+    return str === "S_HDMV/PGS"
 }
 
 // Event or file track info.
@@ -142,11 +140,21 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             this._selectDefaultTrack()
         }
 
+        // Apply subtitle delay from settings
+        this.setSubtitleDelay(settings.subtitleDelay)
+
         subtitleLog.info("Text tracks", this.videoElement.textTracks)
         subtitleLog.info("Event Tracks", this.eventTracks)
         subtitleLog.info("PGS Event Tracks", this.pgsEventTracks)
         subtitleLog.info("File tracks", this.fileTracks)
     }
+
+    getSelectedTrackNumberOrNull(): number | null {
+        if (this.currentTrackNumber === NO_TRACK_NUMBER) return null
+        return this.currentTrackNumber
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Sets the track to no track.
     setNoTrack() {
@@ -304,43 +312,26 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         return nextTrackNumber ?? NO_TRACK_NUMBER
     }
 
-    onEventTrackAdded(track: MKVParser_TrackInfo) {
-        subtitleLog.info("Subtitle track added", track)
-        toast.success(`Subtitle track added: ${track.name}`)
-        this._addEventTrack(track)
-        this._storeEventTrackStyles()
-        // Add the track to the video element
-        const trackEl = document.createElement("track")
-        trackEl.id = track.number.toString()
-        trackEl.kind = "subtitles"
-        trackEl.label = track.name || ""
-        trackEl.srclang = track.language || "eng"
-        this.videoElement.appendChild(trackEl)
-        // this._selectDefaultTrack()
-        this.selectTrack(track.number)
-        this._init()
-        this.libassRenderer?.resize?.()
-        this.pgsRenderer?.resize()
-    }
-
-    getSelectedTrackNumberOrNull(): number | null {
-        if (this.currentTrackNumber === NO_TRACK_NUMBER) return null
-        return this.currentTrackNumber
-    }
-
     // Update settings and reapply subtitle customization to current track
     updateSettings(newSettings: VideoCoreSettings) {
         this.settings = newSettings
+        // Apply subtitle delay
+        this.setSubtitleDelay(newSettings.subtitleDelay)
         // Reapply customization if a track is currently selected
         if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
             this._applySubtitleCustomization()
         }
     }
 
+    setSubtitleDelay(subtitleDelay: number) {
+        if (this.libassRenderer) (this.libassRenderer as any).timeOffset = (-subtitleDelay)
+        if (this.pgsRenderer) this.pgsRenderer.setTimeOffset(-subtitleDelay)
+    }
+
     // This will record the events and add them to the libass renderer if they are new.
     onSubtitleEvent(event: MKVParser_SubtitleEvent) {
         // Check if this is a PGS event
-        if (event.codecID === "S_HDMV/PGS") {
+        if (isPGS(event.codecID)) {
             this._handlePgsEvent(event)
             return
         }
@@ -360,34 +351,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         return this.fileTracks[trackNumber] || null
     }
 
-    private _getTracks(): NormalizedTrackInfo[] {
-        const eventTracks = Object.values(this.eventTracks).map(t => <NormalizedTrackInfo>({
-            type: "event",
-            language: t.info.language,
-            number: t.info.number,
-            label: t.info.name,
-            forced: t.info.forced,
-            default: t.info.default,
-            languageIETF: t.info.languageIETF,
-            codecID: t.info.codecID,
-        }))
-
-        const fileTracks = Object.entries(this.fileTracks).map(([trackNumber, t]) => <NormalizedTrackInfo>({
-            type: "file",
-            language: t.info.language,
-            number: Number(trackNumber),
-            label: t.info.label,
-            forced: false,
-            default: t.info.default,
-        }))
-
-        return [...eventTracks, ...fileTracks].sort((a, b) => a.number - b.number)
-    }
-
-    // +-----------------------+
-    // |      Event Tracks     |
-    // +-----------------------+
-
     private _init() {
         if (!this.libassRenderer) {
             subtitleLog.info("Initializing libass renderer")
@@ -405,7 +368,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             this.libassRenderer = new JASSUB({
                 video: this.videoElement,
                 subContent: this.defaultSubtitleHeader, // needed
-                // subUrl: new URL("/jassub/test.ass", window.location.origin).toString(),
                 wasmUrl: wasmUrl,
                 workerUrl: workerUrl,
                 legacyWasmUrl: legacyWasmUrl,
@@ -439,9 +401,78 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (!this.pgsRenderer) {
             this.pgsRenderer = new VideoCorePgsRenderer({
                 videoElement: this.videoElement,
-                debug: true,
+                // debug: process.env.NODE_ENV === "development",
             })
         }
+    }
+
+    private _getTracks(): NormalizedTrackInfo[] {
+        const eventTracks = Object.values(this.eventTracks).map(t => <NormalizedTrackInfo>({
+            type: "event",
+            language: t.info.language,
+            number: t.info.number,
+            label: t.info.name,
+            forced: t.info.forced,
+            default: t.info.default,
+            languageIETF: t.info.languageIETF,
+            codecID: t.info.codecID,
+        }))
+
+        const fileTracks = Object.entries(this.fileTracks).map(([trackNumber, t]) => <NormalizedTrackInfo>({
+            type: "file",
+            language: t.info.language,
+            number: Number(trackNumber),
+            label: t.info.label,
+            forced: false,
+            default: t.info.default,
+        }))
+
+        return [...eventTracks, ...fileTracks].sort((a, b) => a.number - b.number)
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\
+
+    // +-----------------------+
+    // |      Event Tracks     |
+    // +-----------------------+
+
+    onEventTrackAdded(track: MKVParser_TrackInfo) {
+        subtitleLog.info("Subtitle track added", track)
+        toast.success(`Subtitle track added: ${track.name}`)
+        this._addEventTrack(track)
+        this._storeEventTrackStyles()
+        // Add the track to the video element
+        const trackEl = document.createElement("track")
+        trackEl.id = track.number.toString()
+        trackEl.kind = "subtitles"
+        trackEl.label = track.name || ""
+        trackEl.srclang = track.language || "eng"
+        this.videoElement.appendChild(trackEl)
+        // this._selectDefaultTrack()
+        this.selectTrack(track.number)
+        this._init()
+        this.libassRenderer?.resize?.()
+        this.pgsRenderer?.resize()
+    }
+
+    // When called for the first time, it will initialize the libass renderer.
+    private _selectDefaultTrack() {
+        if (this.currentTrackNumber !== NO_TRACK_NUMBER) return
+        const tracks = this._getTracks()
+
+        if (!tracks?.length) {
+            this.setNoTrack()
+            return
+        }
+
+        if (tracks.length === 1) {
+            this.selectTrack(tracks[0].number)
+            return
+        }
+
+        // Split preferred languages by comma and trim whitespace
+        const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, tracks)
+        this.selectTrack(defaultTrackNumber)
     }
 
     private _handlePgsEvent(event: MKVParser_SubtitleEvent) {
@@ -494,35 +525,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
 
         this.pgsRenderer.addEvent(pgsEvent)
-    }
-
-    // When called for the first time, it will initialize the libass renderer.
-    private _selectDefaultTrack() {
-        if (this.currentTrackNumber !== NO_TRACK_NUMBER) return
-        const tracks = this._getTracks()
-
-        if (!tracks?.length) {
-            this.setNoTrack()
-            return
-        }
-
-        if (tracks.length === 1) {
-            this.selectTrack(tracks[0].number)
-            return
-        }
-
-        // Split preferred languages by comma and trim whitespace
-        const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, tracks)
-        this.selectTrack(defaultTrackNumber)
-    }
-
-    isTrackSupported(trackNumber: number): boolean {
-        if (trackNumber === NO_TRACK_NUMBER) return true
-
-        const track = this.playbackInfo?.mkvMetadata?.subtitleTracks?.find(t => t.number === trackNumber)
-        if (!track) return true
-
-        return getSubtitleTrackType(track.codecID) !== "PGS"
     }
 
     private _applySubtitleCustomization() {
@@ -623,23 +625,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
-    private _addEventTrack(track: MKVParser_TrackInfo) {
-        this.eventTracks[track.number] = {
-            info: track,
-            events: new Map(),
-            styles: {},
-        }
-
-        // If this is a PGS track, initialize it in the PGS events map
-        // PGS tracks will also have an entry in eventTracks
-        if (track.codecID === "S_HDMV/PGS") {
-            this.pgsEventTracks[track.number] = {
-                info: track,
-                events: new Map(),
-            }
-        }
-    }
-
     private __eventMapKey(event: MKVParser_SubtitleEvent): string {
         return JSON.stringify(event)
     }
@@ -682,9 +667,28 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // +-----------------------+
     // |      File Tracks      |
     // +-----------------------+
+
+    private _addEventTrack(track: MKVParser_TrackInfo) {
+        this.eventTracks[track.number] = {
+            info: track,
+            events: new Map(),
+            styles: {},
+        }
+
+        // If this is a PGS track, initialize it in the PGS events map
+        // PGS tracks will also have an entry in eventTracks
+        if (isPGS(track.codecID)) {
+            this.pgsEventTracks[track.number] = {
+                info: track,
+                events: new Map(),
+            }
+        }
+    }
 
     private _recordSubtitleEvent(event: MKVParser_SubtitleEvent): { isNew: boolean, assEvent: ASS_Event | null } {
         const trackEventMap = this.eventTracks[event.trackNumber]?.events // get the map

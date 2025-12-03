@@ -32,7 +32,7 @@ export class VideoCorePgsRenderer {
     private _currentEvent: PgsEvent | null = null
     private _currentEventRendered: boolean = false
     private _animationFrameId: number | null = null
-    private _delay: number = 0 // Subtitle delay in seconds
+    private _timeOffset: number = 0 // offset internal video events
     private _debug: boolean = false
     private _isDestroyed: boolean = false
 
@@ -116,8 +116,8 @@ export class VideoCorePgsRenderer {
         }
     }
 
-    setDelay(delaySeconds: number) {
-        this._delay = delaySeconds
+    setTimeOffset(offset: number) {
+        this._timeOffset = offset
     }
 
     stop() {
@@ -237,7 +237,7 @@ export class VideoCorePgsRenderer {
             return
         }
 
-        const currentTime = this._videoElement.currentTime + this._delay
+        const currentTime = this._videoElement.currentTime + this._timeOffset
 
         // Find the event that should be displayed at current time
         let eventToDisplay: PgsEvent | null = null

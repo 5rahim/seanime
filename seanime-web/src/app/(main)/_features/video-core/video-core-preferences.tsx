@@ -134,6 +134,7 @@ export function VideoCorePreferencesModal() {
     const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
     const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
+    const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
     // const [editedSubCustomization, setEditedSubCustomization] = useState<VideoCoreSettings["subtitleCustomization"]>(
     //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
     // )
@@ -146,6 +147,7 @@ export function VideoCorePreferencesModal() {
             setEditedSubLanguage(settings.preferredSubtitleLanguage)
             setEditedAudioLanguage(settings.preferredAudioLanguage)
             setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
+            setEditedSubtitleDelay(settings.subtitleDelay ?? 0)
             setEditedUseLibassRenderer(useLibassRenderer)
             // setEditedSubCustomization(settings.subtitleCustomization || vc_initialSettings.subtitleCustomization)
         }
@@ -181,6 +183,7 @@ export function VideoCorePreferencesModal() {
             preferredSubtitleLanguage: editedSubLanguage,
             preferredAudioLanguage: editedAudioLanguage,
             preferredSubtitleBlacklist: editedSubsBlacklist,
+            subtitleDelay: editedSubtitleDelay,
             // subtitleCustomization: editedSubCustomization,
         }
         setSettings(newSettings)
@@ -195,6 +198,7 @@ export function VideoCorePreferencesModal() {
         setEditedSubLanguage(vc_initialSettings.preferredSubtitleLanguage)
         setEditedAudioLanguage(vc_initialSettings.preferredAudioLanguage)
         setEditedSubsBlacklist(vc_initialSettings.preferredSubtitleBlacklist)
+        setEditedSubtitleDelay(vc_initialSettings.subtitleDelay)
         setEditedUseLibassRenderer(true)
         // setEditedSubCustomization(vc_initialSettings.subtitleCustomization)
     }
@@ -496,6 +500,20 @@ export function VideoCorePreferencesModal() {
                             onKeyDown={(e) => e.stopPropagation()}
                             onInput={(e) => e.stopPropagation()}
                             help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Subtitle Delay (seconds)
+                        </label>
+                        <NumberInput
+                            value={editedSubtitleDelay}
+                            onValueChange={setEditedSubtitleDelay}
+                            fieldClass="w-32"
+                            step={0.1}
+                            hideControls={true}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
                         />
                     </div>
                 </div>
