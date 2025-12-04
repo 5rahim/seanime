@@ -622,6 +622,7 @@ export interface VideoCoreProps {
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
+    onChangePlaybackType?: (type: "stream" | "hls") => void
     inline?: boolean
     mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
@@ -653,6 +654,7 @@ export function VideoCore(props: VideoCoreProps) {
         onHlsMediaDetached,
         onHlsFatalError,
         onPlayEpisode,
+        onChangePlaybackType,
         mRef,
     } = props
 
@@ -1089,7 +1091,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Initializing preview manager")
         setPreviewManager(p => {
             if (p) p.cleanup()
-            return new VideoCorePreviewManager(v!, state.playbackInfo?.playbackType !== "onlinestream" ? streamUrl : undefined)
+            return new VideoCorePreviewManager(v!, streamUrl)
         })
 
         if (
