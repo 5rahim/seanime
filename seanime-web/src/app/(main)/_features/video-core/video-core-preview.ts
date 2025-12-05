@@ -62,6 +62,12 @@ export class VideoCorePreviewManager {
             if (Math.abs(currentSegment - previousSegment) > 1) {
                 log.info("Seek detected, resetting lastCapturedSegment")
                 this.lastCapturedSegment = -1
+
+                // Cancel any pending throttled capture since we've moved to a new position
+                if (this.captureThrottleTimeout) {
+                    clearTimeout(this.captureThrottleTimeout)
+                    this.captureThrottleTimeout = null
+                }
             }
 
             this.lastKnownTime = this.videoElement.currentTime
@@ -182,7 +188,7 @@ export class VideoCorePreviewManager {
         }
 
         this.captureThrottleTimeout = window.setTimeout(async () => {
-            log.info("Capturing preview for segment", segmentIndex)
+            // log.info("Capturing preview for segment", segmentIndex)
             if (!this.previewCache.has(segmentIndex) && !this.inFlightPromises.has(segmentIndex)) {
                 const promise = this.captureFrameFromCurrentVideo(segmentIndex)
                 this.inFlightPromises.set(segmentIndex, promise)
@@ -193,13 +199,14 @@ export class VideoCorePreviewManager {
                     if (result) {
                         this.lastCapturedSegment = segmentIndex
                     }
+                    // If capture failed, don't update lastCapturedSegment to allow retry
                 }
                 finally {
                     this.inFlightPromises.delete(segmentIndex)
                 }
             }
             this.captureThrottleTimeout = null
-        }, 500)
+        }, 300)
     }
 
     private initializeDummyVideoElement(): void {
@@ -225,12 +232,13 @@ export class VideoCorePreviewManager {
     private async captureFrameFromCurrentVideo(
         segmentIndex: number,
     ): Promise<string | undefined> {
-        // Wait briefly for video to stabilize after seek
+        // Wait for video to stabilize after seek
         if (this.videoElement.readyState < 2) {
             try {
-                await this.waitForReadyState(this.videoElement, 2, 2000)
+                await this.waitForReadyState(this.videoElement, 2, 5000)
             }
             catch {
+                // Don't update lastCapturedSegment on failure to allow retry
                 // log.info("Video not ready for capture, skipping segment", segmentIndex)
                 return undefined
             }

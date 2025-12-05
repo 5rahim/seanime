@@ -24,6 +24,6 @@ export function SeaImage({ isExternal, ...props }: ImageProps & { isExternal?: b
     return <NextImage
         {...props}
         overrideSrc={blocked ? "/no-cover.png" : overrideSrc}
-        onError={() => setOverrideSrc("/no-cover.png")}
+        // onError={() => setOverrideSrc("/no-cover.png")} // stops retries?
     />
 }

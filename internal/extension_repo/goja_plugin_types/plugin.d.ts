@@ -1088,7 +1088,7 @@ declare namespace $ui {
          * Get an anime entry
          * @param mediaId - The ID of the anime
          * @returns A promise that resolves to an anime entry
-         * @throws Error if a needed repository is not found
+         * @throws Error if the entry is not found
          */
         getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
 
@@ -1100,6 +1100,14 @@ declare namespace $ui {
     }
 
     interface Manga {
+        /**
+         * Get an manga entry
+         * @param mediaId - The ID of the manga
+         * @returns A promise that resolves to a manga entry
+         * @throws Error if the entry is not found
+         */
+        getMangaEntry(mediaId: number): Promise<$app.Manga_Entry>
+
         /**
          * Get a chapter container for a manga.
          * This caches the chapter container if it exists.

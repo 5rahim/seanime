@@ -32,6 +32,7 @@ func (a *AppContextImpl) BindMangaToContextObj(vm *goja.Runtime, obj *goja.Objec
 	mangaObj := vm.NewObject()
 
 	// Get downloaded chapter containers
+	_ = mangaObj.Set("getMangaEntry", m.getMangaEntry)
 	_ = mangaObj.Set("getDownloadedChapters", m.getDownloadedChapterContainers)
 	_ = mangaObj.Set("getCollection", m.getCollection)
 	_ = mangaObj.Set("refreshChapters", m.refreshChapterContainers)
@@ -179,6 +180,63 @@ func (m *Manga) emptyCache(mediaId int) goja.Value {
 			} else {
 				resolve(nil)
 			}
+			return nil
+		})
+	}()
+
+	return m.vm.ToValue(promise)
+}
+
+func (m *Manga) getMangaEntry(call goja.FunctionCall) goja.Value {
+	promise, resolve, reject := m.vm.NewPromise()
+
+	mediaId := call.Argument(0).ToInteger()
+
+	if mediaId == 0 {
+		_ = reject(goja_bindings.NewErrorString(m.vm, "anilist platform not found"))
+		return m.vm.ToValue(promise)
+	}
+
+	anilistPlatformRef, ok := m.ctx.anilistPlatformRef.Get()
+	if !ok {
+		_ = reject(goja_bindings.NewErrorString(m.vm, "anilist platform not found"))
+		return m.vm.ToValue(promise)
+	}
+
+	fileCacher, ok := m.ctx.fileCacher.Get()
+	if !ok {
+		_ = reject(goja_bindings.NewErrorString(m.vm, "filler manager not found"))
+		return m.vm.ToValue(promise)
+	}
+
+	go func() {
+		// Get the user's manga collection
+		mangaCollection, err := anilistPlatformRef.Get().GetMangaCollection(context.Background(), false)
+		if err != nil {
+			_ = reject(m.vm.ToValue(err.Error()))
+			return
+		}
+
+		if mangaCollection == nil {
+			_ = reject(goja_bindings.NewErrorString(m.vm, "anilist collection not found"))
+			return
+		}
+
+		// Create a new media entry
+		entry, err := manga.NewEntry(context.Background(), &manga.NewEntryOptions{
+			MediaId:         int(mediaId),
+			Logger:          m.logger,
+			FileCacher:      fileCacher,
+			PlatformRef:     anilistPlatformRef,
+			MangaCollection: mangaCollection,
+		})
+		if err != nil {
+			_ = reject(goja_bindings.NewError(m.vm, err))
+			return
+		}
+
+		m.scheduler.ScheduleAsync(func() error {
+			_ = resolve(m.vm.ToValue(entry))
 			return nil
 		})
 	}()

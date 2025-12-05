@@ -118,7 +118,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 description="Choose how to play anime files stored on your device"
                 className={cn(
                     "transition-all duration-200",
-                    usingNativePlayer && "hidden",
+                    usingNativePlayer && "opacity-50",
                 )}
             >
                 <div className="space-y-4">
@@ -216,7 +216,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 description="Choose how to play streamed content from torrents and debrid services"
                 className={cn(
                     "transition-all duration-200",
-                    usingNativePlayer && "hidden",
+                    usingNativePlayer && "opacity-50",
                 )}
             >
                 <div className="space-y-4">
