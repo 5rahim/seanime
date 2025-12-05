@@ -143,6 +143,7 @@ const (
 )
 
 const (
-	VideoSourceMP4  VideoSourceType = "mp4"
-	VideoSourceM3U8 VideoSourceType = "m3u8"
+	VideoSourceMP4     VideoSourceType = "mp4"
+	VideoSourceM3U8    VideoSourceType = "m3u8"
+	VideoSourceUnknown VideoSourceType = "unknown"
 )

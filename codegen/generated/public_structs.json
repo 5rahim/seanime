@@ -27902,9 +27902,9 @@
         "name": "Server",
         "jsonName": "Server",
         "goType": "INTERNAL_Config_Server",
-        "inlineStructType": "struct{\nHost string\nPort int\nOffline bool\nUseBinaryPath bool\nSystray bool\nDoHUrl string\nPassword string}",
+        "inlineStructType": "struct{\nHost string\nPort int\nOffline bool\nUseBinaryPath bool\nSystray bool\nDoHUrl string\nPassword string\nTls __STRUCT__}",
         "typescriptType": "INTERNAL_Config_Server",
-        "usedTypescriptType": "{ Host: string; Port: number; Offline: boolean; UseBinaryPath: boolean; Systray: boolean; DoHUrl: string; Password: string; }",
+        "usedTypescriptType": "{ Host: string; Port: number; Offline: boolean; UseBinaryPath: boolean; Systray: boolean; DoHUrl: string; Password: string; Tls: { Enabled: boolean; CertPath: string; KeyPath: string; }; }",
         "usedStructName": "core.Config_Server",
         "required": true,
         "public": true,
@@ -28101,6 +28101,17 @@
         "jsonName": "Password",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tls",
+        "jsonName": "Tls",
+        "goType": "__STRUCT__",
+        "inlineStructType": "struct{\nEnabled bool\nCertPath string\nKeyPath string}",
+        "typescriptType": "{ Enabled: boolean; CertPath: string; KeyPath: string; }",
+        "usedTypescriptType": "{ Enabled: boolean; CertPath: string; KeyPath: string; }",
         "required": true,
         "public": true,
         "comments": []
@@ -38255,7 +38266,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"mp4\"",
-        "\"m3u8\""
+        "\"m3u8\"",
+        "\"unknown\""
       ]
     },
     "comments": []
@@ -40714,284 +40726,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
-    "filename": "_gogoanime_external.go",
-    "name": "Gogoanime",
-    "formattedName": "Gogoanime",
-    "package": "main",
-    "fields": [
-      {
-        "name": "BaseURL",
-        "jsonName": "BaseURL",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AjaxURL",
-        "jsonName": "AjaxURL",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Client",
-        "jsonName": "Client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
-    "filename": "_gogoanime_external.go",
-    "name": "GogoCDN",
-    "formattedName": "GogoCDN",
-    "package": "main",
-    "fields": [
-      {
-        "name": "client",
-        "jsonName": "client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "serverName",
-        "jsonName": "serverName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "keys",
-        "jsonName": "keys",
-        "goType": "cdnKeys",
-        "typescriptType": "cdnKeys",
-        "usedTypescriptType": "cdnKeys",
-        "usedStructName": "main.cdnKeys",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "referrer",
-        "jsonName": "referrer",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
-    "filename": "_gogoanime_external.go",
-    "name": "StreamSB",
-    "formattedName": "StreamSB",
-    "package": "main",
-    "fields": [
-      {
-        "name": "Host",
-        "jsonName": "Host",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Host2",
-        "jsonName": "Host2",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/testdir/_mangapill_external.go",
-    "filename": "_mangapill_external.go",
-    "name": "Mangapill",
-    "formattedName": "Mangapill",
-    "package": "main",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "Url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Client",
-        "jsonName": "Client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/testdir/_my_anime_torrent_provider.go",
-    "filename": "_my_anime_torrent_provider.go",
-    "name": "MyAnimeTorrentProvider",
-    "formattedName": "MyAnimeTorrentProvider",
-    "package": "main",
-    "fields": [
-      {
-        "name": "url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "client",
-        "jsonName": "client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/testdir/_my_online_streaming_provider.go",
-    "filename": "_my_online_streaming_provider.go",
-    "name": "Provider",
-    "formattedName": "Provider",
-    "package": "main",
-    "fields": [
-      {
-        "name": "url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "client",
-        "jsonName": "client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedTypescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedTypescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/extension_repo/userconfig.go",
     "filename": "userconfig.go",
     "name": "ExtensionUserConfig",
@@ -41022,6 +40756,165 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_bindings/chromedp.go",
+    "filename": "chromedp.go",
+    "name": "ChromeDP",
+    "formattedName": "ChromeDP",
+    "package": "goja_bindings",
+    "fields": [
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedTypescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chromeSem",
+        "jsonName": "chromeSem",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "responseCh",
+        "jsonName": "responseCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "browsers",
+        "jsonName": "browsers",
+        "goType": "map[string]Browser",
+        "typescriptType": "Record\u003cstring, Browser\u003e",
+        "usedTypescriptType": "Browser",
+        "usedStructName": "goja_bindings.Browser",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "browserMu",
+        "jsonName": "browserMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_bindings/chromedp.go",
+    "filename": "chromedp.go",
+    "name": "Browser",
+    "formattedName": "Browser",
+    "package": "goja_bindings",
+    "fields": [
+      {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chromedp",
+        "jsonName": "chromedp",
+        "goType": "ChromeDP",
+        "typescriptType": "ChromeDP",
+        "usedTypescriptType": "ChromeDP",
+        "usedStructName": "goja_bindings.ChromeDP",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "allocCtx",
+        "jsonName": "allocCtx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedTypescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "allocCancel",
+        "jsonName": "allocCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedTypescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "timeout",
+        "jsonName": "timeout",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedTypescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Browser represents a browser instance"
+    ]
   },
   {
     "filepath": "../internal/goja/goja_bindings/fetch.go",

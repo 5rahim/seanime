@@ -1377,12 +1377,12 @@ declare namespace $app {
     function onPreDeleteEntry(cb: (event: PreDeleteEntryEvent) => void): void;
 
     interface PreDeleteEntryEvent {
-        mediaId?: number;
-        entryId?: number;
-
         next(): void;
 
         preventDefault(): void;
+
+        mediaId?: number;
+        entryId?: number;
     }
 
     /**
@@ -1392,10 +1392,10 @@ declare namespace $app {
     function onPostDeleteEntry(cb: (event: PostDeleteEntryEvent) => void): void;
 
     interface PostDeleteEntryEvent {
+        next(): void;
+
         mediaId?: number;
         entryId?: number;
-
-        next(): void;
     }
 
 

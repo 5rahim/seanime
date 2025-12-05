@@ -68,6 +68,7 @@ import {
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
+    VideoCorePlaybackInfo,
     VideoCorePlaybackState,
     VideoCoreVideoSource,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
@@ -622,7 +623,7 @@ export interface VideoCoreProps {
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
-    onChangePlaybackType?: (type: "stream" | "hls") => void
+    onChangePlaybackType?: (type: VideoCorePlaybackInfo["streamType"]) => void
     inline?: boolean
     mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
@@ -658,7 +659,7 @@ export function VideoCore(props: VideoCoreProps) {
         mRef,
     } = props
 
-    const [streamType, setStreamType] = useState<NonNullable<VideoCorePlaybackState["playbackInfo"]>["streamType"]>(state.playbackInfo?.streamType ?? "stream")
+    const [streamType, setStreamType] = useState<VideoCorePlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)

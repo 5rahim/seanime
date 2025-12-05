@@ -50,7 +50,7 @@ const NO_TRACK_IDX = -1
  *       id: "video-1",
  *       playbackType: "onlinestream",
  *       streamUrl: "https://example.com/video.mp4",
- *       streamType: "stream",
+ *       streamType: "native",
  *       subtitleTracks: [
  *         {
  *           src: "https://example.com/subtitles/en.vtt",

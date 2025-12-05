@@ -2824,7 +2824,7 @@ export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
  * - Filename: types.go
  * - Package: hibikeonlinestream
  */
-export type HibikeOnlinestream_VideoSourceType = "mp4" | "m3u8"
+export type HibikeOnlinestream_VideoSourceType = "mp4" | "m3u8" | "unknown"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hibiketorrent

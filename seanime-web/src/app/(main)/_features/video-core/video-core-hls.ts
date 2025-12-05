@@ -39,6 +39,12 @@ export function isHLSSrc(src: string): boolean {
     return HLS_VIDEO_EXTENSIONS.test(src)
 }
 
+export const NATIVE_VIDEO_EXTENSIONS = /\.(mp4|avi|3gp|ogg)($|\?)/i
+
+export function isNativeVideoExtension(src: string): boolean {
+    return NATIVE_VIDEO_EXTENSIONS.test(src)
+}
+
 export function useVideoCoreHls({
     videoElement,
     streamUrl,
@@ -249,5 +255,44 @@ export function useVideoCoreHls({
             audioManager.onHlsTrackChange?.(currentAudioTrack)
         }
     }, [currentAudioTrack, audioManager])
+}
+
+export const HLSMimeTypes = ["application/vnd.apple.mpegurl", "audio/mpegurl", "audio/x-mpegurl", "application/x-mpegurl", "video/x-mpegurl",
+    "video/mpegurl", "application/mpegurl"]
+
+export async function isProbablyHls(url: string): Promise<"hls" | "unknown"> {
+    try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+        const response = await fetch(url, {
+            method: "HEAD",
+            cache: "no-store",
+            signal: controller.signal,
+        })
+
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+            console.warn(`Request for URL failed: ${response.status}`)
+            return "unknown"
+        }
+
+        const contentType = response.headers.get("Content-Type")?.toLowerCase()
+
+        if (contentType && HLSMimeTypes.includes(contentType)) {
+            return "hls"
+        }
+
+        return "unknown"
+    }
+    catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+            console.warn("Request timed out")
+        } else {
+            console.error("Error detecting stream type:", error)
+        }
+        return "unknown"
+    }
 }
 

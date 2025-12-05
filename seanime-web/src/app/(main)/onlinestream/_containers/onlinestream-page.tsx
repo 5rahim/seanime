@@ -7,13 +7,13 @@ import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
-import { isHLSSrc } from "@/app/(main)/_features/video-core/video-core-hls"
+import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
 import {
     VideoCoreInlineHelpers,
     VideoCoreInlineHelperUpdateProgressButton,
     VideoCoreInlineLayout,
 } from "@/app/(main)/_features/video-core/video-core-inline-helpers"
-import { vc_useLibassRendererAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_useLibassRendererAtom, VideoCorePlaybackInfo, VideoCoreVideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
@@ -63,6 +63,11 @@ const log = logger("ONLINESTREAM")
 // Episode view mode atom
 export const __onlineStream_episodeViewModeAtom = atomWithStorage<"list" | "grid">("sea-onlinestream-episode-view-mode", "list")
 
+function isValidVideoSourceType(type: string | null | undefined) {
+    if (!type) return false
+    return ["unknown", "mp4", "m3u8"].includes(type)
+}
+
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
@@ -83,6 +88,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const [quality, setQuality] = useAtom(__onlinestream_qualityAtom)
     const [dubbed, setDubbed] = useAtom(__onlinestream_selectedDubbedAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
+
+    const [overrideStreamType, setOverrideStreamType] = React.useState<VideoCorePlaybackInfo["streamType"] | null>(null)
 
     const [playbackError, setPlaybackError] = React.useState<string | null>(null)
 
@@ -145,43 +152,43 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         if (!episodeSource || !videoSources) return undefined
 
         let filtered = [...videoSources]
+        let qualitySatinized = quality
+        qualitySatinized = qualitySatinized?.includes("p") ? qualitySatinized?.split("p")?.[0]?.toLowerCase() + "p" : qualitySatinized
 
-        log.info("Selecting video source", { quality, server })
+        log.info("Selecting video source", { qualitySatinized, server })
         // If server is set, filter sources by server
         if (server && filtered.some(n => n.server === server)) {
             filtered = filtered.filter(s => s.server === server)
         }
 
-        const hasQuality = filtered.some(n => n.quality === quality)
+        const hasPreferredQuality = qualitySatinized && filtered.some(n => n.quality.toLowerCase().includes(qualitySatinized!))
         const hasAuto = filtered.some(n => n.quality === "auto")
 
         log.info("Filtering video sources by quality", {
             hasAuto,
-            hasQuality,
+            hasPreferredQuality,
         })
 
         // If quality is set, filter sources by quality
         // Only filter by quality if the quality is present in the sources
-        if (quality && hasQuality) {
-            filtered = filtered.filter(s => s.quality === quality)
+        if (qualitySatinized && hasPreferredQuality) {
+            filtered = filtered.filter(n => n.quality.toLowerCase().includes(qualitySatinized!))
         } else if (hasAuto) {
-            filtered = filtered.filter(s => s.quality === "auto")
+            filtered = filtered.filter(n => n.quality.toLowerCase() === "auto" || n.quality.toLowerCase().includes("default"))
         } else {
-
             log.info("Choosing a quality")
-
             if (filtered.some(n => n.quality.includes("1080p"))) {
-                filtered = filtered.filter(s => s.quality.includes("1080p"))
+                filtered = filtered.filter(n => n.quality.includes("1080p"))
             } else if (filtered.some(n => n.quality.includes("720p"))) {
-                filtered = filtered.filter(s => s.quality.includes("720p"))
+                filtered = filtered.filter(n => n.quality.includes("720p"))
             } else if (filtered.some(n => n.quality.includes("480p"))) {
-                filtered = filtered.filter(s => s.quality.includes("480p"))
+                filtered = filtered.filter(n => n.quality.includes("480p"))
             } else if (filtered.some(n => n.quality.includes("360p"))) {
-                filtered = filtered.filter(s => s.quality.includes("360p"))
+                filtered = filtered.filter(n => n.quality.includes("360p"))
             }
 
             if (filtered.some(n => n.quality.includes("default"))) {
-                filtered = filtered.filter(s => s.quality.includes("default"))
+                filtered = filtered.filter(n => n.quality.includes("default"))
             }
         }
 
@@ -222,10 +229,25 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 } else {
                     _url = videoSource.url
                 }
-                React.startTransition(() => {
-                    log.info("Setting stream URL", { url: _url })
-                    setUrl(_url)
+                React.startTransition(async () => {
+                    // If the video source is unknown or we can't determine if it's a native video from the url,
+                    // send a HEAD request to determine the content type
+                    if (videoSource.type === "unknown" || !isValidVideoSourceType(videoSource.type) || (videoSource.type === "mp4" && !isNativeVideoExtension(
+                        _url)) || (videoSource.type === "m3u8" && !isHLSSrc(_url))) {
+                        log.warning("Verifying original video source type", videoSource)
+                        if (await isProbablyHls(_url) === "hls") {
+                            log.info("Detected HLS source type")
+                            setOverrideStreamType("hls")
+                        } else {
+                            setOverrideStreamType(!isValidVideoSourceType(videoSource.type) ? "native" : null)
+                        }
+                    }
+                    React.startTransition(() => {
+                        log.info("Setting stream URL", { url: _url, quality, server, dubbed, provider })
+                        setUrl(_url)
+                    })
                 })
+                console.warn()
             }
         })()
     }, [videoSource, server, quality, dubbed, provider])
@@ -246,9 +268,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         })
     }
 
-    const changeQuality = React.useCallback((quality: string) => {
+    const changeQuality = React.useCallback((source: VideoCoreVideoSource) => {
         savePreviousStateThen(() => {
-            setQuality(quality)
+            setQuality(source.resolution)
         })
     }, [videoSource])
 
@@ -551,7 +573,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                             media: media,
                                             episode: currentEpisode?.metadata,
                                             playlistExternalEpisodeNumbers: episodes?.map(e => e.number),
-                                            streamType: ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "stream",
+                                            streamType: overrideStreamType
+                                                ? overrideStreamType
+                                                : ((url && isHLSSrc(url)) || videoSource?.type === "m3u8") ? "hls" : "native",
                                             subtitleTracks: episodeSource?.subtitles?.map((sub, index) => ({
                                                 index: index,
                                                 label: sub.language,
@@ -566,7 +590,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                                 src: source.url,
                                                 resolution: source.quality,
                                             })) : undefined,
-                                            selectedVideoSource: videoSources?.findIndex(source => source.quality === quality) ?? undefined,
+                                            selectedVideoSource: videoSources?.findIndex(source => source.quality === videoSource?.quality) ?? undefined,
                                             trackContinuity: true,
                                             initialState: previousState ?? undefined,
                                             enableDiscordRichPresence: true,
@@ -582,7 +606,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     onPlayEpisode={handlePlayEpisode}
                                     onFileUploaded={() => {}}
                                     onVideoSourceChange={source => {
-                                        changeQuality(source.resolution)
+                                        changeQuality(source)
                                     }}
                                     onHlsFatalError={(err) => onFatalError(`HLS error: ${err.error.message}`)}
                                     onHlsMediaDetached={() => {}}

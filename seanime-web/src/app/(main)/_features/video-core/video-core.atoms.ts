@@ -53,7 +53,7 @@ export type VideoCorePlaybackInfo = {
     selectedVideoSource?: number
     media?: AL_BaseAnime
     episode?: Anime_Episode
-    streamType: "stream" | "hls"
+    streamType: "native" | "hls" | "unknown"
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
