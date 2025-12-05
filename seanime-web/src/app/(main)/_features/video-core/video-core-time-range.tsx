@@ -396,7 +396,7 @@ function VideoCoreTimeRangeSegment(props: {
     )
 }
 
-const timePreviewLog = logger("VIDEO CORE / TIME PREVIEW")
+const timeRangeLog = logger("VIDEO CORE TIME RANGE")
 
 function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) {
     const { chapters } = props
@@ -434,17 +434,27 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         return chapter?.label
     }, [isSwiping, swipeSeekTime, duration, seekingTargetProgress, chapters])
 
-    const handleTimeRangePreview = React.useCallback(async (event: MouseEvent) => {
-        if (!previewManager || !duration || !timeRangeElement || isMobile) {
+    const handleTimeRangePreview = React.useCallback(async (event: Event) => {
+        if (!previewManager || !duration || !timeRangeElement) {
             return
         }
 
         setPreviewThumbnail(null)
         timeRangeElement.removeAttribute("data-preview-image")
 
-        // Calculate preview time based on mouse position
+        // Calculate preview time based on mouse or touch position
         const rect = timeRangeElement.getBoundingClientRect()
-        const x = event.clientX - rect.left
+        let clientX: number
+
+        if (event instanceof TouchEvent && event.touches.length > 0) {
+            clientX = event.touches[0].clientX
+        } else if (event instanceof MouseEvent) {
+            clientX = event.clientX
+        } else {
+            return
+        }
+
+        const x = clientX - rect.left
         const percentage = Math.max(0, Math.min(1, x / rect.width))
         const previewTime = percentage * duration
 
@@ -459,13 +469,13 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
                 }
             }
             catch (error) {
-                timePreviewLog.error("Failed to get thumbnail", error)
+                timeRangeLog.error("Failed to get thumbnail", error)
             }
         }
-    }, [previewManager, timeRangeElement, duration, isMobile])
+    }, [previewManager, timeRangeElement, duration])
 
     React.useEffect(() => {
-        if (!timeRangeElement || isMobile) {
+        if (!timeRangeElement) {
             return
         }
 
@@ -474,12 +484,27 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
             setPreviewThumbnail(null)
         }
 
-        timeRangeElement.addEventListener("mouseleave", handleMouseLeave)
-        timeRangeElement.addEventListener("mousemove", handleTimeRangePreview)
+        const handleTouchEnd = () => {
+            timeRangeElement.removeAttribute("data-preview-image")
+            setPreviewThumbnail(null)
+        }
+
+        if (isMobile) {
+            timeRangeElement.addEventListener("touchmove", handleTimeRangePreview, { passive: true })
+            timeRangeElement.addEventListener("touchend", handleTouchEnd)
+        } else {
+            timeRangeElement.addEventListener("mouseleave", handleMouseLeave)
+            timeRangeElement.addEventListener("mousemove", handleTimeRangePreview)
+        }
 
         return () => {
-            timeRangeElement.removeEventListener("mouseleave", handleMouseLeave)
-            timeRangeElement.removeEventListener("mousemove", handleTimeRangePreview)
+            if (isMobile) {
+                timeRangeElement.removeEventListener("touchmove", handleTimeRangePreview)
+                timeRangeElement.removeEventListener("touchend", handleTouchEnd)
+            } else {
+                timeRangeElement.removeEventListener("mouseleave", handleMouseLeave)
+                timeRangeElement.removeEventListener("mousemove", handleTimeRangePreview)
+            }
         }
     }, [handleTimeRangePreview, timeRangeElement, isMobile])
 
@@ -499,7 +524,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
                 }
             }
             catch (error) {
-                timePreviewLog.error("Failed to get swipe thumbnail", error)
+                timeRangeLog.error("Failed to get swipe thumbnail", error)
             }
         }
 
@@ -513,19 +538,23 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         }
     }, [isSwiping])
 
-    const showThumbnail = !isMobile && (!isMiniPlayer && previewManager && (seeking || isSwiping || !!targetTime)) &&
+    const showThumbnail = (!isMiniPlayer && previewManager && (seeking || isSwiping || !!targetTime)) &&
         targetTime <= previewManager.getLastestCachedIndex() * VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS
 
     return <>
 
         {showThumbnail && <div
             className={cn(
-                "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50",
+                "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50 pointer-events-none",
             )}
-            style={{
+            style={!isMobile ? {
                 left: `clamp(${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px, ${(targetTime / duration) * 100}%, calc(100% - ${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px))`,
                 width: VIDEOCORE_PREVIEW_THUMBNAIL_SIZE + "px",
                 transform: "translateX(-50%) translateY(-54%)",
+            } : {
+                left: `clamp(${140 / 2}px, ${(targetTime / duration) * 100}%, calc(100% - ${140 / 2}px))`,
+                width: 140 + "px",
+                transform: "translateX(-50%) translateY(-64%)",
             }}
         >
             {!!previewThumbnail && <Image

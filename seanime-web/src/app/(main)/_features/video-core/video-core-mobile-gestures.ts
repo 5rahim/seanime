@@ -1,4 +1,5 @@
 import { vc_duration, vc_isFullscreen, vc_isMobile, vc_isSwiping, vc_swipeSeekTime } from "@/app/(main)/_features/video-core/video-core"
+import { vc_timeRangeElement } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -22,6 +23,7 @@ export function useVideoCoreMobileGestures({
     const isMobile = useAtomValue(vc_isMobile)
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const duration = useAtomValue(vc_duration)
+    const timeRangeElement = useAtomValue(vc_timeRangeElement)
     const touchStartRef = useRef<{ x: number; y: number; time: number; currentTime: number } | null>(null)
 
     useEffect(() => {
@@ -33,6 +35,12 @@ export function useVideoCoreMobileGestures({
         const handleTouchStart = (e: TouchEvent) => {
             // Only handle single touch
             if (e.touches.length !== 1) return
+
+            // Ignore touches that start on the time range element
+            if (timeRangeElement && (e.target === timeRangeElement || timeRangeElement.contains(e.target as Node))) {
+                setIsSwiping(false)
+                return
+            }
 
             const touch = e.touches[0]
             touchStartRef.current = {
@@ -47,14 +55,16 @@ export function useVideoCoreMobileGestures({
 
         const handleTouchMove = (e: TouchEvent) => {
             if (!touchStartRef.current || e.touches.length !== 1) return
+            // e.preventDefault()
 
             const touch = e.touches[0]
             const deltaX = touch.clientX - touchStartRef.current.x
             const deltaY = touch.clientY - touchStartRef.current.y
 
-            // Check if this is a horizontal swipe (more horizontal than vertical)
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
-                // Prevent default to stop scrolling
+            // Check if it's not a vertical swipe for scrolling
+            const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) || isSwiping
+
+            if (isHorizontal) {
                 e.preventDefault()
 
                 if (!isSwiping) {
@@ -62,12 +72,12 @@ export function useVideoCoreMobileGestures({
                     log.info("Started swiping")
                 }
 
-                // Calculate seek time based on swipe distance
-                const seekDelta = deltaX / 1
-                const newTime = Math.max(0, Math.min(videoElement.duration, touchStartRef.current.currentTime + seekDelta))
+                const screenWidth = window.innerWidth
+                const seekRatio = deltaX / screenWidth
+                const seekDelta = seekRatio * duration
+                const newTime = Math.max(0, Math.min(duration, touchStartRef.current.currentTime + seekDelta))
 
                 setSwipeSeekTime(newTime)
-                log.info("Swipe seek time", newTime)
             }
         }
 
@@ -80,10 +90,14 @@ export function useVideoCoreMobileGestures({
                 const deltaX = touch.clientX - touchStartRef.current.x
                 const deltaY = touch.clientY - touchStartRef.current.y
 
+                const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) || isSwiping
+
                 // Only seek if it was a horizontal swipe
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
-                    const seekDelta = deltaX / 1
-                    const newTime = Math.max(0, Math.min(videoElement.duration, touchStartRef.current.currentTime + seekDelta))
+                if (isHorizontal) {
+                    const screenWidth = window.innerWidth
+                    const seekRatio = deltaX / screenWidth
+                    const seekDelta = seekRatio * duration
+                    const newTime = Math.max(0, Math.min(duration, touchStartRef.current.currentTime + seekDelta))
 
                     log.info("Applying seek to", newTime)
                     onSeek(newTime)
@@ -119,6 +133,6 @@ export function useVideoCoreMobileGestures({
             containerElement.removeEventListener("touchend", handleTouchEnd)
             containerElement.removeEventListener("touchcancel", handleTouchCancel)
         }
-    }, [videoElement, containerElement, isMobile, isFullscreen, isSwiping, setIsSwiping, setSwipeSeekTime, duration, onSeek])
+    }, [videoElement, containerElement, isMobile, isFullscreen, isSwiping, setIsSwiping, setSwipeSeekTime, duration, onSeek, timeRangeElement])
 }
 

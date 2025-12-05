@@ -1088,12 +1088,6 @@ export function VideoCore(props: VideoCoreProps) {
             return manager
         })
 
-        log.info("Initializing preview manager")
-        setPreviewManager(p => {
-            if (p) p.cleanup()
-            return new VideoCorePreviewManager(v!, streamUrl)
-        })
-
         if (
             discordRichPresenceEnabled &&
             serverStatus?.settings?.discord?.enableRichPresence &&
@@ -1123,6 +1117,29 @@ export function VideoCore(props: VideoCoreProps) {
             })
         }
     }
+
+    function setupPreviewManager() {
+        if (previewManager !== null) {
+            previewManager.cleanup()
+            setPreviewManager(null)
+        }
+        React.startTransition(() => {
+            if (videoRef.current && streamUrl) {
+                log.info("Initializing preview manager")
+                setPreviewManager(p => {
+                    if (p) p.cleanup()
+                    return new VideoCorePreviewManager(videoRef.current!, streamUrl!, streamType, state.playbackInfo?.playbackType !== "onlinestream")
+                })
+            }
+        })
+    }
+
+    // Setup preview manager when stream type changes
+    React.useEffect(() => {
+        if (currentPlaybackRef.current) {
+            setupPreviewManager()
+        }
+    }, [streamType, currentPlaybackRef.current])
 
     const lastUpdatedWatchHistoryRef = React.useRef(Date.now())
 

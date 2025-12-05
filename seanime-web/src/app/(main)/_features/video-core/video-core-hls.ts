@@ -228,7 +228,7 @@ export function useVideoCoreHls({
                 }
             }
         } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
-            hlsLog.info("Native HLS support detected for .m3u8 stream")
+            hlsLog.info("Native support detected for HLS stream")
             videoElement.src = streamUrl
             setQualityLevels([])
             setCurrentQuality(-1)
