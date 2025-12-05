@@ -22,6 +22,7 @@ type VideoCoreInlineHelpers = {
     media: AL_BaseAnime,
     currentEpisodeNumber: number | null,
     currentProgress: number,
+    url: string | null
 }
 
 export function VideoCoreInlineHelpers({
@@ -29,79 +30,94 @@ export function VideoCoreInlineHelpers({
     media,
     currentEpisodeNumber,
     currentProgress,
+    url,
 }: VideoCoreInlineHelpers) {
     const serverStatus = useServerStatus()
-
-    // Track fullscreen state
-    const wasFullscreenRef = React.useRef<boolean>(false)
 
     // Track progress update state
     const [hasUpdatedProgress, setHasUpdateProgress] = useAtom(vc_inlineHelper_hasUpdatedProgress)
     const [progressUpdateData, setProgressUpdateData] = useAtom(vc_inlineHelper_progressUpdateData)
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: _ } = useUpdateAnimeEntryProgress(
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: updated } = useUpdateAnimeEntryProgress(
         media?.id,
         currentProgress,
     )
 
+    // Reset state when media, episode, or update completes
     React.useEffect(() => {
         setProgressUpdateData(null)
         setHasUpdateProgress(false)
-    }, [media, currentProgress])
+    }, [media, currentEpisodeNumber, url, updated])
 
     React.useEffect(() => {
+        if (!playerRef.current || !media || currentEpisodeNumber === null || !url) return
 
-        if (!playerRef.current || !media || currentEpisodeNumber === null) return
+        const PROGRESS_THRESHOLD = 0.8
+        const CHECK_INTERVAL = 1000 // Check every second
+        const MIN_VALID_TIME = 1
 
-        function onTimeUpdate(e: Event) {
-            if (!(e.currentTarget instanceof HTMLVideoElement)) return
-            if (hasUpdatedProgress || currentEpisodeNumber === null) return
+        const checkProgress = () => {
+            const player = playerRef.current
+            if (!player) return
 
+            // Skip if already updated or currently updating
+            if (hasUpdatedProgress || isUpdatingProgress) return
+
+            // Skip if progress update data already exists
             if (progressUpdateData !== null) return
 
-            if (e.currentTarget.currentTime <= 1
-                || e.currentTarget.duration <= 1
-                || currentProgress >= currentEpisodeNumber
-                || (e.currentTarget.currentTime / e.currentTarget.duration) < 0.8
-            ) {
-                setProgressUpdateData(null)
-                return
-            }
+            const { currentTime, duration } = player
 
+            if (!(currentTime > MIN_VALID_TIME && duration > MIN_VALID_TIME && isFinite(duration))) return
+
+            if (currentProgress >= currentEpisodeNumber) return
+
+            const watchedRatio = currentTime / duration
+            if (watchedRatio < PROGRESS_THRESHOLD) return
+
+            // Handle auto-update or prompt user
             if (serverStatus?.settings?.library?.autoUpdateProgress) {
-                if (!isUpdatingProgress) {
-                    setHasUpdateProgress(true)
-                    updateProgress({
-                        episodeNumber: currentProgress + 1,
-                        mediaId: media?.id,
-                        totalEpisodes: media?.episodes || 0,
-                        malId: media?.idMal || undefined,
-                    }, {
-                        onSuccess: () => {
-                            setHasUpdateProgress(true)
-                        },
-                        onError: () => {
-                            setHasUpdateProgress(false)
-                        },
-                    })
-                }
+                setHasUpdateProgress(true)
+                updateProgress({
+                    episodeNumber: currentEpisodeNumber,
+                    mediaId: media.id,
+                    totalEpisodes: media.episodes || 0,
+                    malId: media.idMal || undefined,
+                }, {
+                    onSuccess: () => {
+                        setHasUpdateProgress(true)
+                    },
+                    onError: () => {
+                        setHasUpdateProgress(false)
+                    },
+                })
             } else {
                 setProgressUpdateData({
                     media,
-                    currentProgress: currentProgress,
-                    currentEpisodeNumber: currentEpisodeNumber,
+                    currentProgress,
+                    currentEpisodeNumber,
                 })
             }
         }
 
-        playerRef.current?.addEventListener("timeupdate", onTimeUpdate)
+        // Start interval
+        const intervalId = setInterval(checkProgress, CHECK_INTERVAL)
 
+        // Cleanup
         return () => {
-            playerRef.current?.removeEventListener("timeupdate", onTimeUpdate)
+            clearInterval(intervalId)
         }
-        },
-        [currentEpisodeNumber, media, playerRef.current, hasUpdatedProgress, serverStatus?.settings?.library?.autoUpdateProgress, currentProgress,
-            progressUpdateData])
+    }, [
+        currentEpisodeNumber,
+        media,
+        playerRef,
+        hasUpdatedProgress,
+        isUpdatingProgress,
+        serverStatus?.settings?.library?.autoUpdateProgress,
+        currentProgress,
+        progressUpdateData,
+        url,
+    ])
 
     return null
 }
@@ -118,7 +134,7 @@ export function VideoCoreInlineHelperUpdateProgressButton() {
     function handleProgressUpdate() {
         if (!progressUpdateData || !progressUpdateData.media) return
         updateProgress({
-            episodeNumber: (progressUpdateData?.currentEpisodeNumber || 0) + 1,
+            episodeNumber: (progressUpdateData?.currentEpisodeNumber || 0),
             mediaId: progressUpdateData?.media?.id,
             totalEpisodes: progressUpdateData?.media?.episodes || 0,
             malId: progressUpdateData?.media?.idMal || undefined,

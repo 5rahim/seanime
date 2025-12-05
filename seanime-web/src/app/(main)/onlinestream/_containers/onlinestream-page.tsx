@@ -508,6 +508,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 currentEpisodeNumber={currentEpisodeNumber}
                 currentProgress={progress}
                 media={media}
+                url={url}
             />
             <VideoCoreInlineLayout
                 mediaId={mediaId ? Number(mediaId) : undefined}
