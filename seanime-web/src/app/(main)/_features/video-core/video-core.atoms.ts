@@ -94,9 +94,9 @@ export type VideoCoreSettings = {
 }
 
 export const vc_initialSettings: VideoCoreSettings = {
-    preferredSubtitleLanguage: "en,eng",
+    preferredSubtitleLanguage: "en,eng,english",
     preferredSubtitleBlacklist: "",
-    preferredAudioLanguage: "jpn,jp,jap",
+    preferredAudioLanguage: "jpn,jp,jap,japanese",
     subtitleDelay: 0,
     videoEnhancement: {
         enabled: true,

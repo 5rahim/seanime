@@ -2,7 +2,7 @@ import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { CaptionsRenderer, parseResponse, VTTCue } from "media-captions"
+import { CaptionsRenderer, ParsedCaptionsResult, parseResponse, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
 
@@ -33,13 +33,15 @@ type LoadedTrack = {
     index: number
     metadata: MediaCaptionsTrackInfo
     cues: VTTCue[]
-    regions: any[]
+    regions: VTTRegion[]
+    loaded: boolean
+    loadFn: () => Promise<ParsedCaptionsResult> | null
 }
 
 const NO_TRACK_IDX = -1
 
 /**
- * Manages non-ASS subtitles.
+ * Manages subtitles rendered using media-captions.
  * ```tsx
  * <VideoCore
  *   state={{
@@ -129,7 +131,7 @@ export class MediaCaptionsManager {
         })
     }
 
-    public selectTrack(index: number) {
+    public async selectTrack(index: number) {
         if (index < 0 || index >= this.tracks.length) {
             this.setNoTrack()
             return
@@ -144,15 +146,24 @@ export class MediaCaptionsManager {
         this.currentTrackIndex = index
         log.info(`Selected track: ${this.tracks[index].label}`)
 
+        this._onSelectedTrackChanged?.(index)
+
         if (this.renderer) {
+            if (!track.loaded) {
+                log.info("Loading track", index)
+                const res = await track.loadFn()
+                if (res) {
+                    track.cues = res.cues
+                    track.regions = res.regions
+                }
+                track.loaded = true
+            }
             this.renderer.changeTrack({
                 cues: track.cues,
                 regions: track.regions,
             })
             this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
         }
-
-        this._onSelectedTrackChanged?.(index)
     }
 
     public setNoTrack() {
@@ -167,11 +178,20 @@ export class MediaCaptionsManager {
     /*
      * Render captions to a canvas context for PIP mode
      */
-    public renderToCanvas(context: CanvasRenderingContext2D, width: number, height: number, currentTime: number) {
+    public async renderToCanvas(context: CanvasRenderingContext2D, width: number, height: number, currentTime: number) {
         if (this.currentTrackIndex === NO_TRACK_IDX || !this.renderer) return
 
         const track = this.loadedTracks[this.currentTrackIndex]
         if (!track) return
+
+        if (!track.loaded) {
+            const res = await track.loadFn()
+            if (res) {
+                track.cues = res.cues
+                track.regions = res.regions
+            }
+            track.loaded = true
+        }
 
         // Find active cues for current time
         const activeCues = track.cues.filter(cue =>
@@ -385,54 +405,47 @@ export class MediaCaptionsManager {
         this.applyCaptionStyles()
 
         // Load all tracks
-        await this.loadTracks(() => {
-                // When the first track is loaded, start rendering captions
-                // Select default track
-                const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.tracks.map((t, idx) => ({ ...t, number: idx })))
-                this.selectTrack(defaultTrackNumber)
-                // Setup time update listener
-                this.timeUpdateListener = () => {
-                    if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
-                        this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
-                    }
-                }
-                this.videoElement.addEventListener("timeupdate", this.timeUpdateListener)
-                this._onTracksLoaded?.(this.getTracks())
-            },
-            () => {
-                this._onTracksLoaded?.(this.getTracks())
-            })
+        await this.loadTracks()
 
     }
 
-    private async loadTracks(onFirstTrackLoaded: () => void, onTrackLoaded: () => void) {
+    private async loadTracks() {
         let isFirstTrackLoaded = false
         for (let i = 0; i < this.tracks.length; i++) {
             const track = this.tracks[i]
             try {
-                const result = await parseResponse(fetch(track.src), {
-                    // type: track.type,
-                })
-
                 this.loadedTracks.push({
                     index: i,
                     metadata: track,
-                    cues: result.cues,
-                    regions: result.regions,
+                    cues: [],
+                    regions: [],
+                    loaded: false,
+                    loadFn: async () => {
+                        return await parseResponse(fetch(track.src), {
+                            // type: track.type,
+                        })
+                    },
                 })
 
                 log.info(`Loaded track: ${track.label}`)
-                if (!isFirstTrackLoaded) {
-                    onFirstTrackLoaded()
                     isFirstTrackLoaded = true
-                } else {
-                    onTrackLoaded()
-                }
             }
             catch (error) {
                 log.error(`Failed to load track: ${track.label}`, error)
             }
         }
+        // When the first track is loaded, start rendering captions
+        // Select default track
+        const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, this.tracks.map((t, idx) => ({ ...t, number: idx })))
+        await this.selectTrack(defaultTrackNumber)
+        // Setup time update listener
+        this.timeUpdateListener = () => {
+            if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
+                this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
+            }
+        }
+        this.videoElement.addEventListener("timeupdate", this.timeUpdateListener)
+        this._onTracksLoaded?.(this.getTracks())
     }
 }
 

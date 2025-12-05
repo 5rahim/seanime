@@ -138,10 +138,10 @@ export function vc_getSubtitleStyleLabel<T extends keyof VideoCoreSettings["subt
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const CAPTION_STYLES_FONT_SIZE_OPTIONS = [
-    { label: "Small", value: 3 },
-    { label: "Medium", value: 4 },
-    { label: "Large", value: 5 },
-    { label: "Extra Large", value: 6 },
+    { label: "Small", value: 4 },
+    { label: "Medium", value: 5 },
+    { label: "Large", value: 5.7 },
+    { label: "Extra Large", value: 6.1 },
 ]
 
 export const CAPTION_STYLES_TEXT_SHADOW_OPTIONS = [

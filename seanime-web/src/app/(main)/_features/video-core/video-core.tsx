@@ -945,7 +945,7 @@ export function VideoCore(props: VideoCoreProps) {
         setSkipOpeningTime(null)
         setSkipEndingTime(null)
 
-        onCaptionsChange()
+        // onCaptionsChange() not needed?
         onAudioChange()
 
         videoCompletedRef.current = false

@@ -8,7 +8,7 @@ import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
 import JASSUB, { ASS_Event, ASS_Style, JassubOptions } from "jassub"
 import { toast } from "sonner"
 
-const subtitleLog = logger("SUBTITLE")
+const subtitleLog = logger("VIDEO CORE SUBTITLE")
 
 const NO_TRACK_NUMBER = -1
 const DEFAULT_FONT_NAME = "roboto medium"
@@ -457,8 +457,12 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     // When called for the first time, it will initialize the libass renderer.
     private _selectDefaultTrack() {
-        if (this.currentTrackNumber !== NO_TRACK_NUMBER) return
+        if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
+            subtitleLog.warning("A track is already selected, cannot select default track")
+            return
+        }
         const tracks = this._getTracks()
+        subtitleLog.info("Selecting default track", tracks)
 
         if (!tracks?.length) {
             this.setNoTrack()
@@ -466,12 +470,17 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
 
         if (tracks.length === 1) {
+            subtitleLog.info("Only one track found, selecting it")
             this.selectTrack(tracks[0].number)
             return
         }
 
         // Split preferred languages by comma and trim whitespace
         const defaultTrackNumber = getDefaultSubtitleTrackNumber(this.settings, tracks)
+        subtitleLog.info("Default subtitle track number",
+            defaultTrackNumber,
+            this.settings.preferredSubtitleLanguage,
+            this.settings.preferredSubtitleBlacklist)
         this.selectTrack(defaultTrackNumber)
     }
 
@@ -776,7 +785,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
 export function getDefaultSubtitleTrackNumber(
     settings: VideoCoreSettings,
-    tracks: { label?: string, language?: string, number: number, forced?: boolean, default?: boolean }[] | null = null,
+    _tracks: { label?: string, language?: string, number: number, forced?: boolean, default?: boolean }[] | null = null,
 ): number {
     // Split preferred languages by comma and trim whitespace
     const preferredLanguages = settings.preferredSubtitleLanguage
@@ -789,9 +798,15 @@ export function getDefaultSubtitleTrackNumber(
         .map(label => label.trim().toLowerCase())
         .filter(label => label.length > 0)
 
+    let tracks = _tracks ?? []
+    // remove blacklisted tracks if there are more than one
+    if (blacklistLabels.length && tracks.length > 1) {
+        tracks = tracks?.filter?.(t => !t.label || !blacklistLabels.includes(t.label?.toLowerCase())) ?? []
+    }
+
     // Try each preferred language in order
     for (const preferredLang of preferredLanguages) {
-        const foundTracks = tracks?.filter?.(t => t.language === preferredLang && !blacklistLabels.includes(t.label?.toLowerCase() || ""))
+        let foundTracks = tracks?.filter?.(t => t.language?.toLowerCase() === preferredLang?.toLowerCase())
         if (foundTracks?.length) {
             // Find default or forced track
             const defaultIndex = foundTracks.findIndex(t => t.forced)

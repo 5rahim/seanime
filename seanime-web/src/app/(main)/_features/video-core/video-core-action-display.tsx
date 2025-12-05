@@ -64,7 +64,7 @@ export function VideoCoreActionDisplay() {
         <div className="absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
             <div
                 className={cn(
-                    "text-white px-2 py-1 text-sm md:text-md !lg:text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
+                    "text-white px-2 py-1 text-sm md:text-md lg:text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
                     isMiniPlayer && "text-sm",
                 )}
             >
