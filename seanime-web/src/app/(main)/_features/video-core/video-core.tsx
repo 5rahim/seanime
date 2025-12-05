@@ -1195,8 +1195,31 @@ export function VideoCore(props: VideoCoreProps) {
     let lastClickTime = React.useRef(0)
 
     const handleClick = (e: React.SyntheticEvent<HTMLDivElement>) => {
-        log.info("Video clicked")
+        // log.info("Video clicked")
         // check if right click
+
+        if (inline) {
+            if (e.type === "click") {
+                const now = Date.now()
+                if (lastClickTime.current && now - lastClickTime.current < 300) {
+                    fullscreenManager?.toggleFullscreen()
+                } else {
+                    if (!debouncedMenuOpen) {
+                        togglePlay()
+                    }
+                    setTimeout(() => {
+                        setBusy(false)
+                    }, 100)
+                }
+                lastClickTime.current = now
+            }
+
+            if (e.type === "contextmenu") {
+                e.preventDefault()
+            }
+            return
+        }
+
         if (e.type === "click") {
             if (!debouncedMenuOpen) {
                 togglePlay()

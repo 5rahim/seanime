@@ -78,6 +78,7 @@ export class MediaCaptionsManager {
     private tracks: MediaCaptionsTrackInfo[] = []
     private loadedTracks: LoadedTrack[] = []
     private renderer: CaptionsRenderer | null = null
+    private wrapperElement: HTMLDivElement | null = null
     private overlayElement: HTMLDivElement | null = null
     private currentTrackIndex: number = NO_TRACK_IDX
     private timeUpdateListener: (() => void) | null = null
@@ -378,6 +379,11 @@ export class MediaCaptionsManager {
             this.overlayElement = null
         }
 
+        if (this.wrapperElement) {
+            this.wrapperElement.remove()
+            this.wrapperElement = null
+        }
+
         this.loadedTracks = []
         this.tracks = []
         this.currentTrackIndex = NO_TRACK_IDX
@@ -385,6 +391,16 @@ export class MediaCaptionsManager {
 
     private async init() {
         log.info("Initializing media-captions manager", this.tracks)
+
+        this.wrapperElement = document.createElement("div")
+        this.wrapperElement.id = "video-core-captions-wrapper"
+        this.wrapperElement.style.position = "absolute"
+        this.wrapperElement.style.inset = "0"
+        this.wrapperElement.style.pointerEvents = "none"
+        this.wrapperElement.style.zIndex = "10"
+        this.wrapperElement.style.overflow = "hidden"
+        this.wrapperElement.classList.add("transform-gpu", "transition-all", "duration-300", "ease-in-out")
+        this.videoElement.parentElement?.appendChild(this.wrapperElement)
 
         // Create overlay element for captions
         this.overlayElement = document.createElement("div")
@@ -396,7 +412,7 @@ export class MediaCaptionsManager {
         this.overlayElement.style.overflow = "hidden"
 
         // Insert overlay after video element
-        this.videoElement.parentElement?.appendChild(this.overlayElement)
+        this.wrapperElement.appendChild(this.overlayElement)
 
         // Create renderer
         this.renderer = new CaptionsRenderer(this.overlayElement)
@@ -410,7 +426,6 @@ export class MediaCaptionsManager {
     }
 
     private async loadTracks() {
-        let isFirstTrackLoaded = false
         for (let i = 0; i < this.tracks.length; i++) {
             const track = this.tracks[i]
             try {
@@ -428,7 +443,6 @@ export class MediaCaptionsManager {
                 })
 
                 log.info(`Loaded track: ${track.label}`)
-                    isFirstTrackLoaded = true
             }
             catch (error) {
                 log.error(`Failed to load track: ${track.label}`, error)

@@ -138,6 +138,20 @@ export function VideoCoreControlBar(props: {
         }
     }, [containerElement, paused, isMiniPlayer, seeking, hoveringControlBar])
 
+    React.useLayoutEffect(() => {
+        if (!containerElement || isMobile) return
+        const captionsOverlay = containerElement.querySelector("#video-core-captions-wrapper") as HTMLElement
+        if (!captionsOverlay) return
+        if (controlBarBottomPx === 0 || showOnlyTimeRange) {
+            captionsOverlay.style.setProperty("--tw-translate-y", `-${showOnlyTimeRange ? 20 : 50}px`, "important")
+        } else {
+            captionsOverlay.style.setProperty("--tw-translate-y", "0%")
+        }
+        return () => {
+            captionsOverlay.style.removeProperty("--tw-translate-y")
+        }
+    }, [controlBarBottomPx, containerElement, isMobile])
+
     return (
         <>
             <div
