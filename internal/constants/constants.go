@@ -7,7 +7,7 @@ import (
 
 const (
 	Version              = "3.1.0"
-	VersionName          = "Rettō"
+	VersionName          = "Mori"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.1.0
+
+- ✨️ Online Streaming: New player with added features (Experimental)
+  - Supports common subtitle formats including ASS/SSA
+  - Anime4K sharpening support
+  - SRT/VTT soft subs to ASS conversion support
+  - Preview thumbnails
+  - Preferences (language, audio, keybinds)
+- ✨ Denshi Player: New features and improvements
+  - PGS subtitle support (Experimental)
+  - ASS subtitle customization
+  - Custom ASS font support
+  - Blacklist subtitle names
+  - Subtitle delay support
+  - Faster thumbnail generation
+- ⚡️ Server: TLS support @Juj1-js
+- ⚡️ Extensions: Added ChromeDP headless browser API
+- 🦺 Video Proxy: Fixed playlist failing at integer conversion
+- 🦺 Continue Watching: Add entries without metadata when streaming
+- 🦺 Plugins: Updated API
+  - Added Pre/PostDeleteEntry hooks
+  - Added '$anilist.ClearCache()' and 'ctx.anime.clearEpisodeMetadataCache()'
+- 🏗️ iOS: Update PWA icon
+- ⬆️ Updated Go, Next.js and dependencies
+
 ## v3.0.8
 
 - 🦺 Extensions: Fixed "incompatible or obsolete" extension error on startup (regression)
