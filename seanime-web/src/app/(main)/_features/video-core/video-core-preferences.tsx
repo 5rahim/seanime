@@ -663,7 +663,7 @@ export function VideoCoreKeybindingController(props: {
         // Escape - Exit fullscreen
         if (e.code === "Escape" && fullscreen) {
             e.preventDefault()
-            document.exitFullscreen()
+            fullscreenManager?.exitFullscreen()
             return
         }
 

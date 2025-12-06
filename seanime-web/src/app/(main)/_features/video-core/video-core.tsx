@@ -547,7 +547,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreSettingsMenu />
                             <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
-                            <VideoCoreSubtitleMenu />
+                            <VideoCoreSubtitleMenu inline={inline} />
                             <VideoCoreAudioMenu />
                             <VideoCorePipButton />
                             <VideoCoreFullscreenButton />
@@ -559,7 +559,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             topRightSection={<>
                                 <VideoCoreSettingsMenu />
                                 <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
-                                <VideoCoreSubtitleMenu />
+                                <VideoCoreSubtitleMenu inline={inline} />
                                 <VideoCoreAudioMenu />
                                 <VideoCorePipButton />
                                 <VideoCoreVolumeButton />

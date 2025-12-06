@@ -27,7 +27,7 @@ import React from "react"
 import { AiFillInfoCircle } from "react-icons/ai"
 import { LuCaptions, LuPaintbrush } from "react-icons/lu"
 
-export function VideoCoreSubtitleMenu() {
+export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
     const action = useSetAtom(vc_dispatchAction)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const state = useAtomValue(nativePlayer_stateAtom)
@@ -118,7 +118,7 @@ export function VideoCoreSubtitleMenu() {
                 }}
             />}
         >
-            <VideoCoreMenuTitle>Subtitles {!!subtitleManager && <Tooltip
+            <VideoCoreMenuTitle>Subtitles {(!!subtitleManager && !inline) && <Tooltip
                 trigger={<AiFillInfoCircle className="text-sm" />}
                 className="z-[150]"
                 portalContainer={containerElement ?? undefined}

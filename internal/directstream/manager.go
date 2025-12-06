@@ -21,7 +21,7 @@ import (
 )
 
 // Manager handles direct stream playback and progress tracking for the built-in video player.
-// It is similar to [playbackmanager.PlaybackManager].
+// It is similar to playbackmanager.PlaybackManager.
 type (
 	Manager struct {
 		Logger *zerolog.Logger
