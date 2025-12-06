@@ -21,6 +21,11 @@ import (
 var episodeCollectionCache = result.NewBoundedCache[int, *EpisodeCollection](10)
 var EpisodeCollectionFromLocalFilesCache = result.NewBoundedCache[int, *EpisodeCollection](10)
 
+func ClearEpisodeCollectionCache() {
+	episodeCollectionCache.Clear()
+	EpisodeCollectionFromLocalFilesCache.Clear()
+}
+
 type (
 	// EpisodeCollection represents a collection of episodes.
 	EpisodeCollection struct {
@@ -185,10 +190,6 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 	episodeCollectionCache.SetT(opts.Media.ID, ec, time.Minute*10)
 
 	return
-}
-
-func ClearEpisodeCollectionCache() {
-	episodeCollectionCache.Clear()
 }
 
 /////////

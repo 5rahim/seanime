@@ -1367,6 +1367,37 @@ declare namespace $app {
         mediaId?: number;
     }
 
+    /**
+     * @event PreDeleteEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     * @description
+     * PreDeleteEntryEvent is triggered when an entry is about to be deleted.
+     * Prevent default to skip the default deletion and override the deletion.
+     */
+    function onPreDeleteEntry(cb: (event: PreDeleteEntryEvent) => void): void;
+
+    interface PreDeleteEntryEvent {
+        next(): void;
+
+        preventDefault(): void;
+
+        mediaId?: number;
+        entryId?: number;
+    }
+
+    /**
+     * @event PostDeleteEntryEvent
+     * @file internal/platforms/platform/hook_events.go
+     */
+    function onPostDeleteEntry(cb: (event: PostDeleteEntryEvent) => void): void;
+
+    interface PostDeleteEntryEvent {
+        next(): void;
+
+        mediaId?: number;
+        entryId?: number;
+    }
+
 
     /**
      * @package playbackmanager
@@ -3652,6 +3683,7 @@ declare namespace $app {
         image?: string;
         description?: string;
         isFiller?: boolean;
+        metadata?: Anime_Episode;
     }
 
     /**

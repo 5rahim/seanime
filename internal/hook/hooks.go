@@ -29,6 +29,8 @@ type Manager interface {
 	OnPostUpdateEntryProgress() *Hook[hook_resolver.Resolver]
 	OnPreUpdateEntryRepeat() *Hook[hook_resolver.Resolver]
 	OnPostUpdateEntryRepeat() *Hook[hook_resolver.Resolver]
+	OnPreDeleteEntry() *Hook[hook_resolver.Resolver]
+	OnPostDeleteEntry() *Hook[hook_resolver.Resolver]
 
 	// Anime library events
 	OnAnimeEntryRequested() *Hook[hook_resolver.Resolver]
@@ -171,6 +173,8 @@ type ManagerImpl struct {
 	onPostUpdateEntryProgress     *Hook[hook_resolver.Resolver]
 	onPreUpdateEntryRepeat        *Hook[hook_resolver.Resolver]
 	onPostUpdateEntryRepeat       *Hook[hook_resolver.Resolver]
+	onPreDeleteEntry              *Hook[hook_resolver.Resolver]
+	onPostDeleteEntry             *Hook[hook_resolver.Resolver]
 	// Anime library events
 	onAnimeEntryRequested             *Hook[hook_resolver.Resolver]
 	onAnimeEntry                      *Hook[hook_resolver.Resolver]
@@ -311,6 +315,8 @@ func (m *ManagerImpl) initHooks() {
 	m.onPostUpdateEntryProgress = &Hook[hook_resolver.Resolver]{}
 	m.onPreUpdateEntryRepeat = &Hook[hook_resolver.Resolver]{}
 	m.onPostUpdateEntryRepeat = &Hook[hook_resolver.Resolver]{}
+	m.onPreDeleteEntry = &Hook[hook_resolver.Resolver]{}
+	m.onPostDeleteEntry = &Hook[hook_resolver.Resolver]{}
 	// Anime library events
 	m.onAnimeEntryRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeEntry = &Hook[hook_resolver.Resolver]{}
@@ -539,6 +545,20 @@ func (m *ManagerImpl) OnPostUpdateEntryRepeat() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onPostUpdateEntryRepeat
+}
+
+func (m *ManagerImpl) OnPreDeleteEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onPreDeleteEntry
+}
+
+func (m *ManagerImpl) OnPostDeleteEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onPostDeleteEntry
 }
 
 // Anime entry events

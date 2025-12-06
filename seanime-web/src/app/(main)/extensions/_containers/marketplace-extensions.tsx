@@ -546,8 +546,8 @@ export function MarketplaceExtensionCard(props: MarketplaceExtensionCardProps) {
                                 alt="extension icon"
                                 crossOrigin="anonymous"
                                 fill
+                                isExternal
                                 quality={100}
-                                priority
                                 className="object-cover"
                             />
                         ) : <div className="w-full h-full flex items-center justify-center">

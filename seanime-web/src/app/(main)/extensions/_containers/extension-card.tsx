@@ -152,8 +152,8 @@ export function ExtensionCard(props: ExtensionCardProps) {
                                 crossOrigin="anonymous"
                                 fill
                                 quality={100}
-                                priority
                                 className="object-cover"
+                                isExternal
                             />
                         ) : <div className="w-full h-full flex items-center justify-center">
                             <p className="text-2xl font-bold">

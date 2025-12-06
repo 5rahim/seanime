@@ -169,6 +169,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("fieldRef", c.jsfieldRef)
 
 	c.bindFetch(obj)
+	c.bindChromeDP(obj)
 	// Bind screen manager
 	c.screenManager.bind(obj)
 	// Bind action manager

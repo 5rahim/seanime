@@ -119,3 +119,17 @@ type PostUpdateEntryRepeatEvent struct {
 	hook_resolver.Event
 	MediaID *int `json:"mediaId"`
 }
+
+// PreDeleteEntryEvent is triggered when an entry is about to be deleted.
+// Prevent default to skip the default deletion and override the deletion.
+type PreDeleteEntryEvent struct {
+	hook_resolver.Event
+	MediaID *int `json:"mediaId"`
+	EntryID *int `json:"entryId"`
+}
+
+type PostDeleteEntryEvent struct {
+	hook_resolver.Event
+	MediaID *int `json:"mediaId"`
+	EntryID *int `json:"entryId"`
+}

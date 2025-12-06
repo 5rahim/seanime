@@ -34,6 +34,13 @@ func (a *AppContextImpl) BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Objec
 
 	// Get downloaded chapter containers
 	_ = animeObj.Set("getAnimeEntry", m.getAnimeEntry)
+	_ = animeObj.Set("clearEpisodeMetadataCache", func(call goja.FunctionCall) goja.Value {
+		metadataProviderRef, ok := a.metadataProviderRef.Get()
+		if ok {
+			metadataProviderRef.Get().ClearCache()
+		}
+		return goja.Undefined()
+	})
 	_ = obj.Set("anime", animeObj)
 }
 

@@ -141,8 +141,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			// Get the media info
 			animeMetadata, err := opts.MetadataProviderRef.Get().GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 			if err != nil {
-				r.logger.Error().Err(err).Msg("torrentstream: could not fetch AniDB media")
-				return
+				animeMetadata = anime.NewAnimeMetadataFromEpisodeCount(entry.GetMedia(), lo.RangeFrom(1, entry.GetMedia().GetCurrentEpisodeCount()))
 			}
 
 			_, found := animeMetadata.FindEpisode(strconv.Itoa(nextEpisodeToWatch))

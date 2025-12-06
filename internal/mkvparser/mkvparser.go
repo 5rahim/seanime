@@ -6,13 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"image/png"
 	"io"
 	"path/filepath"
+	"seanime/internal/matroska"
+	"seanime/internal/pgs"
 	"seanime/internal/util"
 	"strings"
 	"sync"
-
-	"seanime/internal/matroska"
 
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
@@ -124,7 +125,7 @@ func getSubtitleTrackType(codecID string) string {
 // parseMetadataOnce performs the actual parsing of the file stream.
 func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 	mp.parseOnce.Do(func() {
-		mp.logger.Debug().Msg("mkvparser2: Starting metadata parsing")
+		mp.logger.Debug().Msg("mkvparser: Starting metadata parsing")
 
 		_, _ = mp.reader.Seek(0, io.SeekStart)
 
@@ -137,13 +138,13 @@ func (mp *MetadataParser) parseMetadataOnce(ctx context.Context) {
 			matroska.IDAttachments,
 		)
 		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser2: Failed to create demuxer")
-			mp.parseErr = fmt.Errorf("mkvparser2: Failed to create demuxer: %w", err)
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to create demuxer")
+			mp.parseErr = fmt.Errorf("mkvparser: Failed to create demuxer: %w", err)
 			return
 		}
 
 		mp.demuxer = demuxer
-		mp.logger.Debug().Msg("mkvparser2: Metadata parsing completed")
+		mp.logger.Debug().Msg("mkvparser: Metadata parsing completed")
 	})
 }
 
@@ -171,7 +172,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		// Get file info
 		fileInfo, err := mp.demuxer.GetFileInfo()
 		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser2: Failed to get file info")
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to get file info")
 			result.Error = err
 			mp.extractedMetadata = result
 			return
@@ -189,7 +190,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		// Get tracks
 		numTracks, err := mp.demuxer.GetNumTracks()
 		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser2: Failed to get number of tracks")
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to get number of tracks")
 			result.Error = err
 			mp.extractedMetadata = result
 			return
@@ -198,7 +199,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 		for i := uint(0); i < numTracks; i++ {
 			trackInfo, err := mp.demuxer.GetTrackInfo(i)
 			if err != nil {
-				mp.logger.Error().Err(err).Uint("track", i).Msg("mkvparser2: Failed to get track info")
+				mp.logger.Error().Err(err).Uint("track", i).Msg("mkvparser: Failed to get track info")
 				continue
 			}
 
@@ -299,7 +300,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			//// Extract attachment data from file
 			//data, err := mp.extractAttachmentData(attachment.Position, attachment.Length)
 			//if err != nil {
-			//	mp.logger.Error().Err(err).Str("filename", attachment.Name).Msg("mkvparser2: Failed to extract attachment data")
+			//	mp.logger.Error().Err(err).Str("filename", attachment.Name).Msg("mkvparser: Failed to extract attachment data")
 			//} else {
 			//	attachmentInfo.Data = data
 			//	attachmentInfo.Size = len(data)
@@ -322,7 +323,7 @@ func (mp *MetadataParser) GetMetadata(ctx context.Context) *Metadata {
 			Int("tracks", len(result.Tracks)).
 			Int("chapters", len(result.Chapters)).
 			Int("attachments", len(result.Attachments)).
-			Msg("mkvparser2: Metadata parsing complete")
+			Msg("mkvparser: Metadata parsing complete")
 
 		// Generate MimeCodec string
 		result.MimeCodec = mp.generateMimeCodec(result)
@@ -456,12 +457,12 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 	extractCtx, cancel := context.WithCancel(ctx)
 
 	if offset > 0 {
-		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser2: Attempting to find cluster near offset")
+		mp.logger.Debug().Int64("offset", offset).Msg("mkvparser: Attempting to find cluster near offset")
 
 		clusterSeekOffset, err := findNextClusterOffset(newReader, offset, backoffBytes)
 		if err != nil {
 			if !errors.Is(err, io.EOF) {
-				mp.logger.Error().Err(err).Msg("mkvparser2: Failed to seek to offset for subtitle extraction")
+				mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to offset for subtitle extraction")
 			}
 			cancel()
 			closeChannels(err)
@@ -470,11 +471,11 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 		close(startedCh)
 
-		mp.logger.Debug().Int64("clusterSeekOffset", clusterSeekOffset).Msg("mkvparser2: Found cluster near offset")
+		mp.logger.Debug().Int64("clusterSeekOffset", clusterSeekOffset).Msg("mkvparser: Found cluster near offset")
 
 		_, err = newReader.Seek(clusterSeekOffset, io.SeekStart)
 		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser2: Failed to seek to cluster offset")
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to seek to cluster offset")
 			cancel()
 			closeChannels(err)
 			return subtitleCh, errCh, startedCh
@@ -488,7 +489,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			closeChannels(fmt.Errorf("subtitle extraction goroutine panic"))
 		})
 		defer cancel()
-		defer mp.logger.Trace().Msgf("mkvparser2: Subtitle extraction goroutine finished.")
+		defer mp.logger.Trace().Msgf("mkvparser: Subtitle extraction goroutine finished.")
 
 		sampler := lo.ToPtr(mp.logger.Sample(&zerolog.BasicSampler{N: 500}))
 
@@ -496,7 +497,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		mp.parseMetadataOnce(extractCtx)
 
 		if mp.parseErr != nil && !errors.Is(mp.parseErr, io.EOF) {
-			mp.logger.Error().Err(mp.parseErr).Msg("mkvparser2: ExtractSubtitles cannot proceed due to initial metadata parsing error")
+			mp.logger.Error().Err(mp.parseErr).Msg("mkvparser: ExtractSubtitles cannot proceed due to initial metadata parsing error")
 			closeChannels(fmt.Errorf("initial metadata parse failed: %w", mp.parseErr))
 			return
 		}
@@ -504,7 +505,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		// Get metadata to know subtitle tracks
 		metadata := mp.GetMetadata(extractCtx)
 		if metadata.Error != nil {
-			mp.logger.Error().Err(metadata.Error).Msg("mkvparser2: Failed to get metadata for subtitle extraction")
+			mp.logger.Error().Err(metadata.Error).Msg("mkvparser: Failed to get metadata for subtitle extraction")
 			closeChannels(metadata.Error)
 			return
 		}
@@ -516,7 +517,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		}
 
 		if len(subtitleTracks) == 0 {
-			mp.logger.Info().Msg("mkvparser2: No subtitle tracks found for streaming")
+			mp.logger.Info().Msg("mkvparser: No subtitle tracks found for streaming")
 			closeChannels(nil)
 			return
 		}
@@ -524,19 +525,20 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 		// Create a new demuxer for reading packets
 		demuxer, err := matroska.NewDemuxer(newReader, matroska.IDSegmentInfo)
 		if err != nil {
-			mp.logger.Error().Err(err).Msg("mkvparser2: Failed to create streaming demuxer")
+			mp.logger.Error().Err(err).Msg("mkvparser: Failed to create streaming demuxer")
 			closeChannels(err)
 			return
 		}
 		defer demuxer.Close()
 
 		lastSubtitleEvents := make(map[uint8]*SubtitleEvent)
+		pgsDecoders := make(map[uint8]*pgs.PgsDecoder)
 
 		// Read packets and extract subtitles
 		for {
 			select {
 			case <-extractCtx.Done():
-				mp.logger.Debug().Msg("mkvparser2: Subtitle extraction cancelled by context")
+				mp.logger.Debug().Msg("mkvparser: Subtitle extraction cancelled by context")
 				closeChannels(nil)
 				return
 			default:
@@ -545,11 +547,11 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 			packet, err := demuxer.ReadPacket()
 			if err != nil {
 				if errors.Is(err, io.EOF) {
-					mp.logger.Debug().Msg("mkvparser2: Reached end of stream")
+					mp.logger.Debug().Msg("mkvparser: Reached end of stream")
 					closeChannels(nil)
 					return
 				}
-				mp.logger.Error().Err(err).Msg("mkvparser2: Error reading packet")
+				mp.logger.Error().Err(err).Msg("mkvparser: Error reading packet")
 				closeChannels(err)
 				return
 			}
@@ -559,8 +561,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 				continue
 			}
 
-			// Skip PGS and unknown subtitle types
-			if getSubtitleTrackType(track.CodecID) == "PGS" || getSubtitleTrackType(track.CodecID) == "unknown" {
+			// Skip unknown subtitle types
+			if getSubtitleTrackType(track.CodecID) == "unknown" {
 				continue
 			}
 
@@ -585,7 +587,7 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 				duration = float64(track.defaultDuration) / 1e6
 			}
 
-			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx)
+			subtitleEvent := mp.processSubtitleData(packet.Track, track, subtitleData, milliseconds, duration, packet.FilePos, sampler, lastSubtitleEvents, subtitleCh, extractCtx, pgsDecoders)
 			if subtitleEvent != nil {
 				eventCopy := *subtitleEvent
 				lastSubtitleEvents[packet.Track] = &eventCopy
@@ -595,6 +597,8 @@ func (mp *MetadataParser) ExtractSubtitles(ctx context.Context, newReader io.Rea
 
 	return subtitleCh, errCh, startedCh
 }
+
+var ssaKeys = []string{"readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"}
 
 // processSubtitleData processes subtitle data and sends events to the channel
 func (mp *MetadataParser) processSubtitleData(
@@ -607,6 +611,7 @@ func (mp *MetadataParser) processSubtitleData(
 	lastSubtitleEvents map[uint8]*SubtitleEvent,
 	subtitleCh chan<- *SubtitleEvent,
 	ctx context.Context,
+	pgsDecoders map[uint8]*pgs.PgsDecoder,
 ) *SubtitleEvent {
 	initialText := string(subtitleData)
 	subtitleEvent := &SubtitleEvent{
@@ -620,30 +625,26 @@ func (mp *MetadataParser) processSubtitleData(
 	}
 
 	// Handling for ASS/SSA format
-	if track.CodecID == "S_TEXT/ASS" || track.CodecID == "S_TEXT/SSA" {
+	switch {
+	case track.CodecID == "S_TEXT/ASS" || track.CodecID == "S_TEXT/SSA":
 		values := strings.Split(initialText, ",")
 		if len(values) < 9 {
 			return nil
 		}
-
 		startIndex := 1
 		if track.CodecID == "S_TEXT/SSA" {
 			startIndex = 2
 		}
-
-		ssaKeys := []string{"readorder", "layer", "style", "name", "marginl", "marginr", "marginv", "effect"}
 		for i := startIndex; i < 8 && i < len(values); i++ {
 			if i < len(ssaKeys) {
 				subtitleEvent.ExtraData[ssaKeys[i]] = values[i]
 			}
 		}
-
 		if len(values) > 8 {
 			text := strings.Join(values[8:], ",")
 			subtitleEvent.Text = text
 		}
-	} else if track.CodecID == "S_TEXT/UTF8" {
-		// Convert UTF8 to ASS format
+	case track.CodecID == "S_TEXT/UTF8":
 		subtitleEvent.Text = UTF8ToASSText(initialText)
 		subtitleEvent.CodecID = "S_TEXT/ASS"
 		subtitleEvent.ExtraData["readorder"] = "0"
@@ -652,26 +653,156 @@ func (mp *MetadataParser) processSubtitleData(
 		subtitleEvent.ExtraData["name"] = "Default"
 		subtitleEvent.ExtraData["marginl"] = "0"
 		subtitleEvent.ExtraData["marginr"] = "0"
+	case track.CodecID == "S_HDMV/PGS":
+		// Initialize decoder if not exists
+		if _, exists := pgsDecoders[trackNum]; !exists {
+			pgsDecoders[trackNum] = pgs.NewPgsDecoder()
+		}
+		decoder := pgsDecoders[trackNum]
+
+		segments := pgs.ListPgsSegments(subtitleData)
+		sampler.Debug().
+			Uint8("track", trackNum).
+			Int("dataLen", len(subtitleData)).
+			Strs("segments", segments).
+			Msg("mkvparser: Processing PGS packet")
+
+		// Decode PGS packet
+		img, err := decoder.DecodePacket(subtitleData)
+		if err != nil {
+			mp.logger.Warn().Err(err).Uint8("track", trackNum).Msg("mkvparser: Failed to decode PGS packet")
+			return nil
+		}
+
+		// Check if this is a clear command (no objects to display)
+		if decoder.IsClearCommand() {
+			sampler.Debug().
+				Uint8("track", trackNum).
+				Float64("clearTime", milliseconds).
+				Msg("mkvparser: PGS clear command received")
+
+			// Update the previous subtitle's duration to end at this clear command
+			if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
+				calculatedDuration := milliseconds - lastEvent.StartTime
+				if calculatedDuration > 0 {
+					updatedLastEvent := *lastEvent
+					updatedLastEvent.Duration = calculatedDuration
+
+					sampler.Debug().
+						Uint8("trackNum", trackNum).
+						Float64("previousStartTime", lastEvent.StartTime).
+						Float64("clearDuration", calculatedDuration).
+						Msg("mkvparser: Updated PGS subtitle duration from clear command")
+
+					select {
+					case subtitleCh <- &updatedLastEvent:
+					case <-ctx.Done():
+						return nil
+					}
+
+					// Remove the last event as it's now been properly terminated
+					delete(lastSubtitleEvents, trackNum)
+				}
+			}
+
+			return nil
+		}
+
+		// Only process if we got an image
+		if img != nil {
+			sampler.Debug().
+				Uint8("track", trackNum).
+				Int("width", img.Bounds().Dx()).
+				Int("height", img.Bounds().Dy()).
+				Msg("mkvparser: PGS image decoded successfully")
+
+			// If there's a buffered event, send it now with duration up to this new subtitle
+			if bufferedEvent, exists := lastSubtitleEvents[trackNum]; exists {
+				calculatedDuration := milliseconds - bufferedEvent.StartTime
+				if calculatedDuration > 0 {
+					bufferedEvent.Duration = calculatedDuration
+
+					sampler.Debug().
+						Uint8("trackNum", trackNum).
+						Float64("startTime", bufferedEvent.StartTime).
+						Float64("duration", calculatedDuration).
+						Msg("mkvparser: Sending previous PGS subtitle (replaced by new one)")
+
+					select {
+					case subtitleCh <- bufferedEvent:
+					case <-ctx.Done():
+						return nil
+					}
+				}
+			}
+
+			// Encode image to base64 PNG
+			encodedImage, err := pgs.EncodePgsImageToBase64PNG(img, png.BestSpeed)
+			if err != nil {
+				mp.logger.Warn().Err(err).Uint8("track", trackNum).Msg("mkvparser: Failed to encode PGS image")
+				return nil
+			}
+
+			subtitleEvent.Text = encodedImage
+			subtitleEvent.ExtraData["type"] = "image"
+			subtitleEvent.ExtraData["width"] = fmt.Sprintf("%d", img.Bounds().Dx())
+			subtitleEvent.ExtraData["height"] = fmt.Sprintf("%d", img.Bounds().Dy())
+
+			// Don't set duration yet, will be calculated when clear command or next subtitle arrives
+			subtitleEvent.Duration = 0
+
+			// Add composition information if available
+			if comp := decoder.GetCurrentComposition(); comp != nil {
+				subtitleEvent.ExtraData["canvas_width"] = fmt.Sprintf("%d", comp.Width)
+				subtitleEvent.ExtraData["canvas_height"] = fmt.Sprintf("%d", comp.Height)
+
+				// Add position information from first composition object
+				if len(comp.Objects) > 0 {
+					obj := comp.Objects[0]
+					subtitleEvent.ExtraData["x"] = fmt.Sprintf("%d", obj.X)
+					subtitleEvent.ExtraData["y"] = fmt.Sprintf("%d", obj.Y)
+
+					if obj.Cropped {
+						subtitleEvent.ExtraData["crop_x"] = fmt.Sprintf("%d", obj.CropX)
+						subtitleEvent.ExtraData["crop_y"] = fmt.Sprintf("%d", obj.CropY)
+						subtitleEvent.ExtraData["crop_width"] = fmt.Sprintf("%d", obj.CropWidth)
+						subtitleEvent.ExtraData["crop_height"] = fmt.Sprintf("%d", obj.CropHeight)
+					}
+				}
+			}
+
+			// Buffer this event, wait for clear command or next subtitle
+			// Return nil to skip the normal send logic
+			eventCopy := *subtitleEvent
+			lastSubtitleEvents[trackNum] = &eventCopy
+			return nil
+		} else {
+			// Packet processed but no complete image yet (multi-segment)
+			return nil
+		}
 	}
 
 	// Handle previous subtitle event duration
-	if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
-		if lastEvent.Duration == 0 {
-			calculatedDuration := milliseconds - lastEvent.StartTime
-			if calculatedDuration > 0 {
-				updatedLastEvent := *lastEvent
-				updatedLastEvent.Duration = calculatedDuration
+	// For non-PGS subs, calculate the duration from the previous subtitle event
+	if track.CodecID != "S_HDMV/PGS" {
+		if lastEvent, exists := lastSubtitleEvents[trackNum]; exists {
+			if lastEvent.Duration == 0 {
+				calculatedDuration := milliseconds - lastEvent.StartTime
+				if calculatedDuration > 0 {
+					updatedLastEvent := *lastEvent
+					updatedLastEvent.Duration = calculatedDuration
 
-				sampler.Trace().
-					Uint8("trackNum", trackNum).
-					Float64("previousStartTime", lastEvent.StartTime).
-					Float64("calculatedDuration", calculatedDuration).
-					Msg("mkvparser2: Updated previous subtitle event duration")
+					sampler.Trace().
+						Uint8("trackNum", trackNum).
+						Float64("previousStartTime", lastEvent.StartTime).
+						Float64("calculatedDuration", calculatedDuration).
+						Msg("mkvparser: Updated previous subtitle event duration")
 
-				select {
-				case subtitleCh <- &updatedLastEvent:
-				case <-ctx.Done():
-					return nil
+					select {
+					case subtitleCh <- &updatedLastEvent:
+					case <-ctx.Done():
+						return nil
+					}
 				}
 			}
 		}
@@ -682,10 +813,12 @@ func (mp *MetadataParser) processSubtitleData(
 		Float64("startTime", milliseconds).
 		Float64("duration", duration).
 		Str("codecId", track.CodecID).
-		Msg("mkvparser2: Subtitle event")
+		Msg("mkvparser: Subtitle event")
 
-	// Send current event if it has duration
-	if duration > 0 {
+	// Send current event
+	// PGS subtitles are buffered and sent from within their handling code
+	// Other subtitles are sent if they have a duration
+	if track.CodecID != "S_HDMV/PGS" && duration > 0 {
 		select {
 		case subtitleCh <- subtitleEvent:
 		case <-ctx.Done():

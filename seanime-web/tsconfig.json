@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -30,11 +30,13 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "out-denshi/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "out-denshi/types/**/*.ts",
+    "out-denshi/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

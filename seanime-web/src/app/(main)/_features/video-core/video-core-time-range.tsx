@@ -3,6 +3,8 @@ import {
     vc_currentTime,
     vc_dispatchAction,
     vc_duration,
+    vc_isMobile,
+    vc_isSwiping,
     vc_lastKnownProgress,
     vc_miniPlayer,
     vc_previewManager,
@@ -11,6 +13,7 @@ import {
     vc_seekingTargetProgress,
     vc_skipEndingTime,
     vc_skipOpeningTime,
+    vc_swipeSeekTime,
     vc_videoElement,
     VIDEOCORE_DEBUG_ELEMENTS,
     VideoCoreChapterCue,
@@ -21,8 +24,7 @@ import { vc_autoSkipOPEDAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarker
 import { vc_formatTime, vc_getChapterType, vc_getOPEDChapters } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
 import { logger } from "@/lib/helpers/debug"
-import { atom } from "jotai"
-import { useAtomValue } from "jotai/index"
+import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import React from "react"
@@ -50,6 +52,9 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     } = props
 
     const videoElement = useAtomValue(vc_videoElement)
+    const isMobile = useAtomValue(vc_isMobile)
+    const isSwiping = useAtomValue(vc_isSwiping)
+    const swipeSeekTime = useAtomValue(vc_swipeSeekTime)
 
     const currentTime = useAtomValue(vc_currentTime)
     const duration = useAtomValue(vc_duration)
@@ -105,8 +110,9 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const [progressPercentage, setProgressPercentage] = React.useState((currentTime / duration) * 100)
 
     React.useEffect(() => {
-        setProgressPercentage((currentTime / duration) * 100)
-    }, [currentTime, duration])
+        const timeToUse = isSwiping && swipeSeekTime !== null ? swipeSeekTime : currentTime
+        setProgressPercentage((timeToUse / duration) * 100)
+    }, [currentTime, duration, isSwiping, swipeSeekTime])
 
     const opEdChapters = vc_getOPEDChapters(chapters)
 
@@ -158,7 +164,12 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
         e.stopPropagation()
         if (!videoElement) return
-        if (e.button !== 0) return
+        // only check button for mouse events (touch events have button=-1)
+        if (e.pointerType === "mouse" && e.button !== 0) return
+        // prevent default touch behavior (scrolling, text selection)
+        if (e.pointerType === "touch") {
+            e.preventDefault()
+        }
         e.currentTarget.setPointerCapture(e.pointerId) // capture movement outside
         setSeeking(true)
         // pause while seeking
@@ -172,13 +183,34 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     // stop seeking
     function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
         e.stopPropagation()
-        if (e.button !== 0) return
-        e.currentTarget.releasePointerCapture(e.pointerId)
+        if (!videoElement) return
+        // only check button for mouse events (touch events have button=-1)
+        if (e.pointerType === "mouse" && e.button !== 0) return
+        // prevent default touch behavior
+        if (e.pointerType === "touch") {
+            e.preventDefault()
+        }
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+        }
         setSeeking(false)
         // actually seek the video
         action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
         // resume playing
-        if (!previouslyPaused) videoElement?.play()
+        if (!previouslyPaused) videoElement?.play()?.catch()
+    }
+
+    // handle interrupted touch/pointer
+    function handlePointerCancel(e: React.PointerEvent<HTMLDivElement>) {
+        if (!videoElement) return
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+        }
+        if (seeking) {
+            setSeeking(false)
+            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
+            if (!previouslyPaused) videoElement?.play()?.catch()
+        }
     }
 
     // stop seeking
@@ -199,6 +231,10 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
         const target = getPointerProgress(e)
         if (seeking) {
+            // prevent page scroll during seeking
+            if (e.pointerType === "touch") {
+                e.preventDefault()
+            }
             e.stopPropagation()
             setProgressPercentage(target)
         }
@@ -220,6 +256,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
                 "vc-time-range",
                 "w-full relative group/vc-time-range z-[2] flex h-8",
                 "cursor-pointer outline-none",
+                "touch-none select-none", // prevent page scroll and text selection on mobile
             )}
             role="slider"
             tabIndex={0}
@@ -231,7 +268,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             onPointerDown={handlePointerDown}
             onPointerUp={handlePointerUp}
             onPointerLeave={handlePointerLeave}
-            onPointerCancel={handlePointerLeave}
+            onPointerCancel={handlePointerCancel}
             onPointerMove={handlePointerMove}
         >
 
@@ -244,7 +281,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
                     progressPercentage={progressPercentage}
                     bufferedPercentage={bufferedPercentage}
                     chapter={chapter}
-                    showMarker={i < chapters.length - 1 && showChapterMarkers}
+                    showMarker={i < chapters.length - 1 && showChapterMarkers && !isMobile}
                 />
             })}
 
@@ -359,32 +396,45 @@ function VideoCoreTimeRangeSegment(props: {
     )
 }
 
-const timePreviewLog = logger("VIDEO CORE / TIME PREVIEW")
+const timeRangeLog = logger("VIDEO CORE TIME RANGE")
 
 function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) {
     const { chapters } = props
 
-    const videoElement = useAtomValue(vc_videoElement)
+    const isMobile = useAtomValue(vc_isMobile)
 
     const duration = useAtomValue(vc_duration)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const seekingTargetProgress = useAtomValue(vc_seekingTargetProgress)
     const seeking = useAtomValue(vc_seeking)
+    const isSwiping = useAtomValue(vc_isSwiping)
+    const swipeSeekTime = useAtomValue(vc_swipeSeekTime)
     const action = useSetAtom(vc_dispatchAction)
     const previewManager = useAtomValue(vc_previewManager)
     const timeRangeElement = useAtomValue(vc_timeRangeElement)
 
     const [previewThumbnail, setPreviewThumbnail] = React.useState<string | null>(null)
 
-    const targetTime = (duration * seekingTargetProgress) / 100 // in seconds
+    const targetTime = React.useMemo(() => {
+        if (isSwiping && swipeSeekTime !== null) {
+            return swipeSeekTime
+        }
+        return (duration * seekingTargetProgress) / 100
+    }, [isSwiping, swipeSeekTime, duration, seekingTargetProgress])
 
     const chapterLabel = React.useMemo(() => {
         // returns chapter name at the current target
-        const chapter = chapters.find(chapter => chapter.percentageOffset <= seekingTargetProgress && chapter.percentageOffset + chapter.width >= seekingTargetProgress)
+        const targetPercentage = isSwiping && swipeSeekTime !== null
+            ? (swipeSeekTime / duration) * 100
+            : seekingTargetProgress
+        const chapter = chapters.find(chapter =>
+            chapter.percentageOffset <= targetPercentage &&
+            chapter.percentageOffset + chapter.width >= targetPercentage,
+        )
         return chapter?.label
-    }, [seekingTargetProgress, chapters])
+    }, [isSwiping, swipeSeekTime, duration, seekingTargetProgress, chapters])
 
-    const handleTimeRangePreview = React.useCallback(async (event: MouseEvent) => {
+    const handleTimeRangePreview = React.useCallback(async (event: Event) => {
         if (!previewManager || !duration || !timeRangeElement) {
             return
         }
@@ -392,9 +442,19 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         setPreviewThumbnail(null)
         timeRangeElement.removeAttribute("data-preview-image")
 
-        // Calculate preview time based on mouse position
+        // Calculate preview time based on mouse or touch position
         const rect = timeRangeElement.getBoundingClientRect()
-        const x = event.clientX - rect.left
+        let clientX: number
+
+        if (event instanceof TouchEvent && event.touches.length > 0) {
+            clientX = event.touches[0].clientX
+        } else if (event instanceof MouseEvent) {
+            clientX = event.clientX
+        } else {
+            return
+        }
+
+        const x = clientX - rect.left
         const percentage = Math.max(0, Math.min(1, x / rect.width))
         const previewTime = percentage * duration
 
@@ -409,7 +469,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
                 }
             }
             catch (error) {
-                timePreviewLog.error("Failed to get thumbnail", error)
+                timeRangeLog.error("Failed to get thumbnail", error)
             }
         }
     }, [previewManager, timeRangeElement, duration])
@@ -424,28 +484,77 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
             setPreviewThumbnail(null)
         }
 
-        timeRangeElement.addEventListener("mouseleave", handleMouseLeave)
-        timeRangeElement.addEventListener("mousemove", handleTimeRangePreview)
+        const handleTouchEnd = () => {
+            timeRangeElement.removeAttribute("data-preview-image")
+            setPreviewThumbnail(null)
+        }
+
+        if (isMobile) {
+            timeRangeElement.addEventListener("touchmove", handleTimeRangePreview, { passive: true })
+            timeRangeElement.addEventListener("touchend", handleTouchEnd)
+        } else {
+            timeRangeElement.addEventListener("mouseleave", handleMouseLeave)
+            timeRangeElement.addEventListener("mousemove", handleTimeRangePreview)
+        }
 
         return () => {
-            timeRangeElement.removeEventListener("mouseleave", handleMouseLeave)
-            timeRangeElement.removeEventListener("mousemove", handleTimeRangePreview)
+            if (isMobile) {
+                timeRangeElement.removeEventListener("touchmove", handleTimeRangePreview)
+                timeRangeElement.removeEventListener("touchend", handleTouchEnd)
+            } else {
+                timeRangeElement.removeEventListener("mouseleave", handleMouseLeave)
+                timeRangeElement.removeEventListener("mousemove", handleTimeRangePreview)
+            }
         }
-    }, [handleTimeRangePreview, timeRangeElement])
+    }, [handleTimeRangePreview, timeRangeElement, isMobile])
 
-    const showThumbnail = (!isMiniPlayer && previewManager && (seeking || !!targetTime)) &&
+    // Fetch thumbnail preview during swipe
+    React.useEffect(() => {
+        if (!isSwiping || !swipeSeekTime || !previewManager || !duration) {
+            return
+        }
+
+        const fetchSwipeThumbnail = async () => {
+            const thumbnailIndex = Math.floor(swipeSeekTime / VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS)
+
+            try {
+                const thumbnail = await previewManager.retrievePreviewForSegment(thumbnailIndex)
+                if (thumbnail) {
+                    setPreviewThumbnail(thumbnail)
+                }
+            }
+            catch (error) {
+                timeRangeLog.error("Failed to get swipe thumbnail", error)
+            }
+        }
+
+        fetchSwipeThumbnail()
+    }, [isSwiping, swipeSeekTime, previewManager, duration])
+
+    // Clear thumbnail when swipe ends
+    React.useEffect(() => {
+        if (!isSwiping) {
+            setPreviewThumbnail(null)
+        }
+    }, [isSwiping])
+
+    const showThumbnail = (!isMiniPlayer && previewManager && (seeking || isSwiping || !!targetTime)) &&
         targetTime <= previewManager.getLastestCachedIndex() * VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS
 
     return <>
 
         {showThumbnail && <div
             className={cn(
-                "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50",
+                "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50 pointer-events-none",
             )}
-            style={{
+            style={!isMobile ? {
                 left: `clamp(${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px, ${(targetTime / duration) * 100}%, calc(100% - ${VIDEOCORE_PREVIEW_THUMBNAIL_SIZE / 2}px))`,
                 width: VIDEOCORE_PREVIEW_THUMBNAIL_SIZE + "px",
                 transform: "translateX(-50%) translateY(-54%)",
+            } : {
+                left: `clamp(${140 / 2}px, ${(targetTime / duration) * 100}%, calc(100% - ${140 / 2}px))`,
+                width: 140 + "px",
+                transform: "translateX(-50%) translateY(-64%)",
             }}
         >
             {!!previewThumbnail && <Image
@@ -459,7 +568,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
             />}
         </div>}
 
-        {(seeking || !!targetTime) && <div
+        {(seeking || isSwiping || !!targetTime) && <div
             className={cn(
                 "absolute bottom-full mb-3 px-2 py-1 bg-black/70 text-white text-center text-sm rounded-md",
                 "whitespace-nowrap z-20 pointer-events-none",

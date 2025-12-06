@@ -6,6 +6,7 @@ import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-l
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { __mpt_currentExternalPlayerLinkAtom } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
@@ -16,7 +17,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -35,6 +36,7 @@ export default function Page() {
     const { getHMACTokenQueryParam } = useServerHMACAuth()
 
     const { mutate: startManualTracking, isPending: isStarting } = usePlaybackStartManualTracking()
+    const setCurrentExternalPlayerLink = useSetAtom(__mpt_currentExternalPlayerLinkAtom)
 
     const { externalPlayerLink, encodePath } = useExternalPlayerLink()
 
@@ -77,6 +79,7 @@ export default function Page() {
                     onTokenQueryParam: () => getHMACTokenQueryParam("/api/v1/mediastream/file", "&"),
                 })
                 openTab(link.getFullUrl())
+                setCurrentExternalPlayerLink(link.getFullUrl())
 
                 if (episode?.progressNumber && episode.type === "main") {
                     logger("MEDIALINKS").error("Starting manual tracking")

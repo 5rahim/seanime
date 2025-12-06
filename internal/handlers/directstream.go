@@ -37,6 +37,30 @@ func (h *Handler) HandleDirectstreamPlayLocalFile(c echo.Context) error {
 	})
 }
 
+// HandleDirectstreamFetchAndConvertToASS
+//
+//	@summary converts subtitles to ASS.
+//	@desc Subtitles will be fetched and converted to ASS.
+//	@returns string
+//	@route /api/v1/directstream/subs/convert-to-ass [POST]
+func (h *Handler) HandleDirectstreamFetchAndConvertToASS(c echo.Context) error {
+	type body struct {
+		Url string `json:"url"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	ret, err := h.App.DirectStreamManager.FetchAndConvertToASS(b.Url)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, ret)
+}
+
 func (h *Handler) HandleDirectstreamGetStream() http.Handler {
 	return h.App.DirectStreamManager.ServeEchoStream()
 }

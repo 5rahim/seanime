@@ -23,6 +23,11 @@ type Config struct {
 		Systray       bool
 		DoHUrl        string
 		Password      string
+		Tls           struct {
+			Enabled  bool
+			CertPath string
+			KeyPath  string
+		}
 	}
 	Database struct {
 		Name string
@@ -112,6 +117,9 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 		return nil, err
 	}
 
+	// Create assets directory if it doesn't exist
+	_ = os.MkdirAll(filepath.Join(dataDir, "assets"), 0700)
+
 	// Set Seanime's default custom environment variables
 	if err = setDataDirEnv(dataDir); err != nil {
 		return nil, err
@@ -129,7 +137,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("server.offline", false)
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
-	//viper.SetDefault("server.systray", true)
+	// viper.SetDefault("server.systray", true)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
@@ -209,6 +217,15 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	cfg.Data.AppDataDir = dataDir
 	cfg.Data.WorkingDir = os.Getenv("SEANIME_WORKING_DIR")
 
+	if cfg.Server.Tls.Enabled && (cfg.Server.Tls.CertPath == "" || cfg.Server.Tls.KeyPath == "") {
+		viper.SetDefault("server.tls.certPath", "$SEANIME_DATA_DIR/certs/cert.pem")
+		viper.SetDefault("server.tls.keyPath", "$SEANIME_DATA_DIR/certs/key.pem")
+		_ = viper.WriteConfig()
+		_ = viper.ReadInConfig()
+		_ = viper.Unmarshal(cfg)
+		expandEnvironmentValues(cfg)
+	}
+
 	// Check validity of the config
 	if err := validateConfig(cfg, logger); err != nil {
 		return nil, err
@@ -226,11 +243,15 @@ func (cfg *Config) GetServerAddr(df ...string) string {
 }
 
 func (cfg *Config) GetServerURI(df ...string) string {
-	pAddr := fmt.Sprintf("http://%s", cfg.GetServerAddr(df...))
+	scheme := "http"
+	if cfg.Server.Tls.Enabled {
+		scheme = "https"
+	}
+	pAddr := fmt.Sprintf("%s://%s", scheme, cfg.GetServerAddr(df...))
 	if cfg.Server.Host == "" || cfg.Server.Host == "0.0.0.0" {
 		pAddr = fmt.Sprintf(":%d", cfg.Server.Port)
 		if len(df) > 0 {
-			pAddr = fmt.Sprintf("http://%s:%d", df[0], cfg.Server.Port)
+			pAddr = fmt.Sprintf("%s://%s:%d", scheme, df[0], cfg.Server.Port)
 		}
 	}
 	return pAddr
@@ -355,6 +376,21 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 		return wrapInvalidConfigValue("extensions.dir", err)
 	}
 
+	if cfg.Server.Tls.Enabled {
+		if cfg.Server.Tls.CertPath == "" {
+			return errInvalidConfigValue("server.tls.certPath", "cannot be empty when TLS is enabled")
+		}
+		if err := checkIsValidPath(cfg.Server.Tls.CertPath); err != nil {
+			return wrapInvalidConfigValue("server.tls.certPath", err)
+		}
+		if cfg.Server.Tls.KeyPath == "" {
+			return errInvalidConfigValue("server.tls.keyPath", "cannot be empty when TLS is enabled")
+		}
+		if err := checkIsValidPath(cfg.Server.Tls.KeyPath); err != nil {
+			return wrapInvalidConfigValue("server.tls.keyPath", err)
+		}
+	}
+
 	// Uncomment if "MainServerTorrentStreaming" is no longer an experimental feature
 	if cfg.Experimental.MainServerTorrentStreaming {
 		logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
@@ -413,6 +449,8 @@ func expandEnvironmentValues(cfg *Config) {
 	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
 	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))
 	cfg.Extensions.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Extensions.Dir))
+	cfg.Server.Tls.CertPath = filepath.FromSlash(os.ExpandEnv(cfg.Server.Tls.CertPath))
+	cfg.Server.Tls.KeyPath = filepath.FromSlash(os.ExpandEnv(cfg.Server.Tls.KeyPath))
 }
 
 // createConfigFile creates a default config file if it doesn't exist

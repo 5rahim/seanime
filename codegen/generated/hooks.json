@@ -6623,6 +6623,131 @@
     }
   },
   {
+    "package": "platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/platform/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "PreDeleteEntryEvent",
+      "formattedName": "PreDeleteEntryEvent",
+      "package": "platform",
+      "fields": [
+        {
+          "name": "MediaID",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "EntryID",
+          "jsonName": "entryId",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " PreDeleteEntryEvent is triggered when an entry is about to be deleted.",
+        " Prevent default to skip the default deletion and override the deletion."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "platform",
+    "goStruct": {
+      "filepath": "../internal/platforms/platform/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "PostDeleteEntryEvent",
+      "formattedName": "PostDeleteEntryEvent",
+      "package": "platform",
+      "fields": [
+        {
+          "name": "MediaID",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "EntryID",
+          "jsonName": "entryId",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
     "package": "torrentstream",
     "goStruct": {
       "filepath": "../internal/torrentstream/hook_events.go",

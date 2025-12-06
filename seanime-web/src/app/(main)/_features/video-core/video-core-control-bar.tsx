@@ -1,82 +1,35 @@
-import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import {
-    vc_audioManager,
     vc_containerElement,
     vc_currentTime,
     vc_cursorBusy,
     vc_dispatchAction,
     vc_duration,
     vc_isFullscreen,
+    vc_isMobile,
     vc_isMuted,
+    vc_isSwiping,
     vc_miniPlayer,
     vc_paused,
     vc_pip,
-    vc_playbackRate,
     vc_seeking,
-    vc_subtitleManager,
-    vc_videoElement,
     vc_volume,
     VIDEOCORE_DEBUG_ELEMENTS,
 } from "@/app/(main)/_features/video-core/video-core"
-import { anime4kOptions, getAnime4KOptionByValue, vc_anime4kOption } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { videoCoreKeybindingsModalAtom } from "@/app/(main)/_features/video-core/video-core-keybindings"
-import {
-    vc_menuOpen,
-    vc_menuSectionOpen,
-    VideoCoreMenu,
-    VideoCoreMenuBody,
-    VideoCoreMenuOption,
-    VideoCoreMenuSectionBody,
-    VideoCoreMenuSubmenuBody,
-    VideoCoreMenuTitle,
-    VideoCoreSettingSelect,
-} from "@/app/(main)/_features/video-core/video-core-menu"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
-import {
-    vc_autoNextAtom,
-    vc_autoPlayVideoAtom,
-    vc_autoSkipOPEDAtom,
-    vc_beautifyImageAtom,
-    vc_highlightOPEDChaptersAtom,
-    vc_showChapterMarkersAtom,
-    vc_storedMutedAtom,
-    vc_storedPlaybackRateAtom,
-    vc_storedVolumeAtom,
-} from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_storedMutedAtom, vc_storedVolumeAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime } from "@/app/(main)/_features/video-core/video-core.utils"
 import { cn } from "@/components/ui/core/styling"
-import { Switch } from "@/components/ui/switch"
-import { Tooltip } from "@/components/ui/tooltip"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { AnimatePresence, motion } from "motion/react"
 import React from "react"
-import { AiFillInfoCircle } from "react-icons/ai"
-import { HiFastForward } from "react-icons/hi"
-import { IoCaretForwardCircleOutline } from "react-icons/io5"
-import {
-    LuCaptions,
-    LuChevronLeft,
-    LuChevronRight,
-    LuChevronUp,
-    LuHeadphones,
-    LuPaintbrush,
-    LuSettings2,
-    LuSparkles,
-    LuVolume,
-    LuVolume1,
-    LuVolume2,
-    LuVolumeOff,
-} from "react-icons/lu"
-import { MdSpeed } from "react-icons/md"
+import { LuChevronLeft, LuChevronRight, LuVolume, LuVolume1, LuVolume2, LuVolumeOff } from "react-icons/lu"
 import { RiPauseLargeLine, RiPlayLargeLine } from "react-icons/ri"
 import { RxEnterFullScreen, RxExitFullScreen } from "react-icons/rx"
-import { TbArrowForwardUp, TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
-import { toast } from "sonner"
+import { TbPictureInPicture, TbPictureInPictureOff } from "react-icons/tb"
 
-const VIDEOCORE_CONTROL_BAR_VPADDING = 5
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT = 48
 const VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI = 28
 
@@ -100,12 +53,15 @@ export function VideoCoreControlBar(props: {
     const containerElement = useAtomValue(vc_containerElement)
     const seeking = useAtomValue(vc_seeking)
 
+    const isMobile = useAtomValue(vc_isMobile)
+
     const mainSectionHeight = isMiniPlayer ? VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI : VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT
 
     // when the user is approaching the control bar
     const [cursorPosition, setCursorPosition] = React.useState<"outside" | "approaching" | "hover">("outside")
 
-    const showOnlyTimeRange =
+    // On mobile, always show controls when paused or when tapping
+    const showOnlyTimeRange = isMobile ? false : (
         VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (
                 (!paused && cursorPosition === "approaching")
             ) :
@@ -113,27 +69,39 @@ export function VideoCoreControlBar(props: {
             (!paused && cursorPosition === "approaching")
             // or cursor not hovering and video is paused
             || (paused && cursorPosition === "outside") || (paused && cursorPosition === "approaching")
+    )
 
-    const controlBarBottomPx = VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (cursorBusy || hoveringControlBar || paused) ? 0 : (
-        showOnlyTimeRange ? -(mainSectionHeight) : (
-            cursorPosition === "hover" ? 0 : -300
-        )
+    const controlBarBottomPx = isMobile ? (
+        // On mobile, show controls when paused or interacting
+        (paused || cursorBusy || hoveringControlBar) ? 0 : -300
     ) : (
-        (cursorBusy || hoveringControlBar) ? 0 : (
+        VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? (cursorBusy || hoveringControlBar || paused) ? 0 : (
             showOnlyTimeRange ? -(mainSectionHeight) : (
                 cursorPosition === "hover" ? 0 : -300
+            )
+        ) : (
+            (cursorBusy || hoveringControlBar) ? 0 : (
+                showOnlyTimeRange ? -(mainSectionHeight) : (
+                    cursorPosition === "hover" ? 0 : -300
+                )
             )
         )
     )
 
-    const hideShadow = isMiniPlayer ? !paused : VIDEOCORE_CONTROL_BAR_TYPE === "classic"
-        ? (!paused && cursorPosition !== "hover" && !cursorBusy)
-        : (cursorPosition !== "hover" && !cursorBusy)
+    const hideShadow = isMobile ? !paused : (
+        isMiniPlayer ? !paused : VIDEOCORE_CONTROL_BAR_TYPE === "classic"
+            ? (!paused && cursorPosition !== "hover" && !cursorBusy)
+            : (cursorPosition !== "hover" && !cursorBusy)
+    )
 
-    // const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar
-    const hideControlBar = !showOnlyTimeRange && !cursorBusy && !hoveringControlBar && (VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? !paused : true)
+    // On mobile, show control bar when paused or cursor busy
+    const hideControlBar = isMobile ? (!paused && !cursorBusy && !hoveringControlBar) : (
+        !showOnlyTimeRange && !cursorBusy && !hoveringControlBar && (VIDEOCORE_CONTROL_BAR_TYPE === "classic" ? !paused : true)
+    )
 
     function handleVideoContainerPointerMove(e: Event) {
+        if (isMobile) return
+
         if (!containerElement) {
             setCursorPosition("outside")
             return
@@ -153,7 +121,8 @@ export function VideoCoreControlBar(props: {
         }
     }
 
-    function handleVideoContainerPointerLeave(e: Event) {
+    function handleVideoContainerPointerLeave(_e: Event) {
+        if (isMobile) return
         setCursorPosition("outside")
     }
 
@@ -168,6 +137,20 @@ export function VideoCoreControlBar(props: {
             containerElement.removeEventListener("pointercancel", handleVideoContainerPointerLeave)
         }
     }, [containerElement, paused, isMiniPlayer, seeking, hoveringControlBar])
+
+    React.useLayoutEffect(() => {
+        if (!containerElement || isMobile) return
+        const captionsOverlay = containerElement.querySelector("#video-core-captions-wrapper") as HTMLElement
+        if (!captionsOverlay) return
+        if (controlBarBottomPx === 0 || showOnlyTimeRange) {
+            captionsOverlay.style.setProperty("--tw-translate-y", `-${showOnlyTimeRange ? 20 : 50}px`, "important")
+        } else {
+            captionsOverlay.style.setProperty("--tw-translate-y", "0%")
+        }
+        return () => {
+            captionsOverlay.style.removeProperty("--tw-translate-y")
+        }
+    }, [controlBarBottomPx, containerElement, isMobile])
 
     return (
         <>
@@ -197,7 +180,7 @@ export function VideoCoreControlBar(props: {
                     "vc-control-bar-section",
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-all duration-300 opacity-0",
-                    "z-[100] h-28",
+                    "z-[10] h-28",
                     !hideControlBar && "opacity-100",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-500/20",
                 )}
@@ -205,19 +188,20 @@ export function VideoCoreControlBar(props: {
                     bottom: `${controlBarBottomPx}px`,
                 }}
                 onPointerEnter={() => {
-                    setHoveringControlBar(true)
+                    if (!isMobile) setHoveringControlBar(true)
                 }}
                 onPointerLeave={() => {
-                    setHoveringControlBar(false)
+                    if (!isMobile) setHoveringControlBar(false)
                 }}
                 onPointerCancel={() => {
-                    setHoveringControlBar(false)
+                    if (!isMobile) setHoveringControlBar(false)
                 }}
             >
                 <div
                     className={cn(
                         "vc-control-bar",
-                        "absolute bottom-0 w-full px-4",
+                        "absolute bottom-0 w-full",
+                        isMobile ? "px-2" : "px-4",
                         VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
                     )}
                     // style={{
@@ -229,8 +213,9 @@ export function VideoCoreControlBar(props: {
 
                     <div
                         className={cn(
-                            "vc-control-bar-main-section",
-                            "transform-gpu duration-100 flex items-center pb-2",
+                            "vc-control-bar-main-section z-[100] relative",
+                            "transform-gpu duration-100 flex items-center",
+                            isMobile ? "pb-1" : "pb-2",
                         )}
                         style={{
                             height: `${mainSectionHeight}px`,
@@ -245,32 +230,156 @@ export function VideoCoreControlBar(props: {
     )
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function VideoCoreMobileControlBar(props: {
+    children?: React.ReactNode
+    timeRange: React.ReactNode
+    topLeftSection: React.ReactNode
+    topRightSection: React.ReactNode
+    bottomLeftSection: React.ReactNode
+    bottomRightSection: React.ReactNode
+}) {
+    const { children, timeRange, topLeftSection, topRightSection, bottomLeftSection, bottomRightSection } = props
+
+    const paused = useAtomValue(vc_paused)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const cursorBusy = useAtomValue(vc_cursorBusy)
+    const containerElement = useAtomValue(vc_containerElement)
+    const seeking = useAtomValue(vc_seeking)
+    const isSwiping = useAtomValue(vc_isSwiping)
+    const [, setHoveringControlBar] = useAtom(vc_hoveringControlBar)
+
+    const [isSwipingDebounced, setIsSwipingDebounced] = React.useState(false)
+    const sieT = React.useRef<NodeJS.Timeout>()
+    React.useEffect(() => {
+        if (isSwiping) {
+            setIsSwipingDebounced(true)
+        } else {
+            sieT.current = setTimeout(() => {
+                setIsSwipingDebounced(false)
+            }, 200)
+        }
+        return () => {
+            if (sieT.current) clearTimeout(sieT.current)
+        }
+    }, [isSwiping])
+    React.useEffect(() => {
+        setHoveringControlBar(false)
+    }, [])
+
+    const showShadow = paused || cursorBusy
+
+    const bottomSectionBottomPx = (paused || cursorBusy) ? 0 : -300
+
+    return (
+        <>
+            <div
+                className={cn(
+                    "vc-mobile-control-bar-bottom-gradient pointer-events-none",
+                    "absolute bottom-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
+                    "bg-gradient-to-t to-transparent",
+                    !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
+                    "h-20",
+                    (showShadow || isSwiping) && "opacity-100",
+                )}
+            />
+            <div
+                className={cn(
+                    "vc-mobile-control-bar-top-gradient pointer-events-none",
+                    "absolute top-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
+                    "bg-gradient-to-b to-transparent",
+                    !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
+                    "h-20",
+                    (showShadow) && "opacity-100",
+                )}
+            />
+
+            {/*Top*/}
+            <div
+                data-vc-mobile-control-bar-top-section
+                className={cn(
+                    "vc-mobile-control-bar-top-section",
+                    "absolute transition-all left-0 right-0 top-0 w-full z-[11]",
+                    "px-2 pt-3",
+                    VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
+                )}
+                style={{
+                    top: bottomSectionBottomPx,
+                }}
+            >
+                <div
+                    className={cn(
+                        "transform-gpu duration-100 flex items-center",
+                    )}
+                >
+                    {topLeftSection}
+                    <div className="flex flex-1"></div>
+                    {topRightSection}
+                </div>
+            </div>
+
+            {/*Bottom*/}
+            <div
+                data-vc-mobile-control-bar-bottom-section
+                className={cn(
+                    "vc-mobile-control-bar-bottom-section",
+                    "absolute transition-all left-0 right-0 bottom-0 w-full z-[11]",
+                    "px-2",
+                    VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
+                    isSwiping && "transition-none",
+                )}
+                style={{
+                    bottom: isSwiping ? 0 : bottomSectionBottomPx,
+                }}
+            >
+                <div
+                    className={cn(
+                        "transform-gpu duration-100 flex items-center",
+                        (isSwiping || isSwipingDebounced) && "hidden",
+                    )}
+                >
+                    {bottomLeftSection}
+                    <div className="flex flex-1"></div>
+                    {bottomRightSection}
+                </div>
+                {timeRange}
+            </div>
+        </>
+    )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type VideoCoreControlButtonProps = {
     icons: [string, React.ElementType][]
     state: string
     className?: string
     iconClass?: string
     onClick: () => void
+    onWheel?: (e: React.WheelEvent<HTMLButtonElement>) => void
 }
 
-function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
-    const { icons, state, className, iconClass, onClick } = props
+export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
+    const { icons, state, className, iconClass, onClick, onWheel } = props
 
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
-
-    const size = isMiniPlayer ? VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT_MINI : VIDEOCORE_CONTROL_BAR_MAIN_SECTION_HEIGHT
+    const isMobile = useAtomValue(vc_isMobile)
 
     return (
         <button
             role="button"
             style={{}}
             className={cn(
-                "vc-control-button flex items-center justify-center px-2 transition-opacity hover:opacity-80 relative h-full",
-                "text-3xl",
-                isMiniPlayer && "text-2xl",
+                "vc-control-button flex items-center justify-center transition-opacity relative h-full",
+                "focus-visible:outline-none focus:outline-none focus-visible:opacity-50",
+                // Better touch targets on mobile
+                isMobile ? "px-1 text-2xl" : "px-2 text-3xl hover:opacity-80",
+                isMiniPlayer && !isMobile && "text-2xl",
                 className,
             )}
             onClick={onClick}
+            onWheel={onWheel}
         >
             <AnimatePresence>
                 {icons.map(n => {
@@ -325,6 +434,7 @@ export function VideoCoreVolumeButton() {
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const setMuted = useSetAtom(vc_storedMutedAtom)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const isMobile = useAtomValue(vc_isMobile)
 
     const [isSliding, setIsSliding] = React.useState(false)
 
@@ -371,6 +481,15 @@ export function VideoCoreVolumeButton() {
         }
     }
 
+    function handleWheel(e: React.WheelEvent<HTMLButtonElement | HTMLDivElement>) {
+        e.stopPropagation()
+
+        const delta = -e.deltaY / 1000
+        const newVolume = Math.max(0, Math.min(1, volume + delta))
+        setVolume(newVolume)
+        setMuted(newVolume === 0)
+    }
+
     return (
         <div
             className={cn(
@@ -398,46 +517,51 @@ export function VideoCoreVolumeButton() {
                         return !p
                     })
                 }}
+                onWheel={handleWheel}
             />
-            <div
-                className={cn(
-                    "vc-control-volume-slider-container relative w-0 flex group-hover/vc-control-volume:w-[6rem] h-6",
-                    "transition-[width] duration-300",
-                )}
-            >
+            {/* Hide volume slider on mobile */}
+            {!isMobile && (
                 <div
                     className={cn(
-                        "vc-control-volume-slider",
-                        "flex h-full w-full relative items-center",
-                        "rounded-full",
-                        "cursor-pointer",
-                        "transition-all duration-300",
+                        "vc-control-volume-slider-container relative w-0 flex group-hover/vc-control-volume:w-[6rem] h-6",
+                        "transition-[width] duration-300",
                     )}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerCancel={handlePointerUp}
                 >
                     <div
                         className={cn(
-                            "vc-control-volume-slider-progress h-1.5",
-                            "absolute bg-white",
+                            "vc-control-volume-slider",
+                            "flex h-full w-full relative items-center",
                             "rounded-full",
+                            "cursor-pointer",
+                            "transition-all duration-300",
                         )}
-                        style={{
-                            width: `${volumeToLinear(volume) * 100}%`,
-                        }}
-                    />
-                    <div
-                        className={cn(
-                            "vc-control-volume-slider-progress h-1.5 w-full",
-                            "absolute bg-white/20",
-                            "rounded-full",
-                        )}
-                    />
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerCancel={handlePointerUp}
+                        onWheel={handleWheel}
+                    >
+                        <div
+                            className={cn(
+                                "vc-control-volume-slider-progress h-1.5",
+                                "absolute bg-white",
+                                "rounded-full",
+                            )}
+                            style={{
+                                width: `${volumeToLinear(volume) * 100}%`,
+                            }}
+                        />
+                        <div
+                            className={cn(
+                                "vc-control-volume-slider-progress h-1.5 w-full",
+                                "absolute bg-white/20",
+                                "rounded-full",
+                            )}
+                        />
+                    </div>
+                    <div className="w-4" />
                 </div>
-                <div className="w-4" />
-            </div>
+            )}
         </div>
     )
 }
@@ -479,6 +603,7 @@ export function VideoCoreTimestamp() {
     const duration = useAtomValue(vc_duration)
     const currentTime = useAtomValue(vc_currentTime)
     const [type, setType] = useAtom(vc_timestampType)
+    const isMobile = useAtomValue(vc_isMobile)
 
     function handleSwitchType() {
         setType(p => p === "elapsed" ? "remaining" : "elapsed")
@@ -487,340 +612,16 @@ export function VideoCoreTimestamp() {
     if (duration <= 1 || isNaN(duration)) return null
 
     return (
-        <p className="font-medium text-sm opacity-100 hover:opacity-80 cursor-pointer" onClick={handleSwitchType}>
+        <p
+            className={cn(
+                "font-medium opacity-100 cursor-pointer",
+                isMobile ? "text-xs text-white" : "text-sm hover:opacity-80",
+            )}
+            onClick={handleSwitchType}
+        >
             {type === "remaining" ? "-" : ""}{vc_formatTime(Math.max(0,
             Math.min(duration, type === "elapsed" ? currentTime : duration - currentTime)))} / {vc_formatTime(duration)}
         </p>
-    )
-}
-
-export function VideoCoreAudioButton() {
-    const action = useSetAtom(vc_dispatchAction)
-    const isMiniPlayer = useAtomValue(vc_miniPlayer)
-    const state = useAtomValue(nativePlayer_stateAtom)
-    const audioManager = useAtomValue(vc_audioManager)
-    const videoElement = useAtomValue(vc_videoElement)
-    const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
-
-    const audioTracks = state.playbackInfo?.mkvMetadata?.audioTracks
-
-    function onAudioChange() {
-        setSelectedTrack(audioManager?.getSelectedTrack?.() ?? null)
-    }
-
-    React.useEffect(() => {
-        if (!videoElement || !audioManager) return
-
-        videoElement?.audioTracks?.addEventListener?.("change", onAudioChange)
-        return () => {
-            videoElement?.audioTracks?.removeEventListener?.("change", onAudioChange)
-        }
-    }, [videoElement, audioManager])
-
-    React.useEffect(() => {
-        onAudioChange()
-    }, [audioManager])
-
-    if (isMiniPlayer || !audioTracks?.length || audioTracks.length === 1) return null
-
-    return (
-        <VideoCoreMenu
-            name="audio"
-            trigger={<VideoCoreControlButtonIcon
-                icons={[
-                    ["default", LuHeadphones],
-                ]}
-                state="default"
-                className="text-2xl"
-                onClick={() => {
-
-                }}
-            />}
-        >
-            <VideoCoreMenuTitle>Audio</VideoCoreMenuTitle>
-            <VideoCoreMenuBody>
-                <VideoCoreSettingSelect
-                    options={audioTracks.map(track => ({
-                        label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
-                        value: track.number,
-                        moreInfo: track.language?.toUpperCase(),
-                    }))}
-                    onValueChange={(value) => {
-                        audioManager?.selectTrack(value)
-                        action({ type: "seek", payload: { time: -1 } })
-                    }}
-                    value={selectedTrack || 0}
-                />
-            </VideoCoreMenuBody>
-        </VideoCoreMenu>
-    )
-}
-
-export function VideoCoreSubtitleButton() {
-    const action = useSetAtom(vc_dispatchAction)
-    const isMiniPlayer = useAtomValue(vc_miniPlayer)
-    const state = useAtomValue(nativePlayer_stateAtom)
-    const subtitleManager = useAtomValue(vc_subtitleManager)
-    const videoElement = useAtomValue(vc_videoElement)
-    const [selectedTrack, setSelectedTrack] = React.useState<number | null>(null)
-
-    const [subtitleTracks, setSubtitleTracks] = React.useState(state.playbackInfo?.mkvMetadata?.subtitleTracks ?? [])
-
-    function onTextTrackChange() {
-        setSubtitleTracks(p => subtitleManager?.getTracks?.() ?? p)
-    }
-
-    function onTrackChange(trackNumber: number | null) {
-        setSelectedTrack(trackNumber)
-        if (trackNumber !== null && !subtitleManager?.isTrackSupported(trackNumber)) {
-            toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
-        }
-    }
-
-    const firstRender = React.useRef(true)
-
-    React.useEffect(() => {
-        if (!videoElement || !subtitleManager) return
-
-        if (firstRender.current) {
-            firstRender.current = false
-            // setSelectedTrack(subtitleManager?.getSelectedTrack?.() ?? null)
-            onTrackChange(subtitleManager?.getSelectedTrack?.() ?? null)
-        }
-
-        subtitleManager.registerOnSelectedTrackChanged(onTrackChange)
-
-        videoElement?.textTracks?.addEventListener?.("change", onTextTrackChange)
-        return () => {
-            videoElement?.textTracks?.removeEventListener?.("change", onTextTrackChange)
-        }
-    }, [videoElement, subtitleManager])
-
-    React.useEffect(() => {
-        onTextTrackChange()
-    }, [subtitleManager])
-
-    if (isMiniPlayer || !subtitleTracks?.length) return null
-
-    return (
-        <VideoCoreMenu
-            name="subtitle"
-            trigger={<VideoCoreControlButtonIcon
-                icons={[
-                    ["default", LuCaptions],
-                ]}
-                state="default"
-                onClick={() => {
-
-                }}
-            />}
-        >
-            <VideoCoreMenuTitle>Subtitles {<Tooltip
-                trigger={<AiFillInfoCircle className="text-sm" />}
-                className="z-[150]"
-            >
-                You can add subtitles by dragging and dropping files onto the player.
-            </Tooltip>}</VideoCoreMenuTitle>
-            <VideoCoreMenuBody>
-                <VideoCoreSettingSelect
-                    options={[
-                        {
-                            label: "Off",
-                            value: -1,
-                        },
-                        ...subtitleTracks.map(track => ({
-                            label: `${track.name || track.language?.toUpperCase() || track.languageIETF?.toUpperCase()}`,
-                            value: track.number,
-                            moreInfo: track.language
-                                ? `${track.language.toUpperCase()}${track.codecID ? "/" + getSubtitleTrackType(track.codecID) : ``}`
-                                : undefined,
-                        })),
-                    ]}
-                    onValueChange={(value) => {
-                        if (value === -1) {
-                            subtitleManager?.setNoTrack()
-                            return
-                        }
-                        subtitleManager?.selectTrack(value)
-                    }}
-                    value={selectedTrack ?? -1}
-                />
-            </VideoCoreMenuBody>
-        </VideoCoreMenu>
-    )
-}
-
-export function getSubtitleTrackType(codecID: string) {
-    switch (codecID) {
-        case "S_TEXT/ASS":
-            return "ASS"
-        case "S_TEXT/SSA":
-            return "SSA"
-        case "S_TEXT/UTF8":
-            return "TEXT"
-        case "S_HDMV/PGS":
-            return "PGS"
-    }
-    return "unknown"
-}
-
-export function VideoCoreSettingsButton() {
-    const action = useSetAtom(vc_dispatchAction)
-    const isMiniPlayer = useAtomValue(vc_miniPlayer)
-    const playbackRate = useAtomValue(vc_playbackRate)
-    const setPlaybackRate = useSetAtom(vc_storedPlaybackRateAtom)
-
-    const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
-    const currentAnime4kOption = getAnime4KOptionByValue(anime4kOption)
-
-    const [, setKeybindingsModelOpen] = useAtom(videoCoreKeybindingsModalAtom)
-
-    const [showChapterMarkers, setShowChapterMarkers] = useAtom(vc_showChapterMarkersAtom)
-    const [highlightOPEDChapters, setHighlightOPEDChapters] = useAtom(vc_highlightOPEDChaptersAtom)
-    const [beautifyImage, setBeautifyImage] = useAtom(vc_beautifyImageAtom)
-    const [autoNext, setAutoNext] = useAtom(vc_autoNextAtom)
-    const [autoPlay, setAutoPlay] = useAtom(vc_autoPlayVideoAtom)
-    const [autoSkipOPED, setAutoSkipOPED] = useAtom(vc_autoSkipOPEDAtom)
-
-    const [menuOpen, setMenuOpen] = useAtom(vc_menuOpen)
-    const [openMenuSection, setOpenMenuSection] = useAtom(vc_menuSectionOpen)
-
-    if (isMiniPlayer) return null
-
-    return (
-        <>
-            {playbackRate !== 1 && (
-                <p
-                    className="text-sm text-[--muted] cursor-pointer" onClick={() => {
-                    setMenuOpen("settings")
-                    React.startTransition(() => {
-                        setOpenMenuSection("Playback Speed")
-                    })
-                }}
-                >
-                    {`${(playbackRate).toFixed(2)}x`}
-                </p>
-            )}
-            <VideoCoreMenu
-                name="settings"
-                trigger={<VideoCoreControlButtonIcon
-                    icons={[
-                        ["default", LuChevronUp],
-                    ]}
-                    state="default"
-                    onClick={() => {
-                    }}
-                />}
-            >
-                <VideoCoreMenuSectionBody>
-                    <VideoCoreMenuTitle>Settings</VideoCoreMenuTitle>
-                    <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed} value={`${(playbackRate).toFixed(2)}x`} />
-                    <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline} value={autoPlay ? "On" : "Off"} />
-                    <VideoCoreMenuOption title="Auto Next" icon={HiFastForward} value={autoNext ? "On" : "Off"} />
-                    <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp} value={autoSkipOPED ? "On" : "Off"} />
-                    <VideoCoreMenuOption title="Anime4K" icon={LuSparkles} value={currentAnime4kOption?.label || "Off"} />
-                    <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush} />
-                    <VideoCoreMenuOption title="Preferences" icon={LuSettings2} onClick={() => setKeybindingsModelOpen(true)} />
-                </VideoCoreMenuSectionBody>
-                <VideoCoreMenuSubmenuBody>
-                    <VideoCoreMenuOption title="Playback Speed" icon={MdSpeed}>
-                        <VideoCoreSettingSelect
-                            options={[
-                                { label: "0.5x", value: 0.5 },
-                                { label: "0.9x", value: 0.9 },
-                                { label: "1x", value: 1 },
-                                { label: "1.1x", value: 1.1 },
-                                { label: "1.5x", value: 1.5 },
-                                { label: "2x", value: 2 },
-                            ]}
-                            onValueChange={(v: number) => {
-                                setPlaybackRate(v)
-                            }}
-                            value={playbackRate}
-                        />
-                    </VideoCoreMenuOption>
-                    <VideoCoreMenuOption title="Auto Play" icon={IoCaretForwardCircleOutline}>
-                        <VideoCoreSettingSelect
-                            options={[
-                                { label: "On", value: 1 },
-                                { label: "Off", value: 0 },
-                            ]}
-                            onValueChange={(v: number) => {
-                                setAutoPlay(!!v)
-                            }}
-                            value={autoPlay ? 1 : 0}
-                        />
-                    </VideoCoreMenuOption>
-                    <VideoCoreMenuOption title="Auto Next" icon={HiFastForward}>
-                        <VideoCoreSettingSelect
-                            options={[
-                                { label: "On", value: 1 },
-                                { label: "Off", value: 0 },
-                            ]}
-                            onValueChange={(v: number) => {
-                                setAutoNext(!!v)
-                            }}
-                            value={autoNext ? 1 : 0}
-                        />
-                    </VideoCoreMenuOption>
-                    <VideoCoreMenuOption title="Skip OP/ED" icon={TbArrowForwardUp}>
-                        <VideoCoreSettingSelect
-                            options={[
-                                { label: "On", value: 1 },
-                                { label: "Off", value: 0 },
-                            ]}
-                            onValueChange={(v: number) => {
-                                setAutoSkipOPED(!!v)
-                            }}
-                            value={autoSkipOPED ? 1 : 0}
-                        />
-                    </VideoCoreMenuOption>
-                    <VideoCoreMenuOption title="Anime4K" icon={LuSparkles}>
-                        <p className="text-[--muted] text-sm mb-2">
-                            Real-time sharpening. GPU-intensive.
-                        </p>
-                        <VideoCoreSettingSelect
-                            options={anime4kOptions.map(option => ({
-                                label: `${option.label}`,
-                                value: option.value,
-                                moreInfo: option.performance === "heavy" ? "Heavy" : undefined,
-                                description: option.description,
-                            }))}
-                            onValueChange={(value) => {
-                                setAnime4kOption(value)
-                            }}
-                            value={anime4kOption}
-                        />
-                    </VideoCoreMenuOption>
-                    <VideoCoreMenuOption title="Appearance" icon={LuPaintbrush}>
-                        <Switch
-                            label="Show Chapter Markers"
-                            side="right"
-                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
-                            size="sm"
-                            value={showChapterMarkers}
-                            onValueChange={setShowChapterMarkers}
-                        />
-                        <Switch
-                            label="Highlight OP/ED Chapters"
-                            side="right"
-                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
-                            size="sm"
-                            value={highlightOPEDChapters}
-                            onValueChange={setHighlightOPEDChapters}
-                        />
-                        <Switch
-                            label="Increase Saturation"
-                            side="right"
-                            fieldClass="hover:bg-transparent hover:border-transparent px-0 ml-0 w-full"
-                            size="sm"
-                            value={beautifyImage}
-                            onValueChange={setBeautifyImage}
-                        />
-                    </VideoCoreMenuOption>
-                </VideoCoreMenuSubmenuBody>
-            </VideoCoreMenu>
-        </>
     )
 }
 

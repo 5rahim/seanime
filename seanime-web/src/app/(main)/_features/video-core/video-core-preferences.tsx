@@ -1,8 +1,10 @@
 import {
     vc_audioManager,
+    vc_containerElement,
     vc_dispatchAction,
     vc_isFullscreen,
     vc_isMuted,
+    vc_mediaCaptionsManager,
     vc_pip,
     vc_subtitleManager,
     vc_volume,
@@ -18,13 +20,14 @@ import {
     vc_settings,
     vc_storedMutedAtom,
     vc_storedVolumeAtom,
+    vc_useLibassRendererAtom,
     VideoCoreKeybindings,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
-import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { logger } from "@/lib/helpers/debug"
 import { atom, useAtom, useAtomValue } from "jotai"
@@ -32,7 +35,7 @@ import { useSetAtom } from "jotai/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useVideoCoreScreenshot } from "./video-core-screenshot"
 
-export const videoCoreKeybindingsModalAtom = atom(false)
+export const videoCorePreferencesModalAtom = atom(false)
 
 const KeybindingValueInput = ({
     actionKey,
@@ -81,7 +84,7 @@ const KeybindingRow = ({
     handleKeyRecord: (actionKey: keyof VideoCoreKeybindings) => void
     formatKeyDisplay?: (actionKey: keyof VideoCoreKeybindings) => keyof VideoCoreKeybindings | string
 }) => (
-    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-b-0">
+    <div className="flex items-center justify-between py-2 border rounded-lg px-3 bg-[--paper]">
         <div className="flex-1">
             <div className="font-medium text-sm">{action}</div>
             {hasValue && (
@@ -102,7 +105,7 @@ const KeybindingRow = ({
         </div>
         <div className="flex items-center gap-2">
             <Button
-                intent={recordingKey === actionKey ? "white-subtle" : "gray-outline"}
+                intent={recordingKey === actionKey ? "white-subtle" : "gray-glass"}
                 size="sm"
                 onClick={() => handleKeyRecord(actionKey)}
                 className={cn(
@@ -116,14 +119,26 @@ const KeybindingRow = ({
     </div>
 )
 
-export function VideoCoreKeybindingsModal() {
-    const [open, setOpen] = useAtom(videoCoreKeybindingsModalAtom)
+export function VideoCorePreferencesModal() {
+    const isFullscreen = useAtomValue(vc_isFullscreen)
+    const containerElement = useAtomValue(vc_containerElement)
+    const [open, setOpen] = useAtom(videoCorePreferencesModalAtom)
     const [keybindings, setKeybindings] = useAtom(vc_keybindingsAtom)
     const [editedKeybindings, setEditedKeybindings] = useState<VideoCoreKeybindings>(keybindings)
+    const [useLibassRenderer, setUseLibassRenderer] = useAtom(vc_useLibassRendererAtom)
+    const [editedUseLibassRenderer, setEditedUseLibassRenderer] = useState(useLibassRenderer)
+
     const [recordingKey, setRecordingKey] = useState<string | null>(null)
+
     const [settings, setSettings] = useAtom(vc_settings)
     const [editedSubLanguage, setEditedSubLanguage] = useState(settings.preferredSubtitleLanguage)
     const [editedAudioLanguage, setEditedAudioLanguage] = useState(settings.preferredAudioLanguage)
+    const [editedSubsBlacklist, setEditedSubsBlacklist] = useState(settings.preferredSubtitleBlacklist)
+    const [editedSubtitleDelay, setEditedSubtitleDelay] = useState(settings.subtitleDelay ?? 0)
+    // const [editedSubCustomization, setEditedSubCustomization] = useState<VideoCoreSettings["subtitleCustomization"]>(
+    //     settings.subtitleCustomization || vc_initialSettings.subtitleCustomization
+    // )
+    const subtitleManager = useAtomValue(vc_subtitleManager)
 
     // Reset edited keybindings and language preferences when modal opens
     useEffect(() => {
@@ -131,8 +146,12 @@ export function VideoCoreKeybindingsModal() {
             setEditedKeybindings(keybindings)
             setEditedSubLanguage(settings.preferredSubtitleLanguage)
             setEditedAudioLanguage(settings.preferredAudioLanguage)
+            setEditedSubsBlacklist(settings.preferredSubtitleBlacklist)
+            setEditedSubtitleDelay(settings.subtitleDelay ?? 0)
+            setEditedUseLibassRenderer(useLibassRenderer)
+            // setEditedSubCustomization(settings.subtitleCustomization || vc_initialSettings.subtitleCustomization)
         }
-    }, [open, keybindings, settings])
+    }, [open, keybindings, settings, useLibassRenderer])
 
     const handleKeyRecord = (actionKey: keyof VideoCoreKeybindings) => {
         setRecordingKey(actionKey)
@@ -159,11 +178,18 @@ export function VideoCoreKeybindingsModal() {
 
     const handleSave = () => {
         setKeybindings(editedKeybindings)
-        setSettings({
+        const newSettings = {
             ...settings,
             preferredSubtitleLanguage: editedSubLanguage,
             preferredAudioLanguage: editedAudioLanguage,
-        })
+            preferredSubtitleBlacklist: editedSubsBlacklist,
+            subtitleDelay: editedSubtitleDelay,
+            // subtitleCustomization: editedSubCustomization,
+        }
+        setSettings(newSettings)
+        setUseLibassRenderer(editedUseLibassRenderer)
+        // Update subtitle manager with new settings
+        subtitleManager?.updateSettings(newSettings)
         setOpen(false)
     }
 
@@ -171,6 +197,10 @@ export function VideoCoreKeybindingsModal() {
         setEditedKeybindings(vc_defaultKeybindings)
         setEditedSubLanguage(vc_initialSettings.preferredSubtitleLanguage)
         setEditedAudioLanguage(vc_initialSettings.preferredAudioLanguage)
+        setEditedSubsBlacklist(vc_initialSettings.preferredSubtitleBlacklist)
+        setEditedSubtitleDelay(vc_initialSettings.subtitleDelay)
+        setEditedUseLibassRenderer(true)
+        // setEditedSubCustomization(vc_initialSettings.subtitleCustomization)
     }
 
     const formatKeyDisplay = (keyCode: string) => {
@@ -190,10 +220,11 @@ export function VideoCoreKeybindingsModal() {
     return (
         <Modal
             title="Preferences"
-            description="Customize the keyboard shortcuts and defaults for the player"
             open={open}
             onOpenChange={setOpen}
-            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-black/80 backdrop-blur-sm z-[101]"
+            contentClass="max-w-5xl focus:outline-none focus-visible:outline-none outline-none bg-[--background] backdrop-blur-sm z-[101]"
+            overlayClass="z-[150] bg-black/50"
+            portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
             <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-white">Language</h3>
@@ -225,38 +256,12 @@ export function VideoCoreKeybindingsModal() {
                 </div>
             </div>
 
-            <Separator />
-
-            <div className="space-y-3">
+            <div className="space-y-3 hidden lg:block">
                 <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Playback</h3> */}
-                        <div className="space-y-0">
-                            <KeybindingRow
-                                action="Seek Forward"
-                                description="Seek forward"
-                                actionKey="seekForward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
-                            <KeybindingRow
-                                action="Seek Backward"
-                                description="Seek backward"
-                                actionKey="seekBackward"
-                                editedKeybindings={editedKeybindings}
-                                setEditedKeybindings={setEditedKeybindings}
-                                recordingKey={recordingKey}
-                                handleKeyRecord={handleKeyRecord}
-                                formatKeyDisplay={formatKeyDisplay}
-                                hasValue={true}
-                                valueLabel="Seconds"
-                            />
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Seek Forward (Fine)"
                                 description="Seek forward (fine)"
@@ -273,6 +278,30 @@ export function VideoCoreKeybindingsModal() {
                                 action="Seek Backward (Fine)"
                                 description="Seek backward (fine)"
                                 actionKey="seekBackwardFine"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Forward"
+                                description="Seek forward"
+                                actionKey="seekForward"
+                                editedKeybindings={editedKeybindings}
+                                setEditedKeybindings={setEditedKeybindings}
+                                recordingKey={recordingKey}
+                                handleKeyRecord={handleKeyRecord}
+                                formatKeyDisplay={formatKeyDisplay}
+                                hasValue={true}
+                                valueLabel="Seconds"
+                            />
+                            <KeybindingRow
+                                action="Seek Backward"
+                                description="Seek backward"
+                                actionKey="seekBackward"
                                 editedKeybindings={editedKeybindings}
                                 setEditedKeybindings={setEditedKeybindings}
                                 recordingKey={recordingKey}
@@ -310,7 +339,7 @@ export function VideoCoreKeybindingsModal() {
 
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Navigation</h3> */}
-                        <div className="space-y-0">
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Next Chapter"
                                 description="Skip to next chapter"
@@ -396,7 +425,7 @@ export function VideoCoreKeybindingsModal() {
 
                     <div>
                         {/* <h3 className="text-lg font-semibold mb-4 text-white">Audio</h3> */}
-                        <div className="space-y-0">
+                        <div className="space-y-3">
                             <KeybindingRow
                                 action="Volume Up"
                                 description="Increase volume"
@@ -446,7 +475,51 @@ export function VideoCoreKeybindingsModal() {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
+            <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-white">Subtitles/Captions</h3>
+                <div>
+                    <p className="text-sm text-[--muted] ">
+                    </p>
+                </div>
+                <div className="space-y-2">
+                    <Switch
+                        side="right"
+                        label="Convert Soft Subs to ASS"
+                        value={editedUseLibassRenderer}
+                        onValueChange={setEditedUseLibassRenderer}
+                        help="The player will convert other subtitle formats (SRT, VTT, ...) to ASS. In case your language is not supported, you can add a new font or disable this feature. Reloading the player is required after changing this setting."
+                    />
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Ignored Subtitle Names
+                        </label>
+                        <TextInput
+                            value={editedSubsBlacklist}
+                            onValueChange={setEditedSubsBlacklist}
+                            placeholder="e.g., sign & songs"
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
+                            help="Subtitle tracks that will not be selected by default if they match the preferred lanauges. Separate multiple names with commas."
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">
+                            Subtitle Delay (seconds)
+                        </label>
+                        <NumberInput
+                            value={editedSubtitleDelay}
+                            onValueChange={setEditedSubtitleDelay}
+                            fieldClass="w-32"
+                            step={0.1}
+                            hideControls={true}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-6">
                 <Button
                     intent="gray-outline"
                     onClick={handleReset}
@@ -492,7 +565,7 @@ export function VideoCoreKeybindingController(props: {
     } = props
 
     const [keybindings] = useAtom(vc_keybindingsAtom)
-    const isKeybindingsModalOpen = useAtomValue(videoCoreKeybindingsModalAtom)
+    const isKeybindingsModalOpen = useAtomValue(videoCorePreferencesModalAtom)
     const fullscreen = useAtomValue(vc_isFullscreen)
     const pip = useAtomValue(vc_pip)
     const volume = useAtomValue(vc_volume)
@@ -504,6 +577,7 @@ export function VideoCoreKeybindingController(props: {
     const action = useSetAtom(vc_dispatchAction)
 
     const subtitleManager = useAtomValue(vc_subtitleManager)
+    const mediaCaptionsManager = useAtomValue(vc_mediaCaptionsManager)
     const audioManager = useAtomValue(vc_audioManager)
     const fullscreenManager = useAtomValue(vc_fullscreenManager)
     const pipManager = useAtomValue(vc_pipManager)
@@ -519,7 +593,7 @@ export function VideoCoreKeybindingController(props: {
         }
         action({ type: "seek", payload: { time: seconds, flashTime: true } })
         if (!isPaused) {
-            videoRef.current?.play()
+            videoRef.current?.play()?.catch()
         }
     }
 
@@ -530,7 +604,7 @@ export function VideoCoreKeybindingController(props: {
         }
         action({ type: "seekTo", payload: { time: to, flashTime: true } })
         if (!isPaused) {
-            videoRef.current?.play()
+            videoRef.current?.play()?.catch()
         }
     }
 
@@ -589,7 +663,7 @@ export function VideoCoreKeybindingController(props: {
         // Escape - Exit fullscreen
         if (e.code === "Escape" && fullscreen) {
             e.preventDefault()
-            document.exitFullscreen()
+            fullscreenManager?.exitFullscreen()
             return
         }
 
@@ -776,45 +850,64 @@ export function VideoCoreKeybindingController(props: {
 
     const handleCycleSubtitles = useCallback(() => {
         if (!videoRef.current) return
+        // TODO: make it work when both types are combined
+        let found = false
+        if (subtitleManager) {
+            // Cycle to next track or disable if we're at the end
+            const nextTrackNumber = subtitleManager.getNextTrackNumber(subtitleManager.getSelectedTrackNumberOrNull())
 
-        const textTracks = Array.from(videoRef.current.textTracks).filter(track => track.kind === "subtitles")
-        if (textTracks.length === 0) {
-            flashAction({ message: "No subtitle tracks" })
-            return
+            // Enable next track if available
+            if (nextTrackNumber > -1) {
+                subtitleManager?.selectTrack(nextTrackNumber)
+                const trackName = subtitleManager.getTrack(nextTrackNumber)?.label || `Track ${nextTrackNumber}`
+                flashAction({ message: `Subtitles: ${trackName}` })
+                found = true
+            }
         }
+        if (mediaCaptionsManager) {
+            const currentTrackIdx = mediaCaptionsManager.getSelectedTrackIndexOrNull() ?? -1
+            const nextTrackIdx = currentTrackIdx + 1
+            const nextTrack = mediaCaptionsManager.getTrack(nextTrackIdx)
 
-        // Find currently showing track
-        let currentTrackIndex = -1
-        for (let i = 0; i < textTracks.length; i++) {
-            if (textTracks[i].mode === "showing") {
-                currentTrackIndex = i
-                break
+            // Enable next track if available
+            if (nextTrack) {
+                mediaCaptionsManager?.selectTrack(nextTrackIdx)
+                const trackName = mediaCaptionsManager.getTrack(nextTrackIdx)?.label || `Track ${nextTrackIdx}`
+                flashAction({ message: `Subtitles: ${trackName}` })
+                found = true
             }
         }
 
-        // Cycle to next track or disable if we're at the end
-        const nextIndex = currentTrackIndex + 1
-
-        // Disable all tracks first
-        for (let i = 0; i < textTracks.length; i++) {
-            textTracks[i].mode = "disabled"
-        }
-
-        // Enable next track if available
-        if (nextIndex < textTracks.length) {
-            textTracks[nextIndex].mode = "showing"
-            subtitleManager?.selectTrack(Number(textTracks[nextIndex].id))
-            const trackName = textTracks[nextIndex].label || `Track ${nextIndex + 1}`
-            flashAction({ message: `Subtitles: ${trackName}` })
-        } else {
-            // If we've cycled through all, disable subtitles
-            subtitleManager?.setNoTrack()
+        if (!found) {
             flashAction({ message: "Subtitles: Off" })
+            subtitleManager?.setNoTrack()
+            mediaCaptionsManager?.setNoTrack()
         }
-    }, [subtitleManager])
+    }, [subtitleManager, mediaCaptionsManager])
 
     const handleCycleAudio = useCallback(() => {
-        if (!videoRef.current) return
+        if (!videoRef.current || !audioManager) return
+
+        // HLS stream
+        if (audioManager.isHlsStream()) {
+            const currentTrackNumber = audioManager.getSelectedTrackNumberOrNull()
+            if (currentTrackNumber === null) {
+                flashAction({ message: "No additional audio tracks" })
+                return
+            }
+            const audioTracks = audioManager.getHlsAudioTracks()
+
+            const nextTrackNumber = (currentTrackNumber + 1) % (audioTracks.length)
+
+            const nextTrack = audioTracks.find(n => n.id === nextTrackNumber)
+            if (nextTrack) {
+                const trackName = nextTrack.name || nextTrack.language || `Track ${nextTrack.id + 1}`
+                flashAction({ message: `Audio: ${trackName}` })
+                audioManager.selectTrack(nextTrackNumber)
+            }
+
+            return
+        }
 
         const audioTracks = videoRef.current.audioTracks
         if (!audioTracks || audioTracks.length <= 1) {
@@ -845,7 +938,7 @@ export function VideoCoreKeybindingController(props: {
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
         flashAction({ message: `Audio: ${trackName}` })
-    }, [])
+    }, [audioManager])
 
     const log = logger("VideoCoreKeybindings")
 

@@ -193,21 +193,21 @@ func (m *Manager) listenToNativePlayerEvents() {
 				}
 				switch event := event.(type) {
 				case *nativeplayer.VideoPausedEvent:
-					m.Logger.Debug().Msgf("directstream: Video paused")
+					//m.Logger.Debug().Msgf("directstream: Video paused")
 
 					// Discord
 					if m.discordPresence != nil && !m.isOfflineRef.Get() {
 						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), true)
 					}
 				case *nativeplayer.VideoResumedEvent:
-					m.Logger.Debug().Msgf("directstream: Video resumed")
+					//m.Logger.Debug().Msgf("directstream: Video resumed")
 
 					// Discord
 					if m.discordPresence != nil && !m.isOfflineRef.Get() {
 						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), false)
 					}
 				case *nativeplayer.VideoEndedEvent:
-					m.Logger.Debug().Msgf("directstream: Video ended")
+					//m.Logger.Debug().Msgf("directstream: Video ended")
 
 					// Discord
 					if m.discordPresence != nil && !m.isOfflineRef.Get() {
@@ -244,7 +244,7 @@ func (m *Manager) listenToNativePlayerEvents() {
 							Title:         cs.Media().GetPreferredTitle(),
 							Image:         cs.Media().GetCoverImageSafe(),
 							IsMovie:       cs.Media().IsMovie(),
-							EpisodeNumber: cs.Episode().ProgressNumber,
+							EpisodeNumber: cs.Episode().EpisodeNumber,
 							Progress:      int(event.CurrentTime),
 							Duration:      int(event.Duration),
 						})

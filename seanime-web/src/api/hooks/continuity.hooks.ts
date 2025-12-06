@@ -120,6 +120,7 @@ export function useHandleCurrentMediaContinuity(mediaId: Nullish<number | string
     return {
         watchHistory,
         waitForWatchHistory,
+        shouldWaitForWatchHistory: serverStatus?.settings?.library?.enableWatchContinuity,
         getEpisodeContinuitySeekTo,
     }
 }

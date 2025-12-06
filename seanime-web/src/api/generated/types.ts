@@ -1853,7 +1853,8 @@ export type INTERNAL_FeatureKey = "ManageOfflineMode" |
     "ManageNakama" |
     "ManageDebrid" |
     "Proxy" |
-    "ManageMangaSource"
+    "ManageMangaSource" |
+    "PushRequests"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Debrid
@@ -2817,6 +2818,13 @@ export type HibikeOnlinestream_SearchResult = {
  * - Package: hibikeonlinestream
  */
 export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
+
+/**
+ * - Filepath: internal/extension/hibike/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: hibikeonlinestream
+ */
+export type HibikeOnlinestream_VideoSourceType = "mp4" | "m3u8" | "unknown"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hibiketorrent
@@ -4191,6 +4199,7 @@ export type Onlinestream_Episode = {
     image?: string
     description?: string
     isFiller?: boolean
+    metadata?: Anime_Episode
 }
 
 /**
@@ -4242,7 +4251,9 @@ export type Onlinestream_VideoSource = {
     server: string
     headers?: Record<string, string>
     url: string
+    label?: string
     quality: string
+    type?: HibikeOnlinestream_VideoSourceType
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

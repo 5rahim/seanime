@@ -1,5 +1,6 @@
 import { vc_containerElement, vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
 import { Popover } from "@/components/ui/popover"
+import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -10,6 +11,7 @@ import { LuCheck, LuChevronLeft, LuChevronRight } from "react-icons/lu"
 
 export const vc_menuOpen = atom<string | null>(null)
 export const vc_menuSectionOpen = atom<string | null>(null)
+export const vc_menuSubSectionOpen = atom<string | null>(null)
 
 type VideoCoreMenuProps = {
     name: string
@@ -24,6 +26,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
     const [open, setOpen] = useAtom(vc_menuOpen)
 
     const [openSection, setOpenSection] = useAtom(vc_menuSectionOpen)
+    const [openSubSection, setOpenSubSection] = useAtom(vc_menuSubSectionOpen)
 
     // Get fullscreen state and container element for proper portal mounting
     const isFullscreen = useAtomValue(vc_isFullscreen)
@@ -34,6 +37,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
         if (!open) {
             t.current = setTimeout(() => {
                 setOpenSection(null)
+                setOpenSubSection(null)
             }, 300)
         }
         return () => {
@@ -52,6 +56,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             trigger={<div>{trigger}</div>}
             sideOffset={4}
             align="center"
+            side="top"
             modal={false}
             className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]"
             portalContainer={isFullscreen ? containerElement || undefined : undefined}
@@ -68,7 +73,7 @@ export function VideoCoreMenuTitle(props: { children: React.ReactNode }) {
 
     const { children, ...rest } = props
     return (
-        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center" {...rest}>
+        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center relative" {...rest}>
             {children}
         </div>
     )
@@ -114,11 +119,12 @@ export function VideoCoreMenuSubmenuBody(props: { children: React.ReactNode }) {
     const { children, ...rest } = props
 
     const [openSection, setOpen] = useAtom(vc_menuSectionOpen)
+    const [openSubSection] = useAtom(vc_menuSubSectionOpen)
 
     return (
         <div className="vc-menu-submenu-body">
             {/*<AnimatePresence mode="wait">*/}
-            {openSection && (
+            {openSection && !openSubSection && (
                 <motion.div
                     key="section-body"
                     className="h-auto"
@@ -131,6 +137,29 @@ export function VideoCoreMenuSubmenuBody(props: { children: React.ReactNode }) {
                 </motion.div>
             )}
             {/*</AnimatePresence>*/}
+        </div>
+    )
+}
+
+export function VideoCoreMenuSubSubmenuBody(props: { children: React.ReactNode }) {
+    const { children, ...rest } = props
+
+    const [openSubSection] = useAtom(vc_menuSubSectionOpen)
+
+    return (
+        <div className="vc-menu-sub-submenu-body">
+            {openSubSection && (
+                <motion.div
+                    key="sub-section-body"
+                    className="h-auto"
+                    initial={{ opacity: 0, scale: 1.0, x: 10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 1.0, x: 10 }}
+                    transition={{ duration: 0.15 }}
+                >
+                    {children}
+                </motion.div>
+            )}
         </div>
     )
 }
@@ -201,20 +230,90 @@ export function VideoCoreMenuOption(props: {
     )
 }
 
-type VideoCoreSettingSelectProps<T extends string | number> = {
+export function VideoCoreMenuSubOption(props: {
+    title: string,
+    value?: string,
+    icon: React.ElementType,
+    children?: React.ReactNode,
+    onClick?: () => void,
+    parentId: string
+}) {
+    const { children, title, icon: Icon, onClick, value, parentId, ...rest } = props
+
+    const [openSection] = useAtom(vc_menuSectionOpen)
+    const [openSubSection, setOpenSubSection] = useAtom(vc_menuSubSectionOpen)
+
+    const itemId = `${parentId}::${title}`
+
+    function handleClick() {
+        if (onClick) {
+            onClick()
+            return
+        }
+
+        // open the sub-section
+        setOpenSubSection(itemId)
+    }
+
+    return (
+        <>
+            {openSection && !openSubSection && <button
+                role="button"
+                className="w-full p-2 h-10 flex items-center justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
+                onClick={handleClick}
+            >
+                <span className="w-8 flex justify-start items-center h-full">
+                    <Icon className="text-xl" />
+                </span>
+                <span className="w-full flex flex-1 text-sm font-medium">
+                    {title}
+                </span>
+                {value && <span className="text-sm font-medium tracking-wide text-[--muted] mr-2">
+                    {value}
+                </span>}
+                <LuChevronRight className="text-lg" />
+            </button>}
+
+            {openSubSection === itemId && (
+                <div
+                    key={itemId}
+                >
+                    <button
+                        role="button"
+                        className="w-full pb-2 h-10 mb-2 flex items-center justify-between rounded-lg transition-colors border-b"
+                        onClick={() => setOpenSubSection(null)}
+                    >
+                        <span className="w-8 flex justify-start items-center h-full">
+                            <LuChevronLeft className="text-lg" />
+                        </span>
+                        <span className="w-full flex flex-1 text-sm font-medium">
+                            {title}
+                        </span>
+                    </button>
+
+                    <VideoCoreMenuBody>
+                        {children}
+                    </VideoCoreMenuBody>
+                </div>
+            )}
+        </>
+    )
+}
+
+type VideoCoreSettingSelectProps = {
     options: {
         label: string
-        value: T
+        value: any
         moreInfo?: string
         description?: string
     }[]
-    value: T
-    onValueChange: (value: T) => void
+    value: any
+    onValueChange: (value: any) => void
     isFullscreen?: boolean
-    containerElement?: HTMLElement | null
+    containerElement?: HTMLElement | null | undefined
 }
 
-export function VideoCoreSettingSelect<T extends string | number>(props: VideoCoreSettingSelectProps<T>) {
+export function VideoCoreSettingSelect(props: VideoCoreSettingSelectProps) {
     const { options, value, onValueChange, isFullscreen, containerElement } = props
     return (
         <div className="block">
@@ -251,6 +350,27 @@ export function VideoCoreSettingSelect<T extends string | number>(props: VideoCo
 
                 </div>
             ))}
+        </div>
+    )
+}
+
+type VideoCoreSettingTextInputProps = {
+    value: string
+    onValueChange: (value: string) => void
+    label?: string
+    help?: string
+}
+
+export function VideoCoreSettingTextInput(props: VideoCoreSettingTextInputProps) {
+    const { value, onValueChange, label, help } = props
+    return (
+        <div className="block">
+            <TextInput
+                label={label}
+                value={value}
+                onValueChange={onValueChange}
+                help={help}
+            />
         </div>
     )
 }

@@ -75,6 +75,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extensi
 		{"url", func(vm *goja.Runtime) error { gojaurl.Enable(vm); return nil }},
 		{"buffer", func(vm *goja.Runtime) error { gojabuffer.Enable(vm); return nil }},
 		{"fetch", func(vm *goja.Runtime) error { goja_bindings.BindFetch(vm); return nil }},
+		{"ChromeDP", func(vm *goja.Runtime) error { goja_bindings.BindChromeDP(vm); return nil }},
 		{"console", func(vm *goja.Runtime) error {
 			goja_bindings.BindConsoleWithWS(ext, vm, logger, wsEventManager)
 			return nil

@@ -37,6 +37,7 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { BiChevronRight, BiExtension, BiLogIn, BiLogOut } from "react-icons/bi"
 import { FiLogIn, FiSearch } from "react-icons/fi"
+import { GrTest } from "react-icons/gr"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoHomeOutline } from "react-icons/io5"
 import { LuBookOpen, LuCalendar, LuCompass, LuRefreshCw, LuRss, LuSettings } from "react-icons/lu"
@@ -136,13 +137,13 @@ export function MainSidebar() {
             href: "/",
             isCurrent: pathname === "/",
         },
-        // ...(process.env.NODE_ENV === "development" ? [{
-        //     id: "test",
-        //     iconType: GrTest,
-        //     name: "Test",
-        //     href: "/test",
-        //     isCurrent: pathname === "/test",
-        // }] : []),
+        ...(process.env.NODE_ENV === "development" ? [{
+            id: "test",
+            iconType: GrTest,
+            name: "Test",
+            href: "/test",
+            isCurrent: pathname === "/test",
+        }] : []),
         {
             id: "schedule",
             iconType: LuCalendar,

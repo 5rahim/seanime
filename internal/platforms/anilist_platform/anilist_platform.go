@@ -159,16 +159,17 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(ctx context.Context, mediaID int, r
 func (ap *AnilistPlatform) DeleteEntry(ctx context.Context, mediaID, entryId int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
 
-	// Check if this is a custom source entry
-	if handled, err := ap.helper.HandleCustomSourceDeleteEntry(ctx, mediaID, entryId); handled {
-		return err
-	}
+	return ap.helper.TriggerDeleteEntryHooks(ctx, mediaID, entryId, func(event *platform.PreDeleteEntryEvent) error {
+		if handled, err := ap.helper.HandleCustomSourceDeleteEntry(ctx, *event.MediaID, *event.EntryID); handled {
+			return err
+		}
 
-	_, err := ap.anilistClient.DeleteEntry(ctx, &entryId)
-	if err != nil {
-		return err
-	}
-	return nil
+		_, err := ap.anilistClient.DeleteEntry(ctx, event.EntryID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func (ap *AnilistPlatform) GetAnime(ctx context.Context, mediaID int) (*anilist.BaseAnime, error) {

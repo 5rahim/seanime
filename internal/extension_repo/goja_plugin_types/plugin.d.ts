@@ -1,4 +1,5 @@
 /// <reference path="app.d.ts" />
+/// <reference path="core.d.ts" />
 
 declare namespace $ui {
     /**
@@ -161,6 +162,11 @@ declare namespace $ui {
          * @returns A command palette object
          */
         newCommandPalette(options: CommandPaletteOptions): CommandPalette
+
+        /**
+         * Use a headless browser.
+         */
+        chromeDP: ChromeDP
     }
 
     interface State<T> {
@@ -1082,12 +1088,26 @@ declare namespace $ui {
          * Get an anime entry
          * @param mediaId - The ID of the anime
          * @returns A promise that resolves to an anime entry
-         * @throws Error if a needed repository is not found
+         * @throws Error if the entry is not found
          */
         getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
+
+        /**
+         * Clears episode metadata cache.
+         * Note: To clear the anime entry cache, use $anilist.clearCache() (requires 'anilist' permission).
+         */
+        clearEpisodeMetadataCache(): void
     }
 
     interface Manga {
+        /**
+         * Get an manga entry
+         * @param mediaId - The ID of the manga
+         * @returns A promise that resolves to a manga entry
+         * @throws Error if the entry is not found
+         */
+        getMangaEntry(mediaId: number): Promise<$app.Manga_Entry>
+
         /**
          * Get a chapter container for a manga.
          * This caches the chapter container if it exists.
@@ -1381,6 +1401,11 @@ declare namespace $storage {
 
 declare namespace $anilist {
     /**
+     * Deletes all cached data.
+     */
+    function clearCache(): void
+
+    /**
      * Refresh the anime collection.
      * This will cause the frontend to refetch queries that depend on the anime collection.
      */
@@ -1534,76 +1559,6 @@ declare namespace $anilist {
      * Make a custom GraphQL query
      */
     function customQuery<T = any>(body: Record<string, any>, token: string): T
-}
-
-declare namespace $store {
-    /**
-     * Sets a value in the store.
-     * @param key - The key to set
-     * @param value - The value to set
-     */
-    function set(key: string, value: any): void
-
-    /**
-     * Gets a value from the store.
-     * @param key - The key to get
-     * @returns The value associated with the key
-     */
-    function get<T = any>(key: string): T
-
-    /**
-     * Checks if a key exists in the store.
-     * @param key - The key to check
-     * @returns True if the key exists, false otherwise
-     */
-    function has(key: string): boolean
-
-    /**
-     * Gets a value from the store or sets it if it doesn't exist.
-     * @param key - The key to get or set
-     * @param setFunc - The function to set the value
-     * @returns The value associated with the key
-     */
-    function getOrSet<T = any>(key: string, setFunc: () => T): T
-
-    /**
-     * Sets a value in the store if it's less than the limit.
-     * @param key - The key to set
-     * @param value - The value to set
-     * @param maxAllowedElements - The maximum allowed elements
-     */
-    function setIfLessThanLimit<T = any>(key: string, value: T, maxAllowedElements: number): boolean
-
-    /**
-     * Unmarshals a JSON string.
-     * @param data - The JSON string to unmarshal
-     */
-    function unmarshalJSON(data: string): void
-
-    /**
-     * Marshals a value to a JSON string.
-     * @param value - The value to marshal
-     * @returns The JSON string
-     */
-    function marshalJSON(value: any): string
-
-    /**
-     * Resets the store.
-     */
-    function reset(): void
-
-    /**
-     * Gets all values from the store.
-     * @returns An array of all values in the store
-     */
-    function values(): any[]
-
-    /**
-     * Watches a key in the store.
-     * @param key - The key to watch
-     * @param callback - The callback to call when the key changes
-     */
-    function watch<T = any>(key: string, callback: (value: T) => void): void
 }
 
 /**

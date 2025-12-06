@@ -596,6 +596,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/directstream/play/localfile",
         },
+        /**
+         *  @description
+         *  Route converts subtitles to ASS.
+         *  Subtitles will be fetched and converted to ASS.
+         */
+        DirectstreamFetchAndConvertToASS: {
+            key: "DIRECTSTREAM-directstream-fetch-and-convert-to-a-s-s",
+            methods: ["POST"],
+            endpoint: "/api/v1/directstream/subs/convert-to-ass",
+        },
     },
     DISCORD: {
         SetDiscordMangaActivity: {

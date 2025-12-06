@@ -92,7 +92,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         isFetching,
         soughtEpisode,
     } = useHandleTorrentSearch({
-        isAdult,
+        isAdult: false,
         hasEpisodesToDownload,
         shouldLookForBatches,
         downloadInfo,
@@ -222,19 +222,19 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                             />
                         </div>
 
-                        {entry.media?.isAdult === false && <div
-                            className="h-10 rounded-[--radius] px-2 flex items-center"
-                            data-torrent-search-container-param-container-adult-switch-container
-                        >
-                            <Switch
-                                // side="right"
-                                label="Adult"
-                                moreHelp="If enabled, the adult content flag will be passed to the provider."
-                                value={isAdult}
-                                onValueChange={setIsAdult}
-                                containerClass="flex-row-reverse gap-1"
-                            />
-                        </div>}
+                        {/*{<div*/}
+                        {/*    className="h-10 rounded-[--radius] px-2 flex items-center"*/}
+                        {/*    data-torrent-search-container-param-container-adult-switch-container*/}
+                        {/*>*/}
+                        {/*    <Switch*/}
+                        {/*        // side="right"*/}
+                        {/*        label="Adult"*/}
+                        {/*        moreHelp="If enabled, the adult content flag will be passed to the provider."*/}
+                        {/*        value={isAdult}*/}
+                        {/*        onValueChange={setIsAdult}*/}
+                        {/*        containerClass="flex-row-reverse gap-1"*/}
+                        {/*    />*/}
+                        {/*</div>}*/}
                     </div>
 
                     {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && <>

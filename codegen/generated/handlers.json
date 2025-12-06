@@ -2680,6 +2680,46 @@
     }
   },
   {
+    "name": "HandleDirectstreamFetchAndConvertToASS",
+    "trimmedName": "DirectstreamFetchAndConvertToASS",
+    "comments": [
+      "HandleDirectstreamFetchAndConvertToASS",
+      "",
+      "\t@summary converts subtitles to ASS.",
+      "\t@desc Subtitles will be fetched and converted to ASS.",
+      "\t@returns string",
+      "\t@route /api/v1/directstream/subs/convert-to-ass [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/directstream.go",
+    "filename": "directstream.go",
+    "api": {
+      "summary": "converts subtitles to ASS.",
+      "descriptions": [
+        "Subtitles will be fetched and converted to ASS."
+      ],
+      "endpoint": "/api/v1/directstream/subs/convert-to-ass",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Url",
+          "jsonName": "url",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleSetDiscordMangaActivity",
     "trimmedName": "SetDiscordMangaActivity",
     "comments": [

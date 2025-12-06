@@ -1,12 +1,13 @@
 import { usePlaybackStartManualTracking } from "@/api/hooks/playback_manager.hooks"
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
+import { __mpt_currentExternalPlayerLinkAtom } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-link"
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { toast } from "sonner"
 
 type ExternalPlayerLinkEventProps = {
@@ -22,6 +23,7 @@ export function useExternalPlayerLinkListener() {
     const { externalPlayerLink } = useExternalPlayerLink()
 
     const { mutate: startManualTracking } = usePlaybackStartManualTracking()
+    const setCurrentExternalPlayerLink = useSetAtom(__mpt_currentExternalPlayerLinkAtom)
 
     useWebsocketMessageListener<ExternalPlayerLinkEventProps>({
         type: WSEvents.EXTERNAL_PLAYER_OPEN_URL,
@@ -40,6 +42,7 @@ export function useExternalPlayerLinkListener() {
             link.setMediaTitle(data.mediaTitle)
             link.setUrl(data.url)
             openTab(link.getFullUrl())
+            setCurrentExternalPlayerLink(link.getFullUrl())
 
             if (data.mediaId != 0) {
                 logger("EXTERNAL PLAYER LINK").info("Starting manual tracking", {

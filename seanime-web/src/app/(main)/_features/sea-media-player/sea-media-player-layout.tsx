@@ -27,7 +27,7 @@ export type SeaMediaPlayerLayoutProps = {
     mediaPlayer: React.ReactNode
     episodeList: React.ReactNode
     episodes: any[] | undefined
-    loading?: boolean
+    loadingEpisodeList?: boolean
 }
 
 export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
@@ -40,7 +40,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
         mediaPlayer,
         episodeList,
         episodes,
-        loading,
+        loadingEpisodeList,
     } = props
 
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
@@ -48,7 +48,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
     const [currentProgress, setCurrentProgress] = useAtom(__seaMediaPlayer_scopedCurrentProgressAtom)
     const [progressItem, setProgressItem] = useAtom(__seaMediaPlayer_scopedProgressItemAtom)
 
-    /** Progress update **/
+    // Progress update
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(
         media?.id,
         currentProgress,
@@ -56,27 +56,65 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
 
     const { width } = useWindowSize()
 
-    /** Scroll to selected episode element when the episode list changes (on mount) **/
+    // Scroll to selected episode element when the episode list changes (on mount)
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
+    const episodeListViewportRef = React.useRef<HTMLDivElement>(null)
     const scrollTimeoutRef = React.useRef<NodeJS.Timeout>()
+    const mediaPlayerContainerRef = React.useRef<HTMLDivElement>(null)
+    const contentContainerRef = React.useRef<HTMLDivElement>(null)
+
+    // Sync episode list height with media player container height
+    React.useEffect(() => {
+        if (!mediaPlayerContainerRef.current || !contentContainerRef.current || theaterMode) return
+        const updateHeight = () => {
+            if (!mediaPlayerContainerRef.current || !contentContainerRef.current) return
+            const height = mediaPlayerContainerRef.current.offsetHeight
+            contentContainerRef.current.style.setProperty("--player-height", `${height}px`)
+        }
+        updateHeight()
+        const resizeObserver = new ResizeObserver(updateHeight)
+        resizeObserver.observe(mediaPlayerContainerRef.current)
+
+        return () => {
+            resizeObserver.disconnect()
+        }
+    }, [theaterMode, width, mediaPlayerContainerRef.current])
 
     React.useEffect(() => {
-        if (!episodeListContainerRef.current || width <= 1536 || !progress.currentEpisodeNumber) return
+        if (!episodeListContainerRef.current || !episodeListViewportRef.current || width <= 1536 || !progress.currentEpisodeNumber) return
 
         // Clear any existing timeout
         if (scrollTimeoutRef.current) {
             clearTimeout(scrollTimeoutRef.current)
         }
 
-        // Set a new timeout to scroll after a brief delay
         scrollTimeoutRef.current = setTimeout(() => {
-            let element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
-            if (theaterMode) {
-                element = document.getElementById("sea-media-player-container")
-            }
-            if (element) {
-                element.scrollIntoView({ behavior: "smooth" })
-            }
+            const container = episodeListContainerRef.current
+            const viewport = episodeListViewportRef.current
+            if (!container || !viewport || theaterMode) return
+
+            // Scroll page
+            const containerTop = container.getBoundingClientRect().top + window.scrollY
+            const padding = 20
+            window.scrollTo({
+                top: containerTop - padding,
+                behavior: "smooth",
+            })
+
+            // Then scroll within the episode list viewport
+            setTimeout(() => {
+                const element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
+                if (element && viewport) {
+                    const viewportRect = viewport.getBoundingClientRect()
+                    const elementRect = element.getBoundingClientRect()
+                    const scrollOffset = elementRect.top - viewportRect.top + viewport.scrollTop - 20
+
+                    viewport.scrollTo({
+                        top: scrollOffset,
+                        behavior: "smooth",
+                    })
+                }
+            }, 300)
         }, 100)
 
         // Cleanup
@@ -85,7 +123,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 clearTimeout(scrollTimeoutRef.current)
             }
         }
-    }, [width, episodes, loading, progress.currentEpisodeNumber, theaterMode])
+    }, [width, episodes, loadingEpisodeList, progress.currentEpisodeNumber, theaterMode])
 
     const handleProgressUpdate = React.useCallback(() => {
         if (!media || !progressItem || isUpdatingProgress || hasUpdatedProgress) return
@@ -136,7 +174,8 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 </div>
             </div>
 
-            {!(loading === false) ? <div
+            {!loadingEpisodeList ? <div
+                ref={contentContainerRef}
                 data-sea-media-player-layout-content
                 className={cn(
                     "flex gap-4 w-full flex-col 2xl:flex-row",
@@ -144,6 +183,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 )}
             >
                 <div
+                    ref={mediaPlayerContainerRef}
                     id="sea-media-player-container"
                     data-sea-media-player-layout-content-player
                     className={cn(
@@ -156,19 +196,21 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
 
                 <ScrollArea
                     ref={episodeListContainerRef}
+                    viewportRef={episodeListViewportRef}
                     data-sea-media-player-layout-content-episode-list
                     className={cn(
-                        "2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0 -mt-3",
-                        theaterMode && "2xl:max-w-full",
+                        "2xl:max-w-[450px] w-full relative 2xl:sticky overflow-y-auto pr-4 pt-0",
+                        theaterMode ? "2xl:max-w-full h-[75dvh]" : "h-[75dvh] 2xl:h-auto",
                     )}
+                    style={!theaterMode ? { height: "var(--player-height, 75dvh)" } as React.CSSProperties : undefined}
                 >
                     <div data-sea-media-player-layout-content-episode-list-container className="space-y-3">
                         {episodeList}
                     </div>
-                    <div
-                        data-sea-media-player-layout-content-episode-list-bottom-gradient
-                        className={"z-[5] absolute bottom-0 w-full h-[2rem] bg-gradient-to-t from-[--background] to-transparent"}
-                    />
+                    {/*<div*/}
+                    {/*    data-sea-media-player-layout-content-episode-list-bottom-gradient*/}
+                    {/*    className={"z-[5] absolute bottom-0 w-full h-[2rem] bg-gradient-to-t from-[--background] to-transparent"}*/}
+                    {/*/>*/}
                 </ScrollArea>
             </div> : <div
                 className="grid 2xl:grid-cols-[1fr,450px] gap-4 xl:gap-4"

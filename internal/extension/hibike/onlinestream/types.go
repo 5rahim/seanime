@@ -114,6 +114,8 @@ type (
 		URL string `json:"url"`
 		// Type of the video source.
 		Type VideoSourceType `json:"type"`
+		// Label of the video source. (e.g. "English")
+		Label string `json:"label,omitempty"`
 		// Quality of the video source.
 		// e.g. "default", "auto", "1080p".
 		Quality string `json:"quality"`
@@ -141,6 +143,7 @@ const (
 )
 
 const (
-	VideoSourceMP4  VideoSourceType = "mp4"
-	VideoSourceM3U8 VideoSourceType = "m3u8"
+	VideoSourceMP4     VideoSourceType = "mp4"
+	VideoSourceM3U8    VideoSourceType = "m3u8"
+	VideoSourceUnknown VideoSourceType = "unknown"
 )

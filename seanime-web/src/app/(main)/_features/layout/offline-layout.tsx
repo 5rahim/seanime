@@ -61,7 +61,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ErrorExplainer />
             <SeaCommand />
             <PluginManager />
-            {__isElectronDesktop__ && <VideoCoreProvider>
+            {__isElectronDesktop__ && <VideoCoreProvider id="native-player">
                 <NativePlayer />
             </VideoCoreProvider>}
             <TopIndefiniteLoader />

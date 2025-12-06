@@ -1,18 +1,19 @@
-import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
-import { vc_busy, vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
+import { vc_busy, vc_isFullscreen, vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
+import { VideoCorePlaybackState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { cn } from "@/components/ui/core/styling"
+import { __isDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
-import { motion } from "motion/react"
 import React from "react"
 
-export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
-    const { children, ...rest } = props
+export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?: boolean }) {
+    const { children, inline, ...rest } = props
 
     const busy = useAtomValue(vc_busy)
     const paused = useAtomValue(vc_paused)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const hoveringControlBar = useAtomValue(vc_hoveringControlBar)
+    const fullscreen = useAtomValue(vc_isFullscreen)
 
     return (
         <>
@@ -20,7 +21,8 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
                 data-vc-control-bar-top-section
                 className={cn(
                     "vc-control-bar-top-section",
-                    "top-8 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[999]",
+                    "top-0 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[999]",
+                    (__isDesktop__ && ((inline && fullscreen) || !inline)) && "top-8",
                     (busy || paused || hoveringControlBar) && "opacity-100",
                     isMiniPlayer && "top-0",
                 )}
@@ -41,7 +43,7 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode }) {
     )
 }
 
-export function VideoCoreTopPlaybackInfo(props: { state: NativePlayerState, children?: React.ReactNode }) {
+export function VideoCoreTopPlaybackInfo(props: { state: VideoCorePlaybackState, children?: React.ReactNode }) {
     const { state, children, ...rest } = props
 
     const busy = useAtomValue(vc_busy)

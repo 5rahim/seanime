@@ -4,8 +4,9 @@ import { SeaImage } from "@/components/shared/sea-image"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { openTab } from "@/lib/helpers/browser"
 import { WSEvents } from "@/lib/server/ws-events"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { PiPopcornFill } from "react-icons/pi"
@@ -17,6 +18,7 @@ type ManualProgressTrackingProps = {
 
 const __mpt_isWatchingAtom = atom<boolean>(false)
 const __mpt_showModalAtom = atom<boolean>(false)
+export const __mpt_currentExternalPlayerLinkAtom = atom<string | null>(null)
 
 export function ManualProgressTrackingButton(props: ManualProgressTrackingProps) {
 
@@ -62,6 +64,7 @@ export function ManualProgressTracking() {
     const stateRef = React.useRef<PlaybackManager_PlaybackState | null>(null)
     const [state, setState] = React.useState<PlaybackManager_PlaybackState | null>(null)
     const [showModal, setShowModal] = useAtom(__mpt_showModalAtom)
+    const currentExternalPlayerLink = useAtomValue(__mpt_currentExternalPlayerLinkAtom)
 
     // Playback state
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
@@ -111,7 +114,7 @@ export function ManualProgressTracking() {
                 onOpenChange={v => setShowModal(v)}
                 // title="Progress"
                 titleClass="text-center"
-                contentClass="!space-y-2 relative max-w-2xl"
+                contentClass="!space-y-2 relative max-w-2xl rounded-2xl"
             >
                 {state && <div data-manual-progress-tracking-modal-content className="text-center relative overflow-hidden space-y-2">
                     <p className="text-[--muted]">Playing externally</p>
@@ -145,6 +148,14 @@ export function ManualProgressTracking() {
                         Stop
                     </Button>
                 </div>
+
+                {!!currentExternalPlayerLink && (
+                    <div className="flex justify-center w-full">
+                        <Button intent="gray-link" size="sm" onClick={() => { openTab(currentExternalPlayerLink!) }}>
+                            Open in external player
+                        </Button>
+                    </div>
+                )}
             </Modal>
 
         </>

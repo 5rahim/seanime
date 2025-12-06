@@ -233,29 +233,6 @@ export function NativePlayer() {
                 },
             },
         })
-
-        if (!state.playbackInfo?.isNakamaWatchParty) {
-            if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
-                const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
-                    videoElement?.currentTime,
-                    videoElement?.duration)
-                logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
-                if (lastWatchedTime > 0) {
-                    logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                    dispatchEvent({ type: "restoreProgress",
-                        payload: {
-                            mediaId: state.playbackInfo?.media?.id!,
-                            progressNumber: state.playbackInfo?.episode?.progressNumber,
-                            time: lastWatchedTime,
-                        },
-                    })
-                }
-            } else {
-                dispatchEvent({ type: "restoreProgress", payload: null })
-            }
-        } else {
-            log.info("This stream is a watch party, only listen")
-        }
     }
 
     const handlePause = () => {
@@ -357,7 +334,7 @@ export function NativePlayer() {
                     break
                 case "add-subtitle-track":
                     log.info("Add subtitle track event received", payload)
-                    subtitleManager?.onTrackAdded(payload as MKVParser_TrackInfo)
+                    subtitleManager?.onEventTrackAdded(payload as MKVParser_TrackInfo)
                     break
                 case "terminate":
                     log.info("Terminate event received")
@@ -439,10 +416,28 @@ export function NativePlayer() {
         })
     }
 
+    const ps = React.useMemo(() => {
+        return {
+            active: state.active,
+            loadingState: state.loadingState,
+            playbackError: state.playbackError,
+            playbackInfo: {
+                id: state.playbackInfo?.id!,
+                playbackType: state.playbackInfo?.streamType!,
+                streamUrl: state.playbackInfo?.streamUrl!,
+                mkvMetadata: state.playbackInfo?.mkvMetadata,
+                media: state.playbackInfo?.media,
+                episode: state.playbackInfo?.episode,
+                streamType: "stream",
+            },
+        } as any
+    }, [state])
+
     return (
         <>
             <VideoCore
-                state={state}
+                id="native-player"
+                state={ps}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
                 onLoadedMetadata={handleLoadedMetadata}

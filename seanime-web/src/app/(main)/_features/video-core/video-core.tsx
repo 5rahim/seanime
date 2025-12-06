@@ -1,38 +1,63 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import {
     useCancelDiscordActivity,
     useSetDiscordAnimeActivityWithProgress,
     useUpdateDiscordAnimeActivityWithProgress,
 } from "@/api/hooks/discord.hooks"
-import { NativePlayerState } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
-import { vc_doFlashAction, VideoCoreActionDisplay } from "@/app/(main)/_features/video-core/video-core-action-display"
+import {
+    vc_doFlashAction,
+    vc_flashAction,
+    vc_flashActionTimeout,
+    VideoCoreActionDisplay,
+} from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
+import { VideoCoreAudioMenu } from "@/app/(main)/_features/video-core/video-core-audio-menu"
 import {
     vc_hoveringControlBar,
-    VideoCoreAudioButton,
     VideoCoreControlBar,
     VideoCoreFullscreenButton,
+    VideoCoreMobileControlBar,
     VideoCorePipButton,
     VideoCorePlayButton,
-    VideoCoreSettingsButton,
-    VideoCoreSubtitleButton,
     VideoCoreTimestamp,
     VideoCoreVolumeButton,
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
-import { VideoCoreKeybindingController, VideoCoreKeybindingsModal } from "@/app/(main)/_features/video-core/video-core-keybindings"
+import {
+    useVideoCoreHls,
+    vc_hlsAudioTracks,
+    vc_hlsCurrentAudioTrack,
+    vc_hlsCurrentQuality,
+    vc_hlsQualityLevels,
+    vc_hlsSetAudioTrack,
+    vc_hlsSetQuality,
+} from "@/app/(main)/_features/video-core/video-core-hls"
+import { useVideoCoreIOSFullscreenSubtitles } from "@/app/(main)/_features/video-core/video-core-ios-fullscreen-subtitles"
+import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
-import { vc_menuOpen } from "@/app/(main)/_features/video-core/video-core-menu"
+import { vc_menuOpen, vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-menu"
+import { useVideoCoreMobileGestures } from "@/app/(main)/_features/video-core/video-core-mobile-gestures"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
-import { useVideoCorePlaylist, useVideoCorePlaylistSetup, VideoCorePlaylistControl } from "@/app/(main)/_features/video-core/video-core-playlist"
+import {
+    useVideoCorePlaylist,
+    useVideoCorePlaylistSetup,
+    vc_playlistState,
+    VideoCorePlaylistControl,
+} from "@/app/(main)/_features/video-core/video-core-playlist"
+import { VideoCoreKeybindingController, VideoCorePreferencesModal } from "@/app/(main)/_features/video-core/video-core-preferences"
 import { VideoCorePreviewManager } from "@/app/(main)/_features/video-core/video-core-preview"
+import { VideoCoreResolutionMenu } from "@/app/(main)/_features/video-core/video-core-resolution-menu"
+import { VideoCoreSettingsMenu } from "@/app/(main)/_features/video-core/video-core-settings-menu"
+import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-core-subtitle-menu"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
-import { VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
+import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
 import {
     vc_autoNextAtom,
@@ -43,6 +68,9 @@ import {
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
+    VideoCorePlaybackInfo,
+    VideoCorePlaybackState,
+    VideoCoreVideoSource,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
     detectSubtitleType,
@@ -63,27 +91,25 @@ import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-str
 import { GradientBackground } from "@/components/shared/gradient-background"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
-import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { __isDesktop__ } from "@/types/constants"
 import { useQueryClient } from "@tanstack/react-query"
-import { atom, useAtomValue } from "jotai"
+import { ErrorData } from "hls.js"
+import { atom } from "jotai"
 import { derive } from "jotai-derive"
-import { createIsolation, ScopeProvider } from "jotai-scope"
-import { useAtom, useSetAtom } from "jotai/react"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import { ScopeProvider } from "jotai-scope"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import React, { useCallback, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure } from "react-use"
+import { useMeasure, useUpdateEffect, useWindowSize } from "react-use"
 import { toast } from "sonner"
-
-
-const VideoCoreIsolation = createIsolation()
 
 const log = logger("VIDEO CORE")
 
@@ -91,6 +117,11 @@ export const VIDEOCORE_DEBUG_ELEMENTS = false
 
 const DELAY_BEFORE_NOT_BUSY = 1_000 //ms
 
+export const vc_activePlayerId = atom<string | null>(null)
+
+export const vc_isMobile = atom(false)
+export const vc_isSwiping = atom(false) // Mobile swipe state
+export const vc_swipeSeekTime = atom<number | null>(null) // Mobile swipe seek time
 export const vc_videoSize = atom({ width: 1, height: 1 })
 export const vc_realVideoSize = atom({ width: 0, height: 0 })
 export const vc_duration = atom(1)
@@ -134,6 +165,7 @@ export const vc_videoElement = atom<HTMLVideoElement | null>(null)
 export const vc_containerElement = atom<HTMLDivElement | null>(null)
 
 export const vc_subtitleManager = atom<VideoCoreSubtitleManager | null>(null)
+export const vc_mediaCaptionsManager = atom<MediaCaptionsManager | null>(null)
 export const vc_audioManager = atom<VideoCoreAudioManager | null>(null)
 export const vc_previewManager = atom<VideoCorePreviewManager | null>(null)
 export const vc_anime4kManager = atom<VideoCoreAnime4KManager | null>(null)
@@ -145,7 +177,7 @@ export const vc_lastKnownProgress = atom<{ mediaId: number, progressNumber: numb
 export const vc_skipOpeningTime = atom<number | null>(null)
 export const vc_skipEndingTime = atom<number | null>(null)
 
-type VideoCoreAction = "seekTo" | "seek" | "togglePlay" | "restoreProgress"
+type VideoCoreAction = "seekTo" | "seek" | "togglePlay"
 
 export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCoreAction; payload?: any }) => {
     const videoElement = get(vc_videoElement)
@@ -177,28 +209,85 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
             case "togglePlay":
                 videoElement.paused ? videoElement.play() : videoElement.pause()
                 break
-            case "restoreProgress":
-                // Restore time to the last known position
-                if (action.payload) {
-                    set(vc_lastKnownProgress, {
-                        mediaId: action.payload.mediaId,
-                        progressNumber: action.payload.progressNumber,
-                        time: action.payload.time,
-                    })
-                } else {
-                    set(vc_lastKnownProgress, null)
-                }
-                break
         }
     }
 })
 
-export function VideoCoreProvider(props: { children: React.ReactNode }) {
+export function VideoCoreProvider(props: { id: string, children: React.ReactNode }) {
     const { children } = props
+
+    const [activePlayer, setActivePlayer] = useAtom(vc_activePlayerId)
+
+    React.useEffect(() => {
+        if (props.id === "native-player") return
+
+        setActivePlayer(props.id)
+
+        return () => {
+            setActivePlayer(null)
+        }
+    }, [])
+
+    if (activePlayer !== null && activePlayer !== props.id) return null
+
     return (
-        <VideoCoreIsolation.Provider>
+        <ScopeProvider
+            atoms={[
+                vc_videoSize,
+                vc_realVideoSize,
+                vc_duration,
+                vc_currentTime,
+                vc_playbackRate,
+                vc_readyState,
+                vc_buffering,
+                vc_isMuted,
+                vc_volume,
+                vc_subtitleDelay,
+                // vc_isFullscreen, expose this
+                vc_seeking,
+                vc_seekingTargetProgress,
+                vc_timeRanges,
+                vc_ended,
+                vc_paused,
+                vc_miniPlayer,
+                vc_cursorPosition,
+                vc_busy,
+                vc_videoElement,
+                vc_containerElement,
+                vc_subtitleManager,
+                vc_audioManager,
+                vc_previewManager,
+                vc_anime4kManager,
+                vc_pipManager,
+                vc_fullscreenManager,
+                vc_mediaSessionManager,
+                vc_pipElement,
+                vc_previousPausedState,
+                vc_lastKnownProgress,
+                vc_skipOpeningTime,
+                vc_skipEndingTime,
+                vc_dispatchAction,
+                vc_hoveringControlBar,
+                vc_menuOpen,
+                vc_menuSectionOpen,
+                vc_doFlashAction,
+                vc_flashAction,
+                vc_flashActionTimeout,
+                vc_playlistState,
+                vc_timeRangeElement,
+                vc_hlsQualityLevels,
+                vc_hlsCurrentQuality,
+                vc_hlsSetQuality,
+                vc_hlsAudioTracks,
+                vc_hlsCurrentAudioTrack,
+                vc_hlsSetAudioTrack,
+                vc_isSwiping,
+                vc_isMobile,
+                vc_swipeSeekTime,
+            ]}
+        >
             {children}
-        </VideoCoreIsolation.Provider>
+        </ScopeProvider>
     )
 }
 
@@ -208,8 +297,308 @@ export type VideoCoreChapterCue = {
     text: string
 }
 
+interface PlayerContentProps {
+    videoRef: React.MutableRefObject<HTMLVideoElement | null>
+    inline: boolean
+    state: VideoCorePlaybackState
+    chapterCues: VideoCoreChapterCue[] | undefined
+    aniSkipData: VideoCoreProps["aniSkipData"]
+    streamUrl: string | undefined
+    combineRef: (instance: HTMLVideoElement | null) => void
+    combineContainerRef: (instance: HTMLDivElement | null) => void
+    handleContainerPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void
+    handleClick: (e: React.MouseEvent<HTMLDivElement>) => void
+    handleLoadedMetadata: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleTimeUpdate: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleEnded: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handlePlay: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handlePause: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleDoubleClick: (e: React.MouseEvent<HTMLVideoElement>) => void
+    handleLoadedData: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleVolumeChange: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleRateChange: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleError: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleWaiting: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleCanPlay: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    handleStalled: (e: React.SyntheticEvent<HTMLVideoElement>) => void
+    onTerminateStream: () => void
+    onVideoSourceChange: ((source: VideoCoreVideoSource) => void) | undefined
+}
+
+const PlayerContent = React.memo<PlayerContentProps>(({
+    videoRef,
+    inline,
+    state,
+    chapterCues,
+    aniSkipData,
+    streamUrl,
+    combineRef,
+    combineContainerRef,
+    handleContainerPointerMove,
+    handleClick,
+    handleLoadedMetadata,
+    handleTimeUpdate,
+    handleEnded,
+    handlePlay,
+    handlePause,
+    handleDoubleClick,
+    handleLoadedData,
+    handleVolumeChange,
+    handleRateChange,
+    handleError,
+    handleWaiting,
+    handleCanPlay,
+    handleStalled,
+    onTerminateStream,
+    onVideoSourceChange,
+}) => {
+    const isMobile = useAtomValue(vc_isMobile)
+    const isMiniPlayer = useAtomValue(vc_miniPlayer)
+    const busy = useAtomValue(vc_busy)
+    const paused = useAtomValue(vc_paused)
+    const buffering = useAtomValue(vc_buffering)
+    const settings = useAtomValue(vc_settings)
+    const beautifyImage = useAtomValue(vc_beautifyImageAtom)
+    const isPip = useAtomValue(vc_pip)
+    const skipOpeningTime = useAtomValue(vc_skipOpeningTime)
+    const skipEndingTime = useAtomValue(vc_skipEndingTime)
+    const pipManager = useAtomValue(vc_pipManager)
+    const action = useSetAtom(vc_dispatchAction)
+    const [autoPlay] = useAtom(vc_autoPlayVideoAtom)
+    const [muted] = useAtom(vc_storedMutedAtom)
+
+    return (
+        <>
+            <TorrentStreamOverlay
+                isNativePlayerComponent="top-section"
+                show={!isMiniPlayer && !(!!state.playbackInfo?.streamUrl && !state.loadingState)}
+            />
+
+            {(state?.playbackError) && (
+                <div className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4">
+                    <div className="text-white text-center">
+                        {!isMiniPlayer ? (
+                            <LuffyError title="Playback Error" imageContainerClass="size-[3.5rem] lg:size-[8rem]" />
+                        ) : (
+                            <h1 className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback Error</h1>
+                        )}
+                        <p className={cn("text-base text-white/50 max-w-xl", isMiniPlayer && "text-sm max-w-lg mx-auto")}>
+                            {state.playbackError || "An error occurred while playing the stream. Please try again later."}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <div
+                ref={combineContainerRef}
+                className={cn(
+                    "relative w-full h-full bg-black overflow-clip flex items-center justify-center",
+                    (!busy && !isMiniPlayer) && "cursor-none",
+                )}
+                onPointerMove={handleContainerPointerMove}
+            >
+                {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
+                    <>
+                        <VideoCoreKeybindingController
+                            videoRef={videoRef}
+                            active={state.active}
+                            chapterCues={chapterCues ?? []}
+                            introStartTime={aniSkipData?.op?.interval?.startTime}
+                            introEndTime={aniSkipData?.op?.interval?.endTime}
+                            endingStartTime={aniSkipData?.ed?.interval?.startTime}
+                            endingEndTime={aniSkipData?.ed?.interval?.endTime}
+                        />
+
+                        <VideoCoreActionDisplay />
+
+                        {buffering && (
+                            <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
+                                <div className="bg-black/20 backdrop-blur-sm rounded-full p-4">
+                                    <PiSpinnerDuotone className="size-12 text-white animate-spin" />
+                                </div>
+                            </div>
+                        )}
+
+                        {busy && !inline && (
+                            <>
+                                {!!skipOpeningTime && !isMiniPlayer && (
+                                    <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                        <Button
+                                            size="sm"
+                                            intent="gray-basic"
+                                            onClick={e => {
+                                                e.stopPropagation()
+                                                action({ type: "seekTo", payload: { time: skipOpeningTime || 0 } })
+                                            }}
+                                            onPointerMove={e => e.stopPropagation()}
+                                        >
+                                            Skip Opening
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {!!skipEndingTime && !isMiniPlayer && (
+                                    <div className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                        <Button
+                                            size="sm"
+                                            intent="gray-basic"
+                                            onClick={e => {
+                                                e.stopPropagation()
+                                                action({ type: "seekTo", payload: { time: skipEndingTime || 0 } })
+                                            }}
+                                            onPointerMove={e => e.stopPropagation()}
+                                        >
+                                            Skip Ending
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        <div
+                            className="relative w-full h-full flex items-center justify-center"
+                            onClick={handleClick}
+                            onContextMenu={handleClick}
+                        >
+                            <video
+                                data-video-core-element
+                                crossOrigin="anonymous"
+                                preload="auto"
+                                src={streamUrl && !streamUrl.includes(".m3u8") ? streamUrl : undefined}
+                                ref={combineRef}
+                                onLoadedMetadata={handleLoadedMetadata}
+                                onTimeUpdate={handleTimeUpdate}
+                                onEnded={handleEnded}
+                                onPlay={handlePlay}
+                                onPause={handlePause}
+                                onDoubleClick={handleDoubleClick}
+                                onLoadedData={handleLoadedData}
+                                onVolumeChange={handleVolumeChange}
+                                onRateChange={handleRateChange}
+                                onError={handleError}
+                                onWaiting={handleWaiting}
+                                onCanPlay={handleCanPlay}
+                                onStalled={handleStalled}
+                                autoPlay={autoPlay}
+                                muted={muted}
+                                playsInline
+                                controls={false}
+                                style={{
+                                    border: "none",
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "contain",
+                                    objectPosition: "center",
+                                    filter: (settings.videoEnhancement.enabled && beautifyImage)
+                                        ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
+                                        : "none",
+                                    imageRendering: "crisp-edges",
+                                }}
+                            >
+                                {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
+                                    <track
+                                        id={track.number.toString()}
+                                        key={track.number}
+                                        kind="subtitles"
+                                        srcLang={track.language || "eng"}
+                                        label={track.name}
+                                    />
+                                ))}
+                            </video>
+                        </div>
+
+                        {!isMobile && <VideoCoreTopSection inline={inline}>
+                            <VideoCoreTopPlaybackInfo state={state} />
+                            {!inline && (
+                                <div
+                                    className={cn(
+                                        "opacity-0",
+                                        "transition-opacity duration-200 ease-in-out",
+                                        (busy || paused) && "opacity-100",
+                                    )}
+                                >
+                                    <FloatingButtons part="video" onTerminateStream={onTerminateStream} />
+                                </div>
+                            )}
+                        </VideoCoreTopSection>}
+
+                        {isPip && (
+                            <div className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center">
+                                <Button
+                                    intent="gray-outline"
+                                    size="xl"
+                                    onClick={() => {
+                                        pipManager?.togglePip()
+                                    }}
+                                >
+                                    Exit PiP
+                                </Button>
+                            </div>
+                        )}
+
+                        {!isMobile ? <VideoCoreControlBar
+                            timeRange={<VideoCoreTimeRange chapterCues={chapterCues ?? []} />}
+                        >
+                            <VideoCorePlayButton />
+                            <VideoCorePlaylistControl />
+                            <VideoCoreVolumeButton />
+                            <VideoCoreTimestamp />
+                            <div className="flex flex-1" />
+                            {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
+                            <VideoCoreSettingsMenu />
+                            <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
+                            <VideoCoreSubtitleMenu inline={inline} />
+                            <VideoCoreAudioMenu />
+                            <VideoCorePipButton />
+                            <VideoCoreFullscreenButton />
+                        </VideoCoreControlBar> : <VideoCoreMobileControlBar
+                            timeRange={<VideoCoreTimeRange chapterCues={chapterCues ?? []} />}
+                            topLeftSection={<>
+                                <VideoCorePlaylistControl />
+                            </>}
+                            topRightSection={<>
+                                <VideoCoreSettingsMenu />
+                                <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
+                                <VideoCoreSubtitleMenu inline={inline} />
+                                <VideoCoreAudioMenu />
+                                <VideoCorePipButton />
+                                <VideoCoreVolumeButton />
+                            </>}
+                            bottomRightSection={<>
+                                <VideoCoreFullscreenButton />
+                            </>}
+                            bottomLeftSection={<>
+                                <VideoCoreTimestamp />
+                            </>}
+                        />}
+                    </>
+                ) : (
+                    <div className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md">
+                        {!inline && <FloatingButtons part="loading" onTerminateStream={onTerminateStream} />}
+                        {state.loadingState && (
+                            <LoadingSpinner
+                                title={state.loadingState || "Loading..."}
+                                spinner={<ImSpinner2 className="size-20 text-white animate-spin" />}
+                                containerClass="z-[1]"
+                            />
+                        )}
+                        {!isMiniPlayer && !inline && (
+                            <div className="opacity-50 absolute inset-0 z-[0] overflow-hidden">
+                                <GradientBackground duration={10} breathingRange={5} />
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </>
+    )
+})
+
+PlayerContent.displayName = "PlayerContent"
+
 export interface VideoCoreProps {
-    state: NativePlayerState
+    id: string
+    state: VideoCorePlaybackState
     aniSkipData?: {
         op: AniSkipTime | null
         ed: AniSkipTime | null
@@ -219,15 +608,24 @@ export interface VideoCoreProps {
     onCompleted?: () => void
     onPlay?: () => void
     onPause?: () => void
-    onTimeUpdate?: () => void
-    onLoadedData?: () => void
-    onLoadedMetadata?: () => void
+    onTimeUpdate?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
+    onLoadedData?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
+    onLoadedMetadata?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void
     onVolumeChange?: () => void
+    onFullscreenChange?: (fullscreen: boolean) => void
     onSeeking?: () => void
     onSeeked?: (time: number) => void
     onError?: (error: string) => void
     onPlaybackRateChange?: () => void
     onFileUploaded: (data: { name: string, content: string }) => void
+    onVideoSourceChange?: ((source: VideoCoreVideoSource) => void) | undefined
+    onPlayEpisode?: (which: "previous" | "next") => void
+    inlineClassName?: string
+    onHlsMediaDetached?: () => void
+    onHlsFatalError?: (error: ErrorData) => void
+    onChangePlaybackType?: (type: VideoCorePlaybackInfo["streamType"]) => void
+    inline?: boolean
+    mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
 
 export function VideoCore(props: VideoCoreProps) {
@@ -245,21 +643,37 @@ export function VideoCore(props: VideoCoreProps) {
         onLoadedData,
         onLoadedMetadata,
         onVolumeChange,
+        onFullscreenChange,
         onSeeking,
         onSeeked,
         onError,
         onPlaybackRateChange,
         onFileUploaded,
-        ...rest
+        inline = false,
+        inlineClassName,
+        onVideoSourceChange,
+        onHlsMediaDetached,
+        onHlsFatalError,
+        onPlayEpisode,
+        onChangePlaybackType,
+        mRef,
     } = props
+
+    const [streamType, setStreamType] = useState<VideoCorePlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
+    const { width: windowWidth } = useWindowSize()
+    const [isMobilePlayer, setIsMobilePlayer] = useAtom(vc_isMobile)
+    React.useEffect(() => {
+        setIsMobilePlayer(windowWidth < 1024)
+    }, [windowWidth < 1024])
+
     const setVideoElement = useSetAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
     useVideoCoreBindings(state.playbackInfo)
-    useVideoCorePlaylistSetup()
+    useVideoCorePlaylistSetup(state, onPlayEpisode)
 
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
@@ -267,6 +681,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [, setContainerElement] = useAtom(vc_containerElement)
 
     const [subtitleManager, setSubtitleManager] = useAtom(vc_subtitleManager)
+    const [mediaCaptionsManager, setMediaCaptionsManager] = useAtom(vc_mediaCaptionsManager)
     const [audioManager, setAudioManager] = useAtom(vc_audioManager)
     const [previewManager, setPreviewManager] = useAtom(vc_previewManager)
     const [anime4kManager, setAnime4kManager] = useAtom(vc_anime4kManager)
@@ -278,6 +693,7 @@ export function VideoCore(props: VideoCoreProps) {
     const action = useSetAtom(vc_dispatchAction)
 
     // States
+    const qc = useQueryClient()
     const settings = useAtomValue(vc_settings)
     const [isMiniPlayer, setIsMiniPlayer] = useAtom(vc_miniPlayer)
     const [busy, setBusy] = useAtom(vc_busy)
@@ -302,11 +718,27 @@ export function VideoCore(props: VideoCoreProps) {
     const [muted] = useAtom(vc_storedMutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
+    const discordRichPresenceEnabled = state.playbackInfo?.enableDiscordRichPresence ?? false
+
     const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
     const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
 
+    const { mutate: fetchAndConvertToASS } = useDirectstreamFetchAndConvertToASS({
+        onSuccess: (data) => {
+            // Success is handled by the subtitle manager
+        },
+    })
+
+    const isFirstError = React.useRef(true)
+
     React.useEffect(() => {
+        setIsMiniPlayer(false)
+    }, [])
+
+    // Discord rich presence
+    React.useEffect(() => {
+        if (!discordRichPresenceEnabled) return
         const interval = setInterval(() => {
             if (!videoRef.current) return
 
@@ -320,8 +752,9 @@ export function VideoCore(props: VideoCoreProps) {
         }, 6000)
 
         return () => clearInterval(interval)
-    }, [serverStatus?.settings?.discord, videoRef.current])
+    }, [serverStatus?.settings?.discord, videoRef.current, discordRichPresenceEnabled])
 
+    // Measure video element size
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
     React.useEffect(() => {
         setRealVideoSize({
@@ -330,17 +763,18 @@ export function VideoCore(props: VideoCoreProps) {
         })
     }, [width, height])
 
-    const qc = useQueryClient()
+    // Cancel discord rich presence and refetch continuity data when playback info changes
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
 
-        if (!state.playbackInfo || state.playbackInfo.id !== currentPlaybackRef.current) {
-            cancelDiscordActivity()
+        return () => {
+            if (discordRichPresenceEnabled) cancelDiscordActivity()
         }
-    }, [state.playbackInfo])
+    }, [state.playbackInfo, discordRichPresenceEnabled])
 
 
+    // Re-focus the video element when playback info changes
     React.useEffect(() => {
         if (state.active && videoRef.current && !!state.playbackInfo) {
             // Small delay to ensure the video element is fully rendered
@@ -348,13 +782,18 @@ export function VideoCore(props: VideoCoreProps) {
                 videoRef.current?.focus()
             }, 100)
         }
-    }, [state.active])
+    }, [state.active, state.playbackInfo])
 
+    // Merge refs
     const combineRef = (instance: HTMLVideoElement | null) => {
         videoRef.current = instance
+        if (mRef) {
+            mRef.current = instance
+        }
         if (instance) measureRef(instance)
         setVideoElement(instance)
     }
+
     const combineContainerRef = (instance: HTMLDivElement | null) => {
         containerRef.current = instance
         setContainerElement(instance)
@@ -363,7 +802,7 @@ export function VideoCore(props: VideoCoreProps) {
     // actions
     function togglePlay() {
         if (videoRef?.current?.paused) {
-            videoRef?.current?.play()
+            videoRef?.current?.play().catch()
             onPlay?.()
             flashAction({ message: "PLAY", type: "icon" })
         } else {
@@ -404,10 +843,36 @@ export function VideoCore(props: VideoCoreProps) {
         action({ type: "seek", payload: { time: -1 } })
     }
 
+    // Continuity
+    const {
+        watchHistory,
+        waitForWatchHistory,
+        shouldWaitForWatchHistory,
+        getEpisodeContinuitySeekTo,
+    } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
+    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(videoRef,
+        state?.playbackInfo?.episode?.episodeNumber,
+        state?.playbackInfo?.media?.id)
+
+    React.useEffect(() => {
+        if (watchHistory) {
+            log.info("Continuity watch history", watchHistory)
+        }
+    }, [watchHistory])
+
+    const hasSoughtRef = React.useRef(false)
+
+    // Lifecycle
     useUpdateEffect(() => {
+        // Wait for watch history to be ready before starting playback (only if continuity is enabled)
+        if (waitForWatchHistory && shouldWaitForWatchHistory && !state.playbackInfo?.disableRestoreFromContinuity) return
+
+        // If the playback info is null, the stream is loading or unmounted
         if (!state.playbackInfo) {
             log.info("Cleaning up")
             cancelDiscordActivity()
+            hasSoughtRef.current = false
+            isFirstError.current = true
             if (videoRef.current) {
                 videoRef.current.pause()
                 videoRef.current.removeAttribute("src")
@@ -417,6 +882,8 @@ export function VideoCore(props: VideoCoreProps) {
             setVideoElement(null)
             subtitleManager?.destroy?.()
             setSubtitleManager(null)
+            mediaCaptionsManager?.destroy?.()
+            setMediaCaptionsManager(null)
             previewManager?.cleanup?.()
             setPreviewManager(null)
             setAudioManager(null)
@@ -427,8 +894,7 @@ export function VideoCore(props: VideoCoreProps) {
             setPipElement(null)
             fullscreenManager?.destroy?.()
             setFullscreenManager(null)
-            setIsFullscreen(false)
-            setRestoreProgressTo(null)
+            // setIsFullscreen(false)
             if (mediaSessionManager) {
                 mediaSessionManager.setVideo(null)
                 mediaSessionManager.destroy()
@@ -438,19 +904,38 @@ export function VideoCore(props: VideoCoreProps) {
             videoRef.current = null
         }
 
+        // When a new playback info is received
         if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
-            log.info("New stream loaded")
+            hasSoughtRef.current = false
+            isFirstError.current = true
+            log.info("New stream loaded", state.playbackInfo)
+            setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
         }
-    }, [state.playbackInfo, videoRef.current])
+    }, [state.playbackInfo?.id, videoRef.current, waitForWatchHistory, shouldWaitForWatchHistory])
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
+    // Initialize HLS
+    useVideoCoreHls({
+        videoElement: videoRef.current,
+        streamUrl: streamUrl,
+        autoPlay: autoPlay,
+        streamType: streamType,
+        onMediaDetached: onHlsMediaDetached,
+        onFatalError: onHlsFatalError,
+    })
+
     const [anime4kOption, setAnime4kOption] = useAtom(vc_anime4kOption)
+
+    // Get HLS audio track values
+    const hlsAudioTracks = useAtomValue(vc_hlsAudioTracks)
+    const hlsCurrentAudioTrack = useAtomValue(vc_hlsCurrentAudioTrack)
+    const hlsSetAudioTrack = useAtomValue(vc_hlsSetAudioTrack)
 
     // events
     const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onLoadedMetadata?.()
+        onLoadedMetadata?.(e)
         if (!videoRef.current) return
         const v = videoRef.current
 
@@ -461,7 +946,7 @@ export function VideoCore(props: VideoCoreProps) {
         setSkipOpeningTime(null)
         setSkipEndingTime(null)
 
-        onCaptionsChange()
+        // onCaptionsChange() not needed?
         onAudioChange()
 
         videoCompletedRef.current = false
@@ -472,8 +957,13 @@ export function VideoCore(props: VideoCoreProps) {
 
         currentPlaybackRef.current = state.playbackInfo.id
 
-        // Initialize the subtitle manager if the stream is MKV
-        if (!!state.playbackInfo?.mkvMetadata) {
+        /*
+         * Event or file tracks using libass renderer
+         */
+        const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
+
+        // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
+        if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
             setSubtitleManager(p => {
                 if (p) p.destroy()
                 return new VideoCoreSubtitleManager({
@@ -481,9 +971,48 @@ export function VideoCore(props: VideoCoreProps) {
                     playbackInfo: state.playbackInfo!,
                     jassubOffscreenRender: true,
                     settings: settings,
+                    fetchAndConvertToASS: (url: string) => {
+                        return new Promise((resolve, reject) => {
+                            fetchAndConvertToASS({ url }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
                 })
             })
 
+            // Initialize audio manager for MKV streams
+            if (!!state.playbackInfo?.mkvMetadata) {
+                setAudioManager(new VideoCoreAudioManager({
+                    videoElement: v!,
+                    playbackInfo: state.playbackInfo,
+                    settings: settings,
+                    onError: (error) => {
+                        log.error("Audio manager error", error)
+                        onError?.(error)
+                    },
+                }))
+            }
+        }
+
+        /*
+         * File subtitle tracks that don't use libass renderer
+         */
+        const nonLibassSubtitleTracks = state.playbackInfo?.subtitleTracks?.filter(t => !t.useLibassRenderer)
+        if (nonLibassSubtitleTracks && nonLibassSubtitleTracks.length > 0) {
+            setMediaCaptionsManager(p => {
+                if (p) p.destroy()
+                return new MediaCaptionsManager({
+                    videoElement: v!,
+                    tracks: nonLibassSubtitleTracks,
+                    settings: settings,
+                })
+            })
+        }
+
+        // Initialize audio manager for HLS streams
+        if (hlsAudioTracks.length > 0 && hlsSetAudioTrack) {
             setAudioManager(new VideoCoreAudioManager({
                 videoElement: v!,
                 playbackInfo: state.playbackInfo,
@@ -492,6 +1021,9 @@ export function VideoCore(props: VideoCoreProps) {
                     log.error("Audio manager error", error)
                     onError?.(error)
                 },
+                hlsSetAudioTrack: hlsSetAudioTrack,
+                hlsAudioTracks: hlsAudioTracks,
+                hlsCurrentAudioTrack: hlsCurrentAudioTrack,
             }))
         }
 
@@ -525,6 +1057,7 @@ export function VideoCore(props: VideoCoreProps) {
             if (p) p.destroy()
             return new VideoCoreFullscreenManager((isFullscreen: boolean) => {
                 setIsFullscreen(isFullscreen)
+                onFullscreenChange?.(isFullscreen)
             })
         })
 
@@ -556,13 +1089,8 @@ export function VideoCore(props: VideoCoreProps) {
             return manager
         })
 
-        log.info("Initializing preview manager")
-        setPreviewManager(p => {
-            if (p) p.cleanup()
-            return new VideoCorePreviewManager(v!, streamUrl)
-        })
-
         if (
+            discordRichPresenceEnabled &&
             serverStatus?.settings?.discord?.enableRichPresence &&
             serverStatus?.settings?.discord?.enableAnimeRichPresence &&
             !!state.playbackInfo?.media?.id &&
@@ -591,8 +1119,33 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
+    function setupPreviewManager() {
+        if (previewManager !== null) {
+            previewManager.cleanup()
+            setPreviewManager(null)
+        }
+        React.startTransition(() => {
+            if (videoRef.current && streamUrl) {
+                log.info("Initializing preview manager")
+                setPreviewManager(p => {
+                    if (p) p.cleanup()
+                    return new VideoCorePreviewManager(videoRef.current!, streamUrl!, streamType, state.playbackInfo?.playbackType !== "onlinestream")
+                })
+            }
+        })
+    }
+
+    // Setup preview manager when stream type changes
+    React.useEffect(() => {
+        if (currentPlaybackRef.current) {
+            setupPreviewManager()
+        }
+    }, [streamType, currentPlaybackRef.current])
+
+    const lastUpdatedWatchHistoryRef = React.useRef(Date.now())
+
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onTimeUpdate?.()
+        onTimeUpdate?.(e)
         if (!videoRef.current) return
         const v = videoRef.current
 
@@ -602,11 +1155,22 @@ export function VideoCore(props: VideoCoreProps) {
             videoCompletedRef.current = true
             onCompleted?.()
         }
+
+
+        if (state.playbackInfo?.trackContinuity) {
+            // Update watch history (continuity) every 20s
+            const now = Date.now()
+            if (now - lastUpdatedWatchHistoryRef.current > 20_000) {
+                lastUpdatedWatchHistoryRef.current = now
+                handleUpdateWatchHistory()
+            }
+        }
     }
 
     const { playEpisode } = useVideoCorePlaylist()
     const handleEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Video ended")
+        subtitleManager?.pgsRenderer?.stop()
         onEnded?.()
         if (autoNext) {
             // videoRef?.current?.pause()
@@ -632,8 +1196,31 @@ export function VideoCore(props: VideoCoreProps) {
     let lastClickTime = React.useRef(0)
 
     const handleClick = (e: React.SyntheticEvent<HTMLDivElement>) => {
-        log.info("Video clicked")
+        // log.info("Video clicked")
         // check if right click
+
+        if (inline) {
+            if (e.type === "click") {
+                const now = Date.now()
+                if (lastClickTime.current && now - lastClickTime.current < 300) {
+                    fullscreenManager?.toggleFullscreen()
+                } else {
+                    if (!debouncedMenuOpen) {
+                        togglePlay()
+                    }
+                    setTimeout(() => {
+                        setBusy(false)
+                    }, 100)
+                }
+                lastClickTime.current = now
+            }
+
+            if (e.type === "contextmenu") {
+                e.preventDefault()
+            }
+            return
+        }
+
         if (e.type === "click") {
             if (!debouncedMenuOpen) {
                 togglePlay()
@@ -657,27 +1244,24 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handlePlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Video resumed")
+        // log.info("Video resumed")
         onPlay?.()
     }
 
     const handlePause = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        log.info("Video paused")
+        // log.info("Video paused")
+        subtitleManager?.pgsRenderer?.stop()
         onPause?.()
     }
 
     const handleLoadedData = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.info("Loaded data")
-        onLoadedData?.()
-        if (!videoRef.current) return
-        if (autoPlay) {
-            videoRef.current.play().catch()
-        }
+        onLoadedData?.(e)
     }
 
     const handleVolumeChange = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         const v = e.currentTarget
-        log.info("Volume changed", v.volume)
+        // log.info("Volume changed", v.volume)
         onVolumeChange?.()
     }
 
@@ -692,15 +1276,81 @@ export function VideoCore(props: VideoCoreProps) {
     }
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-        onError?.("")
+        log.error("Video error", e)
+        if (isFirstError.current) {
+            // Change stream type to HLS if it failed to load
+            log.warning("Video player could not load the URL, switching to HLS")
+            setStreamType("hls")
+            isFirstError.current = false
+            return
+        }
+
+        onError?.(`Video playback error occurred. (Code: ${(e.currentTarget.error && e.currentTarget.error.code) || "unknown"})`)
     }
 
     const handleWaiting = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         setBuffering(true)
     }
 
+    function restoreSeekTime(time: number, showMessage: boolean, paused?: boolean) {
+        if (!videoRef.current) return
+        if (anime4kOption === "off" || anime4kManager?.canvas !== null) {
+            if (showMessage) flashAction({ message: "Progress restored", duration: 1500 })
+            videoRef.current.currentTime = time
+            if (paused && !videoRef.current.paused) {
+                videoRef.current.pause()
+            } else if (paused === false && videoRef.current.paused) {
+                videoRef.current.play().catch()
+            }
+        } else if (anime4kOption !== ("off" as Anime4KOption)) {
+            videoRef.current.pause()
+            if (showMessage) flashAction({ message: "Restoring progress", duration: 1500 })
+            anime4kManager.registerOnCanvasCreatedOnce(() => {
+                if (!videoRef.current) return
+                videoRef.current.currentTime = time
+                if (paused && !videoRef.current.paused) {
+                    videoRef.current.pause()
+                } else if (paused === false && videoRef.current.paused) {
+                    videoRef.current.play().catch()
+                }
+            })
+        }
+    }
+
     const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         setBuffering(false)
+
+        if (!hasSoughtRef.current) {
+            if (!state.playbackInfo || !videoRef.current) return
+            hasSoughtRef.current = true
+            // if (autoPlay) {
+            //     videoRef.current.play().catch()
+            // }
+
+            // Restore previous position if available
+            if (!state.playbackInfo.disableRestoreFromContinuity && !state.playbackInfo.initialState) {
+                if (state.playbackInfo?.episode?.progressNumber && watchHistory?.found && watchHistory.item?.episodeNumber === state.playbackInfo?.episode?.progressNumber) {
+                    const lastWatchedTime = getEpisodeContinuitySeekTo(state.playbackInfo?.episode?.progressNumber,
+                        videoRef.current?.currentTime,
+                        videoRef.current?.duration)
+                    log.info("Watch continuity: Fetched last watched time", { lastWatchedTime })
+                    if (lastWatchedTime > 0) {
+                        log.info("Watch continuity: Seeking to", lastWatchedTime)
+                        restoreSeekTime(lastWatchedTime, true)
+                    }
+                }
+            }
+
+            if (state.playbackInfo.initialState) {
+                log.info("Setting initial stream state", state.playbackInfo.initialState)
+                if (state.playbackInfo.initialState.currentTime) {
+                    // action({ type: "seekTo", payload: { time: state.playbackInfo.initialState.currentTime } })
+                    restoreSeekTime(state.playbackInfo.initialState.currentTime, false, state.playbackInfo.initialState.paused)
+                }
+            } else if (autoPlay) {
+                videoRef.current.play().catch()
+            }
+        }
     }
 
     const handleStalled = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -735,15 +1385,19 @@ export function VideoCore(props: VideoCoreProps) {
         if (pipManager && videoRef.current && state.playbackInfo) {
             pipManager.setVideo(videoRef.current, state.playbackInfo)
             if (subtitleManager) pipManager.setSubtitleManager(subtitleManager)
+            if (mediaCaptionsManager) pipManager.setMediaCaptionsManager(mediaCaptionsManager)
         }
-    }, [pipManager, subtitleManager, videoRef.current, state.playbackInfo])
+    }, [pipManager, subtitleManager, mediaCaptionsManager, videoRef.current, state.playbackInfo])
 
     // Update fullscreen manager
     React.useEffect(() => {
         if (fullscreenManager && containerRef.current) {
             fullscreenManager.setContainer(containerRef.current)
         }
-    }, [fullscreenManager, containerRef.current])
+        if (fullscreenManager && videoRef.current) {
+            fullscreenManager.setVideoElement(videoRef.current)
+        }
+    }, [fullscreenManager, containerRef.current, videoRef.current])
 
     React.useEffect(() => {
         if (mediaSessionManager && videoRef.current && state.playbackInfo && state.active) {
@@ -756,17 +1410,21 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [mediaSessionManager, videoRef.current, state.playbackInfo, state.active, playEpisode])
 
-    React.useEffect(() => {
-        return () => {
-            log.info("VideoCore unmounting, cleaning up media session")
-            if (mediaSessionManager) {
-                mediaSessionManager.setVideo(null)
-                mediaSessionManager.destroy()
-            }
-        }
-    }, [mediaSessionManager])
+    // Handle iOS fullscreen subtitles
+    useVideoCoreIOSFullscreenSubtitles({
+        videoElement: videoRef.current,
+    })
 
-    //
+    // Handle mobile gestures
+    useVideoCoreMobileGestures({
+        videoElement: videoRef.current,
+        containerElement: containerRef.current,
+        onSeek: (time) => {
+            if (videoRef.current) {
+                videoRef.current.currentTime = time
+            }
+        },
+    })
 
     // container events
     const setNotBusyTimeout = React.useRef<NodeJS.Timeout | null>(null)
@@ -874,7 +1532,7 @@ export function VideoCore(props: VideoCoreProps) {
         e.preventDefault()
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
         const player = videoRef.current
         if (!player || !state.active) return
 
@@ -891,40 +1549,59 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [handleUpload, state.active, videoRef.current])
 
-    /**
-     * Restore last position
-     */
-    const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
-    React.useEffect(() => {
-        if (!anime4kManager || !restoreProgressTo) return
+    // Inline mode
+    if (inline) {
+        return (
+            <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
+                <VideoCoreAnime4K />
+                <VideoCorePreferencesModal />
+                {fullscreen && <RemoveScrollBar />}
+                <div
+                    className={cn(
+                        "relative w-full h-full",
+                        inlineClassName,
+                        fullscreen && "fixed z-[99999] inset-0",
+                    )}
+                >
+                    <PlayerContent
+                        inline={inline}
+                        state={state}
+                        videoRef={videoRef}
+                        chapterCues={chapterCues}
+                        aniSkipData={aniSkipData}
+                        streamUrl={streamUrl}
+                        combineRef={combineRef}
+                        combineContainerRef={combineContainerRef}
+                        handleContainerPointerMove={handleContainerPointerMove}
+                        handleClick={handleClick}
+                        handleLoadedMetadata={handleLoadedMetadata}
+                        handleTimeUpdate={handleTimeUpdate}
+                        handleEnded={handleEnded}
+                        handlePlay={handlePlay}
+                        handlePause={handlePause}
+                        handleDoubleClick={handleDoubleClick}
+                        handleLoadedData={handleLoadedData}
+                        handleVolumeChange={handleVolumeChange}
+                        handleRateChange={handleRateChange}
+                        handleError={handleError}
+                        handleWaiting={handleWaiting}
+                        handleCanPlay={handleCanPlay}
+                        handleStalled={handleStalled}
+                        onTerminateStream={onTerminateStream}
+                        onVideoSourceChange={onVideoSourceChange}
+                    />
+                </div>
+            </ScopeProvider>
+        )
+    }
 
-        if (restoreProgressTo.mediaId !== state.playbackInfo?.media?.id || restoreProgressTo.progressNumber !== state.playbackInfo?.episode?.progressNumber) {
-            setRestoreProgressTo(null)
-            return
-        }
-
-        if (anime4kOption === "off" || anime4kManager.canvas !== null) {
-            flashAction({ message: "Progress restored", duration: 1500 })
-            dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
-        } else if (anime4kOption !== ("off" as Anime4KOption)) {
-            flashAction({ message: "Restoring progress", duration: 1500 })
-            anime4kManager.registerOnCanvasCreatedOnce(() => {
-                dispatchAction({ type: "seekTo", payload: { time: restoreProgressTo.time } })
-            })
-        }
-        setRestoreProgressTo(null)
-        if (autoPlay) {
-            videoRef.current?.play()
-        }
-
-    }, [anime4kManager, anime4kOption, restoreProgressTo, autoPlay])
-
+    // Drawer mode
     return (
         <>
             <ScopeProvider atoms={[__torrentSearch_selectionAtom, __torrentSearch_selectionEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
 
                 <VideoCoreAnime4K />
-                <VideoCoreKeybindingsModal />
+                <VideoCorePreferencesModal />
                 {state.active && !isMiniPlayer && <RemoveScrollBar />}
 
                 <TorrentStreamOverlay isNativePlayerComponent="overlay" show={(state.active && isMiniPlayer)} />
@@ -933,10 +1610,6 @@ export function VideoCore(props: VideoCoreProps) {
                     open={state.active}
                     onOpenChange={(v) => {
                         if (!v) {
-                            // if (state.playbackError) {
-                            //     handleTerminateStream()
-                            //     return
-                            // }
                             if (!isMiniPlayer) {
                                 setIsMiniPlayer(true)
                                 fullscreenManager?.exitFullscreen()
@@ -968,233 +1641,33 @@ export function VideoCore(props: VideoCoreProps) {
                         togglePlay()
                     }}
                 >
-                    <TorrentStreamOverlay
-                        isNativePlayerComponent="top-section"
-                        show={!isMiniPlayer && !(!!state.playbackInfo?.streamUrl && !state.loadingState)}
+                    <PlayerContent
+                        inline={inline}
+                        state={state}
+                        videoRef={videoRef}
+                        chapterCues={chapterCues}
+                        aniSkipData={aniSkipData}
+                        streamUrl={streamUrl}
+                        combineRef={combineRef}
+                        combineContainerRef={combineContainerRef}
+                        handleContainerPointerMove={handleContainerPointerMove}
+                        handleClick={handleClick}
+                        handleLoadedMetadata={handleLoadedMetadata}
+                        handleTimeUpdate={handleTimeUpdate}
+                        handleEnded={handleEnded}
+                        handlePlay={handlePlay}
+                        handlePause={handlePause}
+                        handleDoubleClick={handleDoubleClick}
+                        handleLoadedData={handleLoadedData}
+                        handleVolumeChange={handleVolumeChange}
+                        handleRateChange={handleRateChange}
+                        handleError={handleError}
+                        handleWaiting={handleWaiting}
+                        handleCanPlay={handleCanPlay}
+                        handleStalled={handleStalled}
+                        onTerminateStream={onTerminateStream}
+                        onVideoSourceChange={onVideoSourceChange}
                     />
-
-                    {(state?.playbackError) && (
-                        <div className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4">
-                            <div className="text-white text-center">
-                                {!isMiniPlayer ? (
-                                    <LuffyError title="Playback Error" />
-                                ) : (
-                                    <h1 className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback Error</h1>
-                                )}
-                                <p className={cn("text-base text-white/50 max-w-xl", isMiniPlayer && "text-sm max-w-lg mx-auto")}>
-                                    {state.playbackError || "An error occurred while playing the stream. Please try again later."}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    <div
-                        ref={combineContainerRef}
-                        className={cn(
-                            "relative w-full h-full bg-black overflow-clip flex items-center justify-center",
-                            (!busy && !isMiniPlayer) && "cursor-none", // show cursor when not busy
-                        )}
-                        onPointerMove={handleContainerPointerMove}
-                        // onPointerLeave={() => setBusy(false)}
-                        // onPointerCancel={() => setBusy(false)}
-                    >
-
-                        {(!!state.playbackInfo?.streamUrl && !state.loadingState) ? (
-                            <>
-
-                                <VideoCoreKeybindingController
-                                    videoRef={videoRef}
-                                    active={state.active}
-                                    chapterCues={chapterCues ?? []}
-                                    introStartTime={aniSkipData?.op?.interval?.startTime}
-                                    introEndTime={aniSkipData?.op?.interval?.endTime}
-                                    endingStartTime={aniSkipData?.ed?.interval?.startTime}
-                                    endingEndTime={aniSkipData?.ed?.interval?.endTime}
-                                />
-
-                                <VideoCoreActionDisplay />
-
-                                {buffering && (
-                                    <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
-                                        <div className="bg-black/20 backdrop-blur-sm rounded-full p-4">
-                                            <PiSpinnerDuotone className="size-12 text-white animate-spin" />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {busy && <>
-                                    {!!skipOpeningTime && !isMiniPlayer && (
-                                        <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
-                                            <Button
-                                                size="sm"
-                                                intent="gray-basic"
-                                                onClick={e => {
-                                                    e.stopPropagation()
-                                                    action({ type: "seekTo", payload: { time: skipOpeningTime || 0 } })
-                                                }}
-                                                onPointerMove={e => e.stopPropagation()}
-                                            >
-                                                Skip Opening
-                                            </Button>
-                                        </div>
-                                    )}
-
-                                    {!!skipEndingTime && !isMiniPlayer && (
-                                        <div className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
-                                            <Button
-                                                size="sm"
-                                                intent="gray-basic"
-                                                onClick={e => {
-                                                    e.stopPropagation()
-                                                    action({ type: "seekTo", payload: { time: skipEndingTime || 0 } })
-                                                }}
-                                                onPointerMove={e => e.stopPropagation()}
-                                            >
-                                                Skip Ending
-                                            </Button>
-                                        </div>
-                                    )}
-                                </>}
-
-                                <div
-                                    className="relative w-full h-full flex items-center justify-center"
-                                    onClick={handleClick}
-                                    onContextMenu={handleClick}
-                                >
-                                    <video
-                                        data-video-core-element
-                                        crossOrigin="anonymous"
-                                        // preload="metadata"
-                                        preload="auto"
-                                        src={streamUrl!}
-                                        ref={combineRef}
-                                        onLoadedMetadata={handleLoadedMetadata}
-                                        onTimeUpdate={handleTimeUpdate}
-                                        onEnded={handleEnded}
-                                        onPlay={handlePlay}
-                                        onPause={handlePause}
-                                        onDoubleClick={handleDoubleClick}
-                                        onLoadedData={handleLoadedData}
-                                        onVolumeChange={handleVolumeChange}
-                                        onRateChange={handleRateChange}
-                                        onError={handleError}
-                                        onWaiting={handleWaiting}
-                                        onCanPlay={handleCanPlay}
-                                        onStalled={handleStalled}
-                                        autoPlay={autoPlay}
-                                        muted={muted}
-                                        playsInline
-                                        controls={false}
-                                        style={{
-                                            border: "none",
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "contain",
-                                            objectPosition: "center",
-                                            filter: (settings.videoEnhancement.enabled && beautifyImage)
-                                                ? `contrast(${settings.videoEnhancement.contrast}) saturate(${settings.videoEnhancement.saturation}) brightness(${settings.videoEnhancement.brightness})`
-                                                : "none",
-                                            imageRendering: "crisp-edges",
-                                        }}
-                                    >
-                                        {state.playbackInfo?.mkvMetadata?.subtitleTracks?.map(track => (
-                                            <track
-                                                id={track.number.toString()}
-                                                key={track.number}
-                                                kind="subtitles"
-                                                srcLang={track.language || "eng"}
-                                                label={track.name}
-                                            />
-                                        ))}
-                                    </video>
-                                </div>
-
-                                <VideoCoreTopSection>
-                                    <VideoCoreTopPlaybackInfo state={state} />
-
-                                    <div
-                                        className={cn(
-                                            "opacity-0",
-                                            "transition-opacity duration-200 ease-in-out",
-                                            (busy || paused) && "opacity-100",
-                                        )}
-                                    >
-                                        <FloatingButtons part="video" onTerminateStream={onTerminateStream} />
-                                    </div>
-                                    {/*<TorrentStreamOverlay isNativePlayerComponent="info" />*/}
-                                </VideoCoreTopSection>
-
-                                {isPip && <div className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center">
-                                    <Button
-                                        intent="gray-outline" size="xl" onClick={() => {
-                                        pipManager?.togglePip()
-                                    }}
-                                    >
-                                        Exit PiP
-                                    </Button>
-                                </div>}
-
-                                <VideoCoreControlBar
-                                    timeRange={<VideoCoreTimeRange
-                                        chapterCues={chapterCues ?? []}
-                                    />}
-                                >
-
-                                    <VideoCorePlayButton />
-
-                                    <VideoCorePlaylistControl />
-
-                                    <VideoCoreVolumeButton />
-
-                                    <VideoCoreTimestamp />
-
-                                    <div className="flex flex-1" />
-
-                                    <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />
-
-                                    <VideoCoreSettingsButton />
-
-                                    <VideoCoreAudioButton />
-
-                                    <VideoCoreSubtitleButton />
-
-                                    <VideoCorePipButton />
-
-                                    <VideoCoreFullscreenButton />
-
-                                </VideoCoreControlBar>
-
-                            </>
-                        ) : (
-                            <div
-                                className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
-                            >
-
-                                {/* {!state.miniPlayer && <SquareBg className="absolute top-0 left-0 w-full h-full z-[0]" />} */}
-                                <FloatingButtons part="loading" onTerminateStream={onTerminateStream} />
-
-                                {state.loadingState && <LoadingSpinner
-                                    title={state.loadingState || "Loading..."}
-                                    // spinner={<PiSpinnerDuotone className="size-20 text-white animate-spin" />}
-                                    spinner={<ImSpinner2 className="size-20 text-white animate-spin" />}
-                                    containerClass="z-[1]"
-                                />}
-
-                                {!isMiniPlayer && <div className="opacity-50 absolute inset-0 z-[0] overflow-hidden">
-                                    <GradientBackground
-                                        duration={10} breathingRange={5}
-                                        // gradientColors={[
-                                        //     "transparent",
-                                        //     "#312887",
-                                        //     "#3D5AFE",
-                                        // ]} gradientStops={[35, 50, 100]}
-                                    />
-                                </div>}
-                            </div>
-                        )}
-
-
-                    </div>
                 </VideoCoreDrawer>
 
             </ScopeProvider>
@@ -1267,3 +1740,11 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     return <Content />
 }
 
+const ConditionalPortal = ({ children, isFullscreen }: { children: React.ReactNode, isFullscreen: boolean }) => {
+    // If fullscreen, move to body. If not, render normally in place.
+    if (isFullscreen) {
+        return createPortal(children, document.body)
+    }
+
+    return children
+}

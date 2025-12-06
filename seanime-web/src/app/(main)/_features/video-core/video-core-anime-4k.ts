@@ -39,7 +39,7 @@ export const VideoCoreAnime4K = () => {
     // Handle option changes
     React.useEffect(() => {
         if (video && manager) {
-            log.info("Setting Anime4K option", selectedOption)
+            // log.info("Setting Anime4K option", selectedOption)
             manager.setOption(selectedOption, {
                 isMiniPlayer,
                 isPip,

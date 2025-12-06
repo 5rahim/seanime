@@ -9,6 +9,7 @@ import {
     useExternalPlayerLink,
 } from "@/app/(main)/_atoms/playback.atoms"
 import { useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { __mpt_currentExternalPlayerLinkAtom } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
@@ -16,7 +17,7 @@ import { ExternalPlayerLink } from "@/lib/external-player-link/external-player-l
 import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { __isElectronDesktop__ } from "@/types/constants"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -30,6 +31,7 @@ export function useHandlePlayMedia() {
     const { setFilePath: setMediastreamFilePath } = useMediastreamCurrentFile()
 
     const { mutate: startManualTracking, isPending: isStarting } = usePlaybackStartManualTracking()
+    const setCurrentExternalPlayerLink = useSetAtom(__mpt_currentExternalPlayerLinkAtom)
 
     const { downloadedMediaPlayback, electronPlaybackMethod } = useCurrentDevicePlaybackSettings()
     const { externalPlayerLink } = useExternalPlayerLink()
@@ -72,6 +74,7 @@ export function useHandlePlayMedia() {
                     endpoint: "/api/v1/nakama/stream?type=file&path=" + Buffer.from(path).toString("base64"),
                 }).then()
                 openTab(link.getFullUrl())
+                setCurrentExternalPlayerLink(link.getFullUrl())
 
                 if (episode?.progressNumber && episode.type === "main") {
                     logger("PLAY MEDIA").error("Starting manual tracking for nakama file")

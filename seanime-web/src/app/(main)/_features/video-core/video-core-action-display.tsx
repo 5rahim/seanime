@@ -1,8 +1,8 @@
 // Flash notification system
 import { vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { cn } from "@/components/ui/core/styling"
-import { atom, useAtomValue } from "jotai"
-import { useAtom } from "jotai/index"
+import { atom } from "jotai"
+import { useAtom, useAtomValue } from "jotai/react"
 import { motion } from "motion/react"
 import React from "react"
 import { PiPauseDuotone, PiPlayDuotone } from "react-icons/pi"
@@ -48,12 +48,12 @@ export function VideoCoreActionDisplay() {
             >
                 {notification.message === "PLAY" &&
                     <PiPlayDuotone
-                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
                 {notification.message === "PAUSE" &&
                     <PiPauseDuotone
-                        className={cn("size-24 text-white", isMiniPlayer && "size-10")}
+                        className={cn("size-10 lg:size-24 text-white", isMiniPlayer && "size-10")}
                         style={{ textShadow: "0 1px 10px rgba(0, 0, 0, 0.8)" }}
                     />}
             </motion.div>
@@ -61,10 +61,10 @@ export function VideoCoreActionDisplay() {
     }
 
     return (
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+        <div className="absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
             <div
                 className={cn(
-                    "text-white px-2 py-1 !text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
+                    "text-white px-2 py-1 text-sm md:text-md lg:text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
                     isMiniPlayer && "text-sm",
                 )}
             >

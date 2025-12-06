@@ -157,6 +157,7 @@ export function PluginTray(props: TrayPluginProps) {
                         fill
                         className="p-1 w-full h-full object-contain"
                         data-plugin-tray-icon-image
+                        isExternal
                     /> : <div className="w-8 h-8 rounded-full flex items-center justify-center" data-plugin-tray-icon-image-fallback>
                         <LuCircleDashed className="text-2xl" />
                     </div>}

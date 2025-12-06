@@ -478,6 +478,35 @@ func (h *PlatformHelper) TriggerUpdateEntryRepeatHooks(ctx context.Context, medi
 	return err
 }
 
+func (h *PlatformHelper) TriggerDeleteEntryHooks(ctx context.Context, mediaID int, entryId int, deleteFunc func(event *platform.PreDeleteEntryEvent) error) error {
+	// Trigger pre-delete hook
+	event := new(platform.PreDeleteEntryEvent)
+	event.MediaID = &mediaID
+	event.EntryID = &entryId
+
+	err := hook.GlobalHookManager.OnPreDeleteEntry().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		return nil
+	}
+
+	// Execute the deletion
+	err = deleteFunc(event)
+	if err != nil {
+		return err
+	}
+
+	// Trigger post-delete hook
+	postEvent := new(platform.PostDeleteEntryEvent)
+	postEvent.MediaID = &mediaID
+	postEvent.EntryID = &entryId
+	err = hook.GlobalHookManager.OnPostDeleteEntry().Trigger(postEvent)
+	return err
+}
+
 func (h *PlatformHelper) FilterOutCustomAnimeLists(lists []*anilist.AnimeCollection_MediaListCollection_Lists) []*anilist.AnimeCollection_MediaListCollection_Lists {
 	return lo.Filter(lists, func(list *anilist.AnimeCollection_MediaListCollection_Lists, _ int) bool {
 		return list.Status != nil

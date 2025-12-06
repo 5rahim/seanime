@@ -15,7 +15,7 @@ import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 export const ModalAnatomy = defineStyleAnatomy({
     overlay: cva([
         "UI-Modal__overlay",
-        "fixed inset-0 z-50 bg-black/80",
+        "fixed inset-0 z-[100] bg-black/80",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         // "overflow-y-auto p-0 md:p-4 grid place-items-center",
@@ -93,6 +93,7 @@ export type ModalProps =
      * Whether to hide the close button
      */
     hideCloseButton?: boolean
+    portalContainer?: HTMLElement
 }
 
 export function Modal(props: ModalProps) {
@@ -119,6 +120,7 @@ export function Modal(props: ModalProps) {
         onEscapeKeyDown,
         onPointerDownCapture,
         onInteractOutside,
+        portalContainer,
         ...rest
     } = props
 
@@ -126,7 +128,7 @@ export function Modal(props: ModalProps) {
 
         {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
 
-        <DialogPrimitive.Portal>
+        <DialogPrimitive.Portal container={portalContainer}>
             <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
                 <div
                     className={cn(

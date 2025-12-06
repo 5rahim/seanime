@@ -33,6 +33,7 @@ const (
 	DeleteMangaDownloadedChaptersEndpoint              = "MANGA-DOWNLOAD-delete-manga-downloaded-chapters"
 	DeletePlaylistEndpoint                             = "PLAYLIST-delete-playlist"
 	DirectorySelectorEndpoint                          = "DIRECTORY-SELECTOR-directory-selector"
+	DirectstreamFetchAndConvertToASSEndpoint           = "DIRECTSTREAM-directstream-fetch-and-convert-to-a-s-s"
 	DirectstreamPlayLocalFileEndpoint                  = "DIRECTSTREAM-directstream-play-local-file"
 	DownloadIssueReportEndpoint                        = "REPORT-download-issue-report"
 	DownloadMacDenshiUpdateEndpoint                    = "DOWNLOAD-download-mac-denshi-update"
