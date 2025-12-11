@@ -15,13 +15,14 @@ import {
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreTimeRangeChapter } from "@/app/(main)/_features/video-core/video-core-time-range"
-import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 
-export function useVideoCoreBindings(playbackInfo: VideoCorePlaybackInfo | null | undefined) {
+export function useVideoCoreBindings(videoRef: React.MutableRefObject<HTMLVideoElement | null>,
+    playbackInfo: VideoCore_VideoPlaybackInfo | null | undefined,
+) {
 
-    const v = useAtomValue(vc_videoElement)
     const setVideoSize = useSetAtom(vc_videoSize)
     const setDuration = useSetAtom(vc_duration)
     const setCurrentTime = useSetAtom(vc_currentTime)
@@ -35,7 +36,8 @@ export function useVideoCoreBindings(playbackInfo: VideoCorePlaybackInfo | null 
     const setPaused = useSetAtom(vc_paused)
 
     useEffect(() => {
-        if (!v) return
+        if (!videoRef.current) return
+        const v = videoRef.current
         const handler = () => {
             setVideoSize({
                 width: v.videoWidth,
@@ -62,7 +64,7 @@ export function useVideoCoreBindings(playbackInfo: VideoCorePlaybackInfo | null 
             console.log("Removing video event listeners")
             events.forEach(e => v.removeEventListener(e, handler))
         }
-    }, [v, playbackInfo])
+    }, [playbackInfo?.id])
 
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/directstream"
@@ -45,7 +46,8 @@ func (h *Handler) HandleDirectstreamPlayLocalFile(c echo.Context) error {
 //	@route /api/v1/directstream/subs/convert-to-ass [POST]
 func (h *Handler) HandleDirectstreamFetchAndConvertToASS(c echo.Context) error {
 	type body struct {
-		Url string `json:"url"`
+		Url     string `json:"url"`
+		Content string `json:"content"`
 	}
 
 	var b body
@@ -53,7 +55,19 @@ func (h *Handler) HandleDirectstreamFetchAndConvertToASS(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	ret, err := h.App.DirectStreamManager.FetchAndConvertToASS(b.Url)
+	if b.Url == "" && b.Content == "" {
+		return h.RespondWithError(c, fmt.Errorf("url or content is required"))
+	}
+
+	if len(b.Content) > 0 {
+		ret, err := h.App.VideoCore.ConvertToASS(b.Content)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+		return h.RespondWithData(c, ret)
+	}
+
+	ret, err := h.App.VideoCore.FetchAndConvertToASS(b.Url)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

@@ -16,9 +16,9 @@ import type {
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
-    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
+    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
     LibraryExplorer_SuperUpdateFileOptions,
@@ -614,6 +614,7 @@ export type DirectstreamPlayLocalFile_Variables = {
  */
 export type DirectstreamFetchAndConvertToASS_Variables = {
     url: string
+    content: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1868,7 +1869,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *
+     *  
      *  "smart" or "simple"
      */
     type?: string

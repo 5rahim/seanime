@@ -13,6 +13,7 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"seanime/internal/videocore"
 	"sync"
 	"time"
 
@@ -35,8 +36,10 @@ type (
 		platformRef                *util.Ref[platform.Platform]
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 
-		nativePlayer           *nativeplayer.NativePlayer
-		nativePlayerSubscriber *nativeplayer.Subscriber
+		nativePlayer *nativeplayer.NativePlayer
+
+		videoCore           *videocore.VideoCore
+		videoCoreSubscriber *videocore.Subscriber
 
 		// --------- Playback Context -------- //
 
@@ -77,6 +80,7 @@ type (
 		RefreshAnimeCollectionFunc func()
 		IsOfflineRef               *util.Ref[bool]
 		NativePlayer               *nativeplayer.NativePlayer
+		VideoCore                  *videocore.VideoCore
 	}
 )
 
@@ -93,11 +97,11 @@ func NewManager(options NewManagerOptions) *Manager {
 		currentStream:              mo.None[Stream](),
 		nativePlayer:               options.NativePlayer,
 		parserCache:                result.NewCache[string, *mkvparser.MetadataParser](),
+		videoCore:                  options.VideoCore,
 	}
 
-	ret.nativePlayerSubscriber = ret.nativePlayer.Subscribe("directstream")
-
-	ret.listenToNativePlayerEvents()
+	ret.videoCoreSubscriber = ret.videoCore.Subscribe("directstream")
+	ret.listenToPlayerEvents()
 
 	return ret
 }

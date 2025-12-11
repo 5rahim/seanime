@@ -3,7 +3,7 @@ import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
-import { vc_autoNextAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_autoNextAtom, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -70,29 +70,6 @@ export function NativePlayer() {
         false,
     )
 
-    const handleTimeInterval = () => {
-        if (videoElement) {
-            sendMessage({
-                type: WSEvents.NATIVE_PLAYER,
-                payload: {
-                    clientId: clientId,
-                    type: VideoPlayerEvents.VIDEO_TIME_UPDATE,
-                    payload: {
-                        currentTime: videoElement.currentTime,
-                        duration: videoElement.duration,
-                        paused: videoElement.paused,
-                    },
-                },
-            })
-        }
-    }
-
-    // Time update interval
-    React.useEffect(() => {
-        const interval = setInterval(handleTimeInterval, 1000)
-        return () => clearInterval(interval)
-    }, [videoElement])
-
     //
     // Event Handlers
     //
@@ -100,17 +77,6 @@ export function NativePlayer() {
     const handleCompleted = () => {
         const v = videoElement
         if (!v) return
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_COMPLETED,
-                payload: {
-                    currentTime: v.currentTime,
-                    duration: v.duration,
-                },
-            },
-        })
         if (state.playbackInfo?.media && state.playbackInfo?.episode) {
             updateProgress({
                 mediaId: state.playbackInfo?.media?.id,
@@ -120,165 +86,6 @@ export function NativePlayer() {
         }
     }
 
-    const handleTimeUpdate = () => {
-        const v = videoElement
-        if (!v) return
-
-    }
-
-    const handleEnded = () => {
-        log.info("Ended")
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_ENDED,
-                payload: {
-                    autoNext: autoPlayNext,
-                },
-            },
-        })
-
-    }
-
-    const handleError = (value: string) => {
-        const v = videoElement
-        if (!v) return
-
-        const error = value || v.error
-        let errorMessage = value || "Unknown error"
-        let detailedInfo = ""
-
-        if (error instanceof MediaError) {
-            switch (error.code) {
-                case MediaError.MEDIA_ERR_ABORTED:
-                    errorMessage = "Media playback aborted"
-                    break
-                case MediaError.MEDIA_ERR_NETWORK:
-                    errorMessage = "Network error occurred: Check the console and network tab for more details"
-                    break
-                case MediaError.MEDIA_ERR_DECODE:
-                    errorMessage = "Media decode error: codec not supported or corrupted file"
-                    detailedInfo = "This is likely a codec compatibility issue."
-                    break
-                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                    errorMessage = "Media format not supported"
-                    detailedInfo = "The video codec/container format is not supported."
-                    break
-                default:
-                    errorMessage = error.message || "Unknown media error"
-            }
-            log.error("Media error", {
-                code: error?.code,
-                message: error?.message,
-                src: v.src,
-                networkState: v.networkState,
-                readyState: v.readyState,
-            })
-        }
-
-
-        const fullErrorMessage = detailedInfo ? `${errorMessage}\n\n${detailedInfo}` : errorMessage
-
-        log.error("Media error", fullErrorMessage)
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_ERROR,
-                payload: { error: fullErrorMessage },
-            },
-        })
-    }
-
-    const handleSeeked = (currentTime: number) => {
-        const v = videoElement
-        if (!v) return
-
-        log.info("Video seeked to", currentTime)
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_SEEKED,
-                payload: { currentTime: currentTime, duration: v.duration },
-            },
-        })
-    }
-
-    /**
-     * Metadata is loaded
-     * - Handle captions
-     * - Initialize the subtitle manager if the stream is MKV
-     * - Initialize the audio manager if the stream is MKV
-     * - Initialize the thumbnailer if the stream is local file
-     */
-    const handleLoadedMetadata = () => {
-        const v = videoElement
-        if (!v) return
-
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.LOADED_METADATA,
-                payload: {
-                    currentTime: v.currentTime,
-                    duration: v.duration,
-                    paused: v.paused,
-                },
-            },
-        })
-    }
-
-    const handlePause = () => {
-        const v = videoElement
-        if (!v) return
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_PAUSED,
-                payload: {
-                    currentTime: v.currentTime,
-                    duration: v.duration,
-                },
-            },
-        })
-    }
-
-    const handlePlay = () => {
-        const v = videoElement
-        if (!v) return
-
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_RESUMED,
-                payload: {
-                    currentTime: v.currentTime,
-                    duration: v.duration,
-                },
-            },
-        })
-    }
-
-    function handleFileUploaded(data: { name: string, content: string }) {
-        sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
-            payload: {
-                clientId: clientId,
-                type: VideoPlayerEvents.SUBTITLE_FILE_UPLOADED,
-                payload: { filename: data.name, content: data.content },
-            },
-        })
-    }
 
     //
     // Server events
@@ -332,10 +139,10 @@ export function NativePlayer() {
                 case "subtitle-event":
                     subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
-                case "add-subtitle-track":
-                    log.info("Add subtitle track event received", payload)
-                    subtitleManager?.onEventTrackAdded(payload as MKVParser_TrackInfo)
-                    break
+                // case "add-subtitle-track":
+                //     log.info("Add subtitle track event received", payload)
+                //     subtitleManager?.addEventTrack(payload as MKVParser_TrackInfo)
+                //     break
                 case "terminate":
                     log.info("Terminate event received")
                     handleTerminateStream()
@@ -347,35 +154,6 @@ export function NativePlayer() {
                         draft.playbackError = (payload as { error: string }).error
                         return
                     })
-                    break
-                case "pause":
-                    log.info("Pause event received", payload)
-                    videoElement?.pause()
-                    break
-                case "resume":
-                    log.info("Play event received", payload)
-                    videoElement?.play()
-                    break
-                case "seek":
-                    log.info("Seek event received", payload)
-                    if (videoElement) {
-                        const currentTime = videoElement?.currentTime
-                        const duration = videoElement?.duration
-                        const seekTo = currentTime + (payload as number)
-                        if (currentTime && duration) {
-                            videoElement.currentTime = seekTo
-                        }
-                    }
-                    break
-                case "seek-to":
-                    log.info("Seek to event received", payload)
-                    if (videoElement) {
-                        const currentTime = videoElement?.currentTime
-                        const duration = videoElement?.duration
-                        if (currentTime && duration) {
-                            videoElement.currentTime = payload as number
-                        }
-                    }
                     break
             }
         },
@@ -416,7 +194,7 @@ export function NativePlayer() {
         })
     }
 
-    const ps = React.useMemo(() => {
+    const ps = React.useMemo<VideoCoreLifecycleState>(() => {
         return {
             active: state.active,
             loadingState: state.loadingState,
@@ -428,9 +206,10 @@ export function NativePlayer() {
                 mkvMetadata: state.playbackInfo?.mkvMetadata,
                 media: state.playbackInfo?.media,
                 episode: state.playbackInfo?.episode,
-                streamType: "stream",
+                localFile: state.playbackInfo?.localFile,
+                streamType: "native",
             },
-        } as any
+        }
     }, [state])
 
     return (
@@ -440,15 +219,8 @@ export function NativePlayer() {
                 state={ps}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
-                onLoadedMetadata={handleLoadedMetadata}
-                onTimeUpdate={handleTimeUpdate}
-                onEnded={handleEnded}
-                onSeeked={handleSeeked}
                 onCompleted={handleCompleted}
-                onError={handleError}
-                onPlay={handlePlay}
-                onPause={handlePause}
-                onFileUploaded={handleFileUploaded}
+                // onFileUploaded={handleFileUploaded}
             />
         </>
     )

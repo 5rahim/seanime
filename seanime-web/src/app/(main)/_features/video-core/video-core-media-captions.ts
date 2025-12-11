@@ -2,17 +2,19 @@ import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { CaptionsRenderer, ParsedCaptionsResult, parseResponse, VTTCue, VTTRegion } from "media-captions"
+import { CaptionsRenderer, ParsedCaptionsResult, parseResponse, parseText, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
+import { toast } from "sonner"
 
 const log = logger("VIDEO CORE MEDIA CAPTIONS")
 
 export type MediaCaptionsTrackInfo = {
-    src: string
+    src?: string // URL to the captions file
+    content?: string // Content of the captions file
     label: string
     language: string
-    type?: "vtt" | "srt" | "ssa" | "ass"
+    type?: "vtt" | "srt" | "ssa" | "ass" | string
     default?: boolean
 }
 
@@ -35,10 +37,25 @@ type LoadedTrack = {
     cues: VTTCue[]
     regions: VTTRegion[]
     loaded: boolean
-    loadFn: () => Promise<ParsedCaptionsResult> | null
+    loadFn: () => Promise<ParsedCaptionsResult | null> | null
 }
 
 const NO_TRACK_IDX = -1
+
+export type MediaCaptionsTrackSelectedEvent = CustomEvent<{ trackIndex: number }>
+export type MediaCaptionsTrackDeselectedEvent = CustomEvent
+export type MediaCaptionsTracksLoadedEvent = CustomEvent<{ tracks: MediaCaptionsTrack[] }>
+export type MediaCaptionsSettingsUpdatedEvent = CustomEvent<{ settings: VideoCoreSettings }>
+export type MediaCaptionsDestroyedEvent = CustomEvent
+
+interface MediaCaptionsManagerEventMap {
+    "trackselected": MediaCaptionsTrackSelectedEvent
+    "trackdeselected": MediaCaptionsTrackDeselectedEvent
+    "tracksloaded": MediaCaptionsTracksLoadedEvent
+    "settingsupdated": MediaCaptionsSettingsUpdatedEvent
+    "destroyed": MediaCaptionsDestroyedEvent
+}
+
 
 /**
  * Manages subtitles rendered using media-captions.
@@ -73,7 +90,7 @@ const NO_TRACK_IDX = -1
  * />
  * ```
  */
-export class MediaCaptionsManager {
+export class MediaCaptionsManager extends EventTarget {
     private videoElement: HTMLVideoElement
     private tracks: MediaCaptionsTrackInfo[] = []
     private loadedTracks: LoadedTrack[] = []
@@ -90,6 +107,7 @@ export class MediaCaptionsManager {
     private _onTracksLoaded?: (tracks: MediaCaptionsTrack[]) => void
 
     constructor(options: MediaCaptionsManagerOptions) {
+        super()
         this.videoElement = options.videoElement
         this.tracks = options.tracks
         this.settings = options.settings
@@ -99,25 +117,66 @@ export class MediaCaptionsManager {
         this.init()
     }
 
+    addEventListener<K extends keyof MediaCaptionsManagerEventMap>(
+        type: K,
+        listener: (this: MediaCaptionsManager, ev: MediaCaptionsManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof MediaCaptionsManagerEventMap>(
+        type: K,
+        listener: (this: MediaCaptionsManager, ev: MediaCaptionsManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
+    }
+
     public updateSettings(settings: VideoCoreSettings) {
         this.captionCustomization = settings.captionCustomization
-        this.setSubtitleDelay(settings.subtitleDelay ?? 0)
+        this._setSubtitleDelay(settings.subtitleDelay ?? 0)
         this.applyCaptionStyles()
 
         if (this.renderer && this.currentTrackIndex !== NO_TRACK_IDX) {
             this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
         }
+
+        const event: MediaCaptionsSettingsUpdatedEvent = new CustomEvent("settingsupdated", { detail: { settings } })
+        this.dispatchEvent(event)
     }
 
-    addTracksLoadedEventListener(callback: (tracks: MediaCaptionsTrack[]) => void) {
+    setTracksLoadedEventListener(callback: (tracks: MediaCaptionsTrack[]) => void) {
         this._onTracksLoaded = callback
     }
 
-    addTrackChangedEventListener(callback: (track: number | null) => void) {
+    setTrackChangedEventListener(callback: (track: number | null) => void) {
         this._onSelectedTrackChanged = callback
     }
 
-    setSubtitleDelay(delay: number) {
+    private _setSubtitleDelay(delay: number) {
         this.subtitleDelay = delay
     }
 
@@ -165,6 +224,9 @@ export class MediaCaptionsManager {
             })
             this.renderer.currentTime = this.videoElement.currentTime + (-this.subtitleDelay)
         }
+
+        const event: MediaCaptionsTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackIndex: index } })
+        this.dispatchEvent(event)
     }
 
     public setNoTrack() {
@@ -174,6 +236,9 @@ export class MediaCaptionsManager {
         }
         this._onSelectedTrackChanged?.(NO_TRACK_IDX)
         log.info("Disabled subtitles")
+
+        const event: MediaCaptionsTrackDeselectedEvent = new CustomEvent("trackdeselected")
+        this.dispatchEvent(event)
     }
 
     /*
@@ -298,7 +363,7 @@ export class MediaCaptionsManager {
         if (!this.overlayElement) return
 
         const custom = this.captionCustomization
-        const useCustom = true // custom.enabled
+        const useCustom = true
 
         if (!useCustom) {
             // Remove custom styles
@@ -361,6 +426,38 @@ export class MediaCaptionsManager {
         }
     }
 
+    // Adds a new subtitle track and selects it AFTER initialization
+    // This is used for adding subtitles from the server
+    public addCaptionTrack(track: MediaCaptionsTrackInfo) {
+        toast.success(`Subtitle track added: ${track.label}`)
+        this.tracks.push(track)
+        const index = this.tracks.length - 1
+        this.loadedTracks.push({
+            index: index,
+            metadata: track,
+            cues: [],
+            regions: [],
+            loaded: false,
+            loadFn: async () => {
+                if (track.src) {
+                    return await parseResponse(fetch(track.src))
+                } else if (track.content) {
+                    return await parseText(track.content, { type: "vtt" })
+                }
+                return null
+            },
+        })
+
+        // Signal to listeners that tracks have been loaded
+        this._onTracksLoaded?.(this.getTracks())
+        const event: MediaCaptionsTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: this.getTracks() } })
+        this.dispatchEvent(event)
+
+        // Select the new track
+        this.selectTrack(index)
+        this.applyCaptionStyles()
+    }
+
     public destroy() {
         log.info("Destroying media-captions manager")
 
@@ -387,6 +484,9 @@ export class MediaCaptionsManager {
         this.loadedTracks = []
         this.tracks = []
         this.currentTrackIndex = NO_TRACK_IDX
+
+        const event: MediaCaptionsDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     private async init() {
@@ -436,9 +536,13 @@ export class MediaCaptionsManager {
                     regions: [],
                     loaded: false,
                     loadFn: async () => {
-                        return await parseResponse(fetch(track.src), {
-                            // type: track.type,
-                        })
+                        if (track.src) {
+                            return await parseResponse(fetch(track.src))
+                        } else if (track.content) {
+                            return await parseText(track.content)
+                        } else {
+                            return null
+                        }
                     },
                 })
 
@@ -460,7 +564,8 @@ export class MediaCaptionsManager {
         }
         this.videoElement.addEventListener("timeupdate", this.timeUpdateListener)
         this._onTracksLoaded?.(this.getTracks())
+
+        const event: MediaCaptionsTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: this.getTracks() } })
+        this.dispatchEvent(event)
     }
 }
-
-

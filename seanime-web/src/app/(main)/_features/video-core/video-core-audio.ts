@@ -1,16 +1,24 @@
 import { HlsAudioTrack } from "@/app/(main)/_features/video-core/video-core-hls"
-import { VideoCorePlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 
 const audioLog = logger("AUDIO")
 
-export class VideoCoreAudioManager {
+export type AudioManagerTrackChangedEvent = CustomEvent<{ trackNumber: number }>
+export type AudioManagerHlsTrackChangedEvent = CustomEvent<{ trackId: number }>
+export type AudioManagerErrorEvent = CustomEvent<{ error: string }>
 
-    onError: (error: string) => void
+interface VideoCoreAudioManagerEventMap {
+    "trackchanged": AudioManagerTrackChangedEvent
+    "hlstrackchanged": AudioManagerHlsTrackChangedEvent
+    "error": AudioManagerErrorEvent
+}
+
+export class VideoCoreAudioManager extends EventTarget {
     private videoElement: HTMLVideoElement
     private settings: VideoCoreSettings
     // Playback info
-    private playbackInfo: VideoCorePlaybackInfo
+    private playbackInfo: VideoCore_VideoPlaybackInfo
     // HLS-specific
     private readonly hlsSetAudioTrack: ((trackId: number) => void) | null = null
     private readonly hlsAudioTracks: HlsAudioTrack[] = []
@@ -27,16 +35,16 @@ export class VideoCoreAudioManager {
     }: {
         videoElement: HTMLVideoElement
         settings: VideoCoreSettings
-        playbackInfo: VideoCorePlaybackInfo
+        playbackInfo: VideoCore_VideoPlaybackInfo
         onError: (error: string) => void
         hlsSetAudioTrack?: ((trackId: number) => void) | null
         hlsAudioTracks?: HlsAudioTrack[]
         hlsCurrentAudioTrack?: number
     }) {
+        super()
         this.videoElement = videoElement
         this.settings = settings
         this.playbackInfo = playbackInfo
-        this.onError = onError
         this.hlsSetAudioTrack = hlsSetAudioTrack || null
         this.hlsAudioTracks = hlsAudioTracks || []
         this.hlsCurrentAudioTrack = hlsCurrentAudioTrack ?? -1
@@ -48,7 +56,11 @@ export class VideoCoreAudioManager {
             // MKV audio track handling
             // Check that audio tracks are loaded
             if (this.videoElement.audioTracks.length <= 0) {
-                this.onError("The player does not support this audio codec. Please try another file or use an external player.")
+                // Dispatch error event
+                const errorMessage = "The player does not support this audio codec. Please try another file or use an external player."
+                const errorEvent: AudioManagerErrorEvent = new CustomEvent("error", { detail: { error: errorMessage } })
+                this.dispatchEvent(errorEvent)
+                onError(errorMessage)
                 return
             }
             audioLog.info("Audio tracks", this.videoElement.audioTracks)
@@ -56,6 +68,44 @@ export class VideoCoreAudioManager {
 
         // Select the default track
         this._selectDefaultTrack()
+    }
+
+    addEventListener<K extends keyof VideoCoreAudioManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreAudioManager, ev: VideoCoreAudioManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof VideoCoreAudioManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreAudioManager, ev: VideoCoreAudioManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
     }
 
     _selectDefaultTrack() {
@@ -137,6 +187,7 @@ export class VideoCoreAudioManager {
         if (this.hlsSetAudioTrack) {
             audioLog.info("Selecting HLS audio track", trackNumber)
             this.hlsSetAudioTrack(trackNumber)
+            // The HLS track change will be handled by the external `onHlsTrackChange` which dispatches the event
             return
         }
 
@@ -155,6 +206,13 @@ export class VideoCoreAudioManager {
         if (trackChanged && this.videoElement.audioTracks.dispatchEvent) {
             this.videoElement.audioTracks.dispatchEvent(new Event("change"))
         }
+
+        const event: AudioManagerTrackChangedEvent = new CustomEvent("trackchanged", { detail: { trackNumber } })
+        this.dispatchEvent(event)
+    }
+
+    public get isHLS() {
+        return this.hlsSetAudioTrack !== null && this.hlsAudioTracks.length > 0
     }
 
     getSelectedTrackNumberOrNull(): number | null {
@@ -182,10 +240,12 @@ export class VideoCoreAudioManager {
     // Update the current HLS audio track (called externally when track changes)
     onHlsTrackChange(trackId: number) {
         this.hlsCurrentAudioTrack = trackId
+
+        const event: AudioManagerHlsTrackChangedEvent = new CustomEvent("hlstrackchanged", { detail: { trackId } })
+        this.dispatchEvent(event)
     }
 
     isHlsStream() {
         return this.hlsSetAudioTrack !== null && this.hlsAudioTracks.length > 0
     }
-
 }

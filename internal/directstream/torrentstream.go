@@ -176,14 +176,13 @@ func (s *TorrentStream) Terminate() {
 }
 
 type PlayTorrentStreamOptions struct {
-	ClientId           string
-	EpisodeNumber      int
-	AnidbEpisode       string
-	Media              *anilist.BaseAnime
-	Torrent            *torrent.Torrent
-	File               *torrent.File
-	IsNakamaWatchParty bool // Is the stream from Nakama (watch party)
-	OnTerminate        func()
+	ClientId      string
+	EpisodeNumber int
+	AnidbEpisode  string
+	Media         *anilist.BaseAnime
+	Torrent       *torrent.Torrent
+	File          *torrent.File
+	OnTerminate   func()
 }
 
 // PlayTorrentStream is used by a module to load a new torrent stream.
@@ -220,7 +219,6 @@ func (m *Manager) PlayTorrentStream(ctx context.Context, opts PlayTorrentStreamO
 			episodeCollection:     episodeCollection,
 			subtitleEventCache:    result.NewMap[string, *mkvparser.SubtitleEvent](),
 			activeSubtitleStreams: result.NewMap[string, *SubtitleStream](),
-			isNakamaWatchParty:    opts.IsNakamaWatchParty,
 		},
 		streamReadyCh: make(chan struct{}),
 	}

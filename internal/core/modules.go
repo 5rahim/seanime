@@ -35,6 +35,7 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/user"
+	"seanime/internal/videocore"
 
 	"github.com/cli/browser"
 	"github.com/rs/zerolog"
@@ -154,12 +155,30 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |     Video Core      |
+	// +---------------------+
+
+	a.VideoCore = videocore.New(videocore.NewVideoCoreOptions{
+		WsEventManager:      a.WSEventManager,
+		Logger:              a.Logger,
+		ContinuityManager:   a.ContinuityManager,
+		MetadataProviderRef: a.MetadataProviderRef,
+		DiscordPresence:     a.DiscordPresence,
+		PlatformRef:         a.AnilistPlatformRef,
+		RefreshAnimeCollectionFunc: func() {
+			_, _ = a.RefreshAnimeCollection()
+		},
+		IsOfflineRef: a.IsOfflineRef(),
+	})
+
+	// +---------------------+
 	// |    Native Player    |
 	// +---------------------+
 
 	a.NativePlayer = nativeplayer.New(nativeplayer.NewNativePlayerOptions{
 		WsEventManager: a.WSEventManager,
 		Logger:         a.Logger,
+		VideoCore:      a.VideoCore,
 	})
 
 	// +---------------------+
@@ -178,6 +197,7 @@ func (a *App) initModulesOnce() {
 		},
 		IsOfflineRef: a.IsOfflineRef(),
 		NativePlayer: a.NativePlayer,
+		VideoCore:    a.VideoCore,
 	})
 
 	// +---------------------+
@@ -216,6 +236,7 @@ func (a *App) initModulesOnce() {
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		PlaybackManager: a.PlaybackManager,
 		MangaRepository: a.MangaRepository,
+		VideoCore:       a.VideoCore,
 	})
 
 	// +---------------------+
@@ -268,6 +289,7 @@ func (a *App) initModulesOnce() {
 		ServerHost:              a.Config.Server.Host,
 		ServerPort:              a.Config.Server.Port,
 		NativePlayer:            a.NativePlayer,
+		VideoCore:               a.VideoCore,
 		DirectStreamManager:     a.DirectStreamManager,
 		IsOfflineRef:            a.IsOfflineRef(),
 	})

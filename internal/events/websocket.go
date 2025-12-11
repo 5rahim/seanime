@@ -17,6 +17,7 @@ type WSEventManagerInterface interface {
 	SendEventTo(clientId string, t string, payload interface{}, noLog ...bool)
 	SubscribeToClientEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNativePlayerEvents(id string) *ClientEventSubscriber
+	SubscribeToClientVideoCoreEvents(id string) *ClientEventSubscriber
 	SubscribeToClientNakamaEvents(id string) *ClientEventSubscriber
 	SubscribeToClientPlaylistEvents(id string) *ClientEventSubscriber
 	UnsubscribeFromClientEvents(id string)
@@ -53,6 +54,7 @@ type (
 		eventMu                            sync.RWMutex
 		clientEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 		clientNativePlayerEventSubscribers *result.Map[string, *ClientEventSubscriber]
+		clientVideoCoreEventSubscribers    *result.Map[string, *ClientEventSubscriber]
 		nakamaEventSubscribers             *result.Map[string, *ClientEventSubscriber]
 		playlistEventSubscribers           *result.Map[string, *ClientEventSubscriber]
 	}
@@ -81,6 +83,7 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 		Conns:                              make([]*WSConn, 0),
 		clientEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
 		clientNativePlayerEventSubscribers: result.NewMap[string, *ClientEventSubscriber](),
+		clientVideoCoreEventSubscribers:    result.NewMap[string, *ClientEventSubscriber](),
 		nakamaEventSubscribers:             result.NewMap[string, *ClientEventSubscriber](),
 		playlistEventSubscribers:           result.NewMap[string, *ClientEventSubscriber](),
 	}
@@ -239,6 +242,8 @@ func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 	switch event.Type {
 	case NativePlayerEventType:
 		m.clientNativePlayerEventSubscribers.Range(onEvent)
+	case VideoCoreEventType:
+		m.clientVideoCoreEventSubscribers.Range(onEvent)
 	case NakamaEventType:
 		m.nakamaEventSubscribers.Range(onEvent)
 	case PlaylistEvent:
@@ -261,6 +266,14 @@ func (m *WSEventManager) SubscribeToClientNativePlayerEvents(id string) *ClientE
 		Channel: make(chan *WebsocketClientEvent, 100),
 	}
 	m.clientNativePlayerEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) SubscribeToClientVideoCoreEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent, 100),
+	}
+	m.clientVideoCoreEventSubscribers.Set(id, subscriber)
 	return subscriber
 }
 
@@ -291,6 +304,12 @@ func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
 	subscriber, ok := m.clientEventSubscribers.Get(id)
 	if !ok {
 		subscriber, ok = m.clientNativePlayerEventSubscribers.Get(id)
+		if !ok {
+			subscriber, ok = m.clientVideoCoreEventSubscribers.Get(id)
+			if !ok {
+				subscriber, ok = m.nakamaEventSubscribers.Get(id)
+			}
+		}
 	}
 	if ok {
 		subscriber.mu.Lock()

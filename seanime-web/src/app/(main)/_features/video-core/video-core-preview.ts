@@ -1,4 +1,4 @@
-import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import Hls from "hls.js"
 
@@ -35,7 +35,7 @@ export class VideoCorePreviewManager {
     constructor(
         videoElement: HTMLVideoElement,
         mediaSource: string,
-        streamType: VideoCorePlaybackInfo["streamType"],
+        streamType: VideoCore_VideoPlaybackInfo["streamType"],
         useCustomThumbnailRequest?: boolean,
     ) {
         this.initializeDummyVideoElement()

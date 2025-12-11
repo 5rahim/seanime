@@ -13,8 +13,8 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
-	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
+	"seanime/internal/videocore"
 	"strconv"
 	"strings"
 	"time"
@@ -230,9 +230,12 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 			return err
 		}
 
-		m.nativePlayer.RegisterEventCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent, cancel func()) {
+			if !event.IsNakama() {
+				return
+			}
 			switch event.(type) {
-			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
+			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
 				cancel()
 			}
@@ -242,7 +245,7 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 	return nil
 }
 
-func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
+func (m *Manager) PlayHostAnimeStream(streamType WatchPartyStreamType, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string) error {
 	if !m.settings.Enabled || !m.IsConnectedToHost() {
 		return errors.New("not connected to host")
 	}
@@ -257,7 +260,7 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, clien
 	}
 	address := fmt.Sprintf("%s:%d", host, m.serverPort)
 
-	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s", address, streamType)
+	ret := fmt.Sprintf("http://%s/api/v1/nakama/stream?type=%s", address, string(streamType))
 	if strings.HasPrefix(ret, "http://http") {
 		ret = strings.Replace(ret, "http://http", "http", 1)
 	}
@@ -303,9 +306,12 @@ func (m *Manager) PlayHostAnimeStream(streamType string, userAgent string, clien
 			return err
 		}
 
-		m.nativePlayer.RegisterEventCallback(func(event nativeplayer.VideoEvent, cancel func()) {
+		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent, cancel func()) {
+			if !event.IsNakama() {
+				return
+			}
 			switch event.(type) {
-			case *nativeplayer.VideoLoadedMetadataEvent, *nativeplayer.VideoTerminatedEvent:
+			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
 				cancel()
 			}

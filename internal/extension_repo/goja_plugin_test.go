@@ -17,6 +17,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/plugin"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -87,8 +88,10 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 	require.NoError(t, err)
 	wsEventManager := events.NewMockWSEventManager(logger)
-	anilistClient := anilist.NewMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database).(*anilist_platform.AnilistPlatform)
+	anilistClientRef := util.NewRef[anilist.AnilistClient](anilist.NewMockAnilistClient())
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database).(*anilist_platform.AnilistPlatform)
+	anilistPlatformRef := util.NewRef[platform.Platform](anilistPlatform)
 
 	// Initialize hook manager if needed
 	if opts.SetupHooks {
@@ -99,11 +102,11 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	manager := goja_runtime.NewManager(logger)
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		Database:          database,
-		AnilistPlatform:   anilistPlatform,
-		WSEventManager:    wsEventManager,
-		AnimeLibraryPaths: &[]string{},
-		PlaybackManager:   &playbackmanager.PlaybackManager{},
+		Database:           database,
+		AnilistPlatformRef: anilistPlatformRef,
+		WSEventManager:     wsEventManager,
+		AnimeLibraryPaths:  &[]string{},
+		PlaybackManager:    &playbackmanager.PlaybackManager{},
 	})
 
 	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
@@ -150,6 +153,7 @@ ctx.anime.getAnimeEntry(21)
 		Logger:     logger,
 		Database:   database,
 	})
+	metadataProviderRef := util.NewRef(metadataProvider)
 
 	fillerManager := fillermanager.New(&fillermanager.NewFillerManagerOptions{
 		Logger: logger,
@@ -157,9 +161,9 @@ ctx.anime.getAnimeEntry(21)
 	})
 
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		Database:         database,
-		MetadataProvider: metadataProvider,
-		FillerManager:    fillerManager,
+		Database:            database,
+		MetadataProviderRef: metadataProviderRef,
+		FillerManager:       fillerManager,
 	})
 
 	_, logger, manager, _, _, err := InitTestPlugin(t, opts)
@@ -758,7 +762,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
+	anilistClientRef := util.NewRef(anilistClient)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, util.NewRef(extension.NewUnifiedBank()), logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
 	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	require.NoError(t, err)
@@ -767,18 +772,20 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 		Logger:     logger,
 		Database:   database,
 	})
+	anilistPlatformRef := util.NewRef[platform.Platform](anilistPlatform)
+	metadataProviderRef := util.NewRef(metadataProvider)
 
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager:   wsEventManager,
-		Logger:           logger,
-		Platform:         anilistPlatform,
-		MetadataProvider: metadataProvider,
-		Database:         database,
+		WSEventManager:      wsEventManager,
+		Logger:              logger,
+		PlatformRef:         anilistPlatformRef,
+		MetadataProviderRef: metadataProviderRef,
+		Database:            database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
 		DiscordPresence:   nil,
-		IsOffline:         lo.ToPtr(false),
+		IsOfflineRef:      util.NewRef(false),
 		ContinuityManager: continuityManager,
 	})
 

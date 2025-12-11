@@ -3,7 +3,7 @@ package torrentstream
 import (
 	"context"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/nativeplayer"
+	"seanime/internal/videocore"
 )
 
 type (
@@ -63,19 +63,22 @@ func (r *Repository) listenToMediaPlayerEvents() {
 }
 
 func (r *Repository) listenToNativePlayerEvents() {
-	r.nativePlayerSubscriber = r.nativePlayer.Subscribe("torrentstream")
+	videoCoreSubscriber := r.nativePlayer.VideoCore().Subscribe("torrentstream")
 
 	go func() {
 		for {
 			select {
-			case event, ok := <-r.nativePlayerSubscriber.Events():
+			case event, ok := <-videoCoreSubscriber.Events():
 				if !ok { // shouldn't happen
 					r.logger.Debug().Msg("torrentstream: Native player subscriber channel closed")
 					return
 				}
+				if event.GetPlayerType() != videocore.NativePlayer {
+					continue
+				}
 
 				switch event := event.(type) {
-				case *nativeplayer.VideoLoadedMetadataEvent:
+				case *videocore.VideoLoadedMetadataEvent:
 					go func() {
 						if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
 							// If the stored video duration is 0 but the media player status shows a duration that is not 0
@@ -89,7 +92,7 @@ func (r *Repository) listenToNativePlayerEvents() {
 							}
 						}
 					}()
-				case *nativeplayer.VideoTerminatedEvent:
+				case *videocore.VideoTerminatedEvent:
 					r.logger.Debug().Msg("torrentstream: Native player terminated event received")
 					r.playback.currentVideoDuration = 0
 					// Only handle the event if we actually have a current torrent to avoid unnecessary cleanup

@@ -22,6 +22,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	goja_util "seanime/internal/util/goja"
+	"seanime/internal/videocore"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -48,6 +49,7 @@ type AppContextModules struct {
 	MediastreamRepository           *mediastream.Repository
 	TorrentstreamRepository         *torrentstream.Repository
 	FillerManager                   *fillermanager.FillerManager
+	VideoCore                       *videocore.VideoCore
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
 }
@@ -62,6 +64,7 @@ type AppContext interface {
 
 	Database() mo.Option[*db.Database]
 	PlaybackManager() mo.Option[*playbackmanager.PlaybackManager]
+	VideoCore() mo.Option[*videocore.VideoCore]
 	MediaPlayerRepository() mo.Option[*mediaplayer.Repository]
 	AnilistPlatformRef() mo.Option[*util.Ref[platform.Platform]]
 	WSEventManager() mo.Option[events.WSEventManagerInterface]
@@ -158,6 +161,7 @@ type AppContextImpl struct {
 	fileCacher                      mo.Option[*filecache.Cacher]
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
+	videoCore                       mo.Option[*videocore.VideoCore]
 	isOfflineRef                    *util.Ref[bool]
 }
 
@@ -184,6 +188,7 @@ func NewAppContext() AppContext {
 		fileCacher:                      mo.None[*filecache.Cacher](),
 		onRefreshAnilistAnimeCollection: mo.None[func()](),
 		onRefreshAnilistMangaCollection: mo.None[func()](),
+		videoCore:                       mo.None[*videocore.VideoCore](),
 		isOfflineRef:                    util.NewRef(false),
 	}
 
@@ -204,6 +209,10 @@ func (a *AppContextImpl) Database() mo.Option[*db.Database] {
 
 func (a *AppContextImpl) PlaybackManager() mo.Option[*playbackmanager.PlaybackManager] {
 	return a.playbackManager
+}
+
+func (a *AppContextImpl) VideoCore() mo.Option[*videocore.VideoCore] {
+	return a.videoCore
 }
 
 func (a *AppContextImpl) MediaPlayerRepository() mo.Option[*mediaplayer.Repository] {
@@ -301,6 +310,10 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 
 	if modules.FileCacher != nil {
 		a.fileCacher = mo.Some(modules.FileCacher)
+	}
+
+	if modules.VideoCore != nil {
+		a.videoCore = mo.Some(modules.VideoCore)
 	}
 }
 

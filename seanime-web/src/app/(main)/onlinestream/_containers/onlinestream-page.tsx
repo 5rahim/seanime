@@ -13,7 +13,7 @@ import {
     VideoCoreInlineHelperUpdateProgressButton,
     VideoCoreInlineLayout,
 } from "@/app/(main)/_features/video-core/video-core-inline-helpers"
-import { vc_useLibassRendererAtom, VideoCorePlaybackInfo, VideoCoreVideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_useLibassRendererAtom, VideoCore_VideoPlaybackInfo, VideoCore_VideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodePillsGrid } from "@/app/(main)/onlinestream/_components/episode-pills-grid"
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
@@ -28,11 +28,12 @@ import {
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
+import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { Modal, ModalProps } from "@/components/ui/modal"
 import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { logger } from "@/lib/helpers/debug"
+import { logger, useLatestFunction } from "@/lib/helpers/debug"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { AxiosError } from "axios"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -89,7 +90,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const [dubbed, setDubbed] = useAtom(__onlinestream_selectedDubbedAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
 
-    const [overrideStreamType, setOverrideStreamType] = React.useState<VideoCorePlaybackInfo["streamType"] | null>(null)
+    const [overrideStreamType, setOverrideStreamType] = React.useState<VideoCore_VideoPlaybackInfo["streamType"] | null>(null)
 
     const [playbackError, setPlaybackError] = React.useState<string | null>(null)
 
@@ -101,7 +102,31 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
-    const { streamToLoad, onLoadedStream, hostNotifyStreamStarted } = useNakamaOnlineStreamWatchParty()
+    const { streamToLoad, onLoadedStream } = useNakamaOnlineStreamWatchParty()
+    useUpdateEffect(() => {
+        if (!streamToLoad) return
+        log.info("Watch party stream to load", { streamToLoad })
+        setUrl(null)
+        React.startTransition(() => {
+            // Check if we have the provider
+            if (!providerExtensionOptions.some(p => p.value === streamToLoad.provider)) {
+                log.warning("Provider not found in options", { providerExtensionOptions, provider: streamToLoad.provider })
+                toast.error("Watch Party: The provider used by the host is not installed.")
+                return
+            }
+
+            setProvider(streamToLoad.provider)
+            setDubbed(streamToLoad.dubbed)
+            setServer(streamToLoad.server)
+            setQuality(streamToLoad.quality)
+
+            setTimeout(() => {
+                setSelectedEpisodeNumber(streamToLoad.episodeNumber)
+            }, 2000)
+
+            onLoadedStream()
+        })
+    }, [streamToLoad])
 
 
     // get the list of episodes from the provider
@@ -132,8 +157,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     )
 
     // de-duplicate video sources by url
-    const videoSources = uniqBy(episodeSource?.videoSources, n => n.url && n.quality)
-    const hasMultipleVideoSources = !!videoSources?.length && videoSources?.length > 1
+    const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources, n => n.url && n.quality), [episodeSource?.number])
+    const hasMultipleVideoSources = React.useMemo(() => !!videoSources?.length && videoSources?.length > 1, [videoSources])
 
     // list of servers
     const servers = React.useMemo(() => {
@@ -268,7 +293,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         })
     }
 
-    const changeQuality = React.useCallback((source: VideoCoreVideoSource) => {
+    const changeQuality = React.useCallback((source: VideoCore_VideoSource) => {
         savePreviousStateThen(() => {
             setQuality(source.resolution)
         })
@@ -318,7 +343,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             log.info("Setting episode number to", episodeNumberFromURL || episodeNumber || 1)
             firstRenderRef.current = false
         }
-    }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist])
+    }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist, nakamaStatus])
 
     /*
      * Set episode number on update
@@ -336,7 +361,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 log.info("Changing episode number to", episodeNumberFromURL)
             }
         }
-    }, [urlEpNumber])
+    }, [urlEpNumber, nakamaStatus])
 
     function onCanPlay() {
         if (urlEpNumber) {
@@ -344,7 +369,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }
 
-    function goToNextEpisode() {
+    const goToNextEpisode = useLatestFunction(() => {
         if (currentEpisodeNumber === null) return
         if (currentPlaylist) {
             playPlaylistEpisode("next", true)
@@ -354,9 +379,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
             handleChangeEpisodeNumber(currentEpisodeNumber + 1)
         }
-    }
+    })
 
-    function goToPreviousEpisode() {
+    const goToPreviousEpisode = useLatestFunction(() => {
         if (currentEpisodeNumber === null) return
         if (currentPlaylist) {
             playPlaylistEpisode("previous", true)
@@ -368,9 +393,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 handleChangeEpisodeNumber(currentEpisodeNumber - 1)
             }
         }
-    }
+    })
 
-    function handlePlayEpisode(which: "next" | "previous") {
+    const handlePlayEpisode = useLatestFunction((which: "next" | "previous") => {
         setUrl(null)
         React.startTransition(() => {
             if (which === "next") {
@@ -379,7 +404,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 goToPreviousEpisode()
             }
         })
-    }
+    })
 
     const useLibassRenderer = useAtomValue(vc_useLibassRendererAtom)
 
@@ -592,9 +617,16 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                                 resolution: source.quality,
                                             })) : undefined,
                                             selectedVideoSource: videoSources?.findIndex(source => source.quality === videoSource?.quality) ?? undefined,
-                                            trackContinuity: true,
                                             initialState: previousState ?? undefined,
-                                            enableDiscordRichPresence: true,
+                                            onlinestreamParams: {
+                                                mediaId: mediaId!,
+                                                episodeNumber: currentEpisodeNumber!,
+                                                provider: provider,
+                                                dubbed: dubbed,
+                                                server: server || "",
+                                                quality: quality || "",
+                                            },
+                                            disableRestoreFromContinuity: !!nakamaStatus?.currentWatchPartySession,
                                         } : null,
                                         playbackError: isErrorEpisodeSource
                                             ? (errorEpisodeSource as AxiosError<{ error: string }>)?.response?.data?.error ?? null
@@ -605,12 +637,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     onLoadedMetadata={onCanPlay}
                                     onError={v => onFatalError(v)}
                                     onPlayEpisode={handlePlayEpisode}
-                                    onFileUploaded={() => {}}
-                                    onVideoSourceChange={source => {
-                                        changeQuality(source)
-                                    }}
+                                    onVideoSourceChange={changeQuality}
                                     onHlsFatalError={(err) => onFatalError(`HLS error: ${err.error.message}`)}
-                                    onHlsMediaDetached={() => {}}
                                     onTerminateStream={() => setUrl(null)}
                                 />
                             </div>

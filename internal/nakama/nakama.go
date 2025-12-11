@@ -16,6 +16,7 @@ import (
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"seanime/internal/videocore"
 	"strings"
 	"sync"
 	"time"
@@ -39,7 +40,8 @@ type Manager struct {
 	directstreamManager     *directstream.Manager
 	peerId                  string
 	nativePlayer            *nativeplayer.NativePlayer
-	mediaController         *MediaController
+	videoCore               *videocore.VideoCore
+	genericPlayer           *WatchPartyGenericPlayer
 
 	// Host connections (when acting as host)
 	peerConnections *result.Map[string, *PeerConnection]
@@ -84,6 +86,7 @@ type NewManagerOptions struct {
 	ServerHost              string
 	ServerPort              int
 	NativePlayer            *nativeplayer.NativePlayer
+	VideoCore               *videocore.VideoCore
 	DirectStreamManager     *directstream.Manager
 	IsOfflineRef            *util.Ref[bool]
 }
@@ -222,12 +225,13 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		debridClientRepository:  opts.DebridClientRepository,
 		previousPath:            "",
 		nativePlayer:            opts.NativePlayer,
+		videoCore:               opts.VideoCore,
 		useDenshiPlayer:         false,
 		directstreamManager:     opts.DirectStreamManager,
 		isOfflineRef:            opts.IsOfflineRef,
 	}
 
-	m.mediaController = NewMediaController(m)
+	m.genericPlayer = NewWatchPartyGenericPlayer(m)
 	m.watchPartyManager = NewWatchPartyManager(m)
 
 	// Register default message handlers
@@ -253,9 +257,9 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				m.clientMu.Lock()
 				m.useDenshiPlayer = payload.UseDenshiPlayer
 				if m.useDenshiPlayer {
-					m.mediaController.SetType(MediaControllerTypeNativePlayer)
+					m.genericPlayer.SetType(WatchPartyVideoCore)
 				} else {
-					m.mediaController.SetType(MediaControllerTypePlaybackManager)
+					m.genericPlayer.SetType(WatchPartyPlaybackManager)
 				}
 				m.clientMu.Unlock()
 

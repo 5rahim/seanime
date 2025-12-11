@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
   - Blacklist subtitle names
   - Subtitle delay support
   - Faster thumbnail generation
-- ⚡️ Server: TLS support @Juj1-js
+- ⚡️ Server: TLS support @Ju1-js
 - ⚡️ Extensions: Added ChromeDP headless browser API
 - 🦺 Video Proxy: Fixed playlist failing at integer conversion
 - 🦺 Continue Watching: Add entries without metadata when streaming

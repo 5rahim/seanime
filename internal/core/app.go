@@ -51,6 +51,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
+	"seanime/internal/videocore"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -99,6 +100,7 @@ type (
 
 		// Players
 		NativePlayer *nativeplayer.NativePlayer
+		VideoCore    *videocore.VideoCore
 		MediaPlayer  struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -411,6 +413,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
 		DirectStreamManager:           nil, // Initialized in App.initModulesOnce
 		NativePlayer:                  nil, // Initialized in App.initModulesOnce
+		VideoCore:                     nil, // Initialized in App.initModulesOnce
 		NakamaManager:                 nil, // Initialized in App.initModulesOnce
 		LibraryExplorer:               nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules

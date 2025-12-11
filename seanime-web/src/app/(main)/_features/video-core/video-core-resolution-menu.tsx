@@ -2,16 +2,16 @@ import { vc_containerElement, vc_isFullscreen, vc_miniPlayer } from "@/app/(main
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { vc_hlsCurrentQuality, vc_hlsQualityLevels, vc_hlsSetQuality } from "@/app/(main)/_features/video-core/video-core-hls"
 import { VideoCoreMenu, VideoCoreMenuBody, VideoCoreMenuTitle, VideoCoreSettingSelect } from "@/app/(main)/_features/video-core/video-core-menu"
-import { VideoCorePlaybackState, VideoCoreVideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCoreLifecycleState, VideoCore_VideoSource } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { atom, useAtomValue } from "jotai"
 import React from "react"
 import { LuFilm } from "react-icons/lu"
 
-export const vc_videoSources = atom<VideoCoreVideoSource[]>([])
+export const vc_videoSources = atom<VideoCore_VideoSource[]>([])
 
 export function VideoCoreResolutionMenu({ state, onVideoSourceChange }: {
-    state: VideoCorePlaybackState,
-    onVideoSourceChange: ((source: VideoCoreVideoSource) => void) | undefined
+    state: VideoCoreLifecycleState,
+    onVideoSourceChange: ((source: VideoCore_VideoSource) => void) | undefined
 }) {
     const isFullscreen = useAtomValue(vc_isFullscreen)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
@@ -27,7 +27,7 @@ export function VideoCoreResolutionMenu({ state, onVideoSourceChange }: {
 
     const isHls = !videoSources?.length
 
-    const levels = React.useMemo<VideoCoreVideoSource[]>(() => {
+    const levels = React.useMemo<VideoCore_VideoSource[]>(() => {
         // Use HLS levels if no video sources are provided
         if (!videoSources?.length) {
             return hlsQualityLevels?.map(level => ({

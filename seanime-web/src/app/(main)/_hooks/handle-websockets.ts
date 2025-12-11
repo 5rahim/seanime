@@ -281,7 +281,7 @@ export type WebSocketMessageListener<TData> = {
     onMessage: (data: TData) => void
 }
 
-export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }: WebSocketMessageListener<TData>) {
+export function useWebsocketMessageListener<TData = unknown>({ type, onMessage, deps }: WebSocketMessageListener<TData> & { deps?: any[] }) {
     const socket = useContext(WebSocketContext)
     const status = useServerStatus()
     const password = useAtomValue(serverAuthTokenAtom)
@@ -310,7 +310,7 @@ export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }
                 socket.removeEventListener("message", messageHandler)
             }
         }
-    }, [socket, onMessage])
+    }, [socket, onMessage, ...(deps ?? [])])
 
     return null
 }

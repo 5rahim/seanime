@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	debrid_client "seanime/internal/debrid/client"
-	"seanime/internal/library/playbackmanager"
-	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/torrentstream"
+	"seanime/internal/videocore"
 	"sync"
 	"time"
 
@@ -121,7 +120,7 @@ type WatchPartyManager struct {
 	lastRxSequence uint64     // Latest received sequence number
 
 	// Peer
-	peerPlaybackListener *playbackmanager.PlaybackStatusSubscriber // Listener for playback status changes (can be nil)
+	peerPlaybackListener *WatchPartyPlaybackSubscriber // Listener for playback status changes (can be nil)
 }
 
 type WatchPartySession struct {
@@ -145,31 +144,32 @@ type WatchPartySessionParticipant struct {
 	// Player settings
 	UseDenshiPlayer bool `json:"useDenshiPlayer"` // Whether this participant uses Denshi player
 	// Buffering state
-	IsBuffering    bool                        `json:"isBuffering"`
-	BufferHealth   float64                     `json:"bufferHealth"`             // 0.0 to 1.0, how much buffer is available
-	PlaybackStatus *mediaplayer.PlaybackStatus `json:"playbackStatus,omitempty"` // Current playback status
+	IsBuffering    bool                      `json:"isBuffering"`
+	BufferHealth   float64                   `json:"bufferHealth"`             // 0.0 to 1.0, how much buffer is available
+	PlaybackStatus *WatchPartyPlaybackStatus `json:"playbackStatus,omitempty"` // Current playback status
 	// Relay mode
 	IsRelayOrigin bool `json:"isRelayOrigin"` // Whether this peer is the origin for relay mode
 }
 
+type WatchPartyStreamType string
+
+const (
+	WatchPartyStreamTypeFile         WatchPartyStreamType = "file"
+	WatchPartyStreamTypeTorrent      WatchPartyStreamType = "torrent"
+	WatchPartyStreamTypeDebrid       WatchPartyStreamType = "debrid"
+	WatchPartyStreamTypeOnlinestream WatchPartyStreamType = "onlinestream"
+)
+
 type WatchPartySessionMediaInfo struct {
-	MediaId       int    `json:"mediaId"`
-	EpisodeNumber int    `json:"episodeNumber"`
-	AniDBEpisode  string `json:"aniDbEpisode"`
-	StreamType    string `json:"streamType"` // "file", "torrent", "debrid", "online"
-	StreamPath    string `json:"streamPath"` // URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
-
-	OnlineStreamParams                *OnlineStreamParams               `json:"onlineStreamParams,omitempty"`
-	OptionalTorrentStreamStartOptions *torrentstream.StartStreamOptions `json:"optionalTorrentStreamStartOptions,omitempty"`
-}
-
-type OnlineStreamParams struct {
-	MediaId       int    `json:"mediaId"`
-	Provider      string `json:"provider"`
-	Server        string `json:"server"`
-	Dubbed        bool   `json:"dubbed"`
-	EpisodeNumber int    `json:"episodeNumber"`
-	Quality       string `json:"quality"`
+	MediaId       int                  `json:"mediaId"`
+	EpisodeNumber int                  `json:"episodeNumber"`
+	AniDBEpisode  string               `json:"aniDbEpisode"`
+	StreamType    WatchPartyStreamType `json:"streamType"`
+	LocalFilePath string               `json:"localFilePath"` // Path to local file if StreamType is file
+	// OnlinestreamParams used by peers to start the same stream
+	OnlinestreamParams *videocore.OnlinestreamParams `json:"onlinestreamParams,omitempty"`
+	// OnlinestreamParams used by peers to start the same stream
+	TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
 }
 
 type WatchPartySessionSettings struct {
@@ -192,11 +192,23 @@ type (
 		PeerId string `json:"peerId"`
 	}
 
+	WatchPartyPlaybackStatus struct {
+		Paused      bool    `json:"paused"`
+		CurrentTime float64 `json:"currentTime"` // in seconds
+		Duration    float64 `json:"duration"`    // in seconds
+	}
+	WatchPartyPlaybackState struct {
+		MediaId       int                  `json:"mediaId"`
+		EpisodeNumber int                  `json:"episodeNumber"`
+		AniDBEpisode  string               `json:"aniDbEpisode"`
+		StreamType    WatchPartyStreamType `json:"streamType"`
+	}
+
 	WatchPartyPlaybackStatusPayload struct {
-		PlaybackStatus mediaplayer.PlaybackStatus `json:"playbackStatus"`
-		Timestamp      int64                      `json:"timestamp"` // Unix nano timestamp
-		SequenceNumber uint64                     `json:"sequenceNumber"`
-		EpisodeNumber  int                        `json:"episodeNumber"` // For episode changes
+		PlaybackStatus *WatchPartyPlaybackStatus `json:"playbackStatus"`
+		Timestamp      int64                     `json:"timestamp"` // Unix nano timestamp
+		SequenceNumber uint64                    `json:"sequenceNumber"`
+		EpisodeNumber  int                       `json:"episodeNumber"` // For episode changes
 	}
 
 	WatchPartyStateChangedPayload struct {
@@ -204,12 +216,12 @@ type (
 	}
 
 	WatchPartyPeerStatusPayload struct {
-		PeerId          string                     `json:"peerId"`
-		PlaybackStatus  mediaplayer.PlaybackStatus `json:"playbackStatus"`
-		IsBuffering     bool                       `json:"isBuffering"`
-		BufferHealth    float64                    `json:"bufferHealth"` // 0.0 to 1.0
-		UseDenshiPlayer bool                       `json:"useDenshiPlayer"`
-		Timestamp       time.Time                  `json:"timestamp"`
+		PeerId          string                    `json:"peerId"`
+		PlaybackStatus  *WatchPartyPlaybackStatus `json:"playbackStatus"`
+		IsBuffering     bool                      `json:"isBuffering"`
+		BufferHealth    float64                   `json:"bufferHealth"` // 0.0 to 1.0
+		UseDenshiPlayer bool                      `json:"useDenshiPlayer"`
+		Timestamp       time.Time                 `json:"timestamp"`
 	}
 
 	WatchPartyBufferUpdatePayload struct {
@@ -224,20 +236,20 @@ type (
 	}
 
 	WatchPartyRelayModeOriginStreamStartedPayload struct {
-		Filename                          string                            `json:"filename"`
-		Filepath                          string                            `json:"filepath"`
-		StreamType                        string                            `json:"streamType"`
-		OptionalLocalPath                 string                            `json:"optionalLocalPath,omitempty"`
-		OptionalTorrentStreamStartOptions *torrentstream.StartStreamOptions `json:"optionalTorrentStreamStartOptions,omitempty"`
-		OptionalDebridStreamStartOptions  *debrid_client.StartStreamOptions `json:"optionalDebridStreamStartOptions,omitempty"`
-		Status                            mediaplayer.PlaybackStatus        `json:"status"`
-		State                             playbackmanager.PlaybackState     `json:"state"`
+		Filename            string                            `json:"filename"`
+		Filepath            string                            `json:"filepath"`
+		StreamType          WatchPartyStreamType              `json:"streamType"`
+		LocalFilePath       string                            `json:"localFilePath,omitempty"`
+		TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
+		DebridStreamParams  *debrid_client.StartStreamOptions `json:"debridStreamParams,omitempty"`
+		Status              *WatchPartyPlaybackStatus         `json:"status"`
+		State               *WatchPartyPlaybackState          `json:"state"`
 	}
 
 	WatchPartyRelayModeOriginPlaybackStatusPayload struct {
-		Status    mediaplayer.PlaybackStatus    `json:"status"`
-		State     playbackmanager.PlaybackState `json:"state"`
-		Timestamp int64                         `json:"timestamp"`
+		Status    *WatchPartyPlaybackStatus `json:"status"`
+		State     *WatchPartyPlaybackState  `json:"state"`
+		Timestamp int64                     `json:"timestamp"`
 	}
 )
 
@@ -422,5 +434,5 @@ func (mi *WatchPartySessionMediaInfo) Equals(other *WatchPartySessionMediaInfo) 
 		mi.EpisodeNumber == other.EpisodeNumber &&
 		mi.AniDBEpisode == other.AniDBEpisode &&
 		mi.StreamType == other.StreamType &&
-		mi.StreamPath == other.StreamPath
+		mi.LocalFilePath == other.LocalFilePath
 }

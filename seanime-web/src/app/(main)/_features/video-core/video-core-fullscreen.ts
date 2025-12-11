@@ -4,26 +4,75 @@ import { atom } from "jotai"
 
 const log = logger("VIDEO CORE FULLSCREEN")
 
+export type FullscreenManagerChangedEvent = CustomEvent<{ isFullscreen: boolean }>
+export type FullscreenManagerDestroyedEvent = CustomEvent
+export type FullscreenManagerAttemptEvent = CustomEvent<{ method: "enter" | "exit" }>
+
+interface VideoCoreFullscreenManagerEventMap {
+    "fullscreenchanged": FullscreenManagerChangedEvent
+    "destroyed": FullscreenManagerDestroyedEvent
+    "enterattempt": FullscreenManagerAttemptEvent
+    "exitattempt": FullscreenManagerAttemptEvent
+}
+
 export const vc_fullscreenManager = atom<VideoCoreFullscreenManager | null>(null)
 
-export class VideoCoreFullscreenManager {
+export class VideoCoreFullscreenManager extends EventTarget {
     private containerElement: HTMLElement | null = null
     private videoElement: HTMLVideoElement | null = null
     private controller = new AbortController()
     private onFullscreenChange: (isFullscreen: boolean) => void
     private isElectronNativeFullscreen = false
+    private attachVideoListeners?: () => void
 
     constructor(onFullscreenChange: (isFullscreen: boolean) => void) {
+        super()
         this.onFullscreenChange = onFullscreenChange
         this.attachDocumentListeners()
         this.attachElectronListeners()
         this.initElectronFullscreenState()
     }
 
+    addEventListener<K extends keyof VideoCoreFullscreenManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreFullscreenManager, ev: VideoCoreFullscreenManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof VideoCoreFullscreenManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreFullscreenManager, ev: VideoCoreFullscreenManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
+    }
+
     setContainer(containerElement: HTMLElement) {
         this.containerElement = containerElement
     }
-    private attachVideoListeners?: () => void
 
     setVideoElement(videoElement: HTMLVideoElement) {
         this.videoElement = videoElement
@@ -35,14 +84,14 @@ export class VideoCoreFullscreenManager {
     }
 
     async toggleFullscreen() {
-        if (this.isFullscreen()) {
+        if (this.isFullscreen) {
             await this.exitFullscreen()
         } else {
             await this.enterFullscreen()
         }
     }
 
-    isFullscreen(): boolean {
+    public get isFullscreen(): boolean {
         // Check Electron native fullscreen first
         if (this._isElectron() && this.isElectronNativeFullscreen) {
             return true
@@ -62,6 +111,9 @@ export class VideoCoreFullscreenManager {
     }
 
     async exitFullscreen() {
+        const attemptEvent: FullscreenManagerAttemptEvent = new CustomEvent("exitattempt", { detail: { method: "exit" } })
+        this.dispatchEvent(attemptEvent)
+
         try {
             if (this._isElectron() && this._shouldUseElectronFullscreen()) {
                 await this._exitElectronFullscreen()
@@ -94,6 +146,9 @@ export class VideoCoreFullscreenManager {
     }
 
     async enterFullscreen() {
+        const attemptEvent: FullscreenManagerAttemptEvent = new CustomEvent("enterattempt", { detail: { method: "enter" } })
+        this.dispatchEvent(attemptEvent)
+
         if (!this.containerElement) {
             log.warning("Container element not set")
             return
@@ -137,6 +192,9 @@ export class VideoCoreFullscreenManager {
         this.controller.abort()
         this.containerElement = null
         this.videoElement = null
+
+        const event: FullscreenManagerDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     private _isElectron(): boolean {
@@ -208,6 +266,10 @@ export class VideoCoreFullscreenManager {
         const removeFullscreenListener = window.electron?.on?.("window:fullscreen", (isFullscreen: boolean) => {
             this.isElectronNativeFullscreen = isFullscreen
             log.info("Electron fullscreen state changed:", isFullscreen)
+
+            const event: FullscreenManagerChangedEvent = new CustomEvent("fullscreenchanged", { detail: { isFullscreen } })
+            this.dispatchEvent(event)
+
             this.onFullscreenChange(isFullscreen)
         })
 
@@ -253,8 +315,12 @@ export class VideoCoreFullscreenManager {
     }
 
     private handleFullscreenChange = () => {
-        const isFullscreen = this.isFullscreen()
+        const isFullscreen = this.isFullscreen
         log.info("Fullscreen state changed:", isFullscreen)
+
+        const event: FullscreenManagerChangedEvent = new CustomEvent("fullscreenchanged", { detail: { isFullscreen } })
+        this.dispatchEvent(event)
+
         this.onFullscreenChange(isFullscreen)
     }
 }

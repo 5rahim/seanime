@@ -19,6 +19,21 @@ import {
 
 const log = logger("VIDEO CORE ANIME 4K MANAGER")
 
+export type Anime4KManagerCanvasCreatedEvent = CustomEvent<{ canvas: HTMLCanvasElement }>
+export type Anime4KManagerOptionChangedEvent = CustomEvent<{ newOption: Anime4KOption }>
+export type Anime4KManagerErrorEvent = CustomEvent<{ message: string }>
+export type Anime4KManagerCanvasResizedEvent = CustomEvent<{ width: number; height: number }>
+export type Anime4KManagerDestroyedEvent = CustomEvent
+
+interface VideoCoreAnime4KManagerEventMap {
+    "canvascreated": Anime4KManagerCanvasCreatedEvent
+    "optionchanged": Anime4KManagerOptionChangedEvent
+    "error": Anime4KManagerErrorEvent
+    "canvasresized": Anime4KManagerCanvasResizedEvent
+    "destroyed": Anime4KManagerDestroyedEvent
+}
+
+
 export type Anime4KOption =
     "off"
     | "mode-a"
@@ -44,7 +59,7 @@ interface FrameDropState {
     initTime: number
 }
 
-export class VideoCoreAnime4KManager {
+export class VideoCoreAnime4KManager extends EventTarget {
     canvas: HTMLCanvasElement | null = null
     private readonly videoElement: HTMLVideoElement
     private settings: VideoCoreSettings
@@ -80,12 +95,55 @@ export class VideoCoreAnime4KManager {
         onFallback?: (message: string) => void
         onOptionChanged?: (option: Anime4KOption) => void
     }) {
+        super()
         this.videoElement = videoElement
         this.settings = settings
         this._onFallback = onFallback
         this._onOptionChanged = onOptionChanged
 
         log.info("Anime4K manager initialized")
+    }
+
+    getCurrentOption(): Anime4KOption {
+        return this._currentOption
+    }
+
+    addEventListener<K extends keyof VideoCoreAnime4KManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreAnime4KManager, ev: VideoCoreAnime4KManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof VideoCoreAnime4KManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreAnime4KManager, ev: VideoCoreAnime4KManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
     }
 
     updateCanvasSize(size: { width: number; height: number }) {
@@ -96,6 +154,10 @@ export class VideoCoreAnime4KManager {
             this.canvas.height = this._boxSize.height
             log.info("Updating canvas size", { ...this._boxSize })
         }
+
+        const event: Anime4KManagerCanvasResizedEvent = new CustomEvent("canvasresized",
+            { detail: { width: this._boxSize.width, height: this._boxSize.height } })
+        this.dispatchEvent(event)
     }
 
     resize() {
@@ -108,6 +170,10 @@ export class VideoCoreAnime4KManager {
             this.canvas.style.height = this._boxSize.height + "px"
             // log.info("Updating canvas size", { ...this._boxSize })
         }
+
+        const event: Anime4KManagerCanvasResizedEvent = new CustomEvent("canvasresized",
+            { detail: { width: this._boxSize.width, height: this._boxSize.height } })
+        this.dispatchEvent(event)
     }
 
     // Adds a function to be called whenever the canvas is created or recreated
@@ -130,7 +196,7 @@ export class VideoCoreAnime4KManager {
         const previousOption = this._currentOption
         this._currentOption = option
 
-        if (option === "off") {
+        if (previousOption !== option && option === "off") {
             // log.info("Anime4K turned off")
             this.destroy()
             return
@@ -141,7 +207,7 @@ export class VideoCoreAnime4KManager {
             // For PIP or mini player, completely destroy the canvas
             if (state.isMiniPlayer || state.isPip) {
                 log.info("Destroying canvas due to PIP/mini player mode")
-                this.destroy()
+                if (previousOption !== "off") this.destroy()
                 return
             }
 
@@ -167,7 +233,7 @@ export class VideoCoreAnime4KManager {
         // If option changed or no canvas exists, reinitialize
         if (previousOption !== option || !this.canvas) {
             log.info("Change detected, reinitializing canvas")
-            this.destroy()
+            if (previousOption !== "off") this.destroy()
             try {
                 await this._initialize()
             }
@@ -175,7 +241,9 @@ export class VideoCoreAnime4KManager {
                 log.error("Failed to initialize Anime4K", error)
                 this._handleError(error instanceof Error ? error.message : "Unknown error")
             }
+            this._onOptionChanged?.(option)
         }
+
     }
 
     // initialize the canvas and start rendering
@@ -213,6 +281,9 @@ export class VideoCoreAnime4KManager {
 
         this._frameDropState.frameDropCount = 0
         this._frameDropState.lastFrameTime = 0
+
+        const event: Anime4KManagerDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     // throws if initialization fails
@@ -222,6 +293,9 @@ export class VideoCoreAnime4KManager {
         }
 
         log.info("Initializing Anime4K", this._currentOption)
+
+        const event: Anime4KManagerOptionChangedEvent = new CustomEvent("optionchanged", { detail: { newOption: this._currentOption } })
+        this.dispatchEvent(event)
 
         this._abortController = new AbortController()
         this._frameDropState = {
@@ -369,6 +443,9 @@ export class VideoCoreAnime4KManager {
                     callback(this.canvas)
                 }
                 this._onCanvasCreatedCallbacksOnce.clear()
+
+                const event: Anime4KManagerCanvasCreatedEvent = new CustomEvent("canvascreated", { detail: { canvas: this.canvas } })
+                this.dispatchEvent(event)
             }
         }, 100)
 
@@ -458,12 +535,19 @@ export class VideoCoreAnime4KManager {
 
     private _handlePerformanceFallback() {
         this._onFallback?.("Performance degraded. Turning off Anime4K.")
+        // Dispatch Fallback Event
+        const errorEvent: Anime4KManagerErrorEvent = new CustomEvent("error", { detail: { message: "Performance degraded. Turning off Anime4K." } })
+        this.dispatchEvent(errorEvent)
+
         this.setOption("off")
         this._onOptionChanged?.("off")
     }
 
     private _handleError(message: string) {
         this._onFallback?.(`Anime4K: ${message}`)
+        const errorEvent: Anime4KManagerErrorEvent = new CustomEvent("error", { detail: { message: message } })
+        this.dispatchEvent(errorEvent)
+
         this.setOption("off")
         this._onOptionChanged?.("off")
     }

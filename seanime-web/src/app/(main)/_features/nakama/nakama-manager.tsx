@@ -1,4 +1,10 @@
-import { Nakama_NakamaStatus, Nakama_WatchPartySession, Nakama_WatchPartySessionSettings } from "@/api/generated/types"
+import {
+    Nakama_NakamaStatus,
+    Nakama_WatchPartySession,
+    Nakama_WatchPartySessionSettings,
+    VideoCore_OnlinestreamParams,
+    VideoCore_ServerEvent,
+} from "@/api/generated/types"
 import {
     useNakamaCreateWatchParty,
     useNakamaJoinWatchParty,
@@ -218,19 +224,14 @@ export function NakamaManager() {
 
     /////// Online stream
 
-    const { startOnlineStream } = useNakamaOnlineStreamWatchParty()
+    const { startOnlineStreamWatchParty } = useNakamaOnlineStreamWatchParty()
     useWebsocketMessageListener({
-        type: WSEvents.NAKAMA_ONLINE_STREAM_EVENT,
-        onMessage: (_data: { type: string, payload: { type: string, payload: any } }) => {
-            console.log(_data)
-            switch (_data.type) {
-                case "online-stream-playback-status":
-                    const data = _data.payload
-                    switch (data.type) {
-                        case "start":
-                            startOnlineStream(data.payload)
-                            break
-                    }
+        type: WSEvents.VIDEO_CORE,
+        onMessage: ({ type, payload }: { type: VideoCore_ServerEvent, payload: unknown }) => {
+            switch (type) {
+                case "start-onlinestream-watch-party":
+                    const data = payload as VideoCore_OnlinestreamParams
+                    startOnlineStreamWatchParty(data)
             }
         },
     })

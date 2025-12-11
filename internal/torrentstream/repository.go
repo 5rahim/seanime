@@ -44,7 +44,6 @@ type (
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
-		nativePlayerSubscriber          *nativeplayer.Subscriber
 		directStreamManager             *directstream.Manager
 		nativePlayer                    *nativeplayer.NativePlayer
 		logger                          *zerolog.Logger

@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
+import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource, VideoCore_OnlinestreamParams } from "@/api/generated/types"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
@@ -146,7 +146,7 @@ export function useLegacyHandleOnlinestream(props: LegacyHandleOnlinestreamProps
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
-    const { streamToLoad, onLoadedStream, hostNotifyStreamStarted } = useNakamaOnlineStreamWatchParty()
+    // const { streamToLoad, onLoadedStream, hostNotifyStreamStarted } = useNakamaOnlineStreamWatchParty()
 
     /**
      * 1. Get the list of episodes
@@ -254,26 +254,26 @@ export function useLegacyHandleOnlinestream(props: LegacyHandleOnlinestreamProps
         logger("ONLINESTREAM").info("URL changed", { url })
     }, [url])
 
-    useUpdateEffect(() => {
-        if (!streamToLoad) return
-
-        logger("ONLINESTREAM").info("Stream to load", { streamToLoad })
-
-        // Check if we have the provider
-        if (!providerExtensionOptions.some(p => p.value === streamToLoad.provider)) {
-            logger("ONLINESTREAM").warning("Provider not found in options", { providerExtensionOptions, provider: streamToLoad.provider })
-            toast.error("Watch Party: The provider used by the host is not installed.")
-            return
-        }
-
-        setProvider(streamToLoad.provider)
-        setDubbed(streamToLoad.dubbed)
-        setEpisodeNumber(streamToLoad.episodeNumber)
-        setServer(streamToLoad.server)
-        setQuality(streamToLoad.quality)
-
-        onLoadedStream()
-    }, [streamToLoad])
+    // useUpdateEffect(() => {
+    //     if (!streamToLoad) return
+    //
+    //     logger("ONLINESTREAM").info("Stream to load", { streamToLoad })
+    //
+    //     // Check if we have the provider
+    //     if (!providerExtensionOptions.some(p => p.value === streamToLoad.provider)) {
+    //         logger("ONLINESTREAM").warning("Provider not found in options", { providerExtensionOptions, provider: streamToLoad.provider })
+    //         toast.error("Watch Party: The provider used by the host is not installed.")
+    //         return
+    //     }
+    //
+    //     setProvider(streamToLoad.provider)
+    //     setDubbed(streamToLoad.dubbed)
+    //     setEpisodeNumber(streamToLoad.episodeNumber)
+    //     setServer(streamToLoad.server)
+    //     setQuality(streamToLoad.quality)
+    //
+    //     onLoadedStream()
+    // }, [streamToLoad])
 
 
     //////////////////////////////////////////////////////////////
@@ -332,18 +332,18 @@ export function useLegacyHandleOnlinestream(props: LegacyHandleOnlinestreamProps
 
         // Handle Nakama Watch Party
         // Send the playback info to the server
-        if (nakamaStatus?.isHost && nakamaStatus.currentWatchPartySession && !nakamaStatus?.currentWatchPartySession.isRelayMode) {
-            const params = {
-                mediaId: media?.id ?? 0,
-                provider: currentProviderRef.current ?? "",
-                episodeNumber: episodeSource?.number ?? 0,
-                server: videoSource?.server ?? "",
-                quality: videoSource?.quality ?? "",
-                dubbed: dubbed,
-            }
-            logger("ONLINESTREAM").info("Watch Party: Notifying peers that stream has started", params)
-            hostNotifyStreamStarted(params)
-        }
+        // if (nakamaStatus?.isHost && nakamaStatus.currentWatchPartySession && !nakamaStatus?.currentWatchPartySession.isRelayMode) {
+        //     const params = {
+        //         mediaId: media?.id ?? 0,
+        //         provider: currentProviderRef.current ?? "",
+        //         episodeNumber: episodeSource?.number ?? 0,
+        //         server: videoSource?.server ?? "",
+        //         quality: videoSource?.quality ?? "",
+        //         dubbed: dubbed,
+        //     }
+        //     logger("ONLINESTREAM").info("Watch Party: Notifying peers that stream has started", params)
+        //     hostNotifyStreamStarted(params)
+        // }
 
         // When the onCanPlay event is received
         // Restore the previous time if set
@@ -524,7 +524,7 @@ export function useNakamaOnlineStreamWatchParty() {
         onLoadedStream: () => {
             setStreamToLoad(null)
         },
-        startOnlineStream(params: OnlineStreamParams) {
+        startOnlineStreamWatchParty(params: VideoCore_OnlinestreamParams) {
             if (nakamaStatus?.isHost) {
                 logger("ONLINESTREAM").info("Start online stream event sent to peers", params)
                 return

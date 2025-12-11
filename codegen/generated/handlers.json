@@ -2712,6 +2712,15 @@
           "typescriptType": "string",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "Content",
+          "jsonName": "content",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "string",
