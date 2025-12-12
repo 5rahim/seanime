@@ -13,9 +13,9 @@ import (
 	"github.com/samber/mo"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Peer
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (wpm *WatchPartyManager) JoinWatchParty(clientId string) error {
 	if wpm.manager.IsHost() {
@@ -36,6 +36,11 @@ func (wpm *WatchPartyManager) JoinWatchParty(clientId string) error {
 
 	// update the client
 	wpm.clientId = clientId
+
+	// Cancel any existing session context before creating a new one
+	if wpm.sessionCtxCancel != nil {
+		wpm.sessionCtxCancel()
+	}
 
 	wpm.sessionCtx, wpm.sessionCtxCancel = context.WithCancel(context.Background())
 
@@ -58,7 +63,7 @@ func (wpm *WatchPartyManager) JoinWatchParty(clientId string) error {
 	wpm.sendSessionStateToClient()
 
 	// Start listening to players for relay mode
-	wpm.relayModeListenToPlayer()
+	wpm.relayModeListenToPlayerAsOrigin()
 
 	return nil
 }
@@ -298,9 +303,9 @@ func (wpm *WatchPartyManager) LeaveWatchParty() error {
 	return nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Events
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var NakamaPeerListenerID = "nakama_peer_playback_listener"
 
@@ -436,6 +441,12 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 		// Auto-leave the watch party when playback stops
 		// The user will have to re-join to start the stream again
 		if payload.Session.CurrentMediaInfo.StreamType != WatchPartyStreamTypeOnlinestream && !participant.IsRelayOrigin {
+			// Clean up old listener
+			if wpm.peerPlaybackListener != nil {
+				wpm.manager.genericPlayer.Unsubscribe(NakamaPeerListenerID)
+				wpm.peerPlaybackListener = nil
+			}
+
 			wpm.peerPlaybackListener = wpm.manager.genericPlayer.Subscribe(NakamaPeerListenerID)
 			go func() {
 				defer util.HandlePanicInModuleThen("nakama/handleWatchPartyStateChangedEvent/autoLeaveWatchParty", func() {})
@@ -570,19 +581,22 @@ func (wpm *WatchPartyManager) handleWatchPartyStoppedEvent() {
 	wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyState, nil)
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Relay mode
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// relayModeListenToPlayer starts listening to players when in relay mode
-func (wpm *WatchPartyManager) relayModeListenToPlayer() {
+// relayModeListenToPlayerAsOrigin starts listening to players when in relay mode.
+// If the user is the relay origin, we listen to playback started events to send it to the relay host.
+func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 	go func() {
-		defer util.HandlePanicInModuleThen("nakama/relayModeListenToPlayer", func() {})
+		id := "nakama:relay-origin"
+		defer util.HandlePanicInModuleThen("nakama/relayModeListenToPlayerAsOrigin", func() {})
 
-		wpm.logger.Debug().Msg("nakama: Started listening to playback manager for relay mode")
+		wpm.logger.Debug().Msg("nakama: Started listening to players for relay mode")
 
-		playbackSubscriber := wpm.manager.genericPlayer.Subscribe("nakama_peer_relay_mode")
-		defer wpm.manager.genericPlayer.Unsubscribe("nakama_peer_relay_mode")
+		// Subscribe to players
+		playbackSubscriber := wpm.manager.genericPlayer.Subscribe(id)
+		defer wpm.manager.genericPlayer.Unsubscribe(id)
 
 		newStream := false
 		streamStartedPayload := WatchPartyRelayModeOriginStreamStartedPayload{}
@@ -590,17 +604,23 @@ func (wpm *WatchPartyManager) relayModeListenToPlayer() {
 		for {
 			select {
 			case <-wpm.sessionCtx.Done():
-				wpm.logger.Debug().Msg("nakama: Stopped listening to playback manager")
+				wpm.logger.Debug().Msg("nakama: Stopped listening to players for relay mode")
 				return
-			case e := <-playbackSubscriber.EventCh:
-				currentSession, ok := wpm.currentSession.Get() // should always be ok
+			case e, ok := <-playbackSubscriber.EventCh:
 				if !ok {
+					// Channel closed, exit
+					wpm.logger.Debug().Msg("nakama: Playback subscriber channel closed")
 					return
 				}
 
-				hostConn, ok := wpm.manager.GetHostConnection() // should always be ok
+				currentSession, ok := wpm.currentSession.Get()
 				if !ok {
-					return
+					continue
+				}
+
+				hostConn, ok := wpm.manager.GetHostConnection()
+				if !ok {
+					continue
 				}
 
 				currentSession.mu.Lock()
@@ -621,7 +641,7 @@ func (wpm *WatchPartyManager) relayModeListenToPlayer() {
 				}
 
 				switch event := e.(type) {
-				// 1. Stream started
+				// 1. Relay origin stream started
 				case *WatchPartyPlayerVideoStarted:
 					wpm.logger.Debug().Msg("nakama: Relay mode origin stream started")
 
@@ -646,7 +666,7 @@ func (wpm *WatchPartyManager) relayModeListenToPlayer() {
 					if newStream {
 						newStream = false
 
-						// this is a new stream, send the stream started payload
+						// relay origin started a new stream, send the payload to the relay host
 						_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginStreamStarted, &WatchPartyRelayModeOriginStreamStartedPayload{
 							Filename:            event.Filename,
 							Filepath:            event.Filepath,

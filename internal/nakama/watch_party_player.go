@@ -265,8 +265,7 @@ func fromVideoCoreStatus(event *videocore.VideoStatusEvent, state *videocore.Pla
 	}
 }
 
-// Subscribe subscribes to the playback status of whatever media player is currently in use.
-// It's a generic subscriber to both playbackmanager.PlaybackManager and videocore.VideoCore
+// Subscribe is a generic subscriber to both playbackmanager.PlaybackManager and videocore.VideoCore.
 func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscriber {
 	defer util.HandlePanicInModuleThen("nakama/Subscribe", func() {})
 	subscriber := &WatchPartyPlaybackSubscriber{
