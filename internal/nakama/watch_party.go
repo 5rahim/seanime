@@ -242,6 +242,7 @@ type (
 		LocalFilePath       string                            `json:"localFilePath,omitempty"`
 		TorrentStreamParams *torrentstream.StartStreamOptions `json:"torrentStreamParams,omitempty"`
 		DebridStreamParams  *debrid_client.StartStreamOptions `json:"debridStreamParams,omitempty"`
+		OnlinestreamParams  *videocore.OnlinestreamParams     `json:"onlinestreamParams,omitempty"`
 		Status              *WatchPartyPlaybackStatus         `json:"status"`
 		State               *WatchPartyPlaybackState          `json:"state"`
 	}

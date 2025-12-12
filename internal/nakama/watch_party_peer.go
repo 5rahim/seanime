@@ -657,6 +657,20 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 						streamStartedPayload.TorrentStreamParams, _ = wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
 					} else if event.StreamType == WatchPartyStreamTypeDebrid {
 						streamStartedPayload.DebridStreamParams, _ = wpm.manager.debridClientRepository.GetPreviousStreamOptions()
+					} else if event.StreamType == WatchPartyStreamTypeOnlinestream {
+						state, ok := wpm.manager.videoCore.GetPlaybackState()
+						if !ok {
+							wpm.logger.Error().Msg("nakama: Failed to get playback state for online stream")
+							currentSession.mu.Unlock()
+							continue
+						}
+						params := state.PlaybackInfo.OnlinestreamParams
+						if params == nil {
+							wpm.logger.Error().Msg("nakama: Online stream playback state missing params")
+							currentSession.mu.Unlock()
+							continue
+						}
+						streamStartedPayload.OnlinestreamParams = params
 					}
 
 				// 2. Stream status changed
@@ -674,6 +688,7 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 							LocalFilePath:       streamStartedPayload.LocalFilePath,
 							TorrentStreamParams: streamStartedPayload.TorrentStreamParams,
 							DebridStreamParams:  streamStartedPayload.DebridStreamParams,
+							OnlinestreamParams:  streamStartedPayload.OnlinestreamParams,
 							Status:              event.Status,
 							State:               event.State,
 						})

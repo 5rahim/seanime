@@ -12,6 +12,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -48,7 +49,9 @@ type (
 
 	// Subscriber listens to the player events
 	Subscriber struct {
-		eventCh chan VideoEvent
+		eventCh   chan VideoEvent
+		isClosed  atomic.Bool
+		closeOnce sync.Once
 	}
 
 	NewVideoCoreOptions struct {
@@ -125,6 +128,9 @@ func (vc *VideoCore) dispatchEvent(event VideoEvent) {
 	//	//vc.logger.Trace().Msgf("videocore: Dispatching status, playbackId: %s, clientId: %s", event.GetPlaybackId(), event.GetClientId())
 	//}
 	vc.subscribers.Range(func(id string, subscriber *Subscriber) bool {
+		if subscriber.isClosed.Load() {
+			return true
+		}
 		if event.IsCritical() {
 			select {
 			case subscriber.eventCh <- event:
@@ -194,9 +200,11 @@ func (vc *VideoCore) Subscribe(id string) *Subscriber {
 
 // Unsubscribe removes a subscriber from the player.
 func (vc *VideoCore) Unsubscribe(id string) {
-	if subscriber, ok := vc.subscribers.Get(id); ok {
-		close(subscriber.eventCh)
-		vc.subscribers.Delete(id)
+	if subscriber, ok := vc.subscribers.Pop(id); ok {
+		subscriber.isClosed.Store(true)
+		subscriber.closeOnce.Do(func() {
+			close(subscriber.eventCh)
+		})
 	}
 }
 
@@ -211,7 +219,8 @@ func (vc *VideoCore) RegisterEventCallback(callback func(event VideoEvent) bool)
 	cancel = func() {
 		vc.Unsubscribe(id)
 	}
-	go func(sub *Subscriber, cancel func()) {
+	go func(sub *Subscriber) {
+		defer vc.Unsubscribe(id)
 		for event := range sub.Events() {
 			cont := callback(event)
 			if !cont {
@@ -219,7 +228,7 @@ func (vc *VideoCore) RegisterEventCallback(callback func(event VideoEvent) bool)
 				return
 			}
 		}
-	}(sub, cancel)
+	}(sub)
 
 	return cancel
 }

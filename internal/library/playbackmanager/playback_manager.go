@@ -638,15 +638,19 @@ func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusS
 	return subscriber
 }
 
-func (pm *PlaybackManager) RegisterMediaPlayerCallback(callback func(event PlaybackEvent, cancelFunc func())) (cancel func()) {
+func (pm *PlaybackManager) RegisterMediaPlayerCallback(callback func(event PlaybackEvent) bool) (cancel func()) {
 	id := uuid.NewString()
 	playbackSubscriber := pm.SubscribeToPlaybackStatus(id)
 	cancel = func() {
 		pm.UnsubscribeFromPlaybackStatus(id)
 	}
 	go func(playbackSubscriber *PlaybackStatusSubscriber) {
+		defer pm.UnsubscribeFromPlaybackStatus(id)
 		for event := range playbackSubscriber.EventCh {
-			callback(event, cancel)
+			cont := callback(event)
+			if !cont {
+				return
+			}
 		}
 	}(playbackSubscriber)
 

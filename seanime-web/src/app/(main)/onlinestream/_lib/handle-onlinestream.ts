@@ -495,6 +495,9 @@ export function useNakamaOnlineStreamWatchParty() {
     const redirectToStream = useLatestFunction((params: OnlineStreamParams) => {
         router.push("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
     })
+    const replaceStream = useLatestFunction((params: OnlineStreamParams) => {
+        router.replace("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
+    })
 
     const startOnlineStreamWatchParty = useLatestFunction((params: VideoCore_OnlinestreamParams) => {
         if (nakamaStatus?.isHost) {
@@ -503,10 +506,7 @@ export function useNakamaOnlineStreamWatchParty() {
         }
         logger("ONLINESTREAM").info("Starting online stream watch party", params)
         toast.info("Starting online streaming watch party", { duration: 2000 })
-        if (searchParams.get("id") !== String(params.mediaId)) {
-            // Navigate to the onlinestream page
-            redirectToStream(params)
-        }
+        redirectToStream(params)
         React.startTransition(() => {
             setStreamToLoad(params)
         })

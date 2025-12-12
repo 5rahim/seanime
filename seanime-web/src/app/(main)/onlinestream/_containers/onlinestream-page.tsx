@@ -330,16 +330,22 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const episodeListLoading = isFetchingEpisodeList || isLoadingEpisodeList
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
 
+    const isWatchPartyPeer = React.useMemo(() => {
+        return !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
+    }, [nakamaStatus])
+
     /*
      * Set episode number on mount
      */
     const firstRenderRef = React.useRef(true)
     React.useEffect(() => {
         // Do not auto set the episode number if the user is in a watch party and is not the host
-        if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
+        if (isWatchPartyPeer) return
 
         // Do not auto set if we're loading from watch party
-        if (isLoadingFromWatchPartyRef.current) return
+        if (isLoadingFromWatchPartyRef.current) {
+            return
+        }
 
         if (!!media && firstRenderRef.current && !!episodes) {
             const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
@@ -353,17 +359,19 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             log.info("Setting episode number to", episodeNumberFromURL || episodeNumber || 1)
             firstRenderRef.current = false
         }
-    }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist, nakamaStatus])
+    }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist, isWatchPartyPeer])
 
     /*
      * Set episode number on update
      */
     React.useEffect(() => {
         // Do not auto set the episode number if the user is in a watch party and is not the host
-        if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
+        if (isWatchPartyPeer) return
 
         // Do not auto set if we're loading from watch party
-        if (isLoadingFromWatchPartyRef.current) return
+        if (isLoadingFromWatchPartyRef.current) {
+            return
+        }
 
         if (firstRenderRef.current) return
 
@@ -374,7 +382,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 log.info("Changing episode number to", episodeNumberFromURL)
             }
         }
-    }, [urlEpNumber, nakamaStatus])
+    }, [urlEpNumber, isWatchPartyPeer])
 
     function onCanPlay() {
         if (urlEpNumber) {

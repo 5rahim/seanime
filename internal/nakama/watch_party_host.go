@@ -825,8 +825,9 @@ func (wpm *WatchPartyManager) EnableRelayMode(peerId string) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // handleWatchPartyRelayModeOriginStreamStartedEvent is called when the relay origin sends us (the host) a new stream.
-// It starts the same stream as the origin on the host by using the same options as the origin.
+// If necessary, it starts the same stream as the origin on the host by using the same options as the origin.
 func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(payload *WatchPartyRelayModeOriginStreamStartedPayload) {
+	defer util.HandlePanicInModuleThen("nakama/handleWatchPartyRelayModeOriginStreamStartedEvent", func() {})
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
@@ -848,20 +849,32 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		// Do nothing, the file is already available
 	case WatchPartyStreamTypeTorrent:
 		// Start the torrent stream and wait for it to be ready
-		options := *event.TorrentStreamParams
-		options.PlaybackType = torrentstream.PlaybackTypeNoneAndAwait
-		err := wpm.manager.torrentstreamRepository.StartStream(context.Background(), &options)
-		if err != nil {
-			wpm.logger.Error().Err(err).Msg("nakama: Failed to start torrent stream")
+		if event.TorrentStreamParams != nil {
+			options := *event.TorrentStreamParams
+			options.PlaybackType = torrentstream.PlaybackTypeNoneAndAwait
+			err := wpm.manager.torrentstreamRepository.StartStream(context.Background(), &options)
+			if err != nil {
+				wpm.logger.Error().Err(err).Msg("nakama: Failed to start torrent stream")
+			}
+		} else {
+			wpm.logger.Warn().Msg("nakama: Received torrent stream started event without torrent stream params")
+			return
 		}
 	case WatchPartyStreamTypeDebrid:
 		// Start the debrid stream and wait for it to be ready
-		options := *event.DebridStreamParams
-		options.PlaybackType = debrid_client.PlaybackTypeNoneAndAwait
-		err := wpm.manager.debridClientRepository.StartStream(context.Background(), &options)
-		if err != nil {
-			wpm.logger.Error().Err(err).Msg("nakama: Failed to start debrid stream")
+		if event.DebridStreamParams != nil {
+			options := *event.DebridStreamParams
+			options.PlaybackType = debrid_client.PlaybackTypeNoneAndAwait
+			err := wpm.manager.debridClientRepository.StartStream(context.Background(), &options)
+			if err != nil {
+				wpm.logger.Error().Err(err).Msg("nakama: Failed to start debrid stream")
+			}
+		} else {
+			wpm.logger.Warn().Msg("nakama: Received debrid stream started event without debrid stream params")
+			return
 		}
+	case WatchPartyStreamTypeOnlinestream:
+		// Do nothing, sending the stream params directly to the peers is enough
 	}
 
 	localFilePath := ""
@@ -876,6 +889,7 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 		StreamType:          event.StreamType,
 		LocalFilePath:       localFilePath,
 		TorrentStreamParams: event.TorrentStreamParams,
+		OnlinestreamParams:  event.OnlinestreamParams,
 	}
 
 	// Video playback has started, send the media info to the peers

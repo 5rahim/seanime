@@ -269,13 +269,14 @@ func (r *Repository) sendStreamToExternalPlayer(opts *StartStreamOptions, comple
 			r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
 		}()
 
-		r.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancelFunc func()) {
+		r.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent) bool {
 			switch event.(type) {
 			case playbackmanager.StreamStartedEvent:
 				r.logger.Debug().Msg("torrentstream: Media player started playing")
 				r.wsEventManager.SendEvent(events.HideIndefiniteLoader, "torrentstream")
-				cancelFunc()
+				return false
 			}
+			return true
 		})
 
 	//

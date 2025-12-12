@@ -27,6 +27,8 @@ func (vc *VideoCore) FetchAndConvertToASS(url string) (string, error) {
 	ext := util.FileExt(url)
 
 	switch ext {
+	case ".ass":
+		from = mkvparser.SubtitleTypeASS
 	case ".ssa":
 		from = mkvparser.SubtitleTypeSSA
 	case ".srt":
@@ -45,6 +47,10 @@ func (vc *VideoCore) FetchAndConvertToASS(url string) (string, error) {
 
 	if from == mkvparser.SubtitleTypeUnknown {
 		return "", errors.New("failed to detect subtitle format from content")
+	}
+
+	if from == mkvparser.SubtitleTypeASS {
+		return payload, nil
 	}
 
 	return vc.ConvertToASS(payload)

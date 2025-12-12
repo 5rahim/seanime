@@ -3949,6 +3949,7 @@ export type Nakama_NakamaStatus = {
     isConnectedToHost: boolean
     hostConnectionStatus?: Nakama_HostConnectionStatus
     currentWatchPartySession?: Nakama_WatchPartySession
+    peerId: string
 }
 
 /**

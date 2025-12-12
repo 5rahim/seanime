@@ -63474,6 +63474,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -64583,7 +64592,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedStructName": "nakama.WatchPartyPlaybackStatus",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -64669,7 +64678,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedStructName": "nakama.WatchPartyPlaybackStatus",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -64857,13 +64866,24 @@
         "comments": []
       },
       {
+        "name": "OnlinestreamParams",
+        "jsonName": "onlinestreamParams",
+        "goType": "videocore.OnlinestreamParams",
+        "typescriptType": "VideoCore_OnlinestreamParams",
+        "usedTypescriptType": "VideoCore_OnlinestreamParams",
+        "usedStructName": "videocore.OnlinestreamParams",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Status",
         "jsonName": "status",
         "goType": "WatchPartyPlaybackStatus",
         "typescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedStructName": "nakama.WatchPartyPlaybackStatus",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -64874,7 +64894,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackState",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackState",
         "usedStructName": "nakama.WatchPartyPlaybackState",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -64897,7 +64917,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedStructName": "nakama.WatchPartyPlaybackStatus",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -64908,7 +64928,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackState",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackState",
         "usedStructName": "nakama.WatchPartyPlaybackState",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -64987,6 +65007,17 @@
       {
         "name": "current",
         "jsonName": "current",
+        "goType": "atomic.String",
+        "typescriptType": "String",
+        "usedTypescriptType": "String",
+        "usedStructName": "atomic.String",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "defaultPlayer",
+        "jsonName": "defaultPlayer",
         "goType": "atomic.String",
         "typescriptType": "String",
         "usedTypescriptType": "String",
@@ -65118,7 +65149,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackStatus",
         "usedStructName": "nakama.WatchPartyPlaybackStatus",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -65129,7 +65160,7 @@
         "typescriptType": "Nakama_WatchPartyPlaybackState",
         "usedTypescriptType": "Nakama_WatchPartyPlaybackState",
         "usedStructName": "nakama.WatchPartyPlaybackState",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       },

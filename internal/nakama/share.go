@@ -207,12 +207,13 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 			return err
 		}
 
-		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
+		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent) bool {
 			switch event.(type) {
 			case playbackmanager.StreamStartedEvent, playbackmanager.StreamStoppedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-				cancel()
+				return false
 			}
+			return true
 		})
 	case "nativeplayer":
 		// Native Player
@@ -284,12 +285,13 @@ func (m *Manager) PlayHostAnimeStream(streamType WatchPartyStreamType, userAgent
 			return err
 		}
 
-		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent, cancel func()) {
+		m.playbackManager.RegisterMediaPlayerCallback(func(event playbackmanager.PlaybackEvent) bool {
 			switch event.(type) {
 			case playbackmanager.StreamStartedEvent, playbackmanager.StreamStoppedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-				cancel()
+				return false
 			}
+			return true
 		})
 	} else {
 		// Native Player
