@@ -1526,6 +1526,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/nakama/watch-party/leave",
         },
+        /**
+         *  @description
+         *  Route sends a chat message in a watch party.
+         *  This sends a chat message to all participants in the active watch party session.
+         */
+        NakamaSendChatMessage: {
+            key: "NAKAMA-nakama-send-chat-message",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/chat",
+        },
     },
     ONLINESTREAM: {
         /**

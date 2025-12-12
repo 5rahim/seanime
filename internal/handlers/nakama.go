@@ -798,3 +798,31 @@ func (h *Handler) HandleNakamaLeaveWatchParty(c echo.Context) error {
 
 	return h.RespondWithData(c, true)
 }
+
+// HandleNakamaSendChatMessage
+//
+//	@summary sends a chat message in a watch party.
+//	@desc This sends a chat message to all participants in the active watch party session.
+//	@route /api/v1/nakama/watch-party/chat [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaSendChatMessage(c echo.Context) error {
+	type body struct {
+		Message string `json:"message"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if b.Message == "" {
+		return h.RespondWithError(c, errors.New("message cannot be empty"))
+	}
+
+	err := h.App.NakamaManager.GetWatchPartyManager().SendChatMessage(b.Message)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}

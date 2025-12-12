@@ -3,6 +3,7 @@ import {
     NakamaCreateWatchParty_Variables,
     NakamaJoinWatchParty_Variables,
     NakamaPlayVideo_Variables,
+    NakamaSendChatMessage_Variables,
     SendNakamaMessage_Variables,
 } from "../generated/endpoint.types"
 import { API_ENDPOINTS } from "../generated/endpoints"
@@ -89,6 +90,17 @@ export function useNakamaLeaveWatchParty() {
         endpoint: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.endpoint,
         method: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.methods[0],
         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.key],
+        onSuccess: async () => {
+
+        },
+    })
+}
+
+export function useNakamaSendChatMessage() {
+    return useServerMutation<boolean, NakamaSendChatMessage_Variables>({
+        endpoint: API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.endpoint,
+        method: API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.methods[0],
+        mutationKey: [API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.key],
         onSuccess: async () => {
 
         },

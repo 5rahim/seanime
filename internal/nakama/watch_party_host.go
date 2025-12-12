@@ -7,7 +7,6 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/videocore"
 	"strings"
@@ -848,18 +847,7 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginStreamStartedEvent(
 	case WatchPartyStreamTypeFile:
 		// Do nothing, the file is already available
 	case WatchPartyStreamTypeTorrent:
-		// Start the torrent stream and wait for it to be ready
-		if event.TorrentStreamParams != nil {
-			options := *event.TorrentStreamParams
-			options.PlaybackType = torrentstream.PlaybackTypeNoneAndAwait
-			err := wpm.manager.torrentstreamRepository.StartStream(context.Background(), &options)
-			if err != nil {
-				wpm.logger.Error().Err(err).Msg("nakama: Failed to start torrent stream")
-			}
-		} else {
-			wpm.logger.Warn().Msg("nakama: Received torrent stream started event without torrent stream params")
-			return
-		}
+		// Do nothing, peers start their own stream
 	case WatchPartyStreamTypeDebrid:
 		// Start the debrid stream and wait for it to be ready
 		if event.DebridStreamParams != nil {
@@ -967,4 +955,32 @@ func (wpm *WatchPartyManager) handleWatchPartyRelayModeOriginPlaybackStoppedEven
 
 	wpm.broadcastSessionStateToPeers()
 	wpm.sendSessionStateToClient()
+}
+
+// handleWatchPartyChatMessageEvent handles chat messages in watch party
+func (wpm *WatchPartyManager) handleWatchPartyChatMessageEvent(payload *WatchPartyChatMessagePayload) {
+	wpm.mu.RLock()
+	session, ok := wpm.currentSession.Get()
+	wpm.mu.RUnlock()
+
+	if !ok {
+		return
+	}
+
+	session.mu.RLock()
+	_, isParticipant := session.Participants[payload.PeerId]
+	session.mu.RUnlock()
+
+	if !isParticipant {
+		wpm.logger.Warn().Str("peerId", payload.PeerId).Msg("nakama: Received chat message from non-participant")
+		return
+	}
+
+	// If we're the host, broadcast the chat message to all participants (including sender)
+	if wpm.manager.IsHost() {
+		_ = wpm.manager.SendMessage(MessageTypeWatchPartyChatMessage, payload)
+	}
+
+	// Always send to local client (both host and peer receive their own messages)
+	wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyChatMessage, payload)
 }

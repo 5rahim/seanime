@@ -97,4 +97,5 @@ const (
 	NakamaWatchPartyState                                 = "nakama-watch-party-state"
 	NakamaWatchPartyEnableRelayMode                       = "nakama-watch-party-enable-relay-mode"
 	NakamaWatchPartyRelayModeToggleShareLibraryWithOrigin = "nakama-watch-party-relay-mode-toggle-share-library-with-origin"
+	NakamaWatchPartyChatMessage                           = "nakama-watch-party-chat-message"
 )

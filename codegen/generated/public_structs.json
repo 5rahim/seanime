@@ -63474,15 +63474,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "PeerId",
-        "jsonName": "peerId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": [
@@ -64940,6 +64931,74 @@
         "required": true,
         "public": true,
         "comments": []
+      }
+    ],
+    "comments": [
+      " Events"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/watch_party.go",
+    "filename": "watch_party.go",
+    "name": "WatchPartyChatMessagePayload",
+    "formattedName": "Nakama_WatchPartyChatMessagePayload",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "PeerId",
+        "jsonName": "peerId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " PeerID of the sender"
+        ]
+      },
+      {
+        "name": "Username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Display name of sender"
+        ]
+      },
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Chat message content"
+        ]
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": [
+          " When the message was sent"
+        ]
+      },
+      {
+        "name": "MessageId",
+        "jsonName": "messageId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Unique message ID"
+        ]
       }
     ],
     "comments": [
@@ -85750,6 +85809,28 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isClosed",
+        "jsonName": "isClosed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
         "public": false,
         "comments": []
       }

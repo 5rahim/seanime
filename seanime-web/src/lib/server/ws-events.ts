@@ -62,6 +62,7 @@ export const enum WSEvents {
     NAKAMA_WATCH_PARTY_PLAYBACK_STATUS = "nakama-watch-party-playback-status",
     NAKAMA_WATCH_PARTY_ENABLE_RELAY_MODE = "nakama-watch-party-enable-relay-mode",
     NAKAMA_WATCH_PARTY_RELAY_MODE_TOGGLE_SHARE_LIBRARY_WITH_ORIGIN = "nakama-watch-party-relay-mode-toggle-share-library-with-origin",
+    NAKAMA_WATCH_PARTY_CHAT_MESSAGE = "nakama-watch-party-chat-message",
     SHOW_INDEFINITE_LOADER = "show-indefinite-loader",
     HIDE_INDEFINITE_LOADER = "hide-indefinite-loader",
     NAKAMA_ONLINE_STREAM_EVENT = "nakama-online-stream-event",

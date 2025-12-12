@@ -16,9 +16,9 @@ import type {
     Anime_PlaylistEpisode,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
-    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     HibikeTorrent_BatchEpisodeFiles,
     LibraryExplorer_SuperUpdateFileOptions,
@@ -1449,6 +1449,17 @@ export type NakamaJoinWatchParty_Variables = {
     clientId: string
 }
 
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/watch-party/chat
+ * @description
+ * Route sends a chat message in a watch party.
+ */
+export type NakamaSendChatMessage_Variables = {
+    message: string
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1869,7 +1880,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string

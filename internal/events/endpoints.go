@@ -156,6 +156,7 @@ const (
 	NakamaPlayVideoEndpoint                            = "NAKAMA-nakama-play-video"
 	NakamaReconnectToHostEndpoint                      = "NAKAMA-nakama-reconnect-to-host"
 	NakamaRemoveStaleConnectionsEndpoint               = "NAKAMA-nakama-remove-stale-connections"
+	NakamaSendChatMessageEndpoint                      = "NAKAMA-nakama-send-chat-message"
 	NakamaWebSocketEndpoint                            = "NAKAMA-nakama-web-socket"
 	OnlineStreamEmptyCacheEndpoint                     = "ONLINESTREAM-online-stream-empty-cache"
 	OnlinestreamManualMappingEndpoint                  = "ONLINESTREAM-onlinestream-manual-mapping"

@@ -3,7 +3,10 @@ package nakama
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	debrid_client "seanime/internal/debrid/client"
+	"seanime/internal/events"
 	"seanime/internal/torrentstream"
 	"seanime/internal/videocore"
 	"sync"
@@ -31,6 +34,8 @@ const (
 	MessageTypeWatchPartyRelayModeOriginStreamStarted   = "watch_party_relay_mode_origin_stream_started"   // Relay origin sends is starting a stream, the host will start it too
 	MessageTypeWatchPartyRelayModeOriginPlaybackStatus  = "watch_party_relay_mode_origin_playback_status"  // Relay origin sends playback status to relay server
 	MessageTypeWatchPartyRelayModeOriginPlaybackStopped = "watch_party_relay_mode_origin_playback_stopped" // Relay origin sends playback stopped to relay server
+	// Chat
+	MessageTypeWatchPartyChatMessage = "watch_party_chat_message" // Chat message sent by any participant
 )
 
 const (
@@ -252,6 +257,14 @@ type (
 		State     *WatchPartyPlaybackState  `json:"state"`
 		Timestamp int64                     `json:"timestamp"`
 	}
+
+	WatchPartyChatMessagePayload struct {
+		PeerId    string    `json:"peerId"`
+		Username  string    `json:"username"`
+		Message   string    `json:"message"`
+		Timestamp time.Time `json:"timestamp"`
+		MessageId string    `json:"messageId"` // Unique id
+	}
 )
 
 func NewWatchPartyManager(manager *Manager) *WatchPartyManager {
@@ -421,6 +434,14 @@ func (wpm *WatchPartyManager) handleMessage(message *Message, senderID string) e
 	case MessageTypeWatchPartyRelayModeOriginPlaybackStopped:
 		wpm.logger.Debug().Msg("nakama: Received relay mode origin playback stopped message")
 		wpm.handleWatchPartyRelayModeOriginPlaybackStoppedEvent()
+
+	case MessageTypeWatchPartyChatMessage:
+		var payload WatchPartyChatMessagePayload
+		err := json.Unmarshal(marshaledPayload, &payload)
+		if err != nil {
+			return err
+		}
+		wpm.handleWatchPartyChatMessageEvent(&payload)
 	}
 
 	return nil
@@ -436,4 +457,56 @@ func (mi *WatchPartySessionMediaInfo) Equals(other *WatchPartySessionMediaInfo) 
 		mi.AniDBEpisode == other.AniDBEpisode &&
 		mi.StreamType == other.StreamType &&
 		mi.LocalFilePath == other.LocalFilePath
+}
+
+// SendChatMessage sends a chat message to all participants in the watch party
+func (wpm *WatchPartyManager) SendChatMessage(message string) error {
+	wpm.mu.RLock()
+	session, ok := wpm.currentSession.Get()
+	wpm.mu.RUnlock()
+
+	if !ok {
+		return errors.New("no active watch party session")
+	}
+
+	// Get current participant info
+	var peerId, username string
+	if wpm.manager.IsHost() {
+		peerId = "host"
+		session.mu.RLock()
+		if host, exists := session.Participants["host"]; exists {
+			username = host.Username
+		}
+		session.mu.RUnlock()
+	} else {
+		hostConn, ok := wpm.manager.GetHostConnection()
+		if !ok {
+			return errors.New("no host connection")
+		}
+		peerId = hostConn.PeerId
+		username = wpm.manager.username
+	}
+
+	// Create chat message payload
+	payload := WatchPartyChatMessagePayload{
+		PeerId:    peerId,
+		Username:  username,
+		Message:   message,
+		Timestamp: time.Now(),
+		MessageId: fmt.Sprintf("%s-%d", peerId, time.Now().UnixNano()),
+	}
+
+	// Send the message
+	if wpm.manager.IsHost() {
+		// Host broadcasts to all peers
+		_ = wpm.manager.SendMessage(MessageTypeWatchPartyChatMessage, payload)
+		// Host also triggers local event for self since SendMessage doesn't send to self
+		wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyChatMessage, &payload)
+	} else {
+		// Peer sends to host, host will broadcast it back to all peers including sender
+		_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyChatMessage, payload)
+		// Don't trigger local event here - we'll receive it via broadcast from host
+	}
+
+	return nil
 }

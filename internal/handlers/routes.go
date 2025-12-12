@@ -543,6 +543,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
 	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
 	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
+	v1Nakama.POST("/watch-party/chat", h.HandleNakamaSendChatMessage)
 
 	//
 	// Custom Source
