@@ -3,7 +3,6 @@ import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSo
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
-import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
@@ -13,14 +12,13 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { logger } from "@/lib/helpers/debug"
+import { logger, useLatestFunction } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
-import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
 export function useOnlinestreamEpisodeList(mId: number) {
@@ -494,47 +492,48 @@ export function useNakamaOnlineStreamWatchParty() {
     const router = useRouter()
     const nakamaStatus = useNakamaStatus()
 
-    const { sendMessage } = useWebsocketSender()
+    const redirectToStream = useLatestFunction((params: OnlineStreamParams) => {
+        router.push("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
+    })
 
+    const startOnlineStreamWatchParty = useLatestFunction((params: VideoCore_OnlinestreamParams) => {
+        if (nakamaStatus?.isHost) {
+            logger("ONLINESTREAM").info("Start online stream event sent to peers", params)
+            return
+        }
+        logger("ONLINESTREAM").info("Starting online stream watch party", params)
+        toast.info("Starting online streaming watch party", { duration: 2000 })
+        if (searchParams.get("id") !== String(params.mediaId)) {
+            // Navigate to the onlinestream page
+            redirectToStream(params)
+        }
+        React.startTransition(() => {
+            setStreamToLoad(params)
+        })
+    })
+
+    const onLoadedStream = useLatestFunction(() => {
+        setStreamToLoad(null)
+    })
+
+    const removeParamsFromUrl = useLatestFunction(() => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.delete("tab")
+        params.delete("provider")
+        params.delete("episodeNumber")
+        params.delete("server")
+        params.delete("quality")
+        params.delete("dubbed")
+        const newUrl = pathname + (params.toString() ? `?${params.toString()}` : "")
+        router.replace(newUrl, { scroll: false })
+    })
 
     return {
-        // Host
-        hostNotifyStreamStarted: (params: OnlineStreamParams) => {
-            if (!nakamaStatus?.isHost) {
-                logger("ONLINESTREAM").warning("hostNotifyStreamStarted called, but not a host")
-                return
-            }
-            sendMessage({
-                type: "nakama",
-                payload: {
-                    type: "online-stream-started",
-                    payload: {
-                        mediaId: params.mediaId,
-                        provider: params.provider,
-                        episodeNumber: params.episodeNumber,
-                        server: params.server,
-                        quality: params.quality,
-                        dubbed: params.dubbed,
-                    },
-                },
-            })
-        },
         // Peers
         streamToLoad,
-        onLoadedStream: () => {
-            setStreamToLoad(null)
-        },
-        startOnlineStreamWatchParty(params: VideoCore_OnlinestreamParams) {
-            if (nakamaStatus?.isHost) {
-                logger("ONLINESTREAM").info("Start online stream event sent to peers", params)
-                return
-            }
-            logger("ONLINESTREAM").info("Starting online stream", params)
-            setStreamToLoad(params)
-            if (pathname !== "/entry" || searchParams.get("id") !== String(params.mediaId)) {
-                // Navigate to the onlinestream page
-                router.push("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
-            }
-        },
+        redirectToStream,
+        onLoadedStream,
+        startOnlineStreamWatchParty,
+        removeParamsFromUrl,
     }
 }

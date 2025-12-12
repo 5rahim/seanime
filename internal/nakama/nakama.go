@@ -254,14 +254,15 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				}
 
 				// Store the client's UseDenshiPlayer setting
+				// This will be used to know which player to use when starting a stream
 				m.clientMu.Lock()
 				m.useDenshiPlayer = payload.UseDenshiPlayer
-				if m.useDenshiPlayer {
-					m.genericPlayer.SetType(WatchPartyVideoCore)
-				} else {
-					m.genericPlayer.SetType(WatchPartyPlaybackManager)
-				}
 				m.clientMu.Unlock()
+				if m.useDenshiPlayer {
+					m.genericPlayer.SetDefaultType(WatchPartyVideoCore)
+				} else {
+					m.genericPlayer.SetDefaultType(WatchPartyPlaybackManager)
+				}
 
 				currSession, _ := m.GetWatchPartyManager().GetCurrentSession()
 				status := &NakamaStatus{
@@ -303,7 +304,7 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 	// If the host password has changed, stop host service
 	// This will cause a restart of the host service
 	disconnectAsHost := false
-	if m.settings != nil && m.settings.HostPassword != settings.HostPassword {
+	if m.settings != nil && (m.settings.HostPassword != settings.HostPassword || !m.settings.IsHost) {
 		disconnectAsHost = true
 		m.stopHostServices()
 	}
@@ -312,11 +313,9 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 	m.username = cmp.Or(settings.Username, "Peer_"+util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789"))
 	m.logger.Debug().Bool("isHost", settings.IsHost).Str("username", m.username).Str("remoteURL", settings.RemoteServerURL).Msg("nakama: Settings updated")
 
-	if previousSettings == nil || previousSettings.IsHost != settings.IsHost || previousSettings.Enabled != settings.Enabled || disconnectAsHost {
-		// Determine if we should stop host services
-		shouldStopHost := m.IsHost() && (!settings.Enabled || // Nakama disabled
-			!settings.IsHost || // Switching to peer mode
-			disconnectAsHost) // Password changed (requires restart)
+	if previousSettings == nil || (previousSettings.IsHost != settings.IsHost) || previousSettings.Enabled != settings.Enabled || disconnectAsHost {
+		// Stop host if Nakama is disabled, switching to peer, or password changed
+		shouldStopHost := m.IsHost() && (!settings.Enabled || !settings.IsHost || disconnectAsHost)
 
 		// Determine if we should start host services
 		shouldStartHost := settings.IsHost && settings.Enabled
@@ -330,14 +329,15 @@ func (m *Manager) SetSettings(settings *models.NakamaSettings) {
 		}
 	}
 
-	if previousSettings == nil || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.RemoteServerPassword != settings.RemoteServerPassword || previousSettings.Enabled != settings.Enabled {
+	if previousSettings == nil || previousSettings.IsHost != settings.IsHost || previousSettings.RemoteServerURL != settings.RemoteServerURL || previousSettings.RemoteServerPassword != settings.RemoteServerPassword || previousSettings.Enabled != settings.Enabled {
 		// Determine if we should disconnect from current host
 		shouldDisconnect := m.IsConnectedToHost() && (!settings.Enabled || // Nakama disabled
 			settings.IsHost || // Switching to host mode
 			settings.RemoteServerURL == "" || // No remote URL
 			settings.RemoteServerPassword == "" || // No password
 			(previousSettings != nil && previousSettings.RemoteServerURL != settings.RemoteServerURL) || // URL changed
-			(previousSettings != nil && previousSettings.RemoteServerPassword != settings.RemoteServerPassword)) // Password changed
+			(previousSettings != nil && previousSettings.RemoteServerPassword != settings.RemoteServerPassword)) || // Password changed
+			(previousSettings != nil && previousSettings.IsHost != settings.IsHost && settings.IsHost)
 
 		// Determine if we should connect to a host
 		shouldConnect := !settings.IsHost &&

@@ -28,7 +28,6 @@ import {
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
-import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { Modal, ModalProps } from "@/components/ui/modal"
 import { Popover, PopoverProps } from "@/components/ui/popover"
 import { Select } from "@/components/ui/select"
@@ -102,32 +101,44 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
-    const { streamToLoad, onLoadedStream } = useNakamaOnlineStreamWatchParty()
-    useUpdateEffect(() => {
-        if (!streamToLoad) return
+    const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
+    const isLoadingFromWatchPartyRef = React.useRef(false)
+
+    React.useLayoutEffect(() => {
+        if (!streamToLoad || !providerExtensionOptions?.length) return
         log.info("Watch party stream to load", { streamToLoad })
+        if (streamToLoad.mediaId !== mediaId) {
+            // redirectToStream(streamToLoad)
+            return
+        }
+
+        // Check if we have the provider
+        if (!providerExtensionOptions.some(p => p.value === streamToLoad.provider)) {
+            log.warning("Provider not found in options", { providerExtensionOptions, provider: streamToLoad.provider })
+            toast.error("Watch Party: The provider used by the host is not installed.")
+            return
+        }
+
+        // Set flag to prevent other effects from overriding
+        isLoadingFromWatchPartyRef.current = true
+
         setUrl(null)
-        React.startTransition(() => {
-            // Check if we have the provider
-            if (!providerExtensionOptions.some(p => p.value === streamToLoad.provider)) {
-                log.warning("Provider not found in options", { providerExtensionOptions, provider: streamToLoad.provider })
-                toast.error("Watch Party: The provider used by the host is not installed.")
-                return
-            }
 
-            setProvider(streamToLoad.provider)
-            setDubbed(streamToLoad.dubbed)
-            setServer(streamToLoad.server)
-            setQuality(streamToLoad.quality)
+        // Remove query params from the URL
+        removeParamsFromUrl()
 
-            setTimeout(() => {
-                setSelectedEpisodeNumber(streamToLoad.episodeNumber)
-            }, 2000)
+        setProvider(streamToLoad.provider)
+        setDubbed(streamToLoad.dubbed)
+        setServer(streamToLoad.server)
+        setQuality(streamToLoad.quality)
+        setSelectedEpisodeNumber(streamToLoad.episodeNumber)
 
-            onLoadedStream()
-        })
-    }, [streamToLoad])
+        onLoadedStream()
 
+        setTimeout(() => {
+            isLoadingFromWatchPartyRef.current = false
+        }, 1000)
+    }, [streamToLoad, providerExtensionOptions])
 
     // get the list of episodes from the provider
     const {
@@ -279,10 +290,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const { currentPlaylist, playEpisode: playPlaylistEpisode, nextPlaylistEpisode, prevPlaylistEpisode } = usePlaylistManager()
 
-    function handleChangeEpisodeNumber(episodeNumber: number) {
-        setSelectedEpisodeNumber(episodeNumber)
-    }
-
     function savePreviousStateThen(cb: () => void) {
         setPreviousState({
             currentTime: playerRef.current?.currentTime ?? 0,
@@ -331,6 +338,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         // Do not auto set the episode number if the user is in a watch party and is not the host
         if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
 
+        // Do not auto set if we're loading from watch party
+        if (isLoadingFromWatchPartyRef.current) return
+
         if (!!media && firstRenderRef.current && !!episodes) {
             const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = animeEntry?.listData?.progress ?? 0
@@ -339,7 +349,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             if (episodeToWatch) {
                 episodeNumber = episodeToWatch.number
             }
-            handleChangeEpisodeNumber(episodeNumberFromURL || episodeNumber || 1)
+            setSelectedEpisodeNumber(episodeNumberFromURL || episodeNumber || 1)
             log.info("Setting episode number to", episodeNumberFromURL || episodeNumber || 1)
             firstRenderRef.current = false
         }
@@ -352,12 +362,15 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         // Do not auto set the episode number if the user is in a watch party and is not the host
         if (!!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost) return
 
+        // Do not auto set if we're loading from watch party
+        if (isLoadingFromWatchPartyRef.current) return
+
         if (firstRenderRef.current) return
 
         if (!!media && !!episodes) {
             const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
             if (episodeNumberFromURL) {
-                handleChangeEpisodeNumber(episodeNumberFromURL)
+                setSelectedEpisodeNumber(episodeNumberFromURL)
                 log.info("Changing episode number to", episodeNumberFromURL)
             }
         }
@@ -377,7 +390,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
         // check if the episode exists
         if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
-            handleChangeEpisodeNumber(currentEpisodeNumber + 1)
+            setSelectedEpisodeNumber(currentEpisodeNumber + 1)
         }
     })
 
@@ -390,7 +403,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         if (currentEpisodeNumber > 1) {
             // check if the episode exists
             if (episodes?.find(e => e.number === currentEpisodeNumber - 1)) {
-                handleChangeEpisodeNumber(currentEpisodeNumber - 1)
+                setSelectedEpisodeNumber(currentEpisodeNumber - 1)
             }
         }
     })
@@ -661,7 +674,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                         <EpisodeGridItem
                                             key={idx + (episode.title || "") + episode.number}
                                             id={`episode-${String(episode.number)}`}
-                                            onClick={() => handleChangeEpisodeNumber(episode.number)}
+                                            onClick={() => setSelectedEpisodeNumber(episode.number)}
                                             title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
                                             episodeTitle={episode.title}
                                             description={episode.description ?? undefined}
@@ -698,7 +711,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     isFiller: ep.isFiller,
                                 })) || []}
                                 currentEpisodeNumber={currentEpisodeNumber}
-                                onEpisodeSelect={handleChangeEpisodeNumber}
+                                onEpisodeSelect={setSelectedEpisodeNumber}
                                 progress={progress}
                                 disabled={episodeLoading}
                                 getEpisodeId={(ep) => `episode-${ep.number}`}

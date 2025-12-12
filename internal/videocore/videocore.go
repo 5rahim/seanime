@@ -205,17 +205,21 @@ func (s *Subscriber) Events() <-chan VideoEvent {
 	return s.eventCh
 }
 
-func (vc *VideoCore) RegisterEventCallback(callback func(event VideoEvent, cancelFunc func())) (cancel func()) {
+func (vc *VideoCore) RegisterEventCallback(callback func(event VideoEvent) bool) (cancel func()) {
 	id := uuid.NewString()
 	sub := vc.Subscribe(id)
 	cancel = func() {
 		vc.Unsubscribe(id)
 	}
-	go func(sub *Subscriber) {
+	go func(sub *Subscriber, cancel func()) {
 		for event := range sub.Events() {
-			callback(event, cancel)
+			cont := callback(event)
+			if !cont {
+				cancel()
+				return
+			}
 		}
-	}(sub)
+	}(sub, cancel)
 
 	return cancel
 }
@@ -532,14 +536,14 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 		return VideoStatusEvent{}, false
 	}
 	done := make(chan struct{})
-	vc.RegisterEventCallback(func(e VideoEvent, cancel func()) {
+	vc.RegisterEventCallback(func(e VideoEvent) bool {
 		switch event := e.(type) {
 		case *VideoStatusEvent:
 			ret = *event
-			cancel()
 			close(done)
-			return
+			return false // stop
 		}
+		return true // keep listening
 	})
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetStatus), nil)
 	<-done

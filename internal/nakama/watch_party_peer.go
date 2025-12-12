@@ -57,13 +57,14 @@ func (wpm *WatchPartyManager) JoinWatchParty(clientId string) error {
 	// Send websocket event to update the UI
 	wpm.sendSessionStateToClient()
 
-	// Start listening to playback manager
-	//wpm.relayModeListenToPlaybackManager() // TODO: Replace
+	// Start listening to players for relay mode
+	wpm.relayModeListenToPlayer()
 
 	return nil
 }
 
 // startStatusReporting starts sending status updates to the host every 2 seconds
+// When a watch party is started, it'll tell the host that the peer is ready
 func (wpm *WatchPartyManager) startStatusReporting() {
 	if wpm.manager.IsHost() {
 		return
@@ -377,6 +378,8 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 
 		// Reset buffering detection state for new media
 		wpm.resetBufferingState()
+		// Reset the player params
+		wpm.manager.genericPlayer.Reset()
 
 		// Fetch the media info
 		media, err := wpm.manager.platformRef.Get().GetAnime(context.Background(), payload.Session.CurrentMediaInfo.MediaId)
@@ -420,6 +423,8 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to play media: Host did not return onlinestream params")
 				return
 			}
+			// Since it's an online stream force the current player to VideoCore
+			wpm.manager.genericPlayer.SetType(WatchPartyVideoCore)
 			// Start the onlinestream using the params
 			wpm.manager.videoCore.StartOnlinestreamWatchParty(payload.Session.CurrentMediaInfo.OnlinestreamParams)
 		}
@@ -569,11 +574,10 @@ func (wpm *WatchPartyManager) handleWatchPartyStoppedEvent() {
 // Relay mode
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// relayModeListenToPlaybackManager starts listening to the playback manager when in relay mode
-// TODO Refactor
-func (wpm *WatchPartyManager) relayModeListenToPlaybackManager() {
+// relayModeListenToPlayer starts listening to players when in relay mode
+func (wpm *WatchPartyManager) relayModeListenToPlayer() {
 	go func() {
-		defer util.HandlePanicInModuleThen("nakama/relayModeListenToPlaybackManager", func() {})
+		defer util.HandlePanicInModuleThen("nakama/relayModeListenToPlayer", func() {})
 
 		wpm.logger.Debug().Msg("nakama: Started listening to playback manager for relay mode")
 

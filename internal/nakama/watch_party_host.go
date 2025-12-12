@@ -570,13 +570,13 @@ func (wpm *WatchPartyManager) handleWatchPartyPeerStatusEvent(payload *WatchPart
 		participant.LastSeen = payload.Timestamp
 		participant.IsReady = !payload.IsBuffering && payload.BufferHealth > 0.1 // Consider ready if not buffering and has some buffer
 
-		wpm.logger.Debug().
-			Str("peerId", payload.PeerId).
-			Bool("isBuffering", payload.IsBuffering).
-			Float64("bufferHealth", payload.BufferHealth).
-			Bool("useDenshiPlayer", payload.UseDenshiPlayer).
-			Bool("isReady", participant.IsReady).
-			Msg("nakama: Updated peer status")
+		//wpm.logger.Debug().
+		//	Str("peerId", payload.PeerId).
+		//	Bool("isBuffering", payload.IsBuffering).
+		//	Float64("bufferHealth", payload.BufferHealth).
+		//	Bool("useDenshiPlayer", payload.UseDenshiPlayer).
+		//	Bool("isReady", participant.IsReady).
+		//	Msg("nakama: Updated peer status")
 	}
 	wpm.mu.Unlock()
 

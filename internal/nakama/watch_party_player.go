@@ -22,30 +22,57 @@ const (
 // WatchPartyGenericPlayer is a player-agnostic interface for controlling
 // both the playbackmanager.PlaybackManager (system player) and the videocore.VideoCore (videocore.NativePlayer or videocore.WebPlayer).
 type WatchPartyGenericPlayer struct {
-	manager     *Manager
-	current     atomic.String
-	subscribers *result.Map[string, *WatchPartyPlaybackSubscriber]
+	manager       *Manager
+	current       atomic.String
+	defaultPlayer atomic.String
+	subscribers   *result.Map[string, *WatchPartyPlaybackSubscriber]
 }
 
 func NewWatchPartyGenericPlayer(manager *Manager) *WatchPartyGenericPlayer {
 	ret := &WatchPartyGenericPlayer{
 		manager:     manager,
-		current:     atomic.String{},
 		subscribers: result.NewMap[string, *WatchPartyPlaybackSubscriber](),
 	}
+	ret.defaultPlayer.Store(string(WatchPartyPlaybackManager))
 	ret.current.Store(string(WatchPartyPlaybackManager))
 	return ret
 }
 
+// SetType sets the current player type.
 func (m *WatchPartyGenericPlayer) SetType(t WatchPartyGenericPlayerType) {
 	m.current.Store(string(t))
+}
+
+// SetDefaultType sets the default player type.
+// It is called periodically in NewManager to update the default player type (Video Playback setting) used by the client.
+func (m *WatchPartyGenericPlayer) SetDefaultType(t WatchPartyGenericPlayerType) {
+	m.defaultPlayer.Store(string(t))
+}
+
+func (m *WatchPartyGenericPlayer) getCurrentType() WatchPartyGenericPlayerType {
+	if m.current.Load() != "" {
+		return WatchPartyGenericPlayerType(m.current.Load())
+	}
+	return WatchPartyGenericPlayerType(m.defaultPlayer.Load())
+}
+
+func (m *WatchPartyGenericPlayer) isPlaybackManager() bool {
+	return m.getCurrentType() == WatchPartyPlaybackManager
+}
+
+func (m *WatchPartyGenericPlayer) isVideoCore() bool {
+	return m.getCurrentType() == WatchPartyVideoCore
+}
+
+func (m *WatchPartyGenericPlayer) Reset() {
+	m.current.Store("")
 }
 
 // PullStatus returns the current playback status of whatever media player is currently in use.
 // For playbackmanager.PlaybackManager it'll fetch the status, for videocore.VideoCore it'll return the last known status.
 func (m *WatchPartyGenericPlayer) PullStatus() (*WatchPartyPlaybackStatus, bool) {
 	// Playback manager
-	if m.current.Load() == string(WatchPartyPlaybackManager) {
+	if m.isPlaybackManager() {
 		status, ok := m.manager.playbackManager.PullStatus()
 		if !ok {
 			return nil, false
@@ -72,7 +99,7 @@ func (m *WatchPartyGenericPlayer) PullStatus() (*WatchPartyPlaybackStatus, bool)
 }
 
 func (m *WatchPartyGenericPlayer) Pause() {
-	if m.current.Load() == string(WatchPartyPlaybackManager) {
+	if m.isPlaybackManager() {
 		_ = m.manager.playbackManager.Pause()
 		return
 	}
@@ -80,7 +107,7 @@ func (m *WatchPartyGenericPlayer) Pause() {
 }
 
 func (m *WatchPartyGenericPlayer) Resume() {
-	if m.current.Load() == string(WatchPartyPlaybackManager) {
+	if m.isPlaybackManager() {
 		_ = m.manager.playbackManager.Resume()
 		return
 	}
@@ -88,7 +115,8 @@ func (m *WatchPartyGenericPlayer) Resume() {
 }
 
 func (m *WatchPartyGenericPlayer) Cancel() {
-	if m.current.Load() == string(WatchPartyPlaybackManager) {
+	defer m.Reset()
+	if m.isPlaybackManager() {
 		_ = m.manager.playbackManager.Cancel()
 		return
 	}
@@ -96,7 +124,7 @@ func (m *WatchPartyGenericPlayer) Cancel() {
 }
 
 func (m *WatchPartyGenericPlayer) SeekTo(time float64) {
-	if m.current.Load() == string(WatchPartyPlaybackManager) {
+	if m.isPlaybackManager() {
 		_ = m.manager.playbackManager.SeekTo(time)
 		return
 	}

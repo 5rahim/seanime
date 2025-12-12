@@ -230,15 +230,16 @@ func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, client
 			return err
 		}
 
-		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent, cancel func()) {
+		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent) bool {
 			if !event.IsNakama() {
-				return
+				return true // continue
 			}
 			switch event.(type) {
 			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-file")
-				cancel()
+				return false
 			}
+			return true // continue
 		})
 	}
 
@@ -306,15 +307,16 @@ func (m *Manager) PlayHostAnimeStream(streamType WatchPartyStreamType, userAgent
 			return err
 		}
 
-		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent, cancel func()) {
+		m.nativePlayer.VideoCore().RegisterEventCallback(func(event videocore.VideoEvent) bool {
 			if !event.IsNakama() {
-				return
+				return true // keep listening
 			}
 			switch event.(type) {
 			case *videocore.VideoLoadedMetadataEvent, *videocore.VideoTerminatedEvent:
 				m.wsEventManager.SendEvent(events.HideIndefiniteLoader, "nakama-stream")
-				cancel()
+				return false // stop
 			}
+			return true // keep listening
 		})
 	}
 
