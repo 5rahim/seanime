@@ -36421,7 +36421,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"native-player\"",
-        "\"video-core\"",
+        "\"videocore\"",
         "\"nakama\"",
         "\"plugin\"",
         "\"playlist\""
@@ -40077,10 +40077,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -64951,9 +64951,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " PeerID of the sender"
-        ]
+        "comments": []
       },
       {
         "name": "Username",
@@ -64962,9 +64960,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " Display name of sender"
-        ]
+        "comments": []
       },
       {
         "name": "Message",
@@ -64973,9 +64969,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " Chat message content"
-        ]
+        "comments": []
       },
       {
         "name": "Timestamp",
@@ -64985,9 +64979,7 @@
         "usedStructName": "time.Time",
         "required": false,
         "public": true,
-        "comments": [
-          " When the message was sent"
-        ]
+        "comments": []
       },
       {
         "name": "MessageId",
@@ -64997,7 +64989,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Unique message ID"
+          " Unique id"
         ]
       }
     ],
@@ -68200,10 +68192,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -68756,10 +68748,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -68808,10 +68800,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -69190,10 +69182,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -69301,10 +69293,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -69547,10 +69539,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -69676,10 +69668,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -69752,10 +69744,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -70658,10 +70650,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": [
@@ -73507,10 +73499,10 @@
       {
         "name": "scheduler",
         "jsonName": "scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": false,
         "comments": []
@@ -73601,10 +73593,10 @@
       {
         "name": "Scheduler",
         "jsonName": "Scheduler",
-        "goType": "goja_util.Scheduler",
+        "goType": "gojautil.Scheduler",
         "typescriptType": "Scheduler",
         "usedTypescriptType": "Scheduler",
-        "usedStructName": "goja_util.Scheduler",
+        "usedStructName": "gojautil.Scheduler",
         "required": false,
         "public": true,
         "comments": []
@@ -73664,6 +73656,161 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/videocore.go",
+    "filename": "videocore.go",
+    "name": "VideoCore",
+    "formattedName": "VideoCore",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "AppContextImpl",
+        "typescriptType": "AppContextImpl",
+        "usedTypescriptType": "AppContextImpl",
+        "usedStructName": "plugin.AppContextImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedTypescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedTypescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "extension.Extension",
+        "typescriptType": "Extension_Extension",
+        "usedTypescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "gojautil.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedTypescriptType": "Scheduler",
+        "usedStructName": "gojautil.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "listeners",
+        "jsonName": "listeners",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "videoCoreSubscriber",
+        "jsonName": "videoCoreSubscriber",
+        "goType": "videocore.Subscriber",
+        "typescriptType": "VideoCore_Subscriber",
+        "usedTypescriptType": "VideoCore_Subscriber",
+        "usedStructName": "videocore.Subscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "unsubscribeOnce",
+        "jsonName": "unsubscribeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/videocore.go",
+    "filename": "videocore.go",
+    "name": "VideoCoreEventListener",
+    "formattedName": "VideoCoreEventListener",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "eventId",
+        "jsonName": "eventId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "listenerCh",
+        "jsonName": "listenerCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeOnce",
+        "jsonName": "closeOnce",
+        "goType": "sync.Once",
+        "typescriptType": "Once",
+        "usedTypescriptType": "Once",
+        "usedStructName": "sync.Once",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/videocore.go",
+    "filename": "videocore.go",
+    "name": "VideoCoreEvent",
+    "formattedName": "VideoCoreEvent",
+    "package": "plugin",
+    "fields": [],
     "comments": []
   },
   {
@@ -82873,7 +83020,7 @@
     "filename": "scheduler.go",
     "name": "Job",
     "formattedName": "Job",
-    "package": "goja_util",
+    "package": "gojautil",
     "fields": [
       {
         "name": "fn",
@@ -82914,7 +83061,7 @@
     "filename": "scheduler.go",
     "name": "Scheduler",
     "formattedName": "Scheduler",
-    "package": "goja_util",
+    "package": "gojautil",
     "fields": [
       {
         "name": "jobQueue",
@@ -82964,7 +83111,7 @@
         "goType": "Job",
         "typescriptType": "Job",
         "usedTypescriptType": "Job",
-        "usedStructName": "goja_util.Job",
+        "usedStructName": "gojautil.Job",
         "required": false,
         "public": false,
         "comments": []
@@ -84339,7 +84486,9 @@
         "\"video-error\"",
         "\"video-terminated\"",
         "\"video-playback-state\"",
-        "\"subtitle-file-uploaded\""
+        "\"subtitle-file-uploaded\"",
+        "\"video-playlist\"",
+        "\"video-text-tracks\""
       ]
     },
     "comments": []
@@ -84468,6 +84617,54 @@
     "comments": [
       " VideoSubtitleTrack is an external subtitle track."
     ]
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
+    "name": "VideoTextTrack",
+    "formattedName": "VideoCore_VideoTextTrack",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"subtitles\" | \"captions\""
+        ]
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/videocore/types.go",
@@ -84799,6 +84996,84 @@
     "comments": [
       " VideoPlaybackInfo contains detailed information about the currently played media.",
       " It is filled by the client, passed to the player and sent to the server during playback."
+    ]
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
+    "name": "VideoPlaylistState",
+    "formattedName": "VideoCore_VideoPlaylistState",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "PlaybackType",
+        "typescriptType": "VideoCore_PlaybackType",
+        "usedTypescriptType": "VideoCore_PlaybackType",
+        "usedStructName": "videocore.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PreviousEpisode",
+        "jsonName": "previousEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextEpisode",
+        "jsonName": "nextEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisode",
+        "jsonName": "currentEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedTypescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntry",
+        "jsonName": "animeEntry",
+        "goType": "anime.Entry",
+        "typescriptType": "Anime_Entry",
+        "usedTypescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " VideoPlaylistState holds the state for the video player's playlist and playback."
     ]
   },
   {
@@ -85577,6 +85852,54 @@
   {
     "filepath": "../internal/videocore/types.go",
     "filename": "types.go",
+    "name": "VideoPlaylistEvent",
+    "formattedName": "VideoCore_VideoPlaylistEvent",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "Playlist",
+        "jsonName": "playlist",
+        "goType": "VideoPlaylistState",
+        "typescriptType": "VideoCore_VideoPlaylistState",
+        "usedTypescriptType": "VideoCore_VideoPlaylistState",
+        "usedStructName": "videocore.VideoPlaylistState",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "videocore.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
+    "name": "VideoTextTracksEvent",
+    "formattedName": "VideoCore_VideoTextTracksEvent",
+    "package": "videocore",
+    "fields": [
+      {
+        "name": "TextTracks",
+        "jsonName": "textTracks",
+        "goType": "[]VideoTextTrack",
+        "typescriptType": "Array\u003cVideoCore_VideoTextTrack\u003e",
+        "usedTypescriptType": "VideoCore_VideoTextTrack",
+        "usedStructName": "videocore.VideoTextTrack",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "videocore.BaseVideoEvent"
+    ]
+  },
+  {
+    "filepath": "../internal/videocore/types.go",
+    "filename": "types.go",
     "name": "ServerEvent",
     "formattedName": "VideoCore_ServerEvent",
     "package": "videocore",
@@ -85600,13 +85923,17 @@
         "\"terminate\"",
         "\"start-onlinestream-watch-party\"",
         "\"get-status\"",
+        "\"show-message\"",
+        "\"play-episode\"",
+        "\"get-text-tracks\"",
         "\"get-fullscreen\"",
         "\"get-pip\"",
         "\"get-anime-4k\"",
         "\"get-subtitle-track\"",
         "\"get-audio-track\"",
         "\"get-media-caption-track\"",
-        "\"get-playback-state\""
+        "\"get-playback-state\"",
+        "\"get-playlist\""
       ]
     },
     "comments": []
@@ -85792,6 +86119,28 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "settingsMu",
+        "jsonName": "settingsMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedTypescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -85803,6 +86152,15 @@
     "formattedName": "VideoCore_Subscriber",
     "package": "videocore",
     "fields": [
+      {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
       {
         "name": "eventCh",
         "jsonName": "eventCh",

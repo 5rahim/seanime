@@ -109,8 +109,8 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		PlaybackManager:    &playbackmanager.PlaybackManager{},
 	})
 
-	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
-	return plugin, logger, manager, anilistPlatform, wsEventManager, err
+	p, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
+	return p, logger, manager, anilistPlatform, wsEventManager, err
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

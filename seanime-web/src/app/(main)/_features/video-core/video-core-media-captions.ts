@@ -2,7 +2,7 @@ import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { CaptionsRenderer, ParsedCaptionsResult, parseResponse, parseText, VTTCue, VTTRegion } from "media-captions"
+import { CaptionsFileFormat, CaptionsRenderer, ParsedCaptionsResult, parseResponse, parseText, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
 import { toast } from "sonner"
@@ -429,7 +429,7 @@ export class MediaCaptionsManager extends EventTarget {
     // Adds a new subtitle track and selects it AFTER initialization
     // This is used for adding subtitles from the server
     public addCaptionTrack(track: MediaCaptionsTrackInfo) {
-        toast.success(`Subtitle track added: ${track.label}`)
+        toast.success(`Caption track added: ${track.label}`)
         this.tracks.push(track)
         const index = this.tracks.length - 1
         this.loadedTracks.push({
@@ -442,7 +442,7 @@ export class MediaCaptionsManager extends EventTarget {
                 if (track.src) {
                     return await parseResponse(fetch(track.src))
                 } else if (track.content) {
-                    return await parseText(track.content, { type: "vtt" })
+                    return await parseText(track.content, { type: track.type as CaptionsFileFormat || "vtt" })
                 }
                 return null
             },

@@ -12,7 +12,7 @@ import (
 	"seanime/internal/plugin"
 	plugin_ui "seanime/internal/plugin/ui"
 	"seanime/internal/util"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"slices"
 	"strings"
 	"time"
@@ -55,7 +55,7 @@ type GojaPlugin struct {
 	store           *plugin.Store[string, any]
 	storage         *plugin.Storage
 	ui              *plugin_ui.UI
-	scheduler       *goja_util.Scheduler
+	scheduler       *gojautil.Scheduler
 	loader          *goja.Runtime
 	unbindHookFuncs []func()
 	interrupted     bool
@@ -132,7 +132,7 @@ func NewGojaPlugin(
 		logger:          logger,
 		runtimeManager:  runtimeManager,
 		store:           plugin.NewStore[string, any](nil), // Create a store (must be stopped when unloading)
-		scheduler:       goja_util.NewScheduler(),          // Create a scheduler (must be stopped when unloading)
+		scheduler:       gojautil.NewScheduler(),           // Create a scheduler (must be stopped when unloading)
 		ui:              nil,                               // To be initialized
 		loader:          goja.New(),                        // To be initialized
 		unbindHookFuncs: []func(){},
@@ -235,9 +235,9 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the store
 	p.store.Bind(vm, p.scheduler)
 	// Bind mutable bindings
-	goja_util.BindMutable(vm)
+	gojautil.BindMutable(vm)
 	// Bind await bindings
-	goja_util.BindAwait(vm)
+	gojautil.BindAwait(vm)
 	// Bind console bindings
 	_ = goja_bindings.BindConsoleWithWS(p.ext, vm, logger, p.wsEventManager)
 

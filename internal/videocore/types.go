@@ -29,6 +29,8 @@ const (
 	PlayerEventVideoTerminated      ClientEventType = "video-terminated"
 	PlayerEventVideoPlaybackState   ClientEventType = "video-playback-state"
 	PlayerEventSubtitleFileUploaded ClientEventType = "subtitle-file-uploaded"
+	PlayerEventVideoPlaylist        ClientEventType = "video-playlist"
+	PlayerEventVideoTextTracks      ClientEventType = "video-text-tracks"
 )
 
 type PlayerType string
@@ -59,6 +61,13 @@ type VideoSubtitleTrack struct {
 	Type              *string `json:"type"` // "srt" | "vtt" | "ass" | "ssa"
 	Default           *bool   `json:"default"`
 	UseLibassRenderer *bool   `json:"useLibassRenderer"`
+}
+
+type VideoTextTrack struct {
+	Number   int    `json:"number"`
+	Type     string `json:"type"` // "subtitles" | "captions"
+	Label    string `json:"label"`
+	Language string `json:"language"`
 }
 
 // VideoSource is an alternative video stream source (e.g., resolution options).
@@ -109,6 +118,16 @@ type VideoPlaybackInfo struct {
 	IsNakamaWatchParty             bool                  `json:"isNakamaWatchParty,omitempty"`
 }
 
+// VideoPlaylistState holds the state for the video player's playlist and playback.
+type VideoPlaylistState struct {
+	Type            PlaybackType     `json:"type"`
+	Episodes        []*anime.Episode `json:"episodes"`
+	PreviousEpisode *anime.Episode   `json:"previousEpisode,omitempty"`
+	NextEpisode     *anime.Episode   `json:"nextEpisode,omitempty"`
+	CurrentEpisode  *anime.Episode   `json:"currentEpisode"`
+	AnimeEntry      *anime.Entry     `json:"animeEntry,omitempty"`
+}
+
 type (
 	PlaybackStatus struct {
 		Id          string  `json:"id"`
@@ -138,6 +157,9 @@ type (
 	}
 	clientVideoLoadedPayload struct {
 		State PlaybackState `json:"state"`
+	}
+	clientVideoPlaylistPayload struct {
+		Playlist VideoPlaylistState `json:"playlist"`
 	}
 	clientVideoErrorPayload struct {
 		Error string `json:"error"`
@@ -169,6 +191,9 @@ type (
 	}
 	clientVideoAnime4KPayload struct {
 		Option string `json:"option"`
+	}
+	clientVideoTextTracksPayload struct {
+		TextTracks []*VideoTextTrack `json:"textTracks"`
 	}
 )
 
@@ -324,6 +349,14 @@ type (
 		BaseVideoEvent
 		Option string `json:"string"` // name or "off"
 	}
+	VideoPlaylistEvent struct {
+		BaseVideoEvent
+		Playlist *VideoPlaylistState `json:"playlist"`
+	}
+	VideoTextTracksEvent struct {
+		BaseVideoEvent
+		TextTracks []*VideoTextTrack `json:"textTracks"`
+	}
 )
 
 func (e *VideoStatusEvent) IsCritical() bool     { return false }
@@ -349,7 +382,10 @@ const (
 	ServerEventTerminate                   ServerEvent = "terminate"
 	ServerEventStartOnlinestreamWatchParty ServerEvent = "start-onlinestream-watch-party"
 	ServerEventGetStatus                   ServerEvent = "get-status"
-	// Getters
+	ServerEventShowMessage                 ServerEvent = "show-message"
+	ServerEventPlayEpisode                 ServerEvent = "play-episode"
+	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
+	// State requests
 	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"
 	ServerEventGetPip               ServerEvent = "get-pip"
 	ServerEventGetAnime4K           ServerEvent = "get-anime-4k"
@@ -357,4 +393,5 @@ const (
 	ServerEventGetAudioTrack        ServerEvent = "get-audio-track"
 	ServerEventGetMediaCaptionTrack ServerEvent = "get-media-caption-track"
 	ServerEventGetPlaybackState     ServerEvent = "get-playback-state"
+	ServerEventGetPlaylist          ServerEvent = "get-playlist"
 )

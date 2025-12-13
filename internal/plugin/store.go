@@ -4,7 +4,7 @@ package plugin
 
 import (
 	"encoding/json"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"sync"
 
@@ -55,7 +55,7 @@ func (s *Store[K, T]) Stop() {
 	s.keySubscribers.Clear()
 }
 
-func (s *Store[K, T]) Bind(vm *goja.Runtime, scheduler *goja_util.Scheduler) {
+func (s *Store[K, T]) Bind(vm *goja.Runtime, scheduler *gojautil.Scheduler) {
 	// Create a new object for the store
 	storeObj := vm.NewObject()
 	_ = storeObj.Set("get", s.Get)
@@ -76,7 +76,7 @@ func (s *Store[K, T]) Bind(vm *goja.Runtime, scheduler *goja_util.Scheduler) {
 }
 
 // BindWatch binds the watch method to the store object in the runtime.
-func (s *Store[K, T]) bindWatch(storeObj *goja.Object, vm *goja.Runtime, scheduler *goja_util.Scheduler) {
+func (s *Store[K, T]) bindWatch(storeObj *goja.Object, vm *goja.Runtime, scheduler *gojautil.Scheduler) {
 
 	//	Example:
 	//	store.watch("key", (value) => {

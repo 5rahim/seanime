@@ -297,6 +297,8 @@ func (wpm *WatchPartyManager) LeaveWatchParty() error {
 		PeerId: hostConn.PeerId,
 	})
 
+	wpm.currentSession = mo.None[*WatchPartySession]()
+
 	// Send websocket event to update the UI (nil indicates session left)
 	wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyState, nil)
 

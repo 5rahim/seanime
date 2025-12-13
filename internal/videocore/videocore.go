@@ -5,6 +5,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/continuity"
+	"seanime/internal/database/models"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/mkvparser"
@@ -44,11 +45,14 @@ type (
 		dispatcherStop chan struct{}
 		startOnce      sync.Once
 
-		logger *zerolog.Logger
+		logger     *zerolog.Logger
+		settingsMu sync.RWMutex
+		settings   *models.Settings
 	}
 
 	// Subscriber listens to the player events
 	Subscriber struct {
+		id        string
 		eventCh   chan VideoEvent
 		isClosed  atomic.Bool
 		closeOnce sync.Once
@@ -84,6 +88,12 @@ func New(opts NewVideoCoreOptions) *VideoCore {
 	}
 	vc.Start()
 	return vc
+}
+
+func (vc *VideoCore) SetSettings(settings *models.Settings) {
+	vc.settingsMu.Lock()
+	vc.settings = settings
+	vc.settingsMu.Unlock()
 }
 
 func (vc *VideoCore) Start() {
@@ -191,6 +201,7 @@ func (vc *VideoCore) sendPlayerEvent(t string, payload interface{}) {
 // Subscribe lets other modules subscribe to the native player events
 func (vc *VideoCore) Subscribe(id string) *Subscriber {
 	subscriber := &Subscriber{
+		id:      id,
 		eventCh: make(chan VideoEvent, 100),
 	}
 	vc.subscribers.Set(id, subscriber)
@@ -211,6 +222,11 @@ func (vc *VideoCore) Unsubscribe(id string) {
 // Events returns the event channel for the subscriber.
 func (s *Subscriber) Events() <-chan VideoEvent {
 	return s.eventCh
+}
+
+// GetId returns the subscriber id
+func (s *Subscriber) GetId() string {
+	return s.id
 }
 
 func (vc *VideoCore) RegisterEventCallback(callback func(event VideoEvent) bool) (cancel func()) {
@@ -460,6 +476,24 @@ func (vc *VideoCore) SetAudioTrack(trackNumber int) {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventSetAudioTrack), trackNumber)
 }
 
+func (vc *VideoCore) ShowMessage(message string) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventShowMessage), message)
+}
+
+// PlayEpisode sends a play-episode command to the video player.
+// which is "next", "previous", or the AniDB episode ID.
+func (vc *VideoCore) PlayEpisode(which string) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayEpisode), which)
+}
+
 // Terminate sends a terminate command to the video player.
 func (vc *VideoCore) Terminate() {
 	state, ok := vc.GetPlaybackState()
@@ -538,6 +572,56 @@ func (vc *VideoCore) SendGetPlaybackState() {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetPlaybackState), nil)
 }
 
+// GetPlaylist sends a get-text-tracks request to the video player and returns the text tracks.
+func (vc *VideoCore) GetTextTracks() (ret []*VideoTextTrack, ok bool) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return nil, false
+	}
+	done := make(chan struct{})
+	cancel := vc.RegisterEventCallback(func(e VideoEvent) bool {
+		switch event := e.(type) {
+		case *VideoTextTracksEvent:
+			ret = event.TextTracks
+			close(done)
+			return false // stop
+		}
+		return true // keep listening
+	})
+	go func(cancel func()) {
+		defer cancel()
+		<-time.After(5 * time.Second)
+	}(cancel)
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetTextTracks), nil)
+	<-done
+	return ret, ret != nil
+}
+
+// GetPlaylist sends a get-playlist request to the video player and returns the playlist state.
+func (vc *VideoCore) GetPlaylist() (ret *VideoPlaylistState, ok bool) {
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return nil, false
+	}
+	done := make(chan struct{})
+	cancel := vc.RegisterEventCallback(func(e VideoEvent) bool {
+		switch event := e.(type) {
+		case *VideoPlaylistEvent:
+			ret = event.Playlist
+			close(done)
+			return false // stop
+		}
+		return true // keep listening
+	})
+	go func(cancel func()) {
+		defer cancel()
+		<-time.After(5 * time.Second)
+	}(cancel)
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetPlaylist), nil)
+	<-done
+	return ret, ret != nil
+}
+
 // PullStatus pulls the current playback status from the video player.
 func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 	state, ok := vc.GetPlaybackState()
@@ -545,7 +629,7 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 		return VideoStatusEvent{}, false
 	}
 	done := make(chan struct{})
-	vc.RegisterEventCallback(func(e VideoEvent) bool {
+	cancel := vc.RegisterEventCallback(func(e VideoEvent) bool {
 		switch event := e.(type) {
 		case *VideoStatusEvent:
 			ret = *event
@@ -554,6 +638,10 @@ func (vc *VideoCore) PullStatus() (ret VideoStatusEvent, ok bool) {
 		}
 		return true // keep listening
 	})
+	go func(cancel func()) {
+		defer cancel()
+		<-time.After(5 * time.Second)
+	}(cancel)
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventGetStatus), nil)
 	<-done
 	return ret, true
@@ -758,6 +846,20 @@ func (vc *VideoCore) listenToClientEvents() {
 							vc.PushEvent(&SubtitleFileUploadedEvent{
 								Filename: payload.Filename,
 								Content:  payload.Content,
+							})
+						}
+					case PlayerEventVideoPlaylist:
+						payload := &clientVideoPlaylistPayload{}
+						if err := playerEvent.UnmarshalAs(payload); err == nil {
+							vc.PushEvent(&VideoPlaylistEvent{
+								Playlist: &payload.Playlist,
+							})
+						}
+					case PlayerEventVideoTextTracks:
+						payload := &clientVideoTextTracksPayload{}
+						if err := playerEvent.UnmarshalAs(payload); err == nil {
+							vc.PushEvent(&VideoTextTracksEvent{
+								TextTracks: payload.TextTracks,
 							})
 						}
 					}

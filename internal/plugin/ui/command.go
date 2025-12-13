@@ -1,7 +1,7 @@
 package plugin_ui
 
 import (
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"slices"
 	"sync"
@@ -334,7 +334,7 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (c *commandItem) ToJSON(ctx *Context, componentManager *ComponentManager, scheduler *goja_util.Scheduler) *CommandItemJSON {
+func (c *commandItem) ToJSON(ctx *Context, componentManager *ComponentManager, scheduler *gojautil.Scheduler) *CommandItemJSON {
 
 	var components interface{}
 	if c.renderFunc != nil {

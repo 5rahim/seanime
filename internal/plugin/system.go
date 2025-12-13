@@ -16,7 +16,7 @@ import (
 	"runtime"
 	"seanime/internal/extension"
 	util "seanime/internal/util"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"strings"
 	"sync"
 
@@ -38,7 +38,7 @@ type AsyncCmd struct {
 	cmd *exec.Cmd
 
 	appContext *AppContextImpl
-	scheduler  *goja_util.Scheduler
+	scheduler  *gojautil.Scheduler
 	vm         *goja.Runtime
 }
 
@@ -49,13 +49,13 @@ type CmdHelper struct {
 	stderr io.ReadCloser
 
 	appContext *AppContextImpl
-	scheduler  *goja_util.Scheduler
+	scheduler  *gojautil.Scheduler
 	vm         *goja.Runtime
 }
 
 // BindSystem binds the system module to the Goja runtime.
 // Permissions needed: system + allowlist
-func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	//////////////////////////////////////
 	// OS

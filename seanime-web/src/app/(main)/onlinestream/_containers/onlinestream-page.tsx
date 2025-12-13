@@ -331,7 +331,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
 
     const isWatchPartyPeer = React.useMemo(() => {
-        return !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
+        return !!nakamaStatus?.hostConnectionStatus && !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
     }, [nakamaStatus])
 
     /*
@@ -339,6 +339,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
      */
     const firstRenderRef = React.useRef(true)
     React.useEffect(() => {
+        console.warn(nakamaStatus)
         // Do not auto set the episode number if the user is in a watch party and is not the host
         if (isWatchPartyPeer) return
 
@@ -361,28 +362,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }, [episodes, media, animeEntry?.listData, urlEpNumber, currentPlaylist, isWatchPartyPeer])
 
-    /*
-     * Set episode number on update
-     */
-    React.useEffect(() => {
-        // Do not auto set the episode number if the user is in a watch party and is not the host
-        if (isWatchPartyPeer) return
-
-        // Do not auto set if we're loading from watch party
-        if (isLoadingFromWatchPartyRef.current) {
-            return
-        }
-
-        if (firstRenderRef.current) return
-
-        if (!!media && !!episodes) {
-            const episodeNumberFromURL = urlEpNumber ? Number(urlEpNumber) : undefined
-            if (episodeNumberFromURL) {
-                setSelectedEpisodeNumber(episodeNumberFromURL)
-                log.info("Changing episode number to", episodeNumberFromURL)
-            }
-        }
-    }, [urlEpNumber, isWatchPartyPeer])
 
     function onCanPlay() {
         if (urlEpNumber) {

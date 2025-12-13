@@ -21,7 +21,7 @@ import (
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"seanime/internal/videocore"
 
 	"github.com/dop251/goja"
@@ -73,62 +73,65 @@ type AppContext interface {
 
 	BindApp(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindStorage binds $storage to the Goja runtime
-	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Storage
+	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Storage
 	// BindAnilist binds $anilist to the Goja runtime
 	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindDatabase binds $database to the Goja runtime
 	BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 
 	// BindSystem binds $system to the Goja runtime
-	BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindPlaybackToContextObj binds 'playback' to the UI context object
-	BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
+
+	// BindVideoCoreToContextObj binds 'videoCore' to the UI context object
+	BindVideoCoreToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindCronToContextObj binds 'cron' to the UI context object
-	BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Cron
+	BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Cron
 
 	// BindDownloaderToContextObj binds 'downloader' to the UI context object
-	BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindMangaToContextObj binds 'manga' to the UI context object
-	BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindAnimeToContextObj binds 'anime' to the UI context object
-	BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindDiscordToContextObj binds 'discord' to the UI context object
-	BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindContinuityToContextObj binds 'continuity' to the UI context object
-	BindContinuityToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindContinuityToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindTorrentClientToContextObj binds 'torrentClient' to the UI context object
-	BindTorrentClientToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindTorrentClientToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindTorrentstreamToContextObj binds 'torrentstream' to the UI context object
-	BindTorrentstreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindTorrentstreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindMediastreamToContextObj binds 'mediastream' to the UI context object
-	BindMediastreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindMediastreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindOnlinestreamToContextObj binds 'onlinestream' to the UI context object
-	BindOnlinestreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindOnlinestreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindFillerManagerToContextObj binds 'fillerManager' to the UI context object
-	BindFillerManagerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindFillerManagerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindAutoDownloaderToContextObj binds 'autoDownloader' to the UI context object
-	BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindAutoScannerToContextObj binds 'autoScanner' to the UI context object
-	BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindFileCacherToContextObj binds 'fileCacher' to the UI context object
-	BindFileCacherToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindFileCacherToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	// BindExternalPlayerLinkToContextObj binds 'externalPlayerLink' to the UI context object
-	BindExternalPlayerLinkToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	BindExternalPlayerLinkToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler)
 
 	DropPluginData(extId string)
 }

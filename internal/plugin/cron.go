@@ -13,7 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/extension"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"slices"
 	"strconv"
 	"strings"
@@ -33,7 +33,7 @@ type Cron struct {
 	jobs       []*CronJob
 	interval   time.Duration
 	mux        sync.RWMutex
-	scheduler  *goja_util.Scheduler
+	scheduler  *gojautil.Scheduler
 }
 
 // New create a new Cron struct with default tick interval of 1 minute
@@ -41,7 +41,7 @@ type Cron struct {
 //
 // You can change the default tick interval with Cron.SetInterval().
 // You can change the default timezone with Cron.SetTimezone().
-func New(scheduler *goja_util.Scheduler) *Cron {
+func New(scheduler *gojautil.Scheduler) *Cron {
 	return &Cron{
 		interval:   1 * time.Minute,
 		timezone:   time.UTC,
@@ -51,7 +51,7 @@ func New(scheduler *goja_util.Scheduler) *Cron {
 	}
 }
 
-func (a *AppContextImpl) BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Cron {
+func (a *AppContextImpl) BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Cron {
 	cron := New(scheduler)
 	cronObj := vm.NewObject()
 	_ = cronObj.Set("add", cron.Add)
@@ -262,7 +262,7 @@ type CronJob struct {
 	fn        func()
 	schedule  *Schedule
 	id        string
-	scheduler *goja_util.Scheduler
+	scheduler *gojautil.Scheduler
 }
 
 // Id returns the cron job id.

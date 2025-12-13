@@ -1,6 +1,7 @@
 package videocore
 
 import (
+	"context"
 	"seanime/internal/continuity"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
@@ -15,7 +16,7 @@ func (vc *VideoCore) setupEffects() {
 }
 
 func (vc *VideoCore) setupSharedEffects() {
-	subscriber := vc.Subscribe("video-core:shared")
+	subscriber := vc.Subscribe("videocore:shared")
 
 	go func(subscriber *Subscriber) {
 		for e := range subscriber.Events() {
@@ -52,6 +53,39 @@ func (vc *VideoCore) setupSharedEffects() {
 				if vc.discordPresence != nil && !vc.isOfflineRef.Get() {
 					go vc.discordPresence.Close()
 				}
+			case *VideoCompletedEvent:
+				state, ok := vc.GetPlaybackState()
+				if !ok {
+					continue
+				}
+				shouldUpdateProgress := false
+				vc.settingsMu.RLock()
+				shouldUpdateProgress = vc.settings.Library.AutoUpdateProgress
+				vc.settingsMu.RUnlock()
+				if shouldUpdateProgress {
+					// get the list entry
+					collection, err := vc.platformRef.Get().GetAnimeCollection(context.Background(), false)
+					if err != nil {
+						vc.logger.Error().Err(err).Msg("videocore: Cannot update progress, failed to get anime collection")
+						continue
+					}
+					mediaId := state.PlaybackInfo.Media.GetID()
+					listEntry, ok := collection.GetListEntryFromAnimeId(mediaId)
+					if !ok {
+						vc.logger.Error().Msg("videocore: Cannot update progress, failed to get list entry for media")
+						continue
+					}
+					progress := state.PlaybackInfo.Episode.GetProgressNumber()
+					if listEntry.Progress != nil && progress <= *listEntry.Progress {
+						continue
+					}
+					totalEpisodes := state.PlaybackInfo.Media.Episodes
+					err = vc.platformRef.Get().UpdateEntryProgress(context.Background(), mediaId, progress, totalEpisodes)
+					if err != nil {
+						vc.logger.Error().Err(err).Msgf("videocore: Failed to update progress for media %d", mediaId)
+					}
+					vc.refreshAnimeCollectionFunc()
+				}
 			case *VideoTerminatedEvent:
 				if vc.discordPresence != nil && !vc.isOfflineRef.Get() {
 					go vc.discordPresence.Close()
@@ -80,7 +114,7 @@ func (vc *VideoCore) setupSharedEffects() {
 }
 
 func (vc *VideoCore) setupOnlinestreamEffects() {
-	subscriber := vc.Subscribe("video-core:onlinestream")
+	subscriber := vc.Subscribe("videocore:onlinestream")
 
 	go func(subscriber *Subscriber) {
 		for e := range subscriber.Events() {

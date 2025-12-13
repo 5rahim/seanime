@@ -412,6 +412,10 @@ func (a *App) InitOrRefreshModules() {
 		}
 	}
 
+	if a.VideoCore != nil {
+		a.VideoCore.SetSettings(settings)
+	}
+
 	if settings.MediaPlayer != nil {
 		a.MediaPlayer.VLC = &vlc.VLC{
 			Host:     settings.MediaPlayer.Host,

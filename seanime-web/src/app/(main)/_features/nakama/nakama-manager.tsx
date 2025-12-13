@@ -226,7 +226,7 @@ export function NakamaManager() {
 
     const { startOnlineStreamWatchParty } = useNakamaOnlineStreamWatchParty()
     useWebsocketMessageListener({
-        type: WSEvents.VIDEO_CORE,
+        type: WSEvents.VIDEOCORE,
         onMessage: ({ type, payload }: { type: VideoCore_ServerEvent, payload: unknown }) => {
             switch (type) {
                 case "start-onlinestream-watch-party":

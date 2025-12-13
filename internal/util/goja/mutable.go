@@ -1,4 +1,4 @@
-package goja_util
+package gojautil
 
 import (
 	"encoding/json"

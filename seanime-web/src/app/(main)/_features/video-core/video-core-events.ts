@@ -6,6 +6,7 @@ import {
     vc_mediaCaptionsManager,
     vc_subtitleManager,
 } from "@/app/(main)/_features/video-core/video-core"
+import { vc_doFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { Anime4KManagerOptionChangedEvent } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { AudioManagerHlsTrackChangedEvent, AudioManagerTrackChangedEvent } from "@/app/(main)/_features/video-core/video-core-audio"
 import { FullscreenManagerChangedEvent, vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
@@ -15,14 +16,15 @@ import {
     MediaCaptionsTrackSelectedEvent,
 } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { PipManagerToggledEvent, vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
+import { useVideoCorePlaylist, VideoCorePlaylistState } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { SubtitleManagerTrackDeselectedEvent, SubtitleManagerTrackSelectedEvent } from "@/app/(main)/_features/video-core/video-core-subtitles"
-import { vc_autoNextAtom, VideoCoreLifecycleState, VideoCore_VideoSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_autoNextAtom, VideoCore_VideoSubtitleTrack, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { detectSubtitleType, isSubtitleFile } from "@/app/(main)/_features/video-core/video-core.utils"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import React, { useCallback, useRef } from "react"
 import { toast } from "sonner"
 
@@ -96,6 +98,8 @@ export function useVideoCoreSetupEvents(id: string,
     const pipManager = useAtomValue(vc_pipManager)
     const audioManager = useAtomValue(vc_audioManager)
     const autoNext = useAtomValue(vc_autoNextAtom)
+    const flashAction = useSetAtom(vc_doFlashAction)
+    const { playEpisode, playlistState } = useVideoCorePlaylist()
 
     // React.useEffect(() => {
     //     log.trace(activePlayer, id)
@@ -477,7 +481,7 @@ export function useVideoCoreSetupEvents(id: string,
     }, [handleUpload, state.active, videoRef.current])
 
     useWebsocketMessageListener({
-        type: WSEvents.VIDEO_CORE,
+        type: WSEvents.VIDEOCORE,
         deps: [activePlayer, id],
         onMessage: ({ type, payload }: { type: VideoCore_ServerEvent, payload: unknown }) => {
             if (activePlayer !== id || !videoRef.current) return
@@ -559,9 +563,9 @@ export function useVideoCoreSetupEvents(id: string,
                 case "add-external-subtitle-track":
                     log.info("Add subtitle track event received", payload)
                     const fileTrack = payload as VideoCore_VideoSubtitleTrack
-                    if (subtitleManager && fileTrack.type === "ass") {
+                    if (subtitleManager) {
                         subtitleManager.addFileTrack(fileTrack)
-                    } else if (mediaCaptionsManager && fileTrack.type === "vtt") {
+                    } else if (mediaCaptionsManager) {
                         mediaCaptionsManager.addCaptionTrack(fileTrack)
                     }
                     break
@@ -640,6 +644,43 @@ export function useVideoCoreSetupEvents(id: string,
                         },
                     })
                     break
+                case "show-message":
+                    log.info("Show message event received", payload)
+                    flashAction({ message: payload as string, type: "message", duration: 2000 })
+                    break
+                case "get-playlist":
+                    log.info("Get playlist event received")
+                    if (!playlistState) return
+                    sendEvent<{ playlist: VideoCorePlaylistState }>("video-playlist", {
+                        playlist: playlistState,
+                    })
+                    break
+                case "play-episode":
+                    log.info("Play next episode event received")
+                    playEpisode(payload as string)
+                    break
+                case "start-onlinestream-watch-party":
+                    break
+                case "get-text-tracks":
+                    log.info("Get text tracks event received")
+                    let textTracks: { type: "subtitles" | "captions", label: string, language: string, number: number }[] = []
+                    if (subtitleManager) {
+                        textTracks = subtitleManager.getTracks().map(n => ({
+                            number: n.number,
+                            type: "subtitles",
+                            label: n.label || "",
+                            language: n.language || n.languageIETF || "",
+                        }))
+                    } else if (mediaCaptionsManager) {
+                        textTracks = mediaCaptionsManager.getTracks().map(n => ({
+                            number: n.number,
+                            type: "captions",
+                            label: n.label,
+                            language: n.language,
+                        }))
+                    }
+                    sendEvent("video-text-tracks", { textTracks })
+                    break
                 default:
                     log.warn("Unknown event received", type)
             }
@@ -661,7 +702,7 @@ export function useVideoCoreEvents() {
 
     function sendEvent<T extends Record<string, any> | void = void>(type: VideoCore_ClientEventType, payload?: T) {
         sendMessage({
-            type: WSEvents.VIDEO_CORE,
+            type: WSEvents.VIDEOCORE,
             payload: {
                 clientId: clientId,
                 type: type,

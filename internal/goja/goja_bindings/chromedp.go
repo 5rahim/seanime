@@ -3,7 +3,7 @@ package goja_bindings
 import (
 	"context"
 	"fmt"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"strings"
 	"sync"
 	"time"
@@ -86,7 +86,7 @@ func BindChromeDP(vm *goja.Runtime) *ChromeDP {
 }
 
 // BindChromeDPWithScheduler binds the ChromeDP utilities to the VM
-func BindChromeDPWithScheduler(vm *goja.Runtime, scheduler *goja_util.Scheduler) *ChromeDP {
+func BindChromeDPWithScheduler(vm *goja.Runtime, scheduler *gojautil.Scheduler) *ChromeDP {
 	c := NewChromeDP(vm)
 
 	// Create ChromeDP object with methods

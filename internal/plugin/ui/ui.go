@@ -8,7 +8,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/plugin"
 	"seanime/internal/util"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"sync"
 
 	"github.com/dop251/goja"
@@ -38,7 +38,7 @@ type UI struct {
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
 	appContext     plugin.AppContext
-	scheduler      *goja_util.Scheduler
+	scheduler      *gojautil.Scheduler
 
 	lastException string
 
@@ -53,7 +53,7 @@ type NewUIOptions struct {
 	VM        *goja.Runtime
 	WSManager events.WSEventManagerInterface
 	Database  *db.Database
-	Scheduler *goja_util.Scheduler
+	Scheduler *gojautil.Scheduler
 	Extension *extension.Extension
 }
 

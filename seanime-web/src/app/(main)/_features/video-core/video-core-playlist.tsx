@@ -1,4 +1,4 @@
-import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -31,13 +31,12 @@ import React from "react"
 import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
-type VideoCorePlaylistState = {
+export type VideoCorePlaylistState = {
     type: VideoCore_PlaybackType
     episodes: Anime_Episode[]
     previousEpisode: Anime_Episode | null
     nextEpisode: Anime_Episode | null
     currentEpisode: Anime_Episode
-    currentTorrent?: HibikeTorrent_AnimeTorrent // for torrent and debrid stream type
     animeEntry: Anime_Entry | null
     onPlayEpisode?: VideoCorePlaylistPlayEpisodeFunction
 }

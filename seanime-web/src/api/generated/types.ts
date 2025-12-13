@@ -4758,7 +4758,9 @@ export type VideoCore_ClientEventType = "video-loaded" |
     "video-error" |
     "video-terminated" |
     "video-playback-state" |
-    "subtitle-file-uploaded"
+    "subtitle-file-uploaded" |
+    "video-playlist" |
+    "video-text-tracks"
 
 /**
  * - Filepath: internal/videocore/types.go
@@ -4821,13 +4823,17 @@ export type VideoCore_ServerEvent = "pause" |
     "terminate" |
     "start-onlinestream-watch-party" |
     "get-status" |
+    "show-message" |
+    "play-episode" |
+    "get-text-tracks" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |
     "get-subtitle-track" |
     "get-audio-track" |
     "get-media-caption-track" |
-    "get-playback-state"
+    "get-playback-state" |
+    "get-playlist"
 
 /**
  * - Filepath: internal/videocore/types.go
