@@ -124,30 +124,7 @@ func (vc *VideoCore) setupOnlinestreamEffects() {
 			switch event := e.(type) {
 			case *SubtitleFileUploadedEvent:
 				vc.logger.Trace().Msgf("videocore: Subtitle file uploaded: %s", event.Filename)
-				// Send WebVTT track for VideoCore MediaCaptionsManager
 				mkvTrack, err := vc.GenerateMkvSubtitleTrack(GenerateSubtitleFileOptions{
-					Filename:  event.Filename,
-					Content:   event.Content,
-					Number:    0,
-					ConvertTo: mkvparser.SubtitleTypeWEBVTT,
-				})
-				if err != nil {
-					vc.wsEventManager.SendEventTo(vc.GetCurrentClientId(), events.ErrorToast, "Failed to upload subtitle file: "+err.Error())
-					continue
-				}
-				track := &VideoSubtitleTrack{
-					Index:             0,
-					Src:               nil,
-					Content:           &mkvTrack.CodecPrivate,
-					Label:             mkvTrack.Name,
-					Language:          mkvTrack.Language,
-					Type:              lo.ToPtr("vtt"),
-					Default:           lo.ToPtr(false),
-					UseLibassRenderer: nil,
-				}
-				vc.AddExternalSubtitleTrack(track)
-				// Send ASS track for VideoCore SubtitleManager
-				mkvTrack, err = vc.GenerateMkvSubtitleTrack(GenerateSubtitleFileOptions{
 					Filename:  event.Filename,
 					Content:   event.Content,
 					Number:    0,
@@ -157,7 +134,7 @@ func (vc *VideoCore) setupOnlinestreamEffects() {
 					vc.wsEventManager.SendEventTo(vc.GetCurrentClientId(), events.ErrorToast, "Failed to upload subtitle file: "+err.Error())
 					continue
 				}
-				track = &VideoSubtitleTrack{
+				track := &VideoSubtitleTrack{
 					Index:             0,
 					Src:               nil,
 					Content:           &mkvTrack.CodecPrivate,

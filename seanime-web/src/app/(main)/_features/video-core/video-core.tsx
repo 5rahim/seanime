@@ -1,12 +1,8 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
-import {
-    useCancelDiscordActivity,
-    useSetDiscordAnimeActivityWithProgress,
-    useUpdateDiscordAnimeActivityWithProgress,
-} from "@/api/hooks/discord.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
+import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
     vc_doFlashAction,
@@ -70,11 +66,10 @@ import {
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
     VideoCore_VideoPlaybackInfo,
-    VideoCore_VideoSource, VideoCoreLifecycleState,
+    VideoCore_VideoSource,
+    VideoCoreLifecycleState,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
-    detectSubtitleType,
-    isSubtitleFile,
     useVideoCoreBindings,
     vc_createChapterCues,
     vc_createChaptersFromAniSkip,
@@ -101,7 +96,7 @@ import { atom } from "jotai"
 import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useCallback, useMemo, useRef, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
@@ -109,7 +104,6 @@ import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useMeasure, useUnmount, useUpdateEffect, useWindowSize } from "react-use"
-import { toast } from "sonner"
 
 const log = logger("VIDEO CORE")
 
@@ -725,9 +719,10 @@ export function VideoCore(props: VideoCoreProps) {
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
 
     const { mutate: fetchAndConvertToASS } = useDirectstreamFetchAndConvertToASS({
-        onSuccess: (data) => {
-            // Success is handled by the subtitle manager
-        },
+        onSuccess: (data) => {},
+    })
+    const { mutate: convertSubs } = useDirectstreamConvertSubs({
+        onSuccess: (data) => {},
     })
 
     const isFirstError = React.useRef(true)
@@ -1010,6 +1005,14 @@ export function VideoCore(props: VideoCoreProps) {
                     videoElement: v!,
                     tracks: nonLibassSubtitleTracks,
                     settings: settings,
+                    fetchAndConvertToVTT: (url?: string, content?: string) => {
+                        return new Promise((resolve, reject) => {
+                            convertSubs({ url: url ?? "", content: content ?? "", to: "vtt" }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
                 })
             })
         }

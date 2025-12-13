@@ -2729,6 +2729,61 @@
     }
   },
   {
+    "name": "HandleDirectstreamConvertSubs",
+    "trimmedName": "DirectstreamConvertSubs",
+    "comments": [
+      "HandleDirectstreamConvertSubs",
+      "",
+      "\t@summary converts subtitles from one format to another.",
+      "\t@returns string",
+      "\t@route /api/v1/directstream/subs/convert-subs [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/directstream.go",
+    "filename": "directstream.go",
+    "api": {
+      "summary": "converts subtitles from one format to another.",
+      "descriptions": [],
+      "endpoint": "/api/v1/directstream/subs/convert-subs",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Url",
+          "jsonName": "url",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Content",
+          "jsonName": "content",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "To",
+          "jsonName": "to",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleSetDiscordMangaActivity",
     "trimmedName": "SetDiscordMangaActivity",
     "comments": [

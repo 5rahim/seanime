@@ -2,7 +2,7 @@ import { vc_getCaptionStyle } from "@/app/(main)/_features/video-core/video-core
 import { getDefaultSubtitleTrackNumber } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
-import { CaptionsFileFormat, CaptionsRenderer, ParsedCaptionsResult, parseResponse, parseText, VTTCue, VTTRegion } from "media-captions"
+import { CaptionsRenderer, ParsedCaptionsResult, parseText, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
 import { toast } from "sonner"
@@ -25,10 +25,13 @@ export type MediaCaptionsTrack = {
     selected: boolean
 }
 
+type FetchAndConvertToVTT = (url?: string, content?: string) => Promise<string | undefined>
+
 export type MediaCaptionsManagerOptions = {
     videoElement: HTMLVideoElement
     tracks: MediaCaptionsTrackInfo[]
     settings: VideoCoreSettings
+    fetchAndConvertToVTT: FetchAndConvertToVTT
 }
 
 type LoadedTrack = {
@@ -103,6 +106,8 @@ export class MediaCaptionsManager extends EventTarget {
     private captionCustomization: VideoCoreSettings["captionCustomization"]
     private subtitleDelay = 0
 
+    private readonly fetchAndConvertToVTT: FetchAndConvertToVTT
+
     private _onSelectedTrackChanged?: (track: number | null) => void
     private _onTracksLoaded?: (tracks: MediaCaptionsTrack[]) => void
 
@@ -113,6 +118,7 @@ export class MediaCaptionsManager extends EventTarget {
         this.settings = options.settings
         this.captionCustomization = options.settings.captionCustomization
         this.subtitleDelay = options.settings.subtitleDelay ?? 0
+        this.fetchAndConvertToVTT = options.fetchAndConvertToVTT
 
         this.init()
     }
@@ -439,12 +445,11 @@ export class MediaCaptionsManager extends EventTarget {
             regions: [],
             loaded: false,
             loadFn: async () => {
-                if (track.src) {
-                    return await parseResponse(fetch(track.src))
-                } else if (track.content) {
-                    return await parseText(track.content, { type: track.type as CaptionsFileFormat || "vtt" })
-                }
-                return null
+                // short circuit for vtt content
+                if (track.content && track.type === "vtt") return await parseText(track.content)
+                const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
+                if (!vttContent) return null
+                return await parseText(vttContent)
             },
         })
 
@@ -536,13 +541,11 @@ export class MediaCaptionsManager extends EventTarget {
                     regions: [],
                     loaded: false,
                     loadFn: async () => {
-                        if (track.src) {
-                            return await parseResponse(fetch(track.src))
-                        } else if (track.content) {
-                            return await parseText(track.content)
-                        } else {
-                            return null
-                        }
+                        // short circuit for vtt content
+                        if (track.content && track.type === "vtt") return await parseText(track.content)
+                        const vttContent = await this.fetchAndConvertToVTT(track.src, track.content)
+                        if (!vttContent) return null
+                        return await parseText(vttContent)
                     },
                 })
 

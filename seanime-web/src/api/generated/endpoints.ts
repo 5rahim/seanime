@@ -606,6 +606,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/directstream/subs/convert-to-ass",
         },
+        DirectstreamConvertSubs: {
+            key: "DIRECTSTREAM-directstream-convert-subs",
+            methods: ["POST"],
+            endpoint: "/api/v1/directstream/subs/convert-subs",
+        },
     },
     DISCORD: {
         SetDiscordMangaActivity: {

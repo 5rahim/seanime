@@ -426,6 +426,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.HEAD("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
 	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
 	v1.POST("/directstream/subs/convert-to-ass", h.HandleDirectstreamFetchAndConvertToASS)
+	v1.POST("/directstream/subs/convert-subs", h.HandleDirectstreamConvertSubs)
 
 	//
 	// Torrent stream

@@ -1,9 +1,9 @@
+import { useDirectstreamConvertSubs } from "@/api/hooks/directstream.hooks"
 import { vc_isFullscreen, vc_mediaCaptionsManager, vc_subtitleManager } from "@/app/(main)/_features/video-core/video-core"
 import { logger } from "@/lib/helpers/debug"
 import { isApple } from "@/lib/utils/browser-detection"
 import { useAtomValue } from "jotai"
-import { parseResponse } from "media-captions"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const log = logger("VIDEO CORE iOS FULLSCREEN SUBTITLES")
 
@@ -27,6 +27,26 @@ export function useVideoCoreIOSFullscreenSubtitles({
     const subtitleManager = useAtomValue(vc_subtitleManager)
     const isFullscreen = useAtomValue(vc_isFullscreen)
 
+    const [flag, setFlag] = useState<boolean>(false)
+
+    // TODO still broken
+    useEffect(() => {
+        function reload() {
+            setFlag(p => !p)
+        }
+
+        subtitleManager?.addEventListener("trackadded", reload)
+        mediaCaptionsManager?.addEventListener("trackadded", reload)
+        return () => {
+            subtitleManager?.removeEventListener("trackadded", reload)
+            mediaCaptionsManager?.removeEventListener("trackadded", reload)
+        }
+    }, [subtitleManager, mediaCaptionsManager])
+
+    const { mutateAsync: convertSubs } = useDirectstreamConvertSubs({
+        onSuccess: (data) => {},
+    })
+
     useEffect(() => {
         // Only run on iOS devices
         if (!isIOSDevice || !videoElement) return
@@ -46,16 +66,20 @@ export function useVideoCoreIOSFullscreenSubtitles({
         const setupNativeSubtitles = async () => {
             try {
                 let subtitleSrc: string | null = null
+                let subtitleContent: string | null = null
                 let subtitleLabel = "Subtitles"
                 let subtitleLanguage = "en"
+                let subtitleType = "vtt"
 
                 // Get the currently selected subtitle track from either manager
                 if (mediaCaptionsManager) {
                     const selectedTrack = mediaCaptionsManager.getSelectedTrack()
                     if (selectedTrack) {
-                        subtitleSrc = selectedTrack.src
+                        subtitleSrc = selectedTrack.src ?? null
+                        subtitleContent = selectedTrack.content ?? null
                         subtitleLabel = selectedTrack.label
                         subtitleLanguage = selectedTrack.language
+                        subtitleType = selectedTrack.type ?? "vtt"
                         log.info("Using MediaCaptionsManager track", selectedTrack)
                     }
                 } else if (subtitleManager) {
@@ -67,28 +91,33 @@ export function useVideoCoreIOSFullscreenSubtitles({
                         const fileTrack = subtitleManager.getFileTrack(selectedTrackNumber)
                         if (fileTrack?.info?.src) {
                             subtitleSrc = fileTrack.info.src
+                            subtitleContent = fileTrack.info.content ?? null
                             subtitleLabel = fileTrack.info.label || selectedTrack?.label || "Subtitles"
                             subtitleLanguage = fileTrack.info.language || selectedTrack?.language || "en"
+                            subtitleType = fileTrack.info.type || "vtt"
                             log.info("Using SubtitleManager file track", fileTrack)
                         } else {
-                            log.warning("Selected track is MKV-based, cannot use for iOS native subtitles")
+                            log.warning("Selected track is event-based, cannot use for iOS native subtitles")
                             return
                         }
                     }
                 }
 
-                if (!subtitleSrc) {
+                if (!subtitleSrc && !subtitleContent) {
                     log.info("No subtitle track selected")
                     return
                 }
 
                 // Parse the subtitle file
                 log.info("Parsing subtitle file:", subtitleSrc)
-                const result = await parseResponse(fetch(subtitleSrc))
-
-                // Convert to VTT format
-                const vttContent = convertToVTT(result.cues)
-                const blob = new Blob([vttContent], { type: "text/vtt" })
+                const convertedContent = subtitleType === "vtt" && !!subtitleContent
+                    ? subtitleContent
+                    : await convertSubs({ url: subtitleSrc || "", content: subtitleContent || "", to: "vtt" })
+                if (!convertedContent) {
+                    log.error("Failed to convert subtitle file")
+                    return
+                }
+                const blob = new Blob([convertedContent], { type: "text/vtt" })
                 const blobUrl = URL.createObjectURL(blob)
 
                 // Remove any existing native tracks
@@ -136,44 +165,5 @@ export function useVideoCoreIOSFullscreenSubtitles({
             videoElement.removeEventListener("webkitendfullscreen", handleFullscreenChange)
             cleanupNativeSubtitles()
         }
-    }, [videoElement, subtitleManager, mediaCaptionsManager, isIOSDevice, isFullscreen])
+    }, [videoElement, subtitleManager, mediaCaptionsManager, isIOSDevice, isFullscreen, flag])
 }
-
-function convertToVTT(cues: any[]): string {
-    let vtt = "WEBVTT\n\n"
-
-    for (let i = 0; i < cues.length; i++) {
-        const cue = cues[i]
-
-        const startTime = formatVTTTimestamp(cue.startTime)
-        const endTime = formatVTTTimestamp(cue.endTime)
-
-        let text = cue.text || ""
-
-        // Add the cue
-        vtt += `${i + 1}\n`
-        vtt += `${startTime} --> ${endTime}\n`
-        vtt += `${text}\n\n`
-    }
-
-    return vtt
-}
-
-// Format seconds to VTT timestamp format (HH:MM:SS.mmm)
-function formatVTTTimestamp(timeInSeconds: number): string {
-    const hours = Math.floor(timeInSeconds / 3600)
-    const minutes = Math.floor((timeInSeconds % 3600) / 60)
-    const seconds = Math.floor(timeInSeconds % 60)
-    const milliseconds = Math.floor((timeInSeconds % 1) * 1000)
-
-    return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}.${pad(milliseconds, 3)}`
-}
-
-function pad(num: number, size: number): string {
-    let str = num.toString()
-    while (str.length < size) {
-        str = "0" + str
-    }
-    return str
-}
-

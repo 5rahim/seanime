@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	SubtitleTypeASS = iota
+	SubtitleTypeUnknown = iota
+	SubtitleTypeASS
 	SubtitleTypeSSA
 	SubtitleTypeSRT
 	SubtitleTypeSTL
 	SubtitleTypeTTML
 	SubtitleTypeWEBVTT
-	SubtitleTypeUnknown
 )
 
 func isProbablySrt(content string) bool {
