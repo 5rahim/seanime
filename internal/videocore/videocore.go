@@ -530,7 +530,8 @@ func (vc *VideoCore) Reset() {
 
 // StartOnlinestreamPlayback sends a start-onlinestream-playback command to the video player.
 func (vc *VideoCore) StartOnlinestreamWatchParty(params *OnlinestreamParams) {
-	vc.sendPlayerEventTo("", string(ServerEventStartOnlinestreamWatchParty), params)
+	// devnote: dispatch to all connected clients with sendPlayerEvent
+	vc.sendPlayerEvent(string(ServerEventStartOnlinestreamWatchParty), params)
 }
 
 // SendGetFullscreen sends a get-fullscreen request to the video player.
@@ -684,6 +685,12 @@ func (vc *VideoCore) listenToClientEvents() {
 				marshaled, _ := json.Marshal(clientEvent.Payload)
 				// Unmarshal the player event
 				if err := json.Unmarshal(marshaled, &playerEvent); err == nil {
+					// Validate that the event is from the current client
+					currentState, hasState := vc.GetPlaybackState()
+					if hasState && clientEvent.ClientID != "" && clientEvent.ClientID != currentState.ClientId {
+						continue
+					}
+
 					// Handle events
 					switch playerEvent.Type {
 					case PlayerEventVideoLoaded:

@@ -191,6 +191,7 @@ func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 		return err
 	}
 
+	m.peerId = peerID
 	hostConn := &HostConnection{
 		URL:           u.String(),
 		Conn:          conn,

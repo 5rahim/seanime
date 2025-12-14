@@ -40,22 +40,41 @@ import { ElectronPlaybackMethod, useCurrentDevicePlaybackSettings } from "../../
 export const nakamaModalOpenAtom = atom(false)
 export const nakamaStatusAtom = atom<Nakama_NakamaStatus | null | undefined>(undefined)
 
-export const watchPartySessionAtom = atom<Nakama_WatchPartySession | null | undefined>(undefined)
-
 export function useNakamaStatus() {
     return useAtomValue(nakamaStatusAtom)
 }
 
-export function useWatchPartySession() {
-    return useAtomValue(watchPartySessionAtom)
+export function useNakamaWatchParty() {
+    const nakamaStatus = useAtomValue(nakamaStatusAtom)
+    const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
+
+    const currentUserPeerId = React.useMemo(() => {
+        if (nakamaStatus?.isHost) {
+            return "host"
+        }
+        return nakamaStatus?.hostConnectionStatus?.peerId || null
+    }, [nakamaStatus])
+
+
+    const isParticipant = React.useMemo(() => {
+        if (!watchPartySession || !watchPartySession.participants) return false
+        return nakamaStatus?.isHost || !!(currentUserPeerId && currentUserPeerId in watchPartySession.participants)
+    }, [watchPartySession, nakamaStatus, currentUserPeerId])
+
+    return {
+        watchPartySession,
+        isParticipant,
+        currentUserPeerId,
+    }
 }
 
 export function NakamaManager() {
     const { sendMessage } = useWebsocketSender()
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
-    const [watchPartySession, setWatchPartySession] = useAtom(watchPartySessionAtom)
     const clientId = useAtomValue(clientIdAtom)
+
+    const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
 
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
@@ -101,14 +120,6 @@ export function NakamaManager() {
             refetchStatus()
         },
     })
-
-    React.useEffect(() => {
-        if (nakamaStatus?.currentWatchPartySession) {
-            setWatchPartySession(nakamaStatus.currentWatchPartySession)
-        } else {
-            setWatchPartySession(null)
-        }
-    }, [nakamaStatus])
 
     const websocketConnected = useAtomValue(websocketConnectedAtom)
 
@@ -167,11 +178,10 @@ export function NakamaManager() {
         leaveWatchParty(undefined, {
             onSuccess: () => {
                 toast.info("Leaving watch party")
-                setWatchPartySession(null)
                 refetchStatus()
             },
         })
-    }, [leaveWatchParty, setWatchPartySession, refetchStatus])
+    }, [leaveWatchParty, refetchStatus])
 
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_HOST_STARTED,

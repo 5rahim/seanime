@@ -3,13 +3,15 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { TextInput } from "@/components/ui/text-input"
+import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
-import { atom, useAtom } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import React from "react"
 import { BiChevronDown, BiChevronUp } from "react-icons/bi"
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2"
 import { IoSend } from "react-icons/io5"
-import { useNakamaStatus, useWatchPartySession } from "./nakama-manager"
+import { useNakamaWatchParty } from "./nakama-manager"
+
 
 type ChatMessage = {
     peerId: string
@@ -19,39 +21,18 @@ type ChatMessage = {
     messageId: string
 }
 
-const chatMessagesAtom = atom<ChatMessage[]>([])
-const chatMinimizedAtom = atom<boolean>(true)
-const unreadCountAtom = atom<number>(0)
+const log = logger("NAKAMA WATCH PARTY CHAT")
 
-export function NakamaWatchPartyChat() {
-    const watchPartySession = useWatchPartySession()
-    const nakamaStatus = useNakamaStatus()
-    const [messages, setMessages] = useAtom(chatMessagesAtom)
-    const [minimized, setMinimized] = useAtom(chatMinimizedAtom)
-    const [unreadCount, setUnreadCount] = useAtom(unreadCountAtom)
-    const [inputValue, setInputValue] = React.useState("")
-    const messagesEndRef = React.useRef<HTMLDivElement>(null)
-    const chatContainerRef = React.useRef<HTMLDivElement>(null)
-    const inputRef = React.useRef<HTMLInputElement>(null)
+export const watchPartyChat_chatMessagesAtom = atom<ChatMessage[]>([])
+export const watchPartyChat_chatMinimizedAtom = atom<boolean>(true)
+export const watchPartyChat_unreadCountAtom = atom<number>(5) // TODO set to 0
+export const watchPartyChat_isPlayerAtom = atom<boolean>(false)
 
-    const { mutate: sendChatMessage, isPending: isSending } = useNakamaSendChatMessage()
-
-    const currentUserPeerId = React.useMemo(() => {
-        if (nakamaStatus?.isHost) {
-            return "host"
-        }
-        return nakamaStatus?.hostConnectionStatus?.peerId || null
-    }, [nakamaStatus])
-
-    const isParticipant = React.useMemo(() => {
-        if (!watchPartySession) return false
-        const participants = watchPartySession.participants || {}
-        if (nakamaStatus?.isHost) {
-            return true
-        }
-        // If user is a peer, check if they're in the participants list
-        return !!(currentUserPeerId && participants[currentUserPeerId])
-    }, [watchPartySession, nakamaStatus, currentUserPeerId])
+export function NakamaWatchPartyChatProvider() {
+    const { watchPartySession, isParticipant, currentUserPeerId } = useNakamaWatchParty()
+    const [messages, setMessages] = useAtom(watchPartyChat_chatMessagesAtom)
+    const [minimized, setMinimized] = useAtom(watchPartyChat_chatMinimizedAtom)
+    const [unreadCount, setUnreadCount] = useAtom(watchPartyChat_unreadCountAtom)
 
     // Listen for chat messages
     useWebsocketMessageListener<ChatMessage>({
@@ -67,6 +48,39 @@ export function NakamaWatchPartyChat() {
         },
     })
 
+    // Clear messages when session ends
+    React.useEffect(() => {
+        if (!watchPartySession) {
+            setMessages([])
+            setUnreadCount(0)
+        }
+    }, [watchPartySession, setMessages])
+
+    return null
+}
+
+export function NakamaWatchPartyChat(props: { layout?: "fixed" | "videocore" }) {
+    const { layout = "fixed" } = props
+    const isPlayer = useAtomValue(watchPartyChat_isPlayerAtom)
+    // if it's currently shown in the player, don't display the fixed version
+    if (layout === "fixed" && isPlayer) return null
+
+    return <Content layout={layout} />
+}
+
+function Content(props: { layout: "fixed" | "videocore" }) {
+    const { layout } = props
+    const { watchPartySession, isParticipant, currentUserPeerId } = useNakamaWatchParty()
+    const [messages, setMessages] = useAtom(watchPartyChat_chatMessagesAtom)
+    const [minimized, setMinimized] = useAtom(watchPartyChat_chatMinimizedAtom)
+    const [unreadCount, setUnreadCount] = useAtom(watchPartyChat_unreadCountAtom)
+    const [inputValue, setInputValue] = React.useState("")
+    const messagesEndRef = React.useRef<HTMLDivElement>(null)
+    const chatContainerRef = React.useRef<HTMLDivElement>(null)
+    const inputRef = React.useRef<HTMLInputElement>(null)
+
+    const { mutate: sendChatMessage, isPending: isSending } = useNakamaSendChatMessage()
+
     // Auto-scroll to bottom when new messages arrive
     React.useEffect(() => {
         if (!minimized && messagesEndRef.current) {
@@ -81,14 +95,6 @@ export function NakamaWatchPartyChat() {
             inputRef.current?.focus()
         }
     }, [minimized])
-
-    // Clear messages when session ends
-    React.useEffect(() => {
-        if (!watchPartySession) {
-            setMessages([])
-            setUnreadCount(0)
-        }
-    }, [watchPartySession, setMessages])
 
     const handleSendMessage = () => {
         if (!inputValue.trim() || isSending) return
@@ -114,22 +120,38 @@ export function NakamaWatchPartyChat() {
         }
     }
 
-    function isHostMessage(msg: ChatMessage) {
-        return msg.peerId === "host"
-    }
-
     // Don't show chat if there's no session or user is not a participant
     if (!watchPartySession || !isParticipant) return null
+
+    if (layout === "videocore") {
+        return (
+            <ChatContent
+                messages={messages}
+                currentUserPeerId={currentUserPeerId}
+                messagesEndRef={messagesEndRef}
+                chatContainerRef={chatContainerRef}
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                handleKeyPress={handleKeyPress}
+                isSending={isSending}
+                inputRef={inputRef}
+                handleSendMessage={handleSendMessage}
+            />
+        )
+    }
 
     return (
         <div
             className={cn(
-                "fixed bottom-4 right-4 z-[40] flex flex-col bg-gray-900 border rounded-lg shadow-2xl transition-all duration-300",
+                "fixed bottom-4 left-20 z-[40] hidden lg:flex flex-col bg-gray-900 border rounded-xl shadow-2xl transition-all duration-300",
                 minimized ? "w-64 h-14" : "w-[400px] h-[500px]",
             )}
         >
             <div
-                className="flex items-center justify-between px-4 py-3 border-b cursor-pointer hover:bg-gray-800/50 transition-colors rounded-t-lg"
+                className={cn(
+                    "flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-800/50 transition-colors rounded-t-lg",
+                    minimized && "h-full",
+                )}
                 onClick={() => setMinimized(!minimized)}
             >
                 <div className="flex items-center gap-2">
@@ -153,76 +175,122 @@ export function NakamaWatchPartyChat() {
             </div>
 
             {!minimized && (
-                <>
-                    <div
-                        ref={chatContainerRef}
-                        className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
-                    >
-                        {messages.length === 0 ? (
-                            <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                                No messages yet
-                            </div>
-                        ) : (
-                            messages.map((msg) => {
-                                const isOwnMessage = msg.peerId === currentUserPeerId
-                                return (
-                                    <div
-                                        key={msg.messageId}
-                                        className={cn(
-                                            "flex flex-col gap-1 p-2 rounded",
-                                            isOwnMessage && "bg-gray-800",
-                                        )}
-                                    >
-                                        <div className="flex items-baseline justify-between gap-2">
-                                            <span
-                                                className={cn(
-                                                    "font-semibold text-sm tracking-wide",
-                                                    "text-white",
-                                                )}
-                                            >
-                                                {isOwnMessage ? "Me" : msg.username}{isHostMessage(msg) && " (Host)"}:{" "}
-                                            </span>
-                                            <span className="text-xs text-gray-500">
-                                                {new Date(msg.timestamp).toLocaleTimeString([], {
-                                                    hour: "2-digit",
-                                                    minute: "2-digit",
-                                                })}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-200 break-words whitespace-pre-wrap">{msg.message}</p>
-                                    </div>
-                                )
-                            })
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    <div className="p-2 border-t border-gray-800">
-                        <div className="flex gap-2 items-center">
-                            <TextInput
-                                value={inputValue}
-                                onValueChange={setInputValue}
-                                onKeyDown={handleKeyPress}
-                                placeholder="Type a message..."
-                                disabled={isSending}
-                                className="flex-1 h-10"
-                                size="sm"
-                                ref={inputRef}
-                                autoFocus
-                                autoComplete="off"
-                            />
-                            <IconButton
-                                icon={<IoSend />}
-                                onClick={handleSendMessage}
-                                disabled={!inputValue.trim() || isSending}
-                                intent="primary"
-                                size="sm"
-                            />
-                        </div>
-                    </div>
-                </>
+                <ChatContent
+                    messages={messages}
+                    currentUserPeerId={currentUserPeerId}
+                    messagesEndRef={messagesEndRef}
+                    chatContainerRef={chatContainerRef}
+                    inputValue={inputValue}
+                    setInputValue={setInputValue}
+                    handleKeyPress={handleKeyPress}
+                    isSending={isSending}
+                    inputRef={inputRef}
+                    handleSendMessage={handleSendMessage}
+                />
             )}
         </div>
     )
 }
 
+function ChatContent(props: {
+    messages: ChatMessage[]
+    currentUserPeerId: string | null | undefined
+    messagesEndRef: React.RefObject<HTMLDivElement>
+    chatContainerRef: React.RefObject<HTMLDivElement>
+    inputValue: string
+    setInputValue: (value: string) => void
+    handleKeyPress: (e: React.KeyboardEvent) => void
+    isSending: boolean
+    inputRef: React.RefObject<HTMLInputElement>
+    handleSendMessage: () => void
+}) {
+    const {
+        messages,
+        currentUserPeerId,
+        messagesEndRef,
+        chatContainerRef,
+        inputValue,
+        setInputValue,
+        handleKeyPress,
+        isSending,
+        inputRef,
+        handleSendMessage,
+    } = props
+
+    function isHostMessage(msg: ChatMessage) {
+        return msg.peerId === "host"
+    }
+
+    return (
+        <>
+            <div
+                ref={chatContainerRef}
+                className={cn(
+                    "flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent",
+                )}
+            >
+                {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-[--muted] text-sm">
+                        No messages yet
+                    </div>
+                ) : (
+                    messages.map((msg) => {
+                        const isOwnMessage = msg.peerId === currentUserPeerId
+                        return (
+                            <div
+                                key={msg.messageId}
+                                className={cn(
+                                    "flex flex-col gap-1 p-2 rounded",
+                                    isOwnMessage && "bg-gray-800",
+                                )}
+                            >
+                                <div className="flex items-baseline justify-between gap-2">
+                                    <span
+                                        className={cn(
+                                            "font-semibold text-sm tracking-wide",
+                                            "text-white",
+                                        )}
+                                    >
+                                        {isOwnMessage ? "Me" : msg.username}{isHostMessage(msg) && " (Host)"}:{" "}
+                                    </span>
+                                    <span className="text-xs text-[--muted]">
+                                        {new Date(msg.timestamp).toLocaleTimeString([], {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-200 break-words whitespace-pre-wrap">{msg.message}</p>
+                            </div>
+                        )
+                    })
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+
+            <div className="p-2">
+                <div className="flex gap-2 items-center">
+                    <TextInput
+                        value={inputValue}
+                        onValueChange={setInputValue}
+                        onKeyDown={handleKeyPress}
+                        placeholder="Type a message..."
+                        disabled={isSending}
+                        className="flex-1 h-10"
+                        size="sm"
+                        ref={inputRef}
+                        autoFocus
+                        autoComplete="off"
+                    />
+                    <IconButton
+                        icon={<IoSend />}
+                        onClick={handleSendMessage}
+                        disabled={!inputValue.trim() || isSending}
+                        intent="primary"
+                        size="sm"
+                    />
+                </div>
+            </div>
+        </>
+    )
+}

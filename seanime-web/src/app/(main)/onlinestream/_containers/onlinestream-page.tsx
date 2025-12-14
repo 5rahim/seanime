@@ -639,7 +639,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     onPlayEpisode={handlePlayEpisode}
                                     onVideoSourceChange={changeQuality}
                                     onHlsFatalError={(err) => onFatalError(`HLS error: ${err.error.message}`)}
-                                    onTerminateStream={() => setUrl(null)}
+                                    onTerminateStream={() => {
+                                        setUrl(null)
+                                        setPlaybackError("Stream terminated")
+                                    }}
                                 />
                             </div>
                         </VideoCoreProvider>

@@ -56,6 +56,7 @@ import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-c
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
+import { VideoCoreWatchPartyChat } from "@/app/(main)/_features/video-core/video-core-watch-party-chat"
 import {
     vc_autoNextAtom,
     vc_autoPlayVideoAtom,
@@ -539,6 +540,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreTimestamp />
                             <div className="flex flex-1" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
+                            <VideoCoreWatchPartyChat />
                             <VideoCoreSettingsMenu />
                             <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
                             <VideoCoreSubtitleMenu inline={inline} />
@@ -802,23 +804,6 @@ export function VideoCore(props: VideoCoreProps) {
             videoRef?.current?.pause()
             onPause?.()
             flashAction({ message: "PAUSE", type: "icon" })
-        }
-    }
-
-    function onCaptionsChange() {
-        log.info("Subtitles changed", videoRef.current?.textTracks)
-        if (videoRef.current) {
-            let trackFound = false
-            for (let i = 0; i < videoRef.current.textTracks.length; i++) {
-                const track = videoRef.current.textTracks[i]
-                if (track.mode === "showing") {
-                    subtitleManager?.selectTrack(Number(track.id))
-                    trackFound = true
-                }
-            }
-            if (!trackFound) {
-                subtitleManager?.setNoTrack()
-            }
         }
     }
 

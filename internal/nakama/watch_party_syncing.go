@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const debugSyncing = true
+const debugSyncing = false
 
 // handleWatchPartyPlaybackStatusEvent is called when the host sends a playback status.
 //

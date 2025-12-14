@@ -4,6 +4,7 @@ import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
 import { useServerHMACAuth } from "@/app/(main)/_hooks/use-server-status"
+import { __anime_entryPageViewAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_qualityAtom,
@@ -492,11 +493,11 @@ export function useNakamaOnlineStreamWatchParty() {
     const router = useRouter()
     const nakamaStatus = useNakamaStatus()
 
+    const setCurrentView = useSetAtom(__anime_entryPageViewAtom)
+
     const redirectToStream = useLatestFunction((params: OnlineStreamParams) => {
-        router.push("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
-    })
-    const replaceStream = useLatestFunction((params: OnlineStreamParams) => {
-        router.replace("/entry?id=" + params.mediaId + "&tab=onlinestream&provider=" + params.provider + "&episodeNumber=" + params.episodeNumber + "&server=" + params.server + "&quality=" + params.quality + "&dubbed=" + params.dubbed)
+        router.push("/entry?id=" + params.mediaId + "&tab=onlinestream")
+        setCurrentView("onlinestream")
     })
 
     const startOnlineStreamWatchParty = useLatestFunction((params: VideoCore_OnlinestreamParams) => {
