@@ -11,6 +11,7 @@ import (
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
+	"seanime/internal/videocore"
 	"strconv"
 	"time"
 
@@ -313,6 +314,8 @@ type StartUntrackedStreamOptions struct {
 	PlaybackType PlaybackType
 }
 
+// StopStream stops the stream and closes the server.
+// If fromNativePlayer is true, it will not stop the native player again.
 func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 	defer func() {
 		if r := recover(); r != nil {
@@ -344,7 +347,9 @@ func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 
 	if len(fromNativePlayer) == 0 || fromNativePlayer[0] == false {
 		go func() {
-			r.nativePlayer.Stop()
+			if playbackType, ok := r.nativePlayer.VideoCore().GetCurrentPlaybackType(); ok && playbackType == videocore.PlaybackTypeTorrent {
+				r.nativePlayer.Stop()
+			}
 		}()
 	}
 

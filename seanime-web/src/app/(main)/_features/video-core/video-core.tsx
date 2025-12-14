@@ -25,7 +25,7 @@ import {
     VideoCoreVolumeButton,
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
-import { useVideoCoreEvents, useVideoCoreSetupEvents } from "@/app/(main)/_features/video-core/video-core-events"
+import { useVideoCoreSetupEvents } from "@/app/(main)/_features/video-core/video-core-events"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import {
     useVideoCoreHls,
@@ -665,7 +665,6 @@ export function VideoCore(props: VideoCoreProps) {
         dispatchVideoErrorEvent,
         dispatchCanPlayEvent,
     } = useVideoCoreSetupEvents(props.id, state, videoRef, onTerminateStream)
-    const { sendEvent } = useVideoCoreEvents()
 
     const { width: windowWidth } = useWindowSize()
     const [isMobilePlayer, setIsMobilePlayer] = useAtom(vc_isMobile)
@@ -897,7 +896,7 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         // When a new playback info is received
-        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
+        if (!!state.playbackInfo?.id && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
             hasSoughtRef.current = false
             isFirstError.current = true
             log.info("New stream loaded", state.playbackInfo)
@@ -1243,7 +1242,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.error("Video error", e)
-        if (isFirstError.current) {
+        if (isFirstError.current && props.id !== "native-player") {
             // Change stream type to HLS if it failed to load
             log.warning("Video player could not load the URL, switching to HLS")
             setStreamType("hls")

@@ -224,7 +224,7 @@ type VideoEvent interface {
 	GetPlaybackId() string
 	GetClientId() string
 	IsCritical() bool
-	Identify(id string, clientId string, playerType PlayerType, playbackType PlaybackType)
+	identify(id string, clientId string, playerType PlayerType, playbackType PlaybackType)
 }
 
 type BaseVideoEvent struct {
@@ -243,7 +243,7 @@ func (e *BaseVideoEvent) IsTorrent() bool               { return e.PlaybackType 
 func (e *BaseVideoEvent) IsNakama() bool                { return e.PlaybackType == PlaybackTypeNakama }
 func (e *BaseVideoEvent) IsDebrid() bool                { return e.PlaybackType == PlaybackTypeDebrid }
 func (e *BaseVideoEvent) IsCritical() bool              { return true }
-func (e *BaseVideoEvent) Identify(id string, clientId string, playerType PlayerType, playbackType PlaybackType) {
+func (e *BaseVideoEvent) identify(id string, clientId string, playerType PlayerType, playbackType PlaybackType) {
 	e.PlaybackId = id
 	e.ClientId = clientId
 	e.PlayerType = playerType

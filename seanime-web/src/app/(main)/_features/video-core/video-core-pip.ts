@@ -45,15 +45,15 @@ export class VideoCorePipManager extends EventTarget {
         document.addEventListener("leavepictureinpicture", this.handleLeavePip, {
             signal: this.controller.signal,
         })
-        window.addEventListener("visibilitychange", () => {
-            const shouldAutoPip = document.visibilityState !== "visible" &&
-                this.video &&
-                !this.video.paused
-
-            if (shouldAutoPip) {
-                this.togglePip(true)
-            }
-        }, { signal: this.controller.signal })
+        // window.addEventListener("visibilitychange", () => {
+        //     const shouldAutoPip = document.visibilityState !== "visible" &&
+        //         this.video &&
+        //         !this.video.paused
+        //
+        //     if (shouldAutoPip) {
+        //         this.togglePip(true)
+        //     }
+        // }, { signal: this.controller.signal })
     }
 
     addEventListener<K extends keyof VideoCorePipManagerEventMap>(

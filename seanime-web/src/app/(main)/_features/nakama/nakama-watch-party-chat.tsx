@@ -124,7 +124,7 @@ export function NakamaWatchPartyChat() {
     return (
         <div
             className={cn(
-                "fixed bottom-4 right-4 z-[99] flex flex-col bg-gray-900 border rounded-lg shadow-2xl transition-all duration-300",
+                "fixed bottom-4 right-4 z-[40] flex flex-col bg-gray-900 border rounded-lg shadow-2xl transition-all duration-300",
                 minimized ? "w-64 h-14" : "w-[400px] h-[500px]",
             )}
         >

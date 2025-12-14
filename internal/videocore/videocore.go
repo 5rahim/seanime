@@ -119,6 +119,12 @@ func (vc *VideoCore) Shutdown() {
 }
 
 func (vc *VideoCore) PushEvent(event VideoEvent) {
+	// Before pushing the event, identify it with the playback state.
+	state, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
+	event.identify(state.PlaybackInfo.Id, state.ClientId, state.PlayerType, state.PlaybackInfo.PlaybackType)
 	select {
 	case vc.eventBus <- event:
 	default:
@@ -127,11 +133,6 @@ func (vc *VideoCore) PushEvent(event VideoEvent) {
 }
 
 func (vc *VideoCore) dispatchEvent(event VideoEvent) {
-	state, ok := vc.GetPlaybackState()
-	if !ok {
-		return
-	}
-	event.Identify(state.PlaybackInfo.Id, state.ClientId, state.PlayerType, state.PlaybackInfo.PlaybackType)
 	//if _, ok := event.(*VideoStatusEvent); !ok {
 	//	vc.logger.Debug().Msgf("videocore: Dispatching event %T", event)
 	//} else {
@@ -255,12 +256,16 @@ func (vc *VideoCore) GetPlaybackStatus() (*PlaybackStatus, bool) {
 	return vc.playbackStatus, vc.playbackStatus != nil && len(vc.playbackStatus.Id) > 0 && vc.playbackStatus.Duration > 0
 }
 
+// GetPlaybackState returns the current playback state of the player.
+// This will return nil right after VideoTerminatedEvent is received.
 func (vc *VideoCore) GetPlaybackState() (*PlaybackState, bool) {
 	vc.playbackStateMu.RLock()
 	defer vc.playbackStateMu.RUnlock()
 	return vc.playbackState, vc.playbackState != nil && vc.playbackState.PlaybackInfo != nil && vc.playbackState.PlaybackInfo.Episode != nil
 }
 
+// GetCurrentPlaybackInfo returns the current playback info of the player.
+// This will return nil right after VideoTerminatedEvent is received.
 func (vc *VideoCore) GetCurrentPlaybackInfo() (*VideoPlaybackInfo, bool) {
 	vc.playbackStateMu.RLock()
 	defer vc.playbackStateMu.RUnlock()
@@ -270,6 +275,8 @@ func (vc *VideoCore) GetCurrentPlaybackInfo() (*VideoPlaybackInfo, bool) {
 	return vc.playbackState.PlaybackInfo, true
 }
 
+// GetCurrentMedia returns the current media.
+// This will return nil right after VideoTerminatedEvent is received.
 func (vc *VideoCore) GetCurrentMedia() (*anilist.BaseAnime, bool) {
 	info, ok := vc.GetCurrentPlaybackInfo()
 	if !ok {
@@ -278,6 +285,8 @@ func (vc *VideoCore) GetCurrentMedia() (*anilist.BaseAnime, bool) {
 	return info.Media, true
 }
 
+// GetCurrentClientId returns the current client id.
+// This will return an empty string right after VideoTerminatedEvent is received, use VideoEvent.GetClientId() instead.
 func (vc *VideoCore) GetCurrentClientId() string {
 	state, ok := vc.GetPlaybackState()
 	if !ok {
@@ -286,6 +295,8 @@ func (vc *VideoCore) GetCurrentClientId() string {
 	return state.ClientId
 }
 
+// GetCurrentPlayerType returns the current player type.
+// This will return false right after VideoTerminatedEvent is received, use VideoEvent.GetPlayerType() instead.
 func (vc *VideoCore) GetCurrentPlayerType() (PlayerType, bool) {
 	state, ok := vc.GetPlaybackState()
 	if !ok {
@@ -294,6 +305,8 @@ func (vc *VideoCore) GetCurrentPlayerType() (PlayerType, bool) {
 	return state.PlayerType, true
 }
 
+// GetCurrentPlaybackType returns the current playback type.
+// This will return false right after VideoTerminatedEvent is received, use VideoEvent.GetPlaybackType() instead.
 func (vc *VideoCore) GetCurrentPlaybackType() (PlaybackType, bool) {
 	info, ok := vc.GetCurrentPlaybackInfo()
 	if !ok {
@@ -494,13 +507,24 @@ func (vc *VideoCore) PlayEpisode(which string) {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayEpisode), which)
 }
 
-// Terminate sends a terminate command to the video player.
+// Terminate sends a terminate command to the video player and clears the playback state.
+// The video player should stop on the client.
 func (vc *VideoCore) Terminate() {
 	state, ok := vc.GetPlaybackState()
 	if !ok {
 		return
 	}
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventTerminate), nil)
+	vc.clearPlayback()
+}
+
+// Reset clears the current playback state without sending a terminate command to the video player.
+// This will cause further client events to be ignored until a new playback state is set.
+func (vc *VideoCore) Reset() {
+	_, ok := vc.GetPlaybackState()
+	if !ok {
+		return
+	}
 	vc.clearPlayback()
 }
 

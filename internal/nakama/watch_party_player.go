@@ -34,7 +34,7 @@ func NewWatchPartyGenericPlayer(manager *Manager) *WatchPartyGenericPlayer {
 		subscribers: result.NewMap[string, *WatchPartyPlaybackSubscriber](),
 	}
 	ret.defaultPlayer.Store(string(WatchPartyPlaybackManager))
-	ret.current.Store(string(WatchPartyPlaybackManager))
+	ret.current.Store("")
 	return ret
 }
 
@@ -181,26 +181,19 @@ func (e *WatchPartyPlayerVideoEnded) Type() string {
 func (m *WatchPartyGenericPlayer) Unsubscribe(id string) {
 	defer util.HandlePanicInModuleThen("nakama/UnsubscribeToPlaybackStatus", func() {})
 
-	subscriber, ok := m.subscribers.Get(id)
-	if !ok {
-		return
+	if subscriber, ok := m.subscribers.Pop(id); ok {
+		// Playback manager
+		if subscriber.playbackManagerSubscriber != nil {
+			m.manager.playbackManager.UnsubscribeFromPlaybackStatus(subscriber.id)
+		}
+		// Video core
+		if subscriber.videoCoreSubscriber != nil {
+			m.manager.videoCore.Unsubscribe(subscriber.id)
+		}
+		subscriber.closeOnce.Do(func() {
+			close(subscriber.EventCh)
+		})
 	}
-
-	// Playback manager
-	if subscriber.playbackManagerSubscriber != nil {
-		m.manager.playbackManager.UnsubscribeFromPlaybackStatus(subscriber.id)
-	}
-
-	// Video core
-	if subscriber.videoCoreSubscriber != nil {
-		m.manager.videoCore.Unsubscribe(subscriber.id)
-	}
-
-	subscriber.closeOnce.Do(func() {
-		close(subscriber.EventCh)
-	})
-
-	m.subscribers.Delete(id)
 }
 
 func fromPlaybackManagerStatus(event playbackmanager.PlaybackStatusChangedEvent) *WatchPartyPlayerVideoStatus {
@@ -280,36 +273,32 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 
 	go func() {
 		defer util.HandlePanicInModuleThen("nakama/Subscribe", func() {})
-		for {
-			select {
-			case e := <-playbackManagerSubscriber.EventCh:
-				switch event := e.(type) {
-				case playbackmanager.StreamStartedEvent:
-
-					// Guess the stream type from filepath, in this case the filepath will be a URL
-					streamType := WatchPartyStreamTypeFile
-					if strings.Contains(event.Filepath, "type=file") { //
-						streamType = WatchPartyStreamTypeFile
-					} else if strings.Contains(event.Filepath, "/api/v1/torrentstream") { // Torrent stream URL
-						streamType = WatchPartyStreamTypeTorrent
-					} else { // Any other URL is probably a debrid link
-						streamType = WatchPartyStreamTypeDebrid
-					}
-
-					subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
-						StreamType: streamType,
-					}
-				case playbackmanager.VideoStartedEvent:
-					// Video playing, it's a local file
-					subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
-						StreamType: WatchPartyStreamTypeFile,
-					}
-				case playbackmanager.PlaybackStatusChangedEvent:
-					// Convert status
-					subscriber.EventCh <- fromPlaybackManagerStatus(event)
-				case playbackmanager.StreamStoppedEvent, playbackmanager.VideoStoppedEvent:
-					subscriber.EventCh <- &WatchPartyPlayerVideoEnded{}
+		for e := range playbackManagerSubscriber.EventCh {
+			switch event := e.(type) {
+			case playbackmanager.StreamStartedEvent:
+				// Guess the stream type from filepath, since it's a stream the filepath will be a URL
+				streamType := WatchPartyStreamTypeFile
+				if strings.Contains(event.Filepath, "type=file") { //
+					streamType = WatchPartyStreamTypeFile
+				} else if strings.Contains(event.Filepath, "/api/v1/torrentstream") { // Torrent stream URL
+					streamType = WatchPartyStreamTypeTorrent
+				} else { // Any other URL is probably a debrid link
+					streamType = WatchPartyStreamTypeDebrid
 				}
+
+				subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
+					StreamType: streamType,
+				}
+			case playbackmanager.VideoStartedEvent:
+				// Video playing, it's a local file
+				subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
+					StreamType: WatchPartyStreamTypeFile,
+				}
+			case playbackmanager.PlaybackStatusChangedEvent:
+				// Convert status
+				subscriber.EventCh <- fromPlaybackManagerStatus(event)
+			case playbackmanager.StreamStoppedEvent, playbackmanager.VideoStoppedEvent:
+				subscriber.EventCh <- &WatchPartyPlayerVideoEnded{}
 			}
 		}
 	}()
@@ -319,36 +308,33 @@ func (m *WatchPartyGenericPlayer) Subscribe(id string) *WatchPartyPlaybackSubscr
 
 	go func() {
 		defer util.HandlePanicInModuleThen("nakama/Subscribe", func() {})
-		for {
-			select {
-			case e := <-videoCoreSubscriber.Events():
-				switch event := e.(type) {
-				case *videocore.VideoLoadedMetadataEvent:
-					// Convert the stream type
-					streamType := WatchPartyStreamTypeFile
-					if event.PlaybackType == videocore.PlaybackTypeLocalFile {
-						streamType = WatchPartyStreamTypeFile
-					} else if event.PlaybackType == videocore.PlaybackTypeTorrent {
-						streamType = WatchPartyStreamTypeTorrent
-					} else if event.PlaybackType == videocore.PlaybackTypeDebrid {
-						streamType = WatchPartyStreamTypeDebrid
-					} else if event.PlaybackType == videocore.PlaybackTypeOnlinestream {
-						streamType = WatchPartyStreamTypeOnlinestream
-					}
-
-					subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
-						StreamType: streamType,
-					}
-				case *videocore.VideoStatusEvent:
-					state, ok := m.manager.videoCore.GetPlaybackState()
-					if !ok {
-						continue
-					}
-					// Convert status
-					subscriber.EventCh <- fromVideoCoreStatus(event, state)
-				case *videocore.VideoEndedEvent:
-					subscriber.EventCh <- &WatchPartyPlayerVideoEnded{}
+		for e := range videoCoreSubscriber.Events() {
+			switch event := e.(type) {
+			case *videocore.VideoLoadedMetadataEvent:
+				// Convert the stream type
+				streamType := WatchPartyStreamTypeFile
+				if event.PlaybackType == videocore.PlaybackTypeLocalFile {
+					streamType = WatchPartyStreamTypeFile
+				} else if event.PlaybackType == videocore.PlaybackTypeTorrent {
+					streamType = WatchPartyStreamTypeTorrent
+				} else if event.PlaybackType == videocore.PlaybackTypeDebrid {
+					streamType = WatchPartyStreamTypeDebrid
+				} else if event.PlaybackType == videocore.PlaybackTypeOnlinestream {
+					streamType = WatchPartyStreamTypeOnlinestream
 				}
+
+				subscriber.EventCh <- &WatchPartyPlayerVideoStarted{
+					StreamType: streamType,
+				}
+			case *videocore.VideoStatusEvent:
+				state, ok := m.manager.videoCore.GetPlaybackState()
+				if !ok {
+					continue
+				}
+				// Convert status
+				subscriber.EventCh <- fromVideoCoreStatus(event, state)
+			case *videocore.VideoEndedEvent:
+				subscriber.EventCh <- &WatchPartyPlayerVideoEnded{}
 			}
 		}
 	}()

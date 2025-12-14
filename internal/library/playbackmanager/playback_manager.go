@@ -663,11 +663,8 @@ func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
 			pm.Logger.Warn().Msg("playback manager: Failed to unsubscribe from playback status")
 		}
 	}()
-	subscriber, ok := pm.playbackStatusSubscribers.Get(id)
-	if !ok {
-		return
+	if subscriber, ok := pm.playbackStatusSubscribers.Pop(id); ok {
+		subscriber.Canceled.Store(true)
+		close(subscriber.EventCh)
 	}
-	subscriber.Canceled.Store(true)
-	pm.playbackStatusSubscribers.Delete(id)
-	close(subscriber.EventCh)
 }

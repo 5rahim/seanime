@@ -62760,6 +62760,15 @@
         ]
       },
       {
+        "name": "clientId",
+        "jsonName": "clientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "useDenshiPlayer",
         "jsonName": "useDenshiPlayer",
         "goType": "bool",
@@ -63545,6 +63554,15 @@
     "formattedName": "Nakama_NakamaStatusRequestedPayload",
     "package": "nakama",
     "fields": [
+      {
+        "name": "ClientId",
+        "jsonName": "clientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "UseDenshiPlayer",
         "jsonName": "useDenshiPlayer",

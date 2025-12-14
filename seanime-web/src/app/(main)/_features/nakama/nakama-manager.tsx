@@ -75,9 +75,9 @@ export function NakamaManager() {
         sendMessage({
             type: WSEvents.NAKAMA_STATUS_REQUESTED,
             payload: {
-                // Tell the server if we're a Denshi client or not
-                // This is used to determine if we should use the native player or not
+                // Tell the server whether this client is using the native player
                 useDenshiPlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
+                clientId: clientId || "",
             },
         })
     }

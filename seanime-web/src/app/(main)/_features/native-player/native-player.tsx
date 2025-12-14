@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { MKVParser_SubtitleEvent, MKVParser_TrackInfo, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
+import { MKVParser_SubtitleEvent, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
@@ -139,10 +139,6 @@ export function NativePlayer() {
                 case "subtitle-event":
                     subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
-                // case "add-subtitle-track":
-                //     log.info("Add subtitle track event received", payload)
-                //     subtitleManager?.addEventTrack(payload as MKVParser_TrackInfo)
-                //     break
                 case "terminate":
                     log.info("Terminate event received")
                     handleTerminateStream()
@@ -186,10 +182,10 @@ export function NativePlayer() {
         }, 700)
 
         sendMessage({
-            type: WSEvents.NATIVE_PLAYER,
+            type: WSEvents.VIDEOCORE,
             payload: {
                 clientId: clientId,
-                type: VideoPlayerEvents.VIDEO_TERMINATED,
+                type: "video-terminated",
             },
         })
     }

@@ -222,7 +222,7 @@ type hostPlaybackHandleStatusOptions struct {
 }
 
 func (wpm *WatchPartyManager) hostPlaybackHandleStatus(opts hostPlaybackHandleStatusOptions) {
-	optionalTorrentStreamStartOptions, _ := wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
+	torrentStreamStartOptions, _ := wpm.manager.torrentstreamRepository.GetPreviousStreamOptions()
 
 	localFilePath := opts.localFilePath
 	newCurrentMediaInfo := &WatchPartySessionMediaInfo{
@@ -231,7 +231,7 @@ func (wpm *WatchPartyManager) hostPlaybackHandleStatus(opts hostPlaybackHandleSt
 		AniDBEpisode:        opts.aniDbEpisode,
 		StreamType:          opts.streamType,
 		LocalFilePath:       opts.localFilePath,
-		TorrentStreamParams: optionalTorrentStreamStartOptions,
+		TorrentStreamParams: torrentStreamStartOptions,
 		OnlinestreamParams:  opts.onlinestreamParams,
 	}
 
@@ -253,7 +253,7 @@ func (wpm *WatchPartyManager) hostPlaybackHandleStatus(opts hostPlaybackHandleSt
 		wpm.sequenceMu.Unlock()
 
 		// Send message
-		_ = wpm.manager.SendMessage(MessageTypeWatchPartyPlaybackStatus, WatchPartyPlaybackStatusPayload{
+		_ = wpm.manager.SendMessage(MessageTypeWatchPartyPlaybackStatus, &WatchPartyPlaybackStatusPayload{
 			PlaybackStatus: &WatchPartyPlaybackStatus{
 				Paused:      opts.paused,
 				CurrentTime: opts.currentTime,

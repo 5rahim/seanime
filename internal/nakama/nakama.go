@@ -70,6 +70,7 @@ type Manager struct {
 	previousPath string // latest file streamed by the peer - real path on the host
 
 	// Client settings
+	clientId        string
 	useDenshiPlayer bool         // Whether this client uses Denshi player
 	clientMu        sync.RWMutex // Mutex for client settings
 
@@ -200,7 +201,8 @@ type ClientEvent struct {
 }
 
 type NakamaStatusRequestedPayload struct {
-	UseDenshiPlayer bool `json:"useDenshiPlayer"`
+	ClientId        string `json:"clientId"`
+	UseDenshiPlayer bool   `json:"useDenshiPlayer"`
 }
 
 func NewManager(opts *NewManagerOptions) *Manager {
@@ -256,6 +258,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				// Store the client's UseDenshiPlayer setting
 				// This will be used to know which player to use when starting a stream
 				m.clientMu.Lock()
+				//m.clientId = payload.ClientId
 				m.useDenshiPlayer = payload.UseDenshiPlayer
 				m.clientMu.Unlock()
 				if m.useDenshiPlayer {

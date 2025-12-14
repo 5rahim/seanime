@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const debugSyncing = true
+
 // handleWatchPartyPlaybackStatusEvent is called when the host sends a playback status.
 //
 // We check if the peer is a participant in the session.
@@ -15,22 +17,33 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 		return
 	}
 
-	// wpm.logger.Debug().Msg("nakama: Received playback status from watch party")
+	if debugSyncing {
+		wpm.logger.Debug().Msg("nakama: Received playback status from watch party")
+	}
 
 	wpm.mu.Lock()
 	defer wpm.mu.Unlock()
 
 	session, ok := wpm.currentSession.Get()
 	if !ok {
+		if debugSyncing {
+			wpm.logger.Error().Msg("nakama: Cannot sync, no session")
+		}
 		return
 	}
 
 	hostConn, ok := wpm.manager.GetHostConnection()
 	if !ok {
+		if debugSyncing {
+			wpm.logger.Error().Msg("nakama: Cannot sync, no host connection")
+		}
 		return
 	}
 
 	if participant, isParticipant := session.Participants[hostConn.PeerId]; !isParticipant || participant.IsRelayOrigin {
+		if debugSyncing {
+			wpm.logger.Error().Msg("nakama: Cannot sync, not a participant")
+		}
 		return
 	}
 
@@ -44,6 +57,9 @@ func (wpm *WatchPartyManager) handleWatchPartyPlaybackStatusEvent(payload *Watch
 	// If the playback manager doesn't have a status, do nothing
 	playbackStatus, ok := wpm.manager.genericPlayer.PullStatus()
 	if !ok {
+		if debugSyncing {
+			wpm.logger.Error().Msg("nakama: Cannot sync, no status")
+		}
 		return
 	}
 

@@ -7,14 +7,12 @@ import (
 type ServerEvent string
 
 const (
-	ServerEventOpenAndAwait     ServerEvent = "open-and-await"
-	ServerEventAbortOpen        ServerEvent = "abort-open"
-	ServerEventWatch            ServerEvent = "watch"
-	ServerEventSubtitleEvent    ServerEvent = "subtitle-event"
-	ServerEventSetTracks        ServerEvent = "set-tracks"
-	ServerEventError            ServerEvent = "error"
-	ServerEventAddSubtitleTrack ServerEvent = "add-subtitle-track"
-	ServerEventTerminate        ServerEvent = "terminate"
+	ServerEventOpenAndAwait  ServerEvent = "open-and-await"
+	ServerEventAbortOpen     ServerEvent = "abort-open"
+	ServerEventWatch         ServerEvent = "watch"
+	ServerEventSubtitleEvent ServerEvent = "subtitle-event"
+	ServerEventSetTracks     ServerEvent = "set-tracks"
+	ServerEventError         ServerEvent = "error"
 )
 
 // OpenAndAwait opens the player and waits for the client to send the watch event.
@@ -50,19 +48,12 @@ func (p *NativePlayer) Error(clientId string, err error) {
 	}{
 		Error: err.Error(),
 	})
+	p.VideoCore().Reset()
 }
 
-// AddSubtitleTrack sends the subtitle track added event to the client.
-func (p *NativePlayer) AddSubtitleTrack(clientId string, track *mkvparser.TrackInfo) {
-	p.sendPlayerEventTo(clientId, string(ServerEventAddSubtitleTrack), track)
-}
-
-// Stop emits a VideoTerminatedEvent to all subscribers.
+// Stop terminates the videocore.VideoCore playback.
 // It should only be called by a module.
 func (p *NativePlayer) Stop() {
-	if p.playbackInfo == nil {
-		return
-	}
 	p.logger.Debug().Msg("nativeplayer: Stopping playback, notifying subscribers")
-	p.sendPlayerEvent(string(ServerEventTerminate), nil)
+	p.VideoCore().Terminate()
 }

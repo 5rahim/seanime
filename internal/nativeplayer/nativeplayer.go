@@ -7,7 +7,6 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
 	"seanime/internal/videocore"
-	"sync"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -44,13 +43,8 @@ type (
 	// NativePlayer is the built-in HTML5 video player in Seanime.
 	// There can only be one instance of this player at a time.
 	NativePlayer struct {
-		wsEventManager events.WSEventManagerInterface
-		videoCore      *videocore.VideoCore
-
-		playbackStatusMu sync.RWMutex
-		playbackStatus   *PlaybackStatus
-		playbackInfo     *PlaybackInfo
-
+		wsEventManager        events.WSEventManagerInterface
+		videoCore             *videocore.VideoCore
 		seekedEventCancelFunc context.CancelFunc
 
 		logger *zerolog.Logger
@@ -75,7 +69,6 @@ type (
 // There should be only one for the lifetime of the app.
 func New(options NewNativePlayerOptions) *NativePlayer {
 	np := &NativePlayer{
-		playbackStatus: &PlaybackStatus{},
 		wsEventManager: options.WsEventManager,
 		logger:         options.Logger,
 		videoCore:      options.VideoCore,
@@ -90,10 +83,6 @@ func (p *NativePlayer) VideoCore() *videocore.VideoCore {
 
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
 func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
-	if clientId == "" && p.playbackStatus != nil {
-		p.playbackStatus.ClientId = clientId
-	}
-
 	if clientId != "" {
 		p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
 			Type    string      `json:"type"`

@@ -411,10 +411,13 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 				wpm.manager.wsEventManager.SendEvent(events.ErrorToast, "Watch party: Failed to play media: Torrent streaming is not enabled")
 				return
 			}
-			// Make sure the torrent repository launches the stream using the native player
+			// Overwrite the player used and client ID
+			payload.Session.CurrentMediaInfo.TorrentStreamParams.ClientId = wpm.clientId
 			if wpm.manager.GetUseDenshiPlayer() {
 				payload.Session.CurrentMediaInfo.TorrentStreamParams.PlaybackType = torrentstream.PlaybackTypeNativePlayer
 			}
+
+			wpm.logger.Debug().Interface("params", payload.Session.CurrentMediaInfo.TorrentStreamParams).Msg("nakama: Starting torrent stream")
 
 			// Start the torrent
 			err = wpm.manager.torrentstreamRepository.StartStream(wpm.sessionCtx, payload.Session.CurrentMediaInfo.TorrentStreamParams)
