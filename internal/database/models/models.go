@@ -193,6 +193,7 @@ type TorrentSettings struct {
 	QBittorrentUsername  string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
 	QBittorrentPassword  string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
 	QBittorrentTags      string `gorm:"column:qbittorrent_tags" json:"qbittorrentTags"`
+	QBittorrentCategory  string `gorm:"column:qbittorrent_category" json:"qbittorrentCategory"`
 	TransmissionPath     string `gorm:"column:transmission_path" json:"transmissionPath"`
 	TransmissionHost     string `gorm:"column:transmission_host" json:"transmissionHost"`
 	TransmissionPort     int    `gorm:"column:transmission_port" json:"transmissionPort"`

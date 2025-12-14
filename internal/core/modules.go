@@ -478,6 +478,7 @@ func (a *App) InitOrRefreshModules() {
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
 			Tags:     settings.Torrent.QBittorrentTags,
+			Category: settings.Torrent.QBittorrentCategory,
 		})
 		// Login to qBittorrent
 		go func() {

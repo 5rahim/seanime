@@ -370,6 +370,7 @@ export default function Page() {
                                         qbittorrentPassword: data.qbittorrentPassword,
                                         qbittorrentUsername: data.qbittorrentUsername,
                                         qbittorrentTags: data.qbittorrentTags,
+                                        qbittorrentCategory: data.qbittorrentCategory,
                                         transmissionPath: data.transmissionPath,
                                         transmissionHost: data.transmissionHost,
                                         transmissionPort: data.transmissionPort,
@@ -433,6 +434,7 @@ export default function Page() {
                                 qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
                                 qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
                                 qbittorrentTags: status?.settings?.torrent?.qbittorrentTags,
+                                qbittorrentCategory: status?.settings?.torrent?.qbittorrentCategory,
                                 transmissionPath: status?.settings?.torrent?.transmissionPath,
                                 transmissionHost: status?.settings?.torrent?.transmissionHost,
                                 transmissionPort: status?.settings?.torrent?.transmissionPort,
@@ -728,6 +730,11 @@ export default function Page() {
                                                         name="qbittorrentTags"
                                                         label="Tags"
                                                         help="Comma separated tags to apply to downloaded torrents. e.g. seanime,anime"
+                                                    />
+                                                    <Field.Text
+                                                        name="qbittorrentCategory"
+                                                        label="Category"
+                                                        help="Category to apply to downloaded torrents."
                                                     />
                                                 </AccordionContent>
                                             </AccordionItem>

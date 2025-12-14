@@ -15,7 +15,6 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -30,6 +29,7 @@ type Client struct {
 	Path             string
 	DisableBinaryUse bool
 	Tags             string
+	Category         string
 	Application      qbittorrent_application.Client
 	Log              qbittorrent_log.Client
 	RSS              qbittorrent_rss.Client
@@ -48,6 +48,7 @@ type NewClientOptions struct {
 	Path             string
 	DisableBinaryUse bool
 	Tags             string
+	Category         string
 }
 
 func NewClient(opts *NewClientOptions) *Client {
@@ -81,6 +82,7 @@ func NewClient(opts *NewClientOptions) *Client {
 		DisableBinaryUse: opts.DisableBinaryUse,
 		Host:             opts.Host,
 		Tags:             opts.Tags,
+		Category:         opts.Category,
 		Application: qbittorrent_application.Client{
 			BaseUrl: baseURL + "/app",
 			Client:  client,

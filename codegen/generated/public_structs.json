@@ -29766,6 +29766,15 @@
         "comments": []
       },
       {
+        "name": "QBittorrentCategory",
+        "jsonName": "qbittorrentCategory",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TransmissionPath",
         "jsonName": "transmissionPath",
         "goType": "string",
@@ -65285,9 +65294,7 @@
         "\"watch\"",
         "\"subtitle-event\"",
         "\"set-tracks\"",
-        "\"error\"",
-        "\"add-subtitle-track\"",
-        "\"terminate\""
+        "\"error\""
       ]
     },
     "comments": []
@@ -65478,39 +65485,6 @@
         "typescriptType": "VideoCore_VideoCore",
         "usedTypescriptType": "VideoCore_VideoCore",
         "usedStructName": "videocore.VideoCore",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "playbackStatusMu",
-        "jsonName": "playbackStatusMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedTypescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "playbackStatus",
-        "jsonName": "playbackStatus",
-        "goType": "PlaybackStatus",
-        "typescriptType": "NativePlayer_PlaybackStatus",
-        "usedTypescriptType": "NativePlayer_PlaybackStatus",
-        "usedStructName": "nativeplayer.PlaybackStatus",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "playbackInfo",
-        "jsonName": "playbackInfo",
-        "goType": "PlaybackInfo",
-        "typescriptType": "NativePlayer_PlaybackInfo",
-        "usedTypescriptType": "NativePlayer_PlaybackInfo",
-        "usedStructName": "nativeplayer.PlaybackInfo",
         "required": false,
         "public": false,
         "comments": []
@@ -74980,6 +74954,15 @@
         "comments": []
       },
       {
+        "name": "Category",
+        "jsonName": "Category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Application",
         "jsonName": "Application",
         "goType": "qbittorrent_application.Client",
@@ -75134,6 +75117,15 @@
       {
         "name": "Tags",
         "jsonName": "Tags",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Category",
+        "jsonName": "Category",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

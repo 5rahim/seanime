@@ -3844,6 +3844,7 @@ export type Models_TorrentSettings = {
     qbittorrentUsername: string
     qbittorrentPassword: string
     qbittorrentTags: string
+    qbittorrentCategory: string
     transmissionPath: string
     transmissionHost: string
     transmissionPort: number
@@ -4123,9 +4124,7 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "watch" |
     "subtitle-event" |
     "set-tracks" |
-    "error" |
-    "add-subtitle-track" |
-    "terminate"
+    "error"
 
 /**
  * - Filepath: internal/nativeplayer/nativeplayer.go
