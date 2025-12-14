@@ -4,7 +4,7 @@ import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource, useOnli
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
-import { useNakamaStatus } from "@/app/(main)/_features/nakama/nakama-manager"
+import { useNakamaStatus, useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
@@ -101,6 +101,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
+    const { isParticipant } = useNakamaWatchParty()
     const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
     const isLoadingFromWatchPartyRef = React.useRef(false)
 
@@ -135,9 +136,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
         onLoadedStream()
 
-        setTimeout(() => {
+        const t = setTimeout(() => {
             isLoadingFromWatchPartyRef.current = false
         }, 1000)
+        return () => clearTimeout(t)
     }, [streamToLoad, providerExtensionOptions])
 
     // get the list of episodes from the provider
@@ -283,7 +285,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         setUrl(_url)
                     })
                 })
-                console.warn()
             }
         })()
     }, [videoSource, server, quality, dubbed, provider])
@@ -331,15 +332,14 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
 
     const isWatchPartyPeer = React.useMemo(() => {
-        return !!nakamaStatus?.hostConnectionStatus && !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
-    }, [nakamaStatus])
+        return isParticipant && !!nakamaStatus?.hostConnectionStatus && !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
+    }, [nakamaStatus, isParticipant])
 
     /*
      * Set episode number on mount
      */
     const firstRenderRef = React.useRef(true)
     React.useEffect(() => {
-        console.warn(nakamaStatus)
         // Do not auto set the episode number if the user is in a watch party and is not the host
         if (isWatchPartyPeer) return
 
