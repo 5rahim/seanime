@@ -521,7 +521,6 @@ export function VideoCoreVolumeButton() {
                 }}
                 onWheel={handleWheel}
             />
-            {/* Hide volume slider on mobile */}
             {!isMobile && (
                 <div
                     className={cn(
