@@ -31,6 +31,7 @@ export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, prov
         },
         enabled: !!id,
         muteError: true,
+        gcTime: 0,
     })
 }
 
@@ -52,6 +53,7 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
         },
         enabled: enabled && !!provider,
         muteError: true,
+        gcTime: 0,
     })
 }
 

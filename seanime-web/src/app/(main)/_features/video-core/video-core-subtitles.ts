@@ -2,7 +2,7 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
 import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-core-pgs-renderer"
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
-import { VideoCore_VideoPlaybackInfo, VideoCoreSettings, VideoCore_VideoSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo, VideoCore_VideoSubtitleTrack, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
 import JASSUB, { ASS_Event } from "jassub"
@@ -514,7 +514,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     addEventTrack(track: MKVParser_TrackInfo) {
         subtitleLog.info("Subtitle track added", track)
-        toast.success(`Subtitle track added: ${track.name}`)
         this._addEventTrack(track)
         this._storeEventTrackStyles()
         // Select the track

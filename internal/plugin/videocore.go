@@ -389,12 +389,12 @@ func (p *VideoCore) setPip(pip bool) error {
 	return nil
 }
 
-func (p *VideoCore) showMessage(message string) error {
+func (p *VideoCore) showMessage(message string, duration int) error {
 	videoCore, ok := p.ctx.VideoCore().Get()
 	if !ok {
 		return errors.New("videocore not found")
 	}
-	videoCore.ShowMessage(message)
+	videoCore.ShowMessage(message, duration)
 	return nil
 }
 

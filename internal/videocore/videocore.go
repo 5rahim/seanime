@@ -489,12 +489,18 @@ func (vc *VideoCore) SetAudioTrack(trackNumber int) {
 	vc.sendPlayerEventTo(state.ClientId, string(ServerEventSetAudioTrack), trackNumber)
 }
 
-func (vc *VideoCore) ShowMessage(message string) {
+func (vc *VideoCore) ShowMessage(message string, milliseconds int) {
 	state, ok := vc.GetPlaybackState()
 	if !ok {
 		return
 	}
-	vc.sendPlayerEventTo(state.ClientId, string(ServerEventShowMessage), message)
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventShowMessage), struct {
+		Message  string `json:"message"`
+		Duration int    `json:"duration"`
+	}{
+		Message:  message,
+		Duration: milliseconds,
+	})
 }
 
 // PlayEpisode sends a play-episode command to the video player.

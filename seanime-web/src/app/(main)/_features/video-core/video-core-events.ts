@@ -105,9 +105,18 @@ export function useVideoCoreSetupEvents(id: string,
     //     log.trace(activePlayer, id)
     // })
 
+    // Check if the current player is the active one
+    // For native player, activePlayer should be null
+    const isActivePlayer = React.useMemo(() => {
+        if (id === "native-player") {
+            return activePlayer === null || activePlayer === "native-player"
+        }
+        return activePlayer === id
+    }, [activePlayer, id])
+
     // fullscreen events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !fullscreenManager) return
+        if (!isActivePlayer || !fullscreenManager) return
 
         function handleFullscreenChange(ev: FullscreenManagerChangedEvent) {
             log.trace(`Fullscreen changed: ${ev.detail.isFullscreen}`)
@@ -118,11 +127,11 @@ export function useVideoCoreSetupEvents(id: string,
         return () => {
             fullscreenManager.removeEventListener("fullscreenchanged", handleFullscreenChange)
         }
-    }, [id, state, activePlayer, fullscreenManager])
+    }, [isActivePlayer, state, fullscreenManager])
 
     // subtitle events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !subtitleManager) return
+        if (!isActivePlayer || !subtitleManager) return
 
         function handleTrackSelected(ev: SubtitleManagerTrackSelectedEvent) {
             log.trace(`Subtitle track changed: ${ev.detail.trackNumber}`)
@@ -140,11 +149,11 @@ export function useVideoCoreSetupEvents(id: string,
             subtitleManager.removeEventListener("trackselected", handleTrackSelected)
             subtitleManager.addEventListener("trackdeselected", handleTrackDeselected)
         }
-    }, [id, state, activePlayer, subtitleManager])
+    }, [isActivePlayer, state, subtitleManager])
 
     // media captions events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !mediaCaptionsManager) return
+        if (!isActivePlayer || !mediaCaptionsManager) return
 
         function handleTrackSelected(ev: MediaCaptionsTrackSelectedEvent) {
             log.trace(`Media caption track changed: ${ev.detail.trackIndex}`)
@@ -162,11 +171,11 @@ export function useVideoCoreSetupEvents(id: string,
             mediaCaptionsManager.removeEventListener("trackselected", handleTrackSelected)
             mediaCaptionsManager.addEventListener("trackdeselected", handleTrackDeselected)
         }
-    }, [id, state, activePlayer, mediaCaptionsManager])
+    }, [isActivePlayer, state, mediaCaptionsManager])
 
     // audio events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !audioManager) return
+        if (!isActivePlayer || !audioManager) return
 
         function handleAudioTrackChanged(ev: AudioManagerTrackChangedEvent) {
             log.trace(`Subtitle track changed: ${ev.detail.trackNumber}`)
@@ -184,11 +193,11 @@ export function useVideoCoreSetupEvents(id: string,
             audioManager.removeEventListener("trackchanged", handleAudioTrackChanged)
             audioManager.addEventListener("hlstrackchanged", handleHlsAudioTrackChanged)
         }
-    }, [id, state, activePlayer, audioManager])
+    }, [isActivePlayer, state, audioManager])
 
     // pip events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !pipManager) return
+        if (!isActivePlayer || !pipManager) return
 
         function handleToggledPip(ev: PipManagerToggledEvent) {
             log.trace(`PIP Changed: ${ev.detail.enabled}`)
@@ -199,12 +208,12 @@ export function useVideoCoreSetupEvents(id: string,
         return () => {
             pipManager.removeEventListener("toggledpip", handleToggledPip)
         }
-    }, [id, state, activePlayer, pipManager])
+    }, [isActivePlayer, state, pipManager])
 
 
     // anime4k events
     React.useLayoutEffect(() => {
-        if (activePlayer !== id || !anime4kManager) return
+        if (!isActivePlayer || !anime4kManager) return
 
         function handleOptionChanged(ev: Anime4KManagerOptionChangedEvent) {
             log.trace(`Anime4K Changed: ${ev.detail.newOption}`)
@@ -224,13 +233,13 @@ export function useVideoCoreSetupEvents(id: string,
             anime4kManager.removeEventListener("destroyed", handleDestroyed)
             anime4kManager.removeEventListener("error", handleDestroyed)
         }
-    }, [id, state, activePlayer, anime4kManager])
+    }, [isActivePlayer, state, anime4kManager])
 
     const lastSeekedSent = useRef(Date.now() - 1000)
 
     // video events
     React.useEffect(() => {
-        if (activePlayer !== id || !videoRef.current) return
+        if (!isActivePlayer || !videoRef.current) return
 
         function handlePlay() {
             if (!videoRef.current) return
@@ -293,7 +302,7 @@ export function useVideoCoreSetupEvents(id: string,
             videoRef.current?.removeEventListener("ended", handleEnded)
             videoRef.current?.removeEventListener("seeked", handleSeeked)
         }
-    }, [id, state, activePlayer])
+    }, [isActivePlayer, state])
 
     function dispatchTerminatedEvent() {
         log.trace("Video terminated")
@@ -380,7 +389,7 @@ export function useVideoCoreSetupEvents(id: string,
     }
 
     React.useEffect(() => {
-        if (activePlayer !== id || !state.playbackInfo || !videoRef.current || !clientId) return
+        if (!isActivePlayer || !state.playbackInfo || !videoRef.current || !clientId) return
 
         const interval = setInterval(() => {
             if (!videoRef.current) return
@@ -397,7 +406,7 @@ export function useVideoCoreSetupEvents(id: string,
         return () => {
             clearInterval(interval)
         }
-    }, [state.playbackInfo, activePlayer, id, clientId])
+    }, [state.playbackInfo, isActivePlayer, clientId])
 
     /**
      * Upload subtitle files
@@ -484,7 +493,7 @@ export function useVideoCoreSetupEvents(id: string,
         type: WSEvents.VIDEOCORE,
         deps: [activePlayer, id],
         onMessage: ({ type, payload }: { type: VideoCore_ServerEvent, payload: unknown }) => {
-            if (activePlayer !== id || !videoRef.current) return
+            if (!isActivePlayer || !videoRef.current) return
 
             switch (type) {
                 case "get-status":
@@ -568,6 +577,7 @@ export function useVideoCoreSetupEvents(id: string,
                     } else if (mediaCaptionsManager) {
                         mediaCaptionsManager.addCaptionTrack(fileTrack)
                     }
+                    flashAction({ message: `Subtitle track added: ${fileTrack.label}`, type: "message", duration: 1500 })
                     break
                 case "set-media-caption-track":
                     log.info("Set media caption track event received", payload)
@@ -646,7 +656,8 @@ export function useVideoCoreSetupEvents(id: string,
                     break
                 case "show-message":
                     log.info("Show message event received", payload)
-                    flashAction({ message: payload as string, type: "message", duration: 2000 })
+                    const data = payload as { message: string, duration?: number }
+                    flashAction({ message: data.message, type: "message", duration: data.duration ?? 2000 })
                     break
                 case "get-playlist":
                     log.info("Get playlist event received")

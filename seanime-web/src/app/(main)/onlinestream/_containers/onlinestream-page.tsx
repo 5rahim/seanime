@@ -105,6 +105,15 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
     const isLoadingFromWatchPartyRef = React.useRef(false)
 
+    // Stream URL
+    const [url, setUrl] = React.useState<string | null>(null)
+
+    React.useEffect(() => {
+        return () => {
+            setUrl(null)
+        }
+    }, [])
+
     React.useLayoutEffect(() => {
         if (!streamToLoad || !providerExtensionOptions?.length) return
         log.info("Watch party stream to load", { streamToLoad })
@@ -170,7 +179,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     )
 
     // de-duplicate video sources by url
-    const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources, n => n.url && n.quality), [episodeSource?.number])
+    const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources, n => `${n.url}|${n.quality}|${n.server}`), [episodeSource?.number])
     const hasMultipleVideoSources = React.useMemo(() => !!videoSources?.length && videoSources?.length > 1, [videoSources])
 
     // list of servers
@@ -234,9 +243,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
         return filtered[0]
     }, [episodeSource, videoSources, server, quality])
-
-    // Stream URL
-    const [url, setUrl] = React.useState<string | null>(null)
 
     // Refs
     const currentProviderRef = React.useRef<string | null>(null)

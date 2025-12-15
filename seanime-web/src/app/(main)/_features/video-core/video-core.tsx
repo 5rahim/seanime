@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
+import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
     vc_doFlashAction,
@@ -77,7 +78,6 @@ import {
     vc_formatTime,
     vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
     __torrentSearch_selectionAtom,
@@ -98,7 +98,6 @@ import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useMemo, useRef, useState } from "react"
-import { createPortal } from "react-dom"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
@@ -212,11 +211,13 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
     const { children } = props
 
     const [activePlayer, setActivePlayer] = useAtom(vc_activePlayerId)
+    const setNativePlayerState = useSetAtom(nativePlayer_stateAtom)
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (props.id === "native-player") return
 
         setActivePlayer(props.id)
+        setNativePlayerState(nativePlayer_initialState)
 
         return () => {
             setActivePlayer(null)
@@ -625,8 +626,6 @@ export interface VideoCoreProps {
 }
 
 export function VideoCore(props: VideoCoreProps) {
-    const serverStatus = useServerStatus()
-
     const {
         state,
         aniSkipData,
@@ -891,10 +890,12 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [state.playbackInfo?.id, waitForWatchHistory, shouldWaitForWatchHistory])
 
-    React.useLayoutEffect(() => {
-        if (state.playbackInfo?.id)
+    // Override active player, won't apply to native-player
+    React.useEffect(() => {
+        if (state.playbackInfo?.id && activePlayer === props.id) {
             setActivePlayer(props.id)
-    }, [state.playbackInfo?.id])
+        }
+    }, [state.playbackInfo?.id, activePlayer])
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
@@ -1616,13 +1617,4 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     }
 
     return <Content />
-}
-
-const ConditionalPortal = ({ children, isFullscreen }: { children: React.ReactNode, isFullscreen: boolean }) => {
-    // If fullscreen, move to body. If not, render normally in place.
-    if (isFullscreen) {
-        return createPortal(children, document.body)
-    }
-
-    return children
 }

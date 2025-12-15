@@ -1,62 +1,33 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MKVParser_SubtitleEvent, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { vc_dispatchAction, vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
-import { vc_autoNextAtom, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
+import { VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue } from "jotai"
-import { useSetAtom } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"
 import { useWebsocketMessageListener, useWebsocketSender } from "../../_hooks/handle-websockets"
-import { useServerStatus } from "../../_hooks/use-server-status"
 import { useSkipData } from "../sea-media-player/aniskip"
 import { nativePlayer_stateAtom } from "./native-player.atoms"
-
-const enum VideoPlayerEvents {
-    LOADED_METADATA = "loaded-metadata",
-    VIDEO_SEEKED = "video-seeked",
-    SUBTITLE_FILE_UPLOADED = "subtitle-file-uploaded",
-    VIDEO_PAUSED = "video-paused",
-    VIDEO_RESUMED = "video-resumed",
-    VIDEO_ENDED = "video-ended",
-    VIDEO_ERROR = "video-error",
-    VIDEO_CAN_PLAY = "video-can-play",
-    VIDEO_STARTED = "video-started",
-    VIDEO_COMPLETED = "video-completed",
-    VIDEO_TERMINATED = "video-terminated",
-    VIDEO_TIME_UPDATE = "video-time-update",
-}
 
 const log = logger("NATIVE PLAYER")
 
 export function NativePlayer() {
-    const serverStatus = useServerStatus()
+    const qc = useQueryClient()
     const clientId = useAtomValue(clientIdAtom)
     const { sendMessage } = useWebsocketSender()
 
-    const autoPlayNext = useAtomValue(vc_autoNextAtom)
     const videoElement = useAtomValue(vc_videoElement)
     const [state, setState] = useAtom(nativePlayer_stateAtom)
     const [miniPlayer, setMiniPlayer] = useAtom(vc_miniPlayer)
     const subtitleManager = useAtomValue(vc_subtitleManager)
-    const dispatchEvent = useSetAtom(vc_dispatchAction)
-
-    // Continuity
-    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
 
     // AniSkip
     const { data: aniSkipData } = useSkipData(state?.playbackInfo?.media?.idMal, state?.playbackInfo?.episode?.progressNumber ?? -1)
-
-    //
-    // Start
-    //
-
-    const qc = useQueryClient()
 
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
@@ -139,10 +110,6 @@ export function NativePlayer() {
                 case "subtitle-event":
                     subtitleManager?.onSubtitleEvent(payload as MKVParser_SubtitleEvent)
                     break
-                case "terminate":
-                    log.info("Terminate event received")
-                    handleTerminateStream()
-                    break
                 case "error":
                     log.error("Error event received", payload)
                     toast.error("An error occurred while playing the stream. " + ((payload as { error: string }).error))
@@ -216,7 +183,6 @@ export function NativePlayer() {
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
                 onCompleted={handleCompleted}
-                // onFileUploaded={handleFileUploaded}
             />
         </>
     )

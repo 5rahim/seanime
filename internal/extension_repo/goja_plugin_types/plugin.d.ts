@@ -2333,8 +2333,9 @@ declare namespace $ui {
         /**
          * Shows a message in the video player
          * @param message - The message to display
+         * @param milliseconds - The duration of the message in milliseconds (Default: 2000)
          */
-        showMessage(message: string): void
+        showMessage(message: string, milliseconds?: number): void
 
         // Track control methods
 

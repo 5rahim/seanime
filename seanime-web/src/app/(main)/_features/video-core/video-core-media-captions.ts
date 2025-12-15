@@ -5,7 +5,6 @@ import { logger } from "@/lib/helpers/debug"
 import { CaptionsRenderer, ParsedCaptionsResult, parseText, VTTCue, VTTRegion } from "media-captions"
 import "media-captions/styles/captions.css"
 import "media-captions/styles/regions.css"
-import { toast } from "sonner"
 
 const log = logger("VIDEO CORE MEDIA CAPTIONS")
 
@@ -435,7 +434,6 @@ export class MediaCaptionsManager extends EventTarget {
     // Adds a new subtitle track and selects it AFTER initialization
     // This is used for adding subtitles from the server
     public addCaptionTrack(track: MediaCaptionsTrackInfo) {
-        toast.success(`Caption track added: ${track.label}`)
         this.tracks.push(track)
         const index = this.tracks.length - 1
         this.loadedTracks.push({
