@@ -17,6 +17,7 @@ import (
 
 	alog "github.com/anacrolix/log"
 	"github.com/anacrolix/torrent"
+	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/samber/mo"
 	"golang.org/x/time/rate"
@@ -271,10 +272,8 @@ func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
 		return nil, errors.New("torrent client is not initialized")
 	}
 
-	// Drop all torrents
-	for _, t := range c.torrentClient.MustGet().Torrents() {
-		t.Drop()
-	}
+	// Drop torrents except current stream and prepared stream
+	c.dropExcessTorrents()
 
 	if strings.HasPrefix(id, "magnet") {
 		return c.addTorrentMagnet(id)
@@ -308,7 +307,7 @@ func (c *Client) addTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 		t.Drop()
 		return nil, errors.New("timeout waiting for torrent info")
 	}
-	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
+	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().HexString())
 	return t, nil
 }
 
@@ -438,6 +437,48 @@ func (c *Client) dropTorrents() {
 	}
 
 	c.repository.logger.Debug().Msg("torrentstream: Dropped all torrents")
+}
+
+// dropExcessTorrents drops all torrents except the current stream and prepared stream
+func (c *Client) dropExcessTorrents() {
+	if c.torrentClient.IsAbsent() {
+		return
+	}
+
+	// Collect info hashes we want to keep
+	keepHashes := make(map[metainfo.Hash]bool)
+
+	// Keep current torrent
+	if c.currentTorrent.IsPresent() {
+		keepHashes[c.currentTorrent.MustGet().InfoHash()] = true
+	}
+
+	// Keep prepared torrent
+	if c.repository.preloadedStream.IsPresent() {
+		prepared := c.repository.preloadedStream.MustGet()
+		keepHashes[prepared.Torrent.InfoHash()] = true
+	}
+
+	// Drop torrents that aren't in the keep list
+	droppedCount := 0
+	for _, t := range c.torrentClient.MustGet().Torrents() {
+		infoHash := t.InfoHash()
+		if !keepHashes[infoHash] {
+			c.repository.logger.Trace().Msgf("torrentstream: Dropping excess torrent: %s", infoHash)
+			t.Drop()
+			droppedCount++
+
+			// Also remove its directory
+			if c.repository.settings.IsPresent() {
+				torrentDir := path.Join(c.repository.settings.MustGet().DownloadDir, t.Name())
+				_ = os.RemoveAll(torrentDir)
+			}
+		}
+	}
+
+	if droppedCount > 0 {
+		c.repository.logger.Debug().Msgf("torrentstream: Dropped %d excess torrent(s)", droppedCount)
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

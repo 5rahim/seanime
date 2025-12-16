@@ -1,7 +1,7 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
-import { useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
+import { useAutoPlaySelectedTorrent, useTorrentstreamAutoplay } from "@/app/(main)/_features/autoplay/autoplay"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -78,6 +78,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      */
     const { handleAutoSelectStream, handleStreamSelection, isPending, isUsingNativePlayer } = useHandleStartTorrentStream()
     const { setTorrentstreamAutoplayInfo } = useTorrentstreamAutoplay()
+
+    const { setAutoPlayTorrent } = useAutoPlaySelectedTorrent()
 
     const { forcePlaybackMethodFn } = useForcePlaybackMethod()
 
@@ -156,6 +158,10 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
                     // If we're using the previous batch
                     if (usePreviousBatch && batchHistory?.torrent && episode.aniDBEpisode) {
+
+                        // Store the batch for auto play
+                        setAutoPlayTorrent(batchHistory?.torrent, entry, batchHistory.batchEpisodeFiles)
+
                         if (autoSelectFile) {
                             forcePlaybackMethodFn(forcePlaybackMethod, () => {
                                 handleStreamSelection({

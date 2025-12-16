@@ -39,6 +39,7 @@ func (vc *VideoCore) setupSharedEffects() {
 					continue
 				}
 				if vc.discordPresence != nil && !vc.isOfflineRef.Get() {
+					vc.logger.Debug().Msgf("videocore: Setting Discord presence for %s", state.PlaybackInfo.Media.GetPreferredTitle())
 					go vc.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
 						ID:            state.PlaybackInfo.Media.GetID(),
 						Title:         state.PlaybackInfo.Media.GetPreferredTitle(),

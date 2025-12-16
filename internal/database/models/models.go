@@ -431,6 +431,8 @@ type TorrentstreamSettings struct {
 	StreamUrlAddress string `gorm:"column:stream_url_address" json:"streamUrlAddress"`
 	// v2.7+
 	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
+	// v3+
+	PreloadNextStream bool `gorm:"column:preload_next_stream" json:"preloadNextStream"`
 }
 
 // TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media.

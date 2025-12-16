@@ -3873,6 +3873,7 @@ export type Models_TorrentstreamSettings = {
     includeInLibrary: boolean
     streamUrlAddress: string
     slowSeeding: boolean
+    preloadNextStream: boolean
     id: number
     createdAt?: string
     updatedAt?: string

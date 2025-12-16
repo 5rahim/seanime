@@ -309,17 +309,6 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 					continue
 				}
 				switch e := event.(type) {
-				case playbackmanager.PlaybackStatusChangedEvent:
-					// check if video is done
-					if e.Status.CompletionPercentage < 99.9 {
-						if e.Status.CompletionPercentage >= 80.0 {
-							m.state.Store(StateCompleted)
-						}
-						continue
-					}
-					//m.markCurrentAsCompleted()
-					//m.playNextEpisode()
-
 				case playbackmanager.VideoCompletedEvent, playbackmanager.StreamCompletedEvent:
 					m.state.Store(StateCompleted)
 

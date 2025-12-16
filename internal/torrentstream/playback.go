@@ -37,6 +37,9 @@ func (r *Repository) listenToMediaPlayerEvents() {
 					// Reset the current video duration, as the video has stopped
 					// DEVNOTE: This is changed in client.go as well when the duration is updated over 0
 					r.playback.currentVideoDuration = 0
+					if settings, ok := r.settings.Get(); ok {
+						r.shouldPreloadStream.Store(settings.PreloadNextStream)
+					}
 				case mediaplayer.StreamingVideoCompletedEvent:
 				case mediaplayer.StreamingTrackingStoppedEvent:
 					if r.client.currentTorrent.IsPresent() {
@@ -54,6 +57,10 @@ func (r *Repository) listenToMediaPlayerEvents() {
 					go func() {
 						if e.Status != nil && r.client.currentTorrent.IsPresent() {
 							r.client.mediaPlayerPlaybackStatusCh <- e.Status
+						}
+						if r.shouldPreloadStream.Load() && e.Status.CompletionPercentage >= 0.5 {
+							r.shouldPreloadStream.Store(false)
+							r.sendStateEvent(eventPreloadNextStream)
 						}
 					}()
 				}
@@ -78,6 +85,12 @@ func (r *Repository) listenToNativePlayerEvents() {
 			}
 
 			switch event := e.(type) {
+			case *videocore.VideoLoadedEvent:
+				r.logger.Debug().Msg("torrentstream: Native player loaded event received")
+				r.playback.currentVideoDuration = 0
+				if settings, ok := r.settings.Get(); ok {
+					r.shouldPreloadStream.Store(settings.PreloadNextStream)
+				}
 			case *videocore.VideoLoadedMetadataEvent:
 				go func() {
 					if r.client.currentFile.IsPresent() && r.playback.currentVideoDuration == 0 {
@@ -92,6 +105,11 @@ func (r *Repository) listenToNativePlayerEvents() {
 						}
 					}
 				}()
+			case *videocore.VideoStatusEvent:
+				if event.CurrentTime/event.Duration >= 0.5 && r.shouldPreloadStream.Load() {
+					r.shouldPreloadStream.Store(false)
+					r.sendStateEvent(eventPreloadNextStream)
+				}
 			case *videocore.VideoTerminatedEvent:
 				r.logger.Debug().Msg("torrentstream: Native player terminated event received")
 				r.playback.currentVideoDuration = 0

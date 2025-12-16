@@ -12,7 +12,6 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"seanime/internal/videocore"
-	"strconv"
 	"time"
 
 	"github.com/anacrolix/torrent"
@@ -74,32 +73,59 @@ func (r *Repository) StartStream(ctx context.Context, opts *StartStreamOptions) 
 	}
 
 	episodeNumber := opts.EpisodeNumber
-	aniDbEpisode := strconv.Itoa(episodeNumber)
-
+	aniDbEpisode := opts.AniDBEpisode
 	//
-	// Find the best torrent / Select the torrent
+	// Check if there's a prepared stream that matches this request
 	//
 	var torrentToStream *playbackTorrent
-	if opts.AutoSelect {
-		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
-		if err != nil {
-			if opts.PlaybackType == PlaybackTypeNativePlayer {
-				r.directStreamManager.AbortOpen(opts.ClientId, err)
+	usedPreparedStream := false
+
+	if prepared, ok := r.preloadedStream.Get(); ok {
+		if streamOptionsMatch(opts, prepared.Options) {
+			r.logger.Info().Msg("torrentstream: Using pre-downloaded stream")
+			torrentToStream = &playbackTorrent{
+				Torrent: prepared.Torrent,
+				File:    prepared.File,
 			}
-			r.sendStateEvent(eventLoadingFailed)
-			return err
-		}
-	} else {
-		if opts.Torrent == nil {
-			return fmt.Errorf("torrentstream: No torrent provided")
-		}
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
-		if err != nil {
-			if opts.PlaybackType == PlaybackTypeNativePlayer {
-				r.directStreamManager.AbortOpen(opts.ClientId, err)
+			usedPreparedStream = true
+
+			// Cancel the prepared stream context and clear it
+			if prepared.CancelFunc != nil {
+				prepared.CancelFunc()
 			}
-			r.sendStateEvent(eventLoadingFailed)
-			return err
+			r.preloadedStream = mo.None[*preloadedStream]()
+		} else {
+			// Different episode requested, cancel and drop the prepared stream
+			r.logger.Debug().Msg("torrentstream: Prepared stream doesn't match request, cancelling it")
+			r.CancelPreparedStream()
+		}
+	}
+
+	//
+	// Find the best torrent / Select the torrent (only if not using prepared stream)
+	//
+	if !usedPreparedStream {
+		if opts.AutoSelect {
+			torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
+			if err != nil {
+				if opts.PlaybackType == PlaybackTypeNativePlayer {
+					r.directStreamManager.AbortOpen(opts.ClientId, err)
+				}
+				r.sendStateEvent(eventLoadingFailed)
+				return err
+			}
+		} else {
+			if opts.Torrent == nil {
+				return fmt.Errorf("torrentstream: No torrent provided")
+			}
+			torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
+			if err != nil {
+				if opts.PlaybackType == PlaybackTypeNativePlayer {
+					r.directStreamManager.AbortOpen(opts.ClientId, err)
+				}
+				r.sendStateEvent(eventLoadingFailed)
+				return err
+			}
 		}
 	}
 
@@ -332,7 +358,19 @@ func (r *Repository) StopStream(fromNativePlayer ...bool) error {
 	// This is to prevent the client from downloading the whole torrent when the user stops watching
 	// Also, the torrent might be a batch - so we don't want to download the whole thing
 	if r.client.currentTorrent.IsPresent() {
-		if r.client.currentTorrentStatus.ProgressPercentage < 70 {
+		currentTorrent := r.client.currentTorrent.MustGet()
+		shouldDrop := r.client.currentTorrentStatus.ProgressPercentage < 70
+
+		// Don't drop if this is the prepared torrent
+		if r.preloadedStream.IsPresent() {
+			prepared := r.preloadedStream.MustGet()
+			if currentTorrent.InfoHash() == prepared.Torrent.InfoHash() {
+				r.client.repository.logger.Debug().Msg("torrentstream: Not dropping torrent as it's being prepared for next episode")
+				shouldDrop = false
+			}
+		}
+
+		if shouldDrop {
 			r.client.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
 			r.client.dropTorrents()
 		}
@@ -414,4 +452,104 @@ func (r *Repository) GetMediaInfo(ctx context.Context, mediaId int) (media *anil
 	}
 
 	return
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PreloadStream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// streamOptionsMatch checks if two stream options represent the same episode
+func streamOptionsMatch(a, b *StartStreamOptions) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	return a.MediaId == b.MediaId && a.EpisodeNumber == b.EpisodeNumber
+}
+
+// PreloadStream starts pre-downloading a stream at reduced speed to avoid interfering with current playback
+func (r *Repository) PreloadStream(ctx context.Context, opts *StartStreamOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("torrentstream/stream/PreloadStream", &err)
+
+	r.logger.Info().
+		Int("mediaId", opts.MediaId).
+		Int("episodeNumber", opts.EpisodeNumber).
+		Msg("torrentstream: Preloading stream for future playback")
+
+	// Cancel any existing prepared stream
+	if r.preloadedStream.IsPresent() {
+		r.logger.Debug().Msg("torrentstream: Cancelling existing preloaded stream")
+		prepared := r.preloadedStream.MustGet()
+		if prepared.CancelFunc != nil {
+			prepared.CancelFunc()
+		}
+		r.preloadedStream = mo.None[*preloadedStream]()
+	}
+
+	// Get media info
+	media, _, err := r.GetMediaInfo(ctx, opts.MediaId)
+	if err != nil {
+		return err
+	}
+
+	// Find best torrent
+	var torrentToStream *playbackTorrent
+	if opts.AutoSelect {
+		torrentToStream, err = r.findBestTorrent(media, opts.AniDBEpisode, opts.EpisodeNumber)
+		if err != nil {
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to find torrent for preloading")
+			return err
+		}
+	} else {
+		if opts.Torrent == nil {
+			return fmt.Errorf("torrentstream: No torrent provided")
+		}
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, opts.AniDBEpisode, opts.FileIndex)
+		if err != nil {
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to select torrent for preloading")
+			return err
+		}
+	}
+
+	if torrentToStream == nil {
+		return fmt.Errorf("torrentstream: No torrent selected for preloading")
+	}
+
+	// Create a cancellable context for this prepared stream
+	prepareCtx, cancelFunc := context.WithCancel(ctx)
+
+	r.logger.Info().
+		Str("torrent", torrentToStream.Torrent.Name()).
+		Msg("torrentstream: Started preloading stream")
+
+	// Store prepared stream info
+	r.preloadedStream = mo.Some(&preloadedStream{
+		Torrent:    torrentToStream.Torrent,
+		File:       torrentToStream.File,
+		Options:    opts,
+		CancelFunc: cancelFunc,
+	})
+
+	// Start downloading in background
+	go func() {
+		<-prepareCtx.Done()
+		r.logger.Debug().Msg("torrentstream: Prepared stream context cancelled")
+	}()
+
+	return nil
+}
+
+// CancelPreparedStream cancels any ongoing stream preloading
+func (r *Repository) CancelPreparedStream() {
+	if prepared, ok := r.preloadedStream.Get(); ok {
+		r.logger.Debug().Msg("torrentstream: Cancelling prepared stream")
+		if prepared.CancelFunc != nil {
+			prepared.CancelFunc()
+		}
+		// Drop the prepared torrent if it's not the current one
+		if r.client.currentTorrent.IsAbsent() ||
+			r.client.currentTorrent.MustGet().InfoHash() != prepared.Torrent.InfoHash() {
+			prepared.Torrent.Drop()
+		}
+		r.preloadedStream = mo.None[*preloadedStream]()
+	}
 }

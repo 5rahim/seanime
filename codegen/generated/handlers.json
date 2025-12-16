@@ -10311,6 +10311,19 @@
           "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "Preload",
+          "jsonName": "preload",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": [
+            "Preload is true if the stream should only be prepared.",
+            "",
+            "Preload is true if the stream should only be prepared."
+          ]
         }
       ],
       "returns": "bool",

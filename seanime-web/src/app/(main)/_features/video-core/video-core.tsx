@@ -943,41 +943,11 @@ export function VideoCore(props: VideoCoreProps) {
         /*
          * Event or file tracks using libass renderer
          */
-        const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
-
-        // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
-        if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
-            setSubtitleManager(p => {
-                if (p) p.destroy()
-                return new VideoCoreSubtitleManager({
-                    videoElement: v!,
-                    playbackInfo: state.playbackInfo!,
-                    jassubOffscreenRender: true,
-                    settings: settings,
-                    fetchAndConvertToASS: (url?: string, content?: string) => {
-                        return new Promise((resolve, reject) => {
-                            fetchAndConvertToASS({ url: url ?? "", content: content ?? "" }, {
-                                onSuccess: (data) => resolve(data),
-                                onError: (error) => reject(error),
-                            })
-                        })
-                    },
-                })
-            })
-
-            // Initialize audio manager for MKV streams
-            if (!!state.playbackInfo?.mkvMetadata) {
-                setAudioManager(new VideoCoreAudioManager({
-                    videoElement: v!,
-                    playbackInfo: state.playbackInfo,
-                    settings: settings,
-                    onError: (error) => {
-                        log.error("Audio manager error", error)
-                        onError?.(error)
-                    },
-                }))
-            }
-        }
+        // const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
+        // // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
+        // if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
+        //
+        // }
 
         /*
          * File subtitle tracks that don't use libass renderer
@@ -1000,6 +970,24 @@ export function VideoCore(props: VideoCoreProps) {
                     },
                 })
             })
+        } else {
+            setSubtitleManager(p => {
+                if (p) p.destroy()
+                return new VideoCoreSubtitleManager({
+                    videoElement: v!,
+                    playbackInfo: state.playbackInfo!,
+                    jassubOffscreenRender: true,
+                    settings: settings,
+                    fetchAndConvertToASS: (url?: string, content?: string) => {
+                        return new Promise((resolve, reject) => {
+                            fetchAndConvertToASS({ url: url ?? "", content: content ?? "" }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
+                })
+            })
         }
 
         // Initialize audio manager for HLS streams
@@ -1015,6 +1003,16 @@ export function VideoCore(props: VideoCoreProps) {
                 hlsSetAudioTrack: hlsSetAudioTrack,
                 hlsAudioTracks: hlsAudioTracks,
                 hlsCurrentAudioTrack: hlsCurrentAudioTrack,
+            }))
+        } else if (!!state.playbackInfo?.mkvMetadata) {
+            setAudioManager(new VideoCoreAudioManager({
+                videoElement: v!,
+                playbackInfo: state.playbackInfo,
+                settings: settings,
+                onError: (error) => {
+                    log.error("Audio manager error", error)
+                    onError?.(error)
+                },
             }))
         }
 

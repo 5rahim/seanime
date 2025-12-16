@@ -31006,6 +31006,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PreloadNextStream",
+        "jsonName": "preloadNextStream",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -80702,6 +80711,28 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "preloadedStream",
+        "jsonName": "preloadedStream",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "shouldPreloadStream",
+        "jsonName": "shouldPreloadStream",
+        "goType": "atomic.Bool",
+        "typescriptType": "Bool",
+        "usedTypescriptType": "Bool",
+        "usedStructName": "atomic.Bool",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Flag on whether the client should prepare a stream"
+        ]
       }
     ],
     "comments": []

@@ -137,6 +137,8 @@ func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 		PlaybackType      torrentstream.PlaybackType       `json:"playbackType"` // "default" or "externalPlayerLink"
 		ClientId          string                           `json:"clientId"`
 		BatchEpisodeFiles *hibiketorrent.BatchEpisodeFiles `json:"batchEpisodeFiles,omitempty"`
+		// Preload is true if the stream should only be prepared.
+		Preload bool `json:"preload,omitempty"`
 	}
 
 	var b body
@@ -146,7 +148,7 @@ func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 
 	userAgent := c.Request().Header.Get("User-Agent")
 
-	err := h.App.TorrentstreamRepository.StartStream(c.Request().Context(), &torrentstream.StartStreamOptions{
+	opts := &torrentstream.StartStreamOptions{
 		MediaId:           b.MediaId,
 		EpisodeNumber:     b.EpisodeNumber,
 		AniDBEpisode:      b.AniDBEpisode,
@@ -157,9 +159,18 @@ func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 		ClientId:          b.ClientId,
 		PlaybackType:      b.PlaybackType,
 		BatchEpisodeFiles: b.BatchEpisodeFiles,
-	})
-	if err != nil {
-		return h.RespondWithError(c, err)
+	}
+
+	if !b.Preload {
+		err := h.App.TorrentstreamRepository.StartStream(c.Request().Context(), opts)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
+	} else {
+		err := h.App.TorrentstreamRepository.PreloadStream(c.Request().Context(), opts)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
 	}
 
 	return h.RespondWithData(c, true)
