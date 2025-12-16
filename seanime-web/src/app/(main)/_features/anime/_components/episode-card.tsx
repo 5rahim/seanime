@@ -224,7 +224,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 data-progress-number={progressNumber}
                             >
                                 <ProgressBar value={percentageComplete} size="xs" />
-                                {minutesRemaining && <div
+                                {!!minutesRemaining && <div
                                     className={cn(
                                         "absolute bottom-2 right-2 text-[--muted]",
                                         isSingleContainer && "right-4 bottom-4 ",

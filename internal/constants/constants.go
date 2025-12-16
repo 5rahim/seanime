@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	Version              = "3.1.0"
-	VersionName          = "Mori"
+	Version              = "3.2.0"
+	VersionName          = "Arashi"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

@@ -167,6 +167,11 @@ declare namespace $ui {
          * Use a headless browser.
          */
         chromeDP: ChromeDP
+
+        /**
+         * Video Core for controlling the built-in player
+         */
+        videoCore: VideoCore
     }
 
     interface State<T> {
@@ -218,6 +223,7 @@ declare namespace $ui {
         contentType: string
         /** Response content length */
         contentLength: number
+
         /** Get response text */
         text(): string
 
@@ -1823,3 +1829,654 @@ declare namespace $app {
      */
     function invalidateClientQuery(queryKeys: string[]): void
 }
+
+declare namespace $ui {
+    // Video Core Types
+
+    type PlayerType = "native" | "web"
+    type PlaybackType = "localfile" | "torrent" | "debrid" | "nakama" | "onlinestream"
+
+    type VideoEventType =
+        | "video-loaded"
+        | "video-loaded-metadata"
+        | "video-can-play"
+        | "video-paused"
+        | "video-resumed"
+        | "video-status"
+        | "video-completed"
+        | "video-fullscreen"
+        | "video-pip"
+        | "video-subtitle-track"
+        | "video-media-caption-track"
+        | "video-anime-4k"
+        | "video-audio-track"
+        | "video-ended"
+        | "video-seeked"
+        | "video-error"
+        | "video-terminated"
+        | "video-playback-state"
+        | "subtitle-file-uploaded"
+        | "video-playlist"
+
+    interface BaseVideoEvent {
+        playerType: PlayerType
+        playbackType: PlaybackType
+        playbackId: string
+        clientId: string
+    }
+
+    interface VideoLoadedEvent extends BaseVideoEvent {
+        clientId: string
+        state: PlaybackState
+    }
+
+    interface VideoPlaybackStateEvent extends BaseVideoEvent {
+        clientId: string
+        state: PlaybackState
+    }
+
+    interface VideoPausedEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+    }
+
+    interface VideoResumedEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+    }
+
+    interface VideoEndedEvent extends BaseVideoEvent {
+        autoNext: boolean
+    }
+
+    interface VideoErrorEvent extends BaseVideoEvent {
+        error: string
+    }
+
+    interface VideoSeekedEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+        paused: boolean
+    }
+
+    interface VideoStatusEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+        paused: boolean
+    }
+
+    interface VideoLoadedMetadataEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+        paused: boolean
+    }
+
+    interface VideoCanPlayEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+        paused: boolean
+    }
+
+    interface SubtitleFileUploadedEvent extends BaseVideoEvent {
+        filename: string
+        content: string
+    }
+
+    interface VideoTerminatedEvent extends BaseVideoEvent {
+    }
+
+    interface VideoCompletedEvent extends BaseVideoEvent {
+        currentTime: number
+        duration: number
+    }
+
+    interface VideoAudioTrackEvent extends BaseVideoEvent {
+        trackNumber: number
+        isHLS: boolean
+    }
+
+    interface VideoSubtitleTrackEvent extends BaseVideoEvent {
+        trackNumber: number
+        kind: "file" | "event"
+    }
+
+    interface VideoMediaCaptionTrackEvent extends BaseVideoEvent {
+        trackIndex: number
+    }
+
+    interface VideoFullscreenEvent extends BaseVideoEvent {
+        fullscreen: boolean
+    }
+
+    interface VideoPipEvent extends BaseVideoEvent {
+        pip: boolean
+    }
+
+    interface VideoAnime4KEvent extends BaseVideoEvent {
+        option: string
+    }
+
+    interface VideoPlaylistEvent extends BaseVideoEvent {
+        playlist: VideoPlaylistState | null
+    }
+
+    interface VideoTextTracksvent extends BaseVideoEvent {
+        textTracks: VideoTextTrack[]
+    }
+
+    type VideoEvent =
+        | VideoLoadedEvent
+        | VideoPlaybackStateEvent
+        | VideoPausedEvent
+        | VideoResumedEvent
+        | VideoEndedEvent
+        | VideoErrorEvent
+        | VideoSeekedEvent
+        | VideoStatusEvent
+        | VideoLoadedMetadataEvent
+        | VideoCanPlayEvent
+        | SubtitleFileUploadedEvent
+        | VideoTerminatedEvent
+        | VideoCompletedEvent
+        | VideoAudioTrackEvent
+        | VideoSubtitleTrackEvent
+        | VideoMediaCaptionTrackEvent
+        | VideoFullscreenEvent
+        | VideoPipEvent
+        | VideoAnime4KEvent
+        | VideoPlaylistEvent
+
+    interface VideoSubtitleTrack {
+        index: number
+        src?: string
+        content?: string
+        label: string
+        language: string
+        type?: "srt" | "vtt" | "ass" | "ssa"
+        default?: boolean
+        useLibassRenderer?: boolean
+    }
+
+    interface VideoTextTrack {
+        number: number,
+        type: "subtitles" | "captions",
+        label: string,
+        language: string,
+    }
+
+    interface VideoSource {
+        index: number
+        resolution: string
+        url?: string
+        label?: string
+        moreInfo?: string
+    }
+
+    interface VideoInitialState {
+        currentTime?: number
+        paused?: boolean
+    }
+
+    interface OnlinestreamParams {
+        mediaId: number
+        episodeNumber: number
+        provider: string
+        server: string
+        quality: string
+        dubbed: boolean
+    }
+
+    export type MkvTrackType = "video" | "audio" | "subtitle" | "logo" | "buttons" | "complex" | "unknown"
+
+    export type MkvAttachmentType = "font" | "subtitle" | "other"
+
+    export interface MkvTrackInfo {
+        number: number
+        uid: number
+        type: MkvTrackType
+        codecID: string
+        name?: string
+        language?: string
+        languageIETF?: string
+        default: boolean
+        forced: boolean
+        enabled: boolean
+        codecPrivate?: string
+        video?: any
+        audio?: any
+        contentEncodings?: any
+        defaultDuration?: number
+    }
+
+    export interface MkvChapterInfo {
+        uid: number
+        start: number
+        end?: number
+        text?: string
+        languages?: string[]
+        languagesIETF?: string[]
+        editionUID?: number
+    }
+
+    export interface MkvAttachmentInfo {
+        uid: number
+        filename: string
+        mimetype: string
+        size: number
+        description?: string
+        type?: MkvAttachmentType
+        data?: Uint8Array
+        isCompressed?: boolean
+    }
+
+    export interface MkvMetadata {
+        title?: string
+        duration: number
+        timecodeScale: number
+        muxingApp?: string
+        writingApp?: string
+        tracks: MkvTrackInfo[]
+        videoTracks: MkvTrackInfo[]
+        audioTracks: MkvTrackInfo[]
+        subtitleTracks: MkvTrackInfo[]
+        chapters: MkvChapterInfo[]
+        attachments: MkvAttachmentInfo[]
+        mimeCodec?: string
+        error?: Error
+    }
+
+    interface VideoPlaybackInfo {
+        id: string
+        playbackType: PlaybackType
+        streamUrl: string
+        mkvMetadata?: MkvMetadata
+        localFile?: $app.Anime_LocalFile
+        onlinestreamParams?: OnlinestreamParams
+        subtitleTracks: VideoSubtitleTrack[]
+        videoSources: VideoSource[]
+        selectedVideoSource?: number
+        playlistExternalEpisodeNumbers: number[]
+        disableRestoreFromContinuity?: boolean
+        initialState?: VideoInitialState
+        media?: $app.AL_BaseAnime
+        episode?: $app.Anime_Episode
+        streamType: "native" | "hls" | "unknown"
+        isNakamaWatchParty?: boolean
+    }
+
+    interface VideoPlaylistState {
+        type: PlaybackType
+        episodes: $app.Anime_Episode[]
+        previousEpisode?: $app.Anime_Episode
+        nextEpisode?: $app.Anime_Episode
+        currentEpisode: $app.Anime_Episode
+        animeEntry?: $app.Anime_Entry
+    }
+
+    interface PlaybackStatus {
+        id: string
+        clientId: string
+        paused: boolean
+        currentTime: number
+        duration: number
+    }
+
+    interface PlaybackState {
+        clientId: string
+        playerType: PlayerType
+        playbackInfo: VideoPlaybackInfo
+    }
+
+    interface VideoCore {
+        /**
+         * Adds an event listener for video-loaded events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-loaded", callback: (event: VideoLoadedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-playback-state events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-playback-state", callback: (event: VideoPlaybackStateEvent) => void): void
+
+        /**
+         * Adds an event listener for video-paused events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-paused", callback: (event: VideoPausedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-resumed events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-resumed", callback: (event: VideoResumedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-ended events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-ended", callback: (event: VideoEndedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-error events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-error", callback: (event: VideoErrorEvent) => void): void
+
+        /**
+         * Adds an event listener for video-seeked events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-seeked", callback: (event: VideoSeekedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-status events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-status", callback: (event: VideoStatusEvent) => void): void
+
+        /**
+         * Adds an event listener for video-loaded-metadata events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-loaded-metadata", callback: (event: VideoLoadedMetadataEvent) => void): void
+
+        /**
+         * Adds an event listener for video-can-play events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-can-play", callback: (event: VideoCanPlayEvent) => void): void
+
+        /**
+         * Adds an event listener for subtitle-file-uploaded events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "subtitle-file-uploaded", callback: (event: SubtitleFileUploadedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-terminated events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-terminated", callback: (event: VideoTerminatedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-completed events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-completed", callback: (event: VideoCompletedEvent) => void): void
+
+        /**
+         * Adds an event listener for video-audio-track events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-audio-track", callback: (event: VideoAudioTrackEvent) => void): void
+
+        /**
+         * Adds an event listener for video-subtitle-track events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-subtitle-track", callback: (event: VideoSubtitleTrackEvent) => void): void
+
+        /**
+         * Adds an event listener for video-media-caption-track events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-media-caption-track", callback: (event: VideoMediaCaptionTrackEvent) => void): void
+
+        /**
+         * Adds an event listener for video-fullscreen events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-fullscreen", callback: (event: VideoFullscreenEvent) => void): void
+
+        /**
+         * Adds an event listener for video-pip events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-pip", callback: (event: VideoPipEvent) => void): void
+
+        /**
+         * Adds an event listener for video-anime-4k events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-anime-4k", callback: (event: VideoAnime4KEvent) => void): void
+
+        /**
+         * Adds an event listener for video-playlist events
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: "video-playlist", callback: (event: VideoPlaylistEvent) => void): void
+
+        /**
+         * Adds an event listener for any video event (fallback)
+         * @param eventType - The event type to listen for
+         * @param callback - The callback function to execute when the event is triggered
+         */
+        addEventListener(eventType: VideoEventType, callback: (event: VideoEvent) => void): void
+
+        /**
+         * Removes an event listener for the specified event type
+         * @param eventType - The event type to stop listening for
+         */
+        removeEventListener(eventType: VideoEventType): void
+
+        // Playback control methods
+
+        /**
+         * Pauses the video playback
+         */
+        pause(): void
+
+        /**
+         * Resumes the video playback
+         */
+        resume(): void
+
+        /**
+         * Seeks forward or backward by the specified number of seconds
+         * @param seconds - Number of seconds to seek (positive for forward, negative for backward)
+         */
+        seek(seconds: number): void
+
+        /**
+         * Seeks to an absolute position in the video
+         * @param seconds - The absolute position in seconds
+         */
+        seekTo(seconds: number): void
+
+        /**
+         * Terminates the current video playback
+         */
+        terminate(): void
+
+        /**
+         * Plays the specified episode
+         * @param which - "next", "previous", or an episode ID
+         */
+        playEpisode(which: string): void
+
+        // UI control methods
+
+        /**
+         * Sets the fullscreen state of the video player
+         * @param fullscreen - Whether to enable fullscreen
+         */
+        setFullscreen(fullscreen: boolean): void
+
+        /**
+         * Sets the picture-in-picture state of the video player
+         * @param pip - Whether to enable picture-in-picture
+         */
+        setPip(pip: boolean): void
+
+        /**
+         * Shows a message in the video player
+         * @param message - The message to display
+         * @param milliseconds - The duration of the message in milliseconds (Default: 2000)
+         */
+        showMessage(message: string, milliseconds?: number): void
+
+        // Track control methods
+
+        /**
+         * Sets the active subtitle track
+         * @param trackNumber - The track number to activate
+         */
+        setSubtitleTrack(trackNumber: number): void
+
+        /**
+         * Adds a subtitle track to the video player.
+         * @important Use addExternalSubtitleTrack instead.
+         * @param track - The subtitle track information
+         */
+        addSubtitleTrack(track: any): void
+
+        /**
+         * Adds an external subtitle track to the video player
+         * @param track - The external subtitle track information
+         */
+        addExternalSubtitleTrack(track: Omit<VideoSubtitleTrack, "index" | "useLibassRenderer">): void
+
+        /**
+         * Sets the active media caption track
+         * @param trackIndex - The track index to activate
+         */
+        setMediaCaptionTrack(trackIndex: number): void
+
+        /**
+         * Adds a media caption track to the video player
+         * @important Use addExternalSubtitleTrack instead.
+         * @param track - The media caption track information
+         */
+        addMediaCaptionTrack(track: any): void
+
+        /**
+         * Sets the active audio track
+         * @param trackNumber - The track number to activate
+         */
+        setAudioTrack(trackNumber: number): void
+
+        // State request methods
+
+        /**
+         * Requests the current fullscreen state from the player
+         */
+        sendGetFullscreen(): void
+
+        /**
+         * Requests the current picture-in-picture state from the player
+         */
+        sendGetPip(): void
+
+        /**
+         * Requests the current Anime4K state from the player
+         */
+        sendGetAnime4K(): void
+
+        /**
+         * Requests the current subtitle track from the player
+         */
+        sendGetSubtitleTrack(): void
+
+        /**
+         * Requests the current audio track from the player
+         */
+        sendGetAudioTrack(): void
+
+        /**
+         * Requests the current media caption track from the player
+         */
+        sendGetMediaCaptionTrack(): void
+
+        /**
+         * Requests the current playback state from the player
+         */
+        sendGetPlaybackState(): void
+
+        // Async getters
+
+        /**
+         * Gets the current text tracks
+         * @returns A promise that resolves to the text tracks or undefined
+         */
+        getTextTracks(): Promise<VideoTextTrack[] | undefined>
+
+        /**
+         * Gets the current playlist state
+         * @returns A promise that resolves to the playlist state or undefined
+         */
+        getPlaylist(): Promise<VideoPlaylistState | undefined>
+
+        /**
+         * Pulls the current playback status from the player
+         * @returns A promise that resolves to the video status event
+         */
+        pullStatus(): Promise<VideoStatusEvent | undefined>
+
+        // Sync getters
+
+        /**
+         * Gets the current playback status
+         * @returns The playback status or undefined
+         */
+        getPlaybackStatus(): PlaybackStatus | undefined
+
+        /**
+         * Gets the current playback state
+         * @returns The playback state or undefined
+         */
+        getPlaybackState(): PlaybackState | undefined
+
+        /**
+         * Gets the current playback information
+         * @returns The playback information or undefined
+         */
+        getCurrentPlaybackInfo(): VideoPlaybackInfo | undefined
+
+        /**
+         * Gets the current media being played
+         * @returns The media information or undefined
+         */
+        getCurrentMedia(): $app.AL_BaseAnime | undefined
+
+        /**
+         * Gets the current client ID
+         * @returns The client ID or empty string
+         */
+        getCurrentClientId(): string
+
+        /**
+         * Gets the current player type
+         * @returns The player type or empty string
+         */
+        getCurrentPlayerType(): PlayerType | ""
+
+        /**
+         * Gets the current playback type
+         * @returns The playback type or empty string
+         */
+        getCurrentPlaybackType(): PlaybackType | ""
+    }
+}
+

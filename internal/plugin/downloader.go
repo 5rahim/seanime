@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/extension"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"sync"
 	"time"
 
@@ -55,7 +55,7 @@ type progressSubscriber struct {
 	LastSent time.Time
 }
 
-func (a *AppContextImpl) BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 	downloadObj := vm.NewObject()
 
 	progressMap := sync.Map{}

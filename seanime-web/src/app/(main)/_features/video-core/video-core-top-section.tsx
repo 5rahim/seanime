@@ -1,6 +1,6 @@
 import { vc_busy, vc_isFullscreen, vc_miniPlayer, vc_paused } from "@/app/(main)/_features/video-core/video-core"
 import { vc_hoveringControlBar } from "@/app/(main)/_features/video-core/video-core-control-bar"
-import { VideoCorePlaybackState } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { cn } from "@/components/ui/core/styling"
 import { __isDesktop__ } from "@/types/constants"
 import { useAtomValue } from "jotai"
@@ -43,7 +43,7 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?
     )
 }
 
-export function VideoCoreTopPlaybackInfo(props: { state: VideoCorePlaybackState, children?: React.ReactNode }) {
+export function VideoCoreTopPlaybackInfo(props: { state: VideoCoreLifecycleState, children?: React.ReactNode }) {
     const { state, children, ...rest } = props
 
     const busy = useAtomValue(vc_busy)

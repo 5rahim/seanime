@@ -1,4 +1,4 @@
-import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
 
@@ -10,7 +10,7 @@ const actions = ["play", "pause", "seekforward", "seekbackward", "seekto"] as co
 
 export class VideoCoreMediaSessionManager {
     private video: HTMLVideoElement | null = null
-    private playbackInfo: VideoCorePlaybackInfo | null = null
+    private playbackInfo: VideoCore_VideoPlaybackInfo | null = null
     private isActive = false
     private controller = new AbortController()
     private eventTarget = new EventTarget()
@@ -27,7 +27,7 @@ export class VideoCoreMediaSessionManager {
         }
     }
 
-    setPlaybackInfo(playbackInfo: VideoCorePlaybackInfo | null) {
+    setPlaybackInfo(playbackInfo: VideoCore_VideoPlaybackInfo | null) {
         this.playbackInfo = playbackInfo
         if (this.isActive) {
             this.updateMetadata()

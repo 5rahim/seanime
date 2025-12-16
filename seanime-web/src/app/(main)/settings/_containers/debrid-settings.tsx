@@ -128,12 +128,12 @@ export function DebridSettings(props: DebridSettingsProps) {
                             icon={LuCirclePlay}
                         />
 
-                        <SettingsCard title="My library">
+                        <SettingsCard title="Home Screen">
                             <Field.Switch
                                 side="right"
                                 name="includeDebridStreamInLibrary"
-                                label="Include in library"
-                                help="Add non-downloaded shows that are in your currently watching list to 'My library' for streaming"
+                                label="Include in anime library"
+                                help="Add non-downloaded shows that are in your currently watching list to the anime library."
                             />
                         </SettingsCard>
 

@@ -110,6 +110,7 @@ func (s *LocalFileStream) LoadPlaybackInfo() (ret *nativeplayer.PlaybackInfo, er
 			Episode:           s.episode,
 			Media:             s.media,
 			EntryListData:     entryListData,
+			LocalFile:         s.localFile,
 		}
 
 		// If the content type is an EBML content type, we can create a metadata parser

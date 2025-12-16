@@ -358,10 +358,11 @@ type VideoCoreControlButtonProps = {
     iconClass?: string
     onClick: () => void
     onWheel?: (e: React.WheelEvent<HTMLButtonElement>) => void
+    children?: React.ReactNode
 }
 
 export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
-    const { icons, state, className, iconClass, onClick, onWheel } = props
+    const { icons, state, className, iconClass, onClick, onWheel, children } = props
 
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
     const isMobile = useAtomValue(vc_isMobile)
@@ -404,6 +405,7 @@ export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
                     )
                 })}
             </AnimatePresence>
+            {children}
         </button>
     )
 }
@@ -519,7 +521,6 @@ export function VideoCoreVolumeButton() {
                 }}
                 onWheel={handleWheel}
             />
-            {/* Hide volume slider on mobile */}
             {!isMobile && (
                 <div
                     className={cn(

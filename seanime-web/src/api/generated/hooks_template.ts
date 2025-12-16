@@ -649,6 +649,17 @@
 //     })
 // }
 
+// export function useDirectstreamConvertSubs() {
+//     return useServerMutation<string, DirectstreamConvertSubs_Variables>({
+//         endpoint: API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.endpoint,
+//         method: API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.methods[0],
+//         mutationKey: [API_ENDPOINTS.DIRECTSTREAM.DirectstreamConvertSubs.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // discord
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1873,6 +1884,17 @@
 //         endpoint: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.endpoint,
 //         method: API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.methods[0],
 //         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaLeaveWatchParty.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useNakamaSendChatMessage() {
+//     return useServerMutation<boolean, NakamaSendChatMessage_Variables>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaSendChatMessage.key],
 //         onSuccess: async () => {
 // 
 //         },

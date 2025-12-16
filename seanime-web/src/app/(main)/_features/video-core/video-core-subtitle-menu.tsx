@@ -50,9 +50,6 @@ export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
 
     function onTrackChange(trackNumber: number | null) {
         setSelectedTrack(trackNumber)
-        // if (trackNumber !== null && subtitleManager && !subtitleManager?.isTrackSupported(trackNumber)) {
-        //     toast.error("This subtitle format is not supported by the player. Select another subtitle track or use an external player.")
-        // }
     }
 
     const firstRender = React.useRef(true)
@@ -70,13 +67,12 @@ export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
             }
 
             // Listen for subtitle track changes
-            subtitleManager.addTrackChangedEventListener(onTrackChange)
+            subtitleManager.setTrackChangedEventListener(onTrackChange)
 
             // Listen for when the subtitle tracks are mounted
-            videoElement?.textTracks?.addEventListener?.("change", onTextTrackChange)
-            return () => {
-                videoElement?.textTracks?.removeEventListener?.("change", onTextTrackChange)
-            }
+            subtitleManager.setTracksLoadedEventListener(tracks => {
+                setSubtitleTracks(tracks)
+            })
         } else if (mediaCaptionsManager) {
             /**
              * Media captions tracks
@@ -87,9 +83,9 @@ export function VideoCoreSubtitleMenu({ inline }: { inline?: boolean }) {
             }
 
             // Listen for subtitle track changes
-            mediaCaptionsManager.addTrackChangedEventListener(onTrackChange)
+            mediaCaptionsManager.setTrackChangedEventListener(onTrackChange)
 
-            mediaCaptionsManager.addTracksLoadedEventListener(tracks => {
+            mediaCaptionsManager.setTracksLoadedEventListener(tracks => {
                 setMediaCaptionsTracks(tracks)
             })
         }

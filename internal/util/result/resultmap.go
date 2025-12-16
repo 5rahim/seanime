@@ -29,6 +29,15 @@ func (c *Map[K, V]) Get(key K) (V, bool) {
 	return ci.value, true
 }
 
+func (c *Map[K, V]) Pop(key K) (V, bool) {
+	item, ok := c.store.LoadAndDelete(key)
+	if !ok {
+		return (&mapItem[K, V]{}).value, false
+	}
+	ci := item.(*mapItem[K, V])
+	return ci.value, true
+}
+
 func (c *Map[K, V]) Has(key K) bool {
 	_, ok := c.store.Load(key)
 	return ok

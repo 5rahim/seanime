@@ -8,7 +8,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/mpvipc"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
@@ -20,7 +20,7 @@ type Playback struct {
 	vm        *goja.Runtime
 	logger    *zerolog.Logger
 	ext       *extension.Extension
-	scheduler *goja_util.Scheduler
+	scheduler *gojautil.Scheduler
 }
 
 type PlaybackMPV struct {
@@ -28,7 +28,7 @@ type PlaybackMPV struct {
 	playback *Playback
 }
 
-func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 	p := &Playback{
 		ctx:       a,
 		vm:        vm,
@@ -43,7 +43,7 @@ func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Ob
 	_ = playbackObj.Set("registerEventListener", p.registerEventListener)
 	_ = playbackObj.Set("pause", p.pause)
 	_ = playbackObj.Set("resume", p.resume)
-	_ = playbackObj.Set("seek", p.seek)
+	_ = playbackObj.Set("seekTo", p.seekTo)
 	_ = playbackObj.Set("cancel", p.cancel)
 	_ = playbackObj.Set("getNextEpisode", p.getNextEpisode)
 	_ = playbackObj.Set("playNextEpisode", p.playNextEpisode)
@@ -307,7 +307,7 @@ func (p *Playback) resume() error {
 	return playbackManager.Resume()
 }
 
-func (p *Playback) seek(seconds float64) error {
+func (p *Playback) seekTo(seconds float64) error {
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
 		return errors.New("playback manager not found")

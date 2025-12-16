@@ -4,6 +4,7 @@ import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
+import { vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -16,7 +17,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { StaticTabs } from "@/components/ui/tabs"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { AnimatePresence } from "motion/react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -72,6 +73,8 @@ export function AnimeEntryPage() {
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
     const ts = useThemeSettings()
+
+    const vc_fullscreen = useAtomValue(vc_isFullscreen)
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
     const switchedView = React.useRef(false)
@@ -232,14 +235,14 @@ export function AnimeEntryPage() {
                 data-anime-entry-page-content-container
                 className={cn(
                     "px-4 md:px-8 relative z-[8]",
-                    currentView === "onlinestream" && "z-[100]",
+                    (currentView === "onlinestream" && vc_fullscreen) && "z-[100]",
                 )}
             >
                 <PageWrapper
                     data-anime-entry-page-content
                     className={cn(
                         "relative 2xl:order-first pb-10 lg:min-h-[calc(100vh-10rem)]",
-                        currentView === "onlinestream" && "z-[100]",
+                        (currentView === "onlinestream" && vc_fullscreen) && "z-[100]",
                     )}
                     {...{
                         initial: { opacity: 0, y: 20 },
@@ -303,7 +306,7 @@ export function AnimeEntryPage() {
                             key="online-streaming-episodes"
                             className={cn(
                                 "relative 2xl:order-first pb-10 lg:pt-0",
-                                currentView === "onlinestream" && "z-[100]",
+                                (currentView === "onlinestream" && vc_fullscreen) && "z-[100]",
                             )}
                             {...{
                                 initial: { opacity: 0, y: 60 },

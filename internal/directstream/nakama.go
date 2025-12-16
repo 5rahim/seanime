@@ -37,7 +37,7 @@ type Nakama struct {
 }
 
 func (s *Nakama) Type() nativeplayer.StreamType {
-	return nativeplayer.StreamTypeDebrid
+	return nativeplayer.StreamTypeNakama
 }
 
 func (s *Nakama) LoadContentType() string {

@@ -614,6 +614,20 @@ export type DirectstreamPlayLocalFile_Variables = {
  */
 export type DirectstreamFetchAndConvertToASS_Variables = {
     url: string
+    content: string
+}
+
+/**
+ * - Filepath: internal/handlers/directstream.go
+ * - Filename: directstream.go
+ * - Endpoint: /api/v1/directstream/subs/convert-subs
+ * @description
+ * Route converts subtitles from one format to another.
+ */
+export type DirectstreamConvertSubs_Variables = {
+    url: string
+    content: string
+    to: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1448,6 +1462,17 @@ export type NakamaJoinWatchParty_Variables = {
     clientId: string
 }
 
+/**
+ * - Filepath: internal/handlers/nakama.go
+ * - Filename: nakama.go
+ * - Endpoint: /api/v1/nakama/watch-party/chat
+ * @description
+ * Route sends a chat message in a watch party.
+ */
+export type NakamaSendChatMessage_Variables = {
+    message: string
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1927,6 +1952,12 @@ export type TorrentstreamStartStream_Variables = {
     playbackType: Torrentstream_PlaybackType
     clientId: string
     batchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
+    /**
+     *  Preload is true if the stream should only be prepared.
+     *
+     *  Preload is true if the stream should only be prepared.
+     */
+    preload?: boolean
 }
 
 /**

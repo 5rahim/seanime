@@ -38,16 +38,11 @@ export function VideoCoreInlineHelpers({
     const [hasUpdatedProgress, setHasUpdateProgress] = useAtom(vc_inlineHelper_hasUpdatedProgress)
     const [progressUpdateData, setProgressUpdateData] = useAtom(vc_inlineHelper_progressUpdateData)
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: updated } = useUpdateAnimeEntryProgress(
-        media?.id,
-        currentProgress,
-    )
-
     // Reset state when media, episode, or update completes
     React.useEffect(() => {
         setProgressUpdateData(null)
         setHasUpdateProgress(false)
-    }, [media, currentEpisodeNumber, url, updated])
+    }, [media, currentEpisodeNumber, url])
 
     React.useEffect(() => {
         if (!playerRef.current || !media || currentEpisodeNumber === null || !url) return
@@ -58,10 +53,10 @@ export function VideoCoreInlineHelpers({
 
         const checkProgress = () => {
             const player = playerRef.current
-            if (!player) return
+            if (!player || serverStatus?.settings?.library?.autoUpdateProgress) return
 
             // Skip if already updated or currently updating
-            if (hasUpdatedProgress || isUpdatingProgress) return
+            if (hasUpdatedProgress) return
 
             // Skip if progress update data already exists
             if (progressUpdateData !== null) return
@@ -75,29 +70,12 @@ export function VideoCoreInlineHelpers({
             const watchedRatio = currentTime / duration
             if (watchedRatio < PROGRESS_THRESHOLD) return
 
-            // Handle auto-update or prompt user
-            if (serverStatus?.settings?.library?.autoUpdateProgress) {
-                setHasUpdateProgress(true)
-                updateProgress({
-                    episodeNumber: currentEpisodeNumber,
-                    mediaId: media.id,
-                    totalEpisodes: media.episodes || 0,
-                    malId: media.idMal || undefined,
-                }, {
-                    onSuccess: () => {
-                        setHasUpdateProgress(true)
-                    },
-                    onError: () => {
-                        setHasUpdateProgress(false)
-                    },
-                })
-            } else {
-                setProgressUpdateData({
-                    media,
-                    currentProgress,
-                    currentEpisodeNumber,
-                })
-            }
+            // prompt user
+            setProgressUpdateData({
+                media,
+                currentProgress,
+                currentEpisodeNumber,
+            })
         }
 
         // Start interval
@@ -112,7 +90,6 @@ export function VideoCoreInlineHelpers({
         media,
         playerRef,
         hasUpdatedProgress,
-        isUpdatingProgress,
         serverStatus?.settings?.library?.autoUpdateProgress,
         currentProgress,
         progressUpdateData,

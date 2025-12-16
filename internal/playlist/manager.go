@@ -15,6 +15,7 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
+	"seanime/internal/videocore"
 	"sync"
 	"sync/atomic"
 
@@ -289,7 +290,7 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
 	playbackManagerSubscriber := m.playbackManager.SubscribeToPlaybackStatus("playlist-manager")
-	nativePlayerSubscriber := m.nativePlayer.Subscribe("playlist-manager")
+	videoCoreSubscriber := m.nativePlayer.VideoCore().Subscribe("playlist-manager")
 
 	m.playbackManager.SetPlaylistActive(true)
 
@@ -301,24 +302,13 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 				m.logger.Trace().Uint("dbId", playlist.DbId).Msg("playlist: Current playlist context done")
 				m.resetPlaylist()
 				m.playbackManager.UnsubscribeFromPlaybackStatus("playlist-manager")
-				m.nativePlayer.Unsubscribe("playlist-manager")
+				m.nativePlayer.VideoCore().Unsubscribe("playlist-manager")
 				return
 			case event := <-playbackManagerSubscriber.EventCh:
 				if m.playerType.Load() != SystemPlayer {
 					continue
 				}
 				switch e := event.(type) {
-				case playbackmanager.PlaybackStatusChangedEvent:
-					// check if video is done
-					if e.Status.CompletionPercentage < 99.9 {
-						if e.Status.CompletionPercentage >= 80.0 {
-							m.state.Store(StateCompleted)
-						}
-						continue
-					}
-					//m.markCurrentAsCompleted()
-					//m.playNextEpisode()
-
 				case playbackmanager.VideoCompletedEvent, playbackmanager.StreamCompletedEvent:
 					m.state.Store(StateCompleted)
 
@@ -374,27 +364,30 @@ func (m *Manager) startPlaylist(playlist *anime.Playlist, options *startPlaylist
 						}
 					}
 				}
-			case event := <-nativePlayerSubscriber.Events():
+			case event := <-videoCoreSubscriber.Events():
 				if m.playerType.Load() != NativePlayer {
 					continue
 				}
+				if !event.IsNativePlayer() {
+					continue
+				}
 				switch event.(type) {
-				case *nativeplayer.VideoLoadedMetadataEvent:
+				case *videocore.VideoLoadedMetadataEvent:
 					m.state.Store(StateStarted)
-					m.playerType.Store(SystemPlayer)
+					m.playerType.Store(NativePlayer)
 
-				case *nativeplayer.VideoCompletedEvent:
+				case *videocore.VideoCompletedEvent:
 					m.markCurrentAsCompleted()
 					m.state.Store(StateCompleted)
 
-				case *nativeplayer.VideoEndedEvent:
+				case *videocore.VideoEndedEvent:
 					if m.state.Load() == StateCompleted {
 						m.markCurrentAsCompleted()
 						m.playNextEpisode()
 					}
 					m.state.Store(StateIdle)
 
-				case *nativeplayer.VideoTerminatedEvent:
+				case *videocore.VideoTerminatedEvent:
 					if m.state.Load() == StateStarted || m.state.Load() == StateCompleted {
 						m.StopPlaylist("Playlist stopped")
 					}
@@ -581,7 +574,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 	}
 
 	// local file and desktop media player, play it from server
-	if isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault {
+	if isLf && !isNakama && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodDefault {
 		m.logger.Debug().Msg("playlist: Local file and desktop media player, playing from server")
 		err := m.playbackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
 			Payload:   episode.Episode.LocalFile.Path,
@@ -597,7 +590,7 @@ func (m *Manager) playEpisode(episode *anime.PlaylistEpisode) {
 
 		return
 
-	} else if isLf && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer {
+	} else if isLf && !isNakama && data.options.LocalFilePlaybackMethod == ClientPlaybackMethodNativePlayer {
 		// local file and native media player, play it from server
 		m.logger.Debug().Msg("playlist: Local file and native media player, playing from server")
 		err := m.directstreamManager.PlayLocalFile(context.Background(), directstream.PlayLocalFileOptions{

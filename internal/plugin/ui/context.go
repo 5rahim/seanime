@@ -7,7 +7,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/plugin"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"sync"
 	"sync/atomic"
@@ -49,7 +49,7 @@ type Context struct {
 	vm               *goja.Runtime
 	states           *result.Map[string, *State]
 	stateSubscribers []chan *State
-	scheduler        *goja_util.Scheduler // Schedule VM executions concurrently and execute them in order.
+	scheduler        *gojautil.Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
 	eventBus         *result.Map[ClientEventType, *result.Map[string, *EventListener]] // map[string]map[string]*EventListener (event -> listenerID -> listener)
 	contextObj       *goja.Object
@@ -203,6 +203,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionPlayback:
 				// Bind playback to the context object
 				plugin.GlobalAppContext.BindPlaybackToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+				plugin.GlobalAppContext.BindVideoCoreToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			case extension.PluginPermissionSystem:
 				plugin.GlobalAppContext.BindDownloaderToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			case extension.PluginPermissionCron:

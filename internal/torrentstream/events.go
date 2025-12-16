@@ -9,6 +9,8 @@ const (
 	eventTorrentStartedPlaying = "started-playing"
 	eventTorrentStatus         = "status"
 	eventTorrentStopped        = "stopped"
+	// Tells the client to send a PreloadStream request for the next episode
+	eventPreloadNextStream = "preload-next-stream"
 )
 
 type TorrentLoadingStatusState string

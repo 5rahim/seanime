@@ -4,13 +4,13 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_bindings"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
 )
 
-func (a *AppContextImpl) BindContinuityToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindContinuityToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	continuityObj := vm.NewObject()
 

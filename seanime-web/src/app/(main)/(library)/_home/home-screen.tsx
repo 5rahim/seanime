@@ -312,7 +312,7 @@ export function HomeScreen() {
                 isStreamingOnly={isStreamingOnly}
                 isNakamaLibrary={isNakamaLibrary}
                 className={cn(
-                    (homeItems[0]?.type === "discover-header" || homeItems[0]?.type === "anime-continue-watching-header") && "!mt-[-4rem] !mb-[-1rem]",
+                    (homeItems[0]?.type === "discover-header" || (homeItems[0]?.type === "anime-continue-watching-header" && !!continueWatchingList.length)) && "!mt-[-4rem] !mb-[-1rem]",
                 )}
             />
 

@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	SubtitleTypeASS = iota
+	SubtitleTypeUnknown = iota
+	SubtitleTypeASS
 	SubtitleTypeSSA
 	SubtitleTypeSRT
 	SubtitleTypeSTL
 	SubtitleTypeTTML
 	SubtitleTypeWEBVTT
-	SubtitleTypeUnknown
 )
 
 func isProbablySrt(content string) bool {
@@ -46,7 +46,7 @@ func ConvertToASS(content string, from int) (string, error) {
 
 read:
 	switch from {
-	case SubtitleTypeSSA:
+	case SubtitleTypeSSA, SubtitleTypeASS:
 		o, err = astisub.ReadFromSSA(reader)
 	case SubtitleTypeSRT:
 		o, err = astisub.ReadFromSRT(reader)
@@ -141,6 +141,52 @@ read:
 
 	w := &bytes.Buffer{}
 	err = o.WriteToSSA(w)
+	if err != nil {
+		return "", fmt.Errorf("failed to write subtitles: %w", err)
+	}
+
+	return w.String(), nil
+}
+
+func ConvertToVTT(content string, from int) (string, error) {
+	var o *astisub.Subtitles
+	var err error
+
+	reader := bytes.NewReader([]byte(content))
+
+read:
+	switch from {
+	case SubtitleTypeSSA, SubtitleTypeASS:
+		o, err = astisub.ReadFromSSA(reader)
+	case SubtitleTypeSRT:
+		o, err = astisub.ReadFromSRT(reader)
+	case SubtitleTypeSTL:
+		o, err = astisub.ReadFromSTL(reader, astisub.STLOptions{IgnoreTimecodeStartOfProgramme: true})
+	case SubtitleTypeTTML:
+		o, err = astisub.ReadFromTTML(reader)
+	case SubtitleTypeWEBVTT:
+		o, err = astisub.ReadFromWebVTT(reader)
+	case SubtitleTypeUnknown:
+		detectedType := DetectSubtitleType(content)
+		if detectedType == SubtitleTypeUnknown {
+			return "", fmt.Errorf("failed to detect subtitle format from content")
+		}
+		from = detectedType
+		goto read
+	default:
+		return "", fmt.Errorf("unsupported subtitle format: %d", from)
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("failed to read subtitles: %w", err)
+	}
+
+	if o == nil {
+		return "", fmt.Errorf("failed to read subtitles: %w", err)
+	}
+
+	w := &bytes.Buffer{}
+	err = o.WriteToWebVTT(w)
 	if err != nil {
 		return "", fmt.Errorf("failed to write subtitles: %w", err)
 	}

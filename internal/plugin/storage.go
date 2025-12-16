@@ -5,7 +5,7 @@ import (
 	"errors"
 	"seanime/internal/database/models"
 	"seanime/internal/extension"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"strings"
 
@@ -24,7 +24,7 @@ type Storage struct {
 	pluginDataCache *result.Map[string, *models.PluginData] // Cache to avoid repeated database calls
 	keyDataCache    *result.Map[string, interface{}]        // Cache to avoid repeated database calls
 	keySubscribers  *result.Map[string, []chan interface{}] // Subscribers for key changes
-	scheduler       *goja_util.Scheduler
+	scheduler       *gojautil.Scheduler
 }
 
 var (
@@ -34,7 +34,7 @@ var (
 // BindStorage binds the storage API to the Goja runtime.
 // Permissions need to be checked by the caller.
 // Permissions needed: storage
-func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Storage {
+func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Storage {
 	storageLogger := logger.With().Str("id", ext.ID).Logger()
 	storage := &Storage{
 		ctx:             a,

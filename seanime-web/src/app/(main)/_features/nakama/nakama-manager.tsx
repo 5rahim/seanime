@@ -1,4 +1,10 @@
-import { Nakama_NakamaStatus, Nakama_WatchPartySession, Nakama_WatchPartySessionSettings } from "@/api/generated/types"
+import {
+    Nakama_NakamaStatus,
+    Nakama_WatchPartySession,
+    Nakama_WatchPartySessionSettings,
+    VideoCore_OnlinestreamParams,
+    VideoCore_ServerEvent,
+} from "@/api/generated/types"
 import {
     useNakamaCreateWatchParty,
     useNakamaJoinWatchParty,
@@ -34,22 +40,41 @@ import { ElectronPlaybackMethod, useCurrentDevicePlaybackSettings } from "../../
 export const nakamaModalOpenAtom = atom(false)
 export const nakamaStatusAtom = atom<Nakama_NakamaStatus | null | undefined>(undefined)
 
-export const watchPartySessionAtom = atom<Nakama_WatchPartySession | null | undefined>(undefined)
-
 export function useNakamaStatus() {
     return useAtomValue(nakamaStatusAtom)
 }
 
-export function useWatchPartySession() {
-    return useAtomValue(watchPartySessionAtom)
+export function useNakamaWatchParty() {
+    const nakamaStatus = useAtomValue(nakamaStatusAtom)
+    const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
+
+    const currentUserPeerId = React.useMemo(() => {
+        if (nakamaStatus?.isHost) {
+            return "host"
+        }
+        return nakamaStatus?.hostConnectionStatus?.peerId || null
+    }, [nakamaStatus])
+
+
+    const isParticipant = React.useMemo(() => {
+        if (!watchPartySession || !watchPartySession.participants) return false
+        return nakamaStatus?.isHost || !!(currentUserPeerId && currentUserPeerId in watchPartySession.participants)
+    }, [watchPartySession, nakamaStatus, currentUserPeerId])
+
+    return {
+        watchPartySession,
+        isParticipant,
+        currentUserPeerId,
+    }
 }
 
 export function NakamaManager() {
     const { sendMessage } = useWebsocketSender()
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
-    const [watchPartySession, setWatchPartySession] = useAtom(watchPartySessionAtom)
     const clientId = useAtomValue(clientIdAtom)
+
+    const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
 
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
@@ -69,9 +94,9 @@ export function NakamaManager() {
         sendMessage({
             type: WSEvents.NAKAMA_STATUS_REQUESTED,
             payload: {
-                // Tell the server if we're a Denshi client or not
-                // This is used to determine if we should use the native player or not
+                // Tell the server whether this client is using the native player
                 useDenshiPlayer: __isElectronDesktop__ && electronPlaybackMethod === ElectronPlaybackMethod.NativePlayer,
+                clientId: clientId || "",
             },
         })
     }
@@ -95,14 +120,6 @@ export function NakamaManager() {
             refetchStatus()
         },
     })
-
-    React.useEffect(() => {
-        if (nakamaStatus?.currentWatchPartySession) {
-            setWatchPartySession(nakamaStatus.currentWatchPartySession)
-        } else {
-            setWatchPartySession(null)
-        }
-    }, [nakamaStatus])
 
     const websocketConnected = useAtomValue(websocketConnectedAtom)
 
@@ -161,11 +178,10 @@ export function NakamaManager() {
         leaveWatchParty(undefined, {
             onSuccess: () => {
                 toast.info("Leaving watch party")
-                setWatchPartySession(null)
                 refetchStatus()
             },
         })
-    }, [leaveWatchParty, setWatchPartySession, refetchStatus])
+    }, [leaveWatchParty, refetchStatus])
 
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_HOST_STARTED,
@@ -218,19 +234,14 @@ export function NakamaManager() {
 
     /////// Online stream
 
-    const { startOnlineStream } = useNakamaOnlineStreamWatchParty()
+    const { startOnlineStreamWatchParty } = useNakamaOnlineStreamWatchParty()
     useWebsocketMessageListener({
-        type: WSEvents.NAKAMA_ONLINE_STREAM_EVENT,
-        onMessage: (_data: { type: string, payload: { type: string, payload: any } }) => {
-            console.log(_data)
-            switch (_data.type) {
-                case "online-stream-playback-status":
-                    const data = _data.payload
-                    switch (data.type) {
-                        case "start":
-                            startOnlineStream(data.payload)
-                            break
-                    }
+        type: WSEvents.VIDEOCORE,
+        onMessage: ({ type, payload }: { type: VideoCore_ServerEvent, payload: unknown }) => {
+            switch (type) {
+                case "start-onlinestream-watch-party":
+                    const data = payload as VideoCore_OnlinestreamParams
+                    startOnlineStreamWatchParty(data)
             }
         },
     })

@@ -1,11 +1,11 @@
-import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCoreNextButton, VideoCorePreviousButton } from "@/app/(main)/_features/video-core/video-core-control-bar"
-import { VideoCorePlaybackState, VideoCorePlaybackType } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_PlaybackType, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
     __debridStream_autoSelectFileAtom,
@@ -31,13 +31,12 @@ import React from "react"
 import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
-type VideoCorePlaylistState = {
-    type: VideoCorePlaybackType
+export type VideoCorePlaylistState = {
+    type: VideoCore_PlaybackType
     episodes: Anime_Episode[]
     previousEpisode: Anime_Episode | null
     nextEpisode: Anime_Episode | null
     currentEpisode: Anime_Episode
-    currentTorrent?: HibikeTorrent_AnimeTorrent // for torrent and debrid stream type
     animeEntry: Anime_Entry | null
     onPlayEpisode?: VideoCorePlaylistPlayEpisodeFunction
 }
@@ -49,7 +48,7 @@ const log = logger("VIDEO CORE PLAYLIST")
 export const vc_playlistState = atom<VideoCorePlaylistState | null>(null)
 
 // call once, maintains playlist state
-export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
+export function useVideoCorePlaylistSetup(providedState: VideoCoreLifecycleState,
     onPlayEpisode: VideoCorePlaylistPlayEpisodeFunction | undefined = undefined,
 ) {
     const [playlistState, setPlaylistState] = useAtom(vc_playlistState)
@@ -77,7 +76,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
     const episodes = React.useMemo(() => {
         if (!episodeCollection) return []
 
-        if (playbackType === "localfile") {
+        if (playbackType === "localfile" || playbackType === "nakama") {
             return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
         }
         if (state.playbackInfo?.playlistExternalEpisodeNumbers) {
@@ -114,7 +113,7 @@ export function useVideoCorePlaylistSetup(providedState: VideoCorePlaybackState,
             animeEntry,
             onPlayEpisode,
         })
-    }, [animeEntry, playbackInfo, currentEpisode, previousEpisode, nextEpisode, onPlayEpisode])
+    }, [animeEntry, playbackInfo?.id, currentEpisode, previousEpisode, nextEpisode, onPlayEpisode])
 }
 
 export function useVideoCorePlaylist() {
@@ -283,6 +282,7 @@ export function useVideoCorePlaylist() {
 
         switch (playbackType) {
             case "localfile":
+            case "nakama":
                 if (!episode?.localFile?.path) {
                     toast.error("Local file not found")
                     return

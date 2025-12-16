@@ -2,10 +2,10 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { MKVParser_SubtitleEvent, MKVParser_TrackInfo } from "@/api/generated/types"
 import { VideoCorePgsRenderer } from "@/app/(main)/_features/video-core/video-core-pgs-renderer"
 import { vc_getSubtitleStyle } from "@/app/(main)/_features/video-core/video-core-settings-menu"
-import { VideoCorePlaybackInfo, VideoCoreSettings, VideoCoreSubtitleTrack } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo, VideoCore_VideoSubtitleTrack, VideoCoreSettings } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl, legacy_getAssetUrl } from "@/lib/server/assets"
-import JASSUB, { ASS_Event, ASS_Style, JassubOptions } from "jassub"
+import JASSUB, { ASS_Event } from "jassub"
 import { toast } from "sonner"
 
 const subtitleLog = logger("VIDEO CORE SUBTITLE")
@@ -41,8 +41,25 @@ export type NormalizedTrackInfo = {
     default: boolean
 }
 
+export type SubtitleManagerTrackSelectedEvent = CustomEvent<{ trackNumber: number, kind: "file" | "event" }>
+export type SubtitleManagerTrackDeselectedEvent = CustomEvent
+export type SubtitleManagerTrackAddedEvent = CustomEvent<{ track: NormalizedTrackInfo }>
+export type SubtitleManagerTracksLoadedEvent = CustomEvent<{ tracks: NormalizedTrackInfo[] }>
+export type SubtitleManagerDestroyedEvent = CustomEvent
+export type SubtitleManagerSettingsUpdatedEvent = CustomEvent<{ settings: VideoCoreSettings }>
+
+interface VideoCoreSubtitleManagerEventMap {
+    "trackselected": SubtitleManagerTrackSelectedEvent
+    "trackdeselected": SubtitleManagerTrackDeselectedEvent
+    "trackadded": SubtitleManagerTrackAddedEvent
+    "tracksloaded": SubtitleManagerTracksLoadedEvent
+    "destroyed": SubtitleManagerDestroyedEvent
+    "settingsupdated": SubtitleManagerSettingsUpdatedEvent
+}
+
+
 // Manages ASS and PGS subtitle streams.
-export class VideoCoreSubtitleManager {
+export class VideoCoreSubtitleManager extends EventTarget {
     private readonly videoElement: HTMLVideoElement
     private readonly jassubOffscreenRender: boolean
     libassRenderer: JASSUB | null = null
@@ -78,17 +95,18 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
     // URL-based tracks (will use internal API to convert to ASS)
     private fileTracks: Record<string, {
-        info: VideoCoreSubtitleTrack
+        info: VideoCore_VideoSubtitleTrack
         content: string | null // converted content
     }> = {}
 
-    private readonly fetchAndConvertToASS?: (url: string) => Promise<string | undefined>
+    private readonly fetchAndConvertToASS?: (url?: string, content?: string) => Promise<string | undefined>
 
-    private playbackInfo: VideoCorePlaybackInfo
+    private playbackInfo: VideoCore_VideoPlaybackInfo
     private currentTrackNumber: number = NO_TRACK_NUMBER
     private fonts: string[] = []
 
     private _onSelectedTrackChanged?: (track: number | null) => void
+    private _onTracksLoaded?: (tracks: NormalizedTrackInfo[]) => void
 
     constructor({
         videoElement,
@@ -99,10 +117,11 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     }: {
         videoElement: HTMLVideoElement
         jassubOffscreenRender: boolean
-        playbackInfo: VideoCorePlaybackInfo
+        playbackInfo: VideoCore_VideoPlaybackInfo
         settings: VideoCoreSettings
-        fetchAndConvertToASS?: (url: string) => Promise<string | undefined>
+        fetchAndConvertToASS?: (url?: string, content?: string) => Promise<string | undefined>
     }) {
+        super()
         this.videoElement = videoElement
         this.jassubOffscreenRender = jassubOffscreenRender
         this.playbackInfo = playbackInfo
@@ -116,14 +135,14 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             for (const track of this.playbackInfo.mkvMetadata.subtitleTracks) {
                 this._addEventTrack(track)
             }
-            this._storeEventTrackStyles() // Store their styles
+            this._storeEventTrackStyles()
         }
 
         /*
          * File Tracks
          */
         if (this.playbackInfo?.subtitleTracks) {
-            let trackNumber = 1000 // Start from 1000
+            let trackNumber = 1000
             for (const track of this.playbackInfo.subtitleTracks) {
                 if (track.useLibassRenderer) {
                     this.fileTracks[trackNumber] = {
@@ -134,6 +153,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 }
             }
         }
+
+        this._onTracksLoaded?.(this._getTracks())
 
         // Select default track if we have any tracks
         if (this.playbackInfo?.mkvMetadata?.subtitleTracks || Object.keys(this.fileTracks).length > 0) {
@@ -147,6 +168,44 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         subtitleLog.info("Event Tracks", this.eventTracks)
         subtitleLog.info("PGS Event Tracks", this.pgsEventTracks)
         subtitleLog.info("File tracks", this.fileTracks)
+    }
+
+    addEventListener<K extends keyof VideoCoreSubtitleManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreSubtitleManager, ev: VideoCoreSubtitleManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof VideoCoreSubtitleManagerEventMap>(
+        type: K,
+        listener: (this: VideoCoreSubtitleManager, ev: VideoCoreSubtitleManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
     }
 
     getSelectedTrackNumberOrNull(): number | null {
@@ -163,10 +222,17 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.libassRenderer?.resize?.()
         this.pgsRenderer?.clear()
         this._onSelectedTrackChanged?.(NO_TRACK_NUMBER)
+
+        const event: SubtitleManagerTrackDeselectedEvent = new CustomEvent("trackdeselected")
+        this.dispatchEvent(event)
     }
 
-    addTrackChangedEventListener(callback: (track: number | null) => void) {
+    setTrackChangedEventListener(callback: (track: number | null) => void) {
         this._onSelectedTrackChanged = callback
+    }
+
+    setTracksLoadedEventListener(callback: ((tracks: NormalizedTrackInfo[]) => void)) {
+        this._onTracksLoaded = callback
     }
 
     // Selects a track by its number.
@@ -278,6 +344,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
             this.libassRenderer?.resize?.()
         }
+
+        const selectedEvent: SubtitleManagerTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackNumber, kind: "event" } })
+        this.dispatchEvent(selectedEvent)
     }
 
     destroy() {
@@ -296,6 +365,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         this.pgsEventTracks = {}
         this.fileTracks = {}
         this.currentTrackNumber = NO_TRACK_NUMBER
+
+        const event: SubtitleManagerDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     getTracks() {
@@ -321,6 +393,10 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (this.currentTrackNumber !== NO_TRACK_NUMBER) {
             this._applySubtitleCustomization()
         }
+
+        // Dispatch Settings Updated Event
+        const event: SubtitleManagerSettingsUpdatedEvent = new CustomEvent("settingsupdated", { detail: { settings: newSettings } })
+        this.dispatchEvent(event)
     }
 
     setSubtitleDelay(subtitleDelay: number) {
@@ -367,7 +443,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
             this.libassRenderer = new JASSUB({
                 video: this.videoElement,
-                subContent: this.defaultSubtitleHeader, // needed
+                subContent: this.defaultSubtitleHeader,
                 wasmUrl: wasmUrl,
                 workerUrl: workerUrl,
                 legacyWasmUrl: legacyWasmUrl,
@@ -436,23 +512,25 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // |      Event Tracks     |
     // +-----------------------+
 
-    onEventTrackAdded(track: MKVParser_TrackInfo) {
+    addEventTrack(track: MKVParser_TrackInfo) {
         subtitleLog.info("Subtitle track added", track)
-        toast.success(`Subtitle track added: ${track.name}`)
         this._addEventTrack(track)
         this._storeEventTrackStyles()
-        // Add the track to the video element
-        const trackEl = document.createElement("track")
-        trackEl.id = track.number.toString()
-        trackEl.kind = "subtitles"
-        trackEl.label = track.name || ""
-        trackEl.srclang = track.language || "eng"
-        this.videoElement.appendChild(trackEl)
-        // this._selectDefaultTrack()
+        // Select the track
         this.selectTrack(track.number)
         this._init()
         this.libassRenderer?.resize?.()
         this.pgsRenderer?.resize()
+
+        const tracks = this._getTracks()
+        const normalizedTrack = tracks.find(t => t.number === track.number)
+        if (normalizedTrack) {
+            const event: SubtitleManagerTrackAddedEvent = new CustomEvent("trackadded", { detail: { track: normalizedTrack } })
+            this.dispatchEvent(event)
+        }
+        const event: SubtitleManagerTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: tracks } })
+        this.dispatchEvent(event)
+        this._onTracksLoaded?.(tracks)
     }
 
     // When called for the first time, it will initialize the libass renderer.
@@ -676,12 +754,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // +-----------------------+
-    // |      File Tracks      |
-    // +-----------------------+
-
     private _addEventTrack(track: MKVParser_TrackInfo) {
         this.eventTracks[track.number] = {
             info: track,
@@ -712,17 +784,50 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         if (trackEventMap.has(eventKey)) {
             return { isNew: false, assEvent: trackEventMap.get(eventKey)?.assEvent! }
         }
-
         // record the event
         const assEvent = this._createAssEvent(event, trackEventMap.size)
         trackEventMap.set(eventKey, { event, assEvent })
         return { isNew: true, assEvent }
     }
 
-    // Fetches the track's content and converts it to ASS.
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // +-----------------------+
+    // |      File Tracks      |
+    // +-----------------------+
+
+    // // Adds a new track AFTER initialization and selects it
+    addFileTrack(track: VideoCore_VideoSubtitleTrack) {
+        subtitleLog.info("Subtitle file track added", track)
+        toast.success(`Subtitle track added: ${track.label}`)
+        const lastFileTrackNumber = Object.keys(this.fileTracks).length
+            ? Number(Object.keys(this.fileTracks)[Object.keys(this.fileTracks).length - 1])
+            : 999
+        const number = lastFileTrackNumber + 1
+        this.fileTracks[number] = {
+            info: track,
+            content: null,
+        }
+        // Select the track
+        this.selectTrack(number)
+        this._init()
+        this.libassRenderer?.resize?.()
+        this.pgsRenderer?.resize()
+
+        const tracks = this._getTracks()
+        const normalizedTrack = tracks.find(t => t.number === number)
+        if (normalizedTrack) {
+            const event: SubtitleManagerTrackAddedEvent = new CustomEvent("trackadded", { detail: { track: normalizedTrack } })
+            this.dispatchEvent(event)
+        }
+        const event: SubtitleManagerTracksLoadedEvent = new CustomEvent("tracksloaded", { detail: { tracks: tracks } })
+        this.dispatchEvent(event)
+        this._onTracksLoaded?.(tracks)
+    }
+
+    // Fetches the track's content and converts it to ASS.
     // If the content is already fetched, it will load it.
-    private async _handleFileTrack(trackNumber: number, fileTrack: { info: VideoCoreSubtitleTrack, content: string | null }) {
+    private async _handleFileTrack(trackNumber: number, fileTrack: { info: VideoCore_VideoSubtitleTrack, content: string | null }) {
         subtitleLog.info("Handling file track", trackNumber, fileTrack.info)
 
         if (!this.fetchAndConvertToASS) {
@@ -743,8 +848,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         // Convert the subtitle to ASS format
         if (fileTrack.info.type === "ass") {
             try {
-                subtitleLog.info("Fetching subtitle content", fileTrack.info.src)
-                const content = await fetch(fileTrack.info.src).then(res => res.text())
+                if (fileTrack.info.src) subtitleLog.info("Fetching subtitle content", fileTrack.info.src)
+                const content = fileTrack.info.src ? await fetch(fileTrack.info.src).then(res => res.text()) : (fileTrack.info.content || "")
                 this.libassRenderer?.setTrack(content)
                 this._applySubtitleCustomization()
                 this.libassRenderer?.resize?.()
@@ -756,8 +861,8 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             }
         } else {
             try {
-                subtitleLog.info("Converting subtitle to ASS format", fileTrack.info.src)
-                const assContent = await this.fetchAndConvertToASS(fileTrack.info.src)
+                subtitleLog.info("Converting subtitle to ASS format")
+                const assContent = await this.fetchAndConvertToASS(fileTrack.info.src, fileTrack.info.content)
 
                 if (!assContent) {
                     subtitleLog.error("Failed to convert subtitle to ASS format")
@@ -780,6 +885,9 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
                 toast.error("Failed to convert subtitle track")
             }
         }
+
+        const selectedEvent: SubtitleManagerTrackSelectedEvent = new CustomEvent("trackselected", { detail: { trackNumber, kind: "file" } })
+        this.dispatchEvent(selectedEvent)
     }
 }
 

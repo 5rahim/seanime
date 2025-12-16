@@ -17,7 +17,7 @@ import { BiDownArrow, BiGroup, BiStop, BiUpArrow } from "react-icons/bi"
 
 const inter = Inter({ subsets: ["latin"] })
 
-const enum TorrentStreamEvents {
+export const enum TorrentStreamEvents {
     TorrentLoading = "loading",
     TorrentLoadingFailed = "loading-failed",
     TorrentLoadingStatus = "loading-status",
@@ -25,6 +25,7 @@ const enum TorrentStreamEvents {
     TorrentStartedPlaying = "started-playing",
     TorrentStatus = "status",
     TorrentStopped = "stopped",
+    PreloadNextStream = "preload-next-stream",
 }
 
 export const __torrentstream__loadingStateAtom = atom<string | null>(null)

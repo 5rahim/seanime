@@ -25,6 +25,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     includeInLibrary: z.boolean(),
     streamUrlAddress: z.string().optional().default(""),
     slowSeeding: z.boolean().optional().default(false),
+    preloadNextStream: z.boolean().optional().default(false),
 }))
 
 
@@ -86,6 +87,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     includeInLibrary: settings.includeInLibrary,
                     streamUrlAddress: settings.streamUrlAddress || "",
                     slowSeeding: settings.slowSeeding,
+                    preloadNextStream: settings.preloadNextStream,
                 }}
                 stackClass="space-y-4"
             >
@@ -98,15 +100,23 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     />
                 </SettingsCard>
 
-                <SettingsCard title="My library">
+                <SettingsCard title="Home Screen">
                     <Field.Switch
                         side="right"
                         name="includeInLibrary"
-                        label="Include in library"
-                        help="Add non-downloaded shows that are in your currently watching list to 'My library' for streaming"
+                        label="Include in anime library"
+                        help="Add non-downloaded shows that are in your currently watching list to the anime library."
                     />
                 </SettingsCard>
 
+                {/*<SettingsCard title="Preloading">*/}
+                {/*    <Field.Switch*/}
+                {/*        side="right"*/}
+                {/*        name="preloadNextStream"*/}
+                {/*        label="Preload next stream"*/}
+                {/*        help="Starts downloading the next episode in the background."*/}
+                {/*    />*/}
+                {/*</SettingsCard>*/}
 
                 <SettingsCard title="Auto-select">
                     <Field.Switch

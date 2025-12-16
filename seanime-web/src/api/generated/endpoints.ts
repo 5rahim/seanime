@@ -606,6 +606,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/directstream/subs/convert-to-ass",
         },
+        DirectstreamConvertSubs: {
+            key: "DIRECTSTREAM-directstream-convert-subs",
+            methods: ["POST"],
+            endpoint: "/api/v1/directstream/subs/convert-subs",
+        },
     },
     DISCORD: {
         SetDiscordMangaActivity: {
@@ -1525,6 +1530,16 @@ export const API_ENDPOINTS = {
             key: "NAKAMA-nakama-leave-watch-party",
             methods: ["POST"],
             endpoint: "/api/v1/nakama/watch-party/leave",
+        },
+        /**
+         *  @description
+         *  Route sends a chat message in a watch party.
+         *  This sends a chat message to all participants in the active watch party session.
+         */
+        NakamaSendChatMessage: {
+            key: "NAKAMA-nakama-send-chat-message",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/watch-party/chat",
         },
     },
     ONLINESTREAM: {

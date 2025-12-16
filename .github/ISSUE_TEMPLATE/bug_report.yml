@@ -3,6 +3,7 @@ description: Report a bug you encountered
 title: 'bug: '
 labels:
   - bug
+  - needs triage
 body:
   - type: checkboxes
     id: '1'

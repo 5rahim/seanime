@@ -3157,46 +3157,6 @@ export type Manga_ProviderDownloadMapChapterInfo = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Mediaplayer
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/mediaplayers/mediaplayer/repository.go
- * - Filename: repository.go
- * - Package: mediaplayer
- */
-export type PlaybackStatus = {
-    completionPercentage: number
-    playing: boolean
-    filename: string
-    path: string
-    /**
-     * in ms
-     */
-    duration: number
-    filepath: string
-    /**
-     * in seconds
-     */
-    currentTimeInSeconds: number
-    /**
-     * in seconds
-     */
-    durationInSeconds: number
-    /**
-     * "file", "stream"
-     */
-    playbackType: PlaybackType
-}
-
-/**
- * - Filepath: internal/mediaplayers/mediaplayer/repository.go
- * - Filename: repository.go
- * - Package: mediaplayer
- */
-export type PlaybackType = "file" | "stream"
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mediastream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3884,6 +3844,7 @@ export type Models_TorrentSettings = {
     qbittorrentUsername: string
     qbittorrentPassword: string
     qbittorrentTags: string
+    qbittorrentCategory: string
     transmissionPath: string
     transmissionHost: string
     transmissionPort: number
@@ -3912,6 +3873,7 @@ export type Models_TorrentstreamSettings = {
     includeInLibrary: boolean
     streamUrlAddress: string
     slowSeeding: boolean
+    preloadNextStream: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3995,14 +3957,19 @@ export type Nakama_NakamaStatus = {
  * - Filepath: internal/nakama/watch_party.go
  * - Filename: watch_party.go
  * - Package: nakama
+ * @description
+ *  Events
  */
-export type Nakama_OnlineStreamParams = {
-    mediaId: number
-    provider: string
-    server: string
-    dubbed: boolean
-    episodeNumber: number
-    quality: string
+export type Nakama_WatchPartyPlaybackStatus = {
+    paused: boolean
+    /**
+     * in seconds
+     */
+    currentTime: number
+    /**
+     * in seconds
+     */
+    duration: number
 }
 
 /**
@@ -4034,16 +4001,13 @@ export type Nakama_WatchPartySessionMediaInfo = {
     mediaId: number
     episodeNumber: number
     aniDbEpisode: string
+    streamType: Nakama_WatchPartyStreamType
     /**
-     * "file", "torrent", "debrid", "online"
+     * Path to local file if StreamType is file
      */
-    streamType: string
-    /**
-     * URL for stream playback (e.g. /api/v1/nakama/stream?type=file&path=...)
-     */
-    streamPath: string
-    onlineStreamParams?: Nakama_OnlineStreamParams
-    optionalTorrentStreamStartOptions?: Torrentstream_StartStreamOptions
+    localFilePath: string
+    onlinestreamParams?: VideoCore_OnlinestreamParams
+    torrentStreamParams?: Torrentstream_StartStreamOptions
 }
 
 /**
@@ -4080,7 +4044,7 @@ export type Nakama_WatchPartySessionParticipant = {
     /**
      * Current playback status
      */
-    playbackStatus?: PlaybackStatus
+    playbackStatus?: Nakama_WatchPartyPlaybackStatus
     /**
      * Whether this peer is the origin for relay mode
      */
@@ -4103,25 +4067,16 @@ export type Nakama_WatchPartySessionSettings = {
     maxBufferWaitTime: number
 }
 
+/**
+ * - Filepath: internal/nakama/watch_party.go
+ * - Filename: watch_party.go
+ * - Package: nakama
+ */
+export type Nakama_WatchPartyStreamType = "file" | "torrent" | "debrid" | "onlinestream"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Nativeplayer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/nativeplayer/events.go
- * - Filename: events.go
- * - Package: nativeplayer
- */
-export type NativePlayer_ClientEvent = "video-paused" |
-    "video-resumed" |
-    "video-completed" |
-    "video-ended" |
-    "video-seeked" |
-    "video-error" |
-    "loaded-metadata" |
-    "subtitle-file-uploaded" |
-    "video-terminated" |
-    "video-time-update"
 
 /**
  * - Filepath: internal/nativeplayer/nativeplayer.go
@@ -4157,6 +4112,7 @@ export type NativePlayer_PlaybackInfo = {
      * Is the stream from Nakama Watch Party
      */
     isNakamaWatchParty: boolean
+    localFile?: Anime_LocalFile
 }
 
 /**
@@ -4169,20 +4125,14 @@ export type NativePlayer_ServerEvent = "open-and-await" |
     "watch" |
     "subtitle-event" |
     "set-tracks" |
-    "pause" |
-    "resume" |
-    "seek" |
-    "seek-to" |
-    "error" |
-    "add-subtitle-track" |
-    "terminate"
+    "error"
 
 /**
  * - Filepath: internal/nativeplayer/nativeplayer.go
  * - Filename: nativeplayer.go
  * - Package: nativeplayer
  */
-export type NativePlayer_StreamType = "torrent" | "localfile" | "debrid"
+export type NativePlayer_StreamType = "torrent" | "localfile" | "debrid" | "nakama"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Onlinestream
@@ -4565,10 +4515,6 @@ export type Torrentstream_StartStreamOptions = {
     UserAgent: string
     ClientId: string
     PlaybackType: Torrentstream_PlaybackType
-    /**
-     * If this is a nakama stream (watch party)
-     */
-    IsNakamaWatchParty: boolean
     BatchEpisodeFiles?: HibikeTorrent_BatchEpisodeFiles
 }
 
@@ -4783,6 +4729,194 @@ export type Habari_Metadata = {
     video_resolution?: string
     video_term?: Array<string>
     volume_number?: Array<string>
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Videocore
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ */
+export type VideoCore_ClientEventType = "video-loaded" |
+    "video-loaded-metadata" |
+    "video-can-play" |
+    "video-paused" |
+    "video-resumed" |
+    "video-status" |
+    "video-completed" |
+    "video-fullscreen" |
+    "video-pip" |
+    "video-subtitle-track" |
+    "video-media-caption-track" |
+    "video-anime-4k" |
+    "video-audio-track" |
+    "video-ended" |
+    "video-seeked" |
+    "video-error" |
+    "video-terminated" |
+    "video-playback-state" |
+    "subtitle-file-uploaded" |
+    "video-playlist" |
+    "video-text-tracks"
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ */
+export type VideoCore_OnlinestreamParams = {
+    mediaId: number
+    episodeNumber: number
+    provider: string
+    server: string
+    quality: string
+    dubbed: boolean
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ */
+export type VideoCore_PlaybackState = {
+    clientId: string
+    playerType: VideoCore_PlayerType
+    playbackInfo?: VideoCore_VideoPlaybackInfo
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ * @description
+ *  PlaybackType is the playback method.
+ */
+export type VideoCore_PlaybackType = "localfile" | "torrent" | "debrid" | "nakama" | "onlinestream"
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ */
+export type VideoCore_PlayerType = "native" | "web"
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ */
+export type VideoCore_ServerEvent = "pause" |
+    "resume" |
+    "seek" |
+    "seek-to" |
+    "set-fullscreen" |
+    "set-pip" |
+    "set-subtitle-track" |
+    "add-subtitle-track" |
+    "add-external-subtitle-track" |
+    "set-media-caption-track" |
+    "add-media-caption-track" |
+    "set-audio-track" |
+    "terminate" |
+    "start-onlinestream-watch-party" |
+    "get-status" |
+    "show-message" |
+    "play-episode" |
+    "get-text-tracks" |
+    "get-fullscreen" |
+    "get-pip" |
+    "get-anime-4k" |
+    "get-subtitle-track" |
+    "get-audio-track" |
+    "get-media-caption-track" |
+    "get-playback-state" |
+    "get-playlist"
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ * @description
+ *  VideoInitialState specifies the initial state for the player.
+ */
+export type VideoCore_VideoInitialState = {
+    currentTime?: number
+    paused?: boolean
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ * @description
+ *  VideoPlaybackInfo contains detailed information about the currently played media.
+ *  It is filled by the client, passed to the player and sent to the server during playback.
+ */
+export type VideoCore_VideoPlaybackInfo = {
+    id: string
+    playbackType: VideoCore_PlaybackType
+    streamUrl: string
+    /**
+     * NativePlayer only
+     */
+    mkvMetadata?: MKVParser_Metadata
+    localFile?: Anime_LocalFile
+    onlinestreamParams?: VideoCore_OnlinestreamParams
+    subtitleTracks?: Array<VideoCore_VideoSubtitleTrack>
+    videoSources?: Array<VideoCore_VideoSource>
+    /**
+     * index of VideoSource
+     */
+    selectedVideoSource?: number
+    playlistExternalEpisodeNumbers?: Array<number>
+    disableRestoreFromContinuity?: boolean
+    initialState?: VideoCore_VideoInitialState
+    media?: AL_BaseAnime
+    episode?: Anime_Episode
+    /**
+     * "native" | "hls" | "unknown"
+     */
+    streamType: string
+    isNakamaWatchParty?: boolean
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ * @description
+ *  VideoSource is an alternative video stream source (e.g., resolution options).
+ */
+export type VideoCore_VideoSource = {
+    index: number
+    resolution: string
+    url?: string
+    label?: string
+    moreInfo?: string
+}
+
+/**
+ * - Filepath: internal/videocore/types.go
+ * - Filename: types.go
+ * - Package: videocore
+ * @description
+ *  VideoSubtitleTrack is an external subtitle track.
+ */
+export type VideoCore_VideoSubtitleTrack = {
+    index: number
+    src?: string
+    content?: string
+    label: string
+    language: string
+    /**
+     * "srt" | "vtt" | "ass" | "ssa"
+     */
+    type?: string
+    default?: boolean
+    useLibassRenderer?: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

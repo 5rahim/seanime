@@ -115,6 +115,7 @@ type (
 	}
 
 	PlaybackStatus struct {
+		// CompletionPercentage (not actually a percentage, but a float between 0 and 1)
 		CompletionPercentage float64 `json:"completionPercentage"`
 		Playing              bool    `json:"playing"`
 		Filename             string  `json:"filename"`

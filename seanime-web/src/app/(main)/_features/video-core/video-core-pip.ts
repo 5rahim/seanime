@@ -1,15 +1,29 @@
 import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-core-media-captions"
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
-import { VideoCorePlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
+import { VideoCore_VideoPlaybackInfo } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { atom } from "jotai"
 
 const log = logger("VIDEO CORE PIP")
 
+export type PipManagerEnteredEvent = CustomEvent<{ pipElement: HTMLVideoElement }>
+export type PipManagerExitedEvent = CustomEvent
+export type PipManagerToggledEvent = CustomEvent<{ enabled: boolean }>
+export type PipManagerDestroyedEvent = CustomEvent
+export type PipManagerErrorEvent = CustomEvent<{ error: string }>
+
+interface VideoCorePipManagerEventMap {
+    "enteredpip": PipManagerEnteredEvent
+    "exitedpip": PipManagerExitedEvent
+    "toggledpip": PipManagerToggledEvent
+    "destroyed": PipManagerDestroyedEvent
+    "error": PipManagerErrorEvent
+}
+
 export const vc_pipElement = atom<HTMLVideoElement | null>(null)
 export const vc_pipManager = atom<VideoCorePipManager | null>(null)
 
-export class VideoCorePipManager {
+export class VideoCorePipManager extends EventTarget {
     private video: HTMLVideoElement | null = null
     private subtitleManager: VideoCoreSubtitleManager | null = null
     private mediaCaptionsManager: MediaCaptionsManager | null = null
@@ -19,9 +33,11 @@ export class VideoCorePipManager {
     private pipProxy: HTMLVideoElement | null = null
     private isSyncingFromMain = false
     private isSyncingFromPip = false
-    private playbackInfo: VideoCorePlaybackInfo | null = null
+    private playbackInfo: VideoCore_VideoPlaybackInfo | null = null
+    private _isPip = false
 
     constructor(onPipElementChange: (element: HTMLVideoElement | null) => void) {
+        super()
         this.onPipElementChange = onPipElementChange
         document.addEventListener("enterpictureinpicture", this.handleEnterPip, {
             signal: this.controller.signal,
@@ -29,18 +45,56 @@ export class VideoCorePipManager {
         document.addEventListener("leavepictureinpicture", this.handleLeavePip, {
             signal: this.controller.signal,
         })
-        window.addEventListener("visibilitychange", () => {
-            const shouldAutoPip = document.visibilityState !== "visible" &&
-                this.video &&
-                !this.video.paused
-
-            if (shouldAutoPip) {
-                this.togglePip(true)
-            }
-        }, { signal: this.controller.signal })
+        // window.addEventListener("visibilitychange", () => {
+        //     const shouldAutoPip = document.visibilityState !== "visible" &&
+        //         this.video &&
+        //         !this.video.paused
+        //
+        //     if (shouldAutoPip) {
+        //         this.togglePip(true)
+        //     }
+        // }, { signal: this.controller.signal })
     }
 
-    setVideo(video: HTMLVideoElement, playbackInfo: VideoCorePlaybackInfo) {
+    addEventListener<K extends keyof VideoCorePipManagerEventMap>(
+        type: K,
+        listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void
+
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void {
+        super.addEventListener(type, listener, options)
+    }
+
+    removeEventListener<K extends keyof VideoCorePipManagerEventMap>(
+        type: K,
+        listener: (this: VideoCorePipManager, ev: VideoCorePipManagerEventMap[K]) => any,
+        options?: boolean | EventListenerOptions,
+    ): void
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void
+
+    removeEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+    ): void {
+        super.removeEventListener(type, listener, options)
+    }
+
+    setVideo(video: HTMLVideoElement, playbackInfo: VideoCore_VideoPlaybackInfo) {
         this.video = video
 
         if (this.video) {
@@ -62,6 +116,10 @@ export class VideoCorePipManager {
         this.mediaCaptionsManager = mediaCaptionsManager
     }
 
+    get isPip(): boolean {
+        return this._isPip
+    }
+
     togglePip(enable?: boolean) {
         const isCurrentlyInPip = document.pictureInPictureElement !== null
         const shouldEnable = enable !== undefined ? enable : !isCurrentlyInPip
@@ -75,8 +133,10 @@ export class VideoCorePipManager {
 
     exitPip() {
         if (document.pictureInPictureElement) {
-            document.exitPictureInPicture().catch(err => {
+            document.exitPictureInPicture().catch((err: DOMException) => {
                 log.error("Failed to exit PiP", err)
+                const errorEvent: PipManagerErrorEvent = new CustomEvent("error", { detail: { error: `Failed to exit PiP: ${err.message}` } })
+                this.dispatchEvent(errorEvent)
             })
         }
     }
@@ -103,6 +163,9 @@ export class VideoCorePipManager {
         }
         catch (error) {
             log.error("Failed to enter PiP", error)
+            const errorMessage = error instanceof Error ? error.message : "Unknown error during PiP entry"
+            const errorEvent: PipManagerErrorEvent = new CustomEvent("error", { detail: { error: errorMessage } })
+            this.dispatchEvent(errorEvent)
         }
     }
 
@@ -113,16 +176,37 @@ export class VideoCorePipManager {
         this.video = null
         this.subtitleManager = null
         this.mediaCaptionsManager = null
+
+        const event: PipManagerDestroyedEvent = new CustomEvent("destroyed")
+        this.dispatchEvent(event)
     }
 
     private handleEnterPip = () => {
         const pipElement = document.pictureInPictureElement as HTMLVideoElement | null
         log.info("Entered PiP", pipElement)
+
+        this._isPip = true
+
+        if (pipElement) {
+            const event: PipManagerEnteredEvent = new CustomEvent("enteredpip", { detail: { pipElement } })
+            this.dispatchEvent(event)
+            const event2: PipManagerToggledEvent = new CustomEvent("toggledpip", { detail: { enabled: true } })
+            this.dispatchEvent(event2)
+        }
+
         this.onPipElementChange(pipElement)
     }
 
     private handleLeavePip = () => {
-        log.info("Left PiP")
+        log.info("Exited PiP")
+
+        this._isPip = false
+
+        const event: PipManagerExitedEvent = new CustomEvent("exitedpip")
+        this.dispatchEvent(event)
+        const event2: PipManagerToggledEvent = new CustomEvent("toggledpip", { detail: { enabled: false } })
+        this.dispatchEvent(event2)
+
         this.onPipElementChange(null)
 
         if (this.video) {

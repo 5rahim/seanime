@@ -1,59 +1,21 @@
-import { AL_BaseAnime, Anime_Episode, MKVParser_Metadata } from "@/api/generated/types"
+import {
+    VideoCore_PlaybackType,
+    VideoCore_VideoPlaybackInfo,
+    VideoCore_VideoSource,
+    VideoCore_VideoSubtitleTrack,
+} from "@/api/generated/types"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
-// Generic playback state interface
-export type VideoCorePlaybackState = {
+export type VideoCoreLifecycleState = {
     active: boolean
-    playbackInfo: VideoCorePlaybackInfo | null
+    playbackInfo: VideoCore_VideoPlaybackInfo | null
     playbackError: string | null
     loadingState: string | null
 }
 
-export type VideoCorePlaybackType = "localfile" | "torrent" | "debrid" | "nakama" | "onlinestream"
-
-export type VideoCoreSubtitleTrack = {
-    index: number
-    src: string
-    label: string
-    language: string
-    type?: "srt" | "vtt" | "ass" | "ssa"
-    default?: boolean
-    useLibassRenderer?: boolean
-}
-
-export type VideoCoreVideoSource = {
-    index: number,
-    resolution: string,
-    url?: string,
-    label?: string,
-    moreInfo?: string,
-}
-
-export type VideoCorePlaybackInfo = {
-    id: string
-    playbackType: VideoCorePlaybackType
-    streamUrl: string
-    mkvMetadata?: MKVParser_Metadata
-    subtitleTracks?: VideoCoreSubtitleTrack[]
-    videoSources?: VideoCoreVideoSource[]
-    // Video Core Playlist manager needs to know the episodes that can be played
-    // Used for online streaming
-    playlistExternalEpisodeNumbers?: number[]
-    // If true, watch continuity will be ignored
-    disableRestoreFromContinuity?: boolean
-    // The player will be initialized with this state when the stream is ready
-    enableDiscordRichPresence?: boolean
-    initialState?: {
-        currentTime?: number,
-        paused?: boolean,
-    }
-    // If true, the player will periodically update the progress
-    trackContinuity?: boolean
-    selectedVideoSource?: number
-    media?: AL_BaseAnime
-    episode?: Anime_Episode
-    streamType: "native" | "hls" | "unknown"
+export type {
+    VideoCore_VideoSubtitleTrack, VideoCore_PlaybackType, VideoCore_VideoSource, VideoCore_VideoPlaybackInfo,
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

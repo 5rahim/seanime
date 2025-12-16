@@ -3,6 +3,7 @@ description: Suggest an idea for the project
 title: 'feature request: '
 labels:
   - request
+  - needs triage
 body:
   - type: checkboxes
     id: '1'

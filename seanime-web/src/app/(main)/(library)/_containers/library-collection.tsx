@@ -60,7 +60,7 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading, stre
 
     const filteredCollectionList = React.useMemo(() => {
         return collectionList.filter(collection => {
-            return !!showStatuses && !!collection.type && showStatuses.includes(collection.type)
+            return !showStatuses || (!!showStatuses && !!collection.type && showStatuses.includes(collection.type))
         })
     }, [collectionList, showStatuses])
 

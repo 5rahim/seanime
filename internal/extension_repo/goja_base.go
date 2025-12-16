@@ -8,7 +8,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/plugin"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"time"
 
 	"github.com/dop251/goja"
@@ -24,7 +24,7 @@ type gojaProviderBase struct {
 	source         string
 	runtimeManager *goja_runtime.Manager
 	store          *plugin.Store[string, any]
-	scheduler      *goja_util.Scheduler
+	scheduler      *gojautil.Scheduler
 	wsEventManager events.WSEventManagerInterface
 }
 
@@ -64,7 +64,7 @@ func initializeProviderBase(
 		source:         source,
 		runtimeManager: runtimeManager,
 		store:          plugin.NewStore[string, any](nil), // Create a store (must be stopped when unloading)
-		scheduler:      goja_util.NewScheduler(),          // Create a scheduler (must be stopped when unloading)
+		scheduler:      gojautil.NewScheduler(),           // Create a scheduler (must be stopped when unloading)
 		wsEventManager: wsEventManager,
 	}
 
@@ -74,7 +74,7 @@ func initializeProviderBase(
 		providerBase.store.Bind(vm, providerBase.scheduler)
 		// Bind the shared bindings
 		ShareBinds(vm, logger, ext, wsEventManager)
-		goja_util.BindMutable(vm)
+		gojautil.BindMutable(vm)
 		BindUserConfig(vm, ext, logger)
 		return vm
 	}

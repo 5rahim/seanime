@@ -426,6 +426,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.HEAD("/directstream/stream", echo.WrapHandler(h.HandleDirectstreamGetStream()))
 	v1.GET("/directstream/att/*", h.HandleDirectstreamGetAttachments)
 	v1.POST("/directstream/subs/convert-to-ass", h.HandleDirectstreamFetchAndConvertToASS)
+	v1.POST("/directstream/subs/convert-subs", h.HandleDirectstreamConvertSubs)
 
 	//
 	// Torrent stream
@@ -543,6 +544,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Nakama.POST("/watch-party/create", h.HandleNakamaCreateWatchParty)
 	v1Nakama.POST("/watch-party/join", h.HandleNakamaJoinWatchParty)
 	v1Nakama.POST("/watch-party/leave", h.HandleNakamaLeaveWatchParty)
+	v1Nakama.POST("/watch-party/chat", h.HandleNakamaSendChatMessage)
 
 	//
 	// Custom Source

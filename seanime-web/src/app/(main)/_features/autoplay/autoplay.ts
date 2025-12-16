@@ -63,7 +63,7 @@ export function useTorrentstreamAutoplay() {
     const { handleAutoSelectStream, handleStreamSelection } = useHandleStartTorrentStream()
     const { autoPlayTorrent } = useAutoPlaySelectedTorrent()
 
-    function handleAutoplayNextTorrentstreamEpisode() {
+    function handleAutoplayNextTorrentstreamEpisode(preload?: boolean) {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
@@ -74,6 +74,8 @@ export function useTorrentstreamAutoplay() {
                 fileIndex = file.index
             }
         }
+
+        logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: autoPlayTorrent?.torrent })
 
         if (autoPlayTorrent?.torrent?.isBatch) {
             // If the user provided a torrent, use it
@@ -89,6 +91,7 @@ export function useTorrentstreamAutoplay() {
                     currentEpisodeNumber: episodeNumber,
                     currentAniDBEpisode: aniDBEpisode,
                 } : undefined,
+                preload: preload,
             })
         } else {
             // Otherwise, use the auto-select function
@@ -96,24 +99,27 @@ export function useTorrentstreamAutoplay() {
                 mediaId: entry.mediaId,
                 episodeNumber: episodeNumber,
                 aniDBEpisode,
+                preload: preload,
             })
         }
 
-        const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
-        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
-            setInfo({
-                allEpisodes,
-                entry,
-                episodeNumber: nextEpisode.episodeNumber,
-                aniDBEpisode: nextEpisode.aniDBEpisode,
-                type: "torrentstream",
-            })
-            setNextEpisode(nextEpisode)
-        } else {
-            setInfo(null)
+        if (!preload) {
+            const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
+            if (nextEpisode && !!nextEpisode.aniDBEpisode) {
+                setInfo({
+                    allEpisodes,
+                    entry,
+                    episodeNumber: nextEpisode.episodeNumber,
+                    aniDBEpisode: nextEpisode.aniDBEpisode,
+                    type: "torrentstream",
+                })
+                setNextEpisode(nextEpisode)
+            } else {
+                setInfo(null)
+            }
+            toast.info("Requesting next episode")
         }
 
-        toast.info("Requesting next episode")
     }
 
 

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/imroc/req/v3"
 	"github.com/rs/zerolog"
 )
 
@@ -304,51 +303,5 @@ func (s *BaseStream) OnSubtitleFileUploaded(filename string, content string) {
 	s.logger.Debug().
 		Msg("directstream: Sending subtitle file to the client")
 
-	s.manager.nativePlayer.AddSubtitleTrack(s.clientId, track)
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (m *Manager) FetchAndConvertToASS(url string) (string, error) {
-	client := req.C()
-	client.SetTimeout(30 * time.Second)
-	resp := client.Get(url).Do()
-
-	if resp.IsErrorState() {
-		return "", errors.New("failed to fetch subtitle file")
-	}
-
-	payload := resp.String()
-
-	from := mkvparser.SubtitleTypeUnknown
-
-	ext := util.FileExt(url)
-
-	switch ext {
-	case ".ssa":
-		from = mkvparser.SubtitleTypeSSA
-	case ".srt":
-		from = mkvparser.SubtitleTypeSRT
-	case ".vtt":
-		from = mkvparser.SubtitleTypeWEBVTT
-	case ".ttml":
-		from = mkvparser.SubtitleTypeTTML
-	case ".stl":
-		from = mkvparser.SubtitleTypeSTL
-	case ".txt":
-		from = mkvparser.SubtitleTypeUnknown
-	default:
-		from = mkvparser.DetectSubtitleType(payload)
-	}
-
-	if from == mkvparser.SubtitleTypeUnknown {
-		return "", errors.New("failed to detect subtitle format from content")
-	}
-
-	content, err := mkvparser.ConvertToASS(payload, from)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert subtitle file: %w", err)
-	}
-
-	return content, nil
+	s.manager.videoCore.AddSubtitleTrack(track)
 }

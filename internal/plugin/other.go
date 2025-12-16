@@ -6,7 +6,7 @@ import (
 	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/library/anime"
 	"seanime/internal/onlinestream"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 	"strconv"
 
 	"github.com/dop251/goja"
@@ -14,22 +14,22 @@ import (
 )
 
 // BindTorrentstreamToContextObj binds 'torrentstream' to the UI context object
-func (a *AppContextImpl) BindTorrentstreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindTorrentstreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 }
 
 // BindOnlinestreamToContextObj binds 'onlinestream' to the UI context object
-func (a *AppContextImpl) BindOnlinestreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindOnlinestreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 }
 
 // BindMediastreamToContextObj binds 'mediastream' to the UI context object
-func (a *AppContextImpl) BindMediastreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindMediastreamToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 }
 
 // BindTorrentClientToContextObj binds 'torrentClient' to the UI context object
-func (a *AppContextImpl) BindTorrentClientToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindTorrentClientToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	torrentClientObj := vm.NewObject()
 	_ = torrentClientObj.Set("getTorrents", func() goja.Value {
@@ -221,7 +221,7 @@ func (a *AppContextImpl) BindTorrentClientToContextObj(vm *goja.Runtime, obj *go
 }
 
 // BindFillerManagerToContextObj binds 'fillerManager' to the UI context object
-func (a *AppContextImpl) BindFillerManagerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindFillerManagerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	fillerManagerObj := vm.NewObject()
 	_ = fillerManagerObj.Set("getFillerEpisodes", func(mediaId int) goja.Value {
@@ -285,7 +285,7 @@ func (a *AppContextImpl) BindFillerManagerToContextObj(vm *goja.Runtime, obj *go
 }
 
 // BindAutoDownloaderToContextObj binds 'autoDownloader' to the UI context object
-func (a *AppContextImpl) BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	autoDownloaderObj := vm.NewObject()
 	_ = autoDownloaderObj.Set("run", func() goja.Value {
@@ -300,7 +300,7 @@ func (a *AppContextImpl) BindAutoDownloaderToContextObj(vm *goja.Runtime, obj *g
 }
 
 // BindAutoScannerToContextObj binds 'autoScanner' to the UI context object
-func (a *AppContextImpl) BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	autoScannerObj := vm.NewObject()
 	_ = autoScannerObj.Set("notify", func() goja.Value {
@@ -316,12 +316,12 @@ func (a *AppContextImpl) BindAutoScannerToContextObj(vm *goja.Runtime, obj *goja
 }
 
 // BindFileCacherToContextObj binds 'fileCacher' to the UI context object
-func (a *AppContextImpl) BindFileCacherToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindFileCacherToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 }
 
 // BindExternalPlayerLinkToContextObj binds 'externalPlayerLink' to the UI context object
-func (a *AppContextImpl) BindExternalPlayerLinkToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindExternalPlayerLinkToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 
 	externalPlayerLinkObj := vm.NewObject()
 	_ = externalPlayerLinkObj.Set("open", func(url string, mediaId int, episodeNumber int, mediaTitle string) goja.Value {

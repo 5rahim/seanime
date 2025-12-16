@@ -2712,6 +2712,70 @@
           "typescriptType": "string",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "Content",
+          "jsonName": "content",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
+    "name": "HandleDirectstreamConvertSubs",
+    "trimmedName": "DirectstreamConvertSubs",
+    "comments": [
+      "HandleDirectstreamConvertSubs",
+      "",
+      "\t@summary converts subtitles from one format to another.",
+      "\t@returns string",
+      "\t@route /api/v1/directstream/subs/convert-subs [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/directstream.go",
+    "filename": "directstream.go",
+    "api": {
+      "summary": "converts subtitles from one format to another.",
+      "descriptions": [],
+      "endpoint": "/api/v1/directstream/subs/convert-subs",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Url",
+          "jsonName": "url",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Content",
+          "jsonName": "content",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "To",
+          "jsonName": "to",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "string",
@@ -7423,6 +7487,46 @@
     }
   },
   {
+    "name": "HandleNakamaSendChatMessage",
+    "trimmedName": "NakamaSendChatMessage",
+    "comments": [
+      "HandleNakamaSendChatMessage",
+      "",
+      "\t@summary sends a chat message in a watch party.",
+      "\t@desc This sends a chat message to all participants in the active watch party session.",
+      "\t@route /api/v1/nakama/watch-party/chat [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "sends a chat message in a watch party.",
+      "descriptions": [
+        "This sends a chat message to all participants in the active watch party session."
+      ],
+      "endpoint": "/api/v1/nakama/watch-party/chat",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Message",
+          "jsonName": "message",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetOnlineStreamEpisodeList",
     "trimmedName": "GetOnlineStreamEpisodeList",
     "comments": [
@@ -10207,6 +10311,19 @@
           "typescriptType": "HibikeTorrent_BatchEpisodeFiles",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "Preload",
+          "jsonName": "preload",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": [
+            "Preload is true if the stream should only be prepared.",
+            "",
+            "Preload is true if the stream should only be prepared."
+          ]
         }
       ],
       "returns": "bool",

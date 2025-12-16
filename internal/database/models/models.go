@@ -193,6 +193,7 @@ type TorrentSettings struct {
 	QBittorrentUsername  string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
 	QBittorrentPassword  string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
 	QBittorrentTags      string `gorm:"column:qbittorrent_tags" json:"qbittorrentTags"`
+	QBittorrentCategory  string `gorm:"column:qbittorrent_category" json:"qbittorrentCategory"`
 	TransmissionPath     string `gorm:"column:transmission_path" json:"transmissionPath"`
 	TransmissionHost     string `gorm:"column:transmission_host" json:"transmissionHost"`
 	TransmissionPort     int    `gorm:"column:transmission_port" json:"transmissionPort"`
@@ -430,6 +431,8 @@ type TorrentstreamSettings struct {
 	StreamUrlAddress string `gorm:"column:stream_url_address" json:"streamUrlAddress"`
 	// v2.7+
 	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
+	// v3+
+	PreloadNextStream bool `gorm:"column:preload_next_stream" json:"preloadNextStream"`
 }
 
 // TorrentstreamHistory used by both torrent streaming and debrid streaming to store the last selected batch that was used for each media.

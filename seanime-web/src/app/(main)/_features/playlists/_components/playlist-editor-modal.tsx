@@ -51,10 +51,10 @@ export function PlaylistEditorModal(props: PlaylistEditorModalProps) {
             return
         }
         if (isUpdate && !!playlist) {
-            updatePlaylist({ dbId: playlist.dbId, name, episodes })
+            updatePlaylist({ dbId: playlist.dbId, name, episodes: episodes.map(e => ({ ...e, isNakama: e.episode?._isNakamaEpisode ?? false })) })
         } else {
             setIsOpen(false)
-            createPlaylist({ name, episodes }, {
+            createPlaylist({ name, episodes: episodes.map(e => ({ ...e, isNakama: e.episode?._isNakamaEpisode ?? false })) }, {
                 onSuccess: () => {
                     reset()
                 },

@@ -6,7 +6,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_bindings"
 	"seanime/internal/manga"
-	goja_util "seanime/internal/util/goja"
+	gojautil "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -17,10 +17,10 @@ type Manga struct {
 	vm        *goja.Runtime
 	logger    *zerolog.Logger
 	ext       *extension.Extension
-	scheduler *goja_util.Scheduler
+	scheduler *gojautil.Scheduler
 }
 
-func (a *AppContextImpl) BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) {
 	m := &Manga{
 		ctx:       a,
 		vm:        vm,

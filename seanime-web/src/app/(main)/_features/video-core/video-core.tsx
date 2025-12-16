@@ -1,12 +1,9 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
-import {
-    useCancelDiscordActivity,
-    useSetDiscordAnimeActivityWithProgress,
-    useUpdateDiscordAnimeActivityWithProgress,
-} from "@/api/hooks/discord.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
+import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
+import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import {
     vc_doFlashAction,
@@ -29,6 +26,7 @@ import {
     VideoCoreVolumeButton,
 } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCoreDrawer } from "@/app/(main)/_features/video-core/video-core-drawer"
+import { useVideoCoreSetupEvents } from "@/app/(main)/_features/video-core/video-core-events"
 import { vc_fullscreenManager, VideoCoreFullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
 import {
     useVideoCoreHls,
@@ -59,6 +57,7 @@ import { VideoCoreSubtitleMenu } from "@/app/(main)/_features/video-core/video-c
 import { VideoCoreSubtitleManager } from "@/app/(main)/_features/video-core/video-core-subtitles"
 import { vc_timeRangeElement, VideoCoreTimeRange } from "@/app/(main)/_features/video-core/video-core-time-range"
 import { VideoCoreTopPlaybackInfo, VideoCoreTopSection } from "@/app/(main)/_features/video-core/video-core-top-section"
+import { VideoCoreWatchPartyChat } from "@/app/(main)/_features/video-core/video-core-watch-party-chat"
 import {
     vc_autoNextAtom,
     vc_autoPlayVideoAtom,
@@ -68,20 +67,17 @@ import {
     vc_storedMutedAtom,
     vc_storedPlaybackRateAtom,
     vc_storedVolumeAtom,
-    VideoCorePlaybackInfo,
-    VideoCorePlaybackState,
-    VideoCoreVideoSource,
+    VideoCore_VideoPlaybackInfo,
+    VideoCore_VideoSource,
+    VideoCoreLifecycleState,
 } from "@/app/(main)/_features/video-core/video-core.atoms"
 import {
-    detectSubtitleType,
-    isSubtitleFile,
     useVideoCoreBindings,
     vc_createChapterCues,
     vc_createChaptersFromAniSkip,
     vc_formatTime,
     vc_logGeneralInfo,
 } from "@/app/(main)/_features/video-core/video-core.utils"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import {
     __torrentSearch_selectionAtom,
@@ -101,15 +97,13 @@ import { atom } from "jotai"
 import { derive } from "jotai-derive"
 import { ScopeProvider } from "jotai-scope"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import React, { useCallback, useMemo, useRef, useState } from "react"
-import { createPortal } from "react-dom"
+import React, { useMemo, useRef, useState } from "react"
 import { BiExpand, BiX } from "react-icons/bi"
 import { FiMinimize2 } from "react-icons/fi"
 import { ImSpinner2 } from "react-icons/im"
 import { PiSpinnerDuotone } from "react-icons/pi"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
-import { useMeasure, useUpdateEffect, useWindowSize } from "react-use"
-import { toast } from "sonner"
+import { useMeasure, useUnmount, useUpdateEffect, useWindowSize } from "react-use"
 
 const log = logger("VIDEO CORE")
 
@@ -217,11 +211,13 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
     const { children } = props
 
     const [activePlayer, setActivePlayer] = useAtom(vc_activePlayerId)
+    const setNativePlayerState = useSetAtom(nativePlayer_stateAtom)
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (props.id === "native-player") return
 
         setActivePlayer(props.id)
+        setNativePlayerState(nativePlayer_initialState)
 
         return () => {
             setActivePlayer(null)
@@ -300,7 +296,7 @@ export type VideoCoreChapterCue = {
 interface PlayerContentProps {
     videoRef: React.MutableRefObject<HTMLVideoElement | null>
     inline: boolean
-    state: VideoCorePlaybackState
+    state: VideoCoreLifecycleState
     chapterCues: VideoCoreChapterCue[] | undefined
     aniSkipData: VideoCoreProps["aniSkipData"]
     streamUrl: string | undefined
@@ -322,7 +318,7 @@ interface PlayerContentProps {
     handleCanPlay: (e: React.SyntheticEvent<HTMLVideoElement>) => void
     handleStalled: (e: React.SyntheticEvent<HTMLVideoElement>) => void
     onTerminateStream: () => void
-    onVideoSourceChange: ((source: VideoCoreVideoSource) => void) | undefined
+    onVideoSourceChange: ((source: VideoCore_VideoSource) => void) | undefined
 }
 
 const PlayerContent = React.memo<PlayerContentProps>(({
@@ -545,6 +541,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreTimestamp />
                             <div className="flex flex-1" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
+                            <VideoCoreWatchPartyChat />
                             <VideoCoreSettingsMenu />
                             <VideoCoreResolutionMenu state={state} onVideoSourceChange={onVideoSourceChange} />
                             <VideoCoreSubtitleMenu inline={inline} />
@@ -598,7 +595,7 @@ PlayerContent.displayName = "PlayerContent"
 
 export interface VideoCoreProps {
     id: string
-    state: VideoCorePlaybackState
+    state: VideoCoreLifecycleState
     aniSkipData?: {
         op: AniSkipTime | null
         ed: AniSkipTime | null
@@ -617,24 +614,22 @@ export interface VideoCoreProps {
     onSeeked?: (time: number) => void
     onError?: (error: string) => void
     onPlaybackRateChange?: () => void
-    onFileUploaded: (data: { name: string, content: string }) => void
-    onVideoSourceChange?: ((source: VideoCoreVideoSource) => void) | undefined
+    // onFileUploaded: (data: { name: string, content: string }) => void
+    onVideoSourceChange?: ((source: VideoCore_VideoSource) => void) | undefined
     onPlayEpisode?: (which: "previous" | "next") => void
     inlineClassName?: string
     onHlsMediaDetached?: () => void
     onHlsFatalError?: (error: ErrorData) => void
-    onChangePlaybackType?: (type: VideoCorePlaybackInfo["streamType"]) => void
+    onChangePlaybackType?: (type: VideoCore_VideoPlaybackInfo["streamType"]) => void
     inline?: boolean
     mRef?: React.MutableRefObject<HTMLVideoElement | null>
 }
 
 export function VideoCore(props: VideoCoreProps) {
-    const serverStatus = useServerStatus()
-
     const {
         state,
         aniSkipData,
-        onTerminateStream,
+        onTerminateStream: _onTerminateStream,
         onEnded,
         onPlay,
         onCompleted,
@@ -648,7 +643,7 @@ export function VideoCore(props: VideoCoreProps) {
         onSeeked,
         onError,
         onPlaybackRateChange,
-        onFileUploaded,
+        // onFileUploaded,
         inline = false,
         inlineClassName,
         onVideoSourceChange,
@@ -659,10 +654,18 @@ export function VideoCore(props: VideoCoreProps) {
         mRef,
     } = props
 
-    const [streamType, setStreamType] = useState<VideoCorePlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
+    const [streamType, setStreamType] = useState<VideoCore_VideoPlaybackInfo["streamType"]>(state.playbackInfo?.streamType ?? "unknown")
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
+
+    const {
+        dispatchTerminatedEvent,
+        dispatchVideoLoadedEvent,
+        dispatchVideoCompletedEvent,
+        dispatchVideoErrorEvent,
+        dispatchCanPlayEvent,
+    } = useVideoCoreSetupEvents(props.id, state, videoRef, onTerminateStream)
 
     const { width: windowWidth } = useWindowSize()
     const [isMobilePlayer, setIsMobilePlayer] = useAtom(vc_isMobile)
@@ -672,7 +675,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const setVideoElement = useSetAtom(vc_videoElement)
     const setRealVideoSize = useSetAtom(vc_realVideoSize)
-    useVideoCoreBindings(state.playbackInfo)
+    useVideoCoreBindings(videoRef, state.playbackInfo)
     useVideoCorePlaylistSetup(state, onPlayEpisode)
 
     const videoCompletedRef = useRef(false)
@@ -700,12 +703,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [buffering, setBuffering] = useAtom(vc_buffering)
     const duration = useAtomValue(vc_duration)
     const fullscreen = useAtomValue(vc_isFullscreen)
-    const paused = useAtomValue(vc_paused)
-    const readyState = useAtomValue(vc_readyState)
-    const beautifyImage = useAtomValue(vc_beautifyImageAtom)
-    const isPip = useAtomValue(vc_pip)
     const flashAction = useSetAtom(vc_doFlashAction)
-    const dispatchAction = useSetAtom(vc_dispatchAction)
     const cursorBusy = useAtomValue(vc_cursorBusy)
 
     const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
@@ -718,41 +716,40 @@ export function VideoCore(props: VideoCoreProps) {
     const [muted] = useAtom(vc_storedMutedAtom)
     const [playbackRate, setPlaybackRate] = useAtom(vc_storedPlaybackRateAtom)
 
-    const discordRichPresenceEnabled = state.playbackInfo?.enableDiscordRichPresence ?? false
-
-    const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivityWithProgress()
-    const { mutate: updateAnimeDiscordActivity } = useUpdateDiscordAnimeActivityWithProgress()
     const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
 
     const { mutate: fetchAndConvertToASS } = useDirectstreamFetchAndConvertToASS({
-        onSuccess: (data) => {
-            // Success is handled by the subtitle manager
-        },
+        onSuccess: (data) => {},
+    })
+    const { mutate: convertSubs } = useDirectstreamConvertSubs({
+        onSuccess: (data) => {},
     })
 
     const isFirstError = React.useRef(true)
+    const shouldDispatchTerminatedOnUnmount = React.useRef(false)
+    const [activePlayer, setActivePlayer] = useAtom(vc_activePlayerId)
 
     React.useEffect(() => {
         setIsMiniPlayer(false)
     }, [])
 
-    // Discord rich presence
+    // Track if this player should dispatch terminated event on unmount
     React.useEffect(() => {
-        if (!discordRichPresenceEnabled) return
-        const interval = setInterval(() => {
-            if (!videoRef.current) return
+        shouldDispatchTerminatedOnUnmount.current = (activePlayer === props.id && !!state.playbackInfo)
+    }, [activePlayer, props.id, state.playbackInfo?.id])
 
-            if (serverStatus?.settings?.discord?.enableRichPresence && serverStatus?.settings?.discord?.enableAnimeRichPresence) {
-                updateAnimeDiscordActivity({
-                    progress: Math.floor(videoRef.current?.currentTime ?? 0),
-                    duration: Math.floor(videoRef.current?.duration ?? 0),
-                    paused: videoRef.current?.paused ?? false,
-                })
-            }
-        }, 6000)
+    // Call dispatchTerminatedEvent on unmount if this was the active player
+    useUnmount(() => {
+        if (shouldDispatchTerminatedOnUnmount.current) {
+            dispatchTerminatedEvent()
+            setActivePlayer(null)
+        }
+    })
 
-        return () => clearInterval(interval)
-    }, [serverStatus?.settings?.discord, videoRef.current, discordRichPresenceEnabled])
+    function onTerminateStream() {
+        _onTerminateStream?.()
+        dispatchTerminatedEvent()
+    }
 
     // Measure video element size
     const [measureRef, { width, height }] = useMeasure<HTMLVideoElement>()
@@ -763,15 +760,12 @@ export function VideoCore(props: VideoCoreProps) {
         })
     }, [width, height])
 
-    // Cancel discord rich presence and refetch continuity data when playback info changes
+    // refetch continuity data when playback info changes
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] })
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
 
-        return () => {
-            if (discordRichPresenceEnabled) cancelDiscordActivity()
-        }
-    }, [state.playbackInfo, discordRichPresenceEnabled])
+    }, [state.playbackInfo?.id])
 
 
     // Re-focus the video element when playback info changes
@@ -782,7 +776,7 @@ export function VideoCore(props: VideoCoreProps) {
                 videoRef.current?.focus()
             }, 100)
         }
-    }, [state.active, state.playbackInfo])
+    }, [state.active, state.playbackInfo?.id])
 
     // Merge refs
     const combineRef = (instance: HTMLVideoElement | null) => {
@@ -812,23 +806,6 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }
 
-    function onCaptionsChange() {
-        log.info("Subtitles changed", videoRef.current?.textTracks)
-        if (videoRef.current) {
-            let trackFound = false
-            for (let i = 0; i < videoRef.current.textTracks.length; i++) {
-                const track = videoRef.current.textTracks[i]
-                if (track.mode === "showing") {
-                    subtitleManager?.selectTrack(Number(track.id))
-                    trackFound = true
-                }
-            }
-            if (!trackFound) {
-                subtitleManager?.setNoTrack()
-            }
-        }
-    }
-
     function onAudioChange() {
         log.info("Audio changed", videoRef.current?.audioTracks)
         if (videoRef.current?.audioTracks) {
@@ -850,9 +827,6 @@ export function VideoCore(props: VideoCoreProps) {
         shouldWaitForWatchHistory,
         getEpisodeContinuitySeekTo,
     } = useHandleCurrentMediaContinuity(state?.playbackInfo?.media?.id)
-    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(videoRef,
-        state?.playbackInfo?.episode?.episodeNumber,
-        state?.playbackInfo?.media?.id)
 
     React.useEffect(() => {
         if (watchHistory) {
@@ -870,6 +844,7 @@ export function VideoCore(props: VideoCoreProps) {
         // If the playback info is null, the stream is loading or unmounted
         if (!state.playbackInfo) {
             log.info("Cleaning up")
+            dispatchTerminatedEvent()
             cancelDiscordActivity()
             hasSoughtRef.current = false
             isFirstError.current = true
@@ -905,14 +880,22 @@ export function VideoCore(props: VideoCoreProps) {
         }
 
         // When a new playback info is received
-        if (!!state.playbackInfo && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
+        if (!!state.playbackInfo?.id && (!currentPlaybackRef.current || state.playbackInfo.id !== currentPlaybackRef.current)) {
             hasSoughtRef.current = false
             isFirstError.current = true
             log.info("New stream loaded", state.playbackInfo)
             setStreamType(state.playbackInfo.streamType)
             vc_logGeneralInfo(videoRef.current)
+            dispatchVideoLoadedEvent()
         }
-    }, [state.playbackInfo?.id, videoRef.current, waitForWatchHistory, shouldWaitForWatchHistory])
+    }, [state.playbackInfo?.id, waitForWatchHistory, shouldWaitForWatchHistory])
+
+    // Override active player, won't apply to native-player
+    React.useEffect(() => {
+        if (state.playbackInfo?.id && activePlayer === props.id) {
+            setActivePlayer(props.id)
+        }
+    }, [state.playbackInfo?.id, activePlayer])
 
     const streamUrl = state?.playbackInfo?.streamUrl?.replace?.("{{SERVER_URL}}", getServerBaseUrl())
 
@@ -960,41 +943,11 @@ export function VideoCore(props: VideoCoreProps) {
         /*
          * Event or file tracks using libass renderer
          */
-        const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
-
-        // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
-        if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
-            setSubtitleManager(p => {
-                if (p) p.destroy()
-                return new VideoCoreSubtitleManager({
-                    videoElement: v!,
-                    playbackInfo: state.playbackInfo!,
-                    jassubOffscreenRender: true,
-                    settings: settings,
-                    fetchAndConvertToASS: (url: string) => {
-                        return new Promise((resolve, reject) => {
-                            fetchAndConvertToASS({ url }, {
-                                onSuccess: (data) => resolve(data),
-                                onError: (error) => reject(error),
-                            })
-                        })
-                    },
-                })
-            })
-
-            // Initialize audio manager for MKV streams
-            if (!!state.playbackInfo?.mkvMetadata) {
-                setAudioManager(new VideoCoreAudioManager({
-                    videoElement: v!,
-                    playbackInfo: state.playbackInfo,
-                    settings: settings,
-                    onError: (error) => {
-                        log.error("Audio manager error", error)
-                        onError?.(error)
-                    },
-                }))
-            }
-        }
+        // const hasLibassRendererTracks = state.playbackInfo?.subtitleTracks?.some(t => t.useLibassRenderer)
+        // // Initialize the subtitle manager if the stream is MKV or has useLibassRenderer tracks
+        // if (!!state.playbackInfo?.mkvMetadata || hasLibassRendererTracks) {
+        //
+        // }
 
         /*
          * File subtitle tracks that don't use libass renderer
@@ -1007,6 +960,32 @@ export function VideoCore(props: VideoCoreProps) {
                     videoElement: v!,
                     tracks: nonLibassSubtitleTracks,
                     settings: settings,
+                    fetchAndConvertToVTT: (url?: string, content?: string) => {
+                        return new Promise((resolve, reject) => {
+                            convertSubs({ url: url ?? "", content: content ?? "", to: "vtt" }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
+                })
+            })
+        } else {
+            setSubtitleManager(p => {
+                if (p) p.destroy()
+                return new VideoCoreSubtitleManager({
+                    videoElement: v!,
+                    playbackInfo: state.playbackInfo!,
+                    jassubOffscreenRender: true,
+                    settings: settings,
+                    fetchAndConvertToASS: (url?: string, content?: string) => {
+                        return new Promise((resolve, reject) => {
+                            fetchAndConvertToASS({ url: url ?? "", content: content ?? "" }, {
+                                onSuccess: (data) => resolve(data),
+                                onError: (error) => reject(error),
+                            })
+                        })
+                    },
                 })
             })
         }
@@ -1024,6 +1003,16 @@ export function VideoCore(props: VideoCoreProps) {
                 hlsSetAudioTrack: hlsSetAudioTrack,
                 hlsAudioTracks: hlsAudioTracks,
                 hlsCurrentAudioTrack: hlsCurrentAudioTrack,
+            }))
+        } else if (!!state.playbackInfo?.mkvMetadata) {
+            setAudioManager(new VideoCoreAudioManager({
+                videoElement: v!,
+                playbackInfo: state.playbackInfo,
+                settings: settings,
+                onError: (error) => {
+                    log.error("Audio manager error", error)
+                    onError?.(error)
+                },
             }))
         }
 
@@ -1088,35 +1077,6 @@ export function VideoCore(props: VideoCoreProps) {
             manager.setVideo(v!)
             return manager
         })
-
-        if (
-            discordRichPresenceEnabled &&
-            serverStatus?.settings?.discord?.enableRichPresence &&
-            serverStatus?.settings?.discord?.enableAnimeRichPresence &&
-            !!state.playbackInfo?.media?.id &&
-            !!state.playbackInfo?.episode?.progressNumber
-        ) {
-            const media = state.playbackInfo.media
-            const videoProgress = videoRef.current?.currentTime ?? 0
-            const videoDuration = videoRef.current?.duration ?? 0
-
-            log.info("Setting discord activity", {
-                videoProgress,
-                videoDuration,
-            })
-            setAnimeDiscordActivity({
-                mediaId: media?.id ?? 0,
-                title: media?.title?.userPreferred || media?.title?.romaji || media?.title?.english || "Watching",
-                image: media?.coverImage?.large || media?.coverImage?.medium || "",
-                isMovie: media?.format === "MOVIE",
-                episodeNumber: state.playbackInfo?.episode?.progressNumber ?? 0,
-                progress: Math.floor(videoProgress),
-                duration: Math.floor(videoDuration),
-                totalEpisodes: media?.episodes,
-                currentEpisodeCount: media?.nextAiringEpisode?.episode ? media?.nextAiringEpisode?.episode - 1 : media?.episodes,
-                episodeTitle: state.playbackInfo.episode.episodeTitle || undefined,
-            })
-        }
     }
 
     function setupPreviewManager() {
@@ -1142,8 +1102,6 @@ export function VideoCore(props: VideoCoreProps) {
         }
     }, [streamType, currentPlaybackRef.current])
 
-    const lastUpdatedWatchHistoryRef = React.useRef(Date.now())
-
     const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         onTimeUpdate?.(e)
         if (!videoRef.current) return
@@ -1154,16 +1112,7 @@ export function VideoCore(props: VideoCoreProps) {
         if (!!v.duration && !videoCompletedRef.current && percent >= 0.8) {
             videoCompletedRef.current = true
             onCompleted?.()
-        }
-
-
-        if (state.playbackInfo?.trackContinuity) {
-            // Update watch history (continuity) every 20s
-            const now = Date.now()
-            if (now - lastUpdatedWatchHistoryRef.current > 20_000) {
-                lastUpdatedWatchHistoryRef.current = now
-                handleUpdateWatchHistory()
-            }
+            dispatchVideoCompletedEvent()
         }
     }
 
@@ -1277,7 +1226,7 @@ export function VideoCore(props: VideoCoreProps) {
 
     const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
         log.error("Video error", e)
-        if (isFirstError.current) {
+        if (isFirstError.current && props.id !== "native-player") {
             // Change stream type to HLS if it failed to load
             log.warning("Video player could not load the URL, switching to HLS")
             setStreamType("hls")
@@ -1285,7 +1234,9 @@ export function VideoCore(props: VideoCoreProps) {
             return
         }
 
-        onError?.(`Video playback error occurred. (Code: ${(e.currentTarget.error && e.currentTarget.error.code) || "unknown"})`)
+        const error = `Video playback error occurred. (Code: ${(e.currentTarget.error && e.currentTarget.error.code) || "unknown"})`
+        onError?.(error)
+        dispatchVideoErrorEvent(error)
     }
 
     const handleWaiting = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -1326,6 +1277,8 @@ export function VideoCore(props: VideoCoreProps) {
             // if (autoPlay) {
             //     videoRef.current.play().catch()
             // }
+
+            dispatchCanPlayEvent()
 
             // Restore previous position if available
             if (!state.playbackInfo.disableRestoreFromContinuity && !state.playbackInfo.initialState) {
@@ -1472,82 +1425,6 @@ export function VideoCore(props: VideoCoreProps) {
             duration,
             state?.playbackInfo?.media?.format,
         ])
-
-    /**
-     * Upload subtitle files
-     */
-    type UploadEvent = {
-        dataTransfer?: DataTransfer
-        clipboardData?: DataTransfer
-    }
-    const handleUpload = useCallback(async (e: UploadEvent & Event) => {
-        e.preventDefault()
-        toast.info("Adding subtitle file...")
-        log.info("Upload event", e)
-        const items = [...(e.dataTransfer ?? e.clipboardData)?.items ?? []]
-
-        // First, try to get actual files
-        const actualFiles = items
-            .filter(item => item.kind === "file")
-            .map(item => item.getAsFile())
-            .filter(file => file !== null)
-
-        if (actualFiles.length > 0) {
-            // Process actual files
-            for (const f of actualFiles) {
-                if (f && isSubtitleFile(f.name)) {
-                    const content = await f.text()
-                    // console.log("Uploading subtitle file", f.name, content)
-                    onFileUploaded({ name: f.name, content })
-                }
-            }
-        } else {
-            // If no actual files, try to process text content
-            // Only process plain text, ignore RTF and HTML
-            const textItems = items.filter(item =>
-                item.kind === "string" &&
-                item.type === "text/plain",
-            )
-
-            if (textItems.length > 0) {
-                // Only take the first plain text item to avoid duplicates
-                const textItem = textItems[0]
-                textItem.getAsString(str => {
-                    log.info("Uploading subtitle content from clipboard")
-                    const type = detectSubtitleType(str)
-                    log.info("Detected subtitle type", type)
-                    if (type === "unknown") {
-                        toast.error("Unknown subtitle type")
-                        log.info("Unknown subtitle type, skipping")
-                        return
-                    }
-                    const filename = `PLACEHOLDER.${type}`
-                    onFileUploaded({ name: filename, content: str })
-                })
-            }
-        }
-    }, [])
-
-    function suppressEvent(e: Event) {
-        e.preventDefault()
-    }
-
-    React.useEffect(() => {
-        const player = videoRef.current
-        if (!player || !state.active) return
-
-        player.addEventListener("paste", handleUpload)
-        player.addEventListener("drop", handleUpload)
-        player.addEventListener("dragover", suppressEvent)
-        player.addEventListener("dragenter", suppressEvent)
-
-        return () => {
-            player.removeEventListener("paste", handleUpload)
-            player.removeEventListener("drop", handleUpload)
-            player.removeEventListener("dragover", suppressEvent)
-            player.removeEventListener("dragenter", suppressEvent)
-        }
-    }, [handleUpload, state.active, videoRef.current])
 
     // Inline mode
     if (inline) {
@@ -1738,13 +1615,4 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     }
 
     return <Content />
-}
-
-const ConditionalPortal = ({ children, isFullscreen }: { children: React.ReactNode, isFullscreen: boolean }) => {
-    // If fullscreen, move to body. If not, render normally in place.
-    if (isFullscreen) {
-        return createPortal(children, document.body)
-    }
-
-    return children
 }

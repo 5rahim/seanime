@@ -1,4 +1,6 @@
 import { vc_containerElement, vc_isFullscreen } from "@/app/(main)/_features/video-core/video-core"
+import { cn } from "@/components/ui/core/styling"
+import { Drawer } from "@/components/ui/drawer"
 import { Popover } from "@/components/ui/popover"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -17,11 +19,14 @@ type VideoCoreMenuProps = {
     name: string
     trigger: React.ReactElement
     children?: React.ReactNode
+    className?: string
+    sideOffset?: number
+    isDrawer?: boolean
 }
 
 export function VideoCoreMenu(props: VideoCoreMenuProps) {
 
-    const { trigger, children, name, ...rest } = props
+    const { trigger, children, className, name, sideOffset = 4, isDrawer, ...rest } = props
 
     const [open, setOpen] = useAtom(vc_menuOpen)
 
@@ -47,6 +52,26 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
         }
     }, [open])
 
+    if (isDrawer) {
+        return <Drawer
+            open={open === name}
+            onOpenChange={v => {
+                setOpen(v ? name : null)
+            }}
+            trigger={<div>{trigger}</div>}
+            allowOutsideInteraction={true}
+            contentClass={cn(
+                "bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]",
+                className,
+            )}
+            portalContainer={isFullscreen ? containerElement || undefined : undefined}
+        >
+            <div className="h-auto">
+                {children}
+            </div>
+        </Drawer>
+    }
+
     return (
         <Popover
             open={open === name}
@@ -54,11 +79,14 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
                 setOpen(v ? name : null)
             }}
             trigger={<div>{trigger}</div>}
-            sideOffset={4}
+            sideOffset={sideOffset}
             align="center"
             side="top"
             modal={false}
-            className="bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]"
+            className={cn(
+                "bg-black/85 rounded-xl p-3 backdrop-blur-sm w-[20rem] z-[100]",
+                className,
+            )}
             portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
             <div className="h-auto">

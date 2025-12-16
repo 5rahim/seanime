@@ -6,8 +6,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
-	"seanime/internal/util/result"
-	"sync"
+	"seanime/internal/videocore"
 
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -19,6 +18,7 @@ const (
 	StreamTypeTorrent StreamType = "torrent"
 	StreamTypeFile    StreamType = "localfile"
 	StreamTypeDebrid  StreamType = "debrid"
+	StreamTypeNakama  StreamType = "nakama"
 )
 
 type (
@@ -33,6 +33,7 @@ type (
 		Episode            *anime.Episode       `json:"episode"`
 		Media              *anilist.BaseAnime   `json:"media"`
 		IsNakamaWatchParty bool                 `json:"isNakamaWatchParty"` // Is the stream from Nakama Watch Party
+		LocalFile          *anime.LocalFile     `json:"localFile,omitempty"`
 
 		MkvMetadataParser mo.Option[*mkvparser.MetadataParser] `json:"-"`
 	}
@@ -42,16 +43,9 @@ type (
 	// NativePlayer is the built-in HTML5 video player in Seanime.
 	// There can only be one instance of this player at a time.
 	NativePlayer struct {
-		wsEventManager              events.WSEventManagerInterface
-		clientPlayerEventSubscriber *events.ClientEventSubscriber
-
-		playbackStatusMu sync.RWMutex
-		playbackStatus   *PlaybackStatus
-		playbackInfo     *PlaybackInfo
-
+		wsEventManager        events.WSEventManagerInterface
+		videoCore             *videocore.VideoCore
 		seekedEventCancelFunc context.CancelFunc
-
-		subscribers *result.Map[string, *Subscriber]
 
 		logger *zerolog.Logger
 	}
@@ -64,38 +58,31 @@ type (
 		Duration    float64
 	}
 
-	// Subscriber listens to the player events
-	Subscriber struct {
-		eventCh chan VideoEvent
-	}
-
 	NewNativePlayerOptions struct {
 		WsEventManager events.WSEventManagerInterface
 		Logger         *zerolog.Logger
+		VideoCore      *videocore.VideoCore
 	}
 )
 
 // New returns a new instance of NativePlayer.
+// There should be only one for the lifetime of the app.
 func New(options NewNativePlayerOptions) *NativePlayer {
 	np := &NativePlayer{
-		playbackStatus:              &PlaybackStatus{},
-		wsEventManager:              options.WsEventManager,
-		clientPlayerEventSubscriber: options.WsEventManager.SubscribeToClientNativePlayerEvents("nativeplayer"),
-		subscribers:                 result.NewMap[string, *Subscriber](),
-		logger:                      options.Logger,
+		wsEventManager: options.WsEventManager,
+		logger:         options.Logger,
+		videoCore:      options.VideoCore,
 	}
-
-	np.listenToPlayerEvents()
 
 	return np
 }
 
+func (p *NativePlayer) VideoCore() *videocore.VideoCore {
+	return p.videoCore
+}
+
 // sendPlayerEventTo sends an event of type events.NativePlayerEventType to the client.
 func (p *NativePlayer) sendPlayerEventTo(clientId string, t string, payload interface{}, noLog ...bool) {
-	if clientId == "" && p.playbackStatus != nil {
-		p.playbackStatus.ClientId = clientId
-	}
-
 	if clientId != "" {
 		p.wsEventManager.SendEventTo(clientId, string(events.NativePlayerEventType), struct {
 			Type    string      `json:"type"`
@@ -122,83 +109,5 @@ func (p *NativePlayer) sendPlayerEvent(t string, payload interface{}) {
 	}{
 		Type:    t,
 		Payload: payload,
-	})
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Subscribe lets other modules subscribe to the native player events
-func (p *NativePlayer) Subscribe(id string) *Subscriber {
-	subscriber := &Subscriber{
-		eventCh: make(chan VideoEvent, 10),
-	}
-	p.subscribers.Set(id, subscriber)
-
-	return subscriber
-}
-
-// Unsubscribe removes a subscriber from the player.
-func (p *NativePlayer) Unsubscribe(id string) {
-	p.subscribers.Delete(id)
-}
-
-func (p *NativePlayer) notifySubscribers(event VideoEvent) {
-	p.subscribers.Range(func(id string, subscriber *Subscriber) bool {
-		select {
-		case subscriber.eventCh <- event:
-		default:
-			// If the channel is full, skip sending the event
-		}
-		return true
-	})
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// GetPlaybackStatus returns the current playback status of the player.
-func (p *NativePlayer) GetPlaybackStatus() *PlaybackStatus {
-	p.playbackStatusMu.RLock()
-	defer p.playbackStatusMu.RUnlock()
-	return p.playbackStatus
-}
-
-// GetPlaybackInfo returns the current playback info of the player.
-func (p *NativePlayer) GetPlaybackInfo() (*PlaybackInfo, bool) {
-	p.playbackStatusMu.RLock()
-	defer p.playbackStatusMu.RUnlock()
-	return p.playbackInfo, p.playbackInfo != nil
-}
-
-func (p *NativePlayer) SetPlaybackInfo(info *PlaybackInfo) {
-	p.playbackInfo = info
-}
-
-func (p *NativePlayer) EmptyPlaybackStatus() {
-	p.setPlaybackStatus(func() {
-		p.playbackStatus.Duration = 0
-		p.playbackStatus.CurrentTime = 0
-		p.playbackStatus.Paused = true
-		p.playbackStatus.Url = ""
-		p.playbackStatus.ClientId = ""
-	})
-}
-
-func (p *NativePlayer) SetPlaybackStatus(status *PlaybackStatus) {
-	p.setPlaybackStatus(func() {
-		p.playbackStatus = status
-	})
-}
-
-// setPlaybackStatus sets the current playback status of the player
-// and notifies all subscribers of the change.
-func (p *NativePlayer) setPlaybackStatus(do func()) {
-	p.playbackStatusMu.Lock()
-	defer p.playbackStatusMu.Unlock()
-	do()
-	p.notifySubscribers(&VideoStatusEvent{
-		BaseVideoEvent: BaseVideoEvent{
-			ClientId: p.playbackStatus.ClientId,
-		},
-		Status: *p.playbackStatus,
 	})
 }

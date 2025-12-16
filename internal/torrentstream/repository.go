@@ -1,6 +1,7 @@
 package torrentstream
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"os"
@@ -20,7 +21,9 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"sync/atomic"
 
+	itorrent "github.com/anacrolix/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 )
@@ -44,7 +47,6 @@ type (
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
-		nativePlayerSubscriber          *nativeplayer.Subscriber
 		directStreamManager             *directstream.Manager
 		nativePlayer                    *nativeplayer.NativePlayer
 		logger                          *zerolog.Logger
@@ -53,12 +55,21 @@ type (
 		onEpisodeCollectionChanged func(ec *anime.EpisodeCollection)
 
 		previousStreamOptions mo.Option[*StartStreamOptions]
+		preloadedStream       mo.Option[*preloadedStream]
+		shouldPreloadStream   atomic.Bool // Flag on whether the client should prepare a stream
 	}
 
 	Settings struct {
 		models.TorrentstreamSettings
 		Host string
 		Port int
+	}
+
+	preloadedStream struct {
+		Torrent    *itorrent.Torrent
+		File       *itorrent.File
+		Options    *StartStreamOptions
+		CancelFunc context.CancelFunc
 	}
 
 	NewRepositoryOptions struct {
@@ -97,6 +108,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		directStreamManager:             opts.DirectStreamManager,
 		nativePlayer:                    opts.NativePlayer,
 		previousStreamOptions:           mo.None[*StartStreamOptions](),
+		preloadedStream:                 mo.None[*preloadedStream](),
 	}
 	ret.client = NewClient(ret)
 	ret.handler = newHandler(ret)

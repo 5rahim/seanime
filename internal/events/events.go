@@ -4,6 +4,7 @@ type WebsocketClientEventType string
 
 const (
 	NativePlayerEventType WebsocketClientEventType = "native-player"
+	VideoCoreEventType    WebsocketClientEventType = "videocore"
 	NakamaEventType       WebsocketClientEventType = "nakama"
 	PluginEvent           WebsocketClientEventType = "plugin"
 	PlaylistEvent         WebsocketClientEventType = "playlist"
@@ -96,4 +97,5 @@ const (
 	NakamaWatchPartyState                                 = "nakama-watch-party-state"
 	NakamaWatchPartyEnableRelayMode                       = "nakama-watch-party-enable-relay-mode"
 	NakamaWatchPartyRelayModeToggleShareLibraryWithOrigin = "nakama-watch-party-relay-mode-toggle-share-library-with-origin"
+	NakamaWatchPartyChatMessage                           = "nakama-watch-party-chat-message"
 )

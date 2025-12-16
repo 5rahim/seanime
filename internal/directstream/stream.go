@@ -7,13 +7,12 @@ import (
 	"net/http"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/continuity"
-	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/library/anime"
 	"seanime/internal/mkvparser"
 	"seanime/internal/nativeplayer"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"seanime/internal/videocore"
 	"strconv"
 	"strings"
 	"sync"
@@ -58,7 +57,6 @@ type Stream interface {
 	GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent]
 	// OnSubtitleFileUploaded is called when a subtitle file is uploaded.
 	OnSubtitleFileUploaded(filename string, content string)
-	IsNakamaWatchParty() bool
 }
 
 func (m *Manager) getStreamHandler() http.Handler {
@@ -162,8 +160,6 @@ func (m *Manager) loadStream(stream Stream) {
 		return
 	}
 
-	playbackInfo.IsNakamaWatchParty = stream.IsNakamaWatchParty()
-
 	// Shut the mkv parser logger
 	//parser, ok := playbackInfo.MkvMetadataParser.Get()
 	//if ok {
@@ -174,7 +170,7 @@ func (m *Manager) loadStream(stream Stream) {
 	m.nativePlayer.Watch(stream.ClientId(), playbackInfo)
 }
 
-func (m *Manager) listenToNativePlayerEvents() {
+func (m *Manager) listenToPlayerEvents() {
 	go func() {
 		defer func() {
 			m.Logger.Trace().Msg("directstream: Stream loop goroutine exited")
@@ -182,44 +178,20 @@ func (m *Manager) listenToNativePlayerEvents() {
 
 		for {
 			select {
-			case event := <-m.nativePlayerSubscriber.Events():
+			case event := <-m.videoCoreSubscriber.Events():
 				cs, ok := m.currentStream.Get()
 				if !ok {
 					continue
 				}
+				if !event.IsNativePlayer() {
+					continue
+				}
 
-				if event.GetClientId() != "" && event.GetClientId() != cs.ClientId() {
+				if event.GetClientId() != cs.ClientId() {
 					continue
 				}
 				switch event := event.(type) {
-				case *nativeplayer.VideoPausedEvent:
-					//m.Logger.Debug().Msgf("directstream: Video paused")
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), true)
-					}
-				case *nativeplayer.VideoResumedEvent:
-					//m.Logger.Debug().Msgf("directstream: Video resumed")
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.UpdateAnimeActivity(int(event.CurrentTime), int(event.Duration), false)
-					}
-				case *nativeplayer.VideoEndedEvent:
-					//m.Logger.Debug().Msgf("directstream: Video ended")
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.Close()
-					}
-				case *nativeplayer.VideoSeekedEvent:
-					m.Logger.Debug().Msgf("directstream: Video seeked, CurrentTime: %f", event.CurrentTime)
-					// Convert video timestamp to byte offset for subtitle extraction
-					// if event.CurrentTime > 0 {
-					// 	cs.ServeSubtitlesFromTime(event.CurrentTime)
-					// }
-				case *nativeplayer.VideoLoadedMetadataEvent:
+				case *videocore.VideoLoadedMetadataEvent:
 					m.Logger.Debug().Msgf("directstream: Video loaded metadata")
 					// Start subtitle extraction from the beginning
 					// cs.ServeSubtitlesFromTime(0.0)
@@ -236,54 +208,16 @@ func (m *Manager) listenToNativePlayerEvents() {
 						subReader.SetResponsive()
 						ts.StartSubtitleStream(ts, m.playbackCtx, subReader, 0)
 					}
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
-							ID:            cs.Media().GetID(),
-							Title:         cs.Media().GetPreferredTitle(),
-							Image:         cs.Media().GetCoverImageSafe(),
-							IsMovie:       cs.Media().IsMovie(),
-							EpisodeNumber: cs.Episode().EpisodeNumber,
-							Progress:      int(event.CurrentTime),
-							Duration:      int(event.Duration),
-						})
-					}
-				case *nativeplayer.VideoErrorEvent:
+				case *videocore.VideoErrorEvent:
 					m.Logger.Debug().Msgf("directstream: Video error, Error: %s", event.Error)
 					cs.StreamError(fmt.Errorf(event.Error))
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.Close()
-					}
-				case *nativeplayer.SubtitleFileUploadedEvent:
+				case *videocore.SubtitleFileUploadedEvent:
 					m.Logger.Debug().Msgf("directstream: Subtitle file uploaded, Filename: %s", event.Filename)
 					cs.OnSubtitleFileUploaded(event.Filename, event.Content)
-				case *nativeplayer.VideoTerminatedEvent:
+				case *videocore.VideoTerminatedEvent:
 					m.Logger.Debug().Msgf("directstream: Video terminated")
 					cs.Terminate()
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.Close()
-					}
-				case *nativeplayer.VideoStatusEvent:
-					if event.Status.Duration != 0 {
-						_ = m.continuityManager.UpdateWatchHistoryItem(&continuity.UpdateWatchHistoryItemOptions{
-							CurrentTime:   event.Status.CurrentTime,
-							Duration:      event.Status.Duration,
-							MediaId:       cs.Media().GetID(),
-							EpisodeNumber: cs.Episode().GetEpisodeNumber(),
-							Kind:          continuity.MediastreamKind,
-						})
-					}
-
-					// Discord
-					if m.discordPresence != nil && !m.isOfflineRef.Get() {
-						go m.discordPresence.UpdateAnimeActivity(int(event.Status.CurrentTime), int(event.Status.Duration), event.Status.Paused)
-					}
-				case *nativeplayer.VideoCompletedEvent:
+				case *videocore.VideoCompletedEvent:
 					m.Logger.Debug().Msgf("directstream: Video completed")
 
 					if baseStream, ok := cs.(*BaseStream); ok {
@@ -342,7 +276,6 @@ type BaseStream struct {
 	terminateOnce          sync.Once
 	serveContentCancelFunc context.CancelFunc
 	filename               string // Name of the file being streamed, if applicable
-	isNakamaWatchParty     bool   // Whether the stream is from Nakama
 
 	// Subtitle stream management
 	activeSubtitleStreams *result.Map[string, *SubtitleStream]
@@ -391,10 +324,6 @@ func (s *BaseStream) EpisodeCollection() *anime.EpisodeCollection {
 
 func (s *BaseStream) ClientId() string {
 	return s.clientId
-}
-
-func (s *BaseStream) IsNakamaWatchParty() bool {
-	return s.isNakamaWatchParty
 }
 
 func (s *BaseStream) Terminate() {
