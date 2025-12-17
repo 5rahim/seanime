@@ -903,7 +903,6 @@ export function VideoCore(props: VideoCoreProps) {
     useVideoCoreHls({
         videoElement: videoRef.current,
         streamUrl: streamUrl,
-        autoPlay: autoPlay,
         streamType: streamType,
         onMediaDetached: onHlsMediaDetached,
         onFatalError: onHlsFatalError,

@@ -32,6 +32,7 @@ function setupChromiumFlags() {
         "WidgetLayering",
         "ColorProviderRedirection",
         "WebContentsForceDarkMode", // 'ForcedColors'
+        "HardwareMediaKeyHandling"
     ].join(","))
 
     // Color management and rendering optimizations

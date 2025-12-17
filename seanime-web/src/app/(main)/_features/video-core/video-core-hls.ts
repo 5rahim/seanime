@@ -1,4 +1,5 @@
 import { vc_audioManager } from "@/app/(main)/_features/video-core/video-core"
+import { vc_autoPlayVideoAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { logger } from "@/lib/helpers/debug"
 import Hls, { ErrorData, Events, Level } from "hls.js"
 import { atom, useAtomValue } from "jotai"
@@ -48,14 +49,12 @@ export function isNativeVideoExtension(src: string): boolean {
 export function useVideoCoreHls({
     videoElement,
     streamUrl,
-    autoPlay,
     streamType,
     onFatalError,
     onMediaDetached,
 }: {
     videoElement: HTMLVideoElement | null
     streamUrl: string | undefined
-    autoPlay: boolean
     streamType?: string
     onMediaDetached?: () => void
     onFatalError?: (error: ErrorData) => void
@@ -63,6 +62,7 @@ export function useVideoCoreHls({
     const hlsRef = useRef<Hls | null>(null)
 
     const audioManager = useAtomValue(vc_audioManager)
+    const autoPlay = useAtomValue(vc_autoPlayVideoAtom)
 
     const [currentAudioTrack, setCurrentAudioTrack] = useAtom(vc_hlsCurrentAudioTrack)
     const setQualityLevels = useSetAtom(vc_hlsQualityLevels)
@@ -246,7 +246,7 @@ export function useVideoCoreHls({
             hlsLog.error("HLS not supported on this browser")
             toast.error("HLS playback not supported on this browser")
         }
-    }, [streamUrl, videoElement, autoPlay, streamType])
+    }, [streamUrl, videoElement, streamType])
 
 
     // Update audio manager when HLS audio track changes

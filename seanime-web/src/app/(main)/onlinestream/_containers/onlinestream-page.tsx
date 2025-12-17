@@ -178,8 +178,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         !!mediaId && currentEpisodeNumber !== null && isEpisodeListFetched,
     )
 
-    // de-duplicate video sources by url
-    const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources, n => `${n.url}|${n.quality}|${n.server}`), [episodeSource?.number])
+    // de-duplicate video sources
+    const videoSources = React.useMemo(() => uniqBy(episodeSource?.videoSources?.filter(n => n.server === server),
+        n => `${n.url}|${n.quality}|${n.server}`), [episodeSource?.number, server])
     const hasMultipleVideoSources = React.useMemo(() => !!videoSources?.length && videoSources?.length > 1, [videoSources])
 
     // list of servers
@@ -188,10 +189,17 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             log.info("Updating servers, no episode source", [])
             return []
         }
-        const servers = videoSources?.map((source) => source.server)
+        const servers = episodeSource?.videoSources?.map((source) => source.server)
         log.info("Updating servers", servers)
         return uniq(servers)
-    }, [videoSources])
+    }, [episodeSource?.videoSources])
+
+    // If the sources don't have the stored server, set it to the first one
+    React.useLayoutEffect(() => {
+        if (!!episodeSource?.videoSources?.length && server && !servers.includes(server)) {
+            setServer(servers[0])
+        }
+    }, [episodeSource?.videoSources, server])
 
     // get the video source from the episode source
     // devnote: use videoSources instead of episodeSource.videoSources
@@ -486,6 +494,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 onValueChange={(v) => {
                     changeServer(v)
                 }}
+                disabled={servers.length <= 1}
                 fieldClass="w-fit"
                 className="rounded-full w-fit !px-4"
                 addonClass="rounded-full rounded-r-none"
