@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.2.1
+
+- 🦺 Denshi Player: Fixed scrollbar appearing in fullscreen after selecting torrent
+- 🦺 Plugins: Refactored Storage API to avoid stale data issues
+- 🦺 Streaming: Fixed duplicated episode dropdown menu
+- 🦺 Online Streaming: Fixed video sources ignoring selected server
+- 🦺 Online Streaming: Fixed playback reloading when toggling autoplay
+- 🦺 Plugins: Fixed Action API setters using old props
+- 🏗️ Denshi: Disabled hardware media key handling
+- 🏗️ Plugins: Sort actions by extension ID
+
 ## v3.2.0
 
 - ✨️ Nakama: Watch party support for online streaming (Experimental)
