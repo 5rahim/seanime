@@ -17,14 +17,13 @@ import (
 // Storage is used to store data for an extension.
 // A new instance is created for each extension.
 type Storage struct {
-	ctx             *AppContextImpl
-	ext             *extension.Extension
-	logger          *zerolog.Logger
-	runtime         *goja.Runtime
-	pluginDataCache *result.Map[string, *models.PluginData] // Cache to avoid repeated database calls
-	keyDataCache    *result.Map[string, interface{}]        // Cache to avoid repeated database calls
-	keySubscribers  *result.Map[string, []chan interface{}] // Subscribers for key changes
-	scheduler       *gojautil.Scheduler
+	ctx            *AppContextImpl
+	ext            *extension.Extension
+	logger         *zerolog.Logger
+	runtime        *goja.Runtime
+	keyDataCache   *result.Map[string, interface{}]        // Cache to avoid repeated database calls
+	keySubscribers *result.Map[string, []chan interface{}] // Subscribers for key changes
+	scheduler      *gojautil.Scheduler
 }
 
 var (
@@ -37,14 +36,13 @@ var (
 func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *gojautil.Scheduler) *Storage {
 	storageLogger := logger.With().Str("id", ext.ID).Logger()
 	storage := &Storage{
-		ctx:             a,
-		ext:             ext,
-		logger:          &storageLogger,
-		runtime:         vm,
-		pluginDataCache: result.NewMap[string, *models.PluginData](),
-		keyDataCache:    result.NewMap[string, interface{}](),
-		keySubscribers:  result.NewMap[string, []chan interface{}](),
-		scheduler:       scheduler,
+		ctx:            a,
+		ext:            ext,
+		logger:         &storageLogger,
+		runtime:        vm,
+		keyDataCache:   result.NewMap[string, interface{}](),
+		keySubscribers: result.NewMap[string, []chan interface{}](),
+		scheduler:      scheduler,
 	}
 	storageObj := vm.NewObject()
 	_ = storageObj.Set("get", storage.Get)
@@ -82,12 +80,8 @@ func (s *Storage) getDB() (*gorm.DB, error) {
 
 // getPluginData retrieves the plugin data from the database
 // If createIfNotExists is true, it will create an empty record if none exists
+// This method always fetches fresh data from the database
 func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, error) {
-	// Check cache first
-	if cachedData, ok := s.pluginDataCache.Get(s.ext.ID); ok {
-		return cachedData, nil
-	}
-
 	db, err := s.getDB()
 	if err != nil {
 		return nil, err
@@ -112,15 +106,11 @@ func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, err
 				return nil, err
 			}
 
-			// Cache the new plugin data
-			s.pluginDataCache.Set(s.ext.ID, newPluginData)
 			return newPluginData, nil
 		}
 		return nil, err
 	}
 
-	// Cache the plugin data
-	s.pluginDataCache.Set(s.ext.ID, &pluginData)
 	return &pluginData, nil
 }
 
@@ -152,9 +142,7 @@ func (s *Storage) saveDataMap(pluginData *models.PluginData, data map[string]int
 		return err
 	}
 
-	// Update the cache
-	s.pluginDataCache.Set(s.ext.ID, pluginData)
-
+	// Clear all caches
 	s.keyDataCache.Clear()
 
 	return nil
@@ -380,6 +368,26 @@ func (s *Storage) notifyKeyAndParents(key string, value interface{}, data map[st
 	}
 }
 
+// invalidateKeyAndChildren removes a key and all its nested children from the cache
+func (s *Storage) invalidateKeyAndChildren(key string) {
+	// Remove the key itself
+	s.keyDataCache.Delete(key)
+
+	// Remove all child keys (keys that start with "key.")
+	prefix := key + "."
+	var keysToDelete []string
+	s.keyDataCache.Range(func(k string, v interface{}) bool {
+		if strings.HasPrefix(k, prefix) {
+			keysToDelete = append(keysToDelete, k)
+		}
+		return true
+	})
+
+	for _, k := range keysToDelete {
+		s.keyDataCache.Delete(k)
+	}
+}
+
 func (s *Storage) Watch(key string, callback goja.Callable) goja.Value {
 	s.logger.Trace().Msgf("plugin: Watching key %s", key)
 
@@ -446,8 +454,8 @@ func (s *Storage) Watch(key string, callback goja.Callable) goja.Value {
 func (s *Storage) Delete(key string) error {
 	s.logger.Trace().Msgf("plugin: Deleting key %s", key)
 
-	// Remove from key cache
-	s.keyDataCache.Delete(key)
+	// Remove from key cache and all nested keys
+	s.invalidateKeyAndChildren(key)
 
 	pluginData, err := s.getPluginData(false)
 	if err != nil {
@@ -462,11 +470,12 @@ func (s *Storage) Delete(key string) error {
 		return err
 	}
 
-	// Notify subscribers that the key was deleted
-	s.notifyKeyAndParents(key, nil, data)
-
 	if deleteNestedValue(data, key) {
-		return s.saveDataMap(pluginData, data)
+		if err := s.saveDataMap(pluginData, data); err != nil {
+			return err
+		}
+		// Notify subscribers that the key was deleted
+		s.notifyKeyAndParents(key, nil, data)
 	}
 
 	return nil
@@ -485,7 +494,6 @@ func (s *Storage) Drop() error {
 	// s.keySubscribers.Clear()
 
 	// Clear caches
-	s.pluginDataCache.Clear()
 	s.keyDataCache.Clear()
 
 	db, err := s.getDB()
@@ -609,6 +617,10 @@ func (s *Storage) Get(key string) (interface{}, error) {
 
 func (s *Storage) Set(key string, value interface{}) error {
 	s.logger.Trace().Msgf("plugin: Setting key %s", key)
+
+	// Invalidate this key and all its children in cache
+	s.invalidateKeyAndChildren(key)
+
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return err
@@ -621,11 +633,16 @@ func (s *Storage) Set(key string, value interface{}) error {
 
 	setNestedValue(data, key, value)
 
+	// Save first to ensure data is persisted
+	if err := s.saveDataMap(pluginData, data); err != nil {
+		return err
+	}
+
 	// Update key cache
 	s.keyDataCache.Set(key, value)
 
 	// Notify subscribers
 	s.notifyKeyAndParents(key, value, data)
 
-	return s.saveDataMap(pluginData, data)
+	return nil
 }

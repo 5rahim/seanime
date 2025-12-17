@@ -22,8 +22,8 @@ import {
     usePluginSendActionRenderMediaCardContextMenuItemsEvent,
 } from "../generated/plugin-events"
 
-function sortItems<T extends { label: string }>(items: T[]) {
-    return items.sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))
+function sortItems<T extends { extensionId: string }>(items: T[]) {
+    return items.sort((a, b) => a.extensionId.localeCompare(b.extensionId, undefined, { numeric: true }))
 }
 
 type PluginAnimePageButton = {
@@ -32,6 +32,8 @@ type PluginAnimePageButton = {
     onClick: string
     label: string
     style: React.CSSProperties
+    loading?: boolean
+    disabled?: boolean
     id: string
 }
 
@@ -73,6 +75,8 @@ export function PluginAnimePageButtons(props: { media: AL_BaseAnime }) {
                 intent={b.intent as ButtonProps["intent"] || "white-subtle"}
                 onClick={() => handleClick(b)}
                 style={b.style}
+                loading={b.loading}
+                disabled={b.disabled}
             >{b.label || "???"}</Button>
         ))}
     </>
@@ -88,6 +92,8 @@ type PluginMangaPageButton = {
     label: string
     style: React.CSSProperties
     id: string
+    loading?: boolean
+    disabled?: boolean
 }
 
 export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
@@ -128,6 +134,8 @@ export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
                 intent={b.intent as ButtonProps["intent"] || "white-subtle"}
                 onClick={() => handleClick(b)}
                 style={b.style}
+                loading={b.loading}
+                disabled={b.disabled}
             >{b.label || "???"}</Button>
         ))}
     </>
@@ -142,6 +150,7 @@ type PluginMediaCardContextMenuItem = {
     style: React.CSSProperties
     id: string
     for: "anime" | "manga" | "both"
+    disabled?: boolean
 }
 
 type PluginMediaCardContextMenuItemsProps = {
@@ -185,7 +194,7 @@ export function PluginMediaCardContextMenuItems(props: PluginMediaCardContextMen
     return <>
         <ContextMenuSeparator className="!my-2" />
         {items.map(i => (
-            <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</ContextMenuItem>
+            <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</ContextMenuItem>
         ))}
     </>
 }
@@ -198,6 +207,7 @@ type PluginAnimeLibraryDropdownMenuItem = {
     label: string
     id: string
     style: React.CSSProperties
+    disabled?: boolean
 }
 
 export function PluginAnimeLibraryDropdownItems() {
@@ -233,7 +243,7 @@ export function PluginAnimeLibraryDropdownItems() {
     return <>
         <DropdownMenuSeparator />
         {items.map(i => (
-            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</DropdownMenuItem>
         ))}
     </>
 }
@@ -246,6 +256,7 @@ type PluginEpisodeCardContextMenuItem = {
     label: string
     id: string
     style: React.CSSProperties
+    disabled?: boolean
 }
 
 export function PluginEpisodeCardContextMenuItems(props: { episode: Anime_Episode | undefined }) {
@@ -282,7 +293,7 @@ export function PluginEpisodeCardContextMenuItems(props: { episode: Anime_Episod
     return <>
         <ContextMenuSeparator className="!my-2" />
         {items.map(i => (
-            <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</ContextMenuItem>
+            <ContextMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</ContextMenuItem>
         ))}
     </>
 }
@@ -296,6 +307,7 @@ type PluginEpisodeGridItemMenuItem = {
     id: string
     type: "library" | "torrentstream" | "debridstream" | "onlinestream" | "undownloaded" | "medialinks" | "mediastream"
     style: React.CSSProperties
+    disabled?: boolean
 }
 
 export function PluginEpisodeGridItemMenuItems(props: {
@@ -345,7 +357,12 @@ export function PluginEpisodeGridItemMenuItems(props: {
             }
         >
             {items.map(i => (
-                <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+                <DropdownMenuItem
+                    key={i.id}
+                    onClick={() => handleClick(i)}
+                    style={i.style}
+                    disabled={i.disabled}
+                >{i.label || "???"}</DropdownMenuItem>
             ))}
         </DropdownMenu>
     }
@@ -353,7 +370,7 @@ export function PluginEpisodeGridItemMenuItems(props: {
     return <>
         <DropdownMenuSeparator />
         {items.map(i => (
-            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</DropdownMenuItem>
         ))}
     </>
 }
@@ -366,6 +383,7 @@ type PluginAnimePageDropdownMenuItem = {
     label: string
     id: string
     style: React.CSSProperties
+    disabled?: boolean
 }
 
 export function PluginAnimePageDropdownItems(props: { media: AL_BaseAnime }) {
@@ -402,7 +420,7 @@ export function PluginAnimePageDropdownItems(props: { media: AL_BaseAnime }) {
     return <>
         <DropdownMenuSeparator />
         {items.map(i => (
-            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style}>{i.label || "???"}</DropdownMenuItem>
+            <DropdownMenuItem key={i.id} onClick={() => handleClick(i)} style={i.style} disabled={i.disabled}>{i.label || "???"}</DropdownMenuItem>
         ))}
     </>
 

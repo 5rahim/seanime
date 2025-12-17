@@ -607,11 +607,37 @@ func TestGojaPluginStorage(t *testing.T) {
 
 		$ui.register((ctx) => {
 			
+			// Test 1: Basic set/get
 			$storage.set("foo", "bar")
 			console.log("foo", $storage.get("foo"))
-
 			$store.set("expectedValue1", "bar")
 
+			// Test 2: Nested keys, setting parent invalidates children in cache
+			$storage.set("user.settings.theme", "light")
+			$storage.set("user.settings.lang", "en")
+			console.log("user.settings.theme", $storage.get("user.settings.theme"))
+			$store.set("nestedTheme1", $storage.get("user.settings.theme"))
+			
+			// Now set the parent, should invalidate cached children
+			$storage.set("user.settings", { theme: "dark", lang: "ja", notifications: true })
+			console.log("user.settings", $storage.get("user.settings"))
+			
+			// Child values should be fresh from DB, not cached
+			const themeAfterParentSet = $storage.get("user.settings.theme")
+			console.log("user.settings.theme after parent set", themeAfterParentSet)
+			$store.set("nestedTheme2", themeAfterParentSet)
+			
+			// Test 3: Keys and Has methods
+			const allKeys = $storage.keys()
+			console.log("all keys", allKeys)
+			$store.set("hasUserSettings", $storage.has("user.settings"))
+			$store.set("hasUserTheme", $storage.has("user.settings.theme"))
+			
+			// Test 4: Delete nested key
+			$storage.remove("user.settings.notifications")
+			$store.set("hasNotificationsAfterDelete", $storage.has("user.settings.notifications"))
+			
+			// Test 5: Sequential updates
 			ctx.setTimeout(() => {
 				console.log("foo", $storage.get("foo"))
 				$storage.set("foo", "baz")
@@ -624,6 +650,14 @@ func TestGojaPluginStorage(t *testing.T) {
 				$storage.set("foo", "qux")
 				console.log("foo", $storage.get("foo"))
 				$store.set("expectedValue3", "qux")
+				
+				// Test that nested access still works
+				const finalTheme = $storage.get("user.settings.theme")
+				$store.set("finalTheme", finalTheme)
+				
+				// Test clear operation
+				const keysBefore = $storage.keys()
+				$store.set("keysBeforeClear", keysBefore.length)
 			}, 1500)
 			
 		})
@@ -652,17 +686,42 @@ func TestGojaPluginStorage(t *testing.T) {
 	_, err = anilistPlatform.GetAnime(t.Context(), 178022)
 	require.NoError(t, err)
 
+	// Test basic sequential updates
 	expectedValue1 := plugin.store.Get("expectedValue1")
-	require.Equal(t, "bar", expectedValue1)
+	require.Equal(t, "bar", expectedValue1, "Initial value should be 'bar'")
 
 	expectedValue2 := plugin.store.Get("expectedValue2")
-	require.Equal(t, "baz", expectedValue2)
+	require.Equal(t, "baz", expectedValue2, "Second value should be 'baz'")
 
 	expectedValue3 := plugin.store.Get("expectedValue3")
-	require.Equal(t, "qux", expectedValue3)
+	require.Equal(t, "qux", expectedValue3, "Third value should be 'qux'")
 
 	expectedValue4 := plugin.store.Get("expectedValue4")
-	require.Equal(t, "anime", expectedValue4)
+	require.Equal(t, "anime", expectedValue4, "Final value should be 'anime'")
+
+	// Test nested key cache invalidation
+	nestedTheme1 := plugin.store.Get("nestedTheme1")
+	require.Equal(t, "light", nestedTheme1, "Initial nested theme should be 'light'")
+
+	nestedTheme2 := plugin.store.Get("nestedTheme2")
+	require.Equal(t, "dark", nestedTheme2, "Nested theme after parent set should be 'dark' (cache should be invalidated)")
+
+	finalTheme := plugin.store.Get("finalTheme")
+	require.Equal(t, "dark", finalTheme, "Final theme should still be 'dark'")
+
+	// Test has/keys methods
+	hasUserSettings := plugin.store.Get("hasUserSettings")
+	require.Equal(t, true, hasUserSettings, "user.settings should exist")
+
+	hasUserTheme := plugin.store.Get("hasUserTheme")
+	require.Equal(t, true, hasUserTheme, "user.settings.theme should exist")
+
+	hasNotificationsAfterDelete := plugin.store.Get("hasNotificationsAfterDelete")
+	require.Equal(t, false, hasNotificationsAfterDelete, "user.settings.notifications should not exist after delete")
+
+	keysBeforeClear := plugin.store.Get("keysBeforeClear")
+	require.NotNil(t, keysBeforeClear, "Should have keys before clear")
+	require.Greater(t, keysBeforeClear.(int64), int64(0), "Should have at least one key")
 
 }
 

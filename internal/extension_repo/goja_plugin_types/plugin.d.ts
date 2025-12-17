@@ -580,6 +580,12 @@ declare namespace $ui {
         /** Sets the label of the action */
         setLabel(label: string): void
 
+        /** Sets the loading state of the action */
+        setLoading(loading: boolean): void
+
+        /** Sets the disabled state of the action */
+        setDisabled(disabled: boolean): void
+
         /** Sets the style of the action */
         setStyle(style: Record<string, string>): void
 

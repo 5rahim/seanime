@@ -32,9 +32,11 @@ type ActionManager struct {
 }
 
 type BaseActionProps struct {
-	ID    string            `json:"id"`
-	Label string            `json:"label"`
-	Style map[string]string `json:"style,omitempty"`
+	ID       string            `json:"id"`
+	Label    string            `json:"label"`
+	Style    map[string]string `json:"style,omitempty"`
+	Loading  bool              `json:"loading,omitempty"`
+	Disabled bool              `json:"disabled,omitempty"`
 }
 
 // Base action struct that all action types embed
@@ -50,6 +52,18 @@ func (a *BaseAction) GetProps() BaseActionProps {
 // SetProps sets the base action properties
 func (a *BaseAction) SetProps(props BaseActionProps) {
 	a.BaseActionProps = props
+}
+func (a *BaseAction) SetLabel(label string) {
+	a.BaseActionProps.Label = label
+}
+func (a *BaseAction) SetStyle(style map[string]string) {
+	a.BaseActionProps.Style = style
+}
+func (a *BaseAction) SetLoading(loading bool) {
+	a.BaseActionProps.Loading = loading
+}
+func (a *BaseAction) SetDisabled(disabled bool) {
+	a.BaseActionProps.Disabled = disabled
 }
 
 // UnmountAll unmounts all actions
@@ -477,37 +491,37 @@ func (a *ActionManager) jsNewMangaPageButton(call goja.FunctionCall) goja.Value 
 //	downloadButton.setLabel("Downloading...")
 func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{}) {
 	var id string
-	var props BaseActionProps
+	//var props BaseActionProps
 	var mapToUse interface{}
 
 	switch act := action.(type) {
 	case *AnimePageButton:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.animePageButtons
 	case *MangaPageButton:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.mangaPageButtons
 	case *AnimePageDropdownMenuItem:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.animePageDropdownItems
 	case *AnimeLibraryDropdownMenuItem:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.animeLibraryDropdownItems
 	case *MediaCardContextMenuItem:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.mediaCardContextMenuItems
 	case *EpisodeCardContextMenuItem:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.episodeCardContextMenuItems
 	case *EpisodeGridItemMenuItem:
 		id = act.ID
-		props = act.GetProps()
+		//props = act.GetProps()
 		mapToUse = a.episodeGridItemMenuItems
 	}
 
@@ -581,53 +595,106 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 	})
 
 	_ = obj.Set("setLabel", func(label string) {
-		newProps := props
-		newProps.Label = label
-
 		switch act := action.(type) {
 		case *AnimePageButton:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderAnimePageButtons()
 		case *MangaPageButton:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderMangaPageButtons()
 		case *AnimePageDropdownMenuItem:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderAnimePageDropdownItems()
 		case *AnimeLibraryDropdownMenuItem:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderAnimeLibraryDropdownItems()
 		case *MediaCardContextMenuItem:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderMediaCardContextMenuItems()
 		case *EpisodeCardContextMenuItem:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderEpisodeCardContextMenuItems()
 		case *EpisodeGridItemMenuItem:
-			act.SetProps(newProps)
+			act.SetLabel(label)
+			a.renderEpisodeGridItemMenuItems()
 		}
+	})
 
+	_ = obj.Set("setLoading", func(loading bool) {
+		switch act := action.(type) {
+		case *AnimePageButton:
+			act.SetLoading(loading)
+			a.renderAnimePageButtons()
+		case *MangaPageButton:
+			act.SetLoading(loading)
+			a.renderMangaPageButtons()
+		case *AnimePageDropdownMenuItem:
+			act.SetLoading(loading)
+			a.renderAnimePageDropdownItems()
+		case *AnimeLibraryDropdownMenuItem:
+			act.SetLoading(loading)
+			a.renderAnimeLibraryDropdownItems()
+		case *MediaCardContextMenuItem:
+			act.SetLoading(loading)
+			a.renderMediaCardContextMenuItems()
+		case *EpisodeCardContextMenuItem:
+			act.SetLoading(loading)
+			a.renderEpisodeCardContextMenuItems()
+		case *EpisodeGridItemMenuItem:
+			act.SetLoading(loading)
+			a.renderEpisodeGridItemMenuItems()
+		}
+	})
+
+	_ = obj.Set("setDisabled", func(disabled bool) {
+		switch act := action.(type) {
+		case *AnimePageButton:
+			act.SetDisabled(disabled)
+			a.renderAnimePageButtons()
+		case *MangaPageButton:
+			act.SetDisabled(disabled)
+			a.renderMangaPageButtons()
+		case *AnimePageDropdownMenuItem:
+			act.SetDisabled(disabled)
+			a.renderAnimePageDropdownItems()
+		case *AnimeLibraryDropdownMenuItem:
+			act.SetDisabled(disabled)
+			a.renderAnimeLibraryDropdownItems()
+		case *MediaCardContextMenuItem:
+			act.SetDisabled(disabled)
+			a.renderMediaCardContextMenuItems()
+		case *EpisodeCardContextMenuItem:
+			act.SetDisabled(disabled)
+			a.renderEpisodeCardContextMenuItems()
+		case *EpisodeGridItemMenuItem:
+			act.SetDisabled(disabled)
+			a.renderEpisodeGridItemMenuItems()
+		}
 	})
 
 	_ = obj.Set("setStyle", func(style map[string]string) {
-		newProps := props
-		newProps.Style = style
-
 		switch act := action.(type) {
 		case *AnimePageButton:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderAnimePageButtons()
 		case *MangaPageButton:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderMangaPageButtons()
 		case *AnimePageDropdownMenuItem:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderAnimePageDropdownItems()
 		case *AnimeLibraryDropdownMenuItem:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderAnimeLibraryDropdownItems()
 		case *MediaCardContextMenuItem:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderMediaCardContextMenuItems()
 		case *EpisodeCardContextMenuItem:
-			act.SetProps(newProps)
+			act.SetStyle(style)
 			a.renderEpisodeCardContextMenuItems()
 		case *EpisodeGridItemMenuItem:
-			act.SetProps(newProps)
+			act.SetStyle(style)
+			a.renderEpisodeGridItemMenuItems()
 		}
 	})
 
