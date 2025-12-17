@@ -158,7 +158,8 @@ export function VideoCoreDrawer(props: DrawerProps) {
 
     React.useEffect(() => {
         if (open && size === "full") {
-            document.body.setAttribute("data-scroll-locked", "1")
+            // delay so another modal closing doesn't remove it
+            setTimeout(() => document.body.setAttribute("data-scroll-locked", "1"), 500)
         } else if (size === "full") {
             document.body.removeAttribute("data-scroll-locked")
         }
@@ -483,4 +484,4 @@ export function VideoCoreDrawer(props: DrawerProps) {
     )
 }
 
-VideoCoreDrawer.displayName = "NativePlayerDrawer"
+VideoCoreDrawer.displayName = "VideoCoreDrawer"
