@@ -4824,7 +4824,7 @@ export type VideoCore_ServerEvent = "pause" |
     "start-onlinestream-watch-party" |
     "get-status" |
     "show-message" |
-    "play-episode" |
+    "play-playlist-episode" |
     "get-text-tracks" |
     "get-fullscreen" |
     "get-pip" |

@@ -319,7 +319,6 @@ declare namespace $ui {
 
         /**
          * Cancels the tracking of the current media being played.
-         * Note that this does not stop/close the media player.
          * @throws Error if an error occurs, or if the playback is not running
          */
         cancel(): void
@@ -1103,6 +1102,13 @@ declare namespace $ui {
          * @throws Error if the entry is not found
          */
         getAnimeEntry(mediaId: number): Promise<$app.Anime_Entry>
+
+        /**
+         * Get raw anime metadata from metadata provider
+         * @param from - "anilist" | "mal" | "kitsu" | "anidb"
+         * @param mediaId - The ID
+         */
+        getAnimeMetadata(from: "anilist" | "mal" | "kitsu" | "anidb", mediaId: number): Promise<$app.Metadata_AnimeMetadata | undefined>
 
         /**
          * Clears episode metadata cache.
@@ -1966,7 +1972,7 @@ declare namespace $ui {
         playlist: VideoPlaylistState | null
     }
 
-    interface VideoTextTracksvent extends BaseVideoEvent {
+    interface VideoTextTracksEvent extends BaseVideoEvent {
         textTracks: VideoTextTrack[]
     }
 
@@ -1991,6 +1997,7 @@ declare namespace $ui {
         | VideoPipEvent
         | VideoAnime4KEvent
         | VideoPlaylistEvent
+        | VideoTextTracksEvent
 
     interface VideoSubtitleTrack {
         index: number
@@ -2317,10 +2324,10 @@ declare namespace $ui {
         terminate(): void
 
         /**
-         * Plays the specified episode
-         * @param which - "next", "previous", or an episode ID
+         * Plays the specified playlist episode
+         * @param which - "next", "previous", or the AniDB Episode ID
          */
-        playEpisode(which: string): void
+        playEpisodeFromPlaylist(which: string): void
 
         // UI control methods
 

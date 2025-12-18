@@ -383,7 +383,7 @@ const (
 	ServerEventStartOnlinestreamWatchParty ServerEvent = "start-onlinestream-watch-party"
 	ServerEventGetStatus                   ServerEvent = "get-status"
 	ServerEventShowMessage                 ServerEvent = "show-message"
-	ServerEventPlayEpisode                 ServerEvent = "play-episode"
+	ServerEventPlayPlaylistEpisode         ServerEvent = "play-playlist-episode"
 	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
 	// State requests
 	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"

@@ -99,7 +99,7 @@ export function useVideoCoreSetupEvents(id: string,
     const audioManager = useAtomValue(vc_audioManager)
     const autoNext = useAtomValue(vc_autoNextAtom)
     const flashAction = useSetAtom(vc_doFlashAction)
-    const { playEpisode, playlistState } = useVideoCorePlaylist()
+    const { playEpisode: playPlaylistEpisode, playlistState } = useVideoCorePlaylist()
 
     // React.useEffect(() => {
     //     log.trace(activePlayer, id)
@@ -666,9 +666,9 @@ export function useVideoCoreSetupEvents(id: string,
                         playlist: playlistState,
                     })
                     break
-                case "play-episode":
+                case "play-playlist-episode":
                     log.info("Play next episode event received")
-                    playEpisode(payload as string)
+                    playPlaylistEpisode(payload as string)
                     break
                 case "start-onlinestream-watch-party":
                     break

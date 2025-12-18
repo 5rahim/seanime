@@ -57,10 +57,11 @@ type (
 
 	// AnimeMetadataWrapper is a container for anime metadata.
 	// This wrapper is used to get a more complete metadata object by getting data from multiple sources in the Provider.
-	// The user can request metadata to be fetched from TVDB as well, which will be stored in the cache.
+	// In previous versions: The user can request metadata to be fetched from TVDB as well, which will be stored in the cache.
+	// Now: It sets default values for missing metadata based on the media.
 	AnimeMetadataWrapper interface {
 		// GetEpisodeMetadata combines metadata from multiple sources to create a single EpisodeMetadata object.
-		GetEpisodeMetadata(episodeNumber int) metadata.EpisodeMetadata
+		GetEpisodeMetadata(episode string) metadata.EpisodeMetadata
 	}
 )
 

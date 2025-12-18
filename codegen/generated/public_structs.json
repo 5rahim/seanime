@@ -69505,17 +69505,6 @@
         "comments": []
       },
       {
-        "name": "pluginDataCache",
-        "jsonName": "pluginDataCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Cache to avoid repeated database calls"
-        ]
-      },
-      {
         "name": "keyDataCache",
         "jsonName": "keyDataCache",
         "goType": "",
@@ -70017,6 +70006,24 @@
         "jsonName": "style",
         "goType": "map[string]string",
         "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Loading",
+        "jsonName": "loading",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Disabled",
+        "jsonName": "disabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
@@ -85965,7 +85972,7 @@
         "\"start-onlinestream-watch-party\"",
         "\"get-status\"",
         "\"show-message\"",
-        "\"play-episode\"",
+        "\"play-playlist-episode\"",
         "\"get-text-tracks\"",
         "\"get-fullscreen\"",
         "\"get-pip\"",

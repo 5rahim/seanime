@@ -42,23 +42,6 @@ export function NativePlayer() {
     )
 
     //
-    // Event Handlers
-    //
-
-    const handleCompleted = () => {
-        const v = videoElement
-        if (!v) return
-        if (state.playbackInfo?.media && state.playbackInfo?.episode) {
-            updateProgress({
-                mediaId: state.playbackInfo?.media?.id,
-                totalEpisodes: state.playbackInfo?.media?.episodes || 0,
-                episodeNumber: state.playbackInfo?.episode?.progressNumber,
-            })
-        }
-    }
-
-
-    //
     // Server events
     //
 
@@ -182,7 +165,6 @@ export function NativePlayer() {
                 state={ps}
                 aniSkipData={aniSkipData}
                 onTerminateStream={handleTerminateStream}
-                onCompleted={handleCompleted}
             />
         </>
     )

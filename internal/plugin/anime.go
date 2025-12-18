@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_bindings"
@@ -34,6 +35,7 @@ func (a *AppContextImpl) BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Objec
 
 	// Get downloaded chapter containers
 	_ = animeObj.Set("getAnimeEntry", m.getAnimeEntry)
+	_ = animeObj.Set("getAnimeMetadata", m.getAnimeMetadata)
 	_ = animeObj.Set("clearEpisodeMetadataCache", func(call goja.FunctionCall) goja.Value {
 		metadataProviderRef, ok := a.metadataProviderRef.Get()
 		if ok {
@@ -42,6 +44,33 @@ func (a *AppContextImpl) BindAnimeToContextObj(vm *goja.Runtime, obj *goja.Objec
 		return goja.Undefined()
 	})
 	_ = obj.Set("anime", animeObj)
+}
+
+func (m *Anime) getAnimeMetadata(call goja.FunctionCall) goja.Value {
+	promise, resolve, reject := m.vm.NewPromise()
+
+	from := gojautil.ExpectStringArg(m.vm, call, 0)
+	mediaId := int(gojautil.ExpectIntArg(m.vm, call, 1))
+
+	metadataProviderRef, ok := m.ctx.metadataProviderRef.Get()
+	if !ok {
+		_ = reject(goja_bindings.NewErrorString(m.vm, "metadata provider not found"))
+		return m.vm.ToValue(promise)
+	}
+	go func() {
+		ret, err := metadataProviderRef.Get().GetAnimeMetadata(metadata.Platform(from), mediaId)
+		if err != nil {
+			_ = reject(m.vm.ToValue(err.Error()))
+			return
+		}
+
+		m.scheduler.ScheduleAsync(func() error {
+			_ = resolve(m.vm.ToValue(ret))
+			return nil
+		})
+	}()
+
+	return m.vm.ToValue(promise)
 }
 
 func (m *Anime) getAnimeEntry(call goja.FunctionCall) goja.Value {

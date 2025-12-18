@@ -163,14 +163,14 @@ func DownloadAnimeImages(
 			continue
 		}
 
-		episodeInt, ok := util.StringToInt(episodeNum)
+		_, ok := util.StringToInt(episodeNum)
 		if !ok {
 			ogEpisodeImages[episodeNum] = episode.Image
 			imgUrls = append(imgUrls, episode.Image)
 			continue
 		}
 
-		epMetadata := metadataWrapper.GetEpisodeMetadata(episodeInt)
+		epMetadata := metadataWrapper.GetEpisodeMetadata(episodeNum)
 		episode = &epMetadata
 
 		ogEpisodeImages[episodeNum] = episode.Image

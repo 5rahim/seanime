@@ -503,14 +503,14 @@ func (vc *VideoCore) ShowMessage(message string, milliseconds int) {
 	})
 }
 
-// PlayEpisode sends a play-episode command to the video player.
+// PlayPlaylistEpisode sends a play-episode command to the video player.
 // which is "next", "previous", or the AniDB episode ID.
-func (vc *VideoCore) PlayEpisode(which string) {
+func (vc *VideoCore) PlayPlaylistEpisode(which string) {
 	state, ok := vc.GetPlaybackState()
 	if !ok {
 		return
 	}
-	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayEpisode), which)
+	vc.sendPlayerEventTo(state.ClientId, string(ServerEventPlayPlaylistEpisode), which)
 }
 
 // Terminate sends a terminate command to the video player and clears the playback state.

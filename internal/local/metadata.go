@@ -5,7 +5,6 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/util/result"
-	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -97,8 +96,8 @@ func (mp *OfflineMetadataProvider) GetAnimeMetadataWrapper(anime *anilist.BaseAn
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (mw *OfflineAnimeMetadataWrapper) GetEpisodeMetadata(episodeNumber int) (ret metadata.EpisodeMetadata) {
-	episodeMetadata, found := mw.metadata.FindEpisode(strconv.Itoa(episodeNumber))
+func (mw *OfflineAnimeMetadataWrapper) GetEpisodeMetadata(episode string) (ret metadata.EpisodeMetadata) {
+	episodeMetadata, found := mw.metadata.FindEpisode(episode)
 	if found {
 		ret = *episodeMetadata
 	}

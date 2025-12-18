@@ -7,6 +7,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
+import { RemoveScrollBar } from "react-remove-scroll-bar"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -157,12 +158,13 @@ export function VideoCoreDrawer(props: DrawerProps) {
     } = props
 
     React.useEffect(() => {
-        if (open && size === "full") {
-            // delay so another modal closing doesn't remove it
-            setTimeout(() => document.body.setAttribute("data-scroll-locked", "1"), 500)
-        } else if (size === "full") {
-            document.body.removeAttribute("data-scroll-locked")
-        }
+        const t = setTimeout(() => {
+            if (open && size === "full") {
+                const v = document.body.getAttribute("data-scroll-locked")
+                document.body.setAttribute("data-scroll-locked", v || "1")
+            }
+        }, 1000)
+        return () => clearTimeout(t)
     }, [open, size])
 
     const isMiniPlayerRef = React.useRef(miniPlayer)
@@ -410,6 +412,8 @@ export function VideoCoreDrawer(props: DrawerProps) {
         <DialogPrimitive.Root modal={!allowOutsideInteraction} open={open} {...rest}>
 
             {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
+
+            {(open && size === "full") && <RemoveScrollBar />}
 
             <DialogPrimitive.Portal container={portalContainer}>
 

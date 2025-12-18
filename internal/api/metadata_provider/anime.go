@@ -22,10 +22,12 @@ type (
 	}
 )
 
-func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeMetadata) {
+func (aw *AnimeWrapperImpl) GetEpisodeMetadata(ep string) (ret metadata.EpisodeMetadata) {
 	if aw == nil || aw.baseAnime == nil {
 		return
 	}
+
+	epNumber, _ := ExtractEpisodeInteger(ep)
 
 	ret = metadata.EpisodeMetadata{
 		AnidbId:               0,
@@ -36,8 +38,8 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeM
 		Length:                0,
 		Summary:               "",
 		Overview:              "",
-		EpisodeNumber:         epNum,
-		Episode:               strconv.Itoa(epNum),
+		EpisodeNumber:         epNumber,
+		Episode:               ep,
 		SeasonNumber:          0,
 		AbsoluteEpisodeNumber: 0,
 		AnidbEid:              0,
@@ -47,10 +49,12 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeM
 
 	reqEvent := &metadata.AnimeEpisodeMetadataRequestedEvent{}
 	reqEvent.MediaId = aw.baseAnime.GetID()
-	reqEvent.EpisodeNumber = epNum
+	reqEvent.Episode = ep
+	reqEvent.EpisodeNumber = epNumber
 	reqEvent.EpisodeMetadata = &ret
 	_ = hook.GlobalHookManager.OnAnimeEpisodeMetadataRequested().Trigger(reqEvent)
-	epNum = reqEvent.EpisodeNumber
+	ep = reqEvent.Episode
+	epNumber = reqEvent.EpisodeNumber
 
 	// Default prevented by hook, return the metadata
 	if reqEvent.DefaultPrevented {
@@ -68,7 +72,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeM
 	if aw.metadata.IsAbsent() {
 		ret.Image = aw.baseAnime.GetBannerImageSafe()
 	} else {
-		episodeF, found := aw.metadata.MustGet().FindEpisode(strconv.Itoa(epNum))
+		episodeF, found := aw.metadata.MustGet().FindEpisode(ep)
 		if found {
 			episode = mo.Some(episodeF)
 		}
@@ -95,7 +99,8 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret metadata.EpisodeM
 	// Event
 	event := &metadata.AnimeEpisodeMetadataEvent{
 		EpisodeMetadata: &ret,
-		EpisodeNumber:   epNum,
+		Episode:         ep,
+		EpisodeNumber:   epNumber,
 		MediaId:         aw.baseAnime.GetID(),
 	}
 	_ = hook.GlobalHookManager.OnAnimeEpisodeMetadata().Trigger(event)

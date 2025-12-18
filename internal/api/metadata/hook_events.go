@@ -31,6 +31,7 @@ type AnimeEpisodeMetadataRequestedEvent struct {
 	hook_resolver.Event
 	// Empty metadata object, will be used if the hook prevents the default behavior
 	EpisodeMetadata *EpisodeMetadata `json:"animeEpisodeMetadata"`
+	Episode         string           `json:"episode"`
 	EpisodeNumber   int              `json:"episodeNumber"`
 	MediaId         int              `json:"mediaId"`
 }
@@ -42,6 +43,7 @@ type AnimeEpisodeMetadataRequestedEvent struct {
 type AnimeEpisodeMetadataEvent struct {
 	hook_resolver.Event
 	EpisodeMetadata *EpisodeMetadata `json:"animeEpisodeMetadata"`
+	Episode         string           `json:"episode"`
 	EpisodeNumber   int              `json:"episodeNumber"`
 	MediaId         int              `json:"mediaId"`
 }

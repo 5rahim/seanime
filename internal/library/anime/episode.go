@@ -264,22 +264,17 @@ func NewEpisodeMetadata(
 		md.Image = media.GetCoverImageSafe()
 		return md
 	}
-	epInt, err := strconv.Atoi(episode.Episode)
 
-	if err == nil {
-		aw := metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
-		epMetadata := aw.GetEpisodeMetadata(epInt)
-		md.AnidbId = epMetadata.AnidbId
-		md.Image = epMetadata.Image
-		md.AirDate = epMetadata.AirDate
-		md.Length = epMetadata.Length
-		md.Summary = epMetadata.Summary
-		md.Overview = epMetadata.Overview
-		md.HasImage = epMetadata.HasImage
-		md.IsFiller = false
-	} else {
-		md.Image = media.GetBannerImageSafe()
-	}
+	aw := metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
+	epMetadata := aw.GetEpisodeMetadata(episode.Episode)
+	md.AnidbId = epMetadata.AnidbId
+	md.Image = epMetadata.Image
+	md.AirDate = epMetadata.AirDate
+	md.Length = epMetadata.Length
+	md.Summary = epMetadata.Summary
+	md.Overview = epMetadata.Overview
+	md.HasImage = epMetadata.HasImage
+	md.IsFiller = false // Default to false
 
 	return md
 }

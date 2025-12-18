@@ -53,7 +53,7 @@ func (a *AppContextImpl) BindVideoCoreToContextObj(vm *goja.Runtime, obj *goja.O
 	_ = vcObj.Set("seek", p.seek)
 	_ = vcObj.Set("seekTo", p.seekTo)
 	_ = vcObj.Set("terminate", p.terminate)
-	_ = vcObj.Set("playEpisode", p.playEpisode)
+	_ = vcObj.Set("playEpisodeFromPlaylist", p.playEpisodeFromPlaylist)
 
 	// UI control
 	_ = vcObj.Set("setFullscreen", p.setFullscreen)
@@ -356,7 +356,7 @@ func (p *VideoCore) getPlaylist() goja.Value {
 	return p.vm.ToValue(promise)
 }
 
-func (p *VideoCore) playEpisode(call goja.FunctionCall) goja.Value {
+func (p *VideoCore) playEpisodeFromPlaylist(call goja.FunctionCall) goja.Value {
 
 	videoCore, ok := p.ctx.VideoCore().Get()
 	if !ok {
@@ -364,7 +364,7 @@ func (p *VideoCore) playEpisode(call goja.FunctionCall) goja.Value {
 	}
 
 	which := gojautil.ExpectStringArg(p.vm, call, 0)
-	videoCore.PlayEpisode(which)
+	videoCore.PlayPlaylistEpisode(which)
 
 	return goja.Undefined()
 }

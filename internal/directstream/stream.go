@@ -236,9 +236,6 @@ func (m *Manager) listenToPlayerEvents() {
 }
 
 func (m *Manager) unloadStream() {
-	m.playbackMu.Lock()
-	defer m.playbackMu.Unlock()
-
 	m.Logger.Debug().Msg("directstream: Unloading current stream")
 
 	// Cancel any existing playback context first
@@ -349,7 +346,9 @@ func (s *BaseStream) StreamError(err error) {
 	s.logger.Error().Err(err).Msg("directstream: Stream error occurred")
 	s.manager.nativePlayer.Error(s.clientId, err)
 	s.Terminate()
+	s.manager.playbackMu.Lock()
 	s.manager.unloadStream()
+	s.manager.playbackMu.Unlock()
 }
 
 func (s *BaseStream) GetSubtitleEventCache() *result.Map[string, *mkvparser.SubtitleEvent] {

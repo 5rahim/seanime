@@ -340,6 +340,7 @@ export function PluginEpisodeGridItemMenuItems(props: {
             actionId: item.id,
             event: {
                 episode: props.episode,
+                type: props.type,
             },
         }, item.extensionId)
     }

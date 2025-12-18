@@ -84,27 +84,59 @@ type PlaybackEvent struct {
 }
 
 // playUsingMediaPlayer starts playback of a local file using the media player specified in the settings.
-func (p *Playback) playUsingMediaPlayer(payload string) error {
+func (p *Playback) playUsingMediaPlayer(payload string) goja.Value {
+	promise, resolve, reject := p.vm.NewPromise()
+
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
-		return errors.New("playback manager not found")
+		reject(p.vm.NewGoError(errors.New("playback manager not found")))
+		return p.vm.ToValue(promise)
 	}
 
-	return playbackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
-		Payload: payload,
-	})
+	go func() {
+		err := playbackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+			Payload: payload,
+		})
+		p.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				jsErr := p.vm.NewGoError(err)
+				reject(jsErr)
+			} else {
+				resolve(nil)
+			}
+			return nil
+		})
+	}()
+
+	return p.vm.ToValue(promise)
 }
 
 // streamUsingMediaPlayer starts streaming a video using the media player specified in the settings.
-func (p *Playback) streamUsingMediaPlayer(windowTitle string, payload string, media *anilist.BaseAnime, aniDbEpisode string) error {
+func (p *Playback) streamUsingMediaPlayer(windowTitle string, payload string, media *anilist.BaseAnime, aniDbEpisode string) goja.Value {
+	promise, resolve, reject := p.vm.NewPromise()
+
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
-		return errors.New("playback manager not found")
+		reject(p.vm.NewGoError(errors.New("playback manager not found")))
+		return p.vm.ToValue(promise)
 	}
 
-	return playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
-		Payload: payload,
-	}, media, aniDbEpisode)
+	go func() {
+		err := playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
+			Payload: payload,
+		}, media, aniDbEpisode)
+		p.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				jsErr := p.vm.NewGoError(err)
+				reject(jsErr)
+			} else {
+				resolve(nil)
+			}
+			return nil
+		})
+	}()
+
+	return p.vm.ToValue(promise)
 }
 
 ////////////////////////////////////
@@ -184,7 +216,7 @@ func (p *PlaybackMPV) getConnection() goja.Value {
 // registerEventListener registers a subscriber for playback events.
 //
 //	Example:
-//	$playback.registerEventListener("mySubscriber", (event) => {
+//	ctx.playback.registerEventListener((event) => {
 //		console.log(event)
 //	});
 func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (func(), error) {

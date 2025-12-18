@@ -1150,12 +1150,12 @@ export function VideoCore(props: VideoCoreProps) {
         if (inline) {
             if (e.type === "click") {
                 const now = Date.now()
+                if (!debouncedMenuOpen) {
+                    togglePlay()
+                }
                 if (lastClickTime.current && now - lastClickTime.current < 300) {
                     fullscreenManager?.toggleFullscreen()
                 } else {
-                    if (!debouncedMenuOpen) {
-                        togglePlay()
-                    }
                     setTimeout(() => {
                         setBusy(false)
                     }, 100)

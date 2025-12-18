@@ -309,7 +309,7 @@ const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
                     {mainTitle && <p
                         className={cn(
-                            "font-normal text-[1.1rem] transition line-clamp-1 tracking-wide flex gap-2 items-center max-w-[20rem]",
+                            "font-normal text-[1.1rem] transition line-clamp-1 tracking-wide flex gap-2 items-center max-w-[20rem] 3xl:max-w-[35rem]",
                             // isBasic && "text-sm",
                         )}
                         data-torrent-preview-item-title

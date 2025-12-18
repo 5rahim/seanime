@@ -12,6 +12,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -133,7 +134,7 @@ func NewEpisodeCollection(opts NewEpisodeCollectionOptions) (ec *EpisodeCollecti
 			episodeNumber := epIdx + 1
 
 			mediaWrapper := opts.MetadataProviderRef.Get().GetAnimeMetadataWrapper(opts.Media, nil)
-			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
+			episodeMetadata := mediaWrapper.GetEpisodeMetadata(strconv.Itoa(episodeNumber))
 
 			episode := &Episode{
 				Type:                  LocalFileTypeMain,

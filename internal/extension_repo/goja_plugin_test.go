@@ -122,13 +122,20 @@ func TestGojaPluginAnime(t *testing.T) {
 		$ui.register(async (ctx) => {
 			try {
 				console.log("Fetching anime entry");
-				console.log(typeof ctx.anime.getAnimeEntry)
-ctx.anime.getAnimeEntry(21)
-				//ctx.anime.getAnimeEntry(21).then((anime) => {
-				//	console.log("Anime", anime)
-				//}).catch((e) => {
-				//	console.error("Error fetching anime entry", e)
-				//})
+				ctx.anime.getAnimeMetadata("anilist", 21).then((metadata) => {
+					console.log("Metadata", metadata)
+				}).catch((e) => {
+					console.error("Error fetching metadata", e)
+				})
+			} catch (e) {
+				console.error("Error fetching metadata", e)
+			}
+			try {
+				ctx.anime.getAnimeEntry(21).then((anime) => {
+					console.log("Anime", anime)
+				}).catch((e) => {
+					console.error("Error fetching anime entry", e)
+				})
 			} catch (e) {
 				console.error("Error fetching anime entry", e)
 			}
@@ -149,9 +156,10 @@ ctx.anime.getAnimeEntry(21)
 	require.NoError(t, err)
 
 	metadataProvider := metadata_provider.NewProvider(&metadata_provider.NewProviderImplOptions{
-		FileCacher: lo.Must(filecache.NewCacher(t.TempDir())),
-		Logger:     logger,
-		Database:   database,
+		Logger:           logger,
+		FileCacher:       lo.Must(filecache.NewCacher(t.TempDir())),
+		Database:         database,
+		ExtensionBankRef: util.NewRef(extension.NewUnifiedBank()),
 	})
 	metadataProviderRef := util.NewRef(metadataProvider)
 

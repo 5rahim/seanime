@@ -799,7 +799,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
     // // Adds a new track AFTER initialization and selects it
     addFileTrack(track: VideoCore_VideoSubtitleTrack) {
         subtitleLog.info("Subtitle file track added", track)
-        toast.success(`Subtitle track added: ${track.label}`)
         const lastFileTrackNumber = Object.keys(this.fileTracks).length
             ? Number(Object.keys(this.fileTracks)[Object.keys(this.fileTracks).length - 1])
             : 999
