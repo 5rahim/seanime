@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v3.2.2
+
+- 🦺 Denshi Player: Fixed double progress updates
+- 🦺 Denshi Player: Fixed request deadlock after pre-stream error
+- 🦺 UI: Minor fixes
+- 🏗️ Plugins: Updated and fixed some APIs
+
 ## v3.2.1
 
 - 🦺 Denshi Player: Fixed scrollbar appearing in fullscreen after selecting torrent
