@@ -2,7 +2,10 @@ package scanner
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -17,7 +20,14 @@ func TestScanner_Scan(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 
@@ -51,16 +61,17 @@ func TestScanner_Scan(t *testing.T) {
 			// +---------------------+
 
 			scanner := &Scanner{
-				DirPath:            dir,
-				Enhanced:           false,
-				Platform:           anilistPlatform,
-				Logger:             util.NewLogger(),
-				WSEventManager:     wsEventManager,
-				ExistingLocalFiles: existingLfs,
-				SkipLockedFiles:    false,
-				SkipIgnoredFiles:   false,
-				ScanLogger:         nil,
-				ScanSummaryLogger:  nil,
+				DirPath:             dir,
+				Enhanced:            false,
+				PlatformRef:         util.NewRef(anilistPlatform),
+				MetadataProviderRef: util.NewRef(metadataProvider),
+				Logger:              util.NewLogger(),
+				WSEventManager:      wsEventManager,
+				ExistingLocalFiles:  existingLfs,
+				SkipLockedFiles:     false,
+				SkipIgnoredFiles:    false,
+				ScanLogger:          nil,
+				ScanSummaryLogger:   nil,
 			}
 
 			lfs, err := scanner.Scan(t.Context())

@@ -22,10 +22,15 @@ func TestGojaAnimeTorrentProvider(t *testing.T) {
 	database, _ := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
-	metadataProvider := metadata_provider.GetMockProvider(t)
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	platform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	platformRef := util.NewRef(platform)
 
-	repo := NewPlaygroundRepository(logger, platform, metadataProvider)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
+	metadataProviderRef := util.NewRef(metadataProvider)
+
+	repo := NewPlaygroundRepository(logger, platformRef, metadataProviderRef)
 
 	// Get the script
 	filepath := "../extension_repo/goja_torrent_test/my-torrent-provider.ts"

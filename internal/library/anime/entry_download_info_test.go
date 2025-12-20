@@ -105,12 +105,12 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 			require.NoError(t, err)
 
 			info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
-				LocalFiles:       tt.localFiles,
-				Progress:         &tt.currentProgress,
-				Status:           &tt.status,
-				Media:            anilistEntry.Media,
-				MetadataProvider: metadataProvider,
-				AnimeMetadata:    animeMetadata,
+				LocalFiles:          tt.localFiles,
+				Progress:            &tt.currentProgress,
+				Status:              &tt.status,
+				Media:               anilistEntry.Media,
+				MetadataProviderRef: util.NewRef(metadataProvider),
+				AnimeMetadata:       animeMetadata,
 			})
 
 			if assert.NoError(t, err) && assert.NotNil(t, info) {
@@ -161,12 +161,12 @@ func TestNewEntryDownloadInfo2(t *testing.T) {
 	require.NoError(t, err)
 
 	info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
-		LocalFiles:       nil,
-		Progress:         lo.ToPtr(0),
-		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
-		Media:            anilistEntry.Media,
-		MetadataProvider: metadataProvider,
-		AnimeMetadata:    animeMetadata,
+		LocalFiles:          nil,
+		Progress:            lo.ToPtr(0),
+		Status:              lo.ToPtr(anilist.MediaListStatusCurrent),
+		Media:               anilistEntry.Media,
+		MetadataProviderRef: util.NewRef(metadataProvider),
+		AnimeMetadata:       animeMetadata,
 	})
 	require.NoError(t, err)
 

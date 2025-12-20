@@ -2,7 +2,9 @@ package anime_test
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -18,7 +20,11 @@ import (
 func TestNewAnimeEntry(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 	logger := util.NewLogger()
-	metadataProvider := metadata.GetMockProvider(t)
+
+	database, err := db.NewDatabase(t.TempDir(), "test", logger)
+	assert.NoError(t, err)
+
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	tests := []struct {
 		name                              string
@@ -71,7 +77,7 @@ func TestNewAnimeEntry(t *testing.T) {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 	if err != nil {
 		t.Fatal(err)
@@ -86,11 +92,11 @@ func TestNewAnimeEntry(t *testing.T) {
 			})
 
 			entry, err := anime.NewEntry(t.Context(), &anime.NewEntryOptions{
-				MediaId:          tt.mediaId,
-				LocalFiles:       tt.localFiles,
-				AnimeCollection:  animeCollection,
-				Platform:         anilistPlatform,
-				MetadataProvider: metadataProvider,
+				MediaId:             tt.mediaId,
+				LocalFiles:          tt.localFiles,
+				AnimeCollection:     animeCollection,
+				PlatformRef:         util.NewRef(anilistPlatform),
+				MetadataProviderRef: util.NewRef(metadataProvider),
 			})
 
 			if assert.NoErrorf(t, err, "Failed to get mock data") {

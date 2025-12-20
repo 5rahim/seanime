@@ -4826,6 +4826,7 @@ export type VideoCore_ServerEvent = "pause" |
     "show-message" |
     "play-playlist-episode" |
     "get-text-tracks" |
+    "request-play-episode" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

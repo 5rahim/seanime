@@ -733,65 +733,36 @@ func TestGojaPluginStorage(t *testing.T) {
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-func TestGojaPluginTryCatch(t *testing.T) {
+func TestGojaPluginStorage2(t *testing.T) {
 	payload := `
 	function init() {
-
-		$ui.register((ctx) => {
-			try {
-				throw new Error("test error")
-			} catch (e) {
-				console.log("catch", e)
-				$store.set("error", e)
-			}
-
-			try {
-				undefined.f()
-			} catch (e) {
-				console.log("catch 2", e)
-				$store.set("error2", e)
-			}
-			
-		})
-
-	}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.Payload = payload
-
-	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
-	require.NoError(t, err)
-
-	manager.PrintPluginPoolMetrics(opts.ID)
-
-	err1 := plugin.store.Get("error")
-	require.NotNil(t, err1)
-
-	err2 := plugin.store.Get("error2")
-	require.NotNil(t, err2)
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-func TestGojaSharedMemory(t *testing.T) {
-	payload := `
-	function init() {
-
-		$ui.register((ctx) => {
-			const state = ctx.state("test")
-
-			$store.set("state", state)
-			
-		})
 
 		$app.onGetAnime((e) => {
-			const state = $store.get("state")
-			console.log("state", state)
-			console.log("state value", state.get())
+
+			console.log("hook", $storage.get("object"))
 			e.next();
+		});
+
+		$ui.register((ctx) => {
+			
+			try {
+				$storage.set("object", { foo: "bar" })
+				const object1 = $storage.get("object")
+				console.log("object", object1)
+				$store.set("object", object1)
+				$storage.set("object", { foo: "bar", baz: { "1": { id: 1 } } })
+				const object2 = $storage.get("object")
+				console.log("object", object2)
+				$store.set("object", object2)
+
+				// Runs after first hook trigger
+				ctx.setTimeout(() => {
+					$storage.set("object", { foo: "bar", baz: { "1": { id: 1 }, "2": { id: 2 } } })
+				}, 1000)
+			} catch (e) {
+				console.error("Test failed", e)
+			}
+			
 		})
 
 	}
@@ -799,17 +770,32 @@ func TestGojaSharedMemory(t *testing.T) {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionDatabase,
+			extension.PluginPermissionStorage,
+		},
+	}
 
-	plugin, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	p, _, _, anilistPlatform, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
-	_ = plugin
 
-	manager.PrintPluginPoolMetrics(opts.ID)
+	_ = anilistPlatform
 
-	_, err = anilistPlatform.GetAnime(t.Context(), 178022)
-	require.NoError(t, err)
+	//manager.PrintPluginPoolMetrics(opts.ID)
 
-	time.Sleep(2 * time.Second)
+	//time.Sleep(2 * time.Second)
+	//
+	//_, err = anilistPlatform.GetAnime(t.Context(), 178022)
+	//require.NoError(t, err)
+
+	// Test basic sequential updates
+	object1 := p.store.Get("object")
+	require.NotNil(t, object1)
+	anilistPlatform.GetAnime(t.Context(), 178022)
+	time.Sleep(1500 * time.Millisecond)
+	anilistPlatform.GetAnime(t.Context(), 178022)
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////s

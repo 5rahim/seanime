@@ -2,11 +2,15 @@ package torrentstream
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
+	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
+	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"testing"
 
@@ -20,25 +24,29 @@ func TestStreamCollection(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, util.NewLogger())
+	if err != nil {
+		t.Fatalf("Failed to connect to database: %v", err)
+	}
 	logger := util.NewLogger()
-	metadataProvider := metadata.GetMockProvider(t)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 	require.NoError(t, err)
 	require.NotNil(t, animeCollection)
 
 	repo := NewRepository(&NewRepositoryOptions{
-		Logger:             logger,
-		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
-		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
-		Platform:           anilistPlatform,
-		MetadataProvider:   metadataProvider,
-		WSEventManager:     events.NewMockWSEventManager(logger),
-		TorrentRepository:  nil,
-		PlaybackManager:    nil,
-		Database:           nil,
+		Logger:              logger,
+		BaseAnimeCache:      anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache:  anilist.NewCompleteAnimeCache(),
+		PlatformRef:         util.NewRef(anilistPlatform),
+		MetadataProviderRef: util.NewRef(metadataProvider),
+		WSEventManager:      events.NewMockWSEventManager(logger),
+		TorrentRepository:   &torrent.Repository{},
+		PlaybackManager:     &playbackmanager.PlaybackManager{},
+		Database:            database,
 	})
 
 	// Mock Anilist collection and local files
@@ -65,10 +73,10 @@ func TestStreamCollection(t *testing.T) {
 	})
 
 	libraryCollection, err := anime.NewLibraryCollection(t.Context(), &anime.NewLibraryCollectionOptions{
-		AnimeCollection:  animeCollection,
-		LocalFiles:       lfs,
-		Platform:         anilistPlatform,
-		MetadataProvider: metadataProvider,
+		AnimeCollection:     animeCollection,
+		LocalFiles:          lfs,
+		PlatformRef:         util.NewRef(anilistPlatform),
+		MetadataProviderRef: util.NewRef(metadataProvider),
 	})
 	require.NoError(t, err)
 

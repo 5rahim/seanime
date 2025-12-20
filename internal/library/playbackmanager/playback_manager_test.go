@@ -6,6 +6,7 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -31,7 +32,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), true)
 	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	require.NoError(t, err)
@@ -42,16 +43,16 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 	})
 
 	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager:   wsEventManager,
-		Logger:           logger,
-		Platform:         anilistPlatform,
-		MetadataProvider: metadataProvider,
-		Database:         database,
+		WSEventManager:      wsEventManager,
+		Logger:              logger,
+		PlatformRef:         util.NewRef(anilistPlatform),
+		MetadataProviderRef: util.NewRef(metadataProvider),
+		Database:            database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
 		DiscordPresence:   nil,
-		IsOffline:         &[]bool{false}[0],
+		IsOfflineRef:      util.NewRef(false),
 		ContinuityManager: continuityManager,
 	}), animeCollection, nil
 }

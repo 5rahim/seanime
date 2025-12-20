@@ -558,6 +558,15 @@
           "comments": []
         },
         {
+          "name": "Episode",
+          "jsonName": "episode",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
           "name": "EpisodeNumber",
           "jsonName": "episodeNumber",
           "goType": "int",
@@ -631,6 +640,15 @@
           "usedTypescriptType": "Metadata_EpisodeMetadata",
           "usedStructName": "metadata.EpisodeMetadata",
           "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Episode",
+          "jsonName": "episode",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
           "public": true,
           "comments": []
         },

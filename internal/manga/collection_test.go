@@ -3,6 +3,8 @@ package manga
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -13,9 +15,14 @@ func TestNewCollection(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
+	db, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, util.NewLogger())
+	if err != nil {
+		t.Fatalf("Failed to connect to database: %v", err)
+	}
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), extensionBankRef, logger, db)
 
 	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
@@ -24,7 +31,7 @@ func TestNewCollection(t *testing.T) {
 
 	opts := &NewCollectionOptions{
 		MangaCollection: mangaCollection,
-		Platform:        anilistPlatform,
+		PlatformRef:     util.NewRef(anilistPlatform),
 	}
 
 	collection, err := NewCollection(opts)

@@ -26008,6 +26008,15 @@
         "comments": []
       },
       {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "EpisodeNumber",
         "jsonName": "episodeNumber",
         "goType": "int",
@@ -26051,6 +26060,15 @@
         "usedTypescriptType": "Metadata_EpisodeMetadata",
         "usedStructName": "metadata.EpisodeMetadata",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -85974,6 +85992,7 @@
         "\"show-message\"",
         "\"play-playlist-episode\"",
         "\"get-text-tracks\"",
+        "\"request-play-episode\"",
         "\"get-fullscreen\"",
         "\"get-pip\"",
         "\"get-anime-4k\"",

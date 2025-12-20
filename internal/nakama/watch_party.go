@@ -27,13 +27,16 @@ const (
 	MessageTypeWatchPartyRelayModePeersReady    = "watch_party_relay_mode_peers_ready"    // Relay server signals to origin that all peers are ready
 	MessageTypeWatchPartyRelayModePeerBuffering = "watch_party_relay_mode_peer_buffering" // Relay server signals to origin the buffering status (tells origin to pause/unpause)
 	// Peer -> Host
-	MessageTypeWatchPartyJoin                           = "watch_party_join"                               // Peer joins a watch party
-	MessageTypeWatchPartyLeave                          = "watch_party_leave"                              // Peer leaves a watch party
-	MessageTypeWatchPartyPeerStatus                     = "watch_party_peer_status"                        // Peer reports their current status to host
-	MessageTypeWatchPartyBufferUpdate                   = "watch_party_buffer_update"                      // Peer reports buffering state to host
+	MessageTypeWatchPartyJoin         = "watch_party_join"          // Peer joins a watch party
+	MessageTypeWatchPartyLeave        = "watch_party_leave"         // Peer leaves a watch party
+	MessageTypeWatchPartyPeerStatus   = "watch_party_peer_status"   // Peer reports their current status to host
+	MessageTypeWatchPartyBufferUpdate = "watch_party_buffer_update" // Peer reports buffering state to host
+	// Relay mode, Origin (Peer) -> Relay (Host) -> Peers
 	MessageTypeWatchPartyRelayModeOriginStreamStarted   = "watch_party_relay_mode_origin_stream_started"   // Relay origin sends is starting a stream, the host will start it too
 	MessageTypeWatchPartyRelayModeOriginPlaybackStatus  = "watch_party_relay_mode_origin_playback_status"  // Relay origin sends playback status to relay server
 	MessageTypeWatchPartyRelayModeOriginPlaybackStopped = "watch_party_relay_mode_origin_playback_stopped" // Relay origin sends playback stopped to relay server
+	// Seanime Watch Party Rooms, Host -> Seanime Watch Party Room API -> Peers
+
 	// Chat
 	MessageTypeWatchPartyChatMessage = "watch_party_chat_message" // Chat message sent by any participant
 )
