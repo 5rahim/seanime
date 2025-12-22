@@ -1857,6 +1857,37 @@
 //     })
 // }
 
+// export function useNakamaRoomsAvailable() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaRoomsAvailable.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaRoomsAvailable.methods[0],
+//         queryKey: [API_ENDPOINTS.NAKAMA.NakamaRoomsAvailable.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useNakamaCreateAndJoinRoom() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaCreateAndJoinRoom.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaCreateAndJoinRoom.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaCreateAndJoinRoom.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useNakamaDisconnectFromRoom() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.NAKAMA.NakamaDisconnectFromRoom.endpoint,
+//         method: API_ENDPOINTS.NAKAMA.NakamaDisconnectFromRoom.methods[0],
+//         mutationKey: [API_ENDPOINTS.NAKAMA.NakamaDisconnectFromRoom.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useNakamaCreateWatchParty() {
 //     return useServerMutation<boolean, NakamaCreateWatchParty_Variables>({
 //         endpoint: API_ENDPOINTS.NAKAMA.NakamaCreateWatchParty.endpoint,

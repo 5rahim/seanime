@@ -415,7 +415,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             </div>
                         )}
 
-                        {busy && !inline && (
+                        {busy && (
                             <>
                                 {!!skipOpeningTime && !isMiniPlayer && (
                                     <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">

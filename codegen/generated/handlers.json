@@ -7377,6 +7377,93 @@
     }
   },
   {
+    "name": "HandleNakamaRoomsAvailable",
+    "trimmedName": "NakamaRoomsAvailable",
+    "comments": [
+      "HandleNakamaRoomsAvailable",
+      "",
+      "\t@summary returns true if the Rooms API is available.",
+      "\t@route /api/v1/nakama/room/available [GET]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "returns true if the Rooms API is available.",
+      "descriptions": [],
+      "endpoint": "/api/v1/nakama/room/available",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaCreateAndJoinRoom",
+    "trimmedName": "NakamaCreateAndJoinRoom",
+    "comments": [
+      "HandleNakamaCreateAndJoinRoom",
+      "",
+      "\t@summary creates a Seanime Room and connects to it as host.",
+      "\t@desc This creates a room on the Seanime Rooms relay server and connects as the host. Peers can then join using the returned URL.",
+      "\t@route /api/v1/nakama/room/create [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "creates a Seanime Room and connects to it as host.",
+      "descriptions": [
+        "This creates a room on the Seanime Rooms relay server and connects as the host. Peers can then join using the returned URL."
+      ],
+      "endpoint": "/api/v1/nakama/room/create",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleNakamaDisconnectFromRoom",
+    "trimmedName": "NakamaDisconnectFromRoom",
+    "comments": [
+      "HandleNakamaDisconnectFromRoom",
+      "",
+      "\t@summary disconnects the host from the current room.",
+      "\t@desc This closes the room connection and returns to direct mode.",
+      "\t@route /api/v1/nakama/room/disconnect [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/nakama.go",
+    "filename": "nakama.go",
+    "api": {
+      "summary": "disconnects the host from the current room.",
+      "descriptions": [
+        "This closes the room connection and returns to direct mode."
+      ],
+      "endpoint": "/api/v1/nakama/room/disconnect",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleNakamaCreateWatchParty",
     "trimmedName": "NakamaCreateWatchParty",
     "comments": [

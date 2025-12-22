@@ -137,8 +137,13 @@ type WatchPartySession struct {
 	Settings         *WatchPartySessionSettings               `json:"settings"`
 	CreatedAt        time.Time                                `json:"createdAt"`
 	CurrentMediaInfo *WatchPartySessionMediaInfo              `json:"currentMediaInfo"` // can be nil if not set
-	IsRelayMode      bool                                     `json:"isRelayMode"`      // Whether this session is in relay mode
-	mu               sync.RWMutex                             `json:"-"`
+	// Whether this session is in relay mode
+	// In this case, the host will act as a relay server and relay status from the origin (a chosen peer) to all other peers
+	IsRelayMode bool `json:"isRelayMode"`
+	// Whether this session is using the Seanime Watch Party Rooms API
+	// In this case, the host will broadcast playback status via a  relay server
+	IsRoom bool         `json:"isRoom"`
+	mu     sync.RWMutex `json:"-"`
 }
 
 type WatchPartySessionParticipant struct {
@@ -503,12 +508,11 @@ func (wpm *WatchPartyManager) SendChatMessage(message string) error {
 	if wpm.manager.IsHost() {
 		// Host broadcasts to all peers
 		_ = wpm.manager.SendMessage(MessageTypeWatchPartyChatMessage, payload)
-		// Host also triggers local event for self since SendMessage doesn't send to self
+		// Send local event since SendMessage doesn't send to self
 		wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyChatMessage, &payload)
 	} else {
 		// Peer sends to host, host will broadcast it back to all peers including sender
 		_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyChatMessage, payload)
-		// Don't trigger local event here - we'll receive it via broadcast from host
 	}
 
 	return nil

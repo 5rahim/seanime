@@ -58,7 +58,7 @@ func (m *Manager) generateHMACToken(endpoint string) (string, error) {
 }
 
 func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs []*anime.LocalFile, customSourceMap NakamaCustomSourceMap, hydrated bool) {
-	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() || m.IsRoomConnection() {
 		return nil, nil, false
 	}
 
@@ -107,7 +107,7 @@ func (m *Manager) GetHostAnimeLibraryFiles(ctx context.Context, mId ...int) (lfs
 }
 
 func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibrary, hydrated bool) {
-	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() {
+	if !m.settings.Enabled || !m.settings.IncludeNakamaAnimeLibrary || !m.IsConnectedToHost() || m.IsRoomConnection() {
 		return nil, false
 	}
 
@@ -144,7 +144,7 @@ func (m *Manager) GetHostAnimeLibrary(ctx context.Context) (ac *NakamaAnimeLibra
 }
 
 func (m *Manager) PlayHostAnimeLibraryFile(path string, userAgent string, clientId string, media *anilist.BaseAnime, aniDBEpisode string, forcePlaybackMethod string) error {
-	if !m.settings.Enabled || !m.IsConnectedToHost() {
+	if !m.settings.Enabled || !m.IsConnectedToHost() || m.IsRoomConnection() {
 		return errors.New("not connected to host")
 	}
 

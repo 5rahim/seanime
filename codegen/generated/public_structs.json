@@ -62488,6 +62488,23 @@
   {
     "filepath": "../internal/nakama/nakama.go",
     "filename": "nakama.go",
+    "name": "ConnectionMode",
+    "formattedName": "Nakama_ConnectionMode",
+    "package": "nakama",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"direct\"",
+        "\"rooms\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/nakama.go",
+    "filename": "nakama.go",
     "name": "Manager",
     "formattedName": "Nakama_Manager",
     "package": "nakama",
@@ -62710,6 +62727,39 @@
         "comments": [
           " Flag to prevent multiple concurrent reconnection attempts"
         ]
+      },
+      {
+        "name": "currentRoom",
+        "jsonName": "currentRoom",
+        "goType": "Room",
+        "typescriptType": "Nakama_Room",
+        "usedTypescriptType": "Nakama_Room",
+        "usedStructName": "nakama.Room",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "connectionMode",
+        "jsonName": "connectionMode",
+        "goType": "ConnectionMode",
+        "typescriptType": "Nakama_ConnectionMode",
+        "usedTypescriptType": "Nakama_ConnectionMode",
+        "usedStructName": "nakama.ConnectionMode",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "roomMu",
+        "jsonName": "roomMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedTypescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
       },
       {
         "name": "cancel",
@@ -63229,6 +63279,17 @@
         "comments": []
       },
       {
+        "name": "ConnectionMode",
+        "jsonName": "ConnectionMode",
+        "goType": "ConnectionMode",
+        "typescriptType": "Nakama_ConnectionMode",
+        "usedTypescriptType": "Nakama_ConnectionMode",
+        "usedStructName": "nakama.ConnectionMode",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "reconnectTimer",
         "jsonName": "reconnectTimer",
         "goType": "time.Timer",
@@ -63458,6 +63519,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ConnectionMode",
+        "jsonName": "connectionMode",
+        "goType": "ConnectionMode",
+        "typescriptType": "Nakama_ConnectionMode",
+        "usedTypescriptType": "Nakama_ConnectionMode",
+        "usedStructName": "nakama.ConnectionMode",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -63519,6 +63591,30 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ConnectionMode",
+        "jsonName": "connectionMode",
+        "goType": "ConnectionMode",
+        "typescriptType": "Nakama_ConnectionMode",
+        "usedTypescriptType": "Nakama_ConnectionMode",
+        "usedStructName": "nakama.ConnectionMode",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentRoom",
+        "jsonName": "currentRoom",
+        "goType": "Room",
+        "typescriptType": "Nakama_Room",
+        "usedTypescriptType": "Nakama_Room",
+        "usedStructName": "nakama.Room",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Current room if in rooms mode"
+        ]
       }
     ],
     "comments": [
@@ -63605,6 +63701,229 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/room.go",
+    "filename": "room.go",
+    "name": "Room",
+    "formattedName": "Nakama_Room",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "roomId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HostWsUrl",
+        "jsonName": "hostWsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PeerJoinUrl",
+        "jsonName": "peerJoinUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "expiresAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Password",
+        "jsonName": "",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Not returned by API, kept for reconnection"
+        ]
+      }
+    ],
+    "comments": [
+      " Room represents a Seanime Rooms relay room"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/room.go",
+    "filename": "room.go",
+    "name": "RoomInfo",
+    "formattedName": "Nakama_RoomInfo",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "RoomID",
+        "jsonName": "roomId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsActive",
+        "jsonName": "isActive",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HostConnected",
+        "jsonName": "hostConnected",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PeerCount",
+        "jsonName": "peerCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "expiresAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " RoomInfo represents information about a room to be sent to the client"
+    ]
+  },
+  {
+    "filepath": "../internal/nakama/room.go",
+    "filename": "room.go",
+    "name": "CreateRoomRequest",
+    "formattedName": "Nakama_CreateRoomRequest",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "Password",
+        "jsonName": "password",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/nakama/room.go",
+    "filename": "room.go",
+    "name": "CreateRoomResponse",
+    "formattedName": "Nakama_CreateRoomResponse",
+    "package": "nakama",
+    "fields": [
+      {
+        "name": "RoomID",
+        "jsonName": "roomId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HostWsUrl",
+        "jsonName": "hostWsUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PeerJoinUrl",
+        "jsonName": "peerJoinUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "expiresAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -64171,9 +64490,16 @@
         "typescriptType": "boolean",
         "required": true,
         "public": true,
-        "comments": [
-          " Whether this session is in relay mode"
-        ]
+        "comments": []
+      },
+      {
+        "name": "IsRoom",
+        "jsonName": "isRoom",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       },
       {
         "name": "mu",

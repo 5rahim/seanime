@@ -1501,6 +1501,31 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/nakama/cleanup",
         },
+        NakamaRoomsAvailable: {
+            key: "NAKAMA-nakama-rooms-available",
+            methods: ["GET"],
+            endpoint: "/api/v1/nakama/room/available",
+        },
+        /**
+         *  @description
+         *  Route creates a Seanime Room and connects to it as host.
+         *  This creates a room on the Seanime Rooms relay server and connects as the host. Peers can then join using the returned URL.
+         */
+        NakamaCreateAndJoinRoom: {
+            key: "NAKAMA-nakama-create-and-join-room",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/room/create",
+        },
+        /**
+         *  @description
+         *  Route disconnects the host from the current room.
+         *  This closes the room connection and returns to direct mode.
+         */
+        NakamaDisconnectFromRoom: {
+            key: "NAKAMA-nakama-disconnect-from-room",
+            methods: ["POST"],
+            endpoint: "/api/v1/nakama/room/disconnect",
+        },
         /**
          *  @description
          *  Route creates a new watch party session.

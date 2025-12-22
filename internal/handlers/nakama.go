@@ -703,6 +703,57 @@ func (h *Handler) HandleNakamaRemoveStaleConnections(c echo.Context) error {
 	return h.RespondWithData(c, response)
 }
 
+// HandleNakamaRoomsAvailable
+//
+//	@summary returns true if the Rooms API is available.
+//	@route /api/v1/nakama/room/available [GET]
+//	@returns bool
+func (h *Handler) HandleNakamaRoomsAvailable(c echo.Context) error {
+	if !h.App.Settings.GetNakama().IsHost {
+		return h.RespondWithData(c, false)
+	}
+
+	return h.RespondWithData(c, h.App.NakamaManager.RoomsAvailable())
+}
+
+// HandleNakamaCreateAndJoinRoom
+//
+//	@summary creates a Seanime Room and connects to it as host.
+//	@desc This creates a room on the Seanime Rooms relay server and connects as the host. Peers can then join using the returned URL.
+//	@route /api/v1/nakama/room/create [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaCreateAndJoinRoom(c echo.Context) error {
+	if !h.App.Settings.GetNakama().IsHost {
+		return h.RespondWithError(c, errors.New("not acting as host"))
+	}
+
+	err := h.App.NakamaManager.CreateAndJoinRoom()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
+// HandleNakamaDisconnectFromRoom
+//
+//	@summary disconnects the host from the current room.
+//	@desc This closes the room connection and returns to direct mode.
+//	@route /api/v1/nakama/room/disconnect [POST]
+//	@returns bool
+func (h *Handler) HandleNakamaDisconnectFromRoom(c echo.Context) error {
+	if !h.App.Settings.GetNakama().IsHost {
+		return h.RespondWithError(c, errors.New("not acting as host"))
+	}
+
+	err := h.App.NakamaManager.DisconnectFromRoom()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, true)
+}
+
 // HandleNakamaCreateWatchParty
 //
 //	@summary creates a new watch party session.
