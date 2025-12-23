@@ -80,6 +80,7 @@ export function NakamaManager() {
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const clientId = useAtomValue(clientIdAtom)
+    const serverStatus = useServerStatus()
 
     const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
 
@@ -385,21 +386,45 @@ export function NakamaManager() {
                                         </div>
                                         <div className="p-4 border rounded-lg bg-gray-950 space-y-3">
                                             <div className="space-y-1">
-                                                <span className="text-sm text-[--muted]">Nakama Host URL for Peers</span>
+                                                <span className="text-sm text-[--muted]">Nakama Host URL and Passcode</span>
                                                 <div className="flex items-center gap-2">
                                                     <TextInput
                                                         readOnly
+                                                        leftAddon="Host URL"
                                                         value={`room://${roomInfo.roomId}`}
                                                         onClick={(e) => e.currentTarget.select()}
+                                                        addonClass="font-bold tracking-wide text-sm pr-2"
+                                                        rightAddon={<>
+                                                            <IconButton
+                                                                size="sm"
+                                                                intent="gray-basic"
+                                                                onClick={() => {
+                                                                    copyToClipboard(`room://${roomInfo.roomId}`)
+                                                                        .then(() => toast.success("Copied to clipboard"))
+                                                                }}
+                                                                icon={<LuClipboard />}
+                                                            />
+                                                        </>}
                                                     />
-                                                    <IconButton
-                                                        size="sm"
-                                                        intent="gray-subtle"
-                                                        onClick={() => {
-                                                            copyToClipboard(`room://${roomInfo.roomId}`)
-                                                                .then(() => toast.success("Copied to clipboard"))
-                                                        }}
-                                                        icon={<LuClipboard />}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <TextInput
+                                                        readOnly
+                                                        leftAddon="Passcode"
+                                                        value={serverStatus?.settings?.nakama?.hostPassword || "No password set"}
+                                                        onClick={(e) => e.currentTarget.select()}
+                                                        addonClass="font-bold tracking-wide text-sm pr-2"
+                                                        rightAddon={<>
+                                                            <IconButton
+                                                                size="sm"
+                                                                intent="gray-basic"
+                                                                onClick={() => {
+                                                                    copyToClipboard(serverStatus?.settings?.nakama?.hostPassword || "")
+                                                                        .then(() => toast.success("Copied to clipboard"))
+                                                                }}
+                                                                icon={<LuClipboard />}
+                                                            />
+                                                        </>}
                                                     />
                                                 </div>
                                             </div>

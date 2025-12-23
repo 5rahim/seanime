@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"seanime/internal/constants"
 	"seanime/internal/events"
 	"seanime/internal/util"
@@ -17,6 +18,19 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true // Allow connections from any origin
 	},
+}
+
+// buildRoomHostWsURL constructs the WebSocket URL with properly escaped parameters
+func buildRoomHostWsURL(baseURL, password, version string) (string, error) {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", err
+	}
+	q := u.Query()
+	q.Set("password", password)
+	q.Set("version", version)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
 }
 
 // startHostServices initializes the host services
@@ -107,7 +121,12 @@ func (m *Manager) CreateAndJoinRoom() error {
 // connectToRoomAsHost establishes a WebSocket connection to the room as host
 func (m *Manager) connectToRoomAsHost(room *Room) {
 	// Websocket URL to connect to
-	wsURL := fmt.Sprintf("%s?password=%s&version=%s", room.HostWsUrl, room.Password, constants.Version)
+	wsURL, err := buildRoomHostWsURL(room.HostWsUrl, room.Password, constants.Version)
+	if err != nil {
+		m.logger.Error().Err(err).Msg("nakama: Failed to build room host WS URL")
+		m.wsEventManager.SendEvent(events.ErrorToast, "Failed to parse room URL")
+		return
+	}
 	m.logger.Info().Str("roomId", room.ID).Str("wsUrl", wsURL).Msg("nakama: Connecting to room as host")
 
 	// Create connection
@@ -283,6 +302,9 @@ func (m *Manager) reconnectToRoomAsHost(room *Room) {
 	maxRetries := 5
 	retryDelay := 5 * time.Second
 
+	var conn *websocket.Conn
+	var err error
+
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		select {
 		case <-m.ctx.Done():
@@ -291,14 +313,18 @@ func (m *Manager) reconnectToRoomAsHost(room *Room) {
 		default:
 		}
 
-		wsURL := fmt.Sprintf("%s?password=%s&version=%s", room.HostWsUrl, room.Password, constants.Version)
+		wsURL, parseErr := buildRoomHostWsURL(room.HostWsUrl, room.Password, constants.Version)
+		if parseErr != nil {
+			m.logger.Error().Err(parseErr).Msg("nakama: Failed to build room host WS URL")
+			return
+		}
 
 		// Create connection
 		dialer := websocket.Dialer{
 			HandshakeTimeout: 10 * time.Second,
 		}
 
-		conn, _, err := dialer.Dial(wsURL, nil)
+		conn, _, err = dialer.Dial(wsURL, nil)
 		if err != nil {
 			m.logger.Error().Err(err).Int("attempt", attempt+1).Msg("nakama: Failed to reconnect to room")
 

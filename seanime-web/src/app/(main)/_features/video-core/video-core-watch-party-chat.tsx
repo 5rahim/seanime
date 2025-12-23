@@ -50,7 +50,7 @@ export function VideoCoreWatchPartyChat() {
         }
         previousCountRef.current = unreadCount
         if (!!unreadCount) {
-            flashAction({ message: `New chat message (${unreadCount})`, duration: 600 })
+            flashAction({ message: `New chat message (${unreadCount})`, duration: 1000 })
         }
     }, [unreadCount])
 

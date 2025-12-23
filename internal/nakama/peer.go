@@ -346,14 +346,17 @@ func (m *Manager) attemptRoomConnection(connCtx context.Context) error {
 
 	roomId := strings.TrimPrefix(m.settings.RemoteServerURL, "room://")
 
-	wsURL := fmt.Sprintf("%s/%s/peer?password=%s&peerId=%s&name=%s&version=%s",
-		constants.SeanimeRoomsApiWsUrl,
-		roomId,
-		m.settings.RemoteServerPassword,
-		peerID,
-		url.QueryEscape(username),
-		constants.Version,
-	)
+	u, err := url.Parse(fmt.Sprintf("%s/%s/peer", constants.SeanimeRoomsApiWsUrl, roomId))
+	if err != nil {
+		return err
+	}
+	q := u.Query()
+	q.Set("password", m.settings.RemoteServerPassword)
+	q.Set("peerId", peerID)
+	q.Set("name", username)
+	q.Set("version", constants.Version)
+	u.RawQuery = q.Encode()
+	wsURL := u.String()
 
 	// Create a dialer with the connection context
 	dialer := websocket.Dialer{
