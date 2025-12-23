@@ -55,13 +55,14 @@ func (m *Manager) RoomsAvailable() bool {
 	}
 
 	var createResp struct {
-		Status string `json:"status"`
+		Status  string `json:"status"`
+		Version string `json:"version"`
 	}
 	if err := json.Unmarshal(resp.Bytes(), &createResp); err != nil {
 		return false
 	}
 
-	if createResp.Status != "healthy" {
+	if createResp.Status != "healthy" && createResp.Version != constants.SeanimeRoomsVersion {
 		return false
 	}
 
@@ -76,6 +77,11 @@ func (m *Manager) CreateAndJoinRoom() error {
 
 	if m.settings == nil || m.settings.HostPassword == "" {
 		return errors.New("host password not set")
+	}
+
+	// Check if Rooms API is available
+	if !m.RoomsAvailable() {
+		return errors.New("rooms API not available")
 	}
 
 	// Create room

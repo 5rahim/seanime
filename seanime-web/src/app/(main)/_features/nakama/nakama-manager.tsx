@@ -20,6 +20,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
 import { BetaBadge, ExperimentalBadge } from "@/components/shared/beta-badge"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -293,6 +294,15 @@ export function NakamaManager() {
         },
     })
 
+    const confirmRoom = useConfirmationDialog({
+        title: "Create a Cloud Room",
+        description: "By continuing, you agree to broadcast your playback state through Seanime's servers to sync with peers only the room is active. You are limited to 10 rooms per day and 4 peers per room (subject to change).",
+        onConfirm: () => {
+            handleCreateRoom()
+        },
+        actionIntent: "white-glass",
+    })
+
     return <>
         <Modal
             open={isModalOpen}
@@ -406,16 +416,16 @@ export function NakamaManager() {
                                         <div className="flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="font-bold">
-                                                    Cloud Rooms <ExperimentalBadge />
+                                                    Cloud Rooms <ExperimentalBadge title="Public Beta" />
                                                 </p>
                                                 <p className="text-sm text-[--muted] pr-4">
-                                                    Cloud Rooms use Seanime's API to enable hosting a watch party without exposing your server to the
+                                                    Cloud Rooms use Seanime's API to enable hosting watch parties without exposing your server to the
                                                     internet.
                                                 </p>
                                             </div>
                                             <Tooltip
                                                 trigger={<Button
-                                                    onClick={handleCreateRoom}
+                                                    onClick={confirmRoom.open}
                                                     disabled={isCreatingRoom}
                                                     size="sm"
                                                     intent="white-glass"
@@ -520,6 +530,8 @@ export function NakamaManager() {
                 </div>
             )}
         </Modal>
+
+        <ConfirmationDialog {...confirmRoom} />
     </>
 }
 

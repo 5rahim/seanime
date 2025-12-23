@@ -653,7 +653,7 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
         // devnote: jassub scales down to 30% of the og scale
         // /jassub/blob/main/src/JASSUB.cpp#L709
-        const customStyle = {
+        let customStyle = {
             Name: "CustomDefault",
             FontName: DEFAULT_FONT_NAME, // opts.fontName || DEFAULT_FONT_NAME,
             FontSize: vc_getSubtitleStyle(opts, "fontSize"),
@@ -682,10 +682,6 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
             treat_fontname_as_pattern: 0,
         }
 
-        // Apply the style override
-        this.libassRenderer.styleOverride(customStyle)
-        subtitleLog.info("Applied subtitle customization override", customStyle)
-
         // Apply font change
         // fontName can be something like "Noto Sans SC" or "Noto Sans SC.ttf"
         if (opts.fontName) {
@@ -697,19 +693,27 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
 
             // if the font is not already loaded, load it
             const fontName = _fontName.split(".")[0]
-            if (this.fonts.includes(url)) {
-                subtitleLog.info("Setting default font to", fontName)
-                this.libassRenderer.setDefaultFont(fontName)
-                return
-            }
 
             subtitleLog.info("Applying font change", url, ", setting default font to", fontName)
-            this.fonts.push(url)
-            this.libassRenderer.addFont(url)
+            if (!this.fonts.includes(url)) {
+                subtitleLog.info("Adding font", fontName)
+                // this.libassRenderer.setDefaultFont(fontName)
+                this.fonts.push(url)
+                this.libassRenderer.addFont(url)
+            }
             this.libassRenderer!.setDefaultFont(fontName)
+
+            customStyle.FontName = fontName
+            // Apply the style override
+            this.libassRenderer.styleOverride(customStyle)
+
+            this.libassRenderer.resize()
         } else {
             this.libassRenderer.setDefaultFont(DEFAULT_FONT_NAME)
+            // Apply the style override
+            this.libassRenderer.styleOverride(customStyle)
         }
+        subtitleLog.info("Applied subtitle customization override", customStyle)
     }
 
     private __eventMapKey(event: MKVParser_SubtitleEvent): string {
