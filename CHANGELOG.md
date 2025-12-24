@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Torrent streaming: Fixed auto play starting wrong torrent in some cases
 - 🦺 Nakama: Fixed peers kicked out of watch party when playback ends
 - 🦺 Nakama: Restrict skip actions when watch party is active
-- 🏗️ Plugins: Updated and fixed some APIs
+- 🏗️ Settings: Updated Nakama settings layout
 
 ## v3.2.2
 
