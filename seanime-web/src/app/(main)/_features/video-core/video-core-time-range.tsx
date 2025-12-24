@@ -1,3 +1,4 @@
+import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import {
     vc_closestBufferedTime,
     vc_currentTime,
@@ -50,6 +51,8 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const {
         chapterCues,
     } = props
+
+    const { isPeer: isWatchPartyPeer } = useNakamaWatchParty()
 
     const videoElement = useAtomValue(vc_videoElement)
     const isMobile = useAtomValue(vc_isMobile)
@@ -120,6 +123,11 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     React.useEffect(() => {
         if (!opEdChapters.opening?.end && !opEdChapters.ending?.end) return
         if (isNaN(duration) || duration <= 1) return
+        if (isWatchPartyPeer) {
+            setSkipOpeningTime(0)
+            setSkipEndingTime(0)
+            return
+        }
 
         // e.currentTarget.currentTime >= aniSkipData.op.interval.startTime &&
         //             e.currentTarget.currentTime < aniSkipData.op.interval.endTime
@@ -158,7 +166,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             setSkipEndingTime(0)
         }
 
-    }, [currentTime, autoSkipIntroOutro, opEdChapters, duration, restoreProgressTo])
+    }, [currentTime, autoSkipIntroOutro, opEdChapters, duration, restoreProgressTo, isWatchPartyPeer])
 
     // start seeking
     function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -172,6 +180,9 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
         }
         e.currentTarget.setPointerCapture(e.pointerId) // capture movement outside
         setSeeking(true)
+
+        if (isWatchPartyPeer) return
+
         // pause while seeking
         setPreviouslyPaused(videoElement.paused)
         if (!videoElement.paused) videoElement.pause()
@@ -194,8 +205,10 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             e.currentTarget.releasePointerCapture(e.pointerId)
         }
         setSeeking(false)
-        // actually seek the video
-        action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
+        if (!isWatchPartyPeer) {
+            // actually seek the video
+            action({ type: "seekTo", payload: { time: (duration * seekingTargetProgress) / 100 } })
+        }
         // resume playing
         if (!previouslyPaused) videoElement?.play()?.catch()
     }

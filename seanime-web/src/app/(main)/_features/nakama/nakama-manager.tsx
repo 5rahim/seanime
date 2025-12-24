@@ -68,9 +68,16 @@ export function useNakamaWatchParty() {
         return nakamaStatus?.isHost || !!(currentUserPeerId && currentUserPeerId in watchPartySession.participants)
     }, [watchPartySession, nakamaStatus, currentUserPeerId])
 
+    const isPeer = React.useMemo(() => {
+        if (!isParticipant || currentUserPeerId === "host" || !currentUserPeerId || !watchPartySession) return false
+        return !watchPartySession?.participants?.[currentUserPeerId]?.isRelayOrigin
+    }, [watchPartySession])
+
     return {
         watchPartySession,
         isParticipant,
+        isPeer: isPeer,
+        isHost: currentUserPeerId === "host",
         currentUserPeerId,
     }
 }
@@ -384,6 +391,9 @@ export function NakamaManager() {
                                                 {isDisconnectingFromRoom ? "Disconnecting..." : "Disconnect"}
                                             </Button>
                                         </div>
+                                        <p className="text-sm text-[--muted]">
+                                            Cloud Rooms do not support local file and debrid playback.
+                                        </p>
                                         <div className="p-4 border rounded-lg bg-gray-950 space-y-3">
                                             <div className="space-y-1">
                                                 <span className="text-sm text-[--muted]">Nakama Host URL and Passcode</span>
@@ -524,6 +534,7 @@ export function NakamaManager() {
                                     isHost={isHost}
                                     onLeave={handleLeaveWatchParty}
                                     isLeaving={isLeavingWatchParty}
+                                    isRoom={nakamaStatus.connectionMode === "rooms"}
                                 />
                             )
                         }
@@ -680,9 +691,10 @@ interface WatchPartySessionViewProps {
     isHost: boolean
     onLeave: () => void
     isLeaving: boolean
+    isRoom: boolean
 }
 
-function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPartySessionViewProps) {
+function WatchPartySessionView({ session, isHost, onLeave, isLeaving, isRoom }: WatchPartySessionViewProps) {
     const { sendMessage } = useWebsocketSender()
     const nakamaStatus = useNakamaStatus()
     const participants = Object.values(session.participants || {})
@@ -707,7 +719,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                 <h4 className="flex items-center gap-2"><LuPopcorn className="size-6" /> Watch Party</h4>
                 <div className="flex items-center gap-2">
                     {/*Enable relay mode*/}
-                    {isHost && !session.isRelayMode && (
+                    {isHost && !session.isRelayMode && !isRoom && (
                         <Tooltip
                             trigger={<IconButton
                                 size="sm"

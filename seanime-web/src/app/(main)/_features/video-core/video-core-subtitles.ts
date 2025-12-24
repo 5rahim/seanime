@@ -685,34 +685,33 @@ Style: Default, Roboto Medium,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0
         // Apply font change
         // fontName can be something like "Noto Sans SC" or "Noto Sans SC.ttf"
         if (opts.fontName) {
+            // clean font name
             const _fontName = opts.fontName.trim()
             let url = getAssetUrl(`${_fontName}.woff2`)
             if (_fontName.includes(".")) {
                 url = getAssetUrl(_fontName) // use the fontname as filename if there's an extension
             }
-
-            // if the font is not already loaded, load it
             const fontName = _fontName.split(".")[0]
 
             subtitleLog.info("Applying font change", url, ", setting default font to", fontName)
+
+            // add font if it's not already added
             if (!this.fonts.includes(url)) {
-                subtitleLog.info("Adding font", fontName)
+                subtitleLog.info("Adding font to renderer", fontName)
                 // this.libassRenderer.setDefaultFont(fontName)
                 this.fonts.push(url)
                 this.libassRenderer.addFont(url)
             }
+
             this.libassRenderer!.setDefaultFont(fontName)
-
             customStyle.FontName = fontName
-            // Apply the style override
             this.libassRenderer.styleOverride(customStyle)
-
-            this.libassRenderer.resize()
         } else {
             this.libassRenderer.setDefaultFont(DEFAULT_FONT_NAME)
-            // Apply the style override
             this.libassRenderer.styleOverride(customStyle)
         }
+
+        this.libassRenderer.resize()
         subtitleLog.info("Applied subtitle customization override", customStyle)
     }
 

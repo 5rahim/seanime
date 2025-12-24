@@ -102,7 +102,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
-    const { isParticipant } = useNakamaWatchParty()
+    const { isPeer: isWatchPartyPeer } = useNakamaWatchParty()
     const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
     const isLoadingFromWatchPartyRef = React.useRef(false)
 
@@ -349,10 +349,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const episodeListLoading = isFetchingEpisodeList || isLoadingEpisodeList
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
-
-    const isWatchPartyPeer = React.useMemo(() => {
-        return isParticipant && !!nakamaStatus?.hostConnectionStatus && !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
-    }, [nakamaStatus, isParticipant])
 
     /*
      * Set episode number on mount

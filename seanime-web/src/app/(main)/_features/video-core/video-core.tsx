@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
+import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
@@ -706,6 +707,8 @@ export function VideoCore(props: VideoCoreProps) {
     useVideoCoreBindings(videoRef, state.playbackInfo)
     useVideoCorePlaylistSetup(state, onPlayEpisode)
 
+    const { isParticipant: isWatchPartyParticipant } = useNakamaWatchParty()
+
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
 
@@ -1148,7 +1151,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Video ended")
         subtitleManager?.pgsRenderer?.stop()
         onEnded?.()
-        if (autoNext) {
+        if (autoNext && !isWatchPartyParticipant) {
             // videoRef?.current?.pause()
             playEpisode("next")
         }
@@ -1304,6 +1307,9 @@ export function VideoCore(props: VideoCoreProps) {
             // if (autoPlay) {
             //     videoRef.current.play().catch()
             // }
+
+            // Do nothing if the stream is not seekable
+            if (isWatchPartyParticipant) return
 
             dispatchCanPlayEvent()
 

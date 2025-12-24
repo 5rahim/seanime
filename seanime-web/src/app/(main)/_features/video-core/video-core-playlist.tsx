@@ -3,6 +3,7 @@ import { useGetAnimeEpisodeCollection } from "@/api/hooks/anime.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { useAutoPlaySelectedTorrent } from "@/app/(main)/_features/autoplay/autoplay"
+import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
 import { VideoCoreNextButton, VideoCorePreviousButton } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { VideoCore_PlaybackType, VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
@@ -121,6 +122,8 @@ export function useVideoCorePlaylist() {
     const playbackType = playlistState?.type
     const animeEntry = playlistState?.animeEntry
 
+    const { isPeer: isWatchPartyPeer } = useNakamaWatchParty()
+
     const setTorrentSearch = useSetAtom(__torrentSearch_selectionAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_selectionEpisodeAtom)
     const { setTorrentSearchStreamEpisode } = useTorrentSearchSelectedStreamEpisode()
@@ -227,6 +230,8 @@ export function useVideoCorePlaylist() {
     }
 
     const playEpisode = (which: "previous" | "next" | string) => {
+        if (isWatchPartyPeer) return
+
         if (!playlistState) {
             toast.error("Unexpected error: No playlist state")
             return
@@ -308,10 +313,9 @@ export function useVideoCorePlaylist() {
     return {
         playlistState,
         animeEntry: playlistState?.animeEntry,
-        hasPreviousEpisode: !!playlistState?.previousEpisode,
-        hasNextEpisode: !!playlistState?.nextEpisode,
+        hasPreviousEpisode: !!playlistState?.previousEpisode && !isWatchPartyPeer,
+        hasNextEpisode: !!playlistState?.nextEpisode && !isWatchPartyPeer,
         playEpisode,
-
     }
 }
 
