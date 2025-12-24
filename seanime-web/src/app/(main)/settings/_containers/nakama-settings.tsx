@@ -176,14 +176,14 @@ export function NakamaSettings(props: Props) {
                         </div>
                     </SettingsCard>
 
-                    <SettingsCard title="Settings">
+                    {!serverStatus?.settings?.nakama?.isHost && <SettingsCard title="Settings">
                         <Field.Switch
                             side="right"
                             name="includeNakamaAnimeLibrary"
                             label="Use Nakama's anime library"
                             help="If enabled, the Nakama's anime library will be used as your library if it is being shared."
                         />
-                    </SettingsCard>
+                    </SettingsCard>}
                 </TabsContent>
 
             </Tabs>
