@@ -155,8 +155,9 @@ export function VideoCoreControlBar(props: {
     return (
         <>
             <div
+                data-vc-element="control-bar-gradient-bottom"
                 className={cn(
-                    "vc-control-bar-bottom-gradient pointer-events-none",
+                    "pointer-events-none",
                     "absolute bottom-0 left-0 right-0 w-full z-[5] h-28 transition-opacity duration-300 opacity-0",
                     "bg-gradient-to-t to-transparent",
                     !isMiniPlayer ? "from-black/40" : "from-black/80 via-black/40",
@@ -165,8 +166,9 @@ export function VideoCoreControlBar(props: {
                 )}
             />
             {!isMiniPlayer && <div
+                data-vc-element="control-bar-time-range-bottom-gradient"
                 className={cn(
-                    "vc-control-bar-bottom-gradient-time-range-only pointer-events-none",
+                    "pointer-events-none",
                     "absolute bottom-0 left-0 right-0 w-full z-[5] h-14 transition-opacity duration-400 opacity-0",
                     "bg-gradient-to-t to-transparent",
                     !isMiniPlayer ? "from-black/40" : "from-black/60",
@@ -175,9 +177,9 @@ export function VideoCoreControlBar(props: {
                 )}
             />}
             <div
-                data-vc-control-bar-section
+                data-vc-element="control-bar"
+                data-vc-state-visible={!hideControlBar}
                 className={cn(
-                    "vc-control-bar-section",
                     "absolute left-0 bottom-0 right-0 flex flex-col text-white",
                     "transition-all duration-300 opacity-0",
                     "z-[10] h-28",
@@ -198,8 +200,8 @@ export function VideoCoreControlBar(props: {
                 }}
             >
                 <div
+                    data-vc-element="control-bar-wrapper"
                     className={cn(
-                        "vc-control-bar",
                         "absolute bottom-0 w-full",
                         isMobile ? "px-2" : "px-4",
                         VIDEOCORE_DEBUG_ELEMENTS && "bg-purple-800/40",
@@ -212,8 +214,9 @@ export function VideoCoreControlBar(props: {
                     {timeRange}
 
                     <div
+                        data-vc-element="control-bar-main-section"
                         className={cn(
-                            "vc-control-bar-main-section z-[100] relative",
+                            "z-[100] relative",
                             "transform-gpu duration-100 flex items-center",
                             isMobile ? "pb-1" : "pb-2",
                         )}
@@ -275,6 +278,7 @@ export function VideoCoreMobileControlBar(props: {
     return (
         <>
             <div
+                data-vc-element="mobile-control-bar-gradient-bottom"
                 className={cn(
                     "vc-mobile-control-bar-bottom-gradient pointer-events-none",
                     "absolute bottom-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
@@ -285,6 +289,7 @@ export function VideoCoreMobileControlBar(props: {
                 )}
             />
             <div
+                data-vc-element="mobile-control-bar-gradient-top"
                 className={cn(
                     "vc-mobile-control-bar-top-gradient pointer-events-none",
                     "absolute top-0 left-0 right-0 w-full z-[10] h-28 transition-opacity duration-300 opacity-0",
@@ -297,7 +302,7 @@ export function VideoCoreMobileControlBar(props: {
 
             {/*Top*/}
             <div
-                data-vc-mobile-control-bar-top-section
+                data-vc-element="mobile-control-bar-top-section"
                 className={cn(
                     "vc-mobile-control-bar-top-section",
                     "absolute transition-all left-0 right-0 top-0 w-full z-[11]",
@@ -309,6 +314,7 @@ export function VideoCoreMobileControlBar(props: {
                 }}
             >
                 <div
+                    data-vc-element="mobile-control-bar-top-content"
                     className={cn(
                         "transform-gpu duration-100 flex items-center",
                     )}
@@ -321,7 +327,7 @@ export function VideoCoreMobileControlBar(props: {
 
             {/*Bottom*/}
             <div
-                data-vc-mobile-control-bar-bottom-section
+                data-vc-element="mobile-control-bar-bottom-section"
                 className={cn(
                     "vc-mobile-control-bar-bottom-section",
                     "absolute transition-all left-0 right-0 bottom-0 w-full z-[11]",
@@ -334,6 +340,7 @@ export function VideoCoreMobileControlBar(props: {
                 }}
             >
                 <div
+                    data-vc-element="mobile-control-bar-bottom-content"
                     className={cn(
                         "transform-gpu duration-100 flex items-center",
                         (isSwiping || isSwipingDebounced) && "hidden",
@@ -370,6 +377,8 @@ export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
     return (
         <button
             role="button"
+            data-vc-element="control-button"
+            data-vc-state={state}
             style={{}}
             className={cn(
                 "vc-control-button flex items-center justify-center transition-opacity relative h-full",
@@ -389,6 +398,8 @@ export function VideoCoreControlButtonIcon(props: VideoCoreControlButtonProps) {
                     return (
                         <motion.span
                             key={iconState}
+                            data-vc-element="control-button-icon"
+                            data-vc-state={iconState}
                             className="block"
                             initial={{ opacity: 0, y: 10, position: "relative" }}
                             animate={{ opacity: 1, y: 0, position: "relative" }}
@@ -494,6 +505,7 @@ export function VideoCoreVolumeButton() {
 
     return (
         <div
+            data-vc-element="control-volume"
             className={cn(
                 "vc-control-volume group/vc-control-volume",
                 "flex items-center justify-center h-full gap-2",
@@ -523,12 +535,14 @@ export function VideoCoreVolumeButton() {
             />
             {!isMobile && (
                 <div
+                    data-vc-element="control-volume-slider-container"
                     className={cn(
                         "vc-control-volume-slider-container relative w-0 flex group-hover/vc-control-volume:w-[6rem] h-6",
                         "transition-[width] duration-300",
                     )}
                 >
                     <div
+                        data-vc-element="control-volume-slider"
                         className={cn(
                             "vc-control-volume-slider",
                             "flex h-full w-full relative items-center",
@@ -543,6 +557,7 @@ export function VideoCoreVolumeButton() {
                         onWheel={handleWheel}
                     >
                         <div
+                            data-vc-element="control-volume-slider-progress"
                             className={cn(
                                 "vc-control-volume-slider-progress h-1.5",
                                 "absolute bg-white",
@@ -553,6 +568,7 @@ export function VideoCoreVolumeButton() {
                             }}
                         />
                         <div
+                            data-vc-element="control-volume-slider-background"
                             className={cn(
                                 "vc-control-volume-slider-progress h-1.5 w-full",
                                 "absolute bg-white/20",
@@ -614,6 +630,8 @@ export function VideoCoreTimestamp() {
 
     return (
         <p
+            data-vc-element="timestamp"
+            data-vc-timestamp-type={type}
             className={cn(
                 "font-medium opacity-100 cursor-pointer",
                 isMobile ? "text-xs text-white" : "text-sm hover:opacity-80",

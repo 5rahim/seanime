@@ -320,6 +320,7 @@ export function useVideoCorePlaylist() {
 function PlaylistEpisodeHoverCard({ episode, children }: { episode?: Anime_Episode, children: React.ReactNode }) {
     return (
         <HoverCard
+            data-vc-element="playlist-episode-hover-card"
             className="max-w-xl w-fit py-2 px-4 ml-4"
             sideOffset={38}
             closeDelay={200}

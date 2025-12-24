@@ -54,6 +54,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
 
     if (isDrawer) {
         return <Drawer
+            data-vc-element="menu-drawer"
             open={open === name}
             onOpenChange={v => {
                 setOpen(v ? name : null)
@@ -66,7 +67,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             )}
             portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
-            <div className="h-auto">
+            <div className="h-auto" data-vc-element="menu-drawer-body">
                 {children}
             </div>
         </Drawer>
@@ -74,6 +75,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
 
     return (
         <Popover
+            data-vc-element="menu"
             open={open === name}
             onOpenChange={v => {
                 setOpen(v ? name : null)
@@ -89,7 +91,7 @@ export function VideoCoreMenu(props: VideoCoreMenuProps) {
             )}
             portalContainer={isFullscreen ? containerElement || undefined : undefined}
         >
-            <div className="h-auto">
+            <div className="h-auto" data-vc-element="menu-body">
                 {children}
             </div>
         </Popover>
@@ -101,7 +103,9 @@ export function VideoCoreMenuTitle(props: { children: React.ReactNode }) {
 
     const { children, ...rest } = props
     return (
-        <div className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center relative" {...rest}>
+        <div
+            data-vc-element="menu-title"
+            className="text-white/70 font-bold text-sm pb-3 text-center border-b mb-3 flex items-center gap-2 justify-center relative" {...rest}>
             {children}
         </div>
     )
@@ -114,10 +118,11 @@ export function VideoCoreMenuSectionBody(props: { children: React.ReactNode }) {
     const [openSection, setOpen] = useAtom(vc_menuSectionOpen)
 
     return (
-        <div className="vc-menu-section-body">
+        <div data-vc-element="menu-section-body">
             {/*<AnimatePresence mode="wait">*/}
             {!openSection && (
                 <motion.div
+                    data-vc-element="menu-section-motion-body"
                     key="section-body"
                     className="h-auto"
                     initial={{ opacity: 0, scale: 1.0, x: -10 }}
@@ -137,7 +142,7 @@ export function VideoCoreMenuBody(props: { children: React.ReactNode }) {
     const { children, ...rest } = props
 
     return (
-        <div className="max-h-[18rem] overflow-y-auto">
+        <div data-vc-element="menu-body" className="max-h-[18rem] overflow-y-auto">
             {children}
         </div>
     )
@@ -150,10 +155,11 @@ export function VideoCoreMenuSubmenuBody(props: { children: React.ReactNode }) {
     const [openSubSection] = useAtom(vc_menuSubSectionOpen)
 
     return (
-        <div className="vc-menu-submenu-body">
+        <div data-vc-element="menu-submenu-body">
             {/*<AnimatePresence mode="wait">*/}
             {openSection && !openSubSection && (
                 <motion.div
+                    data-vc-element="menu-submenu-motion-body"
                     key="section-body"
                     className="h-auto"
                     initial={{ opacity: 0, scale: 1.0, x: 10 }}
@@ -175,9 +181,10 @@ export function VideoCoreMenuSubSubmenuBody(props: { children: React.ReactNode }
     const [openSubSection] = useAtom(vc_menuSubSectionOpen)
 
     return (
-        <div className="vc-menu-sub-submenu-body">
+        <div data-vc-element="menu-sub-submenu-body">
             {openSubSection && (
                 <motion.div
+                    data-vc-element="menu-sub-submenu-motion-body"
                     key="sub-section-body"
                     className="h-auto"
                     initial={{ opacity: 0, scale: 1.0, x: 10 }}
@@ -216,6 +223,7 @@ export function VideoCoreMenuOption(props: {
     return (
         <>
             {!openSection && <button
+                data-vc-element="menu-option"
                 role="button"
                 className="w-full p-2 h-10 flex items-center justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
                 onClick={handleClick}
@@ -234,9 +242,11 @@ export function VideoCoreMenuOption(props: {
 
             {openSection === title && (
                 <div
+                    data-vc-element="menu-section"
                     key={title}
                 >
                     <button
+                        data-vc-element="menu-section-close"
                         role="button"
                         className="w-full pb-2 h-10 mb-2 flex items-center justify-between rounded-lg transition-colors border-b"
                         onClick={() => setOpen(null)}
@@ -286,6 +296,7 @@ export function VideoCoreMenuSubOption(props: {
     return (
         <>
             {openSection && !openSubSection && <button
+                data-vc-element="menu-sub-option"
                 role="button"
                 className="w-full p-2 h-10 flex items-center justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
                 onClick={handleClick}
@@ -304,9 +315,11 @@ export function VideoCoreMenuSubOption(props: {
 
             {openSubSection === itemId && (
                 <div
+                    data-vc-element="menu-sub-section"
                     key={itemId}
                 >
                     <button
+                        data-vc-element="menu-sub-section-close"
                         role="button"
                         className="w-full pb-2 h-10 mb-2 flex items-center justify-between rounded-lg transition-colors border-b"
                         onClick={() => setOpenSubSection(null)}
@@ -344,9 +357,10 @@ type VideoCoreSettingSelectProps = {
 export function VideoCoreSettingSelect(props: VideoCoreSettingSelectProps) {
     const { options, value, onValueChange, isFullscreen, containerElement } = props
     return (
-        <div className="block">
+        <div className="block" data-vc-element="setting-select">
             {options.map(option => (
                 <div
+                    data-vc-element="setting-select-option"
                     key={option.value}
                     role="button"
                     className="w-full p-2 flex items-center overflow-hidden justify-between rounded-lg group/vc-menu-option hover:bg-white/10 active:bg-white/20 transition-colors"
@@ -354,15 +368,16 @@ export function VideoCoreSettingSelect(props: VideoCoreSettingSelectProps) {
                         onValueChange(option.value)
                     }}
                 >
-                    <span className="w-8 flex justify-start items-center h-full flex-none">
+                    <span data-vc-element="setting-select-option-indicator" className="w-8 flex justify-start items-center h-full flex-none">
                         {value === option.value && <LuCheck className="text-lg" />}
                     </span>
-                    <div className="flex-wrap flex flex-1 gap-2 items-center">
-                        <span className="w-fit flex-none text-sm font-medium line-clamp-2">
+                    <div data-vc-element="setting-select-option-body" className="flex-wrap flex flex-1 gap-2 items-center">
+                        <span data-vc-element="setting-select-option-label" className="w-fit flex-none text-sm font-medium line-clamp-2">
                             {option.label}
                         </span>
-                        <span className="flex-1"></span>
-                        {(option.moreInfo || option.description) && <div className="w-fit flex-none ml-2 flex gap-2 items-center">
+                        <span className="flex-1" data-vc-element="setting-select-option-separator"></span>
+                        {(option.moreInfo || option.description) &&
+                            <div className="w-fit flex-none ml-2 flex gap-2 items-center" data-vc-element="setting-select-option-description">
                             {option.moreInfo && <span className="text-xs font-medium tracking-wide text-[--muted]">
                                 {option.moreInfo}
                             </span>}
@@ -392,7 +407,7 @@ type VideoCoreSettingTextInputProps = {
 export function VideoCoreSettingTextInput(props: VideoCoreSettingTextInputProps) {
     const { value, onValueChange, label, help } = props
     return (
-        <div className="block">
+        <div className="block" data-vc-element="setting-text-input">
             <TextInput
                 label={label}
                 value={value}

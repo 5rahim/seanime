@@ -420,6 +420,10 @@ export function VideoCoreDrawer(props: DrawerProps) {
                 {/* <DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} /> */}
 
                 <DialogPrimitive.Content
+                    data-vc-element="drawer-content"
+                    data-vc-miniplayer-state={miniPlayer}
+                    data-vc-dragging-state={isDragging}
+                    data-vc-hidden-state={isHidden}
                     className={cn(
                         DrawerAnatomy.content({ size, side: "player" }),
                         contentClass,
@@ -458,7 +462,11 @@ export function VideoCoreDrawer(props: DrawerProps) {
                         </div>
                     )}
 
-                    {miniPlayer && <div ref={draggableAreaRef} className="vc-drawer-draggable-area absolute inset-0 z-[6]">
+                    {miniPlayer && <div
+                        ref={draggableAreaRef}
+                        data-vc-element="drawer-miniplayer-draggable-area"
+                        className="vc-drawer-draggable-area absolute inset-0 z-[6]"
+                    >
 
                     </div>}
 

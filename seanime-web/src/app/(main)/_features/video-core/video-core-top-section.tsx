@@ -18,9 +18,8 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?
     return (
         <>
             <div
-                data-vc-control-bar-top-section
+                data-vc-element="control-bar-top-section"
                 className={cn(
-                    "vc-control-bar-top-section",
                     "top-0 absolute left-0 w-full py-4 px-5 duration-200 transition-opacity opacity-0 z-[999]",
                     (__isDesktop__ && ((inline && fullscreen) || !inline)) && "top-8",
                     (busy || paused || hoveringControlBar) && "opacity-100",
@@ -31,8 +30,9 @@ export function VideoCoreTopSection(props: { children?: React.ReactNode, inline?
             </div>
 
             <div
+                data-vc-element="control-bar-top-gradient"
                 className={cn(
-                    "vc-control-bar-top-gradient pointer-events-none",
+                    "pointer-events-none",
                     "absolute top-0 left-0 right-0 w-full z-[5] transition-opacity duration-300 opacity-0",
                     "bg-gradient-to-b from-black/60 to-transparent",
                     "h-20",
@@ -56,16 +56,17 @@ export function VideoCoreTopPlaybackInfo(props: { state: VideoCoreLifecycleState
     return (
         <>
             <div
+                data-vc-element="top-playback-info"
                 className={cn(
                     "transition-opacity duration-200 opacity-0",
                     (paused || hoveringControlBar) && "opacity-100",
                 )}
             >
                 {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred &&
-                    <p className="text-white/50 font-medium text-sm max-w-[400px] line-clamp-1">
+                    <p data-vc-element="top-playback-info-title" className="text-white/50 font-medium text-sm max-w-[400px] line-clamp-1">
                         {state.playbackInfo?.episode?.baseAnime?.title?.userPreferred}
                     </p>}
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-row gap-2" data-vc-element="top-playback-info-episode">
                     <p className="text-white font-bold text-base">
                         {state.playbackInfo?.episode?.displayTitle}
                     </p>

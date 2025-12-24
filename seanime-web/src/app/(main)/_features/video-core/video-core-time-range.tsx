@@ -18,7 +18,7 @@ import {
     VIDEOCORE_DEBUG_ELEMENTS,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
-import { vc_doFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
+import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { VIDEOCORE_PREVIEW_CAPTURE_INTERVAL_SECONDS, VIDEOCORE_PREVIEW_THUMBNAIL_SIZE } from "@/app/(main)/_features/video-core/video-core-preview"
 import { vc_autoSkipOPEDAtom, vc_highlightOPEDChaptersAtom, vc_showChapterMarkersAtom } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { vc_formatTime, vc_getChapterType, vc_getOPEDChapters } from "@/app/(main)/_features/video-core/video-core.utils"
@@ -65,7 +65,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     const action = useSetAtom(vc_dispatchAction)
     const showChapterMarkers = useAtomValue(vc_showChapterMarkersAtom)
     const autoSkipIntroOutro = useAtomValue(vc_autoSkipOPEDAtom)
-    const flashAction = useSetAtom(vc_doFlashAction)
+    const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
     const [skipEndingTime, setSkipEndingTime] = useAtom(vc_skipEndingTime)
     const [restoreProgressTo, setRestoreProgressTo] = useAtom(vc_lastKnownProgress)
@@ -132,7 +132,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             if (autoSkipIntroOutro && !restoreProgressTo) {
                 console.log("auto skip", opEdChapters.opening.end)
                 action({ type: "seekTo", payload: { time: opEdChapters.opening.end } })
-                flashAction({ message: "Skipped OP", duration: 1000 })
+                showOverlayFeedback({ message: "Skipped OP", duration: 1000 })
             } else {
                 setSkipOpeningTime(opEdChapters.opening.end)
             }
@@ -150,7 +150,7 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
             if (autoSkipIntroOutro && !restoreProgressTo) {
                 console.log("auto skip", opEdChapters.ending.end)
                 action({ type: "seekTo", payload: { time: opEdChapters.ending.end } })
-                flashAction({ message: "Skipped ED", duration: 1000 })
+                showOverlayFeedback({ message: "Skipped ED", duration: 1000 })
             } else {
                 setSkipEndingTime(opEdChapters.ending.end)
             }
@@ -252,8 +252,9 @@ export function VideoCoreTimeRange(props: VideoCoreTimeRangeProps) {
     return (
         <div
             ref={combineRef}
+            data-vc-element="time-range"
+            data-vc-seeking-target-state={seeking}
             className={cn(
-                "vc-time-range",
                 "w-full relative group/vc-time-range z-[2] flex h-8",
                 "cursor-pointer outline-none",
                 "touch-none select-none", // prevent page scroll and text selection on mobile
@@ -313,8 +314,11 @@ function VideoCoreTimeRangeSegment(props: {
 
     return (
         <div
+            data-vc-element="time-range-segment"
+            data-vc-chapter-label={chapter.label}
+            data-vc-focused-state={focused}
+            data-vc-seeking-target-state={!!seekingTargetProgress}
             className={cn(
-                "vc-time-range-chapter-segment",
                 "relative",
                 "w-full h-full flex items-center",
                 VIDEOCORE_DEBUG_ELEMENTS && "bg-yellow-500/10",
@@ -324,8 +328,8 @@ function VideoCoreTimeRangeSegment(props: {
             }}
         >
             <div
+                data-vc-element="time-range-chapter"
                 className={cn(
-                    "vc-time-range-chapter",
                     "relative h-1 transition-[height] flex items-center justify-center overflow-hidden rounded-lg",
                     focused && "h-2",
                     VIDEOCORE_DEBUG_ELEMENTS && "bg-yellow-500/50",
@@ -336,8 +340,9 @@ function VideoCoreTimeRangeSegment(props: {
                 }}
             >
                 <div
+                    data-vc-element="time-range-chapter-bar"
+                    data-vc-for="progress"
                     className={cn(
-                        "vc-time-range-chapter-progress-bar",
                         "bg-white absolute w-full h-full left-0 transform-gpu z-[10]",
                     )}
                     style={{
@@ -345,8 +350,9 @@ function VideoCoreTimeRangeSegment(props: {
                     } as React.CSSProperties}
                 />
                 <div
+                    data-vc-element="time-range-chapter-bar"
+                    data-vc-for="seeking-target"
                     className={cn(
-                        "vc-time-range-chapter-seeking-target-bar",
                         "bg-white/30 absolute w-full h-full left-0 transform-gpu z-[9]",
                     )}
                     style={{
@@ -354,8 +360,9 @@ function VideoCoreTimeRangeSegment(props: {
                     } as React.CSSProperties}
                 />
                 <div
+                    data-vc-element="time-range-chapter-bar"
+                    data-vc-for="buffer"
                     className={cn(
-                        "vc-time-range-chapter-buffer-bar",
                         "bg-white/10 absolute w-full h-full left-0 transform-gpu z-[8]",
                     )}
                     style={{
@@ -363,8 +370,10 @@ function VideoCoreTimeRangeSegment(props: {
                     } as React.CSSProperties}
                 />
                 <div
+                    data-vc-element="time-range-chapter-bar"
+                    data-vc-for="main"
+                    data-vc-highlighted-state={!!vc_getChapterType(chapter.label) && highlightOPEDChapters}
                     className={cn(
-                        "vc-time-range-chapter-bar",
                         "bg-white/20 absolute left-0 w-full h-full z-[1]",
                         (!!vc_getChapterType(chapter.label) && highlightOPEDChapters) && "bg-blue-300/50",
                     )}
@@ -372,6 +381,7 @@ function VideoCoreTimeRangeSegment(props: {
             </div>
             {showMarker && (
                 <button
+                    data-vc-element="time-range-chapter-marker"
                     type="button"
                     onPointerDown={e => e.stopPropagation()}
                     onPointerUp={e => e.stopPropagation()}
@@ -380,7 +390,6 @@ function VideoCoreTimeRangeSegment(props: {
                         action({ type: "seekTo", payload: { time: ((duration * (chapter.percentageOffset + chapter.width))) / 100 } })
                     }}
                     className={cn(
-                        "vc-time-range-chapter-marker",
                         "absolute top-0 right-0 size-4 flex items-center justify-center -translate-y-1/2 translate-x-1/2 cursor-pointer z-[20] ",
                     )}
                     style={{
@@ -544,6 +553,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
     return <>
 
         {showThumbnail && <div
+            data-vc-element="preview-thumbnail"
             className={cn(
                 "absolute bottom-full aspect-video overflow-hidden rounded-md bg-black border border-white/50 pointer-events-none",
             )}
@@ -558,6 +568,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
             }}
         >
             {!!previewThumbnail && <Image
+                data-vc-element="preview-thumbnail-image"
                 src={previewThumbnail || ""}
                 alt="Preview"
                 fill
@@ -569,6 +580,7 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
         </div>}
 
         {(seeking || isSwiping || !!targetTime) && <div
+            data-vc-element="preview-tooltip"
             className={cn(
                 "absolute bottom-full mb-3 px-2 py-1 bg-black/70 text-white text-center text-sm rounded-md",
                 "whitespace-nowrap z-20 pointer-events-none",
@@ -579,10 +591,11 @@ function VideoCoreTimePreview(props: { chapters: VideoCoreTimeRangeChapter[] }) 
                 transform: "translateX(-50%)",
             }}
         >
-            {chapterLabel && <p className="text-xs font-medium max-w-2xl truncate">{chapterLabel}</p>}
-            <p>{vc_formatTime(targetTime)}</p>
+            {chapterLabel && <p data-vc-element="preview-tooltip-chapter" className="text-xs font-medium max-w-2xl truncate">{chapterLabel}</p>}
+            <p data-vc-element="preview-tooltip-time">{vc_formatTime(targetTime)}</p>
 
             <div
+                data-vc-element="preview-tooltip-arrow"
                 className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/70"
             />
         </div>}

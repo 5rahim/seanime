@@ -606,7 +606,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 ) : isEpisodeListError ? <LuffyError title="Provider error">Could not fetch episode list from provider.</LuffyError> : (
                     <>
                         <VideoCoreProvider id="onlinestream">
-                            <div className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
+                            <div data-onlinestream-video-container className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
                                 <VideoCore
                                     id="onlinestream"
                                     mRef={playerRef}
