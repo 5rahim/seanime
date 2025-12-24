@@ -6,6 +6,7 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useNakamaStatus, useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { usePlaylistManager } from "@/app/(main)/_features/playlists/_containers/global-playlist-manager"
+import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
 import { VideoCore, VideoCoreProvider } from "@/app/(main)/_features/video-core/video-core"
 import { isHLSSrc, isNativeVideoExtension, isProbablyHls } from "@/app/(main)/_features/video-core/video-core-hls"
 import {
@@ -101,9 +102,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     // Nakama Watch Party
     const nakamaStatus = useNakamaStatus()
-    const { isParticipant } = useNakamaWatchParty()
+    const { isPeer: isWatchPartyPeer } = useNakamaWatchParty()
     const { streamToLoad, onLoadedStream, removeParamsFromUrl, redirectToStream } = useNakamaOnlineStreamWatchParty()
     const isLoadingFromWatchPartyRef = React.useRef(false)
+
 
     // Stream URL
     const [url, setUrl] = React.useState<string | null>(null)
@@ -162,6 +164,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const episodes = episodeListResponse?.episodes
     const currentEpisode = episodes?.find(e => e.number === currentEpisodeNumber)
+
+    // AniSkip
+    const { data: aniSkipData } = useSkipData(media.idMal, currentEpisode?.number)
 
     // get the current episode source from the provider
     const {
@@ -344,10 +349,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const episodeListLoading = isFetchingEpisodeList || isLoadingEpisodeList
     const episodeLoading = isLoadingEpisodeSource || isFetchingEpisodeSource
-
-    const isWatchPartyPeer = React.useMemo(() => {
-        return isParticipant && !!nakamaStatus?.hostConnectionStatus && !!nakamaStatus?.currentWatchPartySession && !nakamaStatus.isHost && !nakamaStatus.currentWatchPartySession?.participants?.[nakamaStatus?.hostConnectionStatus?.peerId || ""]?.isRelayOrigin
-    }, [nakamaStatus, isParticipant])
 
     /*
      * Set episode number on mount
@@ -601,7 +602,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 ) : isEpisodeListError ? <LuffyError title="Provider error">Could not fetch episode list from provider.</LuffyError> : (
                     <>
                         <VideoCoreProvider id="onlinestream">
-                            <div className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
+                            <div data-onlinestream-video-container className="w-full aspect-video mx-auto border rounded-lg overflow-hidden">
                                 <VideoCore
                                     id="onlinestream"
                                     mRef={playerRef}
@@ -649,6 +650,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                         loadingState: !url ? "Loading stream" : null,
                                     }}
                                     inline
+                                    aniSkipData={aniSkipData}
                                     onLoadedMetadata={onCanPlay}
                                     onError={v => onFatalError(v)}
                                     onPlayEpisode={handlePlayEpisode}

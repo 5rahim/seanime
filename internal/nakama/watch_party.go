@@ -27,13 +27,16 @@ const (
 	MessageTypeWatchPartyRelayModePeersReady    = "watch_party_relay_mode_peers_ready"    // Relay server signals to origin that all peers are ready
 	MessageTypeWatchPartyRelayModePeerBuffering = "watch_party_relay_mode_peer_buffering" // Relay server signals to origin the buffering status (tells origin to pause/unpause)
 	// Peer -> Host
-	MessageTypeWatchPartyJoin                           = "watch_party_join"                               // Peer joins a watch party
-	MessageTypeWatchPartyLeave                          = "watch_party_leave"                              // Peer leaves a watch party
-	MessageTypeWatchPartyPeerStatus                     = "watch_party_peer_status"                        // Peer reports their current status to host
-	MessageTypeWatchPartyBufferUpdate                   = "watch_party_buffer_update"                      // Peer reports buffering state to host
+	MessageTypeWatchPartyJoin         = "watch_party_join"          // Peer joins a watch party
+	MessageTypeWatchPartyLeave        = "watch_party_leave"         // Peer leaves a watch party
+	MessageTypeWatchPartyPeerStatus   = "watch_party_peer_status"   // Peer reports their current status to host
+	MessageTypeWatchPartyBufferUpdate = "watch_party_buffer_update" // Peer reports buffering state to host
+	// Relay mode, Origin (Peer) -> Relay (Host) -> Peers
 	MessageTypeWatchPartyRelayModeOriginStreamStarted   = "watch_party_relay_mode_origin_stream_started"   // Relay origin sends is starting a stream, the host will start it too
 	MessageTypeWatchPartyRelayModeOriginPlaybackStatus  = "watch_party_relay_mode_origin_playback_status"  // Relay origin sends playback status to relay server
 	MessageTypeWatchPartyRelayModeOriginPlaybackStopped = "watch_party_relay_mode_origin_playback_stopped" // Relay origin sends playback stopped to relay server
+	// Seanime Watch Party Rooms, Host -> Seanime Watch Party Room API -> Peers
+
 	// Chat
 	MessageTypeWatchPartyChatMessage = "watch_party_chat_message" // Chat message sent by any participant
 )
@@ -134,8 +137,13 @@ type WatchPartySession struct {
 	Settings         *WatchPartySessionSettings               `json:"settings"`
 	CreatedAt        time.Time                                `json:"createdAt"`
 	CurrentMediaInfo *WatchPartySessionMediaInfo              `json:"currentMediaInfo"` // can be nil if not set
-	IsRelayMode      bool                                     `json:"isRelayMode"`      // Whether this session is in relay mode
-	mu               sync.RWMutex                             `json:"-"`
+	// Whether this session is in relay mode
+	// In this case, the host will act as a relay server and relay status from the origin (a chosen peer) to all other peers
+	IsRelayMode bool `json:"isRelayMode"`
+	// Whether this session is using the Seanime Watch Party Rooms API
+	// In this case, the host will broadcast playback status via a  relay server
+	IsRoom bool         `json:"isRoom"`
+	mu     sync.RWMutex `json:"-"`
 }
 
 type WatchPartySessionParticipant struct {
@@ -500,12 +508,11 @@ func (wpm *WatchPartyManager) SendChatMessage(message string) error {
 	if wpm.manager.IsHost() {
 		// Host broadcasts to all peers
 		_ = wpm.manager.SendMessage(MessageTypeWatchPartyChatMessage, payload)
-		// Host also triggers local event for self since SendMessage doesn't send to self
+		// Send local event since SendMessage doesn't send to self
 		wpm.manager.wsEventManager.SendEvent(events.NakamaWatchPartyChatMessage, &payload)
 	} else {
 		// Peer sends to host, host will broadcast it back to all peers including sender
 		_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyChatMessage, payload)
-		// Don't trigger local event here - we'll receive it via broadcast from host
 	}
 
 	return nil

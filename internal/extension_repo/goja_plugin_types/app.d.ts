@@ -1087,6 +1087,7 @@ declare namespace $app {
         preventDefault(): void;
 
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+        episode: string;
         episodeNumber: number;
         mediaId: number;
     }
@@ -1106,6 +1107,7 @@ declare namespace $app {
         next(): void;
 
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+        episode: string;
         episodeNumber: number;
         mediaId: number;
     }

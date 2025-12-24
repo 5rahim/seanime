@@ -3,6 +3,8 @@ package torrent
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -14,7 +16,12 @@ func TestSmartSearch(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatalf("Failed to connect to database: %v", err)
+	}
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), extensionBankRef, logger, database)
 
 	repo := getTestRepo(t)
 

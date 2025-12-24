@@ -3,14 +3,9 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useDirectstreamConvertSubs, useDirectstreamFetchAndConvertToASS } from "@/api/hooks/directstream.hooks"
 import { useCancelDiscordActivity } from "@/api/hooks/discord.hooks"
+import { useNakamaWatchParty } from "@/app/(main)/_features/nakama/nakama-manager"
 import { nativePlayer_initialState, nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { AniSkipTime } from "@/app/(main)/_features/sea-media-player/aniskip"
-import {
-    vc_doFlashAction,
-    vc_flashAction,
-    vc_flashActionTimeout,
-    VideoCoreActionDisplay,
-} from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_anime4kOption, VideoCoreAnime4K } from "@/app/(main)/_features/video-core/video-core-anime-4k"
 import { Anime4KOption, VideoCoreAnime4KManager } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { VideoCoreAudioManager } from "@/app/(main)/_features/video-core/video-core-audio"
@@ -42,6 +37,12 @@ import { MediaCaptionsManager } from "@/app/(main)/_features/video-core/video-co
 import { vc_mediaSessionManager, VideoCoreMediaSessionManager } from "@/app/(main)/_features/video-core/video-core-media-session"
 import { vc_menuOpen, vc_menuSectionOpen } from "@/app/(main)/_features/video-core/video-core-menu"
 import { useVideoCoreMobileGestures } from "@/app/(main)/_features/video-core/video-core-mobile-gestures"
+import {
+    vc_overlayFeedback,
+    vc_overlayFeedbackTimeout,
+    vc_showOverlayFeedback,
+    VideoCoreOverlayDisplay,
+} from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { vc_pipElement, vc_pipManager, VideoCorePipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
     useVideoCorePlaylist,
@@ -187,7 +188,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 videoElement.currentTime = t
                 set(vc_currentTime, t)
                 if (action.payload.flashTime) {
-                    set(vc_doFlashAction, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                    set(vc_showOverlayFeedback, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
                 }
                 break
             case "seek":
@@ -197,7 +198,7 @@ export const vc_dispatchAction = atom(null, (get, set, action: { type: VideoCore
                 videoElement.currentTime = t
                 set(vc_currentTime, t)
                 if (action.payload.flashTime) {
-                    set(vc_doFlashAction, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
+                    set(vc_showOverlayFeedback, { message: `${vc_formatTime(t)} / ${vc_formatTime(duration)}`, type: "message" })
                 }
                 break
             case "togglePlay":
@@ -266,9 +267,9 @@ export function VideoCoreProvider(props: { id: string, children: React.ReactNode
                 vc_hoveringControlBar,
                 vc_menuOpen,
                 vc_menuSectionOpen,
-                vc_doFlashAction,
-                vc_flashAction,
-                vc_flashActionTimeout,
+                vc_showOverlayFeedback,
+                vc_overlayFeedback,
+                vc_overlayFeedbackTimeout,
                 vc_playlistState,
                 vc_timeRangeElement,
                 vc_hlsQualityLevels,
@@ -371,14 +372,21 @@ const PlayerContent = React.memo<PlayerContentProps>(({
             />
 
             {(state?.playbackError) && (
-                <div className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4">
-                    <div className="text-white text-center">
+                <div
+                    data-vc-element="playback-error-container"
+                    className="h-full w-full bg-black/100 flex items-center justify-center z-[20] absolute p-4"
+                >
+                    <div className="text-white text-center" data-vc-element="playback-error-content">
                         {!isMiniPlayer ? (
                             <LuffyError title="Playback Error" imageContainerClass="size-[3.5rem] lg:size-[8rem]" />
                         ) : (
-                            <h1 className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback Error</h1>
+                            <h1 data-vc-element="playback-error-title" className={cn("text-2xl font-bold", isMiniPlayer && "text-lg")}>Playback
+                                                                                                                                       Error</h1>
                         )}
-                        <p className={cn("text-base text-white/50 max-w-xl", isMiniPlayer && "text-sm max-w-lg mx-auto")}>
+                        <p
+                            data-vc-element="playback-error-message"
+                            className={cn("text-base text-white/50 max-w-xl", isMiniPlayer && "text-sm max-w-lg mx-auto")}
+                        >
                             {state.playbackError || "An error occurred while playing the stream. Please try again later."}
                         </p>
                     </div>
@@ -386,6 +394,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
             )}
 
             <div
+                data-vc-element="container"
                 ref={combineContainerRef}
                 className={cn(
                     "relative w-full h-full bg-black overflow-clip flex items-center justify-center",
@@ -405,20 +414,27 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             endingEndTime={aniSkipData?.ed?.interval?.endTime}
                         />
 
-                        <VideoCoreActionDisplay />
+                        <VideoCoreOverlayDisplay />
 
                         {buffering && (
-                            <div className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none">
+                            <div
+                                data-vc-element="buffering-indicator"
+                                className="absolute inset-0 flex items-center justify-center z-[50] pointer-events-none"
+                            >
                                 <div className="bg-black/20 backdrop-blur-sm rounded-full p-4">
                                     <PiSpinnerDuotone className="size-12 text-white animate-spin" />
                                 </div>
                             </div>
                         )}
 
-                        {busy && !inline && (
+                        {busy && (
                             <>
                                 {!!skipOpeningTime && !isMiniPlayer && (
-                                    <div className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                    <div
+                                        data-vc-element="skip-oped-button-container"
+                                        data-vc-for="opening"
+                                        className="absolute left-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
+                                    >
                                         <Button
                                             size="sm"
                                             intent="gray-basic"
@@ -434,7 +450,11 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                                 )}
 
                                 {!!skipEndingTime && !isMiniPlayer && (
-                                    <div className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen">
+                                    <div
+                                        data-vc-element="skip-oped-button-container"
+                                        data-vc-for="ending"
+                                        className="absolute right-5 bottom-28 z-[60] native-player-hide-on-fullscreen"
+                                    >
                                         <Button
                                             size="sm"
                                             intent="gray-basic"
@@ -452,11 +472,13 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                         )}
 
                         <div
+                            data-vc-element="inner-container"
                             className="relative w-full h-full flex items-center justify-center"
                             onClick={handleClick}
                             onContextMenu={handleClick}
                         >
                             <video
+                                data-vc-element="video"
                                 data-video-core-element
                                 crossOrigin="anonymous"
                                 preload="auto"
@@ -507,6 +529,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCoreTopPlaybackInfo state={state} />
                             {!inline && (
                                 <div
+                                    data-vc-element="floating-buttons-container"
                                     className={cn(
                                         "opacity-0",
                                         "transition-opacity duration-200 ease-in-out",
@@ -519,7 +542,10 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                         </VideoCoreTopSection>}
 
                         {isPip && (
-                            <div className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center">
+                            <div
+                                data-vc-element="pip-overlay"
+                                className="absolute top-0 left-0 w-full h-full z-[100] bg-black flex items-center justify-center"
+                            >
                                 <Button
                                     intent="gray-outline"
                                     size="xl"
@@ -539,7 +565,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             <VideoCorePlaylistControl />
                             <VideoCoreVolumeButton />
                             <VideoCoreTimestamp />
-                            <div className="flex flex-1" />
+                            <div className="flex flex-1" data-vc-element="control-bar-separator" />
                             {!inline && <TorrentStreamOverlay isNativePlayerComponent="control-bar" show={!isMiniPlayer} />}
                             <VideoCoreWatchPartyChat />
                             <VideoCoreSettingsMenu />
@@ -570,7 +596,10 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                         />}
                     </>
                 ) : (
-                    <div className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md">
+                    <div
+                        data-vc-element="loading-overlay"
+                        className="w-full h-full absolute flex justify-center items-center flex-col space-y-4 bg-black rounded-md"
+                    >
                         {!inline && <FloatingButtons part="loading" onTerminateStream={onTerminateStream} />}
                         {state.loadingState && (
                             <LoadingSpinner
@@ -580,7 +609,7 @@ const PlayerContent = React.memo<PlayerContentProps>(({
                             />
                         )}
                         {!isMiniPlayer && !inline && (
-                            <div className="opacity-50 absolute inset-0 z-[0] overflow-hidden">
+                            <div className="opacity-50 absolute inset-0 z-[0] overflow-hidden" data-vc-element="loading-overlay-gradient">
                                 <GradientBackground duration={10} breathingRange={5} />
                             </div>
                         )}
@@ -678,6 +707,8 @@ export function VideoCore(props: VideoCoreProps) {
     useVideoCoreBindings(videoRef, state.playbackInfo)
     useVideoCorePlaylistSetup(state, onPlayEpisode)
 
+    const { isParticipant: isWatchPartyParticipant } = useNakamaWatchParty()
+
     const videoCompletedRef = useRef(false)
     const currentPlaybackRef = useRef<string | null>(null)
 
@@ -703,7 +734,7 @@ export function VideoCore(props: VideoCoreProps) {
     const [buffering, setBuffering] = useAtom(vc_buffering)
     const duration = useAtomValue(vc_duration)
     const fullscreen = useAtomValue(vc_isFullscreen)
-    const flashAction = useSetAtom(vc_doFlashAction)
+    const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const cursorBusy = useAtomValue(vc_cursorBusy)
 
     const [skipOpeningTime, setSkipOpeningTime] = useAtom(vc_skipOpeningTime)
@@ -798,11 +829,11 @@ export function VideoCore(props: VideoCoreProps) {
         if (videoRef?.current?.paused) {
             videoRef?.current?.play().catch()
             onPlay?.()
-            flashAction({ message: "PLAY", type: "icon" })
+            showOverlayFeedback({ message: "PLAY", type: "icon" })
         } else {
             videoRef?.current?.pause()
             onPause?.()
-            flashAction({ message: "PAUSE", type: "icon" })
+            showOverlayFeedback({ message: "PAUSE", type: "icon" })
         }
     }
 
@@ -1022,7 +1053,7 @@ export function VideoCore(props: VideoCoreProps) {
                 videoElement: v!,
                 settings: settings,
                 onFallback: (message) => {
-                    flashAction({ message, duration: 2000 })
+                    showOverlayFeedback({ message, duration: 2000 })
                 },
                 onOptionChanged: (opt) => {
                     setAnime4kOption(opt)
@@ -1120,7 +1151,7 @@ export function VideoCore(props: VideoCoreProps) {
         log.info("Video ended")
         subtitleManager?.pgsRenderer?.stop()
         onEnded?.()
-        if (autoNext) {
+        if (autoNext && !isWatchPartyParticipant) {
             // videoRef?.current?.pause()
             playEpisode("next")
         }
@@ -1245,7 +1276,7 @@ export function VideoCore(props: VideoCoreProps) {
     function restoreSeekTime(time: number, showMessage: boolean, paused?: boolean) {
         if (!videoRef.current) return
         if (anime4kOption === "off" || anime4kManager?.canvas !== null) {
-            if (showMessage) flashAction({ message: "Progress restored", duration: 1500 })
+            if (showMessage) showOverlayFeedback({ message: "Progress restored", duration: 1500 })
             videoRef.current.currentTime = time
             if (paused && !videoRef.current.paused) {
                 videoRef.current.pause()
@@ -1254,7 +1285,7 @@ export function VideoCore(props: VideoCoreProps) {
             }
         } else if (anime4kOption !== ("off" as Anime4KOption)) {
             videoRef.current.pause()
-            if (showMessage) flashAction({ message: "Restoring progress", duration: 1500 })
+            if (showMessage) showOverlayFeedback({ message: "Restoring progress", duration: 1500 })
             anime4kManager.registerOnCanvasCreatedOnce(() => {
                 if (!videoRef.current) return
                 videoRef.current.currentTime = time
@@ -1276,6 +1307,9 @@ export function VideoCore(props: VideoCoreProps) {
             // if (autoPlay) {
             //     videoRef.current.play().catch()
             // }
+
+            // Do nothing if the stream is not seekable
+            if (isWatchPartyParticipant) return
 
             dispatchCanPlayEvent()
 
@@ -1433,6 +1467,7 @@ export function VideoCore(props: VideoCoreProps) {
                 <VideoCorePreferencesModal />
                 {fullscreen && <RemoveScrollBar />}
                 <div
+                    data-vc-element="inline-container"
                     className={cn(
                         "relative w-full h-full",
                         inlineClassName,
@@ -1560,6 +1595,8 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
         <>
             {!isMiniPlayer && <>
                 <IconButton
+                    data-vc-element="floating-button-miniplayer"
+                    data-vc-for={part}
                     icon={<FiMinimize2 className="text-2xl" />}
                     intent="gray-basic"
                     className="rounded-full absolute top-0 flex-none right-4 z-[999]"
@@ -1571,6 +1608,8 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
 
             {isMiniPlayer && <>
                 <IconButton
+                    data-vc-element="floating-button-expand"
+                    data-vc-for={part}
                     type="button"
                     intent="gray"
                     size="sm"
@@ -1584,6 +1623,8 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
                     }}
                 />
                 <IconButton
+                    data-vc-element="floating-button-terminate"
+                    data-vc-for={part}
                     type="button"
                     intent="alert-subtle"
                     size="sm"
@@ -1603,6 +1644,8 @@ function FloatingButtons(props: { part: "video" | "loading", onTerminateStream: 
     if (part === "loading") {
         return (
             <div
+                data-vc-element="loading-floating-buttons-container"
+                data-vc-for={part}
                 className={cn(
                     "absolute top-8 w-full z-[100]",
                     isMiniPlayer && "top-0",

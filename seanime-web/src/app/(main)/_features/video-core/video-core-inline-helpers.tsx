@@ -124,6 +124,7 @@ export function VideoCoreInlineHelperUpdateProgressButton() {
 
     if (progressUpdateData !== null && !hasUpdatedProgress) {
         return <Button
+            data-vc-element="update-progress-button"
             className="animate-pulse"
             loading={isUpdatingProgress}
             disabled={hasUpdatedProgress}
@@ -241,18 +242,18 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
 
 
     return (
-        <div data-sea-media-player-layout className="space-y-4">
-            <div data-sea-media-player-layout-header className="flex flex-col lg:flex-row gap-2 w-full justify-between">
-                {!hideBackButton && <div className="flex w-full gap-4 items-center relative">
+        <div data-vc-element="inline-layout" className="space-y-4">
+            <div data-vc-element="inline-layout-header" className="flex flex-col lg:flex-row gap-2 w-full justify-between">
+                {!hideBackButton && <div data-vc-element="inline-layout-go-back" className="flex w-full gap-4 items-center relative">
                     <SeaLink href={`/entry?id=${mediaId}`}>
                         <IconButton icon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="sm" />
                     </SeaLink>
                     <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{title}</h3>
                 </div>}
 
-                <div data-sea-media-player-layout-header-actions className="flex flex-wrap gap-2 items-center lg:justify-end w-full">
+                <div data-vc-element="inline-layout-actions" className="flex flex-wrap gap-2 items-center lg:justify-end w-full">
                     {leftHeaderActions}
-                    <div className="flex flex-1"></div>
+                    <div className="flex flex-1" data-vc-element="inline-layout-actions-separator"></div>
                     {rightHeaderActions}
                     <IconButton
                         onClick={() => setTheaterMode(p => !p)}
@@ -265,7 +266,7 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
 
             {!loadingEpisodeList ? <div
                 ref={contentContainerRef}
-                data-sea-media-player-layout-content
+                data-vc-element="inline-layout-container"
                 className={cn(
                     "flex gap-4 w-full flex-col 2xl:flex-row",
                     theaterMode && "block space-y-4",
@@ -273,8 +274,7 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
             >
                 <div
                     ref={mediaPlayerContainerRef}
-                    id="sea-media-player-container"
-                    data-sea-media-player-layout-content-player
+                    data-vc-element="inline-layout-player-container"
                     className={cn(
                         "aspect-video relative w-full self-start mx-auto",
                         theaterMode && "max-h-[90vh] !w-auto aspect-video mx-auto",
@@ -286,18 +286,19 @@ export function VideoCoreInlineLayout(props: VideoCoreInlineLayoutProps) {
                 <ScrollArea
                     ref={episodeListContainerRef}
                     viewportRef={episodeListViewportRef}
-                    data-sea-media-player-layout-content-episode-list
+                    data-vc-element="inline-layout-episode-list-container"
                     className={cn(
                         "2xl:max-w-[450px] w-full relative 2xl:sticky overflow-y-auto pr-4 pt-0",
                         theaterMode ? "2xl:max-w-full h-[75dvh]" : "h-[75dvh] 2xl:h-auto",
                     )}
                     style={!theaterMode ? { height: "var(--player-height, 75dvh)" } as React.CSSProperties : undefined}
                 >
-                    <div data-sea-media-player-layout-content-episode-list-container className="space-y-3">
+                    <div data-vc-element="inline-layout-episode-list-body" className="space-y-3">
                         {episodeList}
                     </div>
                 </ScrollArea>
             </div> : <div
+                data-vc-element="inline-layout-loading-container"
                 className="grid 2xl:grid-cols-[1fr,450px] gap-4 xl:gap-4"
             >
                 <div className="w-full min-h-[70dvh] relative">

@@ -5,7 +5,7 @@ import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_contai
 import { __torrentSearch_selectionAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { __torrentSearch_fileSelectionTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
-import { atom, useSetAtom } from "jotai/index"
+import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 

@@ -7,9 +7,9 @@ import {
 } from "@/app/(main)/_features/nakama/nakama-watch-party-chat"
 import { nativePlayer_stateAtom } from "@/app/(main)/_features/native-player/native-player.atoms"
 import { vc_isFullscreen, vc_miniPlayer, vc_videoElement } from "@/app/(main)/_features/video-core/video-core"
-import { vc_doFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { VideoCoreControlButtonIcon } from "@/app/(main)/_features/video-core/video-core-control-bar"
 import { vc_menuOpen, VideoCoreMenu } from "@/app/(main)/_features/video-core/video-core-menu"
+import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { useAtom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import React from "react"
@@ -20,7 +20,7 @@ export function VideoCoreWatchPartyChat() {
     const state = useAtomValue(nativePlayer_stateAtom)
     const videoElement = useAtomValue(vc_videoElement)
     const isFullscreen = useAtomValue(vc_isFullscreen)
-    const flashAction = useSetAtom(vc_doFlashAction)
+    const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
 
     const [open, setOpen] = useAtom(vc_menuOpen)
 
@@ -50,7 +50,7 @@ export function VideoCoreWatchPartyChat() {
         }
         previousCountRef.current = unreadCount
         if (!!unreadCount) {
-            flashAction({ message: `New chat message (${unreadCount})`, duration: 600 })
+            showOverlayFeedback({ message: `New chat message (${unreadCount})`, duration: 1000 })
         }
     }, [unreadCount])
 

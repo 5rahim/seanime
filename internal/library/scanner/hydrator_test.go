@@ -4,6 +4,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata_provider"
 	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -23,7 +24,9 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	require.NoError(t, err)
 	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations(t.Context())
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
@@ -102,14 +105,14 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// +---------------------+
 
 			fh := &FileHydrator{
-				LocalFiles:         lfs,
-				AllMedia:           mc.NormalizedMedia,
-				CompleteAnimeCache: completeAnimeCache,
-				Platform:           anilistPlatform,
-				AnilistRateLimiter: anilistRateLimiter,
-				MetadataProvider:   metadataProvider,
-				Logger:             logger,
-				ScanLogger:         scanLogger,
+				LocalFiles:          lfs,
+				AllMedia:            mc.NormalizedMedia,
+				CompleteAnimeCache:  completeAnimeCache,
+				PlatformRef:         util.NewRef(anilistPlatform),
+				AnilistRateLimiter:  anilistRateLimiter,
+				MetadataProviderRef: util.NewRef(metadataProvider),
+				Logger:              logger,
+				ScanLogger:          scanLogger,
 			}
 
 			fh.HydrateMetadata()

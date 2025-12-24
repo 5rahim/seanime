@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"seanime/internal/constants"
@@ -22,7 +23,28 @@ func (m *Manager) connectToHost() {
 		return
 	}
 
-	m.logger.Info().Str("url", m.settings.RemoteServerURL).Msg("nakama: Connecting to host")
+	// Determine connection mode based on URL
+	connectionMode := ConnectionModeDirect
+	if m.isRoomURL(m.settings.RemoteServerURL) {
+		connectionMode = ConnectionModeRooms
+	}
+
+	m.roomMu.Lock()
+	previousConnectionMode := m.connectionMode
+	m.connectionMode = connectionMode
+	m.roomMu.Unlock()
+
+	// Clear peer ID if switching between connection modes
+	// This ensures we don't reuse a direct mode peer ID in rooms mode or vice versa
+	if previousConnectionMode != "" && previousConnectionMode != connectionMode {
+		m.logger.Debug().
+			Str("previousMode", string(previousConnectionMode)).
+			Str("newMode", string(connectionMode)).
+			Msg("nakama: Connection mode changed, clearing peer ID")
+		m.peerId = ""
+	}
+
+	m.logger.Info().Str("url", m.settings.RemoteServerURL).Str("mode", string(connectionMode)).Msg("nakama: Connecting to host")
 
 	// Cancel any existing connection attempts
 	m.hostMu.Lock()
@@ -42,6 +64,11 @@ func (m *Manager) connectToHost() {
 	m.hostMu.Unlock()
 
 	go m.connectToHostAsync()
+}
+
+// isRoomURL checks if the URL is a Seanime Rooms URL
+func (m *Manager) isRoomURL(rawURL string) bool {
+	return strings.HasPrefix(rawURL, "room://")
 }
 
 // disconnectFromHost disconnects from the Nakama host
@@ -144,6 +171,21 @@ func (m *Manager) connectToHostAsync() {
 
 // attemptHostConnection makes a single connection attempt to the host
 func (m *Manager) attemptHostConnection(connCtx context.Context) error {
+	m.roomMu.RLock()
+	connectionMode := m.connectionMode
+	m.roomMu.RUnlock()
+
+	m.logger.Info().Str("connectionMode", string(connectionMode)).Msg("nakama: Attempting connection")
+
+	if connectionMode == ConnectionModeRooms {
+		return m.attemptRoomConnection(connCtx)
+	}
+
+	return m.attemptDirectConnection(connCtx)
+}
+
+// attemptDirectConnection makes a direct H2P connection to a Seanime host
+func (m *Manager) attemptDirectConnection(connCtx context.Context) error {
 	// Parse URL
 	u, err := url.Parse(m.settings.RemoteServerURL)
 	if err != nil {
@@ -193,11 +235,12 @@ func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 
 	m.peerId = peerID
 	hostConn := &HostConnection{
-		URL:           u.String(),
-		Conn:          conn,
-		Authenticated: false,
-		LastPing:      time.Now(),
-		PeerId:        peerID, // Store our generated PeerID
+		URL:            u.String(),
+		Conn:           conn,
+		Authenticated:  false,
+		LastPing:       time.Now(),
+		PeerId:         peerID,
+		ConnectionMode: ConnectionModeDirect,
 	}
 
 	// Authenticate
@@ -270,7 +313,88 @@ func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 		"connected":     true,
 		"authenticated": true,
 		"url":           hostConn.URL,
-		"peerID":        peerID, // Include our PeerID in the event
+		"peerID":        peerID,
+	})
+
+	// Start handling the connection
+	go m.handleHostConnection(hostConn)
+
+	// Start client ping routine
+	go m.clientPingRoutine()
+
+	return nil
+}
+
+// attemptRoomConnection connects to a Seanime Rooms relay as a peer
+func (m *Manager) attemptRoomConnection(connCtx context.Context) error {
+	// Use existing peer ID if reconnecting, generate new one only on first connection
+	// This ensures the peer maintains the same ID across reconnections in rooms mode
+	var peerID string
+	if m.peerId != "" {
+		peerID = m.peerId
+		m.logger.Debug().Str("peerId", peerID).Msg("nakama: Reusing existing peer ID for room reconnection")
+	} else {
+		peerID = uuid.New().String()
+		m.peerId = peerID
+		m.logger.Debug().Str("peerId", peerID).Msg("nakama: Generated new peer ID for room connection")
+	}
+
+	username := m.username
+	if username == "" {
+		username = "Peer_" + util.RandomStringWithAlphabet(8, "bcdefhijklmnopqrstuvwxyz0123456789")
+	}
+
+	roomId := strings.TrimPrefix(m.settings.RemoteServerURL, "room://")
+
+	u, err := url.Parse(fmt.Sprintf("%s/%s/peer", constants.SeanimeRoomsApiWsUrl, roomId))
+	if err != nil {
+		return err
+	}
+	q := u.Query()
+	q.Set("password", m.settings.RemoteServerPassword)
+	q.Set("peerId", peerID)
+	q.Set("name", username)
+	q.Set("version", constants.Version)
+	u.RawQuery = q.Encode()
+	wsURL := u.String()
+
+	// Create a dialer with the connection context
+	dialer := websocket.Dialer{
+		HandshakeTimeout: 10 * time.Second,
+	}
+
+	// Connect with context
+	conn, _, err := dialer.DialContext(connCtx, wsURL, nil)
+	if err != nil {
+		return err
+	}
+
+	m.peerId = peerID
+	hostConn := &HostConnection{
+		URL:            wsURL,
+		Conn:           conn,
+		Authenticated:  true,
+		LastPing:       time.Now(),
+		PeerId:         peerID,
+		Username:       username,
+		ConnectionMode: ConnectionModeRooms,
+	}
+
+	// Set the connection and cancel any existing reconnection timer
+	m.hostMu.Lock()
+	if m.hostConnection != nil && m.hostConnection.reconnectTimer != nil {
+		m.hostConnection.reconnectTimer.Stop()
+	}
+	m.hostConnection = hostConn
+	m.hostMu.Unlock()
+
+	// Send event to client about successful connection
+	m.wsEventManager.SendEvent(events.NakamaHostConnected, map[string]interface{}{
+		"connected":      true,
+		"authenticated":  true,
+		"url":            m.settings.RemoteServerURL,
+		"peerID":         peerID,
+		"connectionMode": ConnectionModeRooms,
 	})
 
 	// Start handling the connection
@@ -285,7 +409,13 @@ func (m *Manager) attemptHostConnection(connCtx context.Context) error {
 // handleHostConnection handles messages from the host
 func (m *Manager) handleHostConnection(hostConn *HostConnection) {
 	defer func() {
+		// Devnote: If the host is in a room, and the peer is connecting in direct mode the connection will be restarted repeatedly
+		// So by default, the host won't accept direct connection when in room mode
 		m.logger.Info().Msg("nakama: Host connection closed")
+
+		m.roomMu.RLock()
+		connectionMode := m.connectionMode
+		m.roomMu.RUnlock()
 
 		m.hostMu.Lock()
 		if m.hostConnection == hostConn {
@@ -293,10 +423,12 @@ func (m *Manager) handleHostConnection(hostConn *HostConnection) {
 		}
 		m.hostMu.Unlock()
 
-		// Send event to client about disconnection
-		m.wsEventManager.SendEvent(events.NakamaHostDisconnected, map[string]interface{}{
-			"connected": false,
-		})
+		if connectionMode == ConnectionModeDirect {
+			// Send event to client about disconnection
+			m.wsEventManager.SendEvent(events.NakamaHostDisconnected, map[string]interface{}{
+				"connected": false,
+			})
+		}
 
 		// Attempt reconnection after a delay if settings are still valid and not already reconnecting
 		m.hostMu.Lock()
@@ -368,18 +500,36 @@ func (m *Manager) clientPingRoutine() {
 				return
 			}
 
-			// Send ping
-			message := &Message{
-				Type:      MessageTypePing,
-				Payload:   nil,
-				Timestamp: time.Now(),
-			}
+			m.roomMu.RLock()
+			connectionMode := m.connectionMode
+			m.roomMu.RUnlock()
 
-			if err := m.hostConnection.SendMessage(message); err != nil {
-				m.logger.Error().Err(err).Msg("nakama: Failed to send ping to host")
-				m.hostConnection.Close()
-				m.hostMu.RUnlock()
-				return
+			if connectionMode == ConnectionModeRooms {
+				// ping frames for rooms mode
+				if err := m.hostConnection.Conn.WriteControl(
+					websocket.PingMessage,
+					[]byte{},
+					time.Now().Add(10*time.Second),
+				); err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to send ping to room")
+					m.hostConnection.Close()
+					m.hostMu.RUnlock()
+					return
+				}
+			} else {
+				// Send app-level ping for direct mode
+				message := &Message{
+					Type:      MessageTypePing,
+					Payload:   nil,
+					Timestamp: time.Now(),
+				}
+
+				if err := m.hostConnection.SendMessage(message); err != nil {
+					m.logger.Error().Err(err).Msg("nakama: Failed to send ping to host")
+					m.hostConnection.Close()
+					m.hostMu.RUnlock()
+					return
+				}
 			}
 			m.hostMu.RUnlock()
 		}

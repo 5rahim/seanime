@@ -2,12 +2,13 @@ package anilist
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 //func TestHiddenFromStatus(t *testing.T) {
@@ -176,6 +177,7 @@ func TestListAnime(t *testing.T) {
 		SeasonYear          *int
 		Format              *MediaFormat
 		IsAdult             *bool
+		CountryOfOrigin     *string
 	}{
 		{
 			name:                "Popular",
@@ -190,8 +192,11 @@ func TestListAnime(t *testing.T) {
 			SeasonYear:          nil,
 			Format:              nil,
 			IsAdult:             nil,
+			CountryOfOrigin:     nil,
 		},
 	}
+
+	anilistClient := TestGetMockAnilistClient()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -208,11 +213,13 @@ func TestListAnime(t *testing.T) {
 				tt.SeasonYear,
 				tt.Format,
 				tt.IsAdult,
+				tt.CountryOfOrigin,
 			)
 
 			t.Log(cacheKey)
 
 			res, err := ListAnimeM(
+				anilistClient,
 				tt.Page,
 				tt.Search,
 				tt.PerPage,
@@ -224,6 +231,7 @@ func TestListAnime(t *testing.T) {
 				tt.SeasonYear,
 				tt.Format,
 				tt.IsAdult,
+				tt.CountryOfOrigin,
 				util.NewLogger(),
 				"",
 			)

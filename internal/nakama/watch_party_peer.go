@@ -443,37 +443,37 @@ func (wpm *WatchPartyManager) handleWatchPartyStateChangedEvent(payload *WatchPa
 			wpm.manager.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("Watch party: Failed to play media: %s", err.Error()))
 		}
 
-		// Auto-leave the watch party when playback stops
-		// The user will have to re-join to start the stream again
-		if payload.Session.CurrentMediaInfo.StreamType != WatchPartyStreamTypeOnlinestream && !participant.IsRelayOrigin {
-			// Clean up old listener
-			if wpm.peerPlaybackListener != nil {
-				wpm.manager.genericPlayer.Unsubscribe(NakamaPeerListenerID)
-				wpm.peerPlaybackListener = nil
-			}
-
-			wpm.peerPlaybackListener = wpm.manager.genericPlayer.Subscribe(NakamaPeerListenerID)
-			go func() {
-				defer util.HandlePanicInModuleThen("nakama/handleWatchPartyStateChangedEvent/autoLeaveWatchParty", func() {})
-
-				for {
-					select {
-					case <-wpm.sessionCtx.Done():
-						wpm.manager.genericPlayer.Unsubscribe(NakamaPeerListenerID)
-						return
-					case event, ok := <-wpm.peerPlaybackListener.EventCh:
-						if !ok {
-							return
-						}
-						switch event.(type) {
-						case *WatchPartyPlayerVideoEnded:
-							_ = wpm.LeaveWatchParty()
-							return
-						}
-					}
-				}
-			}()
-		}
+		//// Auto-leave the watch party when playback stops
+		//// The user will have to re-join to start the stream again
+		//if payload.Session.CurrentMediaInfo.StreamType != WatchPartyStreamTypeOnlinestream && !participant.IsRelayOrigin {
+		//	// Clean up old listener
+		//	if wpm.peerPlaybackListener != nil {
+		//		wpm.manager.genericPlayer.Unsubscribe(NakamaPeerListenerID)
+		//		wpm.peerPlaybackListener = nil
+		//	}
+		//
+		//	wpm.peerPlaybackListener = wpm.manager.genericPlayer.Subscribe(NakamaPeerListenerID)
+		//	go func() {
+		//		defer util.HandlePanicInModuleThen("nakama/handleWatchPartyStateChangedEvent/autoLeaveWatchParty", func() {})
+		//
+		//		for {
+		//			select {
+		//			case <-wpm.sessionCtx.Done():
+		//				wpm.manager.genericPlayer.Unsubscribe(NakamaPeerListenerID)
+		//				return
+		//			case event, ok := <-wpm.peerPlaybackListener.EventCh:
+		//				if !ok {
+		//					return
+		//				}
+		//				switch event.(type) {
+		//				case *WatchPartyPlayerVideoEnded:
+		//					_ = wpm.LeaveWatchParty()
+		//					return
+		//				}
+		//			}
+		//		}
+		//	}()
+		//}
 	}
 
 	//
@@ -677,6 +677,7 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 						}
 						streamStartedPayload.OnlinestreamParams = params
 					}
+					currentSession.mu.Unlock()
 
 				// 2. Stream status changed
 				case *WatchPartyPlayerVideoStatus:
@@ -707,13 +708,14 @@ func (wpm *WatchPartyManager) relayModeListenToPlayerAsOrigin() {
 						State:     event.State,
 						Timestamp: time.Now().UnixNano(),
 					})
+					currentSession.mu.Unlock()
 
 				// 3. Stream stopped
 				case *WatchPartyPlayerVideoEnded:
 					wpm.logger.Debug().Msg("nakama: Relay mode origin stream stopped")
 					_ = wpm.manager.SendMessageToHost(MessageTypeWatchPartyRelayModeOriginPlaybackStopped, nil)
+					currentSession.mu.Unlock()
 				}
-				currentSession.mu.Unlock()
 			}
 		}
 	}()

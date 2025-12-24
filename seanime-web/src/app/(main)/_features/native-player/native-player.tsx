@@ -1,6 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { MKVParser_SubtitleEvent, NativePlayer_PlaybackInfo, NativePlayer_ServerEvent } from "@/api/generated/types"
-import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { vc_miniPlayer, vc_subtitleManager, vc_videoElement, VideoCore } from "@/app/(main)/_features/video-core/video-core"
 import { VideoCoreLifecycleState } from "@/app/(main)/_features/video-core/video-core.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
@@ -32,14 +31,6 @@ export function NativePlayer() {
     React.useEffect(() => {
         qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key] })
     }, [state])
-
-
-    // Update progress
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: isProgressUpdateSuccess } = useUpdateAnimeEntryProgress(
-        state.playbackInfo?.media?.id,
-        state.playbackInfo?.episode?.progressNumber ?? 0,
-        false,
-    )
 
     //
     // Server events

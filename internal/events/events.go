@@ -90,6 +90,9 @@ const (
 	NakamaCustomMessage        = "nakama-custom-message"
 	NakamaStatusRequested      = "nakama-status-requested"
 	NakamaStatus               = "nakama-status"
+	NakamaRoomCreated          = "nakama-room-created"
+	NakamaRoomClosed           = "nakama-room-closed"
+	NakamaRoomReconnected      = "nakama-room-reconnected"
 
 	NakamaOnlineStreamEvent = "nakama-online-stream-event"
 

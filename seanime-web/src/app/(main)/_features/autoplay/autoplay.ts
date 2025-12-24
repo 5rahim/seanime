@@ -6,7 +6,7 @@ import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debri
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { logger } from "@/lib/helpers/debug"
-import { atom } from "jotai/index"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React, { useState } from "react"
@@ -67,26 +67,34 @@ export function useTorrentstreamAutoplay() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
+        // Get the torrent that was previously saved by autoplay
+        // If it's not for the same entry, ignore it
+        let torrentInfo = autoPlayTorrent
+        if (torrentInfo?.entry?.mediaId !== entry.mediaId) {
+            torrentInfo = null
+        }
+
+        // If it's the right torrent and it's a batch, get the next file index to play
         let fileIndex: number | undefined = undefined
-        if (autoPlayTorrent?.batchFiles) {
-            const file = autoPlayTorrent.batchFiles.files?.find(n => n.index === autoPlayTorrent.batchFiles!.current + 1)
+        if (!!torrentInfo && torrentInfo?.batchFiles) {
+            const file = torrentInfo!.batchFiles.files?.find(n => n.index === torrentInfo!.batchFiles!.current + 1)
             if (file) {
                 fileIndex = file.index
             }
         }
 
-        logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: autoPlayTorrent?.torrent })
+        logger("TORRENT STREAM AUTOPLAY").info("Auto playing next episode", { episodeNumber, fileIndex, preload, torrent: torrentInfo?.torrent })
 
-        if (autoPlayTorrent?.torrent?.isBatch) {
+        if (torrentInfo && torrentInfo?.torrent?.isBatch) {
             // If the user provided a torrent, use it
             handleStreamSelection({
                 mediaId: entry.mediaId,
                 episodeNumber: episodeNumber,
                 aniDBEpisode: aniDBEpisode,
-                torrent: autoPlayTorrent.torrent,
+                torrent: torrentInfo.torrent,
                 chosenFileIndex: fileIndex,
-                batchEpisodeFiles: (autoPlayTorrent?.batchFiles && fileIndex !== undefined) ? {
-                    ...autoPlayTorrent.batchFiles,
+                batchEpisodeFiles: (torrentInfo?.batchFiles && fileIndex !== undefined) ? {
+                    ...torrentInfo.batchFiles,
                     current: fileIndex,
                     currentEpisodeNumber: episodeNumber,
                     currentAniDBEpisode: aniDBEpisode,

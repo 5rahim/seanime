@@ -10,8 +10,8 @@ import {
     vc_volume,
     VideoCoreChapterCue,
 } from "@/app/(main)/_features/video-core/video-core"
-import { useVideoCoreFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
+import { useVideoCoreOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import {
     vc_defaultKeybindings,
@@ -572,7 +572,7 @@ export function VideoCoreKeybindingController(props: {
     const setVolume = useSetAtom(vc_storedVolumeAtom)
     const muted = useAtomValue(vc_isMuted)
     const setMuted = useSetAtom(vc_storedMutedAtom)
-    const { flashAction } = useVideoCoreFlashAction()
+    const { showOverlayFeedback } = useVideoCoreOverlayFeedback()
 
     const action = useSetAtom(vc_dispatchAction)
 
@@ -636,10 +636,10 @@ export function VideoCoreKeybindingController(props: {
             e.preventDefault()
             if (video.paused) {
                 await video.play()
-                flashAction({ message: "PLAY", type: "icon" })
+                showOverlayFeedback({ message: "PLAY", type: "icon" })
             } else {
                 video.pause()
-                flashAction({ message: "PAUSE", type: "icon" })
+                showOverlayFeedback({ message: "PAUSE", type: "icon" })
             }
             return
         }
@@ -648,7 +648,7 @@ export function VideoCoreKeybindingController(props: {
         if (e.code === "Home") {
             e.preventDefault()
             seekTo(0)
-            flashAction({ message: "Beginning" })
+            showOverlayFeedback({ message: "Beginning" })
             return
         }
 
@@ -656,7 +656,7 @@ export function VideoCoreKeybindingController(props: {
         if (e.code === "End") {
             e.preventDefault()
             seekTo(video.duration)
-            flashAction({ message: "End" })
+            showOverlayFeedback({ message: "End" })
             return
         }
 
@@ -674,7 +674,7 @@ export function VideoCoreKeybindingController(props: {
             const percentage = digit * 10
             const seekTime = Math.max(0, Math.min(video.duration, (video.duration * percentage) / 100))
             seekTo(seekTime)
-            // flashAction({ message: `${percentage}%` })
+            // showOverlayFeedback({ message: `${percentage}%` })
             return
         }
 
@@ -682,14 +682,14 @@ export function VideoCoreKeybindingController(props: {
         if (e.code === "Comma") {
             e.preventDefault()
             seek(-1 / 24)
-            flashAction({ message: "Previous Frame" })
+            showOverlayFeedback({ message: "Previous Frame" })
             return
         }
 
         if (e.code === "Period") {
             e.preventDefault()
             seek(1 / 24)
-            flashAction({ message: "Next Frame" })
+            showOverlayFeedback({ message: "Next Frame" })
             return
         }
 
@@ -710,12 +710,12 @@ export function VideoCoreKeybindingController(props: {
 
             if (props.introEndTime && props.introStartTime && video.currentTime < props.introEndTime && video.currentTime >= props.introStartTime) {
                 seekTo(props.introEndTime)
-                flashAction({ message: "Skipped Opening" })
+                showOverlayFeedback({ message: "Skipped Opening" })
                 return
             }
             if (props.endingEndTime && props.endingStartTime && video.currentTime < props.endingEndTime && video.currentTime >= props.endingStartTime) {
                 seekTo(props.endingEndTime)
-                flashAction({ message: "Skipped Ending" })
+                showOverlayFeedback({ message: "Skipped Ending" })
                 return
             }
             seek(keybindings.seekForward.value)
@@ -776,17 +776,17 @@ export function VideoCoreKeybindingController(props: {
             e.preventDefault()
             const newRate = Math.min(8, video.playbackRate + keybindings.increaseSpeed.value)
             video.playbackRate = newRate
-            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
+            showOverlayFeedback({ message: `Speed: ${newRate.toFixed(2)}x` })
         } else if (e.code === keybindings.decreaseSpeed.key) {
             e.preventDefault()
             const newRate = Math.max(0.20, video.playbackRate - keybindings.decreaseSpeed.value)
             video.playbackRate = newRate
-            flashAction({ message: `Speed: ${newRate.toFixed(2)}x` })
+            showOverlayFeedback({ message: `Speed: ${newRate.toFixed(2)}x` })
         } else if (e.code === keybindings.takeScreenshot.key) {
             e.preventDefault()
             takeScreenshot()
         }
-    }, [keybindings, volume, muted, seek, active, fullscreen, pip, flashAction, introEndTime, introStartTime, isKeybindingsModalOpen])
+    }, [keybindings, volume, muted, seek, active, fullscreen, pip, showOverlayFeedback, introEndTime, introStartTime, isKeybindingsModalOpen])
 
     // Keyboard shortcut handlers
     const handleNextChapter = useCallback(() => {
@@ -803,16 +803,16 @@ export function VideoCoreKeybindingController(props: {
             seekTo(nextChapter.startTime)
             // Try to get chapter name from video track cues
             const chapterName = nextChapter.text
-            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}` })
+            showOverlayFeedback({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${sortedChapters.indexOf(nextChapter) + 1}` })
         } else {
             // If no next chapter, go to the end
             const lastChapter = sortedChapters[sortedChapters.length - 1]
             if (lastChapter && lastChapter.endTime) {
                 seekTo(lastChapter.endTime)
-                flashAction({ message: "End of chapters" })
+                showOverlayFeedback({ message: "End of chapters" })
             }
         }
-    }, [chapterCues, seekTo, flashAction])
+    }, [chapterCues, seekTo, showOverlayFeedback])
 
     const handlePreviousChapter = useCallback(() => {
         if (!videoRef.current || !chapterCues) return
@@ -833,19 +833,19 @@ export function VideoCoreKeybindingController(props: {
             const previousChapter = sortedChapters[currentChapterIndex - 1]
             seekTo(previousChapter.startTime)
             const chapterName = previousChapter.text
-            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}` })
+            showOverlayFeedback({ message: chapterName ? `Chapter: ${chapterName}` : `Chapter ${currentChapterIndex}` })
         } else if (currentChapterIndex === 0) {
             // Already in first chapter, go to the beginning
             seekTo(0)
             const firstChapter = sortedChapters[0]
             const chapterName = firstChapter.text
-            flashAction({ message: chapterName ? `Chapter: ${chapterName}` : "Chapter 1" })
+            showOverlayFeedback({ message: chapterName ? `Chapter: ${chapterName}` : "Chapter 1" })
         } else {
             // If we can't determine current chapter, just go to the beginning
             seekTo(0)
-            flashAction({ message: "Beginning" })
+            showOverlayFeedback({ message: "Beginning" })
         }
-    }, [chapterCues, seekTo, flashAction])
+    }, [chapterCues, seekTo, showOverlayFeedback])
 
 
     const handleCycleSubtitles = useCallback(() => {
@@ -860,7 +860,7 @@ export function VideoCoreKeybindingController(props: {
             if (nextTrackNumber > -1) {
                 subtitleManager?.selectTrack(nextTrackNumber)
                 const trackName = subtitleManager.getTrack(nextTrackNumber)?.label || `Track ${nextTrackNumber}`
-                flashAction({ message: `Subtitles: ${trackName}` })
+                showOverlayFeedback({ message: `Subtitles: ${trackName}` })
                 found = true
             }
         }
@@ -873,13 +873,13 @@ export function VideoCoreKeybindingController(props: {
             if (nextTrack) {
                 mediaCaptionsManager?.selectTrack(nextTrackIdx)
                 const trackName = mediaCaptionsManager.getTrack(nextTrackIdx)?.label || `Track ${nextTrackIdx}`
-                flashAction({ message: `Subtitles: ${trackName}` })
+                showOverlayFeedback({ message: `Subtitles: ${trackName}` })
                 found = true
             }
         }
 
         if (!found) {
-            flashAction({ message: "Subtitles: Off" })
+            showOverlayFeedback({ message: "Subtitles: Off" })
             subtitleManager?.setNoTrack()
             mediaCaptionsManager?.setNoTrack()
         }
@@ -892,7 +892,7 @@ export function VideoCoreKeybindingController(props: {
         if (audioManager.isHlsStream()) {
             const currentTrackNumber = audioManager.getSelectedTrackNumberOrNull()
             if (currentTrackNumber === null) {
-                flashAction({ message: "No additional audio tracks" })
+                showOverlayFeedback({ message: "No additional audio tracks" })
                 return
             }
             const audioTracks = audioManager.getHlsAudioTracks()
@@ -902,7 +902,7 @@ export function VideoCoreKeybindingController(props: {
             const nextTrack = audioTracks.find(n => n.id === nextTrackNumber)
             if (nextTrack) {
                 const trackName = nextTrack.name || nextTrack.language || `Track ${nextTrack.id + 1}`
-                flashAction({ message: `Audio: ${trackName}` })
+                showOverlayFeedback({ message: `Audio: ${trackName}` })
                 audioManager.selectTrack(nextTrackNumber)
             }
 
@@ -911,7 +911,7 @@ export function VideoCoreKeybindingController(props: {
 
         const audioTracks = videoRef.current.audioTracks
         if (!audioTracks || audioTracks.length <= 1) {
-            flashAction({ message: "No additional audio tracks" })
+            showOverlayFeedback({ message: "No additional audio tracks" })
             return
         }
 
@@ -937,7 +937,7 @@ export function VideoCoreKeybindingController(props: {
         audioManager?.selectTrack(nextIndex)
 
         const trackName = audioTracks[nextIndex].label || audioTracks[nextIndex].language || `Track ${nextIndex + 1}`
-        flashAction({ message: `Audio: ${trackName}` })
+        showOverlayFeedback({ message: `Audio: ${trackName}` })
     }, [audioManager])
 
     const log = logger("VideoCoreKeybindings")

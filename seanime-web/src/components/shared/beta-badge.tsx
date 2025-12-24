@@ -14,3 +14,10 @@ export function AlphaBadge({ className, ...props }: Props) {
         <Badge intent="warning" size="sm" className={cn("align-middle ml-2 border-transparent", className)} {...props}>Alpha</Badge>
     )
 }
+
+
+export function ExperimentalBadge({ className, title = "Experimental", ...props }: Props) {
+    return (
+        <Badge intent="warning" size="sm" className={cn("align-middle ml-2 border-transparent", className)} {...props}>{title}</Badge>
+    )
+}

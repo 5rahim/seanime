@@ -2,7 +2,9 @@ package torrent_analyzer
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -16,9 +18,14 @@ func TestSelectFilesFromSeason(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatalf("Failed to connect to database: %v", err)
+	}
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	metadataProvider := metadata.GetMockProvider(t)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), extensionBankRef, logger, database)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	tests := []struct {
 		name            string
@@ -83,12 +90,12 @@ func TestSelectFilesFromSeason(t *testing.T) {
 			}
 
 			analyzer := NewAnalyzer(&NewAnalyzerOptions{
-				Logger:           logger,
-				Filepaths:        tt.filepaths,
-				Media:            media,
-				Platform:         anilistPlatform,
-				MetadataProvider: metadataProvider,
-				ForceMatch:       false,
+				Logger:              logger,
+				Filepaths:           tt.filepaths,
+				Media:               media,
+				PlatformRef:         util.NewRef(anilistPlatform),
+				MetadataProviderRef: util.NewRef(metadataProvider),
+				ForceMatch:          false,
 			})
 
 			// AnalyzeTorrentFiles

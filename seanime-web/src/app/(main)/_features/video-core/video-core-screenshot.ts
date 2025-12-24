@@ -1,14 +1,14 @@
 import { useAtomValue, useSetAtom } from "jotai"
 import React from "react"
 import { vc_anime4kManager, vc_subtitleManager, vc_videoElement } from "./video-core"
-import { vc_doFlashAction } from "./video-core-action-display"
 import { vc_anime4kOption } from "./video-core-anime-4k"
+import { vc_showOverlayFeedback } from "./video-core-overlay-display"
 
 export function useVideoCoreScreenshot() {
 
     const videoElement = useAtomValue(vc_videoElement)
     const subtitleManager = useAtomValue(vc_subtitleManager)
-    const flashAction = useSetAtom(vc_doFlashAction)
+    const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const anime4kManager = useAtomValue(vc_anime4kManager)
     const anime4kOption = useAtomValue(vc_anime4kOption)
 
@@ -16,7 +16,7 @@ export function useVideoCoreScreenshot() {
 
     async function saveToClipboard(blob: Blob, isAnime4K: boolean = false) {
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
-        flashAction({ message: "Screenshot saved to clipboard", type: "message" })
+        showOverlayFeedback({ message: "Screenshot saved to clipboard", type: "message" })
     }
 
     async function addSubtitles(canvas: HTMLCanvasElement): Promise<void> {
@@ -91,7 +91,7 @@ export function useVideoCoreScreenshot() {
         const isPaused = videoElement.paused
 
         videoElement.pause()
-        flashAction({ message: "Taking screenshot..." })
+        showOverlayFeedback({ message: "Taking screenshot..." })
 
         try {
             let blob: Blob | null = null
@@ -120,7 +120,7 @@ export function useVideoCoreScreenshot() {
         }
         catch (error) {
             console.error("Screenshot failed:", error)
-            flashAction({ message: "Screenshot failed" })
+            showOverlayFeedback({ message: "Screenshot failed" })
         }
         finally {
             if (!isPaused) {

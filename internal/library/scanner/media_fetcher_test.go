@@ -2,7 +2,9 @@ package scanner
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -19,8 +21,14 @@ func TestNewMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	metadataProvider := metadata.GetMockProvider(t)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -81,10 +89,10 @@ func TestNewMediaFetcher(t *testing.T) {
 
 			mf, err := NewMediaFetcher(t.Context(), &MediaFetcherOptions{
 				Enhanced:               tt.enhanced,
-				Platform:               anilistPlatform,
+				PlatformRef:            util.NewRef(anilistPlatform),
 				LocalFiles:             lfs,
 				CompleteAnimeCache:     completeAnimeCache,
-				MetadataProvider:       metadataProvider,
+				MetadataProviderRef:    util.NewRef(metadataProvider),
 				Logger:                 util.NewLogger(),
 				AnilistRateLimiter:     anilistRateLimiter,
 				ScanLogger:             scanLogger,
@@ -113,8 +121,14 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	metaProvider := metadata.GetMockProvider(t)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	metaProvider := metadata_provider.GetMockProvider(t, database)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -161,14 +175,14 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			// +---------------------+
 
 			mf, err := NewMediaFetcher(t.Context(), &MediaFetcherOptions{
-				Enhanced:           tt.enhanced,
-				Platform:           anilistPlatform,
-				LocalFiles:         lfs,
-				CompleteAnimeCache: completeAnimeCache,
-				MetadataProvider:   metaProvider,
-				Logger:             util.NewLogger(),
-				AnilistRateLimiter: anilistRateLimiter,
-				ScanLogger:         scanLogger,
+				Enhanced:            tt.enhanced,
+				PlatformRef:         util.NewRef(anilistPlatform),
+				LocalFiles:          lfs,
+				CompleteAnimeCache:  completeAnimeCache,
+				MetadataProviderRef: util.NewRef(metaProvider),
+				Logger:              util.NewLogger(),
+				AnilistRateLimiter:  anilistRateLimiter,
+				ScanLogger:          scanLogger,
 			})
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
@@ -193,8 +207,14 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
-	metaProvider := metadata.GetMockProvider(t)
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	anilistClientRef := util.NewRef(anilistClient)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClientRef, extensionBankRef, logger, database)
+	metaProvider := metadata_provider.GetMockProvider(t, database)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 

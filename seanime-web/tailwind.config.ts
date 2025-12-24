@@ -325,7 +325,7 @@ function flattenColorPalette(colors: Colors) {
                 result[`${root}${parent === "DEFAULT" ? "" : `-${parent}`}`] = value
             }
         } else {
-            result[root] = children
+            result[root] = children as any
         }
     }
 

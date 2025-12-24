@@ -126,14 +126,29 @@ func (m *Manager) handlePingMessage(message *Message, senderID string) error {
 	}
 
 	if m.settings.IsHost {
-		// We're the host, send pong to peer
-		peerConn, exists := m.peerConnections.Get(senderID)
-		if !exists {
-			return errors.New("peer connection not found")
+		// Check if we're in rooms mode
+		m.roomMu.RLock()
+		connectionMode := m.connectionMode
+		m.roomMu.RUnlock()
+
+		if connectionMode == ConnectionModeRooms {
+			// In rooms mode, send pong through relay server
+			m.hostMu.RLock()
+			defer m.hostMu.RUnlock()
+			if m.hostConnection == nil {
+				return errors.New("not connected to room")
+			}
+			return m.hostConnection.SendMessage(pongMessage)
+		} else {
+			// In direct mode, send pong to specific peer
+			peerConn, exists := m.peerConnections.Get(senderID)
+			if !exists {
+				return errors.New("peer connection not found")
+			}
+			return peerConn.SendMessage(pongMessage)
 		}
-		return peerConn.SendMessage(pongMessage)
 	} else {
-		// We're a client, send pong to host
+		// We're a client, send pong to host (works for both direct and rooms mode)
 		m.hostMu.RLock()
 		defer m.hostMu.RUnlock()
 		if m.hostConnection == nil {
@@ -147,13 +162,27 @@ func (m *Manager) handlePingMessage(message *Message, senderID string) error {
 func (m *Manager) handlePongMessage(message *Message, senderID string) error {
 	// Update last ping time
 	if m.settings.IsHost {
-		// Update peer's last ping time
-		peerConn, exists := m.peerConnections.Get(senderID)
-		if exists {
-			peerConn.LastPing = time.Now()
+		// Check if we're in rooms mode
+		m.roomMu.RLock()
+		connectionMode := m.connectionMode
+		m.roomMu.RUnlock()
+
+		if connectionMode == ConnectionModeRooms {
+			// In rooms mode, update room connection last ping
+			m.hostMu.Lock()
+			if m.hostConnection != nil {
+				m.hostConnection.LastPing = time.Now()
+			}
+			m.hostMu.Unlock()
+		} else {
+			// In direct mode, update peer's last ping time
+			peerConn, exists := m.peerConnections.Get(senderID)
+			if exists {
+				peerConn.LastPing = time.Now()
+			}
 		}
 	} else {
-		// Update host's last ping time
+		// Update host's last ping time (works for both direct and rooms mode)
 		m.hostMu.Lock()
 		if m.hostConnection != nil {
 			m.hostConnection.LastPing = time.Now()

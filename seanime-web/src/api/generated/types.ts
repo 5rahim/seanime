@@ -3887,6 +3887,13 @@ export type Models_TorrentstreamSettings = {
  * - Filepath: internal/nakama/nakama.go
  * - Filename: nakama.go
  * - Package: nakama
+ */
+export type Nakama_ConnectionMode = "direct" | "rooms"
+
+/**
+ * - Filepath: internal/nakama/nakama.go
+ * - Filename: nakama.go
+ * - Package: nakama
  * @description
  *  HostConnectionStatus represents the status of the host connection
  */
@@ -3897,6 +3904,7 @@ export type Nakama_HostConnectionStatus = {
     lastPing?: string
     peerId: string
     username: string
+    connectionMode: Nakama_ConnectionMode
 }
 
 /**
@@ -3951,6 +3959,26 @@ export type Nakama_NakamaStatus = {
     isConnectedToHost: boolean
     hostConnectionStatus?: Nakama_HostConnectionStatus
     currentWatchPartySession?: Nakama_WatchPartySession
+    connectionMode: Nakama_ConnectionMode
+    /**
+     * Current room if in rooms mode
+     */
+    currentRoom?: Nakama_Room
+}
+
+/**
+ * - Filepath: internal/nakama/room.go
+ * - Filename: room.go
+ * - Package: nakama
+ * @description
+ *  Room represents a Seanime Rooms relay room
+ */
+export type Nakama_Room = {
+    roomId: string
+    hostWsUrl: string
+    peerJoinUrl: string
+    createdAt?: string
+    expiresAt?: string
 }
 
 /**
@@ -3986,10 +4014,8 @@ export type Nakama_WatchPartySession = {
      * can be nil if not set
      */
     currentMediaInfo?: Nakama_WatchPartySessionMediaInfo
-    /**
-     * Whether this session is in relay mode
-     */
     isRelayMode: boolean
+    isRoom: boolean
 }
 
 /**
@@ -4826,6 +4852,7 @@ export type VideoCore_ServerEvent = "pause" |
     "show-message" |
     "play-playlist-episode" |
     "get-text-tracks" |
+    "request-play-episode" |
     "get-fullscreen" |
     "get-pip" |
     "get-anime-4k" |

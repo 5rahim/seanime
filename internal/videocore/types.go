@@ -385,6 +385,7 @@ const (
 	ServerEventShowMessage                 ServerEvent = "show-message"
 	ServerEventPlayPlaylistEpisode         ServerEvent = "play-playlist-episode"
 	ServerEventGetTextTracks               ServerEvent = "get-text-tracks"
+	ServerEventRequestPlayEpisode          ServerEvent = "request-play-episode"
 	// State requests
 	ServerEventGetFullscreen        ServerEvent = "get-fullscreen"
 	ServerEventGetPip               ServerEvent = "get-pip"

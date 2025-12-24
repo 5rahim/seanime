@@ -6,7 +6,6 @@ import {
     vc_mediaCaptionsManager,
     vc_subtitleManager,
 } from "@/app/(main)/_features/video-core/video-core"
-import { vc_doFlashAction } from "@/app/(main)/_features/video-core/video-core-action-display"
 import { Anime4KManagerOptionChangedEvent } from "@/app/(main)/_features/video-core/video-core-anime-4k-manager"
 import { AudioManagerHlsTrackChangedEvent, AudioManagerTrackChangedEvent } from "@/app/(main)/_features/video-core/video-core-audio"
 import { FullscreenManagerChangedEvent, vc_fullscreenManager } from "@/app/(main)/_features/video-core/video-core-fullscreen"
@@ -15,6 +14,7 @@ import {
     MediaCaptionsTrackInfo,
     MediaCaptionsTrackSelectedEvent,
 } from "@/app/(main)/_features/video-core/video-core-media-captions"
+import { vc_showOverlayFeedback } from "@/app/(main)/_features/video-core/video-core-overlay-display"
 import { PipManagerToggledEvent, vc_pipManager } from "@/app/(main)/_features/video-core/video-core-pip"
 import { useVideoCorePlaylist, VideoCorePlaylistState } from "@/app/(main)/_features/video-core/video-core-playlist"
 import { SubtitleManagerTrackDeselectedEvent, SubtitleManagerTrackSelectedEvent } from "@/app/(main)/_features/video-core/video-core-subtitles"
@@ -98,7 +98,7 @@ export function useVideoCoreSetupEvents(id: string,
     const pipManager = useAtomValue(vc_pipManager)
     const audioManager = useAtomValue(vc_audioManager)
     const autoNext = useAtomValue(vc_autoNextAtom)
-    const flashAction = useSetAtom(vc_doFlashAction)
+    const showOverlayFeedback = useSetAtom(vc_showOverlayFeedback)
     const { playEpisode: playPlaylistEpisode, playlistState } = useVideoCorePlaylist()
 
     // React.useEffect(() => {
@@ -577,7 +577,7 @@ export function useVideoCoreSetupEvents(id: string,
                     } else if (mediaCaptionsManager) {
                         mediaCaptionsManager.addCaptionTrack(fileTrack)
                     }
-                    flashAction({ message: `Subtitle track added: ${fileTrack.label}`, type: "message", duration: 1500 })
+                    showOverlayFeedback({ message: `Subtitle track added: ${fileTrack.label}`, type: "message", duration: 1500 })
                     break
                 case "set-media-caption-track":
                     log.info("Set media caption track event received", payload)
@@ -657,7 +657,7 @@ export function useVideoCoreSetupEvents(id: string,
                 case "show-message":
                     log.info("Show message event received", payload)
                     const data = payload as { message: string, duration?: number }
-                    flashAction({ message: data.message, type: "message", duration: data.duration ?? 2000 })
+                    showOverlayFeedback({ message: data.message, type: "message", duration: data.duration ?? 2000 })
                     break
                 case "get-playlist":
                     log.info("Get playlist event received")

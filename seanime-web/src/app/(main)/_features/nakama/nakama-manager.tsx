@@ -6,17 +6,21 @@ import {
     VideoCore_ServerEvent,
 } from "@/api/generated/types"
 import {
+    useNakamaCreateAndJoinRoom,
     useNakamaCreateWatchParty,
+    useNakamaDisconnectFromRoom,
     useNakamaJoinWatchParty,
     useNakamaLeaveWatchParty,
     useNakamaReconnectToHost,
     useNakamaRemoveStaleConnections,
+    useNakamaRoomsAvailable,
 } from "@/api/hooks/nakama.hooks"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useNakamaOnlineStreamWatchParty } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
-import { BetaBadge } from "@/components/shared/beta-badge"
+import { BetaBadge, ExperimentalBadge } from "@/components/shared/beta-badge"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { GlowingEffect } from "@/components/shared/glowing-effect"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +28,9 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
+import { copyToClipboard } from "@/lib/helpers/browser"
 import { WSEvents } from "@/lib/server/ws-events"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { atom, useAtom, useAtomValue } from "jotai"
@@ -32,8 +38,9 @@ import React from "react"
 import { BiCog } from "react-icons/bi"
 import { FaBroadcastTower } from "react-icons/fa"
 import { HiOutlinePlay } from "react-icons/hi2"
-import { LuPopcorn } from "react-icons/lu"
+import { LuClipboard, LuPopcorn } from "react-icons/lu"
 import { MdAdd, MdCleaningServices, MdOutlineConnectWithoutContact, MdPlayArrow, MdRefresh } from "react-icons/md"
+import { TbCloudPlus } from "react-icons/tb"
 import { toast } from "sonner"
 import { ElectronPlaybackMethod, useCurrentDevicePlaybackSettings } from "../../_atoms/playback.atoms"
 
@@ -61,9 +68,16 @@ export function useNakamaWatchParty() {
         return nakamaStatus?.isHost || !!(currentUserPeerId && currentUserPeerId in watchPartySession.participants)
     }, [watchPartySession, nakamaStatus, currentUserPeerId])
 
+    const isPeer = React.useMemo(() => {
+        if (!isParticipant || currentUserPeerId === "host" || !currentUserPeerId || !watchPartySession) return false
+        return !watchPartySession?.participants?.[currentUserPeerId]?.isRelayOrigin
+    }, [watchPartySession])
+
     return {
         watchPartySession,
         isParticipant,
+        isPeer: isPeer,
+        isHost: currentUserPeerId === "host",
         currentUserPeerId,
     }
 }
@@ -73,14 +87,20 @@ export function NakamaManager() {
     const [isModalOpen, setIsModalOpen] = useAtom(nakamaModalOpenAtom)
     const [nakamaStatus, setNakamaStatus] = useAtom(nakamaStatusAtom)
     const clientId = useAtomValue(clientIdAtom)
+    const serverStatus = useServerStatus()
 
     const watchPartySession = React.useMemo(() => nakamaStatus?.currentWatchPartySession, [nakamaStatus])
+
+    const roomInfo = nakamaStatus?.currentRoom
 
     const { mutate: reconnectToHost, isPending: isReconnecting } = useNakamaReconnectToHost()
     const { mutate: removeStaleConnections, isPending: isCleaningUp } = useNakamaRemoveStaleConnections()
     const { mutate: createWatchParty, isPending: isCreatingWatchParty } = useNakamaCreateWatchParty()
     const { mutate: joinWatchParty, isPending: isJoiningWatchParty } = useNakamaJoinWatchParty()
     const { mutate: leaveWatchParty, isPending: isLeavingWatchParty } = useNakamaLeaveWatchParty()
+    const { mutate: createAndJoinRoom, isPending: isCreatingRoom } = useNakamaCreateAndJoinRoom()
+    const { mutate: disconnectFromRoom, isPending: isDisconnectingFromRoom } = useNakamaDisconnectFromRoom()
+    const { data: roomsAvailable } = useNakamaRoomsAvailable()
 
     // Watch party settings for creating a new session
     const [watchPartySettings, setWatchPartySettings] = React.useState<Nakama_WatchPartySessionSettings>({
@@ -183,6 +203,42 @@ export function NakamaManager() {
         })
     }, [leaveWatchParty, refetchStatus])
 
+    const handleCreateRoom = React.useCallback(() => {
+        createAndJoinRoom(undefined, {
+            onSuccess: () => {
+                toast.success("Room created successfully")
+                refetchStatus()
+            },
+        })
+    }, [createAndJoinRoom, refetchStatus])
+
+    const handleDisconnectFromRoom = React.useCallback(() => {
+        disconnectFromRoom(undefined, {
+            onSuccess: () => {
+                toast.info("Disconnected from room")
+                refetchStatus()
+            },
+            onError: (error) => {
+                toast.error(`Failed to disconnect from room: ${error.message}`)
+            },
+        })
+    }, [disconnectFromRoom, refetchStatus])
+
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_ROOM_CLOSED,
+        onMessage: () => {
+            refetchStatus()
+        },
+    })
+
+    useWebsocketMessageListener({
+        type: WSEvents.NAKAMA_ROOM_RECONNECTED,
+        onMessage: (data: { roomId: string }) => {
+            // toast.success("Reconnected to room")
+            refetchStatus()
+        },
+    })
+
     useWebsocketMessageListener({
         type: WSEvents.NAKAMA_HOST_STARTED,
         onMessage: () => {
@@ -244,6 +300,15 @@ export function NakamaManager() {
                     startOnlineStreamWatchParty(data)
             }
         },
+    })
+
+    const confirmRoom = useConfirmationDialog({
+        title: "Create a Cloud Room",
+        description: "By continuing, you agree to broadcast your playback state through Seanime's servers to sync with peers only the room is active. You are limited to 10 rooms per day and 4 peers per room (subject to change).",
+        onConfirm: () => {
+            handleCreateRoom()
+        },
+        actionIntent: "white-glass",
     })
 
     return <>
@@ -310,20 +375,123 @@ export function NakamaManager() {
                                     {isCleaningUp ? "Cleaning up..." : "Remove stale connections"}
                                 </Button>
                             </div>
-                            <h4>Connected peers ({nakamaStatus?.connectedPeers?.length ?? 0})</h4>
-                            <div className="p-4 border rounded-lg bg-gray-950">
-                                {!nakamaStatus?.connectedPeers?.length &&
-                                    <p className="text-center text-sm text-[--muted]">No connected peers</p>}
-                                {nakamaStatus?.connectedPeers?.map((peer, index) => (
-                                    <div key={index} className="flex items-center justify-between py-1">
-                                        <span className="font-medium">{peer}</span>
+
+                            {/* Cloud Rooms */}
+                            {nakamaStatus?.connectionMode === "rooms" && roomInfo
+                                ? (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <h4>Cloud Room</h4>
+                                            <Button
+                                                onClick={handleDisconnectFromRoom}
+                                                disabled={isDisconnectingFromRoom}
+                                                size="sm"
+                                                intent="alert-link"
+                                            >
+                                                {isDisconnectingFromRoom ? "Disconnecting..." : "Disconnect"}
+                                            </Button>
+                                        </div>
+                                        <p className="text-sm text-[--muted]">
+                                            Cloud Rooms do not support local file and debrid playback.
+                                        </p>
+                                        <div className="p-4 border rounded-lg bg-gray-950 space-y-3">
+                                            <div className="space-y-1">
+                                                <span className="text-sm text-[--muted]">Nakama Host URL and Passcode</span>
+                                                <div className="flex items-center gap-2">
+                                                    <TextInput
+                                                        readOnly
+                                                        leftAddon="Host URL"
+                                                        value={`room://${roomInfo.roomId}`}
+                                                        onClick={(e) => e.currentTarget.select()}
+                                                        addonClass="font-bold tracking-wide text-sm pr-2"
+                                                        rightAddon={<>
+                                                            <IconButton
+                                                                size="sm"
+                                                                intent="gray-basic"
+                                                                onClick={() => {
+                                                                    copyToClipboard(`room://${roomInfo.roomId}`)
+                                                                        .then(() => toast.success("Copied to clipboard"))
+                                                                }}
+                                                                icon={<LuClipboard />}
+                                                            />
+                                                        </>}
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <TextInput
+                                                        readOnly
+                                                        leftAddon="Passcode"
+                                                        value={serverStatus?.settings?.nakama?.hostPassword || "No password set"}
+                                                        onClick={(e) => e.currentTarget.select()}
+                                                        addonClass="font-bold tracking-wide text-sm pr-2"
+                                                        rightAddon={<>
+                                                            <IconButton
+                                                                size="sm"
+                                                                intent="gray-basic"
+                                                                onClick={() => {
+                                                                    copyToClipboard(serverStatus?.settings?.nakama?.hostPassword || "")
+                                                                        .then(() => toast.success("Copied to clipboard"))
+                                                                }}
+                                                                icon={<LuClipboard />}
+                                                            />
+                                                        </>}
+                                                    />
+                                                </div>
+                                            </div>
+                                            {roomInfo.expiresAt && <div className="flex items-center gap-1">
+                                                <span className="text-sm text-[--muted]">Expires: </span>
+                                                <span className="text-sm font-semibold">{new Date(roomInfo.expiresAt).toLocaleString()}</span>
+                                            </div>}
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                )
+                                : nakamaStatus?.connectionMode === "direct" && roomsAvailable && (!nakamaStatus?.currentWatchPartySession || (nakamaStatus.currentWatchPartySession && nakamaStatus.currentWatchPartySession?.isRoom)) && (
+                                <div className="space-y-2">
+                                    <div className="p-4 border rounded-lg bg-gray-950">
+                                        <div className="flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <p className="font-bold">
+                                                    Cloud Rooms <ExperimentalBadge title="Public Beta" />
+                                                </p>
+                                                <p className="text-sm text-[--muted] pr-4">
+                                                    Cloud Rooms use Seanime's API to enable hosting watch parties without exposing your server to the
+                                                    internet.
+                                                </p>
+                                            </div>
+                                            <Tooltip
+                                                trigger={<Button
+                                                    onClick={confirmRoom.open}
+                                                    disabled={isCreatingRoom}
+                                                    size="sm"
+                                                    intent="white-glass"
+                                                    leftIcon={<TbCloudPlus className="text-2xl" />}
+                                                >
+                                                    {isCreatingRoom ? "Creating..." : "Create a Cloud Room"}
+                                                </Button>}
+                                            >
+                                                You will automatically join the room.
+                                            </Tooltip>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {nakamaStatus.connectionMode === "direct" && <>
+                                <h4>Direct connections ({nakamaStatus?.connectedPeers?.length ?? 0})</h4>
+                                <div className="p-4 border rounded-lg bg-gray-950">
+                                    {!nakamaStatus?.connectedPeers?.length &&
+                                        <p className="text-center text-sm text-[--muted]">No connected peers</p>}
+                                    {nakamaStatus?.connectedPeers?.map((peer, index) => (
+                                        <div key={index} className="flex items-center justify-between py-1">
+                                            <span className="font-medium">{peer}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>}
                         </>
                     )}
 
-                    {nakamaStatus?.isConnectedToHost && (
+                    {(nakamaStatus?.isConnectedToHost && !nakamaStatus?.isHost) && (
                         <>
 
                             <h4>Host connection</h4>
@@ -334,6 +502,12 @@ export function NakamaManager() {
                                         <span className="font-medium text-sm tracking-wide">
                                             {nakamaStatus?.hostConnectionStatus?.username || "Unknown"}
                                         </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-[--muted]">Connection Mode</span>
+                                        <Badge intent={nakamaStatus?.hostConnectionStatus?.connectionMode === "rooms" ? "primary" : "gray"}>
+                                            {nakamaStatus?.hostConnectionStatus?.connectionMode === "rooms" ? "Cloud Room" : "Direct"}
+                                        </Badge>
                                     </div>
                                 </div>
                             </div>
@@ -360,6 +534,7 @@ export function NakamaManager() {
                                     isHost={isHost}
                                     onLeave={handleLeaveWatchParty}
                                     isLeaving={isLeavingWatchParty}
+                                    isRoom={nakamaStatus.connectionMode === "rooms"}
                                 />
                             )
                         }
@@ -391,6 +566,8 @@ export function NakamaManager() {
                 </div>
             )}
         </Modal>
+
+        <ConfirmationDialog {...confirmRoom} />
     </>
 }
 
@@ -514,9 +691,10 @@ interface WatchPartySessionViewProps {
     isHost: boolean
     onLeave: () => void
     isLeaving: boolean
+    isRoom: boolean
 }
 
-function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPartySessionViewProps) {
+function WatchPartySessionView({ session, isHost, onLeave, isLeaving, isRoom }: WatchPartySessionViewProps) {
     const { sendMessage } = useWebsocketSender()
     const nakamaStatus = useNakamaStatus()
     const participants = Object.values(session.participants || {})
@@ -541,7 +719,7 @@ function WatchPartySessionView({ session, isHost, onLeave, isLeaving }: WatchPar
                 <h4 className="flex items-center gap-2"><LuPopcorn className="size-6" /> Watch Party</h4>
                 <div className="flex items-center gap-2">
                     {/*Enable relay mode*/}
-                    {isHost && !session.isRelayMode && (
+                    {isHost && !session.isRelayMode && !isRoom && (
                         <Tooltip
                             trigger={<IconButton
                                 size="sm"

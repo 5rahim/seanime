@@ -2,7 +2,9 @@ package anime_test
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -16,10 +18,14 @@ import (
 func TestNewLibraryCollection(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 	logger := util.NewLogger()
-	metadataProvider := metadata.GetMockProvider(t)
+
+	database, err := db.NewDatabase(t.TempDir(), "test", logger)
+	assert.NoError(t, err)
+
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), util.NewRef(extension.NewUnifiedBank()), logger, database)
 
 	animeCollection, err := anilistPlatform.GetAnimeCollection(t.Context(), false)
 
@@ -78,10 +84,10 @@ func TestNewLibraryCollection(t *testing.T) {
 		)...)
 
 		libraryCollection, err := anime.NewLibraryCollection(t.Context(), &anime.NewLibraryCollectionOptions{
-			AnimeCollection:  animeCollection,
-			LocalFiles:       lfs,
-			Platform:         anilistPlatform,
-			MetadataProvider: metadataProvider,
+			AnimeCollection:     animeCollection,
+			LocalFiles:          lfs,
+			PlatformRef:         util.NewRef(anilistPlatform),
+			MetadataProviderRef: util.NewRef(metadataProvider),
 		})
 
 		if assert.NoError(t, err) {

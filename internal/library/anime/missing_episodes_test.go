@@ -2,13 +2,16 @@ package anime_test
 
 import (
 	"context"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/metadata"
+	"seanime/internal/api/metadata_provider"
+	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 // Test to retrieve accurate missing episodes
@@ -16,8 +19,10 @@ import (
 func TestNewMissingEpisodes(t *testing.T) {
 	t.Skip("Outdated test")
 	test_utils.InitTestProvider(t, test_utils.Anilist())
+	logger := util.NewLogger()
+	database, _ := db.NewDatabase(t.TempDir(), "test", logger)
 
-	metadataProvider := metadata.GetMockProvider(t)
+	metadataProvider := metadata_provider.GetMockProvider(t, database)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
@@ -72,9 +77,9 @@ func TestNewMissingEpisodes(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			missingData := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
-				AnimeCollection:  animeCollection,
-				LocalFiles:       tt.localFiles,
-				MetadataProvider: metadataProvider,
+				AnimeCollection:     animeCollection,
+				LocalFiles:          tt.localFiles,
+				MetadataProviderRef: util.NewRef(metadataProvider),
 			})
 
 			assert.Equal(t, tt.expectedMissingEpisodes, len(missingData.Episodes))

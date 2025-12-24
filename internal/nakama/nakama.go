@@ -26,6 +26,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type ConnectionMode string
+
+const (
+	ConnectionModeDirect ConnectionMode = "direct" // H2P using Websockets
+	ConnectionModeRooms  ConnectionMode = "rooms"  // Using the Seanime Rooms relay API
+)
+
 type Manager struct {
 	serverHost              string
 	serverPort              int
@@ -52,6 +59,11 @@ type Manager struct {
 	hostConnectionCancel context.CancelFunc
 	hostMu               sync.RWMutex
 	reconnecting         bool // Flag to prevent multiple concurrent reconnection attempts
+
+	// Room management (for relay mode)
+	currentRoom    *Room
+	connectionMode ConnectionMode
+	roomMu         sync.RWMutex
 
 	// Connection management
 	cancel context.CancelFunc
@@ -140,6 +152,7 @@ type HostConnection struct {
 	Conn           *websocket.Conn
 	Authenticated  bool
 	LastPing       time.Time
+	ConnectionMode ConnectionMode
 	reconnectTimer *time.Timer
 	mu             sync.RWMutex
 }
@@ -172,12 +185,13 @@ type ErrorPayload struct {
 
 // HostConnectionStatus represents the status of the host connection
 type HostConnectionStatus struct {
-	Connected     bool      `json:"connected"`
-	Authenticated bool      `json:"authenticated"`
-	URL           string    `json:"url"`
-	LastPing      time.Time `json:"lastPing"`
-	PeerId        string    `json:"peerId"`
-	Username      string    `json:"username"`
+	Connected      bool           `json:"connected"`
+	Authenticated  bool           `json:"authenticated"`
+	URL            string         `json:"url"`
+	LastPing       time.Time      `json:"lastPing"`
+	PeerId         string         `json:"peerId"`
+	Username       string         `json:"username"`
+	ConnectionMode ConnectionMode `json:"connectionMode"`
 }
 
 // NakamaStatus represents the overall status of Nakama connections
@@ -187,6 +201,8 @@ type NakamaStatus struct {
 	IsConnectedToHost        bool                  `json:"isConnectedToHost"`
 	HostConnectionStatus     *HostConnectionStatus `json:"hostConnectionStatus"`
 	CurrentWatchPartySession *WatchPartySession    `json:"currentWatchPartySession"`
+	ConnectionMode           ConnectionMode        `json:"connectionMode"`
+	CurrentRoom              *Room                 `json:"currentRoom,omitempty"` // Current room if in rooms mode
 }
 
 // MessageResponse represents a response to message sending requests
@@ -231,6 +247,7 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		useDenshiPlayer:         false,
 		directstreamManager:     opts.DirectStreamManager,
 		isOfflineRef:            opts.IsOfflineRef,
+		connectionMode:          ConnectionModeDirect, // Default to direct mode
 	}
 
 	m.genericPlayer = NewWatchPartyGenericPlayer(m)
@@ -268,12 +285,20 @@ func NewManager(opts *NewManagerOptions) *Manager {
 				}
 
 				currSession, _ := m.GetWatchPartyManager().GetCurrentSession()
+
+				m.roomMu.RLock()
+				currentRoom := m.currentRoom
+				connectionMode := m.connectionMode
+				m.roomMu.RUnlock()
+
 				status := &NakamaStatus{
 					IsHost:                   m.IsHost(),
 					ConnectedPeers:           m.GetConnectedPeers(),
 					IsConnectedToHost:        m.IsConnectedToHost(),
 					HostConnectionStatus:     m.GetHostConnectionStatus(),
 					CurrentWatchPartySession: currSession,
+					CurrentRoom:              currentRoom,
+					ConnectionMode:           connectionMode,
 				}
 				m.wsEventManager.SendEvent(events.NakamaStatus, status)
 			}
@@ -414,6 +439,14 @@ func (m *Manager) Cleanup() {
 	}
 	m.hostMu.Unlock()
 
+	// Cleanup room
+	m.roomMu.Lock()
+	if m.currentRoom != nil {
+		m.currentRoom = nil
+	}
+	m.connectionMode = ConnectionModeDirect
+	m.roomMu.Unlock()
+
 	// Cleanup host connections
 	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
 		conn.Close()
@@ -454,6 +487,17 @@ func (m *Manager) SendMessage(msgType MessageType, payload interface{}) error {
 		Timestamp: time.Now(),
 	}
 
+	// Check if we're in room mode
+	m.roomMu.RLock()
+	connectionMode := m.connectionMode
+	m.roomMu.RUnlock()
+
+	if connectionMode == ConnectionModeRooms {
+		// Send to room relay server
+		return m.SendMessageToRoom(msgType, payload)
+	}
+
+	// Direct mode, send to all connected peers
 	var lastError error
 	m.peerConnections.Range(func(id string, conn *PeerConnection) bool {
 		if err := conn.SendMessage(message); err != nil {
@@ -552,6 +596,13 @@ func (m *Manager) IsConnectedToHost() bool {
 	return !m.isOfflineRef.Get() && m.hostConnection != nil && m.hostConnection.Authenticated
 }
 
+// IsRoomConnection returns true if IsConnectedToHost and using Rooms API
+func (m *Manager) IsRoomConnection() bool {
+	m.roomMu.RLock()
+	defer m.roomMu.RUnlock()
+	return m.IsConnectedToHost() && m.connectionMode == ConnectionModeRooms
+}
+
 // GetHostConnectionStatus returns the status of the host connection
 func (m *Manager) GetHostConnectionStatus() *HostConnectionStatus {
 	m.hostMu.RLock()
@@ -562,12 +613,13 @@ func (m *Manager) GetHostConnectionStatus() *HostConnectionStatus {
 	}
 
 	return &HostConnectionStatus{
-		Connected:     m.hostConnection != nil,
-		Authenticated: m.hostConnection != nil && m.hostConnection.Authenticated,
-		URL:           m.hostConnection.URL,
-		LastPing:      m.hostConnection.LastPing,
-		PeerId:        m.hostConnection.PeerId,
-		Username:      m.hostConnection.Username,
+		Connected:      m.hostConnection != nil,
+		Authenticated:  m.hostConnection != nil && m.hostConnection.Authenticated,
+		URL:            m.hostConnection.URL,
+		LastPing:       m.hostConnection.LastPing,
+		PeerId:         m.hostConnection.PeerId,
+		Username:       m.hostConnection.Username,
+		ConnectionMode: m.hostConnection.ConnectionMode,
 	}
 }
 

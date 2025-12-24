@@ -40,17 +40,18 @@ body:
       options:
         - Other
         - Authentication
-        - Configuration
+        - Built-in Player
+        - Denshi (Desktop app)
         - Anime Library
-        - Transcoding / Media Streaming
         - Torrent Streaming
         - Online Streaming
+        - Transcoding
         - Manga
         - Settings
         - Offline mode
         - AniList
-        - UI / Web Interface
-        - Denshi (Desktop app)
+        - User Interface
+        - Configuration (config.toml)
     validations:
       required: true
   - type: textarea

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -22,12 +23,13 @@ func TestLibraryExplorer_LogFileTreeStructure(t *testing.T) {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, database)
+	extensionBankRef := util.NewRef(extension.NewUnifiedBank())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(util.NewRef(anilistClient), extensionBankRef, logger, database)
 
 	explorer := NewLibraryExplorer(NewLibraryExplorerOptions{
-		Platform: anilistPlatform,
-		Logger:   logger,
-		Database: database,
+		PlatformRef: util.NewRef(anilistPlatform),
+		Logger:      logger,
+		Database:    database,
 	})
 
 	settings, err := database.GetSettings()

@@ -7,32 +7,32 @@ import { motion } from "motion/react"
 import React from "react"
 import { PiPauseDuotone, PiPlayDuotone } from "react-icons/pi"
 
-type VideoCoreFlashAction = {
+type VideoCoreOverlayFeedback = {
     id: string
     message: string
     timestamp: number
     type: "message" | "time" | "icon"
 }
-export const vc_flashAction = atom<VideoCoreFlashAction | null>(null)
-export const vc_flashActionTimeout = atom<ReturnType<typeof setTimeout> | null>(null)
-export const vc_doFlashAction = atom(null, (get, set, payload: { message: string, type?: "message" | "time" | "icon", duration?: number }) => {
+export const vc_overlayFeedback = atom<VideoCoreOverlayFeedback | null>(null)
+export const vc_overlayFeedbackTimeout = atom<ReturnType<typeof setTimeout> | null>(null)
+export const vc_showOverlayFeedback = atom(null, (get, set, payload: { message: string, type?: "message" | "time" | "icon", duration?: number }) => {
     const id = Date.now().toString()
-    const timeout = get(vc_flashActionTimeout)
+    const timeout = get(vc_overlayFeedbackTimeout)
     const paused = get(vc_paused)
-    set(vc_flashAction, { id, message: payload.message, timestamp: Date.now(), type: payload.type ?? "message" })
+    set(vc_overlayFeedback, { id, message: payload.message, timestamp: Date.now(), type: payload.type ?? "message" })
     if (timeout) {
         clearTimeout(timeout)
     }
     const t = setTimeout(() => {
-        set(vc_flashAction, null)
-        set(vc_flashActionTimeout, null)
+        set(vc_overlayFeedback, null)
+        set(vc_overlayFeedbackTimeout, null)
     }, payload.duration ?? (payload.type === "icon" ? 200 : (paused ? 1000 : 500))) // stays longer when paused
-    set(vc_flashActionTimeout, t)
+    set(vc_overlayFeedbackTimeout, t)
 
 })
 
-export function VideoCoreActionDisplay() {
-    const [notification] = useAtom(vc_flashAction)
+export function VideoCoreOverlayDisplay() {
+    const [notification] = useAtom(vc_overlayFeedback)
     const isMiniPlayer = useAtomValue(vc_miniPlayer)
 
     if (!notification) return null
@@ -61,8 +61,9 @@ export function VideoCoreActionDisplay() {
     }
 
     return (
-        <div className="absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+        <div data-vc-overlay-display-container className="absolute top-6 lg:top-16 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
             <div
+                data-vc-overlay-display
                 className={cn(
                     "text-white px-2 py-1 text-sm md:text-md lg:text-xl font-semibold rounded-lg bg-black/50 backdrop-blur-sm tracking-wide",
                     isMiniPlayer && "text-sm",
@@ -74,8 +75,8 @@ export function VideoCoreActionDisplay() {
     )
 }
 
-export function useVideoCoreFlashAction() {
-    const [, flashAction] = useAtom(vc_doFlashAction)
+export function useVideoCoreOverlayFeedback() {
+    const [, showOverlayFeedback] = useAtom(vc_showOverlayFeedback)
 
-    return { flashAction }
+    return { showOverlayFeedback }
 }

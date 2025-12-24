@@ -32,7 +32,7 @@ export type AniSkipTime = {
     episodeLength: number
 }
 
-export function useSkipData(mediaMalId: number | null | undefined, episodeNumber: number) {
+export function useSkipData(mediaMalId: number | null | undefined, episodeNumber: number | null | undefined = -1) {
     const res = useQuery({
         queryKey: ["skip-data", mediaMalId, episodeNumber],
         queryFn: async () => {
