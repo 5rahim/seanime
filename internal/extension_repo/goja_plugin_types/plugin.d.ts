@@ -1084,6 +1084,13 @@ declare namespace $ui {
          * @param callback - The callback to call when the DOM is ready
          */
         onReady(callback: () => void): void
+
+        /**
+         * Called when the main tab is ready or has changed.
+         * This is similar to ctx.dom.onReady but is called each time a tab gains "main" status.
+         * @param callback - The callback to call
+         */
+        onMainTabReady(callback: () => void): void
     }
 
     interface Notification {

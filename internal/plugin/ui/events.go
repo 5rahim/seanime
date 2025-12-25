@@ -50,6 +50,7 @@ const (
 	ClientDOMElementUpdatedEvent ClientEventType = "dom:element-updated"  // When a DOM element is updated
 	ClientDOMEventTriggeredEvent ClientEventType = "dom:event-triggered"  // When a DOM event is triggered
 	ClientDOMReadyEvent          ClientEventType = "dom:ready"            // When a DOM element is ready
+	ClientDOMMainTabReadyEvent   ClientEventType = "dom:main-tab-ready"   // When the main tab has changed
 )
 
 type ClientRenderTrayEventPayload struct{}
@@ -144,6 +145,9 @@ type ClientDOMStopObserveEventPayload struct {
 }
 
 type ClientDOMReadyEventPayload struct {
+}
+
+type ClientDOMMainTabReadyEventPayload struct {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

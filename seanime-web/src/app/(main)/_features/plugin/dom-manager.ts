@@ -90,6 +90,12 @@ export function useDOMManager(extensionId: string) {
         safeSendPluginMessage(PluginClientEvents.DOMReady, {})
     }
 
+    const sendDOMMainTabReadyEvent = () => {
+        if (!isMainTabRef.current) return
+        if (disposedRef.current) return
+        safeSendPluginMessage(PluginClientEvents.DOMMainTabReady, {})
+    }
+
     // Convert a DOM element to a serializable object
     const elementToDOMElement = (element: Element, options?: ElementToDOMElementOptions): PluginDOMElement => {
         const attributes: Record<string, string> = {}
@@ -807,7 +813,6 @@ export function useDOMManager(extensionId: string) {
         logger("DOMManager").info("Cleaning up DOMManager for extension", extensionId)
         // Mark as disposed to prevent further message sending
         disposedRef.current = true
-        domReadySentRef.current = false
 
         if (!isMainTabRef.current) {
             // If not main tab, just clear the maps without DOM operations
@@ -819,6 +824,9 @@ export function useDOMManager(extensionId: string) {
             intersectionObserversRef.current.clear()
             return
         }
+
+        // Making sure domReady event is only sent once, even if when the main tab changes
+        domReadySentRef.current = false
 
         // Stop the mutation observer
         if (mutationObserverRef.current) {
@@ -869,12 +877,23 @@ export function useDOMManager(extensionId: string) {
         }
     }
 
+    // Dispatch event each time the main tab changed
+    const previousIsMainTabRef = useRef(isMainTabRef.current)
+    const onMainTabChangedEvent = () => {
+        if (isMainTabRef.current && previousIsMainTabRef.current !== isMainTabRef.current) {
+            sendDOMMainTabReadyEvent()
+        }
+        previousIsMainTabRef.current = isMainTabRef.current
+    }
+
     useEffect(() => {
         if (!isMainTab) return
 
         // Reset disposed state
         disposedRef.current = false
-        domReadySentRef.current = false
+
+        // Making sure domReady event is only sent once, even if when the main tab changes
+        // domReadySentRef.current = false
 
         logger("DOMManager").info("DOMManager hook initialized for extension", extensionId)
 
@@ -885,6 +904,8 @@ export function useDOMManager(extensionId: string) {
             // Otherwise wait for the document to be loaded
             window.addEventListener("load", sendDOMReadyEvent)
         }
+
+        onMainTabChangedEvent()
 
         // Initialize mutation observer
         initMutationObserver()

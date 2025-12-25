@@ -63780,74 +63780,6 @@
   {
     "filepath": "../internal/nakama/room.go",
     "filename": "room.go",
-    "name": "RoomInfo",
-    "formattedName": "Nakama_RoomInfo",
-    "package": "nakama",
-    "fields": [
-      {
-        "name": "RoomID",
-        "jsonName": "roomId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsActive",
-        "jsonName": "isActive",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "HostConnected",
-        "jsonName": "hostConnected",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PeerCount",
-        "jsonName": "peerCount",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CreatedAt",
-        "jsonName": "createdAt",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ExpiresAt",
-        "jsonName": "expiresAt",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " RoomInfo represents information about a room to be sent to the client"
-    ]
-  },
-  {
-    "filepath": "../internal/nakama/room.go",
-    "filename": "room.go",
     "name": "CreateRoomRequest",
     "formattedName": "Nakama_CreateRoomRequest",
     "package": "nakama",
@@ -71670,7 +71602,8 @@
         "\"dom:create-result\"",
         "\"dom:element-updated\"",
         "\"dom:event-triggered\"",
-        "\"dom:ready\""
+        "\"dom:ready\"",
+        "\"dom:main-tab-ready\""
       ]
     },
     "comments": []
@@ -72257,6 +72190,15 @@
     "filename": "events.go",
     "name": "ClientDOMReadyEventPayload",
     "formattedName": "ClientDOMReadyEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMMainTabReadyEventPayload",
+    "formattedName": "ClientDOMMainTabReadyEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []

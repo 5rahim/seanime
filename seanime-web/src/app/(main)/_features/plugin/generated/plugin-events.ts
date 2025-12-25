@@ -34,6 +34,7 @@ export enum PluginClientEvents {
     DOMElementUpdated = "dom:element-updated",
     DOMEventTriggered = "dom:event-triggered",
     DOMReady = "dom:ready",
+    DOMMainTabReady = "dom:main-tab-ready",
 }
 
 export enum PluginServerEvents {
@@ -565,6 +566,20 @@ export function usePluginSendDOMReadyEvent() {
 
     return {
         sendDOMReadyEvent,
+    }
+}
+
+export type Plugin_Client_DOMMainTabReadyEventPayload = {}
+
+export function usePluginSendDOMMainTabReadyEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMMainTabReadyEvent = useCallback((payload: Plugin_Client_DOMMainTabReadyEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMMainTabReady, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMMainTabReadyEvent,
     }
 }
 
