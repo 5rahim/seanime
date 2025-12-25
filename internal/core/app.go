@@ -375,9 +375,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize extension playground for testing extensions
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatformRef, metadataProviderRef)
 
-	// Load extensions in background
-	go LoadExtensions(extensionRepository, logger, cfg)
-
 	// Create the main app instance with initialized components
 	app := &App{
 		Config:                        cfg,
@@ -457,6 +454,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
+
+	// Load extensions synchronously
+	LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize Anilist data if not in offline mode
 	if !app.IsOffline() {
