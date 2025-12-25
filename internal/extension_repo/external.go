@@ -469,6 +469,19 @@ func (r *Repository) ReloadExternalExtension(id string) {
 	runtime.GC()
 }
 
+func (r *Repository) shouldLoadType(t extension.Type) bool {
+	loadOnly, _ := r.loadOnlyType.Load().([]extension.Type)
+	if len(loadOnly) == 0 {
+		return true
+	}
+	for _, lt := range loadOnly {
+		if lt == t {
+			return true
+		}
+	}
+	return false
+}
+
 // interruptExternalGojaExtensionVMs kills all VMs from currently loaded external Goja extensions & clears the Goja extensions map.
 func (r *Repository) interruptExternalGojaExtensionVMs() {
 	defer util.HandlePanicInModuleThen("extension_repo/interruptExternalGojaExtensionVMs", func() {})
@@ -480,6 +493,9 @@ func (r *Repository) interruptExternalGojaExtensionVMs() {
 	//r.gojaExtensions.Clear()
 	for _, key := range r.gojaExtensions.Keys() {
 		if gojaExt, ok := r.gojaExtensions.Get(key); ok {
+			if !r.shouldLoadType(gojaExt.GetExtension().Type) {
+				continue
+			}
 			if gojaExt.GetExtension().ManifestURI != "builtin" {
 				gojaExt.ClearInterrupt()
 				r.gojaExtensions.Delete(key)
@@ -501,13 +517,32 @@ func (r *Repository) unloadExternalExtensions() {
 
 	for _, key := range r.invalidExtensions.Keys() {
 		if invalidExt, ok := r.invalidExtensions.Get(key); ok {
+			if !r.shouldLoadType(invalidExt.Extension.Type) {
+				continue
+			}
 			if invalidExt.Extension.ManifestURI != "builtin" {
 				r.invalidExtensions.Delete(key)
 				count++
 			}
 		}
 	}
-	r.extensionBankRef.Get().RemoveExternalExtensions()
+
+	//r.extensionBankRef.Get().RemoveExternalExtensions()
+	extensionBank := r.extensionBankRef.Get()
+	var ids []string
+	extensionBank.Range(func(id string, ext extension.BaseExtension) bool {
+		if !r.shouldLoadType(ext.GetType()) {
+			return true
+		}
+		if ext.GetManifestURI() != "builtin" {
+			ids = append(ids, id)
+		}
+		return true
+	})
+
+	for _, id := range ids {
+		extensionBank.Delete(id)
+	}
 
 	r.logger.Debug().Int("count", count).Msg("extensions: Unloaded external extensions")
 }
@@ -596,6 +631,11 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	ext, err := extractExtensionFromFile(filePath)
 	if err != nil {
 		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed to read extension file")
+		return
+	}
+
+	// Skip loading the extension if it's not the type specified by loadOnlyType
+	if !r.shouldLoadType(ext.Type) {
 		return
 	}
 

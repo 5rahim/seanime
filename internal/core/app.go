@@ -455,8 +455,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Initialize all modules that depend on settings
 	app.InitOrRefreshModules()
 
-	// Load extensions synchronously
-	LoadExtensions(extensionRepository, logger, cfg)
+	// Load custom source extensions before fetching AniList data
+	LoadCustomSourceExtensions(extensionRepository)
 
 	// Initialize Anilist data if not in offline mode
 	if !app.IsOffline() {
@@ -464,6 +464,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	} else {
 		app.ServerReady = true
 	}
+
+	// Load the other extensions asynchronously
+	go LoadExtensions(extensionRepository, logger, cfg)
 
 	// Initialize mediastream settings (for streaming media)
 	app.InitOrRefreshMediastreamSettings()

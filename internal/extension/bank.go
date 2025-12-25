@@ -94,8 +94,6 @@ func (b *UnifiedBank) Set(id string, ext BaseExtension) {
 	b.extensions.Set(id, ext)
 
 	// Notify listeners that an extension has been added
-	b.mu.Lock()
-	defer b.mu.Unlock()
 
 	go func() {
 		b.subscribers.Range(func(id string, sub *BankSubscriber) bool {
@@ -128,9 +126,6 @@ func (b *UnifiedBank) Delete(id string) {
 	b.extensions.Delete(id)
 
 	// Notify listeners that an extension has been removed
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
 	go func() {
 		b.subscribers.Range(func(id string, sub *BankSubscriber) bool {
 			if sub.closed.Load() {
@@ -175,7 +170,6 @@ func (b *BankSubscriber) ID() string {
 }
 
 func GetExtension[T BaseExtension](bank *UnifiedBank, id string) (ret T, ok bool) {
-	// No need to lock
 	ext, ok := bank.extensions.Get(id)
 	if !ok {
 		return

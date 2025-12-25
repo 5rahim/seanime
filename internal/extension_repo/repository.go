@@ -15,6 +15,7 @@ import (
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -53,6 +54,8 @@ type (
 
 		// Called when the external extensions are loaded for the first time
 		firstExternalExtensionLoadedFunc context.CancelFunc
+
+		loadOnlyType atomic.Value
 	}
 
 	builtinExtension struct {
@@ -136,6 +139,8 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		updateData:         make([]UpdateData, 0),
 	}
 
+	ret.loadOnlyType.Store([]extension.Type{})
+
 	firstExtensionLoadedCtx, firstExtensionLoadedCancel := context.WithCancel(context.Background())
 	ret.firstExternalExtensionLoadedFunc = firstExtensionLoadedCancel
 
@@ -164,6 +169,12 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	}(firstExtensionLoadedCtx)
 
 	return ret
+}
+
+func (r *Repository) LoadOnlyWrapper(only []extension.Type, loadFunc func()) {
+	r.loadOnlyType.Store(only)
+	defer r.loadOnlyType.Store([]extension.Type{})
+	loadFunc()
 }
 
 func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
